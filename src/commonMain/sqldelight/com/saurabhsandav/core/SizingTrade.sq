@@ -1,0 +1,22 @@
+
+CREATE TABLE IF NOT EXISTS SizingTrade (
+ticker TEXT NOT NULL UNIQUE,
+entry TEXT NOT NULL,
+stop TEXT NOT NULL,
+added TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE
+INTO SizingTrade (ticker, entry, stop, added)
+VALUES (?, ?, ?, ?);
+
+getAll:
+SELECT * FROM SizingTrade
+ORDER BY date(added);
+
+delete:
+DELETE FROM SizingTrade WHERE ticker = ?;
+
+deleteAll:
+DELETE FROM SizingTrade;

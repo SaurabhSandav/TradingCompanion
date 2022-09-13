@@ -38,6 +38,7 @@ dependencyResolutionManagement {
 
         create("libs") {
             from("com.saurabhsandav:common-versions:0.65.0")
+            version("sqldelight", "1.5.2")
         }
     }
 }
