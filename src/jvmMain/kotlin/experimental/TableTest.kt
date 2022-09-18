@@ -1,0 +1,69 @@
+/*
+package experimental
+
+import AppModule
+import Table
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import sizing.SizingPresenter
+
+@Composable
+@Preview
+fun App() {
+
+    MaterialTheme {
+
+        val appModule = remember { AppModule() }
+
+        val presenter = remember { SizingPresenter(appModule) }
+        val state by presenter.state.collectAsState()
+
+        Table(
+            items = state.sizedTrades,
+        ) {
+
+            column(
+                header = { Text("Ticker") },
+            ) {
+
+                Text(it.ticker)
+            }
+
+            column(
+                header = { Text("Entry") },
+            ) {
+
+                Text(it.entry)
+            }
+
+            column(
+                header = { Text("Stop") },
+            ) {
+
+                Text(it.stop)
+            }
+        }
+    }
+}
+
+fun main() = application {
+
+    val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
+
+    Window(
+        onCloseRequest = ::exitApplication,
+        state = windowState,
+    ) {
+        App()
+    }
+}
+*/

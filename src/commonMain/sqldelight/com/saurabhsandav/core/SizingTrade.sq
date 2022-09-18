@@ -8,8 +8,8 @@ added TEXT NOT NULL
 
 insert:
 INSERT OR REPLACE
-INTO SizingTrade (ticker, entry, stop, added)
-VALUES (?, ?, ?, ?);
+INTO SizingTrade
+VALUES ?;
 
 getAll:
 SELECT * FROM SizingTrade

@@ -1,6 +1,5 @@
 package sizing
 
-import AppModule
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,35 +12,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun PositionSizer(
-    appModule: AppModule,
+internal fun SizingScreen(
+    presenter: SizingPresenter,
 ) {
-    val presenter = remember { SizingPresenter(appModule) }
+
     val state by presenter.state.collectAsState()
 
     Column {
 
-        val positionSizerTableState = remember { PositionSizerTableState() }
-
-        PositionSizerHeader(positionSizerTableState)
-
-        val scrollState = rememberScrollState()
+        SizingListHeader()
 
         Column(
-            modifier = Modifier.verticalScroll(scrollState),
+            modifier = Modifier.verticalScroll(rememberScrollState()),
         ) {
 
             for (sizedTrade in state.sizedTrades) {
 
-                PositionSizerEntry(
-                    positionSizerTableState = positionSizerTableState,
+                SizingListItem(
                     sizedTrade = sizedTrade,
                     onEntryChanged = { entry -> presenter.updateEntry(sizedTrade, entry) },
                     onStopChanged = { stop -> presenter.updateStop(sizedTrade, stop) },
                 ) { presenter.removeTrade(it) }
             }
 
-            AddTrade(
+            SizingTradeCreator(
                 onAddTrade = { presenter.addTrade(it) },
             )
         }
@@ -49,54 +43,53 @@ internal fun PositionSizer(
 }
 
 @Composable
-private fun PositionSizerHeader(
-    positionSizerTableState: PositionSizerTableState,
-) {
+private fun SizingListHeader() {
 
     Row(Modifier.padding(16.dp)) {
 
         Text(
             text = "Ticker",
-            modifier = Modifier.weight(positionSizerTableState.tickerWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Entry",
-            modifier = Modifier.weight(positionSizerTableState.entryWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Stop",
-            modifier = Modifier.weight(positionSizerTableState.stopWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Calculated Quantity",
-            modifier = Modifier.weight(positionSizerTableState.calculatedQuantityWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Max Affordable Quantity",
-            modifier = Modifier.weight(positionSizerTableState.maxAffordableQuantityWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Entry Quantity",
-            modifier = Modifier.weight(positionSizerTableState.entryQuantityWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = "Target (1x)",
-            modifier = Modifier.weight(positionSizerTableState.target1xWeight),
+            modifier = Modifier.weight(1F),
         )
 
-        Spacer(Modifier.weight(positionSizerTableState.deleteWeight))
+        Spacer(Modifier.weight(1F))
     }
+
+    Divider()
 }
 
 @Composable
-private fun PositionSizerEntry(
-    positionSizerTableState: PositionSizerTableState,
+private fun SizingListItem(
     sizedTrade: SizedTrade,
     onEntryChanged: (entry: String) -> Unit,
     onStopChanged: (stop: String) -> Unit,
@@ -111,10 +104,10 @@ private fun PositionSizerEntry(
 
         Text(
             text = sizedTrade.ticker,
-            modifier = Modifier.weight(positionSizerTableState.tickerWeight),
+            modifier = Modifier.weight(1F),
         )
 
-        var entry by remember(sizedTrade.entry) { mutableStateOf(sizedTrade.entry) }
+        var entry by remember { mutableStateOf(sizedTrade.entry) }
 
         OutlinedTextField(
             value = entry,
@@ -122,11 +115,11 @@ private fun PositionSizerEntry(
                 onEntryChanged(it)
                 entry = it
             },
-            modifier = Modifier.weight(positionSizerTableState.entryWeight),
+            modifier = Modifier.weight(1F),
             isError = entry.toBigDecimalOrNull() == null,
         )
 
-        var stop by remember(sizedTrade.stop) { mutableStateOf(sizedTrade.stop) }
+        var stop by remember { mutableStateOf(sizedTrade.stop) }
 
         OutlinedTextField(
             value = stop,
@@ -134,33 +127,33 @@ private fun PositionSizerEntry(
                 onStopChanged(it)
                 stop = it
             },
-            modifier = Modifier.weight(positionSizerTableState.stopWeight),
+            modifier = Modifier.weight(1F),
             isError = stop.toBigDecimalOrNull() == null,
         )
 
         Text(
             text = sizedTrade.calculatedQuantity,
-            modifier = Modifier.weight(positionSizerTableState.calculatedQuantityWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = sizedTrade.maxAffordableQuantity,
-            modifier = Modifier.weight(positionSizerTableState.maxAffordableQuantityWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = sizedTrade.entryQuantity,
-            modifier = Modifier.weight(positionSizerTableState.entryWeight),
+            modifier = Modifier.weight(1F),
         )
 
         Text(
             text = sizedTrade.target,
-            modifier = Modifier.weight(positionSizerTableState.target1xWeight),
+            modifier = Modifier.weight(1F),
         )
 
         IconButton(
             onClick = { onRemoveTrade(sizedTrade.ticker) },
-            modifier = Modifier.weight(positionSizerTableState.deleteWeight),
+            modifier = Modifier.weight(1F),
         ) {
 
             Icon(
@@ -172,7 +165,7 @@ private fun PositionSizerEntry(
 }
 
 @Composable
-private fun AddTrade(
+private fun SizingTradeCreator(
     onAddTrade: (ticker: String) -> Unit,
 ) {
 

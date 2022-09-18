@@ -1,16 +1,16 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import sizing.SizingPresenter
+import main.MainScreen
 
 @Composable
 @Preview
@@ -20,36 +20,7 @@ fun App() {
 
         val appModule = remember { AppModule() }
 
-//        PositionSizer(appModule)
-
-        val presenter = remember { SizingPresenter(appModule) }
-        val state by presenter.state.collectAsState()
-
-        Table(
-            items = state.sizedTrades,
-        ) {
-
-            column(
-                header = { Text("Ticker") },
-            ) {
-
-                Text(it.ticker)
-            }
-
-            column(
-                header = { Text("Entry") },
-            ) {
-
-                Text(it.entry)
-            }
-
-            column(
-                header = { Text("Stop") },
-            ) {
-
-                Text(it.stop)
-            }
-        }
+        MainScreen(appModule)
     }
 }
 
@@ -61,6 +32,13 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         state = windowState,
     ) {
-        App()
+
+        val density = LocalDensity.current
+
+        val newDensity = Density(density.density * 0.8F, density.fontScale)
+
+        CompositionLocalProvider(LocalDensity provides newDensity) {
+            App()
+        }
     }
 }

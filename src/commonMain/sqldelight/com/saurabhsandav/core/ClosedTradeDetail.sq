@@ -1,0 +1,14 @@
+
+CREATE TABLE IF NOT EXISTS ClosedTradeDetail (
+closedTradeId INTEGER AS Int NOT NULL,
+maxFavorableExcursion TEXT NOT NULL,
+maxAdverseExcursion TEXT NOT NULL,
+persisted INTEGER AS Int,
+persistenceResult TEXT,
+FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id)
+);
+
+insert:
+INSERT
+INTO ClosedTradeDetail(closedTradeId, maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult)
+VALUES (?, ?, ?, ?, ?);

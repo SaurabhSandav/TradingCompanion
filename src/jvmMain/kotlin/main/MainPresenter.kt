@@ -1,4 +1,4 @@
-package sizing
+package main
 
 import Account
 import AppModule
@@ -16,11 +16,13 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import mapList
+import sizing.SizedTrade
+import sizing.SizingState
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.coroutines.CoroutineContext
 
-internal class SizingPresenter(
+internal class MainPresenter(
     private val appModule: AppModule,
 ) {
 
