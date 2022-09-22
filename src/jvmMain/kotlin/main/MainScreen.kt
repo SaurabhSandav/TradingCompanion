@@ -1,6 +1,8 @@
 package main
 
 import AppModule
+import account.AccountPresenter
+import account.AccountScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -16,9 +18,9 @@ internal fun MainScreen(
     appModule: AppModule,
 ) {
 
-    var state by remember { mutableStateOf(1) }
+    var state by remember { mutableStateOf(0) }
 
-    val titles = listOf("Trade Sizing", "Historical Trades")
+    val titles = listOf("Account", "Trade Sizing", "Historical Trades")
 
     Column {
 
@@ -32,12 +34,14 @@ internal fun MainScreen(
             }
         }
 
+        val accountPresenter = remember { AccountPresenter(appModule) }
         val sizingPresenter = remember { SizingPresenter(appModule) }
         val closedTradesPresenter = remember { ClosedTradesPresenter(appModule) }
 
         when (state) {
-            0 -> SizingScreen(sizingPresenter)
-            1 -> ClosedTradesScreen(closedTradesPresenter)
+            0 -> AccountScreen(accountPresenter)
+            1 -> SizingScreen(sizingPresenter)
+            2 -> ClosedTradesScreen(closedTradesPresenter)
         }
     }
 }

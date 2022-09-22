@@ -1,9 +1,9 @@
 package main
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import sizing.SizedTrade
 
-@Stable
+@Immutable
 internal data class MainState(
-    val sizedTrades: List<SizedTrade>,
+    val sizedTrades: List<SizedTrade> = emptyList(),
 )

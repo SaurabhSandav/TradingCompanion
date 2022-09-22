@@ -24,7 +24,7 @@ internal class SizingPresenter(
     private val appModule: AppModule,
 ) {
 
-    val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() as CoroutineContext)
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() as CoroutineContext)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
 

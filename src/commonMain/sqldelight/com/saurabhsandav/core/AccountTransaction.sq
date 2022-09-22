@@ -1,0 +1,17 @@
+
+CREATE TABLE IF NOT EXISTS AccountTransaction (
+accountId INTEGER AS Int NOT NULL,
+date TEXT NOT NULL,
+amount TEXT NOT NULL,
+type TEXT NOT NULL,
+note TEXT NOT NULL
+);
+
+insert:
+INSERT
+INTO AccountTransaction(accountId, date, amount, type, note)
+VALUES (?, ?, ?, ?, ?);
+
+getAll:
+SELECT *
+FROM AccountTransaction;

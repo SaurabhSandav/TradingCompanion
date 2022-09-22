@@ -1,9 +1,6 @@
 package closedtrades
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
@@ -26,15 +23,22 @@ internal fun ClosedTradesScreen(
 
         ClosedTradeListHeader()
 
+        Divider()
+
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState()),
         ) {
 
-            for (closedTradeDetailed in state.closedTradesDetailed) {
+            for (closedTradeItem in state.closedTradesItems) {
 
-                ClosedTradeListItem(
-                    closedTradeDetailed = closedTradeDetailed,
-                )
+                when (closedTradeItem) {
+                    is ClosedTradeListItem.DayHeader -> DayHeader(closedTradeItem.header)
+                    is ClosedTradeListItem.Entry -> ClosedTradeListItem(
+                        entry = closedTradeItem,
+                    )
+                }
+
+                Divider()
             }
         }
     }
@@ -129,22 +133,27 @@ private fun ClosedTradeListHeader() {
         )
 
         Text(
-            text = "R",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
             text = "Duration",
             modifier = Modifier.weight(1F),
         )
     }
+}
 
-    Divider()
+@Composable
+private fun DayHeader(dayStr: String) {
+
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+
+        Text(dayStr)
+    }
 }
 
 @Composable
 private fun ClosedTradeListItem(
-    closedTradeDetailed: ClosedTradeDetailed,
+    entry: ClosedTradeListItem.Entry,
 ) {
 
     Row(
@@ -154,95 +163,88 @@ private fun ClosedTradeListItem(
     ) {
 
         Text(
-            text = closedTradeDetailed.broker,
+            text = entry.broker,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.ticker,
+            text = entry.ticker,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.instrument,
+            text = entry.instrument,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.quantity,
+            text = entry.quantity,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.side,
+            text = entry.side,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.entry,
+            text = entry.entry,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.stop ?: "NA",
+            text = entry.stop ?: "NA",
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.entryTime,
+            text = entry.entryTime,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.target ?: "NA",
+            text = entry.target ?: "NA",
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.exit,
+            text = entry.exit,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.exitTime,
+            text = entry.exitTime,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.maxFavorableExcursion,
+            text = entry.maxFavorableExcursion,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.maxAdverseExcursion,
+            text = entry.maxAdverseExcursion,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.pnl,
+            text = entry.pnl,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.netPnl,
+            text = entry.netPnl,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.fees,
+            text = entry.fees,
             modifier = Modifier.weight(1F),
         )
 
         Text(
-            text = closedTradeDetailed.rValue,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = closedTradeDetailed.duration,
+            text = entry.duration,
             modifier = Modifier.weight(1F),
         )
     }
-
-    Divider()
 }

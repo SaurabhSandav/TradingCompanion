@@ -1,13 +1,13 @@
 package sizing
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 
-@Stable
+@Immutable
 internal data class SizingState(
     val sizedTrades: List<SizedTrade>,
 )
 
-@Stable
+@Immutable
 internal data class SizedTrade(
     val ticker: String,
     val entry: String,
