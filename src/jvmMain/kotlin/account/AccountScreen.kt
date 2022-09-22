@@ -1,8 +1,11 @@
 package account
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.OutlinedTextField
@@ -19,21 +22,22 @@ internal fun AccountScreen(
 
     val state by presenter.state.collectAsState()
 
-    Column {
+    LazyColumn {
 
-        LedgerHeader()
+        stickyHeader {
+            LedgerHeader()
+        }
 
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
-        ) {
+        items(
+            items = state.transactions,
+        ) { transaction ->
 
-            for (transaction in state.transactions) {
+            LedgerItem(
+                transaction = transaction,
+            )
+        }
 
-                LedgerItem(
-                    transaction = transaction,
-                )
-            }
-
+        item {
             SizingTradeCreator(
                 onAddTrade = { },
             )

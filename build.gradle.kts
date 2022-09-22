@@ -63,6 +63,9 @@ kotlin {
                 implementation(libs.sqldelight.runtime)
                 implementation(libs.sqldelight.sqliteDriver)
                 implementation(libs.sqldelight.coroutinesExtensions)
+
+                // kotlin-csv
+                implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0")
             }
         }
         val jvmTest by getting

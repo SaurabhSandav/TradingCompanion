@@ -1,7 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS ClosedTrade (
 id INTEGER AS Int NOT NULL PRIMARY KEY,
-date TEXT NOT NULL,
 broker TEXT NOT NULL,
 ticker TEXT NOT NULL,
 instrument TEXT NOT NULL,
@@ -10,26 +9,26 @@ lots INTEGER AS Int,
 side TEXT NOT NULL,
 entry TEXT NOT NULL,
 stop TEXT,
-entryTime TEXT NOT NULL,
+entryDate TEXT NOT NULL,
 target TEXT,
 exit TEXT NOT NULL,
-exitTime TEXT NOT NULL
+exitDate TEXT NOT NULL
 );
 
 insert:
 INSERT
-INTO ClosedTrade(date, broker, ticker, instrument, quantity, lots, side, entry, stop, entryTime, target, exit, exitTime)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?);
+INTO ClosedTrade(broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?);
 
 getAll:
 SELECT *
 FROM ClosedTrade
-ORDER BY date(date) DESC;
+ORDER BY date(entryDate) DESC;
 
 getAllClosedTradesDetailed:
-SELECT id, date, broker, ticker, instrument, quantity, lots, side, entry, stop, entryTime, target, exit, exitTime,
+SELECT id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate,
 maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult
 FROM ClosedTrade
 INNER JOIN ClosedTradeDetail
 ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
-ORDER BY date(date) DESC;
+ORDER BY date(entryDate) DESC;

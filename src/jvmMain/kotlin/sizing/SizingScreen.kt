@@ -1,8 +1,8 @@
 package sizing
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -18,22 +18,24 @@ internal fun SizingScreen(
 
     val state by presenter.state.collectAsState()
 
-    Column {
+    LazyColumn {
 
-        SizingListHeader()
+        stickyHeader {
+            SizingListHeader()
+        }
 
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
-        ) {
+        items(
+            items = state.sizedTrades
+        ) { sizedTrade ->
 
-            for (sizedTrade in state.sizedTrades) {
+            SizingListItem(
+                sizedTrade = sizedTrade,
+                onEntryChanged = { entry -> presenter.updateEntry(sizedTrade, entry) },
+                onStopChanged = { stop -> presenter.updateStop(sizedTrade, stop) },
+            ) { presenter.removeTrade(it) }
+        }
 
-                SizingListItem(
-                    sizedTrade = sizedTrade,
-                    onEntryChanged = { entry -> presenter.updateEntry(sizedTrade, entry) },
-                    onStopChanged = { stop -> presenter.updateStop(sizedTrade, stop) },
-                ) { presenter.removeTrade(it) }
-            }
+        item {
 
             SizingTradeCreator(
                 onAddTrade = { presenter.addTrade(it) },

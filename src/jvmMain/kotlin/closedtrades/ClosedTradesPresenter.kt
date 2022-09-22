@@ -12,20 +12,17 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import utils.brokerage
 import java.math.RoundingMode
-import kotlin.coroutines.CoroutineContext
 
 internal class ClosedTradesPresenter(
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() as CoroutineContext)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
 
@@ -37,7 +34,7 @@ internal class ClosedTradesPresenter(
                 .map { getAllClosedTradesDetailed ->
 
                     getAllClosedTradesDetailed
-                        .groupBy { LocalDateTime.parse(it.entryTime).date }
+                        .groupBy { LocalDateTime.parse(it.entryDate).date }
                         .map { (date, list) ->
                             listOf(ClosedTradeListItem.DayHeader(date.toString())) + list.map { it.toClosedTradeListEntry() }
                         }
@@ -81,9 +78,9 @@ internal class ClosedTradesPresenter(
         }
 
         val timeZone = TimeZone.of("Asia/Kolkata")
-        val entryDateTime = LocalDateTime.parse(entryTime)
+        val entryDateTime = LocalDateTime.parse(entryDate)
         val entryInstant = entryDateTime.toInstant(timeZone)
-        val exitDateTime = LocalDateTime.parse(exitTime)
+        val exitDateTime = LocalDateTime.parse(exitDate)
         val exitInstant = exitDateTime.toInstant(timeZone)
         val s = (exitInstant - entryInstant).inWholeSeconds
 
@@ -91,7 +88,6 @@ internal class ClosedTradesPresenter(
 
         return ClosedTradeListItem.Entry(
             id = id,
-            date = date,
             broker = broker,
             ticker = ticker,
             instrument = instrument,
@@ -109,7 +105,7 @@ internal class ClosedTradesPresenter(
             duration = duration,
             maxFavorableExcursion = maxFavorableExcursion,
             maxAdverseExcursion = maxAdverseExcursion,
-            persisted = persisted,
+            persisted = persisted.toBoolean(),
             persistenceResult = persistenceResult,
         )
     }

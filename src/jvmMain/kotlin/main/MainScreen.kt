@@ -34,9 +34,11 @@ internal fun MainScreen(
             }
         }
 
-        val accountPresenter = remember { AccountPresenter(appModule) }
-        val sizingPresenter = remember { SizingPresenter(appModule) }
-        val closedTradesPresenter = remember { ClosedTradesPresenter(appModule) }
+        val coroutineScope = rememberCoroutineScope()
+
+        val accountPresenter = remember { AccountPresenter(coroutineScope, appModule) }
+        val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
+        val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
 
         when (state) {
             0 -> AccountScreen(accountPresenter)

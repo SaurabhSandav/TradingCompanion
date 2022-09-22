@@ -1,8 +1,8 @@
 package closedtrades
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,27 +19,25 @@ internal fun ClosedTradesScreen(
 
     val state by presenter.state.collectAsState()
 
-    Column {
+    LazyColumn {
 
-        ClosedTradeListHeader()
+        stickyHeader {
 
-        Divider()
+            ClosedTradeListHeader()
 
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
-        ) {
+            Divider()
+        }
 
-            for (closedTradeItem in state.closedTradesItems) {
+        items(state.closedTradesItems) { closedTradeItem ->
 
-                when (closedTradeItem) {
-                    is ClosedTradeListItem.DayHeader -> DayHeader(closedTradeItem.header)
-                    is ClosedTradeListItem.Entry -> ClosedTradeListItem(
-                        entry = closedTradeItem,
-                    )
-                }
-
-                Divider()
+            when (closedTradeItem) {
+                is ClosedTradeListItem.DayHeader -> DayHeader(closedTradeItem.header)
+                is ClosedTradeListItem.Entry -> ClosedTradeListItem(
+                    entry = closedTradeItem,
+                )
             }
+
+            Divider()
         }
     }
 }

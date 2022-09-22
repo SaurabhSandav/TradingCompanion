@@ -12,19 +12,16 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import mapList
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.coroutines.CoroutineContext
 
 internal class SizingPresenter(
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() as CoroutineContext)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
 

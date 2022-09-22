@@ -1,9 +1,9 @@
 
 CREATE TABLE IF NOT EXISTS ClosedTradeDetail (
-closedTradeId INTEGER AS Int NOT NULL,
+closedTradeId INTEGER AS Int NOT NULL UNIQUE,
 maxFavorableExcursion TEXT NOT NULL,
 maxAdverseExcursion TEXT NOT NULL,
-persisted INTEGER AS Int,
+persisted TEXT NOT NULL,
 persistenceResult TEXT,
 FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id)
 );

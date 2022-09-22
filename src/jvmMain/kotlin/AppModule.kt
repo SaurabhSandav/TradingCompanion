@@ -20,4 +20,8 @@ internal class AppModule {
         AppDB.Schema.create(driver)
         AppDB(driver = driver)
     }
+
+    init {
+//        TradeImporter(this).importTrades()
+    }
 }

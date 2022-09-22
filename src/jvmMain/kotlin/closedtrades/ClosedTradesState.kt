@@ -16,7 +16,6 @@ internal sealed class ClosedTradeListItem {
     @Immutable
     internal data class Entry(
         val id: Int,
-        val date: String,
         val broker: String,
         val ticker: String,
         val instrument: String,
@@ -34,7 +33,7 @@ internal sealed class ClosedTradeListItem {
         val duration: String,
         val maxFavorableExcursion: String,
         val maxAdverseExcursion: String,
-        val persisted: Int?,
+        val persisted: Boolean,
         val persistenceResult: String?,
     ) : ClosedTradeListItem()
 }

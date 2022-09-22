@@ -10,15 +10,12 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import mapList
-import kotlin.coroutines.CoroutineContext
 
 internal class AccountPresenter(
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() as CoroutineContext)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
 
