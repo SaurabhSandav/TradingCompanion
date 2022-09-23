@@ -10,17 +10,20 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import closedtrades.ClosedTradesPresenter
 import closedtrades.ClosedTradesScreen
+import opentrades.OpenTradesPresenter
+import opentrades.OpenTradesScreen
 import sizing.SizingPresenter
 import sizing.SizingScreen
+import utils.state
 
 @Composable
 internal fun MainScreen(
     appModule: AppModule,
 ) {
 
-    var state by remember { mutableStateOf(0) }
+    var state by state { 2 }
 
-    val titles = listOf("Account", "Trade Sizing", "Historical Trades")
+    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades")
 
     Column {
 
@@ -38,12 +41,14 @@ internal fun MainScreen(
 
         val accountPresenter = remember { AccountPresenter(coroutineScope, appModule) }
         val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
+        val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
         val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
 
         when (state) {
             0 -> AccountScreen(accountPresenter)
             1 -> SizingScreen(sizingPresenter)
-            2 -> ClosedTradesScreen(closedTradesPresenter)
+            2 -> OpenTradesScreen(openTradesPresenter)
+            3 -> ClosedTradesScreen(closedTradesPresenter)
         }
     }
 }

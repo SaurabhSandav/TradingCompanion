@@ -18,6 +18,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import utils.brokerage
 import java.math.RoundingMode
+import java.util.*
 
 internal class ClosedTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -90,9 +91,11 @@ internal class ClosedTradesPresenter(
             id = id,
             broker = broker,
             ticker = ticker,
-            instrument = instrument,
+            instrument = instrument
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity,
-            side = this@toClosedTradeListEntry.side,
+            side = this@toClosedTradeListEntry.side
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             entry = entry,
             stop = stop,
             entryTime = entryDateTime.time.toString(),

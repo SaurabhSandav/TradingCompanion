@@ -2,6 +2,7 @@ package sizing
 
 import Account
 import AppModule
+import Side
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -13,10 +14,10 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import mapList
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
 
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
@@ -36,7 +37,7 @@ internal class SizingPresenter(
 
         val sizedTrades by remember {
             appModule.appDB.sizingTradeQueries
-                .getAll()
+                .getAllNotHidden()
                 .asFlow()
                 .mapToList(Dispatchers.IO)
                 .mapList { sizingTrade -> sizingTrade.size(account) }
@@ -61,7 +62,7 @@ internal class SizingPresenter(
                     ticker = ticker,
                     entry = "0",
                     stop = "0",
-                    added = Clock.System.now().toString(),
+                    hidden = false.toString(),
                 )
             )
         }
@@ -70,7 +71,7 @@ internal class SizingPresenter(
     internal fun removeTrade(ticker: String) {
 
         coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.delete(ticker)
+            appModule.appDB.sizingTradeQueries.hide(ticker)
         }
     }
 
@@ -79,13 +80,10 @@ internal class SizingPresenter(
         if (entry.toBigDecimalOrNull() == null || stop.toBigDecimalOrNull() == null) return
 
         coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.insert(
-                SizingTrade(
-                    ticker = sizedTrade.ticker,
-                    entry = entry,
-                    stop = stop,
-                    added = sizedTrade.added,
-                )
+            appModule.appDB.sizingTradeQueries.update(
+                ticker = sizedTrade.ticker,
+                entry = entry,
+                stop = stop,
             )
         }
     }
@@ -93,7 +91,12 @@ internal class SizingPresenter(
     private fun SizingTrade.size(account: Account): SizedTrade {
 
         val entryBD = entry.toBigDecimal()
-        val spread = (entryBD - stop.toBigDecimal()).abs()
+        val stopBD = stop.toBigDecimal()
+
+        val entryStopComparison = entryBD.compareTo(stopBD)
+
+        val spread = (entryBD - stopBD).abs()
+
         val calculatedQuantity = when {
             spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
             else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
@@ -108,7 +111,12 @@ internal class SizingPresenter(
             ticker = ticker,
             entry = entry,
             stop = stop,
-            added = added,
+            side = when {
+                entryStopComparison > 0 -> Side.Long.strValue
+                entryStopComparison < 0 -> Side.Short.strValue
+                else -> "Invalid"
+            }.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+            spread = spread.toPlainString(),
             calculatedQuantity = calculatedQuantity.toPlainString(),
             maxAffordableQuantity = maxAffordableQuantity.toPlainString(),
             entryQuantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),

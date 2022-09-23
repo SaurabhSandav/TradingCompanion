@@ -78,7 +78,7 @@ sqldelight {
         packageName = "com.saurabhsandav.core"
         sourceFolders = listOf("sqldelight")
         schemaOutputDirectory = file("build/dbs")
-        dialect = "sqlite:3.18"
+        dialect = "sqlite:3.25"
     }
 }
 

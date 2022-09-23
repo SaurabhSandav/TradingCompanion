@@ -1,4 +1,4 @@
-internal enum class Side(strValue: String) {
+internal enum class Side(val strValue: String) {
     Long("long"),
     Short("short");
 
