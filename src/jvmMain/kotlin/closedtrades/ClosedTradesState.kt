@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 internal data class ClosedTradesState(
-    val closedTradesItems: List<ClosedTradeListItem>,
+    val closedTradesItems: List<ClosedTradeListItem.Entry>,
 )
 
 @Immutable
@@ -22,15 +22,16 @@ internal sealed class ClosedTradeListItem {
         val quantity: String,
         val side: String,
         val entry: String,
-        val stop: String?,
+        val stop: String,
         val entryTime: String,
-        val target: String?,
+        val target: String,
         val exit: String,
         val exitTime: String,
         val pnl: String,
         val netPnl: String,
         val fees: String,
         val duration: String,
+        val isProfitable: Boolean,
         val maxFavorableExcursion: String,
         val maxAdverseExcursion: String,
         val persisted: Boolean,

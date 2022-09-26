@@ -4,14 +4,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import utils.NIFTY50
@@ -216,10 +220,14 @@ private fun OpenTradeCreationDialog(
         Column(Modifier.width(IntrinsicSize.Min)) {
 
             var quantity by state { "" }
+            var quantityIsError by state { false }
             var isLong by state { false }
             var entry by state { "" }
+            var entryIsError by state { false }
             var stop by state { "" }
+            var stopIsError by state { false }
             var target by state { "" }
+            var targetIsError by state { false }
 
             ListItem(Modifier.clickable { showStockSelectionDialog = true }) {
                 Text(ticker)
@@ -227,8 +235,12 @@ private fun OpenTradeCreationDialog(
 
             TextField(
                 value = quantity,
-                onValueChange = { quantity = it },
+                onValueChange = {
+                    quantity = it.trim()
+                    quantityIsError = quantity.toBigDecimalOrNull() == null
+                },
                 label = { Text("Quantity") },
+                isError = quantityIsError
             )
 
             Row(
@@ -254,21 +266,33 @@ private fun OpenTradeCreationDialog(
 
             TextField(
                 value = entry,
-                onValueChange = { entry = it },
+                onValueChange = {
+                    entry = it.trim()
+                    entryIsError = entry.toBigDecimalOrNull() == null
+                },
                 label = { Text("Entry") },
+                isError = entryIsError,
             )
 
             TextField(
                 value = stop,
-                onValueChange = { stop = it },
+                onValueChange = {
+                    stop = it.trim()
+                    stopIsError = stop.toBigDecimalOrNull() == null
+                },
                 label = { Text("Stop") },
+                isError = stopIsError,
             )
 
 
             TextField(
                 value = target,
-                onValueChange = { target = it },
+                onValueChange = {
+                    target = it.trim()
+                    targetIsError = target.toBigDecimalOrNull() == null
+                },
                 label = { Text("Target") },
+                isError = targetIsError,
             )
 
             Button(
@@ -304,10 +328,27 @@ private fun StockSelectionDialog(
         title = "Select Stock",
     ) {
 
+        var filterQuery by state { "" }
+        val focusRequester = remember { FocusRequester() }
+        val items = remember(filterQuery) {
+            NIFTY50.filter { it.startsWith(filterQuery) }
+        }
+
+        BasicTextField(
+            value = filterQuery,
+            onValueChange = { value ->
+                if (value.all { it.isLetter() })
+                    filterQuery = value.trim().uppercase()
+            },
+            modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
+        )
+
+        SideEffect { focusRequester.requestFocus() }
+
         LazyColumn {
 
             items(
-                items = NIFTY50,
+                items = items,
                 key = { it },
             ) { stock ->
 
@@ -315,8 +356,19 @@ private fun StockSelectionDialog(
                     modifier = Modifier.clickable { onTickerSelected(stock) },
                 ) {
 
+                    val stockText = remember(filterQuery, stock) {
+
+                        buildAnnotatedString {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(filterQuery)
+                            }
+
+                            append(stock.removePrefix(filterQuery))
+                        }
+                    }
+
                     Text(
-                        text = stock,
+                        text = stockText,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                     )

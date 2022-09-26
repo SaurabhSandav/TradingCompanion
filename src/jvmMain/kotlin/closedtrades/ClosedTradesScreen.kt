@@ -1,15 +1,15 @@
 package closedtrades
 
+import Table
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,26 +19,95 @@ internal fun ClosedTradesScreen(
 
     val state by presenter.state.collectAsState()
 
-    LazyColumn {
+    Table(
+        items = state.closedTradesItems,
+        key = { it.id },
+    ) {
 
-        stickyHeader {
+        column(
+            header = { Text("Broker") },
+            content = { Text(it.broker) },
+        )
 
-            ClosedTradeListHeader()
+        column(
+            header = { Text("Ticker") },
+            content = { Text(it.ticker) },
+        )
 
-            Divider()
-        }
+        column(
+            header = { Text("Instrument") },
+            content = { Text(it.instrument) },
+        )
 
-        items(state.closedTradesItems) { closedTradeItem ->
+        column(
+            header = { Text("Quantity") },
+            content = { Text(it.quantity) },
+        )
 
-            when (closedTradeItem) {
-                is ClosedTradeListItem.DayHeader -> DayHeader(closedTradeItem.header)
-                is ClosedTradeListItem.Entry -> ClosedTradeListItem(
-                    entry = closedTradeItem,
-                )
-            }
+        column(
+            header = { Text("Side") },
+            content = { Text(it.side) },
+        )
 
-            Divider()
-        }
+        column(
+            header = { Text("Entry") },
+            content = { Text(it.entry) },
+        )
+
+        column(
+            header = { Text("Stop") },
+            content = { Text(it.stop) },
+        )
+
+        column(
+            header = { Text("Entry Time") },
+            content = { Text(it.entryTime) },
+        )
+
+        column(
+            header = { Text("Target") },
+            content = { Text(it.target) },
+        )
+
+        column(
+            header = { Text("Exit") },
+            content = { Text(it.exit) },
+        )
+
+        column(
+            header = { Text("Exit Time") },
+            content = { Text(it.exitTime) },
+        )
+
+        column(
+            header = { Text("Maximum Favorable Excursion") },
+            content = { Text(it.maxFavorableExcursion) },
+        )
+
+        column(
+            header = { Text("Maximum Adverse Excursion") },
+            content = { Text(it.maxAdverseExcursion) },
+        )
+
+        column(
+            header = { Text("P&L") },
+            content = { Text(it.pnl) },
+        )
+
+        column(
+            header = { Text("Net P&L") },
+            content = { Text(it.netPnl) },
+        )
+
+        column(
+            header = { Text("Fees") },
+            content = { Text(it.fees) },
+        )
+
+        column(
+            header = { Text("Duration") },
+            content = { Text(it.duration) },
+        )
     }
 }
 
@@ -191,7 +260,7 @@ private fun ClosedTradeListItem(
         )
 
         Text(
-            text = entry.stop ?: "NA",
+            text = entry.stop,
             modifier = Modifier.weight(1F),
         )
 
@@ -201,7 +270,7 @@ private fun ClosedTradeListItem(
         )
 
         Text(
-            text = entry.target ?: "NA",
+            text = entry.target,
             modifier = Modifier.weight(1F),
         )
 
@@ -232,7 +301,12 @@ private fun ClosedTradeListItem(
 
         Text(
             text = entry.netPnl,
-            modifier = Modifier.weight(1F),
+            modifier = Modifier.weight(1F).background(
+                when {
+                    entry.isProfitable -> Color.Green
+                    else -> Color.Red
+                }
+            ),
         )
 
         Text(

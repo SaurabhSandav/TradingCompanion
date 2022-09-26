@@ -12,11 +12,12 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import mapList
 import utils.brokerage
+import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
@@ -32,15 +33,7 @@ internal class ClosedTradesPresenter(
                 .getAllClosedTradesDetailed()
                 .asFlow()
                 .mapToList(Dispatchers.IO)
-                .map { getAllClosedTradesDetailed ->
-
-                    getAllClosedTradesDetailed
-                        .groupBy { LocalDateTime.parse(it.entryDate).date }
-                        .map { (date, list) ->
-                            listOf(ClosedTradeListItem.DayHeader(date.toString())) + list.map { it.toClosedTradeListEntry() }
-                        }
-                        .flatten()
-                }
+                .mapList { it.toClosedTradeListEntry() }
         }.collectAsState(emptyList())
 
         return@launchMolecule ClosedTradesState(
@@ -97,15 +90,16 @@ internal class ClosedTradesPresenter(
             side = this@toClosedTradeListEntry.side
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             entry = entry,
-            stop = stop,
+            stop = stop ?: "NA",
             entryTime = entryDateTime.time.toString(),
-            target = target,
+            target = target ?: "NA",
             exit = exit,
             exitTime = exitDateTime.time.toString(),
             pnl = pnlBD.toPlainString() + " (${rValue}R)",
             netPnl = netPnlBD.toPlainString(),
             fees = (pnlBD - netPnlBD).toPlainString(),
             duration = duration,
+            isProfitable = netPnlBD > BigDecimal.ZERO,
             maxFavorableExcursion = maxFavorableExcursion,
             maxAdverseExcursion = maxAdverseExcursion,
             persisted = persisted.toBoolean(),
