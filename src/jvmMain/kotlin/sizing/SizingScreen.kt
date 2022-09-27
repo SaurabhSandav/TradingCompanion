@@ -14,10 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
-import experimental.Table
-import experimental.addColumn
-import experimental.addColumnText
-import experimental.rememberTableSchema
+import experimental.*
 import utils.NIFTY50
 import utils.state
 
@@ -69,10 +66,14 @@ internal fun SizingScreen(
     }
 
     Table(
-        items = state.sizedTrades,
         schema = schema,
-        key = { it.ticker },
-    )
+    ) {
+
+        rows(
+            items = state.sizedTrades,
+            key = { it.ticker },
+        )
+    }
 
     /*    item {
 

@@ -7,10 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import experimental.Table
-import experimental.addColumn
-import experimental.addColumnText
-import experimental.rememberTableSchema
+import experimental.*
 
 @Composable
 internal fun ClosedTradesScreen(
@@ -41,10 +38,13 @@ internal fun ClosedTradesScreen(
     }
 
     Table(
-        items = state.closedTradesItems,
         schema = schema,
-        key = { it.id },
-        rowContent = { item ->
+    ) {
+
+        rows(
+            items = state.closedTradesItems,
+            key = { it.id },
+        ) { item ->
 
             Column {
 
@@ -52,6 +52,6 @@ internal fun ClosedTradesScreen(
 
                 Divider()
             }
-        },
-    )
+        }
+    }
 }

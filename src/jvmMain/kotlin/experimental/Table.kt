@@ -2,12 +2,11 @@ package experimental
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Divider
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,39 +17,102 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.unit.dp
 import utils.state
 
 @Composable
 internal fun <T> Table(
-    items: List<T>,
     schema: TableSchema<T>,
     modifier: Modifier = Modifier,
-    key: ((item: T) -> Any)? = null,
     headerContent: @Composable TableHeaderScope<T>.() -> Unit = { DefaultHeader() },
-    rowContent: @Composable TableRowScope<T>.(T) -> Unit = { item -> DefaultRow(item) },
+    content: TableScope<T>.() -> Unit,
 ) {
 
-    val headerScope = remember(schema) { TableHeaderScope(schema) }
-    val rowScope = remember(schema) { TableRowScope(schema) }
+    Column(modifier = modifier) {
 
-    LazyColumn(modifier = Modifier.padding(8.dp).then(modifier)) {
+        val headerScope = remember(schema) { TableHeaderScope(schema) }
 
-        stickyHeader {
+        headerScope.headerContent()
 
-            Surface {
-                headerScope.headerContent()
-            }
+        Divider()
 
-            Divider()
+        LazyColumn {
+            TableScopeImpl(this, schema).content()
         }
-
-        items(
-            items = items,
-            key = key,
-            itemContent = { item -> rowScope.rowContent(item) },
-        )
     }
+}
+
+interface TableScope<T> {
+
+    fun row(
+        key: Any? = null,
+        contentType: Any? = null,
+        rowContent: @Composable TableRowScope<T>.() -> Unit,
+    )
+
+    fun rows(
+        count: Int,
+        key: ((index: Int) -> Any)? = null,
+        contentType: (index: Int) -> Any? = { null },
+        rowContent: @Composable TableRowScope<T>.(index: Int) -> Unit,
+    )
+
+    fun stickyHeader(
+        key: Any? = null,
+        contentType: Any? = null,
+        rowContent: @Composable TableRowScope<T>.() -> Unit,
+    )
+}
+
+class TableScopeImpl<T>(
+    private val lazyListScope: LazyListScope,
+    schema: TableSchema<T>,
+) : TableScope<T> {
+
+    private val tableRowScope = TableRowScope(schema)
+
+    override fun row(
+        key: Any?,
+        contentType: Any?,
+        rowContent: @Composable TableRowScope<T>.() -> Unit,
+    ) {
+        lazyListScope.item(key, contentType) {
+            tableRowScope.rowContent()
+        }
+    }
+
+    override fun rows(
+        count: Int,
+        key: ((index: Int) -> Any)?,
+        contentType: (index: Int) -> Any?,
+        rowContent: @Composable TableRowScope<T>.(index: Int) -> Unit,
+    ) {
+        lazyListScope.items(count, key, contentType) {
+            tableRowScope.rowContent(it)
+        }
+    }
+
+    override fun stickyHeader(
+        key: Any?,
+        contentType: Any?,
+        rowContent: @Composable TableRowScope<T>.() -> Unit,
+    ) {
+        lazyListScope.stickyHeader(key, contentType) {
+            tableRowScope.rowContent()
+        }
+    }
+}
+
+inline fun <T> TableScope<T>.rows(
+    items: List<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    noinline contentType: (item: T) -> Any? = { null },
+    crossinline rowContent: @Composable TableRowScope<T>.(item: T) -> Unit = { item -> DefaultRow(item) },
+) = rows(
+    count = items.size,
+    key = if (key != null) { index: Int -> key(items[index]) } else null,
+    contentType = { index: Int -> contentType(items[index]) }
+) {
+    rowContent(items[it])
 }
 
 interface TableHeaderScope<T> {
@@ -73,8 +135,8 @@ interface TableHeaderScope<T> {
         }
     }
 
-    companion object {
 
+    companion object {
         internal operator fun <T> invoke(schema: TableSchema<T>): TableHeaderScope<T> {
             return object : TableHeaderScope<T> {
                 override val schema: TableSchema<T> = schema

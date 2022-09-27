@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import experimental.Table
 import experimental.addColumnText
 import experimental.rememberTableSchema
+import experimental.rows
 import utils.NIFTY50
 import utils.state
 
@@ -46,10 +47,14 @@ internal fun OpenTradesScreen(
     }
 
     Table(
-        items = state.openTrades,
         schema = schema,
-        key = { it.id },
-    )
+    ) {
+
+        rows(
+            items = state.openTrades,
+            key = { it.id },
+        )
+    }
 
 
     /*        item {
