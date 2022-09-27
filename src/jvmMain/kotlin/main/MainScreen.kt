@@ -21,7 +21,7 @@ internal fun MainScreen(
     appModule: AppModule,
 ) {
 
-    var state by state { 2 }
+    var state by state { 3 }
 
     val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades")
 

@@ -18,7 +18,6 @@ internal sealed class ClosedTradeListItem {
         val id: Int,
         val broker: String,
         val ticker: String,
-        val instrument: String,
         val quantity: String,
         val side: String,
         val entry: String,

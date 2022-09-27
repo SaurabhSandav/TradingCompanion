@@ -44,6 +44,7 @@ kotlin {
                 listOf(
                     "androidx.compose.foundation.ExperimentalFoundationApi",
                     "androidx.compose.material.ExperimentalMaterialApi",
+                    "androidx.compose.ui.ExperimentalComposeUiApi",
                 ).forEach { optIn(it) }
             }
         }

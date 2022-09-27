@@ -43,6 +43,8 @@ internal class ClosedTradesPresenter(
 
     private fun GetAllClosedTradesDetailed.toClosedTradeListEntry(): ClosedTradeListItem.Entry {
 
+        val instrumentCapitalized = instrument
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         val entryBD = entry.toBigDecimal()
         val stopBD = stop?.toBigDecimal()
         val exitBD = exit.toBigDecimal()
@@ -82,10 +84,8 @@ internal class ClosedTradesPresenter(
 
         return ClosedTradeListItem.Entry(
             id = id,
-            broker = broker,
+            broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
-            instrument = instrument
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity,
             side = this@toClosedTradeListEntry.side
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
