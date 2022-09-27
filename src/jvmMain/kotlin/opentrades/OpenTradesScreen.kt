@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import table.Table
+import table.LazyTable
 import table.addColumnText
 import table.rememberTableSchema
 import table.rows
@@ -46,7 +46,7 @@ internal fun OpenTradesScreen(
         addColumnText("Target") { it.target }
     }
 
-    Table(
+    LazyTable(
         schema = schema,
     ) {
 

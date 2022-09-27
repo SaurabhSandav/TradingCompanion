@@ -1,11 +1,8 @@
 package table
 
-import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -14,30 +11,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.unit.IntOffset
 import utils.state
 
-interface TableRowScope : LazyItemScope
+@Composable
+fun <T> DefaultTableHeader(
+    schema: TableSchema<T>,
+    modifier: Modifier = Modifier,
+) {
 
-internal class TableRowScopeImpl(
-    private val lazyItemScope: LazyItemScope,
-) : TableRowScope {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
 
-    @ExperimentalFoundationApi
-    override fun Modifier.animateItemPlacement(animationSpec: FiniteAnimationSpec<IntOffset>): Modifier {
-        return with(lazyItemScope) { animateItemPlacement(animationSpec) }
-    }
-
-    override fun Modifier.fillParentMaxHeight(fraction: Float): Modifier {
-        return with(lazyItemScope) { fillParentMaxHeight(fraction) }
-    }
-
-    override fun Modifier.fillParentMaxSize(fraction: Float): Modifier {
-        return with(lazyItemScope) { fillParentMaxSize(fraction) }
-    }
-
-    override fun Modifier.fillParentMaxWidth(fraction: Float): Modifier {
-        return with(lazyItemScope) { fillParentMaxWidth(fraction) }
+        schema.columns.forEach { column ->
+            Box(Modifier.weight(1F)) {
+                column.header?.invoke()
+            }
+        }
     }
 }
 

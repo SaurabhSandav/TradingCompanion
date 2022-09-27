@@ -14,11 +14,6 @@ interface TableSchema<T> {
     )
 }
 
-class Column<T>(
-    val header: (@Composable () -> Unit)? = null,
-    val content: @Composable (T) -> Unit,
-)
-
 internal class TableSchemaImpl<T> : TableSchema<T> {
 
     override val columns = mutableListOf<Column<T>>()
@@ -48,11 +43,11 @@ fun <T> TableSchema<T>.addColumn(
 
 fun <T> TableSchema<T>.addColumnText(
     headerText: String,
-    textSelector: (T) -> String,
+    contentText: (T) -> String,
 ) {
     addColumn(
         header = { Text(headerText) },
-        content = { Text(textSelector(it)) },
+        content = { Text(contentText(it)) },
     )
 }
 

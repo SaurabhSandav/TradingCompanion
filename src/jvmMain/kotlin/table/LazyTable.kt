@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-internal fun <T> Table(
+internal fun <T> LazyTable(
     schema: TableSchema<T>,
     modifier: Modifier = Modifier,
     headerContent: @Composable () -> Unit = { DefaultTableHeader(schema) },

@@ -65,7 +65,7 @@ internal fun SizingScreen(
         addColumnText("Target (1x)") { it.target }
     }
 
-    Table(
+    LazyTable(
         schema = schema,
     ) {
 

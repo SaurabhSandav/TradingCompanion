@@ -38,7 +38,7 @@ internal fun ClosedTradesScreen(
         addColumnText("Duration") { it.duration }
     }
 
-    Table(
+    LazyTable(
         schema = schema,
     ) {
 
