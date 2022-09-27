@@ -4,7 +4,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
-interface TableSchemaConfig<T> {
+interface TableSchema<T> {
+
+    val columns: List<Column<T>>
 
     fun addColumn(
         header: (@Composable () -> Unit)? = null,
@@ -12,14 +14,14 @@ interface TableSchemaConfig<T> {
     )
 }
 
-internal class Column<T>(
+class Column<T>(
     val header: (@Composable () -> Unit)? = null,
     val content: @Composable (T) -> Unit,
 )
 
-class TableSchema<T> : TableSchemaConfig<T> {
+internal class TableSchemaImpl<T> : TableSchema<T> {
 
-    internal val columns = mutableListOf<Column<T>>()
+    override val columns = mutableListOf<Column<T>>()
 
     override fun addColumn(
         header: (@Composable () -> Unit)?,
@@ -34,7 +36,7 @@ class TableSchema<T> : TableSchemaConfig<T> {
     }
 }
 
-fun <T> TableSchemaConfig<T>.addColumn(
+fun <T> TableSchema<T>.addColumn(
     headerText: String,
     content: @Composable (T) -> Unit,
 ) {
@@ -44,7 +46,7 @@ fun <T> TableSchemaConfig<T>.addColumn(
     )
 }
 
-fun <T> TableSchemaConfig<T>.addColumnText(
+fun <T> TableSchema<T>.addColumnText(
     headerText: String,
     textSelector: (T) -> String,
 ) {
@@ -54,7 +56,7 @@ fun <T> TableSchemaConfig<T>.addColumnText(
     )
 }
 
-fun <T> tableSchema(block: TableSchemaConfig<T>.() -> Unit): TableSchema<T> = TableSchema<T>().apply { block() }
+fun <T> tableSchema(block: TableSchema<T>.() -> Unit): TableSchema<T> = TableSchemaImpl<T>().apply { block() }
 
 @Composable
-fun <T> rememberTableSchema(block: TableSchemaConfig<T>.() -> Unit): TableSchema<T> = remember { tableSchema(block) }
+fun <T> rememberTableSchema(block: TableSchema<T>.() -> Unit): TableSchema<T> = remember { tableSchema(block) }

@@ -57,7 +57,7 @@ internal fun ClosedTradesScreen(
 
                 Column {
 
-                    DefaultRow(item)
+                    DefaultTableRow(item, schema)
 
                     Divider()
                 }
