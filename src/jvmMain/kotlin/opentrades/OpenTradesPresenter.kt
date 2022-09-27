@@ -70,9 +70,9 @@ internal class OpenTradesPresenter(
             quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity,
             side = this@toOpenTradeListEntry.side,
             entry = entry,
-            stop = stop,
+            stop = stop ?: "NA",
             entryTime = entryDateTime.time.toString(),
-            target = target,
+            target = target ?: "NA",
         )
     }
 }

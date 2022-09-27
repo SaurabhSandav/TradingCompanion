@@ -18,6 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import experimental.Table
+import experimental.addColumnText
+import experimental.rememberTableSchema
 import utils.NIFTY50
 import utils.state
 
@@ -30,38 +33,38 @@ internal fun OpenTradesScreen(
 
     var showTradeCreationDialog by state { false }
 
-    LazyColumn {
-
-        stickyHeader {
-
-            OpenTradeListHeader()
-
-            Divider()
-        }
-
-        items(state.openTrades) { openTradeListEntry ->
-
-            OpenTradeListItem(
-                entry = openTradeListEntry,
-            )
-
-            Divider()
-        }
-
-        item {
-
-            Row(
-                modifier = Modifier.padding(16.dp).fillParentMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Button(onClick = { showTradeCreationDialog = true }) {
-                    Text("New Trade")
-                }
-            }
-        }
+    val schema = rememberTableSchema<OpenTradeListEntry> {
+        addColumnText("Broker") { it.broker }
+        addColumnText("Ticker") { it.ticker }
+        addColumnText("Instrument") { it.instrument }
+        addColumnText("Quantity") { it.quantity }
+        addColumnText("Side") { it.side }
+        addColumnText("Entry") { it.entry }
+        addColumnText("Stop") { it.stop }
+        addColumnText("Entry Time") { it.entryTime }
+        addColumnText("Target") { it.target }
     }
+
+    Table(
+        items = state.openTrades,
+        schema = schema,
+        key = { it.id },
+    )
+
+
+    /*        item {
+
+                Row(
+                    modifier = Modifier.padding(16.dp).fillParentMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Button(onClick = { showTradeCreationDialog = true }) {
+                        Text("New Trade")
+                    }
+                }
+            }*/
 
     if (showTradeCreationDialog) {
 
@@ -78,119 +81,6 @@ internal fun OpenTradesScreen(
                 )
                 showTradeCreationDialog = false
             },
-        )
-    }
-}
-
-@Composable
-private fun OpenTradeListHeader() {
-
-    Row(
-        modifier = Modifier.padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Text(
-            text = "Broker",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Ticker",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Instrument",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Quantity",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Side",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Entry",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Stop",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Entry Time",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = "Target",
-            modifier = Modifier.weight(1F),
-        )
-    }
-}
-
-@Composable
-private fun OpenTradeListItem(
-    entry: OpenTradeListEntry,
-) {
-
-    Row(
-        modifier = Modifier.padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Text(
-            text = entry.broker,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.ticker,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.instrument,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.quantity,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.side,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.entry,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.stop ?: "NA",
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.entryTime,
-            modifier = Modifier.weight(1F),
-        )
-
-        Text(
-            text = entry.target ?: "NA",
-            modifier = Modifier.weight(1F),
         )
     }
 }

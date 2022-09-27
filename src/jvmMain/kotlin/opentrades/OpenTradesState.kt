@@ -15,7 +15,7 @@ internal data class OpenTradeListEntry(
     val quantity: String,
     val side: String,
     val entry: String,
-    val stop: String?,
+    val stop: String,
     val entryTime: String,
-    val target: String?,
+    val target: String,
 )

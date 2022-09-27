@@ -1,6 +1,7 @@
+package experimental
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,27 +24,22 @@ import utils.state
 @Composable
 internal fun <T> Table(
     items: List<T>,
+    schema: TableSchema<T>,
     modifier: Modifier = Modifier,
     key: ((item: T) -> Any)? = null,
-    schema: TableSchema<T>,
+    headerContent: @Composable TableHeaderScope<T>.() -> Unit = { DefaultHeader() },
+    rowContent: @Composable TableRowScope<T>.(T) -> Unit = { item -> DefaultRow(item) },
 ) {
+
+    val headerScope = remember(schema) { TableHeaderScope(schema) }
+    val rowScope = remember(schema) { TableRowScope(schema) }
 
     LazyColumn(modifier = Modifier.padding(8.dp).then(modifier)) {
 
         stickyHeader {
 
             Surface {
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-
-                    schema.columns.forEach { column ->
-                        Box(Modifier.weight(1F)) {
-                            Text(column.header)
-                        }
-                    }
-                }
+                headerScope.headerContent()
             }
 
             Divider()
@@ -52,28 +48,71 @@ internal fun <T> Table(
         items(
             items = items,
             key = key,
-        ) { item ->
+            itemContent = { item -> rowScope.rowContent(item) },
+        )
+    }
+}
 
-            Column {
+interface TableHeaderScope<T> {
 
-                var rowActive by state { false }
+    val schema: TableSchema<T>
 
-                Row(
-                    modifier = Modifier
-                        .background(color = if (rowActive) Color.LightGray else Color.White)
-                        .onPointerEvent(PointerEventType.Enter) { rowActive = true }
-                        .onPointerEvent(PointerEventType.Exit) { rowActive = false },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+    @Composable
+    fun DefaultHeader(modifier: Modifier = Modifier) {
 
-                    schema.columns.forEach { column ->
-                        Box(Modifier.weight(1F)) {
-                            column.content(item)
-                        }
-                    }
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            schema.columns.forEach { column ->
+                Box(Modifier.weight(1F)) {
+                    column.header?.invoke()
                 }
+            }
+        }
+    }
 
-                Divider()
+    companion object {
+
+        internal operator fun <T> invoke(schema: TableSchema<T>): TableHeaderScope<T> {
+            return object : TableHeaderScope<T> {
+                override val schema: TableSchema<T> = schema
+            }
+        }
+    }
+}
+
+interface TableRowScope<T> {
+
+    val schema: TableSchema<T>
+
+    @Composable
+    fun DefaultRow(item: T) {
+
+        var rowActive by state { false }
+
+        Row(
+            modifier = Modifier
+                .background(color = if (rowActive) Color.LightGray else Color.White)
+                .onPointerEvent(PointerEventType.Enter) { rowActive = true }
+                .onPointerEvent(PointerEventType.Exit) { rowActive = false },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            schema.columns.forEach { column ->
+                Box(Modifier.weight(1F)) {
+                    column.content(item)
+                }
+            }
+        }
+    }
+
+    companion object {
+
+        internal operator fun <T> invoke(schema: TableSchema<T>): TableRowScope<T> {
+            return object : TableRowScope<T> {
+                override val schema: TableSchema<T> = schema
             }
         }
     }
@@ -82,13 +121,13 @@ internal fun <T> Table(
 interface TableSchemaConfig<T> {
 
     fun addColumn(
-        header: String,
+        header: (@Composable () -> Unit)? = null,
         content: @Composable (T) -> Unit,
     )
 }
 
 internal class Column<T>(
-    val header: String,
+    val header: (@Composable () -> Unit)? = null,
     val content: @Composable (T) -> Unit,
 )
 
@@ -97,7 +136,7 @@ class TableSchema<T> : TableSchemaConfig<T> {
     internal val columns = mutableListOf<Column<T>>()
 
     override fun addColumn(
-        header: String,
+        header: (@Composable () -> Unit)?,
         content: @Composable (T) -> Unit,
     ) {
         columns.add(
@@ -109,16 +148,27 @@ class TableSchema<T> : TableSchemaConfig<T> {
     }
 }
 
+fun <T> TableSchemaConfig<T>.addColumn(
+    headerText: String,
+    content: @Composable (T) -> Unit,
+) {
+    addColumn(
+        header = { Text(headerText) },
+        content = content,
+    )
+}
+
 fun <T> TableSchemaConfig<T>.addColumnText(
-    header: String,
+    headerText: String,
     textSelector: (T) -> String,
 ) {
     addColumn(
-        header = header,
+        header = { Text(headerText) },
         content = { Text(textSelector(it)) },
     )
 }
 
 fun <T> tableSchema(block: TableSchemaConfig<T>.() -> Unit): TableSchema<T> = TableSchema<T>().apply { block() }
 
+@Composable
 fun <T> rememberTableSchema(block: TableSchemaConfig<T>.() -> Unit): TableSchema<T> = remember { tableSchema(block) }
