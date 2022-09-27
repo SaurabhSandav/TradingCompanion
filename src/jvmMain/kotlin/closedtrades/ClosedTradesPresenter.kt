@@ -12,10 +12,10 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import mapList
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -33,8 +33,14 @@ internal class ClosedTradesPresenter(
                 .getAllClosedTradesDetailed()
                 .asFlow()
                 .mapToList(Dispatchers.IO)
-                .mapList { it.toClosedTradeListEntry() }
-        }.collectAsState(emptyList())
+                .map { getAllClosedTradesDetailed ->
+
+                    getAllClosedTradesDetailed
+                        .groupBy { LocalDateTime.parse(it.entryDate).date }
+                        .mapKeys { (date, _) -> ClosedTradeListItem.DayHeader(date.toString()) }
+                        .mapValues { (_, list) -> list.map { it.toClosedTradeListEntry() } }
+                }
+        }.collectAsState(emptyMap())
 
         return@launchMolecule ClosedTradesState(
             closedTradesItems = closedTradesEntries,

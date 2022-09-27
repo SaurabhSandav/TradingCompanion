@@ -18,10 +18,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import experimental.Table
-import experimental.addColumnText
-import experimental.rememberTableSchema
-import experimental.rows
+import table.Table
+import table.addColumnText
+import table.rememberTableSchema
+import table.rows
 import utils.NIFTY50
 import utils.state
 

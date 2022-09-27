@@ -1,5 +1,6 @@
 package closedtrades
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -7,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import experimental.*
+import table.*
 
 @Composable
 internal fun ClosedTradesScreen(
@@ -41,16 +42,25 @@ internal fun ClosedTradesScreen(
         schema = schema,
     ) {
 
-        rows(
-            items = state.closedTradesItems,
-            key = { it.id },
-        ) { item ->
+        state.closedTradesItems.forEach { (dayHeader, entries) ->
 
-            Column {
+            stickyHeader {
+                Box {
+                    Text(dayHeader.header)
+                }
+            }
 
-                DefaultRow(item)
+            rows(
+                items = entries,
+                key = { it.id },
+            ) { item ->
 
-                Divider()
+                Column {
+
+                    DefaultRow(item)
+
+                    Divider()
+                }
             }
         }
     }

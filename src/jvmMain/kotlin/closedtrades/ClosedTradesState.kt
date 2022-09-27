@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 internal data class ClosedTradesState(
-    val closedTradesItems: List<ClosedTradeListItem.Entry>,
+    val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
 )
 
 @Immutable
