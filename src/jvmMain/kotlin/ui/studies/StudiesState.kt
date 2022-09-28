@@ -1,39 +1,31 @@
 package ui.studies
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateListOf
+import studies.Study
 
 @Immutable
 internal data class StudiesState(
-    val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
+    val studies: List<Study>,
 )
 
-@Immutable
-internal sealed class ClosedTradeListItem {
+internal class StudyWindowsManager {
 
-    @Immutable
-    internal data class DayHeader(val header: String) : ClosedTradeListItem()
+    val windows = mutableStateListOf<StudyWindowState>()
 
-    @Immutable
-    internal data class Entry(
-        val id: Int,
-        val broker: String,
-        val ticker: String,
-        val quantity: String,
-        val side: String,
-        val entry: String,
-        val stop: String,
-        val entryTime: String,
-        val target: String,
-        val exit: String,
-        val exitTime: String,
-        val pnl: String,
-        val netPnl: String,
-        val fees: String,
-        val duration: String,
-        val isProfitable: Boolean,
-        val maxFavorableExcursion: String,
-        val maxAdverseExcursion: String,
-        val persisted: Boolean,
-        val persistenceResult: String?,
-    ) : ClosedTradeListItem()
+    fun openNewWindow(study: Study) {
+
+        windows += StudyWindowState(
+            study = study,
+            onCloseRequest = windows::remove,
+        )
+    }
+}
+
+internal class StudyWindowState(
+    val study: Study,
+    val onCloseRequest: (StudyWindowState) -> Unit,
+) {
+
+    fun close() = onCloseRequest(this)
 }

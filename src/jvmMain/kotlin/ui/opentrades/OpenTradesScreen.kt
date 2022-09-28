@@ -39,7 +39,7 @@ internal fun OpenTradesScreen(
         addColumnText("Ticker") { it.ticker }
         addColumnText("Instrument") { it.instrument }
         addColumnText("Quantity") { it.quantity }
-        addColumnText("model.Side") { it.side }
+        addColumnText("Side") { it.side }
         addColumnText("Entry") { it.entry }
         addColumnText("Stop") { it.stop }
         addColumnText("Entry Time") { it.entryTime }

@@ -1,19 +1,24 @@
 package ui.studies
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
-import androidx.compose.material.Surface
+import androidx.compose.material.ListItem
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import ui.common.table.*
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
+import studies.Study
+import ui.common.table.DefaultTableRow
+import ui.common.table.LazyTable
+import ui.common.table.rows
 
 @Composable
 internal fun StudiesScreen(
@@ -21,60 +26,59 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
+    val studyWindowsManager = remember { StudyWindowsManager() }
 
-    val schema = rememberTableSchema<ClosedTradeListItem.Entry> {
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("model.Side") {
-            Text(it.side, color = if (it.side.lowercase() == "long") Color.Green else Color.Red)
+    LazyColumn(Modifier.fillMaxSize()) {
+
+        items(items = state.studies) { study ->
+
+            ListItem(Modifier.clickable { studyWindowsManager.openNewWindow(study) }) {
+                Text(study.name)
+            }
         }
-        addColumnText("Entry") { it.entry }
-        addColumnText("Stop") { it.stop }
-        addColumnText("Entry Time") { it.entryTime }
-        addColumnText("Target") { it.target }
-        addColumnText("Exit") { it.exit }
-        addColumnText("Exit Time") { it.exitTime }
-        addColumnText("Maximum Favorable Excursion") { it.maxFavorableExcursion }
-        addColumnText("Maximum Adverse Excursion") { it.maxAdverseExcursion }
-        addColumnText("P&L") { it.pnl }
-        addColumnText("Net P&L") { it.netPnl }
-        addColumnText("Fees") { it.fees }
-        addColumnText("Duration") { it.duration }
     }
 
+    studyWindowsManager.windows.forEach { windowState ->
+
+        key(windowState) {
+
+            Window(
+                onCloseRequest = { windowState.close() },
+                state = rememberWindowState(placement = WindowPlacement.Maximized),
+                title = windowState.study.name,
+            ) {
+
+                val density = LocalDensity.current
+
+                val newDensity = Density(density.density * 0.8F, density.fontScale)
+
+                CompositionLocalProvider(LocalDensity provides newDensity) {
+                    StudyWindowContent(windowState.study)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StudyWindowContent(study: Study) {
+
+    val items by study.provider.data.collectAsState(emptyList())
+
     LazyTable(
-        schema = schema,
+        modifier = Modifier.fillMaxSize(),
+        schema = study.provider.schema,
     ) {
 
-        state.closedTradesItems.forEach { (dayHeader, entries) ->
+        rows(
+            items = items,
+        ) { item ->
 
-            stickyHeader {
+            Column {
 
-                Surface {
-                    Box(
-                        modifier = Modifier.fillParentMaxWidth()
-                            .padding(8.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(dayHeader.header)
-                    }
-                }
+                DefaultTableRow(item, schema)
 
                 Divider()
-            }
-
-            rows(
-                items = entries,
-                key = { it.id },
-            ) { item ->
-
-                Column {
-
-                    DefaultTableRow(item, schema)
-
-                    Divider()
-                }
             }
         }
     }

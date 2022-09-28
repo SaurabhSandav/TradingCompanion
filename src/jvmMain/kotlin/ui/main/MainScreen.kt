@@ -24,7 +24,7 @@ internal fun MainScreen(
 
     var state by state { 4 }
 
-    val titles = listOf("model.Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies")
+    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies")
 
     Column {
 

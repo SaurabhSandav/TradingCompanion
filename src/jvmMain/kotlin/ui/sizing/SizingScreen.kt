@@ -65,7 +65,7 @@ internal fun SizingScreen(
                 singleLine = true,
             )
         }
-        addColumnText("model.Side") { it.side }
+        addColumnText("Side") { it.side }
         addColumnText("Spread") { it.spread }
         addColumnText("Calculated Quantity") { it.calculatedQuantity }
         addColumnText("Max Affordable Quantity") { it.maxAffordableQuantity }

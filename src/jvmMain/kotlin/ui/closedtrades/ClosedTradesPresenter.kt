@@ -12,13 +12,14 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import model.Side
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 internal class ClosedTradesPresenter(
@@ -37,7 +38,7 @@ internal class ClosedTradesPresenter(
 
                     getAllClosedTradesDetailed
                         .groupBy { LocalDateTime.parse(it.entryDate).date }
-                        .mapKeys { (date, _) -> ClosedTradeListItem.DayHeader(date.toString()) }
+                        .mapKeys { (date, _) -> date.toClosedTradeListDayHeader() }
                         .mapValues { (_, list) -> list.map { it.toClosedTradeListEntry() } }
                 }
         }.collectAsState(emptyMap())
@@ -45,6 +46,11 @@ internal class ClosedTradesPresenter(
         return@launchMolecule ClosedTradesState(
             closedTradesItems = closedTradesEntries,
         )
+    }
+
+    private fun LocalDate.toClosedTradeListDayHeader(): ClosedTradeListItem.DayHeader {
+        val formatted = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(toJavaLocalDate())
+        return ClosedTradeListItem.DayHeader(formatted)
     }
 
     private fun GetAllClosedTradesDetailed.toClosedTradeListEntry(): ClosedTradeListItem.Entry {
@@ -93,19 +99,17 @@ internal class ClosedTradesPresenter(
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity,
-            side = this@toClosedTradeListEntry.side
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+            side = this@toClosedTradeListEntry.side.uppercase(),
             entry = entry,
             stop = stop ?: "NA",
-            entryTime = entryDateTime.time.toString(),
+            duration = "${entryDateTime.time} ->\n${exitDateTime.time}\n($duration)",
             target = target ?: "NA",
             exit = exit,
-            exitTime = exitDateTime.time.toString(),
             pnl = pnlBD.toPlainString() + " (${rValue}R)",
+            isProfitable = pnlBD > BigDecimal.ZERO,
             netPnl = netPnlBD.toPlainString(),
+            isNetProfitable = netPnlBD > BigDecimal.ZERO,
             fees = (pnlBD - netPnlBD).toPlainString(),
-            duration = duration,
-            isProfitable = netPnlBD > BigDecimal.ZERO,
             maxFavorableExcursion = maxFavorableExcursion,
             maxAdverseExcursion = maxAdverseExcursion,
             persisted = persisted.toBoolean(),

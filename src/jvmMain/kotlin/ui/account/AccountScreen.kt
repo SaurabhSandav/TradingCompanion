@@ -13,11 +13,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ui.common.AppColor
 import ui.common.state
-import ui.common.table.LazyTable
-import ui.common.table.addColumnText
-import ui.common.table.rememberTableSchema
-import ui.common.table.rows
+import ui.common.table.*
 
 @Composable
 internal fun AccountScreen(
@@ -29,7 +27,9 @@ internal fun AccountScreen(
     val schema = rememberTableSchema<Transaction> {
         addColumnText("Date") { it.date }
         addColumnText("Type") { it.type }
-        addColumnText("Amount") { it.amount }
+        addColumn("Amount") {
+            Text(it.amount, color = if (it.type == "Credit") AppColor.ProfitGreen else AppColor.LossRed)
+        }
         addColumnText("Note") { it.note }
     }
 
