@@ -3,6 +3,7 @@ import com.saurabhsandav.core.AppDB
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import model.Account
 
 internal class AppModule {
 

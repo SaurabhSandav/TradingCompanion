@@ -1,6 +1,6 @@
 package utils
 
-import Side
+import model.Side
 import java.math.BigDecimal
 import java.math.RoundingMode
 

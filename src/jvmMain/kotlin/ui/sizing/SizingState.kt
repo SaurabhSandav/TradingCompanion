@@ -1,4 +1,4 @@
-package sizing
+package ui.sizing
 
 import androidx.compose.runtime.Immutable
 

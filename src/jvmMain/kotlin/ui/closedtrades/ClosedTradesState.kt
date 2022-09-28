@@ -1,4 +1,4 @@
-package closedtrades
+package ui.closedtrades
 
 import androidx.compose.runtime.Immutable
 

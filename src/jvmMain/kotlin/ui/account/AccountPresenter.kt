@@ -1,4 +1,4 @@
-package account
+package ui.account
 
 import AppModule
 import androidx.compose.runtime.collectAsState
@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import mapList
 
 internal class AccountPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
 

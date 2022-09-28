@@ -49,7 +49,7 @@ internal class TradeImporter(
                 instrument = row.getValue("Instrument").lowercase(),
                 quantity = row.getValue("Qty"),
                 lots = row["Lots"]?.toIntOrNull(),
-                side = row.getValue("Side").lowercase(),
+                side = row.getValue("model.Side").lowercase(),
                 entry = row.getValue("Entry"),
                 stop = row.getValue("SL"),
                 entryDate = date.atTime(entryTime).toString(),

@@ -1,18 +1,23 @@
-package closedtrades
+package ui.studies
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import table.*
+import androidx.compose.ui.unit.dp
+import ui.common.table.*
 
 @Composable
-internal fun ClosedTradesScreen(
-    presenter: ClosedTradesPresenter,
+internal fun StudiesScreen(
+    presenter: StudiesPresenter,
 ) {
 
     val state by presenter.state.collectAsState()
@@ -21,7 +26,7 @@ internal fun ClosedTradesScreen(
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
-        addColumn("Side") {
+        addColumn("model.Side") {
             Text(it.side, color = if (it.side.lowercase() == "long") Color.Green else Color.Red)
         }
         addColumnText("Entry") { it.entry }
@@ -45,9 +50,18 @@ internal fun ClosedTradesScreen(
         state.closedTradesItems.forEach { (dayHeader, entries) ->
 
             stickyHeader {
-                Box {
-                    Text(dayHeader.header)
+
+                Surface {
+                    Box(
+                        modifier = Modifier.fillParentMaxWidth()
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(dayHeader.header)
+                    }
                 }
+
+                Divider()
             }
 
             rows(

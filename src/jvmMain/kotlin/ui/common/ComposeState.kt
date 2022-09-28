@@ -1,4 +1,4 @@
-package utils
+package ui.common
 
 import androidx.compose.runtime.*
 

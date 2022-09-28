@@ -1,3 +1,5 @@
+package model
+
 internal enum class Side(val strValue: String) {
     Long("long"),
     Short("short");

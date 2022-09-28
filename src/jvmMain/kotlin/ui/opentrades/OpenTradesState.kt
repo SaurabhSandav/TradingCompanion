@@ -1,4 +1,4 @@
-package opentrades
+package ui.opentrades
 
 import androidx.compose.runtime.Immutable
 

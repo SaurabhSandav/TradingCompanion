@@ -1,4 +1,4 @@
-package opentrades
+package ui.opentrades
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,12 +18,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import table.LazyTable
-import table.addColumnText
-import table.rememberTableSchema
-import table.rows
+import ui.common.state
+import ui.common.table.LazyTable
+import ui.common.table.addColumnText
+import ui.common.table.rememberTableSchema
+import ui.common.table.rows
 import utils.NIFTY50
-import utils.state
 
 @Composable
 internal fun OpenTradesScreen(
@@ -39,7 +39,7 @@ internal fun OpenTradesScreen(
         addColumnText("Ticker") { it.ticker }
         addColumnText("Instrument") { it.instrument }
         addColumnText("Quantity") { it.quantity }
-        addColumnText("Side") { it.side }
+        addColumnText("model.Side") { it.side }
         addColumnText("Entry") { it.entry }
         addColumnText("Stop") { it.stop }
         addColumnText("Entry Time") { it.entryTime }
@@ -54,22 +54,21 @@ internal fun OpenTradesScreen(
             items = state.openTrades,
             key = { it.id },
         )
-    }
 
+        row {
 
-    /*        item {
+            Row(
+                modifier = Modifier.padding(16.dp).fillParentMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
 
-                Row(
-                    modifier = Modifier.padding(16.dp).fillParentMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-
-                    Button(onClick = { showTradeCreationDialog = true }) {
-                        Text("New Trade")
-                    }
+                Button(onClick = { showTradeCreationDialog = true }) {
+                    Text("New Trade")
                 }
-            }*/
+            }
+        }
+    }
 
     if (showTradeCreationDialog) {
 

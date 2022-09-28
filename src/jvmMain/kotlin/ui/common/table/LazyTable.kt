@@ -1,4 +1,4 @@
-package table
+package ui.common.table
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn

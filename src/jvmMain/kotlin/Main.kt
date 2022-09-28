@@ -10,7 +10,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import main.MainScreen
+import ui.main.MainScreen
 
 @Composable
 @Preview

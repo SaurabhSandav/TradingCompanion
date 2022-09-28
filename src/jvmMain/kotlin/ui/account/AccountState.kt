@@ -1,4 +1,4 @@
-package account
+package ui.account
 
 import androidx.compose.runtime.Immutable
 

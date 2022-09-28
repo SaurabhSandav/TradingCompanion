@@ -1,8 +1,6 @@
-package sizing
+package ui.sizing
 
-import Account
 import AppModule
-import Side
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,6 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mapList
+import model.Account
+import model.Side
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*

@@ -1,7 +1,6 @@
-package closedtrades
+package ui.closedtrades
 
 import AppModule
-import Side
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,13 +15,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import model.Side
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
 internal class ClosedTradesPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
 

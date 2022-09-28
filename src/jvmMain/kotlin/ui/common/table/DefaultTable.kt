@@ -1,8 +1,9 @@
-package table
+package ui.common.table
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -11,7 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import utils.state
+import androidx.compose.ui.unit.dp
+import ui.common.state
 
 @Composable
 fun <T> DefaultTableHeader(
@@ -20,7 +22,7 @@ fun <T> DefaultTableHeader(
 ) {
 
     Row(
-        modifier = modifier,
+        modifier = modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
@@ -46,6 +48,7 @@ fun <T> DefaultTableRow(
             .background(color = if (rowActive) Color.LightGray else Color.White)
             .onPointerEvent(PointerEventType.Enter) { rowActive = true }
             .onPointerEvent(PointerEventType.Exit) { rowActive = false }
+            .padding(8.dp)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -1,4 +1,4 @@
-package table
+package ui.common.table
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable

@@ -1,7 +1,6 @@
-package opentrades
+package ui.opentrades
 
 import AppModule
-import Side
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -14,9 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
 import mapList
+import model.Side
 
 internal class OpenTradesPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
 
