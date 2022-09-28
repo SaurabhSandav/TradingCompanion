@@ -19,18 +19,33 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-internal class PNLExcursionStudy(appModule: AppModule) : Study {
+internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursionStudy.Model>() {
 
     override val name: String = "PNL Excursion"
 
-    override val provider: Study.Provider = PNLExcursionStudyProvider(appModule)
-}
+    override val schema: TableSchema<Model> = tableSchema {
+        addColumnText("Ticker") { it.ticker }
+        addColumnText("Quantity") { it.quantity }
+        addColumn("Side") {
+            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+        }
+        addColumnText("Entry") { it.entry }
+        addColumnText("Stop") { it.stop }
+        addColumnText("Duration") { it.duration }
+        addColumnText("Target") { it.target }
+        addColumnText("Exit") { it.exit }
+        addColumnText("PNL") { it.pnl }
+        addColumnText("MFE") { it.maxFavorableExcursion }
+        addColumn("MFE PNL") {
+            Text(text = it.mfePNL, color = AppColor.ProfitGreen)
+        }
+        addColumnText("MAE") { it.maxAdverseExcursion }
+        addColumn("MAE PNL") {
+            Text(text = it.maePNL, color = AppColor.LossRed)
+        }
+    }
 
-private class PNLExcursionStudyProvider(
-    appModule: AppModule,
-) : Study.Provider {
-
-    override val data: Flow<List<Study.Model>> = appModule.appDB
+    override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
         .getAllClosedTradesDetailed {
                 _, _, ticker, _, quantity, _, side, entry, stop, entryDate, target,
@@ -65,53 +80,6 @@ private class PNLExcursionStudyProvider(
         .asFlow()
         .mapToList(Dispatchers.IO)
 
-    private fun buildPNLString(
-        side: Side,
-        quantity: BigDecimal,
-        entry: BigDecimal,
-        stop: BigDecimal?,
-        exit: BigDecimal,
-    ): String {
-
-        val pnl = when (side) {
-            Side.Long -> (exit - entry) * quantity
-            Side.Short -> (entry - exit) * quantity
-        }
-
-        val rValue = when (stop) {
-            null -> "NA"
-            else -> when (side) {
-                Side.Long -> pnl / ((entry - stop) * quantity)
-                Side.Short -> pnl / ((stop - entry) * quantity)
-            }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
-        }
-
-        return pnl.toPlainString() + " (${rValue}R)"
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override val schema: TableSchema<Study.Model> = tableSchema<Model> {
-        addColumnText("Ticker") { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("Side") {
-            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Entry") { it.entry }
-        addColumnText("Stop") { it.stop }
-        addColumnText("Duration") { it.duration }
-        addColumnText("Target") { it.target }
-        addColumnText("Exit") { it.exit }
-        addColumnText("PNL") { it.pnl }
-        addColumnText("MFE") { it.maxFavorableExcursion }
-        addColumn("MFE PNL") {
-            Text(text = it.mfePNL, color = AppColor.ProfitGreen)
-        }
-        addColumnText("MAE") { it.maxAdverseExcursion }
-        addColumn("MAE PNL") {
-            Text(text = it.maePNL, color = AppColor.LossRed)
-        }
-    } as TableSchema<Study.Model>
-
     data class Model(
         val ticker: String,
         val quantity: String,
@@ -126,5 +94,29 @@ private class PNLExcursionStudyProvider(
         val mfePNL: String,
         val maxAdverseExcursion: String,
         val maePNL: String,
-    ) : Study.Model
+    )
+}
+
+private fun buildPNLString(
+    side: Side,
+    quantity: BigDecimal,
+    entry: BigDecimal,
+    stop: BigDecimal?,
+    exit: BigDecimal,
+): String {
+
+    val pnl = when (side) {
+        Side.Long -> (exit - entry) * quantity
+        Side.Short -> (entry - exit) * quantity
+    }
+
+    val rValue = when (stop) {
+        null -> "NA"
+        else -> when (side) {
+            Side.Long -> pnl / ((entry - stop) * quantity)
+            Side.Short -> pnl / ((stop - entry) * quantity)
+        }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
+    }
+
+    return pnl.toPlainString() + " (${rValue}R)"
 }

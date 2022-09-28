@@ -20,18 +20,32 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-internal class PNLStudy(appModule: AppModule) : Study {
+internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
 
     override val name: String = "PNL"
 
-    override val provider: Study.Provider = PNLStudyProvider(appModule)
-}
+    override val schema: TableSchema<Model> = tableSchema {
+        addColumnText("Ticker") { it.ticker }
+        addColumnText("Quantity") { it.quantity }
+        addColumn("Side") {
+            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+        }
+        addColumnText("Entry") { it.entry }
+        addColumnText("Stop") { it.stop }
+        addColumnText("Duration") { it.duration }
+        addColumnText("Target") { it.target }
+        addColumnText("Exit") { it.exit }
+        addColumn("PNL") {
+            Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+        }
+        addColumn("Net PNL") {
+            Text(it.netPnl, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+        }
+        addColumnText("Fees") { it.fees }
+        addColumnText("R") { it.rValue }
+    }
 
-private class PNLStudyProvider(
-    appModule: AppModule,
-) : Study.Provider {
-
-    override val data: Flow<List<Study.Model>> = appModule.appDB
+    override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
         .getAllClosedTradesDetailed { _, broker, ticker, instrument, quantity, _, side, entry, stop, entryDate, target, exit, exitDate, _, _, _, _ ->
 
@@ -86,28 +100,6 @@ private class PNLStudyProvider(
         .asFlow()
         .mapToList(Dispatchers.IO)
 
-    @Suppress("UNCHECKED_CAST")
-    override val schema: TableSchema<Study.Model> = tableSchema<Model> {
-        addColumnText("Ticker") { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("Side") {
-            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Entry") { it.entry }
-        addColumnText("Stop") { it.stop }
-        addColumnText("Duration") { it.duration }
-        addColumnText("Target") { it.target }
-        addColumnText("Exit") { it.exit }
-        addColumn("PNL") {
-            Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumn("Net PNL") {
-            Text(it.netPnl, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Fees") { it.fees }
-        addColumnText("R") { it.rValue }
-    } as TableSchema<Study.Model>
-
     data class Model(
         val ticker: String,
         val quantity: String,
@@ -123,5 +115,5 @@ private class PNLStudyProvider(
         val isNetProfitable: Boolean,
         val fees: String,
         val rValue: String,
-    ) : Study.Model
+    )
 }

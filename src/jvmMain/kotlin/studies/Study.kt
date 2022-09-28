@@ -1,20 +1,11 @@
 package studies
 
-import kotlinx.coroutines.flow.Flow
-import ui.common.table.TableSchema
+import androidx.compose.runtime.Composable
 
 interface Study {
 
     val name: String
 
-    val provider: Provider
-
-    interface Provider {
-
-        val data: Flow<List<Model>>
-
-        val schema: TableSchema<Model>
-    }
-
-    interface Model
+    @Composable
+    fun render()
 }
