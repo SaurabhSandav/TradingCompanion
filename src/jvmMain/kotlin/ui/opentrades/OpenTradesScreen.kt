@@ -1,5 +1,6 @@
 package ui.opentrades
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -102,39 +104,44 @@ private fun OpenTradeCreationDialog(
     ) -> Unit,
 ) {
 
-    var showStockSelectionDialog by state { false }
-
-    var ticker by state { "Select Stock..." }
-
     Dialog(
         onCloseRequest = onCloseRequest,
         title = "New Trade",
     ) {
 
-        Column(Modifier.width(IntrinsicSize.Min)) {
+        Column(
+            modifier = Modifier.width(IntrinsicSize.Min),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
 
-            var quantity by state { "" }
-            var quantityIsError by state { false }
-            var isLong by state { false }
-            var entry by state { "" }
-            var entryIsError by state { false }
-            var stop by state { "" }
-            var stopIsError by state { false }
-            var target by state { "" }
-            var targetIsError by state { false }
+            val formState = remember { OpenTradeFormState() }
 
-            ListItem(Modifier.clickable { showStockSelectionDialog = true }) {
-                Text(ticker)
+            var showStockSelectionDialog by state { false }
+
+            ListItem(
+                modifier = Modifier.clickable { showStockSelectionDialog = true }
+                    .border(1.dp, if (formState.ticker.isError) Color.Red else Color.LightGray),
+            ) {
+                Text(formState.ticker.value)
+            }
+
+            if (showStockSelectionDialog) {
+
+                StockSelectionDialog(
+                    onTickerSelected = {
+                        formState.ticker.onSelectionChange(it)
+                        showStockSelectionDialog = false
+                    },
+                    onCloseRequest = { showStockSelectionDialog = false },
+                )
             }
 
             TextField(
-                value = quantity,
-                onValueChange = {
-                    quantity = it.trim()
-                    quantityIsError = quantity.toBigDecimalOrNull() == null
-                },
+                value = formState.quantity.value,
+                onValueChange = formState.quantity.onValueChange,
                 label = { Text("Quantity") },
-                isError = quantityIsError
+                isError = formState.quantity.isError,
+                singleLine = true,
             )
 
             Row(
@@ -146,8 +153,8 @@ private fun OpenTradeCreationDialog(
                 Text("Long")
 
                 Switch(
-                    checked = isLong,
-                    onCheckedChange = { isLong = !isLong },
+                    checked = formState.isLong.value,
+                    onCheckedChange = formState.isLong.onCheckedChange,
                     colors = SwitchDefaults.colors(
                         uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
                         uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
@@ -159,55 +166,48 @@ private fun OpenTradeCreationDialog(
             }
 
             TextField(
-                value = entry,
-                onValueChange = {
-                    entry = it.trim()
-                    entryIsError = entry.toBigDecimalOrNull() == null
-                },
+                value = formState.entry.value,
+                onValueChange = formState.entry.onValueChange,
                 label = { Text("Entry") },
-                isError = entryIsError,
+                isError = formState.entry.isError,
+                singleLine = true,
             )
 
             TextField(
-                value = stop,
-                onValueChange = {
-                    stop = it.trim()
-                    stopIsError = stop.toBigDecimalOrNull() == null
-                },
+                value = formState.stop.value,
+                onValueChange = formState.stop.onValueChange,
                 label = { Text("Stop") },
-                isError = stopIsError,
+                isError = formState.stop.isError,
+                singleLine = true,
             )
 
-
             TextField(
-                value = target,
-                onValueChange = {
-                    target = it.trim()
-                    targetIsError = target.toBigDecimalOrNull() == null
-                },
+                value = formState.target.value,
+                onValueChange = formState.target.onValueChange,
                 label = { Text("Target") },
-                isError = targetIsError,
+                isError = formState.target.isError,
+                singleLine = true,
             )
 
             Button(
-                onClick = { onAddTrade(ticker, quantity, isLong, entry, stop, target) },
+                onClick = {
+                    if (formState.canSubmit()) {
+                        onAddTrade(
+                            formState.ticker.value,
+                            formState.quantity.value,
+                            formState.isLong.value,
+                            formState.entry.value,
+                            formState.stop.value,
+                            formState.target.value
+                        )
+                    }
+                },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
 
                 Text("Add")
             }
         }
-    }
-
-    if (showStockSelectionDialog) {
-
-        StockSelectionDialog(
-            onTickerSelected = {
-                ticker = it
-                showStockSelectionDialog = false
-            },
-            onCloseRequest = { showStockSelectionDialog = false },
-        )
     }
 }
 
