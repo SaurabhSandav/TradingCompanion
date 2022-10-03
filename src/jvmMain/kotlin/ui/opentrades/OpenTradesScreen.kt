@@ -191,7 +191,7 @@ private fun OpenTradeCreationDialog(
 
             Button(
                 onClick = {
-                    if (formState.canSubmit()) {
+                    if (formState.isValid()) {
                         onAddTrade(
                             formState.ticker.value,
                             formState.quantity.value,

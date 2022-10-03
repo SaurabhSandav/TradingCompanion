@@ -12,7 +12,7 @@ sealed class FormState {
 }
 
 @Stable
-class TextFieldState(
+class TextFieldState internal constructor(
     initialValue: String,
     private val isErrorCheck: (String) -> Boolean,
     onValueChange: (prev: String, new: String) -> String = { _, new -> new },
@@ -36,7 +36,7 @@ class TextFieldState(
 }
 
 @Stable
-class SwitchState(
+class SwitchState internal constructor(
     initialValue: Boolean,
     onCheckedChange: (new: Boolean) -> Boolean = { new -> new },
 ) : FormState() {
@@ -52,7 +52,7 @@ class SwitchState(
 }
 
 @Stable
-class SingleSelectionState(
+class SingleSelectionState internal constructor(
     private val labelText: String,
     onSelectionChange: (new: String) -> String = { new -> new },
 ) : FormState() {

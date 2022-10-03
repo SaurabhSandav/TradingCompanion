@@ -1,9 +1,7 @@
 package ui.opentrades
 
 import androidx.compose.runtime.Immutable
-import ui.common.form.SingleSelectionState
-import ui.common.form.SwitchState
-import ui.common.form.TextFieldState
+import ui.common.form.FormManager
 
 @Immutable
 internal data class OpenTradesState(
@@ -25,36 +23,37 @@ internal data class OpenTradeListEntry(
 
 class OpenTradeFormState {
 
-    val ticker = SingleSelectionState(
+    private val manager = FormManager()
+
+    val ticker = manager.singleSelectionState(
         labelText = "Select Stock...",
     )
 
-    val quantity = TextFieldState(
+    val quantity = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { _, new -> new.trim() }
     )
 
-    val isLong = SwitchState(false)
+    val isLong = manager.switchState(false)
 
-    val entry = TextFieldState(
+    val entry = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { _, new -> new.trim() }
     )
 
-    val stop = TextFieldState(
+    val stop = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { _, new -> new.trim() }
     )
 
-    val target = TextFieldState(
+    val target = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { _, new -> new.trim() }
     )
 
-    // Calls isValid() on all states and updates the error states if not up to date
-    fun canSubmit() = listOf(ticker, quantity, isLong, entry, stop, target).map { it.isValid() }.all { it }
+    fun isValid() = manager.isFormValid()
 }
