@@ -67,6 +67,9 @@ kotlin {
 
                 // kotlin-csv
                 implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0")
+
+                // JFreeChart
+                implementation("org.jfree:jfreechart:1.5.3")
             }
         }
         val jvmTest by getting

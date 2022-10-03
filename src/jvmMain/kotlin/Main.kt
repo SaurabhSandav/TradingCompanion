@@ -35,10 +35,12 @@ fun main() = application {
 
         val density = LocalDensity.current
 
-        val newDensity = Density(density.density * 0.8F, density.fontScale)
+        val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
 
         CompositionLocalProvider(LocalDensity provides newDensity) {
             App()
         }
     }
 }
+
+const val AppDensityFraction = 0.8F

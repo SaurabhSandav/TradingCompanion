@@ -1,5 +1,6 @@
 package ui.studies
 
+import AppDensityFraction
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,7 +45,7 @@ internal fun StudiesScreen(
 
                 val density = LocalDensity.current
 
-                val newDensity = Density(density.density * 0.8F, density.fontScale)
+                val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
 
                 CompositionLocalProvider(LocalDensity provides newDensity) {
                     windowManager.study.render()

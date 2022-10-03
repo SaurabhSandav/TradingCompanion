@@ -5,6 +5,8 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import kotlinx.coroutines.CoroutineScope
+import studies.PNLByDayChartStudy
+import studies.PNLByDayStudy
 import studies.PNLExcursionStudy
 import studies.PNLStudy
 
@@ -18,6 +20,8 @@ internal class StudiesPresenter(
         val studies = remember {
             listOf(
                 PNLStudy(appModule),
+                PNLByDayStudy(appModule),
+                PNLByDayChartStudy(appModule),
                 PNLExcursionStudy(appModule),
             )
         }
