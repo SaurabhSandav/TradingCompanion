@@ -18,12 +18,12 @@ fun interface MutableFieldState<T> {
 
 @Stable
 class TextFieldState internal constructor(
-    initialValue: String,
-    private val isErrorCheck: (String) -> Boolean,
+    initial: String,
+    private val isErrorCheck: (String) -> Boolean = { false },
     onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
 ) : FormState {
 
-    var value by mutableStateOf(initialValue)
+    var value by mutableStateOf(initial)
         private set
 
     var isError by mutableStateOf(false)
@@ -42,11 +42,11 @@ class TextFieldState internal constructor(
 
 @Stable
 class SwitchState internal constructor(
-    initialValue: Boolean,
+    initial: Boolean,
     onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
 ) : FormState {
 
-    var value by mutableStateOf(initialValue)
+    var value by mutableStateOf(initial)
         private set
 
     override fun isValid(): Boolean = true

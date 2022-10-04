@@ -18,8 +18,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TimeField(
     value: LocalTime,
-    onValidTimeChange: (LocalTime) -> Unit,
+    onValidValueChange: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
+    isError: Boolean = false,
     label: @Composable (() -> Unit)? = null,
 ) {
 
@@ -49,12 +50,12 @@ fun TimeField(
 
             val time = runCatching { java.time.LocalTime.parse(trimmed, formatter).toKotlinLocalTime() }
 
-            time.onSuccess { onValidTimeChange(it) }
+            time.onSuccess { onValidValueChange(it) }
             isTimeValid = time.isSuccess
             timeStr = trimmed
         },
         label = label,
-        isError = !isTimeValid,
+        isError = isError || !isTimeValid,
         singleLine = true,
         visualTransformation = {
 

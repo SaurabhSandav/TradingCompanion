@@ -1,8 +1,12 @@
 package ui.opentrades
 
 import androidx.compose.runtime.Immutable
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ui.common.form.FormManager
-import ui.common.form.TextFieldState
+import ui.common.form.dateFieldState
+import ui.common.form.timeFieldState
 
 @Immutable
 internal data class OpenTradesState(
@@ -26,12 +30,18 @@ class OpenTradeFormState {
 
     private val manager = FormManager()
 
+    private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+    val date = manager.dateFieldState(
+        initial = currentDateTime.date,
+    )
+
     val ticker = manager.singleSelectionState(
         labelText = "Select Stock...",
     )
 
-    val quantity = TextFieldState(
-        initialValue = "",
+    val quantity = manager.textFieldState(
+        initial = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
@@ -39,19 +49,23 @@ class OpenTradeFormState {
     val isLong = manager.switchState(false)
 
     val entry = manager.textFieldState(
-        initialValue = "",
+        initial = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
     val stop = manager.textFieldState(
-        initialValue = "",
+        initial = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
+    val entryTime = manager.timeFieldState(
+        initial = currentDateTime.time,
+    )
+
     val target = manager.textFieldState(
-        initialValue = "",
+        initial = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )

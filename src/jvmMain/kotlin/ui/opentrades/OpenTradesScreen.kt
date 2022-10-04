@@ -18,11 +18,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
 import ui.common.controls.TimeField
 import ui.common.state
@@ -39,7 +40,7 @@ internal fun OpenTradesScreen(
 
     val state by presenter.state.collectAsState()
 
-    var showTradeCreationDialog by state { false }
+    var showTradeCreationWindow by state { false }
 
     val schema = rememberTableSchema<OpenTradeListEntry> {
         addColumnText("Broker") { it.broker }
@@ -70,17 +71,17 @@ internal fun OpenTradesScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                Button(onClick = { showTradeCreationDialog = true }) {
+                Button(onClick = { showTradeCreationWindow = true }) {
                     Text("New Trade")
                 }
             }
         }
     }
 
-    if (showTradeCreationDialog) {
+    if (showTradeCreationWindow) {
 
-        OpenTradeCreationDialog(
-            onCloseRequest = { showTradeCreationDialog = false },
+        OpenTradeCreationWindow(
+            onCloseRequest = { showTradeCreationWindow = false },
             onAddTrade = { ticker, quantity, isLong, entry, stop, target ->
                 presenter.addTrade(
                     ticker = ticker,
@@ -90,14 +91,14 @@ internal fun OpenTradesScreen(
                     stop = stop,
                     target = target,
                 )
-                showTradeCreationDialog = false
+                showTradeCreationWindow = false
             },
         )
     }
 }
 
 @Composable
-private fun OpenTradeCreationDialog(
+private fun OpenTradeCreationWindow(
     onCloseRequest: () -> Unit,
     onAddTrade: (
         ticker: String,
@@ -109,23 +110,35 @@ private fun OpenTradeCreationDialog(
     ) -> Unit,
 ) {
 
-    Dialog(
+    val windowState = rememberWindowState(
+        size = DpSize(width = 300.dp, height = Dp.Unspecified),
+    )
+
+    Window(
         onCloseRequest = onCloseRequest,
+        state = windowState,
         title = "New Trade",
+        resizable = false,
     ) {
 
         Column(
-            modifier = Modifier.width(IntrinsicSize.Min),
+            modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
             val formState = remember { OpenTradeFormState() }
 
+            DateField(
+                value = formState.date.value,
+                onValidValueChange = formState.date.onValueChange,
+                label = { Text("Date") },
+            )
+
             var showStockSelectionDialog by state { false }
 
             ListItem(
                 modifier = Modifier.clickable { showStockSelectionDialog = true }
-                    .border(1.dp, if (formState.ticker.isError) Color.Red else Color.LightGray),
+                    .border(1.dp, if (formState.ticker.isError) MaterialTheme.colors.error else Color.LightGray),
             ) {
                 Text(formState.ticker.value)
             }
@@ -141,7 +154,7 @@ private fun OpenTradeCreationDialog(
                 )
             }
 
-            TextField(
+            OutlinedTextField(
                 value = formState.quantity.value,
                 onValueChange = formState.quantity.onValueChange,
                 label = { Text("Quantity") },
@@ -170,7 +183,7 @@ private fun OpenTradeCreationDialog(
                 Text("Short")
             }
 
-            TextField(
+            OutlinedTextField(
                 value = formState.entry.value,
                 onValueChange = formState.entry.onValueChange,
                 label = { Text("Entry") },
@@ -178,7 +191,7 @@ private fun OpenTradeCreationDialog(
                 singleLine = true,
             )
 
-            TextField(
+            OutlinedTextField(
                 value = formState.stop.value,
                 onValueChange = formState.stop.onValueChange,
                 label = { Text("Stop") },
@@ -186,31 +199,13 @@ private fun OpenTradeCreationDialog(
                 singleLine = true,
             )
 
-            var currentDate by state {
-                Clock.System.now()
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                    .date
-            }
-
-            DateField(
-                value = currentDate,
-                onValidDateChange = { currentDate = it },
-                label = { Text("Date") },
-            )
-
-            var currentTime by state {
-                Clock.System.now()
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                    .time
-            }
-
             TimeField(
-                value = currentTime,
-                onValidTimeChange = { currentTime = it },
+                value = formState.entryTime.value,
+                onValidValueChange = formState.entryTime.onValueChange,
                 label = { Text("Entry Time") },
             )
 
-            TextField(
+            OutlinedTextField(
                 value = formState.target.value,
                 onValueChange = formState.target.onValueChange,
                 label = { Text("Target") },

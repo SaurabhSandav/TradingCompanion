@@ -5,18 +5,18 @@ class FormManager {
     private val controls = mutableListOf<FormState>()
 
     fun textFieldState(
-        initialValue: String,
+        initial: String,
         isErrorCheck: (String) -> Boolean,
         onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
     ): TextFieldState {
-        return TextFieldState(initialValue, isErrorCheck, onValueChange).also { controls.add(it) }
+        return TextFieldState(initial, isErrorCheck, onValueChange).also { controls.add(it) }
     }
 
     fun switchState(
-        initialValue: Boolean,
+        initial: Boolean,
         onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
     ): SwitchState {
-        return SwitchState(initialValue, onCheckedChange).also { controls.add(it) }
+        return SwitchState(initial, onCheckedChange).also { controls.add(it) }
     }
 
     fun singleSelectionState(
@@ -24,6 +24,10 @@ class FormManager {
         onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
     ): SingleSelectionState {
         return SingleSelectionState(labelText, onSelectionChange).also { controls.add(it) }
+    }
+
+    fun customState(formState: FormState) {
+        controls.add(formState)
     }
 
     // Calls isValid() on all FormStates in case error states are not up-to-date
