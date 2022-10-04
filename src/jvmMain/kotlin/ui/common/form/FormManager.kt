@@ -7,21 +7,21 @@ class FormManager {
     fun textFieldState(
         initialValue: String,
         isErrorCheck: (String) -> Boolean,
-        onValueChange: (prev: String, new: String) -> String = { _, new -> new },
+        onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
     ): TextFieldState {
         return TextFieldState(initialValue, isErrorCheck, onValueChange).also { controls.add(it) }
     }
 
     fun switchState(
         initialValue: Boolean,
-        onCheckedChange: (new: Boolean) -> Boolean = { new -> new },
+        onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
     ): SwitchState {
         return SwitchState(initialValue, onCheckedChange).also { controls.add(it) }
     }
 
     fun singleSelectionState(
         labelText: String,
-        onSelectionChange: (new: String) -> String = { new -> new },
+        onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
     ): SingleSelectionState {
         return SingleSelectionState(labelText, onSelectionChange).also { controls.add(it) }
     }

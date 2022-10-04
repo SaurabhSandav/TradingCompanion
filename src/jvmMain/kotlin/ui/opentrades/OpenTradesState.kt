@@ -2,6 +2,7 @@ package ui.opentrades
 
 import androidx.compose.runtime.Immutable
 import ui.common.form.FormManager
+import ui.common.form.TextFieldState
 
 @Immutable
 internal data class OpenTradesState(
@@ -29,10 +30,10 @@ class OpenTradeFormState {
         labelText = "Select Stock...",
     )
 
-    val quantity = manager.textFieldState(
+    val quantity = TextFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
-        onValueChange = { _, new -> new.trim() }
+        onValueChange = { setValue(it.trim()) },
     )
 
     val isLong = manager.switchState(false)
@@ -40,19 +41,19 @@ class OpenTradeFormState {
     val entry = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
-        onValueChange = { _, new -> new.trim() }
+        onValueChange = { setValue(it.trim()) },
     )
 
     val stop = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
-        onValueChange = { _, new -> new.trim() }
+        onValueChange = { setValue(it.trim()) },
     )
 
     val target = manager.textFieldState(
         initialValue = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
-        onValueChange = { _, new -> new.trim() }
+        onValueChange = { setValue(it.trim()) },
     )
 
     fun isValid() = manager.isFormValid()

@@ -20,6 +20,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import ui.common.controls.DateField
+import ui.common.controls.TimeField
 import ui.common.state
 import ui.common.table.LazyTable
 import ui.common.table.addColumnText
@@ -179,6 +184,30 @@ private fun OpenTradeCreationDialog(
                 label = { Text("Stop") },
                 isError = formState.stop.isError,
                 singleLine = true,
+            )
+
+            var currentDate by state {
+                Clock.System.now()
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
+            }
+
+            DateField(
+                value = currentDate,
+                onValidDateChange = { currentDate = it },
+                label = { Text("Date") },
+            )
+
+            var currentTime by state {
+                Clock.System.now()
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .time
+            }
+
+            TimeField(
+                value = currentTime,
+                onValidTimeChange = { currentTime = it },
+                label = { Text("Entry Time") },
             )
 
             TextField(

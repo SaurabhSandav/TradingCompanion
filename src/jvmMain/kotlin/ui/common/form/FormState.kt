@@ -6,17 +6,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 @Stable
-sealed class FormState {
+interface FormState {
 
-    abstract fun isValid(): Boolean
+    fun isValid(): Boolean
+}
+
+fun interface MutableFieldState<T> {
+
+    fun setValue(newValue: T)
 }
 
 @Stable
 class TextFieldState internal constructor(
     initialValue: String,
     private val isErrorCheck: (String) -> Boolean,
-    onValueChange: (prev: String, new: String) -> String = { _, new -> new },
-) : FormState() {
+    onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
+) : FormState {
 
     var value by mutableStateOf(initialValue)
         private set
@@ -29,33 +34,33 @@ class TextFieldState internal constructor(
         return !isError
     }
 
-    val onValueChange: (String) -> Unit = {
-        isError = isErrorCheck(it)
-        value = onValueChange(value, it)
+    val onValueChange: (String) -> Unit = { newValue ->
+        isError = isErrorCheck(value)
+        MutableFieldState<String> { value = it }.onValueChange(newValue)
     }
 }
 
 @Stable
 class SwitchState internal constructor(
     initialValue: Boolean,
-    onCheckedChange: (new: Boolean) -> Boolean = { new -> new },
-) : FormState() {
+    onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
+) : FormState {
 
     var value by mutableStateOf(initialValue)
         private set
 
     override fun isValid(): Boolean = true
 
-    val onCheckedChange: (Boolean) -> Unit = {
-        value = onCheckedChange(it)
+    val onCheckedChange: (Boolean) -> Unit = { newValue ->
+        MutableFieldState<Boolean> { value = it }.onCheckedChange(newValue)
     }
 }
 
 @Stable
 class SingleSelectionState internal constructor(
     private val labelText: String,
-    onSelectionChange: (new: String) -> String = { new -> new },
-) : FormState() {
+    onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
+) : FormState {
 
     var value by mutableStateOf(labelText)
         private set
@@ -65,12 +70,11 @@ class SingleSelectionState internal constructor(
 
     override fun isValid(): Boolean {
         isError = value == labelText
-        println(isError)
         return !isError
     }
 
-    val onSelectionChange: (String) -> Unit = {
-        isError = it == labelText
-        value = onSelectionChange(it)
+    val onSelectionChange: (String) -> Unit = { newValue ->
+        isError = newValue == labelText
+        MutableFieldState<String> { value = it }.onSelectionChange(newValue)
     }
 }
