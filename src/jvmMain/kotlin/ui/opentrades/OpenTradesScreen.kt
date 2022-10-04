@@ -1,30 +1,17 @@
 package ui.opentrades
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
+import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
 import ui.common.state
 import ui.common.table.LazyTable
@@ -134,25 +121,12 @@ private fun OpenTradeCreationWindow(
                 label = { Text("Date") },
             )
 
-            var showStockSelectionDialog by state { false }
-
-            ListItem(
-                modifier = Modifier.clickable { showStockSelectionDialog = true }
-                    .border(1.dp, if (formState.ticker.isError) MaterialTheme.colors.error else Color.LightGray),
-            ) {
-                Text(formState.ticker.value)
-            }
-
-            if (showStockSelectionDialog) {
-
-                StockSelectionDialog(
-                    onTickerSelected = {
-                        formState.ticker.onSelectionChange(it)
-                        showStockSelectionDialog = false
-                    },
-                    onCloseRequest = { showStockSelectionDialog = false },
-                )
-            }
+            ListSelectionField(
+                items = NIFTY50,
+                onSelection = formState.ticker.onSelectionChange,
+                selection = formState.ticker.value,
+                isError = formState.ticker.isError,
+            )
 
             OutlinedTextField(
                 value = formState.quantity.value,
@@ -217,7 +191,7 @@ private fun OpenTradeCreationWindow(
                 onClick = {
                     if (formState.isValid()) {
                         onAddTrade(
-                            formState.ticker.value,
+                            formState.ticker.value!!,
                             formState.quantity.value,
                             formState.isLong.value,
                             formState.entry.value,
@@ -230,67 +204,6 @@ private fun OpenTradeCreationWindow(
             ) {
 
                 Text("Add")
-            }
-        }
-    }
-}
-
-@Composable
-private fun StockSelectionDialog(
-    onTickerSelected: (ticker: String) -> Unit,
-    onCloseRequest: () -> Unit,
-) {
-
-    Dialog(
-        onCloseRequest = onCloseRequest,
-        title = "Select Stock",
-    ) {
-
-        var filterQuery by state { "" }
-        val focusRequester = remember { FocusRequester() }
-        val items = remember(filterQuery) {
-            NIFTY50.filter { it.startsWith(filterQuery) }
-        }
-
-        BasicTextField(
-            value = filterQuery,
-            onValueChange = { value ->
-                if (value.all { it.isLetter() })
-                    filterQuery = value.trim().uppercase()
-            },
-            modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
-        )
-
-        SideEffect { focusRequester.requestFocus() }
-
-        LazyColumn {
-
-            items(
-                items = items,
-                key = { it },
-            ) { stock ->
-
-                ListItem(
-                    modifier = Modifier.clickable { onTickerSelected(stock) },
-                ) {
-
-                    val stockText = remember(filterQuery, stock) {
-
-                        buildAnnotatedString {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(filterQuery)
-                            }
-
-                            append(stock.removePrefix(filterQuery))
-                        }
-                    }
-
-                    Text(
-                        text = stockText,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                    )
-                }
             }
         }
     }

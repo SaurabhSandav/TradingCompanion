@@ -36,9 +36,7 @@ class OpenTradeFormState {
         initial = currentDateTime.date,
     )
 
-    val ticker = manager.singleSelectionState(
-        labelText = "Select Stock...",
-    )
+    val ticker = manager.singleSelectionState()
 
     val quantity = manager.textFieldState(
         initial = "",

@@ -35,8 +35,8 @@ class TextFieldState internal constructor(
     }
 
     val onValueChange: (String) -> Unit = { newValue ->
-        isError = isErrorCheck(value)
         MutableFieldState<String> { value = it }.onValueChange(newValue)
+        isError = isErrorCheck(value)
     }
 }
 
@@ -58,23 +58,24 @@ class SwitchState internal constructor(
 
 @Stable
 class SingleSelectionState internal constructor(
-    private val labelText: String,
+    initial: String? = null,
+    private val isRequired: Boolean = true,
     onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
 ) : FormState {
 
-    var value by mutableStateOf(labelText)
+    var value by mutableStateOf(initial)
         private set
 
     var isError by mutableStateOf(false)
         private set
 
     override fun isValid(): Boolean {
-        isError = value == labelText
+        isError = isRequired && value == null
         return !isError
     }
 
     val onSelectionChange: (String) -> Unit = { newValue ->
-        isError = newValue == labelText
         MutableFieldState<String> { value = it }.onSelectionChange(newValue)
+        isError = isRequired && value == null
     }
 }

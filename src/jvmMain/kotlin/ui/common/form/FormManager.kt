@@ -20,10 +20,11 @@ class FormManager {
     }
 
     fun singleSelectionState(
-        labelText: String,
+        initial: String? = null,
+        isRequired: Boolean = true,
         onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
     ): SingleSelectionState {
-        return SingleSelectionState(labelText, onSelectionChange).also { controls.add(it) }
+        return SingleSelectionState(initial, isRequired, onSelectionChange).also { controls.add(it) }
     }
 
     fun customState(formState: FormState) {
