@@ -20,7 +20,7 @@ internal class OpenTradesPresenter(
     private val appModule: AppModule,
 ) {
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
+    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         val closedTradesEntries by remember {
             appModule.appDB.openTradeQueries

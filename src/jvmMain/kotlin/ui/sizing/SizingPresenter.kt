@@ -24,7 +24,7 @@ internal class SizingPresenter(
     private val appModule: AppModule,
 ) {
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
+    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         val account by appModule.account.collectAsState(
             Account(

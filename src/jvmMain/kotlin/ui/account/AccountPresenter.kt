@@ -17,7 +17,7 @@ internal class AccountPresenter(
     private val appModule: AppModule,
 ) {
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.Immediate) {
+    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         val transactions by remember {
             appModule.appDB.accountTransactionQueries
