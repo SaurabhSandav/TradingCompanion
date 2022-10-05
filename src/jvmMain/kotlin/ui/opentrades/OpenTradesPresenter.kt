@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.atTime
 import launchUnit
 import mapList
 import model.Side
@@ -69,7 +71,7 @@ internal class OpenTradesPresenter(
                         instrument = openTrade.instrument,
                         quantity = openTrade.lots?.let { "${openTrade.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
                             ?: openTrade.quantity,
-                        side = openTrade.side,
+                        side = openTrade.side.uppercase(),
                         entry = openTrade.entry,
                         stop = openTrade.stop ?: "NA",
                         entryTime = entryDateTime.time.toString(),
@@ -94,6 +96,7 @@ internal class OpenTradesPresenter(
                     }
 
                     val model = AddOpenTradeFormState.Model(
+                        id = openTrade.id,
                         ticker = openTrade.ticker,
                         quantity = openTrade.quantity,
                         isLong = Side.fromString(openTrade.side) == Side.Long,
@@ -118,7 +121,18 @@ internal class OpenTradesPresenter(
     ) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
+
+            val entryTime = model.entryDateTime.time
+            val entryDateTime = model.entryDateTime.date.atTime(
+                LocalTime(
+                    hour = entryTime.hour,
+                    minute = entryTime.minute,
+                    second = entryTime.second,
+                )
+            )
+
             appModule.appDB.openTradeQueries.insert(
+                id = model.id,
                 broker = "Finvasia",
                 ticker = model.ticker,
                 instrument = "equity",
@@ -127,7 +141,7 @@ internal class OpenTradesPresenter(
                 side = (if (model.isLong) Side.Long else Side.Short).strValue,
                 entry = model.entry,
                 stop = model.stop,
-                entryDate = model.entryDateTime.toString(),
+                entryDate = entryDateTime.toString(),
                 target = model.target,
             )
         }

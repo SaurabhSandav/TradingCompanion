@@ -2,9 +2,7 @@ package ui.opentrades
 
 import androidx.compose.runtime.Immutable
 import kotlinx.datetime.*
-import ui.common.form.FormManager
-import ui.common.form.dateFieldState
-import ui.common.form.timeFieldState
+import ui.common.form.*
 
 @Immutable
 internal data class OpenTradesState(
@@ -32,44 +30,40 @@ internal sealed class AddTradeWindowState {
     object Closed : AddTradeWindowState()
 }
 
-internal class AddOpenTradeFormState(addOpenTradeFormStateModel: Model?) {
+internal class AddOpenTradeFormState(model: Model?) {
 
     private val manager = FormManager()
 
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
-    val date = manager.dateFieldState(
-        initial = currentDateTime.date,
-    )
+    val date = manager.dateFieldState(model?.entryDateTime?.date ?: currentDateTime.date)
 
-    val ticker = manager.singleSelectionState()
+    val ticker = manager.singleSelectionState(model?.ticker)
 
     val quantity = manager.textFieldState(
-        initial = "",
+        initial = model?.quantity ?: "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val isLong = manager.switchState(false)
+    val isLong = manager.switchState(model?.isLong ?: true)
 
     val entry = manager.textFieldState(
-        initial = "",
+        initial = model?.entry ?: "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
     val stop = manager.textFieldState(
-        initial = "",
+        initial = model?.stop ?: "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryTime = manager.timeFieldState(
-        initial = currentDateTime.time,
-    )
+    val entryTime = manager.timeFieldState(model?.entryDateTime?.time ?: currentDateTime.time)
 
     val target = manager.textFieldState(
-        initial = "",
+        initial = model?.target ?: "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
@@ -79,6 +73,7 @@ internal class AddOpenTradeFormState(addOpenTradeFormStateModel: Model?) {
     fun isValid() = manager.isFormValid()
 
     class Model(
+        val id: Int?,
         val ticker: String,
         val quantity: String,
         val isLong: Boolean,

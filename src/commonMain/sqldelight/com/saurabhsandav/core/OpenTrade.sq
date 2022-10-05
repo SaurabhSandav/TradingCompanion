@@ -14,9 +14,9 @@ target TEXT
 );
 
 insert:
-INSERT
-INTO OpenTrade(broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?);
+INSERT OR REPLACE
+INTO OpenTrade(id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);
 
 getAll:
 SELECT *

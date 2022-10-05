@@ -1,5 +1,7 @@
 package ui.opentrades
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -16,10 +18,7 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
-import ui.common.table.LazyTable
-import ui.common.table.addColumnText
-import ui.common.table.rememberTableSchema
-import ui.common.table.rows
+import ui.common.table.*
 import ui.opentrades.OpenTradesEvent.AddNewTrade
 import ui.opentrades.OpenTradesEvent.AddTradeWindow
 import utils.NIFTY50
@@ -50,7 +49,22 @@ internal fun OpenTradesScreen(
         rows(
             items = state.openTrades,
             key = { it.id },
-        )
+        ) { openTrade ->
+
+            ContextMenuArea(
+                items = {
+                    listOf(
+                        ContextMenuItem("Edit") { presenter.event(AddTradeWindow.EditTrade(openTrade.id)) },
+                    )
+                },
+            ) {
+
+                DefaultTableRow(
+                    item = openTrade,
+                    schema = schema,
+                )
+            }
+        }
 
         row {
 
@@ -131,7 +145,7 @@ private fun AddOpenTradeWindow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                Text("Long")
+                Text("Short")
 
                 Switch(
                     checked = formState.isLong.value,
@@ -143,7 +157,7 @@ private fun AddOpenTradeWindow(
                     )
                 )
 
-                Text("Short")
+                Text("Long")
             }
 
             OutlinedTextField(
@@ -181,6 +195,7 @@ private fun AddOpenTradeWindow(
                     if (formState.isValid()) {
                         onAddTrade(
                             AddOpenTradeFormState.Model(
+                                id = addOpenTradeFormStateModel?.id,
                                 ticker = formState.ticker.value!!,
                                 quantity = formState.quantity.value,
                                 isLong = formState.isLong.value,
