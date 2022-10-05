@@ -18,6 +18,7 @@ internal class StudiesPresenter(
             listOf(
                 PNLStudy(appModule),
                 PNLByDayStudy(appModule),
+                PNLByMonthStudy(appModule),
                 PNLByDayChartStudy(appModule),
                 PNLExcursionStudy(appModule),
                 PNLByTickerStudy(appModule),
