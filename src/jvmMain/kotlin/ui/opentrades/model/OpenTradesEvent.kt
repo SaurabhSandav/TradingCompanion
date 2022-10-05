@@ -1,4 +1,4 @@
-package ui.opentrades
+package ui.opentrades.model
 
 internal sealed class OpenTradesEvent {
 

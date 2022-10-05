@@ -20,8 +20,9 @@ import mapList
 import model.Side
 import ui.common.CollectEffect
 import ui.common.state
-import ui.opentrades.OpenTradesEvent.AddTradeWindow
-import ui.opentrades.OpenTradesEvent.AddTradeWindow.*
+import ui.opentrades.model.*
+import ui.opentrades.model.OpenTradesEvent.AddTradeWindow
+import ui.opentrades.model.OpenTradesEvent.AddTradeWindow.*
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
