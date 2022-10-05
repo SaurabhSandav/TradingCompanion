@@ -1,4 +1,4 @@
-package ui.opentrades.ui
+package ui.addopentrade
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,7 +14,6 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
-import ui.opentrades.model.AddOpenTradeFormState
 import utils.NIFTY50
 
 @Composable
@@ -46,6 +45,7 @@ internal fun AddOpenTradeWindow(
                 items = NIFTY50,
                 onSelection = formState.ticker.onSelectionChange,
                 selection = formState.ticker.value,
+                label = { Text("Ticker") },
                 isError = formState.ticker.isError,
             )
 

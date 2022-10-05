@@ -1,5 +1,8 @@
 package ui.opentrades.model
 
+import ui.addclosedtrade.CloseTradeFormState
+import ui.addopentrade.AddOpenTradeFormState
+
 internal sealed class OpenTradesEvent {
 
     data class DeleteTrade(val id: Int) : OpenTradesEvent()

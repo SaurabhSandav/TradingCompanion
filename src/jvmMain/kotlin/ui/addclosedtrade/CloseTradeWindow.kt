@@ -1,4 +1,4 @@
-package ui.opentrades.ui
+package ui.addclosedtrade
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -14,11 +14,10 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import ui.addopentrade.AddOpenTradeFormState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
-import ui.opentrades.model.AddOpenTradeFormState
-import ui.opentrades.model.CloseTradeFormState
 
 @Composable
 internal fun CloseTradeWindow(
@@ -49,6 +48,7 @@ internal fun CloseTradeWindow(
                 items = emptyList(),
                 onSelection = {},
                 selection = openTradeModel.ticker,
+                label = { Text("Ticker") },
                 enabled = false,
             )
 

@@ -1,6 +1,7 @@
-package ui.opentrades.model
+package ui.addclosedtrade
 
 import kotlinx.datetime.*
+import ui.addopentrade.AddOpenTradeFormState
 import ui.common.form.FormManager
 import ui.common.form.dateFieldState
 import ui.common.form.textFieldState

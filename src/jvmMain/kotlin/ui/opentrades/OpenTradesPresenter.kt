@@ -18,6 +18,8 @@ import kotlinx.datetime.atTime
 import launchUnit
 import mapList
 import model.Side
+import ui.addclosedtrade.CloseTradeFormState
+import ui.addopentrade.AddOpenTradeFormState
 import ui.common.CollectEffect
 import ui.common.state
 import ui.opentrades.model.*

@@ -1,4 +1,4 @@
-package ui.opentrades.model
+package ui.addopentrade
 
 import kotlinx.datetime.*
 import ui.common.form.*

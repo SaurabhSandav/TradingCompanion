@@ -1,6 +1,7 @@
 package ui.opentrades.model
 
 import androidx.compose.runtime.Immutable
+import ui.addopentrade.AddOpenTradeFormState
 
 @Immutable
 internal data class OpenTradesState(

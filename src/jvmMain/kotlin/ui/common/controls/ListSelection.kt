@@ -28,7 +28,8 @@ fun ListSelectionField(
     items: List<String>,
     onSelection: (String) -> Unit,
     selection: String? = null,
-    labelText: String = "Select...",
+    placeholderText: String = "Select...",
+    label: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     enabled: Boolean = true,
 ) {
@@ -37,8 +38,9 @@ fun ListSelectionField(
 
     OutlinedTextField(
         modifier = Modifier.onFocusChanged { if (it.hasFocus && enabled) showSelectionDialog = true },
-        value = selection ?: labelText,
+        value = selection ?: placeholderText,
         onValueChange = {},
+        label = label,
         readOnly = true,
         isError = isError,
         enabled = enabled,
@@ -52,7 +54,7 @@ fun ListSelectionField(
                 onSelection(it)
                 showSelectionDialog = false
             },
-            selectionDialogTitle = labelText,
+            selectionDialogTitle = placeholderText,
             onCloseRequest = { showSelectionDialog = false },
         )
     }
