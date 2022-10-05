@@ -2,7 +2,10 @@ package ui.opentrades
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -13,11 +16,12 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
-import ui.common.state
 import ui.common.table.LazyTable
 import ui.common.table.addColumnText
 import ui.common.table.rememberTableSchema
 import ui.common.table.rows
+import ui.opentrades.OpenTradesEvent.AddNewTrade
+import ui.opentrades.OpenTradesEvent.AddTradeWindow
 import utils.NIFTY50
 
 @Composable
@@ -26,8 +30,6 @@ internal fun OpenTradesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-
-    var showTradeCreationWindow by state { false }
 
     val schema = rememberTableSchema<OpenTradeListEntry> {
         addColumnText("Broker") { it.broker }
@@ -58,43 +60,30 @@ internal fun OpenTradesScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                Button(onClick = { showTradeCreationWindow = true }) {
+                Button(onClick = { presenter.event(AddTradeWindow.AddTrade) }) {
                     Text("New Trade")
                 }
             }
         }
     }
 
-    if (showTradeCreationWindow) {
+    val addOpenTradeWindowState = state.addTradeWindowState
 
-        OpenTradeCreationWindow(
-            onCloseRequest = { showTradeCreationWindow = false },
-            onAddTrade = { ticker, quantity, isLong, entry, stop, target ->
-                presenter.addTrade(
-                    ticker = ticker,
-                    quantity = quantity,
-                    isLong = isLong,
-                    entry = entry,
-                    stop = stop,
-                    target = target,
-                )
-                showTradeCreationWindow = false
-            },
+    if (addOpenTradeWindowState is AddTradeWindowState.Open) {
+
+        AddOpenTradeWindow(
+            onCloseRequest = { presenter.event(AddTradeWindow.Close) },
+            addOpenTradeFormStateModel = addOpenTradeWindowState.formState,
+            onAddTrade = { presenter.event(AddNewTrade(it)) },
         )
     }
 }
 
 @Composable
-private fun OpenTradeCreationWindow(
+private fun AddOpenTradeWindow(
     onCloseRequest: () -> Unit,
-    onAddTrade: (
-        ticker: String,
-        quantity: String,
-        isLong: Boolean,
-        entry: String,
-        stop: String,
-        target: String,
-    ) -> Unit,
+    addOpenTradeFormStateModel: AddOpenTradeFormState.Model?,
+    onAddTrade: (AddOpenTradeFormState.Model) -> Unit,
 ) {
 
     val windowState = rememberWindowState(
@@ -113,7 +102,7 @@ private fun OpenTradeCreationWindow(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            val formState = remember { OpenTradeFormState() }
+            val formState = remember { AddOpenTradeFormState(addOpenTradeFormStateModel) }
 
             DateField(
                 value = formState.date.value,
@@ -191,12 +180,15 @@ private fun OpenTradeCreationWindow(
                 onClick = {
                     if (formState.isValid()) {
                         onAddTrade(
-                            formState.ticker.value!!,
-                            formState.quantity.value,
-                            formState.isLong.value,
-                            formState.entry.value,
-                            formState.stop.value,
-                            formState.target.value
+                            AddOpenTradeFormState.Model(
+                                ticker = formState.ticker.value!!,
+                                quantity = formState.quantity.value,
+                                isLong = formState.isLong.value,
+                                entry = formState.entry.value,
+                                stop = formState.stop.value,
+                                entryDateTime = formState.entryDateTime,
+                                target = formState.target.value,
+                            )
                         )
                     }
                 },

@@ -22,3 +22,8 @@ getAll:
 SELECT *
 FROM OpenTrade
 ORDER BY date(entryDate) DESC;
+
+getById:
+SELECT *
+FROM OpenTrade
+WHERE id = ?;
