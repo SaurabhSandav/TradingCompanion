@@ -68,7 +68,8 @@ internal class AddOpenTradeFormState(model: Model?) {
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryDateTime = date.value.atTime(entryTime.value)
+    val entryDateTime
+        get() = date.value.atTime(entryTime.value)
 
     fun isValid() = manager.isFormValid()
 

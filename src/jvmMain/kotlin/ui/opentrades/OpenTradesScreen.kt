@@ -19,8 +19,8 @@ import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
 import ui.common.table.*
-import ui.opentrades.OpenTradesEvent.AddNewTrade
-import ui.opentrades.OpenTradesEvent.AddTradeWindow
+import ui.opentrades.OpenTradesEvent.AddTradeWindow.*
+import ui.opentrades.OpenTradesEvent.DeleteTrade
 import utils.NIFTY50
 
 @Composable
@@ -54,7 +54,8 @@ internal fun OpenTradesScreen(
             ContextMenuArea(
                 items = {
                     listOf(
-                        ContextMenuItem("Edit") { presenter.event(AddTradeWindow.EditTrade(openTrade.id)) },
+                        ContextMenuItem("Edit") { presenter.event(OpenEdit(openTrade.id)) },
+                        ContextMenuItem("Delete") { presenter.event(DeleteTrade(openTrade.id)) },
                     )
                 },
             ) {
@@ -74,7 +75,7 @@ internal fun OpenTradesScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                Button(onClick = { presenter.event(AddTradeWindow.AddTrade) }) {
+                Button(onClick = { presenter.event(Open) }) {
                     Text("New Trade")
                 }
             }
@@ -86,9 +87,9 @@ internal fun OpenTradesScreen(
     if (addOpenTradeWindowState is AddTradeWindowState.Open) {
 
         AddOpenTradeWindow(
-            onCloseRequest = { presenter.event(AddTradeWindow.Close) },
+            onCloseRequest = { presenter.event(Close) },
             addOpenTradeFormStateModel = addOpenTradeWindowState.formState,
-            onAddTrade = { presenter.event(AddNewTrade(it)) },
+            onSaveTrade = { presenter.event(SaveTrade(it)) },
         )
     }
 }
@@ -97,7 +98,7 @@ internal fun OpenTradesScreen(
 private fun AddOpenTradeWindow(
     onCloseRequest: () -> Unit,
     addOpenTradeFormStateModel: AddOpenTradeFormState.Model?,
-    onAddTrade: (AddOpenTradeFormState.Model) -> Unit,
+    onSaveTrade: (AddOpenTradeFormState.Model) -> Unit,
 ) {
 
     val windowState = rememberWindowState(
@@ -193,7 +194,7 @@ private fun AddOpenTradeWindow(
             Button(
                 onClick = {
                     if (formState.isValid()) {
-                        onAddTrade(
+                        onSaveTrade(
                             AddOpenTradeFormState.Model(
                                 id = addOpenTradeFormStateModel?.id,
                                 ticker = formState.ticker.value!!,

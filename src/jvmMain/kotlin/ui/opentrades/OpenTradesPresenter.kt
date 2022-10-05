@@ -20,6 +20,8 @@ import mapList
 import model.Side
 import ui.common.CollectEffect
 import ui.common.state
+import ui.opentrades.OpenTradesEvent.AddTradeWindow
+import ui.opentrades.OpenTradesEvent.AddTradeWindow.*
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -31,21 +33,16 @@ internal class OpenTradesPresenter(
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
-            when (event) {
-                is OpenTradesEvent.AddNewTrade -> {
-                    addTrade(event.model)
-                    event(OpenTradesEvent.AddTradeWindow.Close)
-                }
 
-                is OpenTradesEvent.AddTradeWindow -> Unit
+            when (event) {
+                is OpenTradesEvent.DeleteTrade -> deleteTrade(event.id)
+                is AddTradeWindow -> Unit
             }
         }
 
-        val addTradeWindowEvents = remember(events) { events.filterIsInstance<OpenTradesEvent.AddTradeWindow>() }
-
         return@launchMolecule OpenTradesState(
             openTrades = getOpenTradeListEntries().value,
-            addTradeWindowState = addTradeWindowState(addTradeWindowEvents),
+            addTradeWindowState = addTradeWindowState(events),
         )
     }
 
@@ -82,14 +79,19 @@ internal class OpenTradesPresenter(
     }
 
     @Composable
-    private fun addTradeWindowState(events: Flow<OpenTradesEvent.AddTradeWindow>): AddTradeWindowState {
+    private fun addTradeWindowState(events: Flow<OpenTradesEvent>): AddTradeWindowState {
 
+        val addTradeWindowEvents = remember(events) { events.filterIsInstance<AddTradeWindow>() }
         var addTradeWindowState by state<AddTradeWindowState> { AddTradeWindowState.Closed }
 
-        CollectEffect(events) { event ->
+        CollectEffect(addTradeWindowEvents) { event ->
+
+            if (addTradeWindowState is AddTradeWindowState.Open && (event is Open || event is OpenEdit))
+                return@CollectEffect
+
             addTradeWindowState = when (event) {
-                OpenTradesEvent.AddTradeWindow.AddTrade -> AddTradeWindowState.Open()
-                is OpenTradesEvent.AddTradeWindow.EditTrade -> {
+                Open -> AddTradeWindowState.Open()
+                is OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
@@ -109,7 +111,12 @@ internal class OpenTradesPresenter(
                     AddTradeWindowState.Open(model)
                 }
 
-                OpenTradesEvent.AddTradeWindow.Close -> AddTradeWindowState.Closed
+                is SaveTrade -> {
+                    addTrade(event.model)
+                    AddTradeWindowState.Closed
+                }
+
+                Close -> AddTradeWindowState.Closed
             }
         }
 
@@ -144,6 +151,13 @@ internal class OpenTradesPresenter(
                 entryDate = entryDateTime.toString(),
                 target = model.target,
             )
+        }
+    }
+
+    private fun deleteTrade(id: Int) = coroutineScope.launchUnit {
+
+        withContext(Dispatchers.IO) {
+            appModule.appDB.openTradeQueries.delete(id)
         }
     }
 }

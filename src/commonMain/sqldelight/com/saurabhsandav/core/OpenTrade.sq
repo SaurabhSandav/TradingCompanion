@@ -27,3 +27,7 @@ getById:
 SELECT *
 FROM OpenTrade
 WHERE id = ?;
+
+delete:
+DELETE FROM OpenTrade
+WHERE id = ?;
