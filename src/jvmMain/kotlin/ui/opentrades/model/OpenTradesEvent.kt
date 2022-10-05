@@ -16,4 +16,15 @@ internal sealed class OpenTradesEvent {
 
         object Close : AddTradeWindow()
     }
+
+    sealed class CloseTradeWindow : OpenTradesEvent() {
+
+        data class Open(val id: Int) : CloseTradeWindow()
+
+        data class SaveTrade(
+            val model: CloseTradeFormState.Model,
+        ) : CloseTradeWindow()
+
+        object Close : CloseTradeWindow()
+    }
 }

@@ -9,8 +9,6 @@ internal class AddOpenTradeFormState(model: Model?) {
 
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
-    val date = manager.dateFieldState(model?.entryDateTime?.date ?: currentDateTime.date)
-
     val ticker = manager.singleSelectionState(model?.ticker)
 
     val quantity = manager.textFieldState(
@@ -33,6 +31,8 @@ internal class AddOpenTradeFormState(model: Model?) {
         onValueChange = { setValue(it.trim()) },
     )
 
+    val entryDate = manager.dateFieldState(model?.entryDateTime?.date ?: currentDateTime.date)
+
     val entryTime = manager.timeFieldState(model?.entryDateTime?.time ?: currentDateTime.time)
 
     val target = manager.textFieldState(
@@ -42,7 +42,7 @@ internal class AddOpenTradeFormState(model: Model?) {
     )
 
     val entryDateTime
-        get() = date.value.atTime(entryTime.value)
+        get() = entryDate.value.atTime(entryTime.value)
 
     fun isValid() = manager.isFormValid()
 

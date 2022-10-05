@@ -22,7 +22,7 @@ import ui.common.CollectEffect
 import ui.common.state
 import ui.opentrades.model.*
 import ui.opentrades.model.OpenTradesEvent.AddTradeWindow
-import ui.opentrades.model.OpenTradesEvent.AddTradeWindow.*
+import ui.opentrades.model.OpenTradesEvent.CloseTradeWindow
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -37,13 +37,14 @@ internal class OpenTradesPresenter(
 
             when (event) {
                 is OpenTradesEvent.DeleteTrade -> deleteTrade(event.id)
-                is AddTradeWindow -> Unit
+                is AddTradeWindow, is CloseTradeWindow -> Unit
             }
         }
 
         return@launchMolecule OpenTradesState(
             openTrades = getOpenTradeListEntries().value,
             addTradeWindowState = addTradeWindowState(events),
+            closeTradeWindowState = closeTradeWindowState(events),
         )
     }
 
@@ -87,12 +88,13 @@ internal class OpenTradesPresenter(
 
         CollectEffect(addTradeWindowEvents) { event ->
 
-            if (addTradeWindowState is AddTradeWindowState.Open && (event is Open || event is OpenEdit))
-                return@CollectEffect
+            if (addTradeWindowState is AddTradeWindowState.Open
+                && (event is AddTradeWindow.Open || event is AddTradeWindow.OpenEdit)
+            ) return@CollectEffect
 
             addTradeWindowState = when (event) {
-                Open -> AddTradeWindowState.Open()
-                is OpenEdit -> {
+                AddTradeWindow.Open -> AddTradeWindowState.Open()
+                is AddTradeWindow.OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
@@ -112,19 +114,63 @@ internal class OpenTradesPresenter(
                     AddTradeWindowState.Open(model)
                 }
 
-                is SaveTrade -> {
-                    addTrade(event.model)
+                is AddTradeWindow.SaveTrade -> {
+                    saveOpenTradeToDB(event.model)
                     AddTradeWindowState.Closed
                 }
 
-                Close -> AddTradeWindowState.Closed
+                AddTradeWindow.Close -> AddTradeWindowState.Closed
             }
         }
 
         return addTradeWindowState
     }
 
-    private fun addTrade(
+    @Composable
+    private fun closeTradeWindowState(events: Flow<OpenTradesEvent>): CloseTradeWindowState {
+
+        val windowEvents = remember(events) { events.filterIsInstance<CloseTradeWindow>() }
+        var state by state<CloseTradeWindowState> { CloseTradeWindowState.Closed }
+
+        CollectEffect(windowEvents) { event ->
+
+            if (state is CloseTradeWindowState.Open && event is CloseTradeWindow.Open)
+                return@CollectEffect
+
+            state = when (event) {
+                is CloseTradeWindow.Open -> {
+
+                    val openTrade = withContext(Dispatchers.IO) {
+                        appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
+                    }
+
+                    val model = AddOpenTradeFormState.Model(
+                        id = openTrade.id,
+                        ticker = openTrade.ticker,
+                        quantity = openTrade.quantity,
+                        isLong = Side.fromString(openTrade.side) == Side.Long,
+                        entry = openTrade.entry,
+                        stop = openTrade.stop ?: "",
+                        entryDateTime = LocalDateTime.parse(openTrade.entryDate),
+                        target = openTrade.target ?: "",
+                    )
+
+                    CloseTradeWindowState.Open(model)
+                }
+
+                is CloseTradeWindow.SaveTrade -> {
+                    saveClosedTradeToDB(event.model)
+                    CloseTradeWindowState.Closed
+                }
+
+                CloseTradeWindow.Close -> CloseTradeWindowState.Closed
+            }
+        }
+
+        return state
+    }
+
+    private fun saveOpenTradeToDB(
         model: AddOpenTradeFormState.Model,
     ) = coroutineScope.launchUnit {
 
@@ -152,6 +198,52 @@ internal class OpenTradesPresenter(
                 entryDate = entryDateTime.toString(),
                 target = model.target,
             )
+        }
+    }
+
+    private fun saveClosedTradeToDB(
+        model: CloseTradeFormState.Model,
+    ) = coroutineScope.launchUnit {
+
+        withContext(Dispatchers.IO) {
+
+            val entryTime = model.openTradeModel.entryDateTime.time
+            val entryDateTime = model.openTradeModel.entryDateTime.date.atTime(
+                LocalTime(
+                    hour = entryTime.hour,
+                    minute = entryTime.minute,
+                    second = entryTime.second,
+                )
+            )
+
+            val exitTime = model.exitDateTime.time
+            val exitDateTime = model.exitDateTime.date.atTime(
+                LocalTime(
+                    hour = exitTime.hour,
+                    minute = exitTime.minute,
+                    second = exitTime.second,
+                )
+            )
+
+            appModule.appDB.transaction {
+
+                appModule.appDB.closedTradeQueries.insert(
+                    broker = "Finvasia",
+                    ticker = model.openTradeModel.ticker,
+                    instrument = "equity",
+                    quantity = model.openTradeModel.quantity,
+                    lots = null,
+                    side = (if (model.openTradeModel.isLong) Side.Long else Side.Short).strValue,
+                    entry = model.openTradeModel.entry,
+                    stop = model.openTradeModel.stop,
+                    entryDate = entryDateTime.toString(),
+                    target = model.openTradeModel.target,
+                    exit = model.exit,
+                    exitDate = exitDateTime.toString(),
+                )
+
+                appModule.appDB.openTradeQueries.delete(model.openTradeModel.id!!)
+            }
         }
     }
 

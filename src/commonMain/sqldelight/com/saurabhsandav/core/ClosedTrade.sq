@@ -29,6 +29,6 @@ getAllClosedTradesDetailed:
 SELECT id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate,
 maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult
 FROM ClosedTrade
-INNER JOIN ClosedTradeDetail
+LEFT JOIN ClosedTradeDetail
 ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
 ORDER BY date(entryDate) DESC;

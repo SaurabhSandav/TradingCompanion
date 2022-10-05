@@ -21,6 +21,7 @@ fun DateField(
     onValidValueChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 ) {
 
@@ -57,6 +58,7 @@ fun DateField(
         label = label,
         isError = isError || !isDateValid,
         singleLine = true,
+        enabled = enabled,
         visualTransformation = {
 
             var out = ""

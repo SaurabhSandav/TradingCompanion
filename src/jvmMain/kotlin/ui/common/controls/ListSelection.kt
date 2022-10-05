@@ -30,16 +30,18 @@ fun ListSelectionField(
     selection: String? = null,
     labelText: String = "Select...",
     isError: Boolean = false,
+    enabled: Boolean = true,
 ) {
 
     var showSelectionDialog by state { false }
 
     OutlinedTextField(
-        modifier = Modifier.onFocusChanged { if (it.hasFocus) showSelectionDialog = true },
+        modifier = Modifier.onFocusChanged { if (it.hasFocus && enabled) showSelectionDialog = true },
         value = selection ?: labelText,
         onValueChange = {},
         readOnly = true,
         isError = isError,
+        enabled = enabled,
     )
 
     if (showSelectionDialog) {

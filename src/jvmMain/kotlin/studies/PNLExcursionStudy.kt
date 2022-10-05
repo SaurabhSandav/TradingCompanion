@@ -71,10 +71,14 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
                 target = target ?: "NA",
                 exit = exit,
                 pnl = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, exitBD),
-                maxFavorableExcursion = maxFavorableExcursion,
-                mfePNL = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, maxFavorableExcursion.toBigDecimal()),
-                maxAdverseExcursion = maxAdverseExcursion,
-                maePNL = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, maxAdverseExcursion.toBigDecimal()),
+                maxFavorableExcursion = maxFavorableExcursion ?: "",
+                mfePNL = maxFavorableExcursion?.let {
+                    buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
+                } ?: "",
+                maxAdverseExcursion = maxAdverseExcursion ?: "",
+                maePNL = maxAdverseExcursion?.let {
+                    buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
+                } ?: "",
             )
         }
         .asFlow()

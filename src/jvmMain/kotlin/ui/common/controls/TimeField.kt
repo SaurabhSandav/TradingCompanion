@@ -21,6 +21,7 @@ fun TimeField(
     onValidValueChange: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 ) {
 
@@ -57,6 +58,7 @@ fun TimeField(
         label = label,
         isError = isError || !isTimeValid,
         singleLine = true,
+        enabled = enabled,
         visualTransformation = {
 
             var out = ""

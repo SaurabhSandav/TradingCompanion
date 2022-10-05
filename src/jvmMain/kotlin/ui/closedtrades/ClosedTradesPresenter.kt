@@ -110,8 +110,8 @@ internal class ClosedTradesPresenter(
             netPnl = netPnlBD.toPlainString(),
             isNetProfitable = netPnlBD > BigDecimal.ZERO,
             fees = (pnlBD - netPnlBD).toPlainString(),
-            maxFavorableExcursion = maxFavorableExcursion,
-            maxAdverseExcursion = maxAdverseExcursion,
+            maxFavorableExcursion = maxFavorableExcursion ?: "",
+            maxAdverseExcursion = maxAdverseExcursion ?: "",
             persisted = persisted.toBoolean(),
             persistenceResult = persistenceResult,
         )

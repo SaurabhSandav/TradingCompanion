@@ -20,7 +20,7 @@ import utils.NIFTY50
 @Composable
 internal fun AddOpenTradeWindow(
     onCloseRequest: () -> Unit,
-    addOpenTradeFormStateModel: AddOpenTradeFormState.Model?,
+    model: AddOpenTradeFormState.Model?,
     onSaveTrade: (AddOpenTradeFormState.Model) -> Unit,
 ) {
 
@@ -40,13 +40,7 @@ internal fun AddOpenTradeWindow(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            val formState = remember { AddOpenTradeFormState(addOpenTradeFormStateModel) }
-
-            DateField(
-                value = formState.date.value,
-                onValidValueChange = formState.date.onValueChange,
-                label = { Text("Date") },
-            )
+            val formState = remember { AddOpenTradeFormState(model) }
 
             ListSelectionField(
                 items = NIFTY50,
@@ -100,6 +94,12 @@ internal fun AddOpenTradeWindow(
                 singleLine = true,
             )
 
+            DateField(
+                value = formState.entryDate.value,
+                onValidValueChange = formState.entryDate.onValueChange,
+                label = { Text("Entry Date") },
+            )
+
             TimeField(
                 value = formState.entryTime.value,
                 onValidValueChange = formState.entryTime.onValueChange,
@@ -119,7 +119,7 @@ internal fun AddOpenTradeWindow(
                     if (formState.isValid()) {
                         onSaveTrade(
                             AddOpenTradeFormState.Model(
-                                id = addOpenTradeFormStateModel?.id,
+                                id = model?.id,
                                 ticker = formState.ticker.value!!,
                                 quantity = formState.quantity.value,
                                 isLong = formState.isLong.value,

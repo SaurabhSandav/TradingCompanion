@@ -20,6 +20,7 @@ internal fun OpenTradesTable(
     onEditTrade: (id: Int) -> Unit,
     onDeleteTrade: (id: Int) -> Unit,
     onAddTrade: () -> Unit,
+    onCloseTrade: (id: Int) -> Unit,
 ) {
 
     val schema = rememberTableSchema<OpenTradeListEntry> {
@@ -32,6 +33,11 @@ internal fun OpenTradesTable(
         addColumnText("Stop") { it.stop }
         addColumnText("Entry Time") { it.entryTime }
         addColumnText("Target") { it.target }
+        addColumn {
+            Button(onClick = { onCloseTrade(it.id) }) {
+                Text("Close")
+            }
+        }
     }
 
     LazyTable(
