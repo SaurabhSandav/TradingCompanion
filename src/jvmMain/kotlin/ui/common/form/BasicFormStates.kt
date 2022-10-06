@@ -6,7 +6,7 @@ import androidx.compose.runtime.saveable.listSaver
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-fun FormManager.textFieldState(
+fun FormScope.textFieldState(
     initial: String,
     isErrorCheck: (String) -> Boolean,
     onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
@@ -20,7 +20,7 @@ fun FormManager.textFieldState(
     return controlState(saver) { TextFieldState(initial, isErrorCheck, onValueChange) }
 }
 
-fun FormManager.switchState(
+fun FormScope.switchState(
     initial: Boolean,
     onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
 ): SwitchState {
@@ -33,7 +33,7 @@ fun FormManager.switchState(
     return controlState(saver) { SwitchState(initial, onCheckedChange) }
 }
 
-fun FormManager.singleSelectionState(
+fun FormScope.singleSelectionState(
     initial: String? = null,
     isRequired: Boolean = true,
     onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
@@ -53,7 +53,7 @@ fun FormManager.singleSelectionState(
     return controlState(saver) { SingleSelectionState(initial, isRequired, onSelectionChange) }
 }
 
-fun FormManager.dateFieldState(
+fun FormScope.dateFieldState(
     initial: LocalDate,
     isErrorCheck: (LocalDate) -> Boolean = { false },
     onValueChange: MutableFieldState<LocalDate>.(LocalDate) -> Unit = { setValue(it) },
@@ -73,7 +73,7 @@ fun FormManager.dateFieldState(
     return controlState(saver) { DateFieldState(initial, isErrorCheck, onValueChange) }
 }
 
-fun FormManager.timeFieldState(
+fun FormScope.timeFieldState(
     initial: LocalTime,
     isErrorCheck: (LocalTime) -> Boolean = { false },
     onValueChange: MutableFieldState<LocalTime>.(LocalTime) -> Unit = { setValue(it) },

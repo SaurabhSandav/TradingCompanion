@@ -18,6 +18,7 @@ import ui.addopentrade.AddOpenTradeFormState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
+import ui.common.form.rememberFormScope
 
 @Composable
 internal fun CloseTradeWindow(
@@ -42,7 +43,8 @@ internal fun CloseTradeWindow(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            val formState = remember { CloseTradeFormState() }
+            val formScope = rememberFormScope()
+            val formState = remember { CloseTradeFormState(formScope, openTradeFormModel) }
 
             ListSelectionField(
                 items = emptyList(),
@@ -132,18 +134,8 @@ internal fun CloseTradeWindow(
             )
 
             Button(
-                onClick = {
-                    if (formState.isValid()) {
-                        onSaveTrade(
-                            CloseTradeFormState.Model(
-                                openTradeModel = openTradeFormModel,
-                                exit = formState.exit.value,
-                                exitDateTime = formState.exitDateTime,
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { formState.getModelIfValidOrNull()?.let { onSaveTrade(it) } },
             ) {
 
                 Text("Add")

@@ -4,38 +4,37 @@ import kotlinx.datetime.*
 import ui.common.form.*
 
 internal class AddOpenTradeFormState(
+    private val formScope: FormScope,
     private val initialModel: Model,
 ) {
 
-    private val manager = FormManager()
+    val ticker = formScope.singleSelectionState(initialModel.ticker)
 
-    val ticker = manager.singleSelectionState(initialModel.ticker)
-
-    val quantity = manager.textFieldState(
+    val quantity = formScope.textFieldState(
         initial = initialModel.quantity,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val isLong = manager.switchState(initialModel.isLong)
+    val isLong = formScope.switchState(initialModel.isLong)
 
-    val entry = manager.textFieldState(
+    val entry = formScope.textFieldState(
         initial = initialModel.entry,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val stop = manager.textFieldState(
+    val stop = formScope.textFieldState(
         initial = initialModel.stop,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryDate = manager.dateFieldState(initialModel.entryDateTime.date)
+    val entryDate = formScope.dateFieldState(initialModel.entryDateTime.date)
 
-    val entryTime = manager.timeFieldState(initialModel.entryDateTime.time)
+    val entryTime = formScope.timeFieldState(initialModel.entryDateTime.time)
 
-    val target = manager.textFieldState(
+    val target = formScope.textFieldState(
         initial = initialModel.target,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
@@ -44,9 +43,9 @@ internal class AddOpenTradeFormState(
     private val entryDateTime
         get() = entryDate.value.atTime(entryTime.value)
 
-    fun getModelIfValidOrNull(): Model? = if (!manager.isFormValid()) null else Model(
+    fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
         id = initialModel.id,
-        ticker = ticker.value!!,
+        ticker = ticker.value,
         quantity = quantity.value,
         isLong = isLong.value,
         entry = entry.value,
@@ -57,7 +56,7 @@ internal class AddOpenTradeFormState(
 
     class Model(
         val id: Int? = null,
-        val ticker: String = "",
+        val ticker: String? = null,
         val quantity: String = "",
         val isLong: Boolean = true,
         val entry: String = "",

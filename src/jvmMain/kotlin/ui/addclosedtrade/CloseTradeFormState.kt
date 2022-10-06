@@ -2,31 +2,36 @@ package ui.addclosedtrade
 
 import kotlinx.datetime.*
 import ui.addopentrade.AddOpenTradeFormState
-import ui.common.form.FormManager
+import ui.common.form.FormScope
 import ui.common.form.dateFieldState
 import ui.common.form.textFieldState
 import ui.common.form.timeFieldState
 
-internal class CloseTradeFormState {
-
-    private val manager = FormManager()
+internal class CloseTradeFormState(
+    private val formScope: FormScope,
+    private val openTradeModel: AddOpenTradeFormState.Model,
+) {
 
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
-    val exit = manager.textFieldState(
+    val exit = formScope.textFieldState(
         initial = "",
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val exitDate = manager.dateFieldState(currentDateTime.date)
+    val exitDate = formScope.dateFieldState(currentDateTime.date)
 
-    val exitTime = manager.timeFieldState(currentDateTime.time)
+    val exitTime = formScope.timeFieldState(currentDateTime.time)
 
-    val exitDateTime
+    private val exitDateTime
         get() = exitDate.value.atTime(exitTime.value)
 
-    fun isValid() = manager.isFormValid()
+    fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
+        openTradeModel = openTradeModel,
+        exit = exit.value,
+        exitDateTime = exitDateTime,
+    )
 
     class Model(
         val openTradeModel: AddOpenTradeFormState.Model,

@@ -14,6 +14,7 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
+import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
 @Composable
@@ -39,7 +40,8 @@ internal fun AddOpenTradeWindow(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            val formState = remember { AddOpenTradeFormState(formModel) }
+            val formScope = rememberFormScope()
+            val formState = remember { AddOpenTradeFormState(formScope, formModel) }
 
             ListSelectionField(
                 items = NIFTY50,

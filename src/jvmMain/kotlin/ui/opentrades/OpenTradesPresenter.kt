@@ -190,7 +190,7 @@ internal class OpenTradesPresenter(
             appModule.appDB.openTradeQueries.insert(
                 id = model.id,
                 broker = "Finvasia",
-                ticker = model.ticker,
+                ticker = model.ticker!!,
                 instrument = "equity",
                 quantity = model.quantity,
                 lots = null,
@@ -231,7 +231,7 @@ internal class OpenTradesPresenter(
 
                 appModule.appDB.closedTradeQueries.insert(
                     broker = "Finvasia",
-                    ticker = model.openTradeModel.ticker,
+                    ticker = model.openTradeModel.ticker!!,
                     instrument = "equity",
                     quantity = model.openTradeModel.quantity,
                     lots = null,
