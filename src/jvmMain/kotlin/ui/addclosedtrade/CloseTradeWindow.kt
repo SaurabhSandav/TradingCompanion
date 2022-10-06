@@ -22,7 +22,7 @@ import ui.common.controls.TimeField
 @Composable
 internal fun CloseTradeWindow(
     onCloseRequest: () -> Unit,
-    openTradeModel: AddOpenTradeFormState.Model,
+    openTradeFormModel: AddOpenTradeFormState.Model,
     onSaveTrade: (CloseTradeFormState.Model) -> Unit,
 ) {
 
@@ -47,13 +47,13 @@ internal fun CloseTradeWindow(
             ListSelectionField(
                 items = emptyList(),
                 onSelection = {},
-                selection = openTradeModel.ticker,
+                selection = openTradeFormModel.ticker,
                 label = { Text("Ticker") },
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeModel.quantity,
+                value = openTradeFormModel.quantity,
                 onValueChange = {},
                 label = { Text("Quantity") },
                 enabled = false,
@@ -68,7 +68,7 @@ internal fun CloseTradeWindow(
                 Text("Short")
 
                 Switch(
-                    checked = openTradeModel.isLong,
+                    checked = openTradeFormModel.isLong,
                     onCheckedChange = { },
                     enabled = false,
                 )
@@ -77,35 +77,35 @@ internal fun CloseTradeWindow(
             }
 
             OutlinedTextField(
-                value = openTradeModel.entry,
+                value = openTradeFormModel.entry,
                 onValueChange = {},
                 label = { Text("Entry") },
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeModel.stop,
+                value = openTradeFormModel.stop,
                 onValueChange = {},
                 label = { Text("Stop") },
                 enabled = false,
             )
 
             DateField(
-                value = openTradeModel.entryDateTime.date,
+                value = openTradeFormModel.entryDateTime.date,
                 onValidValueChange = { },
                 label = { Text("Entry Date") },
                 enabled = false,
             )
 
             TimeField(
-                value = openTradeModel.entryDateTime.time,
+                value = openTradeFormModel.entryDateTime.time,
                 onValidValueChange = {},
                 label = { Text("Entry Time") },
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeModel.target,
+                value = openTradeFormModel.target,
                 onValueChange = {},
                 label = { Text("Target") },
                 enabled = false,
@@ -136,7 +136,7 @@ internal fun CloseTradeWindow(
                     if (formState.isValid()) {
                         onSaveTrade(
                             CloseTradeFormState.Model(
-                                openTradeModel = openTradeModel,
+                                openTradeModel = openTradeFormModel,
                                 exit = formState.exit.value,
                                 exitDateTime = formState.exitDateTime,
                             )

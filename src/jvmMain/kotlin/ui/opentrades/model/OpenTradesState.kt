@@ -25,14 +25,14 @@ internal data class OpenTradeListEntry(
 
 internal sealed class AddTradeWindowState {
 
-    data class Open(val formState: AddOpenTradeFormState.Model? = null) : AddTradeWindowState()
+    data class Open(val formModel: AddOpenTradeFormState.Model) : AddTradeWindowState()
 
     object Closed : AddTradeWindowState()
 }
 
 internal sealed class CloseTradeWindowState {
 
-    data class Open(val formState: AddOpenTradeFormState.Model) : CloseTradeWindowState()
+    data class Open(val openTradeFormModel: AddOpenTradeFormState.Model) : CloseTradeWindowState()
 
     object Closed : CloseTradeWindowState()
 }

@@ -34,9 +34,7 @@ fun DateField(
         value = dateStr,
         onValueChange = { newValue ->
 
-            val trimmed = newValue.trim()
-
-            if (trimmed.length > 8) return@OutlinedTextField
+            val trimmed = newValue.trim().take(8)
 
             // If still editing, update textfield, signal error
             if (trimmed.isEmpty() || trimmed.length < 8) {

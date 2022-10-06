@@ -95,7 +95,7 @@ internal class OpenTradesPresenter(
             ) return@CollectEffect
 
             addTradeWindowState = when (event) {
-                AddTradeWindow.Open -> AddTradeWindowState.Open()
+                AddTradeWindow.Open -> AddTradeWindowState.Open(AddOpenTradeFormState.Model())
                 is AddTradeWindow.OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {

@@ -1,11 +1,8 @@
 package ui.common.form
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.setValue
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -101,22 +98,15 @@ class TextFieldState internal constructor(
     initial: String,
     private val isErrorCheck: (String) -> Boolean = { false },
     onValueChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
-) : FormState {
+) : ComposeFormState<String>(initial) {
 
-    var value by mutableStateOf(initial)
-        private set
-
-    var isError by mutableStateOf(false)
-        private set
-
-    override fun isValid(): Boolean {
+    override fun validate() {
         isError = isErrorCheck(value)
-        return !isError
     }
 
     val onValueChange: (String) -> Unit = { newValue ->
         MutableFieldState<String> { value = it }.onValueChange(newValue)
-        isError = isErrorCheck(value)
+        validate()
     }
 }
 
@@ -124,12 +114,9 @@ class TextFieldState internal constructor(
 class SwitchState internal constructor(
     initial: Boolean,
     onCheckedChange: MutableFieldState<Boolean>.(Boolean) -> Unit = { setValue(it) },
-) : FormState {
+) : ComposeFormState<Boolean>(initial) {
 
-    var value by mutableStateOf(initial)
-        private set
-
-    override fun isValid(): Boolean = true
+    override fun validate() {}
 
     val onCheckedChange: (Boolean) -> Unit = { newValue ->
         MutableFieldState<Boolean> { value = it }.onCheckedChange(newValue)
@@ -141,22 +128,15 @@ class SingleSelectionState internal constructor(
     initial: String? = null,
     private val isRequired: Boolean = true,
     onSelectionChange: MutableFieldState<String>.(String) -> Unit = { setValue(it) },
-) : FormState {
+) : ComposeFormState<String?>(initial) {
 
-    var value by mutableStateOf(initial)
-        private set
-
-    var isError by mutableStateOf(false)
-        private set
-
-    override fun isValid(): Boolean {
+    override fun validate() {
         isError = isRequired && value == null
-        return !isError
     }
 
     val onSelectionChange: (String) -> Unit = { newValue ->
         MutableFieldState<String> { value = it }.onSelectionChange(newValue)
-        isError = isRequired && value == null
+        validate()
     }
 }
 
@@ -165,22 +145,15 @@ class DateFieldState internal constructor(
     initial: LocalDate,
     private val isErrorCheck: (LocalDate) -> Boolean = { false },
     onValueChange: MutableFieldState<LocalDate>.(LocalDate) -> Unit = { setValue(it) },
-) : FormState {
+) : ComposeFormState<LocalDate>(initial) {
 
-    var value by mutableStateOf(initial)
-        private set
-
-    var isError by mutableStateOf(false)
-        private set
-
-    override fun isValid(): Boolean {
+    override fun validate() {
         isError = isErrorCheck(value)
-        return !isError
     }
 
     val onValueChange: (LocalDate) -> Unit = { newValue ->
-        isError = isErrorCheck(value)
         MutableFieldState<LocalDate> { value = it }.onValueChange(newValue)
+        validate()
     }
 }
 
@@ -189,21 +162,14 @@ class TimeFieldState internal constructor(
     initial: LocalTime,
     private val isErrorCheck: (LocalTime) -> Boolean = { false },
     onValueChange: MutableFieldState<LocalTime>.(LocalTime) -> Unit = { setValue(it) },
-) : FormState {
+) : ComposeFormState<LocalTime>(initial) {
 
-    var value by mutableStateOf(initial)
-        private set
-
-    var isError by mutableStateOf(false)
-        private set
-
-    override fun isValid(): Boolean {
+    override fun validate() {
         isError = isErrorCheck(value)
-        return !isError
     }
 
     val onValueChange: (LocalTime) -> Unit = { newValue ->
-        isError = isErrorCheck(value)
         MutableFieldState<LocalTime> { value = it }.onValueChange(newValue)
+        validate()
     }
 }

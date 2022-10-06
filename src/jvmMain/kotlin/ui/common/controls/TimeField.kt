@@ -34,9 +34,7 @@ fun TimeField(
         value = timeStr,
         onValueChange = { newValue ->
 
-            val trimmed = newValue.trim()
-
-            if (trimmed.length > 6) return@OutlinedTextField
+            val trimmed = newValue.trim().take(6)
 
             // If still editing, update textfield, signal error
             if (trimmed.isEmpty() || trimmed.length < 6) {
