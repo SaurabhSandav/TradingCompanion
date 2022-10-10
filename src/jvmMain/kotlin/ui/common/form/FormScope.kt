@@ -1,15 +1,15 @@
 package ui.common.form
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.*
 
-@Immutable
-class FormScope(
-    private val restored: List<Any?>? = null,
+class FormScope private constructor(
+    private val restored: List<Any?>?,
 ) {
 
-    internal val controls = mutableMapOf<FormState<*>, Saver<FormState<*>, Any>>()
+    constructor() : this(null)
+
+    private val controls = mutableMapOf<FormState<*>, Saver<FormState<*>, Any>>()
 
     fun <T : FormState<*>> controlState(saver: Saver<T, Any>, initial: () -> T): T {
 

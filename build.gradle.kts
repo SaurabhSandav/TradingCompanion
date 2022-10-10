@@ -1,4 +1,3 @@
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 // FIXME IDE warns "`libs` can't be called in this context by implicit receiver"
@@ -28,6 +27,11 @@ repositories {
 kotlin {
 
     jvm {
+
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform()
+        }
+
         compilations.all {
             kotlinOptions.jvmTarget = "18"
         }
@@ -72,7 +76,11 @@ kotlin {
                 implementation("org.jfree:jfreechart:1.5.3")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
     }
 }
 
