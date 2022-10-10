@@ -1,7 +1,7 @@
 package ui.opentrades.model
 
-import ui.addclosedtrade.CloseTradeFormState
-import ui.addopentrade.AddOpenTradeFormState
+import ui.addclosedtrade.CloseTradeFormFields
+import ui.addopentrade.AddOpenTradeFormFields
 
 internal sealed class OpenTradesEvent {
 
@@ -14,7 +14,7 @@ internal sealed class OpenTradesEvent {
         data class OpenEdit(val id: Int) : AddTradeWindow()
 
         data class SaveTrade(
-            val model: AddOpenTradeFormState.Model,
+            val model: AddOpenTradeFormFields.Model,
         ) : AddTradeWindow()
 
         object Close : AddTradeWindow()
@@ -25,7 +25,7 @@ internal sealed class OpenTradesEvent {
         data class Open(val id: Int) : CloseTradeWindow()
 
         data class SaveTrade(
-            val model: CloseTradeFormState.Model,
+            val model: CloseTradeFormFields.Model,
         ) : CloseTradeWindow()
 
         object Close : CloseTradeWindow()

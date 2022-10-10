@@ -20,8 +20,8 @@ import utils.NIFTY50
 @Composable
 internal fun AddOpenTradeWindow(
     onCloseRequest: () -> Unit,
-    formModel: AddOpenTradeFormState.Model,
-    onSaveTrade: (AddOpenTradeFormState.Model) -> Unit,
+    formModel: AddOpenTradeFormFields.Model,
+    onSaveTrade: (AddOpenTradeFormFields.Model) -> Unit,
 ) {
 
     val windowState = rememberWindowState(
@@ -41,21 +41,21 @@ internal fun AddOpenTradeWindow(
         ) {
 
             val formScope = rememberFormScope()
-            val formState = remember { AddOpenTradeFormState(formScope, formModel) }
+            val fields = remember { AddOpenTradeFormFields(formScope, formModel) }
 
             ListSelectionField(
                 items = NIFTY50,
-                onSelection = formState.ticker.onSelectionChange,
-                selection = formState.ticker.value,
+                onSelection = fields.ticker.onSelectionChange,
+                selection = fields.ticker.value,
                 label = { Text("Ticker") },
-                isError = formState.ticker.isError,
+                isError = fields.ticker.isError,
             )
 
             OutlinedTextField(
-                value = formState.quantity.value,
-                onValueChange = formState.quantity.onValueChange,
+                value = fields.quantity.value,
+                onValueChange = fields.quantity.onValueChange,
                 label = { Text("Quantity") },
-                isError = formState.quantity.isError,
+                isError = fields.quantity.isError,
                 singleLine = true,
             )
 
@@ -68,8 +68,8 @@ internal fun AddOpenTradeWindow(
                 Text("Short")
 
                 Switch(
-                    checked = formState.isLong.value,
-                    onCheckedChange = formState.isLong.onCheckedChange,
+                    checked = fields.isLong.value,
+                    onCheckedChange = fields.isLong.onCheckedChange,
                     colors = SwitchDefaults.colors(
                         uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
                         uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
@@ -81,44 +81,44 @@ internal fun AddOpenTradeWindow(
             }
 
             OutlinedTextField(
-                value = formState.entry.value,
-                onValueChange = formState.entry.onValueChange,
+                value = fields.entry.value,
+                onValueChange = fields.entry.onValueChange,
                 label = { Text("Entry") },
-                isError = formState.entry.isError,
+                isError = fields.entry.isError,
                 singleLine = true,
             )
 
             OutlinedTextField(
-                value = formState.stop.value,
-                onValueChange = formState.stop.onValueChange,
+                value = fields.stop.value,
+                onValueChange = fields.stop.onValueChange,
                 label = { Text("Stop") },
-                isError = formState.stop.isError,
+                isError = fields.stop.isError,
                 singleLine = true,
             )
 
             DateField(
-                value = formState.entryDate.value,
-                onValidValueChange = formState.entryDate.onValueChange,
+                value = fields.entryDate.value,
+                onValidValueChange = fields.entryDate.onValueChange,
                 label = { Text("Entry Date") },
             )
 
             TimeField(
-                value = formState.entryTime.value,
-                onValidValueChange = formState.entryTime.onValueChange,
+                value = fields.entryTime.value,
+                onValidValueChange = fields.entryTime.onValueChange,
                 label = { Text("Entry Time") },
             )
 
             OutlinedTextField(
-                value = formState.target.value,
-                onValueChange = formState.target.onValueChange,
+                value = fields.target.value,
+                onValueChange = fields.target.onValueChange,
                 label = { Text("Target") },
-                isError = formState.target.isError,
+                isError = fields.target.isError,
                 singleLine = true,
             )
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { formState.getModelIfValidOrNull()?.let { onSaveTrade(it) } },
+                onClick = { fields.getModelIfValidOrNull()?.let { onSaveTrade(it) } },
             ) {
 
                 Text("Add")

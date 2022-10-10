@@ -31,4 +31,4 @@ maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult
 FROM ClosedTrade
 LEFT JOIN ClosedTradeDetail
 ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
-ORDER BY date(entryDate) DESC;
+ORDER BY date(entryDate) DESC, time(entryDate) ASC;

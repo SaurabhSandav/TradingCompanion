@@ -1,15 +1,15 @@
 package ui.addclosedtrade
 
 import kotlinx.datetime.*
-import ui.addopentrade.AddOpenTradeFormState
+import ui.addopentrade.AddOpenTradeFormFields
 import ui.common.form.FormScope
 import ui.common.form.dateFieldState
 import ui.common.form.textFieldState
 import ui.common.form.timeFieldState
 
-internal class CloseTradeFormState(
+internal class CloseTradeFormFields(
     private val formScope: FormScope,
-    private val openTradeModel: AddOpenTradeFormState.Model,
+    private val openTradeModel: AddOpenTradeFormFields.Model,
 ) {
 
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -34,7 +34,7 @@ internal class CloseTradeFormState(
     )
 
     class Model(
-        val openTradeModel: AddOpenTradeFormState.Model,
+        val openTradeModel: AddOpenTradeFormFields.Model,
         val exit: String,
         val exitDateTime: LocalDateTime,
     )

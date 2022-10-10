@@ -3,7 +3,7 @@ package ui.addopentrade
 import kotlinx.datetime.*
 import ui.common.form.*
 
-internal class AddOpenTradeFormState(
+internal class AddOpenTradeFormFields(
     private val formScope: FormScope,
     private val initialModel: Model,
 ) {

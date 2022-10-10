@@ -18,8 +18,8 @@ import kotlinx.datetime.atTime
 import launchUnit
 import mapList
 import model.Side
-import ui.addclosedtrade.CloseTradeFormState
-import ui.addopentrade.AddOpenTradeFormState
+import ui.addclosedtrade.CloseTradeFormFields
+import ui.addopentrade.AddOpenTradeFormFields
 import ui.common.CollectEffect
 import ui.common.state
 import ui.opentrades.model.*
@@ -95,14 +95,14 @@ internal class OpenTradesPresenter(
             ) return@CollectEffect
 
             addTradeWindowState = when (event) {
-                AddTradeWindow.Open -> AddTradeWindowState.Open(AddOpenTradeFormState.Model())
+                AddTradeWindow.Open -> AddTradeWindowState.Open(AddOpenTradeFormFields.Model())
                 is AddTradeWindow.OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
                     }
 
-                    val model = AddOpenTradeFormState.Model(
+                    val model = AddOpenTradeFormFields.Model(
                         id = openTrade.id,
                         ticker = openTrade.ticker,
                         quantity = openTrade.quantity,
@@ -146,7 +146,7 @@ internal class OpenTradesPresenter(
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
                     }
 
-                    val model = AddOpenTradeFormState.Model(
+                    val model = AddOpenTradeFormFields.Model(
                         id = openTrade.id,
                         ticker = openTrade.ticker,
                         quantity = openTrade.quantity,
@@ -173,7 +173,7 @@ internal class OpenTradesPresenter(
     }
 
     private fun saveOpenTradeToDB(
-        model: AddOpenTradeFormState.Model,
+        model: AddOpenTradeFormFields.Model,
     ) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
@@ -204,7 +204,7 @@ internal class OpenTradesPresenter(
     }
 
     private fun saveClosedTradeToDB(
-        model: CloseTradeFormState.Model,
+        model: CloseTradeFormFields.Model,
     ) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
