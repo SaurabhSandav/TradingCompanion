@@ -5,46 +5,46 @@ import ui.common.form.*
 
 internal class AddOpenTradeFormFields(
     private val formScope: FormScope,
-    private val initialModel: Model,
+    private val initial: Model,
 ) {
 
-    val ticker = formScope.singleSelectionState(initialModel.ticker)
+    val ticker = formScope.singleSelectionState(initial.ticker)
 
     val quantity = formScope.textFieldState(
-        initial = initialModel.quantity,
+        initial = initial.quantity,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val isLong = formScope.switchState(initialModel.isLong)
+    val isLong = formScope.switchState(initial.isLong)
 
     val entry = formScope.textFieldState(
-        initial = initialModel.entry,
+        initial = initial.entry,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
     val stop = formScope.textFieldState(
-        initial = initialModel.stop,
+        initial = initial.stop,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryDate = formScope.dateFieldState(initialModel.entryDateTime.date)
+    val entryDate = formScope.dateFieldState(initial.entryDateTime.date)
 
-    val entryTime = formScope.timeFieldState(initialModel.entryDateTime.time)
-
-    val target = formScope.textFieldState(
-        initial = initialModel.target,
-        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
-        onValueChange = { setValue(it.trim()) },
-    )
+    val entryTime = formScope.timeFieldState(initial.entryDateTime.time)
 
     private val entryDateTime
         get() = entryDate.value.atTime(entryTime.value)
 
+    val target = formScope.textFieldState(
+        initial = initial.target,
+        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
+
     fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
-        id = initialModel.id,
+        id = initial.id,
         ticker = ticker.value,
         quantity = quantity.value,
         isLong = isLong.value,

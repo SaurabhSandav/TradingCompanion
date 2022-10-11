@@ -1,6 +1,7 @@
 package ui.opentrades.model
 
 import androidx.compose.runtime.Immutable
+import ui.addclosedtrade.CloseTradeFormFields
 import ui.addopentrade.AddOpenTradeFormFields
 
 @Immutable
@@ -32,7 +33,7 @@ internal sealed class AddTradeWindowState {
 
 internal sealed class CloseTradeWindowState {
 
-    data class Open(val openTradeFormModel: AddOpenTradeFormFields.Model) : CloseTradeWindowState()
+    data class Open(val formModel: CloseTradeFormFields.Model) : CloseTradeWindowState()
 
     object Closed : CloseTradeWindowState()
 }

@@ -146,7 +146,7 @@ internal class OpenTradesPresenter(
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
                     }
 
-                    val model = AddOpenTradeFormFields.Model(
+                    val model = CloseTradeFormFields.Model(
                         id = openTrade.id,
                         ticker = openTrade.ticker,
                         quantity = openTrade.quantity,
@@ -209,8 +209,8 @@ internal class OpenTradesPresenter(
 
         withContext(Dispatchers.IO) {
 
-            val entryTime = model.openTradeModel.entryDateTime.time
-            val entryDateTime = model.openTradeModel.entryDateTime.date.atTime(
+            val entryTime = model.entryDateTime.time
+            val entryDateTime = model.entryDateTime.date.atTime(
                 LocalTime(
                     hour = entryTime.hour,
                     minute = entryTime.minute,
@@ -231,20 +231,20 @@ internal class OpenTradesPresenter(
 
                 appModule.appDB.closedTradeQueries.insert(
                     broker = "Finvasia",
-                    ticker = model.openTradeModel.ticker!!,
+                    ticker = model.ticker!!,
                     instrument = "equity",
-                    quantity = model.openTradeModel.quantity,
+                    quantity = model.quantity,
                     lots = null,
-                    side = (if (model.openTradeModel.isLong) Side.Long else Side.Short).strValue,
-                    entry = model.openTradeModel.entry,
-                    stop = model.openTradeModel.stop,
+                    side = (if (model.isLong) Side.Long else Side.Short).strValue,
+                    entry = model.entry,
+                    stop = model.stop,
                     entryDate = entryDateTime.toString(),
-                    target = model.openTradeModel.target,
+                    target = model.target,
                     exit = model.exit,
                     exitDate = exitDateTime.toString(),
                 )
 
-                appModule.appDB.openTradeQueries.delete(model.openTradeModel.id!!)
+                appModule.appDB.openTradeQueries.delete(model.id!!)
             }
         }
     }

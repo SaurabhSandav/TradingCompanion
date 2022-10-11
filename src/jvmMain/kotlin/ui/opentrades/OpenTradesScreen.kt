@@ -44,7 +44,7 @@ internal fun OpenTradesScreen(
 
         CloseTradeWindow(
             onCloseRequest = { presenter.event(OpenTradesEvent.CloseTradeWindow.Close) },
-            openTradeFormModel = closeTradeWindowState.openTradeFormModel,
+            formModel = closeTradeWindowState.formModel,
             onSaveTrade = { presenter.event(OpenTradesEvent.CloseTradeWindow.SaveTrade(it)) },
         )
     }

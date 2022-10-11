@@ -1,41 +1,84 @@
 package ui.addclosedtrade
 
 import kotlinx.datetime.*
-import ui.addopentrade.AddOpenTradeFormFields
-import ui.common.form.FormScope
-import ui.common.form.dateFieldState
-import ui.common.form.textFieldState
-import ui.common.form.timeFieldState
+import ui.common.form.*
 
 internal class CloseTradeFormFields(
     private val formScope: FormScope,
-    private val openTradeModel: AddOpenTradeFormFields.Model,
+    private val initial: Model,
 ) {
 
-    private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val ticker = formScope.singleSelectionState(initial.ticker)
 
-    val exit = formScope.textFieldState(
-        initial = "",
+    val quantity = formScope.textFieldState(
+        initial = initial.quantity,
         isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
-    val exitDate = formScope.dateFieldState(currentDateTime.date)
+    val isLong = formScope.switchState(initial.isLong)
 
-    val exitTime = formScope.timeFieldState(currentDateTime.time)
+    val entry = formScope.textFieldState(
+        initial = initial.entry,
+        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
+
+    val stop = formScope.textFieldState(
+        initial = initial.stop,
+        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
+
+    val entryDate = formScope.dateFieldState(initial.entryDateTime.date)
+
+    val entryTime = formScope.timeFieldState(initial.entryDateTime.time)
+
+    private val entryDateTime
+        get() = entryDate.value.atTime(entryTime.value)
+
+    val target = formScope.textFieldState(
+        initial = initial.target,
+        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
+
+    val exit = formScope.textFieldState(
+        initial = initial.exit,
+        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
+
+    val exitDate = formScope.dateFieldState(initial.exitDateTime.date)
+
+    val exitTime = formScope.timeFieldState(initial.exitDateTime.time)
 
     private val exitDateTime
         get() = exitDate.value.atTime(exitTime.value)
 
     fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
-        openTradeModel = openTradeModel,
+        id = initial.id,
+        ticker = ticker.value,
+        quantity = quantity.value,
+        isLong = isLong.value,
+        entry = entry.value,
+        stop = stop.value,
+        entryDateTime = entryDateTime,
+        target = target.value,
         exit = exit.value,
         exitDateTime = exitDateTime,
     )
 
     class Model(
-        val openTradeModel: AddOpenTradeFormFields.Model,
-        val exit: String,
-        val exitDateTime: LocalDateTime,
+        val id: Int? = null,
+        val ticker: String? = null,
+        val quantity: String = "",
+        val isLong: Boolean = true,
+        val entry: String = "",
+        val stop: String = "",
+        val entryDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+        val target: String = "",
+        val exit: String = "",
+        val exitDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
     )
 }

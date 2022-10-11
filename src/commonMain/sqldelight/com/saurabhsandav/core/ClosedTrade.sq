@@ -25,6 +25,15 @@ SELECT *
 FROM ClosedTrade
 ORDER BY date(entryDate) DESC;
 
+getById:
+SELECT *
+FROM ClosedTrade
+WHERE id = ?;
+
+delete:
+DELETE FROM ClosedTrade
+WHERE id = ?;
+
 getAllClosedTradesDetailed:
 SELECT id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate,
 maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult

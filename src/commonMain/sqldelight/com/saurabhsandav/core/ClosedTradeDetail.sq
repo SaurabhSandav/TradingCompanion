@@ -5,7 +5,7 @@ maxFavorableExcursion TEXT NOT NULL,
 maxAdverseExcursion TEXT NOT NULL,
 persisted TEXT NOT NULL,
 persistenceResult TEXT,
-FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id)
+FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id) ON DELETE CASCADE
 );
 
 insert:

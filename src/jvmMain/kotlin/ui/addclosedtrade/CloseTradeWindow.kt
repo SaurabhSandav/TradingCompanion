@@ -17,16 +17,16 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import ui.addopentrade.AddOpenTradeFormFields
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
 import ui.common.form.rememberFormScope
+import utils.NIFTY50
 
 @Composable
 internal fun CloseTradeWindow(
     onCloseRequest: () -> Unit,
-    openTradeFormModel: AddOpenTradeFormFields.Model,
+    formModel: CloseTradeFormFields.Model,
     onSaveTrade: (CloseTradeFormFields.Model) -> Unit,
 ) {
 
@@ -47,20 +47,23 @@ internal fun CloseTradeWindow(
         ) {
 
             val formScope = rememberFormScope()
-            val fields = remember { CloseTradeFormFields(formScope, openTradeFormModel) }
+            val fields = remember { CloseTradeFormFields(formScope, formModel) }
 
             ListSelectionField(
-                items = emptyList(),
-                onSelection = {},
-                selection = openTradeFormModel.ticker,
+                items = NIFTY50,
+                onSelection = fields.ticker.onSelectionChange,
+                selection = fields.ticker.value,
                 label = { Text("Ticker") },
+                isError = fields.ticker.isError,
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeFormModel.quantity,
-                onValueChange = {},
+                value = fields.quantity.value,
+                onValueChange = fields.quantity.onValueChange,
                 label = { Text("Quantity") },
+                isError = fields.quantity.isError,
+                singleLine = true,
                 enabled = false,
             )
 
@@ -73,8 +76,8 @@ internal fun CloseTradeWindow(
                 Text("Short")
 
                 Switch(
-                    checked = openTradeFormModel.isLong,
-                    onCheckedChange = { },
+                    checked = fields.isLong.value,
+                    onCheckedChange = fields.isLong.onCheckedChange,
                     enabled = false,
                 )
 
@@ -82,37 +85,43 @@ internal fun CloseTradeWindow(
             }
 
             OutlinedTextField(
-                value = openTradeFormModel.entry,
-                onValueChange = {},
+                value = fields.entry.value,
+                onValueChange = fields.entry.onValueChange,
                 label = { Text("Entry") },
+                isError = fields.entry.isError,
+                singleLine = true,
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeFormModel.stop,
-                onValueChange = {},
+                value = fields.stop.value,
+                onValueChange = fields.stop.onValueChange,
                 label = { Text("Stop") },
+                isError = fields.stop.isError,
+                singleLine = true,
                 enabled = false,
             )
 
             DateField(
-                value = openTradeFormModel.entryDateTime.date,
-                onValidValueChange = { },
+                value = fields.entryDate.value,
+                onValidValueChange = fields.entryDate.onValueChange,
                 label = { Text("Entry Date") },
                 enabled = false,
             )
 
             TimeField(
-                value = openTradeFormModel.entryDateTime.time,
-                onValidValueChange = {},
+                value = fields.entryTime.value,
+                onValidValueChange = fields.entryTime.onValueChange,
                 label = { Text("Entry Time") },
                 enabled = false,
             )
 
             OutlinedTextField(
-                value = openTradeFormModel.target,
-                onValueChange = {},
+                value = fields.target.value,
+                onValueChange = fields.target.onValueChange,
                 label = { Text("Target") },
+                isError = fields.target.isError,
+                singleLine = true,
                 enabled = false,
             )
 
