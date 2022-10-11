@@ -83,7 +83,7 @@ internal class ClosedTradesPresenter(
         val instrumentCapitalized = instrument
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         val entryBD = entry.toBigDecimal()
-        val stopBD = stop?.toBigDecimal()
+        val stopBD = stop?.toBigDecimalOrNull()
         val exitBD = exit.toBigDecimal()
         val quantityBD = quantity.toBigDecimal()
         val side = Side.fromString(side)
@@ -103,7 +103,7 @@ internal class ClosedTradesPresenter(
         )
 
         val rValue = when (stopBD) {
-            null -> "NA"
+            null -> null
             else -> when (side) {
                 Side.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
                 Side.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
@@ -130,13 +130,13 @@ internal class ClosedTradesPresenter(
             duration = "${entryDateTime.time} ->\n${exitDateTime.time}\n($duration)",
             target = target ?: "NA",
             exit = exit,
-            pnl = pnlBD.toPlainString() + " (${rValue}R)",
+            pnl = pnlBD.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty(),
             isProfitable = pnlBD > BigDecimal.ZERO,
             netPnl = netPnlBD.toPlainString(),
             isNetProfitable = netPnlBD > BigDecimal.ZERO,
             fees = (pnlBD - netPnlBD).toPlainString(),
-            maxFavorableExcursion = maxFavorableExcursion ?: "",
-            maxAdverseExcursion = maxAdverseExcursion ?: "",
+            maxFavorableExcursion = maxFavorableExcursion.orEmpty(),
+            maxAdverseExcursion = maxAdverseExcursion.orEmpty(),
             persisted = persisted.toBoolean(),
             persistenceResult = persistenceResult,
         )
@@ -166,9 +166,9 @@ internal class ClosedTradesPresenter(
                         quantity = closedTrade.quantity,
                         isLong = Side.fromString(closedTrade.side) == Side.Long,
                         entry = closedTrade.entry,
-                        stop = closedTrade.stop ?: "",
+                        stop = closedTrade.stop.orEmpty(),
                         entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
-                        target = closedTrade.target ?: "",
+                        target = closedTrade.target.orEmpty(),
                         exit = closedTrade.exit,
                         exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
                     )

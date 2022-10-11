@@ -26,7 +26,7 @@ internal class AddOpenTradeFormFields(
 
     val stop = formScope.textFieldState(
         initial = initial.stop,
-        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        isErrorCheck = { it.isNotEmpty() && it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 
@@ -39,7 +39,7 @@ internal class AddOpenTradeFormFields(
 
     val target = formScope.textFieldState(
         initial = initial.target,
-        isErrorCheck = { it.isEmpty() || it.toBigDecimalOrNull() == null },
+        isErrorCheck = { it.isNotEmpty() && it.toBigDecimalOrNull() == null },
         onValueChange = { setValue(it.trim()) },
     )
 

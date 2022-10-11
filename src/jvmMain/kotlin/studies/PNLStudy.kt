@@ -50,7 +50,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
         .getAllClosedTradesDetailed { _, broker, ticker, instrument, quantity, _, side, entry, stop, entryDate, target, exit, exitDate, _, _, _, _ ->
 
             val entryBD = entry.toBigDecimal()
-            val stopBD = stop?.toBigDecimal()
+            val stopBD = stop?.toBigDecimalOrNull()
             val exitBD = exit.toBigDecimal()
             val quantityBD = quantity.toBigDecimal()
             val sideEnum = Side.fromString(side)
@@ -70,7 +70,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
             )
 
             val rValue = when (stopBD) {
-                null -> "NA"
+                null -> null
                 else -> when (sideEnum) {
                     Side.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
                     Side.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
@@ -94,7 +94,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                 netPnl = netPnlBD.toPlainString(),
                 isNetProfitable = netPnlBD > BigDecimal.ZERO,
                 fees = (pnlBD - netPnlBD).toPlainString(),
-                rValue = "(${rValue}R)",
+                rValue = rValue?.let { "${it}R" }.orEmpty(),
             )
         }
         .asFlow()

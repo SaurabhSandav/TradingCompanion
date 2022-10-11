@@ -54,7 +54,7 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
                     val stuff = entries.value.map {
 
                         val entryBD = it.entry.toBigDecimal()
-                        val stopBD = it.stop?.toBigDecimal()
+                        val stopBD = it.stop?.toBigDecimalOrNull()
                         val exitBD = it.exit.toBigDecimal()
                         val quantityBD = it.quantity.toBigDecimal()
                         val sideEnum = Side.fromString(it.side)

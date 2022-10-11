@@ -113,9 +113,9 @@ internal class OpenTradesPresenter(
                         quantity = openTrade.quantity,
                         isLong = Side.fromString(openTrade.side) == Side.Long,
                         entry = openTrade.entry,
-                        stop = openTrade.stop ?: "",
+                        stop = openTrade.stop.orEmpty(),
                         entryDateTime = LocalDateTime.parse(openTrade.entryDate),
-                        target = openTrade.target ?: "",
+                        target = openTrade.target.orEmpty(),
                     )
 
                     AddTradeWindowState.Open(model)
@@ -157,9 +157,9 @@ internal class OpenTradesPresenter(
                         quantity = openTrade.quantity,
                         isLong = Side.fromString(openTrade.side) == Side.Long,
                         entry = openTrade.entry,
-                        stop = openTrade.stop ?: "",
+                        stop = openTrade.stop.orEmpty(),
                         entryDateTime = LocalDateTime.parse(openTrade.entryDate),
-                        target = openTrade.target ?: "",
+                        target = openTrade.target.orEmpty(),
                     )
 
                     CloseTradeWindowState.Open(model)

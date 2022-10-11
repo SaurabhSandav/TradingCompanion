@@ -45,44 +45,40 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         }
     }
 
-    override val data: Flow<List<Model>> = appModule.appDB
-        .closedTradeQueries
-        .getAllClosedTradesDetailed {
-                _, _, ticker, _, quantity, _, side, entry, stop, entryDate, target,
-                exit, exitDate, maxFavorableExcursion, maxAdverseExcursion, _, _,
-            ->
+    override val data: Flow<List<Model>> = appModule.appDB.closedTradeQueries.getAllClosedTradesDetailed {
+            _, _, ticker, _, quantity, _, side, entry, stop, entryDate, target,
+            exit, exitDate, maxFavorableExcursion, maxAdverseExcursion, _, _,
+        ->
 
-            val entryBD = entry.toBigDecimal()
-            val stopBD = stop?.toBigDecimal()
-            val exitBD = exit.toBigDecimal()
-            val quantityBD = quantity.toBigDecimal()
-            val sideEnum = Side.fromString(side)
+        val entryBD = entry.toBigDecimal()
+        val stopBD = stop?.toBigDecimalOrNull()
+        val exitBD = exit.toBigDecimal()
+        val quantityBD = quantity.toBigDecimal()
+        val sideEnum = Side.fromString(side)
 
-            val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
-                .format(entryDate.toLocalDateTime().toJavaLocalDateTime())
+        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+            .format(entryDate.toLocalDateTime().toJavaLocalDateTime())
 
-            Model(
-                ticker = ticker,
-                quantity = quantity,
-                side = side.uppercase(),
-                entry = entry,
-                stop = stop ?: "NA",
-                duration = "$day\n${entryDate.toLocalDateTime().time} ->\n${exitDate.toLocalDateTime().time}",
-                target = target ?: "NA",
-                exit = exit,
-                pnl = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, exitBD),
-                maxFavorableExcursion = maxFavorableExcursion ?: "",
-                mfePNL = maxFavorableExcursion?.let {
-                    buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
-                } ?: "",
-                maxAdverseExcursion = maxAdverseExcursion ?: "",
-                maePNL = maxAdverseExcursion?.let {
-                    buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
-                } ?: "",
-            )
-        }
-        .asFlow()
-        .mapToList(Dispatchers.IO)
+        Model(
+            ticker = ticker,
+            quantity = quantity,
+            side = side.uppercase(),
+            entry = entry,
+            stop = stop ?: "NA",
+            duration = "$day\n${entryDate.toLocalDateTime().time} ->\n${exitDate.toLocalDateTime().time}",
+            target = target ?: "NA",
+            exit = exit,
+            pnl = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, exitBD),
+            maxFavorableExcursion = maxFavorableExcursion.orEmpty(),
+            mfePNL = maxFavorableExcursion?.let {
+                buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
+            }.orEmpty(),
+            maxAdverseExcursion = maxAdverseExcursion.orEmpty(),
+            maePNL = maxAdverseExcursion?.let {
+                buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
+            }.orEmpty(),
+        )
+    }.asFlow().mapToList(Dispatchers.IO)
 
     data class Model(
         val ticker: String,
@@ -114,13 +110,15 @@ private fun buildPNLString(
         Side.Short -> (entry - exit) * quantity
     }
 
-    val rValue = when (stop) {
-        null -> "NA"
-        else -> when (side) {
-            Side.Long -> pnl / ((entry - stop) * quantity)
-            Side.Short -> pnl / ((stop - entry) * quantity)
-        }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
+    val rValue = stop?.let {
+        when (stop) {
+            null -> null
+            else -> when (side) {
+                Side.Long -> pnl / ((entry - stop) * quantity)
+                Side.Short -> pnl / ((stop - entry) * quantity)
+            }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
+        }
     }
 
-    return pnl.toPlainString() + " (${rValue}R)"
+    return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()
 }
