@@ -22,9 +22,14 @@ import ui.addclosedtrade.CloseTradeFormFields
 import ui.addopentrade.AddOpenTradeFormFields
 import ui.common.CollectEffect
 import ui.common.state
-import ui.opentrades.model.*
-import ui.opentrades.model.OpenTradesEvent.AddTradeWindow
-import ui.opentrades.model.OpenTradesEvent.CloseTradeWindow
+import ui.opentrades.model.OpenTradeListEntry
+import ui.opentrades.model.OpenTradesEvent
+import ui.opentrades.model.OpenTradesEvent.DeleteTrade
+import ui.opentrades.model.OpenTradesState
+import ui.opentrades.model.OpenTradesEvent.AddTradeWindow as AddTradeWindowEvent
+import ui.opentrades.model.OpenTradesEvent.CloseTradeWindow as CloseTradeWindowEvent
+import ui.opentrades.model.OpenTradesState.AddTradeWindow as AddTradeWindowState
+import ui.opentrades.model.OpenTradesState.CloseTradeWindow as CloseTradeWindowState
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -38,8 +43,8 @@ internal class OpenTradesPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is OpenTradesEvent.DeleteTrade -> deleteTrade(event.id)
-                is AddTradeWindow, is CloseTradeWindow -> Unit
+                is DeleteTrade -> deleteTrade(event.id)
+                is AddTradeWindowEvent, is CloseTradeWindowEvent -> Unit
             }
         }
 
@@ -85,18 +90,18 @@ internal class OpenTradesPresenter(
     @Composable
     private fun addTradeWindowState(events: Flow<OpenTradesEvent>): AddTradeWindowState {
 
-        val addTradeWindowEvents = remember(events) { events.filterIsInstance<AddTradeWindow>() }
+        val addTradeWindowEvents = remember(events) { events.filterIsInstance<AddTradeWindowEvent>() }
         var addTradeWindowState by state<AddTradeWindowState> { AddTradeWindowState.Closed }
 
         CollectEffect(addTradeWindowEvents) { event ->
 
             if (addTradeWindowState is AddTradeWindowState.Open
-                && (event is AddTradeWindow.Open || event is AddTradeWindow.OpenEdit)
+                && (event is AddTradeWindowEvent.Open || event is AddTradeWindowEvent.OpenEdit)
             ) return@CollectEffect
 
             addTradeWindowState = when (event) {
-                AddTradeWindow.Open -> AddTradeWindowState.Open(AddOpenTradeFormFields.Model())
-                is AddTradeWindow.OpenEdit -> {
+                AddTradeWindowEvent.Open -> AddTradeWindowState.Open(AddOpenTradeFormFields.Model())
+                is AddTradeWindowEvent.OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
@@ -116,12 +121,12 @@ internal class OpenTradesPresenter(
                     AddTradeWindowState.Open(model)
                 }
 
-                is AddTradeWindow.SaveTrade -> {
+                is AddTradeWindowEvent.SaveTrade -> {
                     saveOpenTradeToDB(event.model)
                     AddTradeWindowState.Closed
                 }
 
-                AddTradeWindow.Close -> AddTradeWindowState.Closed
+                AddTradeWindowEvent.Close -> AddTradeWindowState.Closed
             }
         }
 
@@ -131,16 +136,16 @@ internal class OpenTradesPresenter(
     @Composable
     private fun closeTradeWindowState(events: Flow<OpenTradesEvent>): CloseTradeWindowState {
 
-        val windowEvents = remember(events) { events.filterIsInstance<CloseTradeWindow>() }
+        val windowEvents = remember(events) { events.filterIsInstance<CloseTradeWindowEvent>() }
         var state by state<CloseTradeWindowState> { CloseTradeWindowState.Closed }
 
         CollectEffect(windowEvents) { event ->
 
-            if (state is CloseTradeWindowState.Open && event is CloseTradeWindow.Open)
+            if (state is CloseTradeWindowState.Open && event is CloseTradeWindowEvent.Open)
                 return@CollectEffect
 
             state = when (event) {
-                is CloseTradeWindow.Open -> {
+                is CloseTradeWindowEvent.Open -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.openTradeQueries.getById(event.id).executeAsOne()
@@ -160,12 +165,12 @@ internal class OpenTradesPresenter(
                     CloseTradeWindowState.Open(model)
                 }
 
-                is CloseTradeWindow.SaveTrade -> {
+                is CloseTradeWindowEvent.SaveTrade -> {
                     saveClosedTradeToDB(event.model)
                     CloseTradeWindowState.Closed
                 }
 
-                CloseTradeWindow.Close -> CloseTradeWindowState.Closed
+                CloseTradeWindowEvent.Close -> CloseTradeWindowState.Closed
             }
         }
 

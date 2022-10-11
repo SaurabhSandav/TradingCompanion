@@ -7,9 +7,24 @@ import ui.addopentrade.AddOpenTradeFormFields
 @Immutable
 internal data class OpenTradesState(
     val openTrades: List<OpenTradeListEntry>,
-    val addTradeWindowState: AddTradeWindowState,
-    val closeTradeWindowState: CloseTradeWindowState,
-)
+    val addTradeWindowState: AddTradeWindow,
+    val closeTradeWindowState: CloseTradeWindow,
+) {
+
+    internal sealed class AddTradeWindow {
+
+        data class Open(val formModel: AddOpenTradeFormFields.Model) : AddTradeWindow()
+
+        object Closed : AddTradeWindow()
+    }
+
+    internal sealed class CloseTradeWindow {
+
+        data class Open(val formModel: CloseTradeFormFields.Model) : CloseTradeWindow()
+
+        object Closed : CloseTradeWindow()
+    }
+}
 
 internal data class OpenTradeListEntry(
     val id: Int,
@@ -23,17 +38,3 @@ internal data class OpenTradeListEntry(
     val entryTime: String,
     val target: String,
 )
-
-internal sealed class AddTradeWindowState {
-
-    data class Open(val formModel: AddOpenTradeFormFields.Model) : AddTradeWindowState()
-
-    object Closed : AddTradeWindowState()
-}
-
-internal sealed class CloseTradeWindowState {
-
-    data class Open(val formModel: CloseTradeFormFields.Model) : CloseTradeWindowState()
-
-    object Closed : CloseTradeWindowState()
-}

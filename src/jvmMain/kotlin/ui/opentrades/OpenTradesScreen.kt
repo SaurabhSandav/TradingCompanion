@@ -5,12 +5,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import ui.addclosedtrade.CloseTradeWindow
 import ui.addopentrade.AddOpenTradeWindow
-import ui.opentrades.model.AddTradeWindowState
-import ui.opentrades.model.CloseTradeWindowState
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.AddTradeWindow
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.ui.OpenTradesTable
+import ui.opentrades.model.OpenTradesState.AddTradeWindow as AddTradeWindowState
+import ui.opentrades.model.OpenTradesState.CloseTradeWindow as CloseTradeWindowState
 
 @Composable
 internal fun OpenTradesScreen(

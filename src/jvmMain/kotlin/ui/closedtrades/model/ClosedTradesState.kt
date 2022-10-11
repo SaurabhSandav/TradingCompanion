@@ -6,9 +6,30 @@ import ui.addclosedtrade.CloseTradeFormFields
 @Immutable
 internal data class ClosedTradesState(
     val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
-    val deleteConfirmationDialogState: DeleteConfirmationDialogState,
-    val closeTradeWindowState: EditTradeWindowState,
-)
+    val deleteConfirmationDialogState: DeleteConfirmationDialog,
+    val closeTradeWindowState: EditTradeWindow,
+) {
+
+    @Immutable
+    internal sealed class DeleteConfirmationDialog {
+
+        @Immutable
+        data class Open(val id: Int) : DeleteConfirmationDialog()
+
+        @Immutable
+        object Dismissed : DeleteConfirmationDialog()
+    }
+
+    @Immutable
+    internal sealed class EditTradeWindow {
+
+        @Immutable
+        data class Open(val formModel: CloseTradeFormFields.Model) : EditTradeWindow()
+
+        @Immutable
+        object Closed : EditTradeWindow()
+    }
+}
 
 @Immutable
 internal sealed class ClosedTradeListItem {
@@ -38,18 +59,4 @@ internal sealed class ClosedTradeListItem {
         val persisted: Boolean,
         val persistenceResult: String?,
     ) : ClosedTradeListItem()
-}
-
-internal sealed class DeleteConfirmationDialogState {
-
-    data class Open(val id: Int) : DeleteConfirmationDialogState()
-
-    object Dismissed : DeleteConfirmationDialogState()
-}
-
-internal sealed class EditTradeWindowState {
-
-    data class Open(val formModel: CloseTradeFormFields.Model) : EditTradeWindowState()
-
-    object Closed : EditTradeWindowState()
 }

@@ -7,10 +7,10 @@ import ui.addclosedtrade.CloseTradeWindow
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow
-import ui.closedtrades.model.DeleteConfirmationDialogState
-import ui.closedtrades.model.EditTradeWindowState
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
+import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
+import ui.closedtrades.model.ClosedTradesState.EditTradeWindow as EditTradeWindowState
 
 @Composable
 internal fun ClosedTradesScreen(

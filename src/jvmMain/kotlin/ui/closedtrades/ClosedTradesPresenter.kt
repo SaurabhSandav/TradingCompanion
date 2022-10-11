@@ -19,8 +19,10 @@ import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
 import ui.addclosedtrade.CloseTradeFormFields
-import ui.closedtrades.model.*
-import ui.closedtrades.model.ClosedTradesEvent.*
+import ui.closedtrades.model.ClosedTradeListItem
+import ui.closedtrades.model.ClosedTradesEvent
+import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
+import ui.closedtrades.model.ClosedTradesState
 import ui.common.CollectEffect
 import ui.common.state
 import utils.brokerage
@@ -29,6 +31,10 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog as DeleteConfirmationDialogEvent
+import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow as EditTradeWindowEvent
+import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
+import ui.closedtrades.model.ClosedTradesState.EditTradeWindow as EditTradeWindowState
 
 internal class ClosedTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -139,16 +145,16 @@ internal class ClosedTradesPresenter(
     @Composable
     private fun closeTradeWindowState(events: Flow<ClosedTradesEvent>): EditTradeWindowState {
 
-        val windowEvents = remember(events) { events.filterIsInstance<EditTradeWindow>() }
+        val windowEvents = remember(events) { events.filterIsInstance<EditTradeWindowEvent>() }
         var state by state<EditTradeWindowState> { EditTradeWindowState.Closed }
 
         CollectEffect(windowEvents) { event ->
 
-            if (state is EditTradeWindowState.Open && event is EditTradeWindow.Open)
+            if (state is EditTradeWindowState.Open && event is EditTradeWindowEvent.Open)
                 return@CollectEffect
 
             state = when (event) {
-                is EditTradeWindow.Open -> {
+                is EditTradeWindowEvent.Open -> {
 
                     val closedTrade = withContext(Dispatchers.IO) {
                         appModule.appDB.closedTradeQueries.getById(event.id).executeAsOne()
@@ -170,12 +176,12 @@ internal class ClosedTradesPresenter(
                     EditTradeWindowState.Open(model)
                 }
 
-                is EditTradeWindow.SaveTrade -> {
+                is EditTradeWindowEvent.SaveTrade -> {
                     saveClosedTradeToDB(event.model)
                     EditTradeWindowState.Closed
                 }
 
-                EditTradeWindow.Close -> EditTradeWindowState.Closed
+                EditTradeWindowEvent.Close -> EditTradeWindowState.Closed
             }
         }
 
@@ -238,13 +244,13 @@ internal class ClosedTradesPresenter(
             state = when (event) {
                 is DeleteTrade -> DeleteConfirmationDialogState.Open(event.id)
 
-                is DeleteConfirmationDialog.Confirm -> {
+                is DeleteConfirmationDialogEvent.Confirm -> {
                     deleteTrade(event.id)
                     DeleteConfirmationDialogState.Dismissed
                 }
 
-                DeleteConfirmationDialog.Dismiss -> DeleteConfirmationDialogState.Dismissed
-                is EditTradeWindow -> state
+                DeleteConfirmationDialogEvent.Dismiss -> DeleteConfirmationDialogState.Dismissed
+                is EditTradeWindowEvent -> state
             }
         }
 
