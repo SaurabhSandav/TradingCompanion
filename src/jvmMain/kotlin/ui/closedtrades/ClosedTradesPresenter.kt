@@ -18,7 +18,7 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
-import ui.addclosedtrade.CloseTradeFormFields
+import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 import ui.closedtrades.model.ClosedTradeListItem
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
@@ -48,7 +48,7 @@ internal class ClosedTradesPresenter(
         return@launchMolecule ClosedTradesState(
             closedTradesItems = getClosedTradeListEntries().value,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
-            closeTradeWindowState = closeTradeWindowState(events),
+            closeTradeDetailedWindowState = closeTradeWindowState(events),
         )
     }
 
@@ -157,10 +157,10 @@ internal class ClosedTradesPresenter(
                 is EditTradeWindowEvent.Open -> {
 
                     val closedTrade = withContext(Dispatchers.IO) {
-                        appModule.appDB.closedTradeQueries.getById(event.id).executeAsOne()
+                        appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(event.id).executeAsOne()
                     }
 
-                    val model = CloseTradeFormFields.Model(
+                    val model = CloseTradeDetailedFormFields.Model(
                         id = closedTrade.id,
                         ticker = closedTrade.ticker,
                         quantity = closedTrade.quantity,
@@ -171,13 +171,16 @@ internal class ClosedTradesPresenter(
                         target = closedTrade.target.orEmpty(),
                         exit = closedTrade.exit,
                         exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
+                        maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
+                        maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
+                        persisted = closedTrade.persisted.toBoolean(),
                     )
 
                     EditTradeWindowState.Open(model)
                 }
 
                 is EditTradeWindowEvent.SaveTrade -> {
-                    saveClosedTradeToDB(event.model)
+                    saveClosedTradeDetailsToDB(event.model)
                     EditTradeWindowState.Closed
                 }
 
@@ -188,8 +191,8 @@ internal class ClosedTradesPresenter(
         return state
     }
 
-    private fun saveClosedTradeToDB(
-        model: CloseTradeFormFields.Model,
+    private fun saveClosedTradeDetailsToDB(
+        model: CloseTradeDetailedFormFields.Model,
     ) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
@@ -215,6 +218,7 @@ internal class ClosedTradesPresenter(
             appModule.appDB.transaction {
 
                 appModule.appDB.closedTradeQueries.insert(
+                    id = model.id,
                     broker = "Finvasia",
                     ticker = model.ticker!!,
                     instrument = "equity",
@@ -229,7 +233,13 @@ internal class ClosedTradesPresenter(
                     exitDate = exitDateTime.toString(),
                 )
 
-                appModule.appDB.openTradeQueries.delete(model.id!!)
+                appModule.appDB.closedTradeDetailQueries.insert(
+                    closedTradeId = model.id,
+                    maxFavorableExcursion = model.maxFavorableExcursion.ifBlank { null },
+                    maxAdverseExcursion = model.maxAdverseExcursion.ifBlank { null },
+                    persisted = model.persisted.toString(),
+                    persistenceResult = null,
+                )
             }
         }
     }

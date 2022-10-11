@@ -1,14 +1,14 @@
 
 CREATE TABLE IF NOT EXISTS ClosedTradeDetail (
 closedTradeId INTEGER AS Int NOT NULL UNIQUE,
-maxFavorableExcursion TEXT NOT NULL,
-maxAdverseExcursion TEXT NOT NULL,
-persisted TEXT NOT NULL,
+maxFavorableExcursion TEXT,
+maxAdverseExcursion TEXT,
+persisted TEXT,
 persistenceResult TEXT,
 FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id) ON DELETE CASCADE
 );
 
 insert:
-INSERT
+INSERT OR REPLACE
 INTO ClosedTradeDetail(closedTradeId, maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult)
 VALUES (?, ?, ?, ?, ?);

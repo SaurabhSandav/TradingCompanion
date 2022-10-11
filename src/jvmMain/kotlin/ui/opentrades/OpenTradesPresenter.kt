@@ -235,6 +235,7 @@ internal class OpenTradesPresenter(
             appModule.appDB.transaction {
 
                 appModule.appDB.closedTradeQueries.insert(
+                    id = model.id,
                     broker = "Finvasia",
                     ticker = model.ticker!!,
                     instrument = "equity",

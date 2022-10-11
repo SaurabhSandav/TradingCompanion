@@ -44,6 +44,7 @@ internal class TradeImporter(
             )
 
             appModule.appDB.closedTradeQueries.insert(
+                id = null,
                 broker = row.getValue("Broker"),
                 ticker = row.getValue("Scrip"),
                 instrument = row.getValue("Instrument").lowercase(),

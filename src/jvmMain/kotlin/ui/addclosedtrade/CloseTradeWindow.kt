@@ -55,7 +55,6 @@ internal fun CloseTradeWindow(
                 selection = fields.ticker.value,
                 label = { Text("Ticker") },
                 isError = fields.ticker.isError,
-                enabled = false,
             )
 
             OutlinedTextField(
@@ -64,7 +63,6 @@ internal fun CloseTradeWindow(
                 label = { Text("Quantity") },
                 isError = fields.quantity.isError,
                 singleLine = true,
-                enabled = false,
             )
 
             Row(
@@ -78,7 +76,6 @@ internal fun CloseTradeWindow(
                 Switch(
                     checked = fields.isLong.value,
                     onCheckedChange = fields.isLong.onCheckedChange,
-                    enabled = false,
                 )
 
                 Text("Long")
@@ -90,7 +87,6 @@ internal fun CloseTradeWindow(
                 label = { Text("Entry") },
                 isError = fields.entry.isError,
                 singleLine = true,
-                enabled = false,
             )
 
             OutlinedTextField(
@@ -99,21 +95,18 @@ internal fun CloseTradeWindow(
                 label = { Text("Stop") },
                 isError = fields.stop.isError,
                 singleLine = true,
-                enabled = false,
             )
 
             DateField(
                 value = fields.entryDate.value,
                 onValidValueChange = fields.entryDate.onValueChange,
                 label = { Text("Entry Date") },
-                enabled = false,
             )
 
             TimeField(
                 value = fields.entryTime.value,
                 onValidValueChange = fields.entryTime.onValueChange,
                 label = { Text("Entry Time") },
-                enabled = false,
             )
 
             OutlinedTextField(
@@ -122,7 +115,6 @@ internal fun CloseTradeWindow(
                 label = { Text("Target") },
                 isError = fields.target.isError,
                 singleLine = true,
-                enabled = false,
             )
 
             val focusRequester = remember { FocusRequester() }

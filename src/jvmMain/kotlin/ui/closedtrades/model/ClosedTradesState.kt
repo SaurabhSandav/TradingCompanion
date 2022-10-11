@@ -1,13 +1,13 @@
 package ui.closedtrades.model
 
 import androidx.compose.runtime.Immutable
-import ui.addclosedtrade.CloseTradeFormFields
+import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 
 @Immutable
 internal data class ClosedTradesState(
     val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
-    val closeTradeWindowState: EditTradeWindow,
+    val closeTradeDetailedWindowState: EditTradeWindow,
 ) {
 
     @Immutable
@@ -24,7 +24,7 @@ internal data class ClosedTradesState(
     internal sealed class EditTradeWindow {
 
         @Immutable
-        data class Open(val formModel: CloseTradeFormFields.Model) : EditTradeWindow()
+        data class Open(val formModel: CloseTradeDetailedFormFields.Model) : EditTradeWindow()
 
         @Immutable
         object Closed : EditTradeWindow()

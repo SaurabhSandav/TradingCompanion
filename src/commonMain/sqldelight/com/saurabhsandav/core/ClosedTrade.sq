@@ -16,19 +16,14 @@ exitDate TEXT NOT NULL
 );
 
 insert:
-INSERT
-INTO ClosedTrade(broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?);
+INSERT OR REPLACE
+INTO ClosedTrade(id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?);
 
 getAll:
 SELECT *
 FROM ClosedTrade
 ORDER BY date(entryDate) DESC;
-
-getById:
-SELECT *
-FROM ClosedTrade
-WHERE id = ?;
 
 delete:
 DELETE FROM ClosedTrade
@@ -40,4 +35,13 @@ maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult
 FROM ClosedTrade
 LEFT JOIN ClosedTradeDetail
 ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
+ORDER BY date(entryDate) DESC, time(entryDate) ASC;
+
+getClosedTradesDetailedById:
+SELECT id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate,
+maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult
+FROM ClosedTrade
+LEFT JOIN ClosedTradeDetail
+ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
+WHERE id = ?
 ORDER BY date(entryDate) DESC, time(entryDate) ASC;

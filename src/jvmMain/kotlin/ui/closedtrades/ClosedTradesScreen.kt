@@ -3,7 +3,7 @@ package ui.closedtrades
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import ui.addclosedtrade.CloseTradeWindow
+import ui.addclosedtradedetailed.CloseTradeDetailedWindow
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow
@@ -35,11 +35,11 @@ internal fun ClosedTradesScreen(
         )
     }
 
-    val closeTradeWindowState = state.closeTradeWindowState
+    val closeTradeWindowState = state.closeTradeDetailedWindowState
 
     if (closeTradeWindowState is EditTradeWindowState.Open) {
 
-        CloseTradeWindow(
+        CloseTradeDetailedWindow(
             onCloseRequest = { presenter.event(EditTradeWindow.Close) },
             formModel = closeTradeWindowState.formModel,
             onSaveTrade = { presenter.event(EditTradeWindow.SaveTrade(it)) },
