@@ -6,6 +6,7 @@ import ui.addclosedtrade.CloseTradeFormFields
 @Immutable
 internal data class ClosedTradesState(
     val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
+    val deleteConfirmationDialogState: DeleteConfirmationDialogState,
     val closeTradeWindowState: EditTradeWindowState,
 )
 
@@ -37,6 +38,13 @@ internal sealed class ClosedTradeListItem {
         val persisted: Boolean,
         val persistenceResult: String?,
     ) : ClosedTradeListItem()
+}
+
+internal sealed class DeleteConfirmationDialogState {
+
+    data class Open(val id: Int) : DeleteConfirmationDialogState()
+
+    object Dismissed : DeleteConfirmationDialogState()
 }
 
 internal sealed class EditTradeWindowState {

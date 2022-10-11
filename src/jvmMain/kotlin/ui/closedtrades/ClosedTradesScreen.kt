@@ -5,9 +5,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import ui.addclosedtrade.CloseTradeWindow
 import ui.closedtrades.model.ClosedTradesEvent
+import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow
+import ui.closedtrades.model.DeleteConfirmationDialogState
 import ui.closedtrades.model.EditTradeWindowState
 import ui.closedtrades.ui.ClosedTradesTable
+import ui.closedtrades.ui.DeleteConfirmationDialog
 
 @Composable
 internal fun ClosedTradesScreen(
@@ -21,6 +24,16 @@ internal fun ClosedTradesScreen(
         onEditTrade = { presenter.event(EditTradeWindow.Open(it)) },
         onDeleteTrade = { presenter.event(ClosedTradesEvent.DeleteTrade(it)) },
     )
+
+    val deleteConfirmationDialogState = state.deleteConfirmationDialogState
+
+    if (deleteConfirmationDialogState is DeleteConfirmationDialogState.Open) {
+
+        DeleteConfirmationDialog(
+            onDismiss = { presenter.event(DeleteConfirmationDialog.Dismiss) },
+            onConfirm = { presenter.event(DeleteConfirmationDialog.Confirm(deleteConfirmationDialogState.id)) },
+        )
+    }
 
     val closeTradeWindowState = state.closeTradeWindowState
 
