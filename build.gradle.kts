@@ -70,7 +70,7 @@ kotlin {
                 implementation(libs.sqldelight.coroutinesExtensions)
 
                 // kotlin-csv
-                implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0")
+                implementation(libs.kotlinCsvJvm)
 
                 // JFreeChart
                 implementation("org.jfree:jfreechart:1.5.3")
