@@ -48,6 +48,7 @@ kotlin {
                 listOf(
                     "androidx.compose.foundation.ExperimentalFoundationApi",
                     "androidx.compose.material.ExperimentalMaterialApi",
+                    "androidx.compose.material3.ExperimentalMaterial3Api",
                     "androidx.compose.ui.ExperimentalComposeUiApi",
                 ).forEach { optIn(it) }
             }
@@ -56,6 +57,8 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.material3)
 
                 // KotlinX Coroutines
                 implementation(libs.kotlinx.coroutines.core)

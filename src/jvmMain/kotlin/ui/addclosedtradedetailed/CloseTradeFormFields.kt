@@ -83,6 +83,7 @@ internal class CloseTradeDetailedFormFields(
         exitDateTime = exitDateTime,
         maxFavorableExcursion = maxFavorableExcursion.value,
         maxAdverseExcursion = maxAdverseExcursion.value,
+        tags = initial.tags,
         persisted = persisted.value,
     )
 
@@ -99,6 +100,7 @@ internal class CloseTradeDetailedFormFields(
         val exitDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         val maxFavorableExcursion: String = "",
         val maxAdverseExcursion: String = "",
+        val tags: List<String>,
         val persisted: Boolean = false,
     )
 }

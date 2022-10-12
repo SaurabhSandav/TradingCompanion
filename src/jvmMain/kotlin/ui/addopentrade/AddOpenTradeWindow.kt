@@ -1,7 +1,10 @@
 package ui.addopentrade
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,11 +73,6 @@ internal fun AddOpenTradeWindow(
                 Switch(
                     checked = fields.isLong.value,
                     onCheckedChange = fields.isLong.onCheckedChange,
-                    colors = SwitchDefaults.colors(
-                        uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
-                        uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
-                        uncheckedTrackAlpha = 0.54f,
-                    )
                 )
 
                 Text("Long")

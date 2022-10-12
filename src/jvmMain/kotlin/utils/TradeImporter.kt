@@ -66,9 +66,10 @@ internal class TradeImporter(
 
             appModule.appDB.closedTradeDetailQueries.insert(
                 closedTradeId = id,
-                maxFavorableExcursion = row.getValue("Maximum Favorable Excursion"),
-                maxAdverseExcursion = row.getValue("Maximum Adverse Excursion"),
+                maxFavorableExcursion = row.getValue("Maximum Favorable Excursion").ifBlank { null },
+                maxAdverseExcursion = row.getValue("Maximum Adverse Excursion").ifBlank { null },
                 persisted = row.getValue("Persisted"),
+                tags = row.getValue("Tags"),
                 persistenceResult = row.getValue("Persistence Result"),
             )
         }

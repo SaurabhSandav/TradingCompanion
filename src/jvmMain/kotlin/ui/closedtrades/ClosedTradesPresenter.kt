@@ -173,6 +173,9 @@ internal class ClosedTradesPresenter(
                         exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
                         maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
                         maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
+                        tags = closedTrade.tags?.split(", ")?.let {
+                            if (it.size == 1 && it.first().isBlank()) emptyList() else it
+                        } ?: emptyList(),
                         persisted = closedTrade.persisted.toBoolean(),
                     )
 
@@ -237,6 +240,7 @@ internal class ClosedTradesPresenter(
                     closedTradeId = model.id,
                     maxFavorableExcursion = model.maxFavorableExcursion.ifBlank { null },
                     maxAdverseExcursion = model.maxAdverseExcursion.ifBlank { null },
+                    tags = model.tags.joinToString(", "),
                     persisted = model.persisted.toString(),
                     persistenceResult = null,
                 )

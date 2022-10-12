@@ -1,7 +1,7 @@
 package studies
 
 import AppModule
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers

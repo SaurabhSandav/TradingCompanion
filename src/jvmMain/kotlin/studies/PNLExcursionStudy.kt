@@ -1,7 +1,7 @@
 package studies
 
 import AppModule
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
@@ -110,14 +110,12 @@ private fun buildPNLString(
         Side.Short -> (entry - exit) * quantity
     }
 
-    val rValue = stop?.let {
-        when (stop) {
-            null -> null
-            else -> when (side) {
-                Side.Long -> pnl / ((entry - stop) * quantity)
-                Side.Short -> pnl / ((stop - entry) * quantity)
-            }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
-        }
+    val rValue = when (stop) {
+        null -> null
+        else -> when (side) {
+            Side.Long -> pnl / ((entry - stop) * quantity)
+            Side.Short -> pnl / ((stop - entry) * quantity)
+        }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
     }
 
     return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()

@@ -1,10 +1,11 @@
 package ui.addclosedtradedetailed
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material.Chip
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -188,6 +189,13 @@ internal fun CloseTradeDetailedWindow(
                         checked = fields.persisted.value,
                         onCheckedChange = fields.persisted.onCheckedChange,
                     )
+                }
+
+                formModel.tags.forEach {
+
+                    Chip({}) {
+                        Text(it)
+                    }
                 }
             }
         }
