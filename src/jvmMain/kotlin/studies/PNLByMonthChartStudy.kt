@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import model.Side
@@ -17,11 +18,11 @@ import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-internal class PNLByDayChartStudy(
+internal class PNLByMonthChartStudy(
     appModule: AppModule,
 ) : ChartStudy() {
 
-    override val name: String = "PNL By Day (Chart)"
+    override val name: String = "PNL By Month (Chart)"
 
     private val data = appModule.appDB
         .closedTradeQueries
@@ -46,7 +47,9 @@ internal class PNLByDayChartStudy(
         .map { listOfPairs ->
             listOfPairs
                 .asReversed()
-                .groupingBy { it.first }
+                .groupingBy {
+                    LocalDate(year = it.first.year, monthNumber = it.first.monthNumber, 1)
+                }
                 .fold(
                     initialValueSelector = { _, _ -> BigDecimal.ZERO },
                     operation = { _, accumulator, element -> accumulator + element.second },

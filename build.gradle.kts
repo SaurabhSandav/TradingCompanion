@@ -75,8 +75,13 @@ kotlin {
                 // kotlin-csv
                 implementation(libs.kotlinCsvJvm)
 
-                // JFreeChart
-                implementation("org.jfree:jfreechart:1.5.3")
+                // JavaFx
+                implementation("org.openjfx:javafx-base:18.0.2:linux")
+                implementation("org.openjfx:javafx-controls:18.0.2:linux")
+                implementation("org.openjfx:javafx-graphics:18.0.2:linux")
+                implementation("org.openjfx:javafx-media:18.0.2:linux")
+                implementation("org.openjfx:javafx-swing:18.0.2:linux")
+                implementation("org.openjfx:javafx-web:18.0.2:linux")
             }
         }
         val jvmTest by getting {
