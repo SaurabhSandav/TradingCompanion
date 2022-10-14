@@ -14,6 +14,8 @@ import ui.opentrades.OpenTradesPresenter
 import ui.opentrades.OpenTradesScreen
 import ui.sizing.SizingPresenter
 import ui.sizing.SizingScreen
+import ui.candledownload.CandleDownloadPresenter
+import ui.candledownload.CandleDownloadScreen
 import ui.studies.StudiesPresenter
 import ui.studies.StudiesScreen
 
@@ -22,9 +24,9 @@ internal fun MainScreen(
     appModule: AppModule,
 ) {
 
-    var state by state { 2 }
+    var state by state { 5 }
 
-    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies")
+    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies", "Candle Download")
 
     Column {
 
@@ -45,6 +47,7 @@ internal fun MainScreen(
         val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
         val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
         val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
+        val candleDownloadPresenter = remember { CandleDownloadPresenter(coroutineScope, appModule) }
 
         when (state) {
             0 -> AccountScreen(accountPresenter)
@@ -52,6 +55,7 @@ internal fun MainScreen(
             2 -> OpenTradesScreen(openTradesPresenter)
             3 -> ClosedTradesScreen(closedTradesPresenter)
             4 -> StudiesScreen(studiesPresenter)
+            5 -> CandleDownloadScreen(candleDownloadPresenter)
         }
     }
 }

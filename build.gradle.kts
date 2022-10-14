@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 // FIXME IDE warns "`libs` can't be called in this context by implicit receiver"
@@ -10,9 +11,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 )
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.molecule)
     alias(libs.plugins.sqldelight)
+    id("com.codingfeline.buildkonfig") version "0.13.3"
 }
 
 group = "com.saurabhsandav.apps"
@@ -64,13 +67,27 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.coroutines.swing)
 
+                // KotlinX Serialization
+                implementation(libs.kotlinx.serialization.core)
+                implementation(libs.kotlinx.serialization.json)
+
                 // KotlinX DateTime
                 implementation(libs.kotlinx.datetime)
+
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.ktor.client.contentNegotiation)
+                implementation(libs.ktor.serialization.kotlinxJson)
 
                 // SQLDelight
                 implementation(libs.sqldelight.runtime)
                 implementation(libs.sqldelight.sqliteDriver)
                 implementation(libs.sqldelight.coroutinesExtensions)
+
+                // Multiplatform Settings
+                implementation(libs.multiplatformSettings.core)
+                implementation(libs.multiplatformSettings.coroutines)
 
                 // kotlin-csv
                 implementation(libs.kotlinCsvJvm)
@@ -82,6 +99,9 @@ kotlin {
                 implementation("org.openjfx:javafx-media:18.0.2:linux")
                 implementation("org.openjfx:javafx-swing:18.0.2:linux")
                 implementation("org.openjfx:javafx-web:18.0.2:linux")
+
+                // Krypto
+                implementation("com.soywiz.korlibs.krypto:krypto:3.2.0")
             }
         }
         val jvmTest by getting {
@@ -89,6 +109,21 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+    }
+}
+
+@Suppress("PropertyName")
+val FYERS_APP_ID: String? by project
+
+@Suppress("PropertyName")
+val FYERS_SECRET: String? by project
+
+buildkonfig {
+    packageName = ""
+
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "FYERS_APP_ID", FYERS_APP_ID)
+        buildConfigField(FieldSpec.Type.STRING, "FYERS_SECRET", FYERS_SECRET)
     }
 }
 
