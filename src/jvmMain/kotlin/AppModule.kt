@@ -25,7 +25,7 @@ internal class AppModule {
     )
 
     val appDB: AppDB = run {
-        val driver = JdbcSqliteDriver("jdbc:sqlite:/home/saurabh/Documents/Projects/DBs/TradingCompanion.db")
+        val driver = JdbcSqliteDriver("jdbc:sqlite:${AppPaths.getAppDataPath()}/${AppPaths.appName}.db")
         AppDB.Schema.create(driver)
         AppDB(driver = driver)
     }
@@ -42,7 +42,7 @@ internal class AppModule {
         }
     }
 
-    val appPrefs = JvmPreferencesSettings(Preferences.userRoot()).toFlowSettings()
+    val appPrefs = JvmPreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
     val fyersApiFactory = { FyersApi(httpClient) }
 
