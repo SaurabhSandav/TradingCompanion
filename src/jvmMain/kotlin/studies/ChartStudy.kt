@@ -64,7 +64,13 @@ internal abstract class ChartStudy : Study {
                                     when (newValue) {
                                         Worker.State.SUCCEEDED -> {
                                             isLoading = false
-                                            chart = IChartApi(engine)
+                                            chart = IChartApi(
+                                                executeJs = {
+                                                    Platform.runLater {
+                                                        engine.executeScript(it)
+                                                    }
+                                                }
+                                            )
                                             chart!!.resize(
                                                 width = (initialSize!!.width * 1.2).toInt(),
                                                 height = (initialSize!!.height * 1.2).toInt(),

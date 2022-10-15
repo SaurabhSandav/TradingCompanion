@@ -1,21 +1,17 @@
 package chart.candlestick
 
 import chart.ISeriesApi
-import javafx.application.Platform
-import javafx.scene.web.WebEngine
 
 internal class CandlestickSeries(
-    private val engine: WebEngine,
+    private val executeJs: (String) -> Unit,
     override val name: String,
-): ISeriesApi<CandlestickData> {
+) : ISeriesApi<CandlestickData> {
 
     override fun setData(list: List<CandlestickData>) {
 
         val dataJson = list.toJson()
 
-        Platform.runLater {
-            engine.executeScript("$name.setData($dataJson);")
-        }
+        executeJs("$name.setData($dataJson);")
     }
 
     private fun List<CandlestickData>.toJson(): String = buildString {
