@@ -10,11 +10,14 @@ import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.onEach
 import launchUnit
 import ui.candledownload.model.CandleDownloadEvent
 import ui.candledownload.model.CandleDownloadState
 import ui.common.CollectEffect
+import utils.PrefKeys
 
 internal class CandleDownloadPresenter(
     private val coroutineScope: CoroutineScope,
@@ -26,32 +29,32 @@ internal class CandleDownloadPresenter(
     private val events = MutableSharedFlow<CandleDownloadEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     init {
-/*
-        coroutineScope.launch {
+        /*
+                coroutineScope.launch {
 
-            delay(2.seconds)
+                    delay(2.seconds)
 
-            val accessToken = appPrefs.getStringFlow("fyers_access_token").first()
+                    val accessToken = appPrefs.getStringFlow("fyers_access_token").first()
 
-            appModule.appDB
-                .closedTradeQueries
-                .getAll()
-                .asFlow()
-                .mapToList()
-                .collect { trade ->
-                    val symbols = trade.map { it.ticker }.distinct()
-                    symbols.forEach {
-                        FyersCandleDownloader(fyers).download(
-                            accessToken = accessToken,
-                            symbol = it,
-                            resolution = CandleResolution.D1,
-                        )
-                    }
-                    println("Done")
+                    appModule.appDB
+                        .closedTradeQueries
+                        .getAll()
+                        .asFlow()
+                        .mapToList()
+                        .collect { trade ->
+                            val symbols = trade.map { it.ticker }.distinct()
+                            symbols.forEach {
+                                FyersCandleDownloader(fyers).download(
+                                    accessToken = accessToken,
+                                    symbol = it,
+                                    resolution = CandleResolution.D1,
+                                )
+                            }
+                            println("Done")
+                        }
+
                 }
-
-        }
-*/
+        */
     }
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -80,13 +83,13 @@ internal class CandleDownloadPresenter(
 
     @Composable
     private fun isLoggedInFlow() = remember {
-        appPrefs.getStringFlow("fyers_access_token")
+        appPrefs.getStringFlow(PrefKeys.FyersAccessToken).onEach { delay(2000) }
     }
 
     private fun getAccessToken(redirectUrl: String) = coroutineScope.launchUnit {
 
         val accessToken = fyersApi.getAccessToken(redirectUrl)
 
-        appPrefs.putString("fyers_access_token", accessToken)
+        appPrefs.putString(PrefKeys.FyersAccessToken, accessToken)
     }
 }

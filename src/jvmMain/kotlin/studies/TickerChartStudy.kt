@@ -1,46 +1,56 @@
 package studies
 
 import AppModule
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import chart.IChartApi
-import chart.ISeriesApi
 import chart.candlestick.CandlestickData
 import chart.histogram.HistogramData
 import chart.timescale.TimeScaleOptions
+import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
+import kotlinx.datetime.*
 import ui.common.controls.ListSelectionField
+import utils.CandleRepo
 import utils.NIFTY50
-import kotlin.io.path.Path
-import kotlin.io.path.readText
 
 internal class TickerChartStudy(
     private val appModule: AppModule,
+    private val candleRepo: CandleRepo = CandleRepo(appModule),
 ) : ChartStudy() {
 
     override val name: String = "Ticker Chart"
 
     var symbol by mutableStateOf<String?>(null)
+    var timeframe by mutableStateOf<String?>(null)
 
     @Composable
     override fun render(chart: @Composable () -> Unit) {
 
         Column {
 
-            Box(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
 
                 ListSelectionField(
                     items = NIFTY50,
                     onSelection = { symbol = it },
                     selection = symbol,
+                )
+
+                ListSelectionField(
+                    items = listOf("5m", "1D"),
+                    onSelection = { timeframe = it },
+                    selection = timeframe,
                 )
             }
 
@@ -52,51 +62,51 @@ internal class TickerChartStudy(
 
         launch {
 
-            var previous: ISeriesApi<*>? = null
-
-            snapshotFlow { symbol }
+            snapshotFlow { symbol to timeframe }
                 .distinctUntilChanged()
-                .collect {
+                .filter { (symbol, _) -> symbol != null }
+                .collect { (symbol, timeframe) ->
 
-                    val dataTxt = Path("/home/saurabh/Downloads/Candles/ICICIBANK/M5/2022-10-01").readText()
-                    val dataJson = appModule.json.parseToJsonElement(dataTxt)
+                    val candles = candleRepo.getCandles(
+                        symbol = symbol!!,
+                        resolution = when (timeframe) {
+                            "1D" -> CandleResolution.D1
+                            else -> CandleResolution.M5
+                        },
+                        from = LocalDate(year = 2022, month = Month.JANUARY, dayOfMonth = 1)
+                            .atStartOfDayIn(TimeZone.currentSystemDefault()),
+                        to = Clock.System.now(),
+                    )
 
-                    val data = dataJson.jsonArray.map {
+                    val candleData = mutableListOf<CandlestickData>()
+                    val volumeData = mutableListOf<HistogramData>()
+
+                    candles.forEach {
 
                         // Subtract IST Timezone difference
-                        val epochTime = it.jsonArray[0].jsonPrimitive.long
+                        val epochTime = it.openInstant.epochSeconds
                         val workaroundEpochTime = epochTime + 19800
 
-                        CandlestickData(
+                        candleData += CandlestickData(
                             time = workaroundEpochTime.toString(),
-                            open = it.jsonArray[1].jsonPrimitive.content,
-                            high = it.jsonArray[2].jsonPrimitive.content,
-                            low = it.jsonArray[3].jsonPrimitive.content,
-                            close = it.jsonArray[4].jsonPrimitive.content,
+                            open = it.open.toPlainString(),
+                            high = it.high.toPlainString(),
+                            low = it.low.toPlainString(),
+                            close = it.close.toPlainString(),
+                        )
+
+                        volumeData += HistogramData(
+                            time = workaroundEpochTime.toString(),
+                            value = it.volume,
                         )
                     }
 
-                    val dataVol = dataJson.jsonArray.map {
+                    val candleSeries = chart.addCandlestickSeries()
+                    val histogramSeries = chart.addHistogramSeries()
 
-                        // Subtract IST Timezone difference
-                        val epochTime = it.jsonArray[0].jsonPrimitive.long
-                        val workaroundEpochTime = epochTime + 19800
+                    candleSeries.setData(candleData)
+                    histogramSeries.setData(volumeData)
 
-                        HistogramData(
-                            time = workaroundEpochTime.toString(),
-                            value = it.jsonArray[5].jsonPrimitive.long,
-                        )
-                    }
-
-                    previous?.let { chart.removeSeries(it) }
-                    previous = chart.addCandlestickSeries()
-                    val histogram = chart.addHistogramSeries()
-
-                    @Suppress("UNCHECKED_CAST")
-                    previous!!.setData(data as List<Nothing>)
-                    histogram.setData(dataVol)
-
-                    chart.timeScale.fitContent()
                     chart.timeScale.applyOptions(
                         TimeScaleOptions(timeVisible = true)
                     )

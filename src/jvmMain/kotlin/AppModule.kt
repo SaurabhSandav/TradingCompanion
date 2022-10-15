@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 import model.Account
+import utils.AppPaths
 import java.util.prefs.Preferences
 
 internal class AppModule {
