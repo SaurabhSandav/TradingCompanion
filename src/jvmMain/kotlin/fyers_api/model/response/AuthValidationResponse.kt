@@ -1,4 +1,4 @@
-package fyers.model.response
+package fyers_api.model.response
 
 import io.ktor.http.*
 import kotlinx.serialization.SerialName

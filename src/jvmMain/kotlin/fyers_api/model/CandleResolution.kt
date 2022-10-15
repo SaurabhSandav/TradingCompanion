@@ -1,4 +1,4 @@
-package fyers.model
+package fyers_api.model
 
 enum class CandleResolution(val strValue: String) {
     D1("D"),

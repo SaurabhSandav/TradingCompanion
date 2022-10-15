@@ -1,7 +1,7 @@
 package studies
 
 import AppModule
-import chart.Chart
+import chart.IChartApi
 import chart.baseline.BaselineData
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
@@ -59,7 +59,7 @@ internal class PNLByDayChartStudy(
                 }
         }
 
-    override fun CoroutineScope.configureChart(chart: Chart) {
+    override fun CoroutineScope.configureChart(chart: IChartApi) {
 
         val baselineSeries = chart.addBaselineSeries()
 

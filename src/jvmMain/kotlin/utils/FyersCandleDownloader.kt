@@ -1,8 +1,8 @@
 package utils
 
-import fyers.Fyers
-import fyers.model.CandleResolution
-import fyers.model.DateFormat
+import fyers_api.FyersApi
+import fyers_api.model.CandleResolution
+import fyers_api.model.DateFormat
 import kotlinx.coroutines.delay
 import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlin.io.path.*
 
 class FyersCandleDownloader(
-    private val fyers: Fyers,
+    private val fyersApi: FyersApi,
 ) {
 
     suspend fun download(
@@ -41,7 +41,7 @@ class FyersCandleDownloader(
 
             val endDay = iMonth + DatePeriod(months = 1) - DatePeriod(days = 1)
 
-            val history = fyers.getHistoricalCandles(
+            val history = fyersApi.getHistoricalCandles(
                 accessToken = accessToken,
                 symbol = symbolFull,
                 resolution = resolution,

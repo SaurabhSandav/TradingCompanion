@@ -2,7 +2,7 @@ import com.russhwolf.settings.JvmPreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.AppDB
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import fyers.Fyers
+import fyers_api.FyersApi
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -44,7 +44,7 @@ internal class AppModule {
 
     val appPrefs = JvmPreferencesSettings(Preferences.userRoot()).toFlowSettings()
 
-    val fyersFactory = { Fyers(httpClient) }
+    val fyersApiFactory = { FyersApi(httpClient) }
 
     init {
 //        TradeImporter(this).importTrades()

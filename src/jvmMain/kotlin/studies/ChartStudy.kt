@@ -14,7 +14,7 @@ import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import chart.Chart
+import chart.IChartApi
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel
@@ -34,7 +34,7 @@ internal abstract class ChartStudy : Study {
 
                 var isLoading by state { true }
                 val coroutineScope = rememberCoroutineScope()
-                var chart by state<Chart?> { null }
+                var chart by state<IChartApi?> { null }
                 var initialSize by state<IntSize?> { null }
 
                 if (isLoading) {
@@ -64,7 +64,7 @@ internal abstract class ChartStudy : Study {
                                     when (newValue) {
                                         Worker.State.SUCCEEDED -> {
                                             isLoading = false
-                                            chart = Chart(engine)
+                                            chart = IChartApi(engine)
                                             chart!!.resize(
                                                 width = (initialSize!!.width * 1.2).toInt(),
                                                 height = (initialSize!!.height * 1.2).toInt(),
@@ -91,5 +91,5 @@ internal abstract class ChartStudy : Study {
         chart()
     }
 
-    protected abstract fun CoroutineScope.configureChart(chart: Chart)
+    protected abstract fun CoroutineScope.configureChart(chart: IChartApi)
 }

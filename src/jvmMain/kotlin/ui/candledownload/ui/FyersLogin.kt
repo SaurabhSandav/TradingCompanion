@@ -11,7 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
-import fyers.Fyers
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel

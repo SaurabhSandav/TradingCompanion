@@ -8,26 +8,18 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import fyers.Fyers
-import fyers.model.CandleResolution
+import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import launchUnit
 import ui.candledownload.model.CandleDownloadEvent
 import ui.candledownload.model.CandleDownloadState
 import ui.common.CollectEffect
-import utils.FyersCandleDownloader
-import kotlin.time.Duration.Companion.seconds
 
 internal class CandleDownloadPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val fyers: Fyers = appModule.fyersFactory(),
+    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
@@ -73,7 +65,7 @@ internal class CandleDownloadPresenter(
         val accessToken by isLoggedInFlow().collectAsState(null)
         val loginState = when (accessToken) {
             null -> null
-            "" -> CandleDownloadState.Login.NeedsToLogin(fyers.getLoginURL())
+            "" -> CandleDownloadState.Login.NeedsToLogin(fyersApi.getLoginURL())
             else -> CandleDownloadState.Login.LoggedIn
         }
 
@@ -93,7 +85,7 @@ internal class CandleDownloadPresenter(
 
     private fun getAccessToken(redirectUrl: String) = coroutineScope.launchUnit {
 
-        val accessToken = fyers.getAccessToken(redirectUrl)
+        val accessToken = fyersApi.getAccessToken(redirectUrl)
 
         appPrefs.putString("fyers_access_token", accessToken)
     }

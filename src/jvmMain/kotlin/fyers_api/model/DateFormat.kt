@@ -1,4 +1,4 @@
-package fyers.model
+package fyers_api.model
 
 enum class DateFormat(val intValue: Int) {
     EPOCH(0),

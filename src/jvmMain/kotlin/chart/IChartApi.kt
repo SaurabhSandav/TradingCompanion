@@ -7,7 +7,7 @@ import chart.timescale.TimeScale
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
-internal class Chart(
+internal class IChartApi(
     private val engine: WebEngine,
     val name: String = "chart",
 ) {
@@ -35,7 +35,7 @@ internal class Chart(
         Platform.runLater {
             engine.executeScript(
                 """
-                    const ${series.name} = ${this@Chart.name}.addBaselineSeries({
+                    const ${series.name} = ${this@IChartApi.name}.addBaselineSeries({
                         baseValue: {
                             type: 'price',
                             price: 0
@@ -61,7 +61,7 @@ internal class Chart(
         Platform.runLater {
             engine.executeScript(
                 """
-                    const ${series.name} = ${this@Chart.name}.addCandlestickSeries({
+                    const ${series.name} = ${this@IChartApi.name}.addCandlestickSeries({
                         upColor: '#26a69a',
                         downColor: '#ef5350',
                         borderVisible: false,
@@ -82,7 +82,7 @@ internal class Chart(
         Platform.runLater {
             engine.executeScript(
                 """
-                    const ${series.name} = ${this@Chart.name}.addHistogramSeries({
+                    const ${series.name} = ${this@IChartApi.name}.addHistogramSeries({
                         color: '#26a69a',
                         priceFormat: {
                             type: 'volume',
@@ -106,7 +106,7 @@ internal class Chart(
         }
     }
 
-    fun removeSeries(series: ChartSeries<*>) {
+    fun removeSeries(series: ISeriesApi<*>) {
         Platform.runLater {
             engine.executeScript("$name.removeSeries(${series.name});")
         }

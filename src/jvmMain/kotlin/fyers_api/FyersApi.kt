@@ -1,19 +1,18 @@
-package fyers
+package fyers_api
 
 import BuildKonfig
 import com.soywiz.krypto.sha256
-import fyers.model.CandleResolution
-import fyers.model.DateFormat
-import fyers.model.request.AuthValidationRequest
-import fyers.model.response.AuthValidationResponse
-import fyers.model.response.HistoryResponse
+import fyers_api.model.CandleResolution
+import fyers_api.model.DateFormat
+import fyers_api.model.request.AuthValidationRequest
+import fyers_api.model.response.AuthValidationResponse
+import fyers_api.model.response.HistoryResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 
-class Fyers(private val client: HttpClient) {
+class FyersApi(private val client: HttpClient) {
 
     private val redirectURL = "http://localhost:8080"
 

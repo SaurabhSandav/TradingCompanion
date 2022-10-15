@@ -1,13 +1,13 @@
 package chart.histogram
 
-import chart.ChartSeries
+import chart.ISeriesApi
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
 internal class HistogramSeries(
     private val engine: WebEngine,
     override val name: String,
-): ChartSeries<HistogramData> {
+): ISeriesApi<HistogramData> {
 
     override fun setData(list: List<HistogramData>) {
 

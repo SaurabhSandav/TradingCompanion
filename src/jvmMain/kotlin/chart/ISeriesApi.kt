@@ -1,6 +1,6 @@
 package chart
 
-interface ChartSeries<T : ChartData> {
+interface ISeriesApi<T : ChartData> {
 
     val name: String
 

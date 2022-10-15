@@ -1,13 +1,13 @@
 package chart.baseline
 
-import chart.ChartSeries
+import chart.ISeriesApi
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
 internal class BaselineSeries(
     private val engine: WebEngine,
     override val name: String,
-): ChartSeries<BaselineData> {
+): ISeriesApi<BaselineData> {
 
     override fun setData(list: List<BaselineData>) {
 

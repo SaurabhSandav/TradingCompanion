@@ -1,11 +1,11 @@
 package chart.timescale
 
-import chart.Chart
+import chart.IChartApi
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
 internal class TimeScale(
-    private val chart: Chart,
+    private val chart: IChartApi,
     private val engine: WebEngine,
 ) {
 

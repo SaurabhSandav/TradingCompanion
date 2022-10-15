@@ -1,13 +1,13 @@
 package chart.candlestick
 
-import chart.ChartSeries
+import chart.ISeriesApi
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
 internal class CandlestickSeries(
     private val engine: WebEngine,
     override val name: String,
-): ChartSeries<CandlestickData> {
+): ISeriesApi<CandlestickData> {
 
     override fun setData(list: List<CandlestickData>) {
 

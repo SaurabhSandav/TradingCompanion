@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import chart.Chart
-import chart.ChartSeries
+import chart.IChartApi
+import chart.ISeriesApi
 import chart.candlestick.CandlestickData
 import chart.histogram.HistogramData
 import chart.timescale.TimeScaleOptions
@@ -48,11 +48,11 @@ internal class TickerChartStudy(
         }
     }
 
-    override fun CoroutineScope.configureChart(chart: Chart) {
+    override fun CoroutineScope.configureChart(chart: IChartApi) {
 
         launch {
 
-            var previous: ChartSeries<*>? = null
+            var previous: ISeriesApi<*>? = null
 
             snapshotFlow { symbol }
                 .distinctUntilChanged()
