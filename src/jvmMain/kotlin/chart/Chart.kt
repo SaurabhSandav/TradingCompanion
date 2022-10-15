@@ -1,11 +1,15 @@
 package chart
 
 import chart.baseline.BaselineSeries
+import chart.candlestick.CandlestickSeries
+import chart.histogram.HistogramSeries
+import chart.timescale.TimeScale
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
 internal class Chart(
     private val engine: WebEngine,
+    val name: String = "chart",
 ) {
 
     init {
@@ -13,7 +17,7 @@ internal class Chart(
         Platform.runLater {
             engine.executeScript(
                 """
-                    const chart = LightweightCharts.createChart(document.body, {
+                    const $name = LightweightCharts.createChart(document.body, {
                         width: window.innerWidth,
                         height: window.innerHeight
                     });
@@ -22,12 +26,16 @@ internal class Chart(
         }
     }
 
-    fun addBaselineSeries(): BaselineSeries {
+    val timeScale = TimeScale(this, engine)
+
+    fun addBaselineSeries(name: String = "baselineSeries"): BaselineSeries {
+
+        val series = BaselineSeries(engine, name)
 
         Platform.runLater {
             engine.executeScript(
                 """
-                    const baselineSeries = chart.addBaselineSeries({
+                    const ${series.name} = ${this@Chart.name}.addBaselineSeries({
                         baseValue: {
                             type: 'price',
                             price: 0
@@ -43,12 +51,64 @@ internal class Chart(
             )
         }
 
-        return BaselineSeries(this, engine)
+        return series
+    }
+
+    fun addCandlestickSeries(name: String = "candlestickSeries"): CandlestickSeries {
+
+        val series = CandlestickSeries(engine, name)
+
+        Platform.runLater {
+            engine.executeScript(
+                """
+                    const ${series.name} = ${this@Chart.name}.addCandlestickSeries({
+                        upColor: '#26a69a',
+                        downColor: '#ef5350',
+                        borderVisible: false,
+                        wickUpColor: '#26a69a',
+                        wickDownColor: '#ef5350'
+                    });
+                """.trimIndent()
+            )
+        }
+
+        return series
+    }
+
+    fun addHistogramSeries(name: String = "histogramSeries"): HistogramSeries {
+
+        val series = HistogramSeries(engine, name)
+
+        Platform.runLater {
+            engine.executeScript(
+                """
+                    const ${series.name} = ${this@Chart.name}.addHistogramSeries({
+                        color: '#26a69a',
+                        priceFormat: {
+                            type: 'volume',
+                        },
+                        priceScaleId: '',
+                        scaleMargins: {
+                            top: 0.8,
+                            bottom: 0,
+                        },
+                    });
+                """.trimIndent()
+            )
+        }
+
+        return series
     }
 
     fun resize(width: Int, height: Int) {
         Platform.runLater {
-            engine.executeScript("chart.resize($width, $height)")
+            engine.executeScript("$name.resize($width, $height)")
+        }
+    }
+
+    fun removeSeries(series: ChartSeries<*>) {
+        Platform.runLater {
+            engine.executeScript("$name.removeSeries(${series.name});")
         }
     }
 }

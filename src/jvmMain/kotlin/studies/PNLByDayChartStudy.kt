@@ -64,7 +64,10 @@ internal class PNLByDayChartStudy(
         val baselineSeries = chart.addBaselineSeries()
 
         launch {
-            data.collect { baselineSeries.setData(it) }
+            data.collect {
+                baselineSeries.setData(it)
+                chart.timeScale.fitContent()
+            }
         }
     }
 }

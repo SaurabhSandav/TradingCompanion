@@ -1,15 +1,15 @@
-package chart.baseline
+package chart.histogram
 
 import chart.ChartSeries
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
-internal class BaselineSeries(
+internal class HistogramSeries(
     private val engine: WebEngine,
     override val name: String,
-): ChartSeries<BaselineData> {
+): ChartSeries<HistogramData> {
 
-    override fun setData(list: List<BaselineData>) {
+    override fun setData(list: List<HistogramData>) {
 
         val dataJson = list.toJson()
 
@@ -18,12 +18,12 @@ internal class BaselineSeries(
         }
     }
 
-    private fun List<BaselineData>.toJson(): String = buildString {
+    private fun List<HistogramData>.toJson(): String = buildString {
 
         append("[")
 
         this@toJson.forEach {
-            append("{ time: \"${it.time}\", value: ${it.value} },")
+            append("{ time: ${it.time}, value: ${it.value} },")
         }
 
         append("]")

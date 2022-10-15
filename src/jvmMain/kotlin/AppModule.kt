@@ -30,15 +30,15 @@ internal class AppModule {
         AppDB(driver = driver)
     }
 
+    val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
     val httpClient = HttpClient(OkHttp) {
         install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                }
-            )
+            json(json)
         }
     }
 

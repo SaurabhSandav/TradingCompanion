@@ -23,6 +23,7 @@ internal class StudiesPresenter(
                 PNLByMonthChartStudy(appModule),
                 PNLExcursionStudy(appModule),
                 PNLByTickerStudy(appModule),
+                TickerChartStudy(appModule),
             )
         }
 

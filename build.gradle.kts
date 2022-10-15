@@ -53,6 +53,9 @@ kotlin {
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
                     "androidx.compose.ui.ExperimentalComposeUiApi",
+                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "com.russhwolf.settings.ExperimentalSettingsApi",
+                    "com.russhwolf.settings.ExperimentalSettingsImplementation",
                 ).forEach { optIn(it) }
             }
         }

@@ -1,8 +1,8 @@
-package chart.baseline
+package chart.histogram
 
 import chart.ChartData
 
-data class BaselineData(
+data class HistogramData(
     val time: String,
     val value: Number,
 ) : ChartData

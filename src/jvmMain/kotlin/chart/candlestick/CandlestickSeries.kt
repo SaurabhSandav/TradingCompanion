@@ -1,15 +1,15 @@
-package chart.baseline
+package chart.candlestick
 
 import chart.ChartSeries
 import javafx.application.Platform
 import javafx.scene.web.WebEngine
 
-internal class BaselineSeries(
+internal class CandlestickSeries(
     private val engine: WebEngine,
     override val name: String,
-): ChartSeries<BaselineData> {
+): ChartSeries<CandlestickData> {
 
-    override fun setData(list: List<BaselineData>) {
+    override fun setData(list: List<CandlestickData>) {
 
         val dataJson = list.toJson()
 
@@ -18,12 +18,12 @@ internal class BaselineSeries(
         }
     }
 
-    private fun List<BaselineData>.toJson(): String = buildString {
+    private fun List<CandlestickData>.toJson(): String = buildString {
 
         append("[")
 
         this@toJson.forEach {
-            append("{ time: \"${it.time}\", value: ${it.value} },")
+            append("{ time: ${it.time}, open: ${it.open}, high: ${it.high}, low: ${it.low}, close: ${it.close} },")
         }
 
         append("]")

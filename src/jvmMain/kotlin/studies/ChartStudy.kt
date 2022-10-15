@@ -26,62 +26,70 @@ import ui.common.state
 internal abstract class ChartStudy : Study {
 
     @Composable
-    override fun render() {
+    final override fun render() {
 
-        Column(Modifier.fillMaxSize()) {
+        render {
 
-            var isLoading by state { true }
-            val coroutineScope = rememberCoroutineScope()
-            var chart by state<Chart?> { null }
-            var initialSize by state<IntSize?> { null }
+            Column(Modifier.fillMaxSize()) {
 
-            if (isLoading) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 2.dp))
-            }
+                var isLoading by state { true }
+                val coroutineScope = rememberCoroutineScope()
+                var chart by state<Chart?> { null }
+                var initialSize by state<IntSize?> { null }
 
-            SwingPanel(
-                modifier = Modifier.fillMaxSize(0.8F).onSizeChanged {
-                    initialSize = it
-                    chart?.resize(
-                        width = (it.width * 1.2).toInt(),
-                        height = (it.height * 1.2).toInt(),
-                    )
-                },
-                factory = {
+                if (isLoading) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 2.dp))
+                }
 
-                    JFXPanel().apply {
+                SwingPanel(
+                    modifier = Modifier.fillMaxSize(0.8F).onSizeChanged {
+                        initialSize = it
+                        chart?.resize(
+                            width = (it.width * 1.2).toInt(),
+                            height = (it.height * 1.2).toInt(),
+                        )
+                    },
+                    factory = {
 
-                        Platform.runLater {
-                            Platform.setImplicitExit(false)
-                            val webView = WebView()
-                            val engine = webView.engine
-                            val url = this@ChartStudy::class.java
-                                .getResource("/charts_page/index.html")!!
-                                .toExternalForm()
-                            engine.loadWorker.stateProperty().addListener { _, _, newValue ->
-                                when (newValue) {
-                                    Worker.State.SUCCEEDED -> {
-                                        isLoading = false
-                                        chart = Chart(engine)
-                                        chart!!.resize(
-                                            width = (initialSize!!.width * 1.2).toInt(),
-                                            height = (initialSize!!.height * 1.2).toInt(),
-                                        )
-                                        coroutineScope.configureChart(chart!!)
+                        JFXPanel().apply {
+
+                            Platform.runLater {
+                                Platform.setImplicitExit(false)
+                                val webView = WebView()
+                                val engine = webView.engine
+                                val url = this@ChartStudy::class.java
+                                    .getResource("/charts_page/index.html")!!
+                                    .toExternalForm()
+                                engine.loadWorker.stateProperty().addListener { _, _, newValue ->
+                                    when (newValue) {
+                                        Worker.State.SUCCEEDED -> {
+                                            isLoading = false
+                                            chart = Chart(engine)
+                                            chart!!.resize(
+                                                width = (initialSize!!.width * 1.2).toInt(),
+                                                height = (initialSize!!.height * 1.2).toInt(),
+                                            )
+                                            coroutineScope.configureChart(chart!!)
+                                        }
+
+                                        else -> {}
                                     }
-
-                                    else -> {}
                                 }
+                                engine.load(url)
+                                val wvScene = Scene(webView)
+                                scene = wvScene
                             }
-                            engine.load(url)
-                            val wvScene = Scene(webView)
-                            scene = wvScene
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 
-    abstract fun CoroutineScope.configureChart(chart: Chart)
+    @Composable
+    protected open fun render(chart: @Composable () -> Unit) {
+        chart()
+    }
+
+    protected abstract fun CoroutineScope.configureChart(chart: Chart)
 }
