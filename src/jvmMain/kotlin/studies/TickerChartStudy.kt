@@ -7,10 +7,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import chart.IChartApi
-import chart.candlestick.CandlestickData
-import chart.histogram.HistogramData
-import chart.timescale.TimeScaleOptions
+import chart.series.Time
+import chart.series.candlestick.CandlestickData
+import chart.series.histogram.HistogramData
+import chart.series.histogram.HistogramStyleOptions
+import chart.series.pricescale.PriceFormat
+import chart.series.pricescale.PriceScaleMargins
+import chart.series.pricescale.PriceScaleOptions
+import chart.series.timescale.TimeScaleOptions
 import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,7 +34,7 @@ internal class TickerChartStudy(
 
     override val name: String = "Ticker Chart"
 
-    var symbol by mutableStateOf<String?>(null)
+    var symbol by mutableStateOf<String?>("ICICIBANK")
     var timeframe by mutableStateOf("5m")
 
     @Composable
@@ -81,28 +87,48 @@ internal class TickerChartStudy(
                     val candleData = mutableListOf<CandlestickData>()
                     val volumeData = mutableListOf<HistogramData>()
 
-                    candles.forEach {
+                    candles.forEach { candle ->
 
                         // Subtract IST Timezone difference
-                        val epochTime = it.openInstant.epochSeconds
+                        val epochTime = candle.openInstant.epochSeconds
                         val workaroundEpochTime = epochTime + 19800
 
                         candleData += CandlestickData(
-                            time = workaroundEpochTime.toString(),
-                            open = it.open.toPlainString(),
-                            high = it.high.toPlainString(),
-                            low = it.low.toPlainString(),
-                            close = it.close.toPlainString(),
+                            time = Time.UTCTimestamp(workaroundEpochTime),
+                            open = candle.open,
+                            high = candle.high,
+                            low = candle.low,
+                            close = candle.close,
                         )
 
                         volumeData += HistogramData(
-                            time = workaroundEpochTime.toString(),
-                            value = it.volume,
+                            time = Time.UTCTimestamp(workaroundEpochTime),
+                            value = candle.volume,
+                            color = when {
+                                candle.close < candle.open -> Color(255, 82, 82)
+                                else -> Color(0, 150, 136)
+                            },
                         )
                     }
 
                     val candleSeries = chart.addCandlestickSeries()
-                    val histogramSeries = chart.addHistogramSeries()
+                    val histogramSeries = chart.addHistogramSeries(
+                        HistogramStyleOptions(
+                            priceFormat = PriceFormat.BuiltIn(
+                                type = PriceFormat.Type.Volume,
+                            ),
+                            priceScaleId = "",
+                        )
+                    )
+
+                    histogramSeries.priceScale.applyOptions(
+                        PriceScaleOptions(
+                            scaleMargins = PriceScaleMargins(
+                                top = 0.8,
+                                bottom = 0,
+                            )
+                        )
+                    )
 
                     candleSeries.setData(candleData)
                     histogramSeries.setData(volumeData)

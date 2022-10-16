@@ -1,3 +1,0 @@
-package chart
-
-interface ChartData

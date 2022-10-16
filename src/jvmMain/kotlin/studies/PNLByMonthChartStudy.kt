@@ -2,7 +2,8 @@ package studies
 
 import AppModule
 import chart.IChartApi
-import chart.baseline.BaselineData
+import chart.series.SingleValueData
+import chart.series.Time
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
@@ -10,13 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import utils.brokerage
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 internal class PNLByMonthChartStudy(
     appModule: AppModule,
@@ -55,8 +53,13 @@ internal class PNLByMonthChartStudy(
                     operation = { _, accumulator, element -> accumulator + element.second },
                 )
                 .map { (localDate, bigDecimal) ->
-                    BaselineData(
-                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
+                    SingleValueData(
+//                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
+                        time = Time.BusinessDay(
+                            year = localDate.year,
+                            month = localDate.monthNumber,
+                            day = localDate.dayOfMonth,
+                        ),
                         value = bigDecimal,
                     )
                 }

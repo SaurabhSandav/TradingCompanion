@@ -2,20 +2,20 @@ package studies
 
 import AppModule
 import chart.IChartApi
-import chart.baseline.BaselineData
+import chart.series.SingleValueData
+import chart.series.Time
+import chart.series.baseline.BaseValuePrice
+import chart.series.baseline.BaselineStyleOptions
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import utils.brokerage
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 internal class PNLByDayChartStudy(
     appModule: AppModule,
@@ -52,8 +52,13 @@ internal class PNLByDayChartStudy(
                     operation = { _, accumulator, element -> accumulator + element.second },
                 )
                 .map { (localDate, bigDecimal) ->
-                    BaselineData(
-                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
+                    SingleValueData(
+//                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
+                        time = Time.BusinessDay(
+                            year = localDate.year,
+                            month = localDate.monthNumber,
+                            day = localDate.dayOfMonth,
+                        ),
                         value = bigDecimal,
                     )
                 }
@@ -61,7 +66,7 @@ internal class PNLByDayChartStudy(
 
     override fun CoroutineScope.configureChart(chart: IChartApi) {
 
-        val baselineSeries = chart.addBaselineSeries()
+        val baselineSeries = chart.addBaselineSeries(BaselineStyleOptions(baseValue = BaseValuePrice("price", -300)))
 
         launch {
             data.collect {

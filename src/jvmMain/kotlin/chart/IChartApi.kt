@@ -1,11 +1,18 @@
 package chart
 
-import chart.baseline.BaselineSeries
-import chart.candlestick.CandlestickSeries
-import chart.histogram.HistogramSeries
-import chart.timescale.TimeScale
+import chart.series.ISeriesApi
+import chart.series.baseline.BaselineSeries
+import chart.series.baseline.BaselineStyleOptions
+import chart.series.candlestick.CandlestickSeries
+import chart.series.candlestick.CandlestickStyleOptions
+import chart.series.histogram.HistogramSeries
+import chart.series.histogram.HistogramStyleOptions
+import chart.series.timescale.ITimeScaleApi
+import chart.series.pricescale.IPriceScaleApi
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-internal class IChartApi(
+class IChartApi(
     private val executeJs: (String) -> Unit,
     val name: String = "chart",
 ) {
@@ -22,71 +29,46 @@ internal class IChartApi(
         )
     }
 
-    val timeScale = TimeScale(this, executeJs)
+    private val json = Json { prettyPrint = true }
 
-    fun addBaselineSeries(name: String = "baselineSeries"): BaselineSeries {
+    val timeScale = ITimeScaleApi(this, executeJs, json)
+    val priceScale = IPriceScaleApi(name, executeJs, json)
 
-        val series = BaselineSeries(executeJs, name)
+    fun addBaselineSeries(
+        options: BaselineStyleOptions = BaselineStyleOptions(),
+        name: String = "baselineSeries",
+    ): BaselineSeries {
 
-        executeJs(
-            """
-                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addBaselineSeries({
-                |    baseValue: {
-                |        type: 'price',
-                |        price: 0
-                |    },
-                |    topLineColor: 'rgba( 38, 166, 154, 1)',
-                |    topFillColor1: 'rgba( 38, 166, 154, 0.28)',
-                |    topFillColor2: 'rgba( 38, 166, 154, 0.05)',
-                |    bottomLineColor: 'rgba( 239, 83, 80, 1)',
-                |    bottomFillColor1: 'rgba( 239, 83, 80, 0.05)',
-                |    bottomFillColor2: 'rgba( 239, 83, 80, 0.28)'
-                |});
-            """.trimMargin()
-        )
+        val series = BaselineSeries(executeJs, json, name)
+        val optionsStr = json.encodeToString(options.toJsonObject())
+
+        executeJs("${buildSeriesDeclaration(series)}.addBaselineSeries(${optionsStr});")
 
         return series
     }
 
-    fun addCandlestickSeries(name: String = "candlestickSeries"): CandlestickSeries {
+    fun addCandlestickSeries(
+        options: CandlestickStyleOptions = CandlestickStyleOptions(),
+        name: String = "candlestickSeries",
+    ): CandlestickSeries {
 
-        val series = CandlestickSeries(executeJs, name)
+        val series = CandlestickSeries(executeJs, json, name)
+        val optionsStr = json.encodeToString(options.toJsonObject())
 
-        executeJs(
-            """
-                |
-                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addCandlestickSeries({
-                |    upColor: '#26a69a',
-                |    downColor: '#ef5350',
-                |    borderVisible: false,
-                |    wickUpColor: '#26a69a',
-                |    wickDownColor: '#ef5350'
-                |});
-            """.trimMargin()
-        )
+        executeJs("${buildSeriesDeclaration(series)}.addCandlestickSeries(${optionsStr});")
 
         return series
     }
 
-    fun addHistogramSeries(name: String = "histogramSeries"): HistogramSeries {
+    fun addHistogramSeries(
+        options: HistogramStyleOptions = HistogramStyleOptions(),
+        name: String = "histogramSeries",
+    ): HistogramSeries {
 
-        val series = HistogramSeries(executeJs, name)
+        val series = HistogramSeries(executeJs, json, name)
+        val optionsStr = json.encodeToString(options.toJsonObject())
 
-        executeJs(
-            """
-                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addHistogramSeries({
-                |    color: '#26a69a',
-                |    priceFormat: {
-                |        type: 'volume',
-                |    },
-                |    priceScaleId: '',
-                |    scaleMargins: {
-                |        top: 0.8,
-                |        bottom: 0,
-                |    },
-                |});
-            """.trimMargin()
-        )
+        executeJs("${buildSeriesDeclaration(series)}.addHistogramSeries(${optionsStr});")
 
         return series
     }
@@ -97,5 +79,9 @@ internal class IChartApi(
 
     fun removeSeries(series: ISeriesApi<*>) {
         executeJs("$name.removeSeries(${series.name});")
+    }
+
+    private fun buildSeriesDeclaration(series: ISeriesApi<*>): String {
+        return "var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}"
     }
 }

@@ -1,8 +1,0 @@
-package chart.baseline
-
-import chart.ChartData
-
-data class BaselineData(
-    val time: String,
-    val value: Number,
-) : ChartData
