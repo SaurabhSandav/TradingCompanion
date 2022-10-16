@@ -30,7 +30,7 @@ internal class IChartApi(
 
         executeJs(
             """
-                |const ${series.name} = ${this@IChartApi.name}.addBaselineSeries({
+                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addBaselineSeries({
                 |    baseValue: {
                 |        type: 'price',
                 |        price: 0
@@ -55,7 +55,7 @@ internal class IChartApi(
         executeJs(
             """
                 |
-                |const ${series.name} = ${this@IChartApi.name}.addCandlestickSeries({
+                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addCandlestickSeries({
                 |    upColor: '#26a69a',
                 |    downColor: '#ef5350',
                 |    borderVisible: false,
@@ -74,7 +74,7 @@ internal class IChartApi(
 
         executeJs(
             """
-                |const ${series.name} = ${this@IChartApi.name}.addHistogramSeries({
+                |var ${series.name} = (typeof ${series.name} != "undefined") ? ${series.name} : ${this@IChartApi.name}.addHistogramSeries({
                 |    color: '#26a69a',
                 |    priceFormat: {
                 |        type: 'volume',

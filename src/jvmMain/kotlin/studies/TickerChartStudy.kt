@@ -29,7 +29,7 @@ internal class TickerChartStudy(
     override val name: String = "Ticker Chart"
 
     var symbol by mutableStateOf<String?>(null)
-    var timeframe by mutableStateOf<String?>(null)
+    var timeframe by mutableStateOf("5m")
 
     @Composable
     override fun render(chart: @Composable () -> Unit) {

@@ -1,6 +1,7 @@
 package ui.common.controls
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -10,12 +11,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ListItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -37,16 +38,34 @@ fun ListSelectionField(
 ) {
 
     var showSelectionDialog by state { false }
+    val interactionSource = remember { MutableInteractionSource() }
 
-    OutlinedTextField(
-        modifier = Modifier.onFocusChanged { if (it.hasFocus && enabled) showSelectionDialog = true },
-        value = selection ?: placeholderText,
-        onValueChange = {},
-        label = label,
-        readOnly = true,
-        isError = isError,
-        enabled = enabled,
+    val modifier = if (!enabled) Modifier else Modifier.clickable(
+        interactionSource = interactionSource,
+        indication = null,
+        onClick = { showSelectionDialog = true },
     )
+
+    Box(modifier) {
+
+        val defaultColors = TextFieldDefaults.outlinedTextFieldColors()
+
+        OutlinedTextField(
+            value = selection ?: placeholderText,
+            onValueChange = {},
+            label = label,
+            readOnly = true,
+            isError = isError,
+            enabled = false,
+            interactionSource = interactionSource,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                disabledTextColor = defaultColors.textColor(enabled).value,
+                disabledBorderColor = defaultColors.indicatorColor(enabled, isError, interactionSource).value,
+                disabledLabelColor = defaultColors.labelColor(enabled, isError, interactionSource).value,
+                disabledPlaceholderColor = defaultColors.placeholderColor(enabled).value,
+            ),
+        )
+    }
 
     if (showSelectionDialog) {
 
