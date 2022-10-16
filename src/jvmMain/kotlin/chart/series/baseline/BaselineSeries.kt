@@ -1,7 +1,7 @@
 package chart.series.baseline
 
 import chart.series.ISeriesApiImpl
-import chart.series.SingleValueData
+import chart.series.data.SingleValueData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonArray

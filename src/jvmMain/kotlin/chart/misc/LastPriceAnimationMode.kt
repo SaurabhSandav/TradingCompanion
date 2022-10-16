@@ -1,4 +1,4 @@
-package chart.series.utils
+package chart.misc
 
 enum class LastPriceAnimationMode(val strValue: String) {
     Disabled("Disabled"),

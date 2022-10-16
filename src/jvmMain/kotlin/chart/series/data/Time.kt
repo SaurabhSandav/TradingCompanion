@@ -1,26 +1,9 @@
-package chart.series
+package chart.series.data
 
-import kotlinx.serialization.json.*
-
-interface ChartData
-
-open class SingleValueData(
-    val time: Time,
-    val value: Number,
-) : ChartData {
-
-    open fun toJsonObject(): JsonObject = buildJsonObject {
-        putSingleValueDataElements(this@SingleValueData)
-    }
-
-    companion object {
-
-        internal fun JsonObjectBuilder.putSingleValueDataElements(data: SingleValueData) = with(data) {
-            put("time", time.toJsonElement())
-            put("value", value)
-        }
-    }
-}
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 sealed class Time {
 

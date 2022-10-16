@@ -1,4 +1,4 @@
-package chart.series.utils
+package chart.misc
 
 enum class LineWidth(val intValue: Int) {
     One(1),

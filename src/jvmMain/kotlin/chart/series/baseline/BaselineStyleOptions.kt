@@ -1,10 +1,12 @@
 package chart.series.baseline
 
+import chart.misc.LastPriceAnimationMode
+import chart.misc.LineStyle
+import chart.misc.LineWidth
 import chart.series.SeriesOptionsCommon
 import chart.series.SeriesOptionsCommon.Companion.putSeriesOptionsCommonElements
 import chart.series.pricescale.PriceFormat
 import chart.series.pricescale.PriceLineSource
-import chart.series.utils.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

@@ -2,8 +2,8 @@ package chart.series.histogram
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import chart.series.SingleValueData
-import chart.series.Time
+import chart.series.data.SingleValueData
+import chart.series.data.Time
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

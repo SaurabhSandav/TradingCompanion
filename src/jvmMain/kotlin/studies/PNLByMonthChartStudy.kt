@@ -2,8 +2,8 @@ package studies
 
 import AppModule
 import chart.IChartApi
-import chart.series.SingleValueData
-import chart.series.Time
+import chart.series.data.SingleValueData
+import chart.series.data.Time
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope

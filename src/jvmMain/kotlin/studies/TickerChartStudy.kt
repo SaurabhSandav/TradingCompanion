@@ -9,7 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import chart.IChartApi
-import chart.series.Time
+import chart.series.data.Time
 import chart.series.candlestick.CandlestickData
 import chart.series.histogram.HistogramData
 import chart.series.histogram.HistogramStyleOptions

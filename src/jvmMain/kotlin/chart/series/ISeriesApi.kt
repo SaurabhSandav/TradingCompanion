@@ -1,5 +1,6 @@
 package chart.series
 
+import chart.series.data.ChartData
 import chart.series.pricescale.IPriceScaleApi
 import kotlinx.serialization.json.Json
 

@@ -1,7 +1,7 @@
 package chart.series.candlestick
 
-import chart.series.ChartData
-import chart.series.Time
+import chart.series.data.ChartData
+import chart.series.data.Time
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

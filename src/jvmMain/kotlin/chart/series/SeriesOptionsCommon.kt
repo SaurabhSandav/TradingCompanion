@@ -1,7 +1,7 @@
 package chart.series
 
-import chart.series.utils.LineStyle
-import chart.series.utils.LineWidth
+import chart.misc.LineStyle
+import chart.misc.LineWidth
 import chart.series.pricescale.PriceFormat
 import chart.series.pricescale.PriceLineSource
 import kotlinx.serialization.json.JsonObjectBuilder
