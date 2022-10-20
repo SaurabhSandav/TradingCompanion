@@ -7,29 +7,25 @@ import chart.series.candlestick.CandlestickSeries
 import chart.series.candlestick.CandlestickStyleOptions
 import chart.series.histogram.HistogramSeries
 import chart.series.histogram.HistogramStyleOptions
-import chart.series.timescale.ITimeScaleApi
-import chart.series.pricescale.IPriceScaleApi
+import chart.timescale.ITimeScaleApi
+import chart.pricescale.IPriceScaleApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class IChartApi(
     private val executeJs: (String) -> Unit,
+    options: ChartOptions = ChartOptions(),
     val name: String = "chart",
 ) {
 
+    private val json = Json { prettyPrint = true }
+
     init {
 
-        executeJs(
-            """
-                |const $name = LightweightCharts.createChart(document.body, {
-                |    width: window.innerWidth,
-                |    height: window.innerHeight
-                |});
-            """.trimMargin()
-        )
-    }
+        val optionsStr = json.encodeToString(options.toJsonObject())
 
-    private val json = Json { prettyPrint = true }
+        executeJs("const $name = LightweightCharts.createChart(document.body, $optionsStr);")
+    }
 
     val timeScale = ITimeScaleApi(this, executeJs, json)
     val priceScale = IPriceScaleApi(name, executeJs, json)

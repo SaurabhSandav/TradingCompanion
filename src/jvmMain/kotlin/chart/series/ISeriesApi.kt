@@ -1,7 +1,7 @@
 package chart.series
 
 import chart.series.data.ChartData
-import chart.series.pricescale.IPriceScaleApi
+import chart.pricescale.IPriceScaleApi
 import kotlinx.serialization.json.Json
 
 interface ISeriesApi<T : ChartData> {

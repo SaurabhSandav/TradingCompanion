@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import chart.ChartOptions
 import chart.IChartApi
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +32,7 @@ internal abstract class ChartStudy : Study {
                 val webViewState = rememberWebViewState()
                 val coroutineScope = rememberCoroutineScope()
                 var chart by state<IChartApi?> { null }
-                var size by state<IntSize?> { null }
+                var size by state { IntSize.Zero }
 
                 WebViewLoadingIndicator(webViewState)
 
@@ -63,12 +64,11 @@ internal abstract class ChartStudy : Study {
                                 Platform.runLater {
                                     webViewState.executeScript(it)
                                 }
-                            }
-                        )
-
-                        chart!!.resize(
-                            width = (size!!.width * 1.2).toInt(),
-                            height = (size!!.height * 1.2).toInt(),
+                            },
+                            options = ChartOptions(
+                                width = (size.width * 1.2).toInt(),
+                                height = (size.height * 1.2).toInt(),
+                            ),
                         )
 
                         coroutineScope.configureChart(chart!!)
@@ -79,8 +79,8 @@ internal abstract class ChartStudy : Study {
                 LaunchedEffect(Unit) {
                     snapshotFlow { size }.collect {
                         chart?.resize(
-                            width = (size!!.width * 1.2).toInt(),
-                            height = (size!!.height * 1.2).toInt(),
+                            width = (size.width * 1.2).toInt(),
+                            height = (size.height * 1.2).toInt(),
                         )
                     }
                 }

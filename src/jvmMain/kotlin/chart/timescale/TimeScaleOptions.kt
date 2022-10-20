@@ -1,4 +1,4 @@
-package chart.series.timescale
+package chart.timescale
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

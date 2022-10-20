@@ -1,4 +1,4 @@
-package chart.series.timescale
+package chart.timescale
 
 import chart.IChartApi
 import kotlinx.serialization.encodeToString

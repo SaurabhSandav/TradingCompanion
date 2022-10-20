@@ -1,4 +1,4 @@
-package chart.series.pricescale
+package chart.pricescale
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

@@ -1,4 +1,4 @@
-package chart.series.pricescale
+package chart.pricescale
 
 enum class PriceLineSource(val strValue: String) {
     LastBar("LastBar"),

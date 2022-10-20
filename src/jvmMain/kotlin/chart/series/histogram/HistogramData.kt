@@ -1,12 +1,12 @@
 package chart.series.histogram
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import chart.series.data.SingleValueData
 import chart.series.data.Time
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import ui.common.toHexString
 
 class HistogramData(
     time: Time,
@@ -18,8 +18,6 @@ class HistogramData(
 
         putSingleValueDataElements(this@HistogramData)
 
-        fun Int.hexToString() = String.format("#%06X", 0xFFFFFF and this)
-
-        color?.let { put("color", it.toArgb().hexToString()) }
+        color?.let { put("color", it.toHexString()) }
     }
 }

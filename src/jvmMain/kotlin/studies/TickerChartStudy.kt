@@ -13,10 +13,10 @@ import chart.series.data.Time
 import chart.series.candlestick.CandlestickData
 import chart.series.histogram.HistogramData
 import chart.series.histogram.HistogramStyleOptions
-import chart.series.pricescale.PriceFormat
-import chart.series.pricescale.PriceScaleMargins
-import chart.series.pricescale.PriceScaleOptions
-import chart.series.timescale.TimeScaleOptions
+import chart.misc.PriceFormat
+import chart.pricescale.PriceScaleMargins
+import chart.pricescale.PriceScaleOptions
+import chart.timescale.TimeScaleOptions
 import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
