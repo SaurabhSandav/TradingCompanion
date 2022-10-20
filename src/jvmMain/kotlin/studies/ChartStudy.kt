@@ -5,22 +5,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import chart.IChartApi
 import javafx.application.Platform
-import javafx.concurrent.Worker
-import javafx.embed.swing.JFXPanel
-import javafx.scene.Scene
-import javafx.scene.web.WebView
 import kotlinx.coroutines.CoroutineScope
+import ui.candledownload.CandleDownloadPresenter
+import ui.common.JavaFxWebView
+import ui.common.WebViewState
+import ui.common.rememberWebViewState
 import ui.common.state
 
 internal abstract class ChartStudy : Study {
@@ -32,62 +28,78 @@ internal abstract class ChartStudy : Study {
 
             Column(Modifier.fillMaxSize()) {
 
-                var isLoading by state { true }
+                val webViewState = rememberWebViewState()
                 val coroutineScope = rememberCoroutineScope()
                 var chart by state<IChartApi?> { null }
-                var initialSize by state<IntSize?> { null }
+                var size by state<IntSize?> { null }
 
-                if (isLoading) {
-                    LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 2.dp))
+                WebViewLoadingIndicator(webViewState)
+
+                JavaFxWebView(
+                    state = webViewState,
+                    modifier = Modifier.fillMaxSize(0.8F).onSizeChanged { size = it },
+                )
+
+                // Configure chart if WebView is ready
+                LaunchedEffect(webViewState.isReady) {
+
+                    // Return if WebView not ready
+                    if (!webViewState.isReady) return@LaunchedEffect
+
+                    // Load chart webpage
+                    webViewState.load(
+                        CandleDownloadPresenter::class.java
+                            .getResource("/charts_page/index.html")!!
+                            .toExternalForm()
+                    )
+
+                    // On page load, execute chart script
+                    webViewState.loadState.collect {
+
+                        if (it != WebViewState.LoadState.LOADED) return@collect
+
+                        chart = IChartApi(
+                            executeJs = {
+                                Platform.runLater {
+                                    webViewState.executeScript(it)
+                                }
+                            }
+                        )
+
+                        chart!!.resize(
+                            width = (size!!.width * 1.2).toInt(),
+                            height = (size!!.height * 1.2).toInt(),
+                        )
+
+                        coroutineScope.configureChart(chart!!)
+                    }
                 }
 
-                SwingPanel(
-                    modifier = Modifier.fillMaxSize(0.8F).onSizeChanged {
-                        initialSize = it
+                // Resize chart on window resize
+                LaunchedEffect(Unit) {
+                    snapshotFlow { size }.collect {
                         chart?.resize(
-                            width = (it.width * 1.2).toInt(),
-                            height = (it.height * 1.2).toInt(),
+                            width = (size!!.width * 1.2).toInt(),
+                            height = (size!!.height * 1.2).toInt(),
                         )
-                    },
-                    factory = {
-
-                        JFXPanel().apply {
-
-                            Platform.runLater {
-                                Platform.setImplicitExit(false)
-                                val webView = WebView()
-                                val engine = webView.engine
-                                val url = this@ChartStudy::class.java
-                                    .getResource("/charts_page/index.html")!!
-                                    .toExternalForm()
-                                engine.loadWorker.stateProperty().addListener { _, _, newValue ->
-                                    when (newValue) {
-                                        Worker.State.SUCCEEDED -> {
-                                            isLoading = false
-                                            chart = IChartApi(
-                                                executeJs = {
-                                                    Platform.runLater {
-                                                        engine.executeScript(it)
-                                                    }
-                                                }
-                                            )
-                                            chart!!.resize(
-                                                width = (initialSize!!.width * 1.2).toInt(),
-                                                height = (initialSize!!.height * 1.2).toInt(),
-                                            )
-                                            coroutineScope.configureChart(chart!!)
-                                        }
-
-                                        else -> {}
-                                    }
-                                }
-                                engine.load(url)
-                                val wvScene = Scene(webView)
-                                scene = wvScene
-                            }
-                        }
                     }
-                )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun WebViewLoadingIndicator(webViewState: WebViewState) {
+
+        var isLoading by state { true }
+
+        if (isLoading) {
+            LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 2.dp))
+        }
+
+        LaunchedEffect(webViewState.loadState) {
+            webViewState.loadState.collect {
+                isLoading = it != WebViewState.LoadState.LOADED
             }
         }
     }

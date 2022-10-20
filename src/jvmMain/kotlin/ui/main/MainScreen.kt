@@ -1,11 +1,14 @@
 package ui.main
 
 import AppModule
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import ui.account.AccountScreen
 import ui.closedtrades.ClosedTradesPresenter
 import ui.closedtrades.ClosedTradesScreen
@@ -40,22 +43,25 @@ internal fun MainScreen(
             }
         }
 
-        val coroutineScope = rememberCoroutineScope()
+        Box(Modifier.fillMaxSize()) {
 
-        val accountPresenter = remember { ui.account.AccountPresenter(coroutineScope, appModule) }
-        val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
-        val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
-        val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
-        val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
-        val candleDownloadPresenter = remember { CandleDownloadPresenter(coroutineScope, appModule) }
+            val coroutineScope = rememberCoroutineScope()
 
-        when (state) {
-            0 -> AccountScreen(accountPresenter)
-            1 -> SizingScreen(sizingPresenter)
-            2 -> OpenTradesScreen(openTradesPresenter)
-            3 -> ClosedTradesScreen(closedTradesPresenter)
-            4 -> StudiesScreen(studiesPresenter)
-            5 -> CandleDownloadScreen(candleDownloadPresenter)
+            val accountPresenter = remember { ui.account.AccountPresenter(coroutineScope, appModule) }
+            val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
+            val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
+            val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
+            val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
+            val candleDownloadPresenter = remember { CandleDownloadPresenter(coroutineScope, appModule) }
+
+            when (state) {
+                0 -> AccountScreen(accountPresenter)
+                1 -> SizingScreen(sizingPresenter)
+                2 -> OpenTradesScreen(openTradesPresenter)
+                3 -> ClosedTradesScreen(closedTradesPresenter)
+                4 -> StudiesScreen(studiesPresenter)
+                5 -> CandleDownloadScreen(candleDownloadPresenter)
+            }
         }
     }
 }

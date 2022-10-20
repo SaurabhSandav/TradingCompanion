@@ -3,7 +3,6 @@ package studies
 import AppModule
 import chart.IChartApi
 import chart.series.data.Time
-import chart.series.baseline.BaseValuePrice
 import chart.series.baseline.BaselineStyleOptions
 import chart.series.data.SingleValueData
 import com.squareup.sqldelight.runtime.coroutines.asFlow
@@ -53,7 +52,6 @@ internal class PNLByDayChartStudy(
                 )
                 .map { (localDate, bigDecimal) ->
                     SingleValueData(
-//                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
                         time = Time.BusinessDay(
                             year = localDate.year,
                             month = localDate.monthNumber,
@@ -66,7 +64,7 @@ internal class PNLByDayChartStudy(
 
     override fun CoroutineScope.configureChart(chart: IChartApi) {
 
-        val baselineSeries = chart.addBaselineSeries(BaselineStyleOptions(baseValue = BaseValuePrice("price", -300)))
+        val baselineSeries = chart.addBaselineSeries(BaselineStyleOptions())
 
         launch {
             data.collect {
