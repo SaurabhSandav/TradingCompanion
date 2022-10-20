@@ -41,47 +41,47 @@ internal abstract class ChartStudy : Study {
                     modifier = Modifier.fillMaxSize(0.8F).onSizeChanged { size = it },
                 )
 
-                // Configure chart if WebView is ready
-                LaunchedEffect(webViewState.isReady) {
+                if (webViewState.isReady) {
 
-                    // Return if WebView not ready
-                    if (!webViewState.isReady) return@LaunchedEffect
+                    // Configure chart if WebView is ready
+                    LaunchedEffect(Unit) {
 
-                    // Load chart webpage
-                    webViewState.load(
-                        CandleDownloadPresenter::class.java
-                            .getResource("/charts_page/index.html")!!
-                            .toExternalForm()
-                    )
+                        // Load chart webpage
+                        webViewState.load(
+                            CandleDownloadPresenter::class.java
+                                .getResource("/charts_page/index.html")!!
+                                .toExternalForm()
+                        )
 
-                    // On page load, execute chart script
-                    webViewState.loadState.collect {
+                        // On page load, execute chart script
+                        webViewState.loadState.collect {
 
-                        if (it != WebViewState.LoadState.LOADED) return@collect
+                            if (it != WebViewState.LoadState.LOADED) return@collect
 
-                        chart = IChartApi(
-                            executeJs = {
-                                Platform.runLater {
-                                    webViewState.executeScript(it)
-                                }
-                            },
-                            options = ChartOptions(
+                            chart = IChartApi(
+                                executeJs = {
+                                    Platform.runLater {
+                                        webViewState.executeScript(it)
+                                    }
+                                },
+                                options = ChartOptions(
+                                    width = (size.width * 1.2).toInt(),
+                                    height = (size.height * 1.2).toInt(),
+                                ),
+                            )
+
+                            coroutineScope.configureChart(chart!!)
+                        }
+                    }
+
+                    // Resize chart on window resize
+                    LaunchedEffect(Unit) {
+                        snapshotFlow { size }.collect {
+                            chart?.resize(
                                 width = (size.width * 1.2).toInt(),
                                 height = (size.height * 1.2).toInt(),
-                            ),
-                        )
-
-                        coroutineScope.configureChart(chart!!)
-                    }
-                }
-
-                // Resize chart on window resize
-                LaunchedEffect(Unit) {
-                    snapshotFlow { size }.collect {
-                        chart?.resize(
-                            width = (size.width * 1.2).toInt(),
-                            height = (size.height * 1.2).toInt(),
-                        )
+                            )
+                        }
                     }
                 }
             }

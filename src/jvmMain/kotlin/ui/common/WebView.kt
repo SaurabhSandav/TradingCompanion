@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @Composable
@@ -60,7 +61,7 @@ class WebViewState(
     var isReady by mutableStateOf(false)
 
     private val _loadState = MutableSharedFlow<LoadState>(extraBufferCapacity = 10)
-    val loadState: Flow<LoadState> = _loadState.asSharedFlow()
+    val loadState: Flow<LoadState> = _loadState.distinctUntilChanged()
 
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     val errors: Flow<Throwable> = _errors.asSharedFlow()
@@ -84,6 +85,7 @@ class WebViewState(
         }
 
         engine.loadWorker.exceptionProperty().addListener { _, _, newValue ->
+            newValue ?: return@addListener
             if (!_errors.tryEmit(newValue)) error("Could not emit WebView errors")
         }
 

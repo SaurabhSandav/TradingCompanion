@@ -91,7 +91,7 @@ internal class CandleRepo(
                     volume = it.jsonArray[5].jsonPrimitive.content.toBigDecimal(),
                 )
             }
-        }.flatten()
+        }.flatten().filter { it.openInstant in from..to }
 
         return candles
     }
