@@ -1,0 +1,96 @@
+package ui.common
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
+import chart.ChartOptions
+import chart.IChartApi
+import javafx.application.Platform
+import ui.candledownload.CandleDownloadPresenter
+
+@Composable
+fun ResizableChart(
+    options: ChartOptions = ChartOptions(),
+    configure: IChartApi.() -> Unit,
+) {
+
+    Column(Modifier.fillMaxSize()) {
+
+        val webViewState = rememberWebViewState()
+        var chart by state<IChartApi?> { null }
+        var size by state { IntSize.Zero }
+
+        WebViewLoadingIndicator(webViewState)
+
+        JavaFxWebView(
+            state = webViewState,
+            modifier = Modifier.fillMaxSize(0.8F).onSizeChanged { size = it },
+        )
+
+        if (webViewState.isReady) {
+
+            // Configure chart if WebView is ready
+            LaunchedEffect(Unit) {
+
+                // Load chart webpage
+                webViewState.load(
+                    CandleDownloadPresenter::class.java
+                        .getResource("/charts_page/index.html")!!
+                        .toExternalForm()
+                )
+
+                // On page load, execute chart script
+                webViewState.loadState.collect {
+
+                    if (it != WebViewState.LoadState.LOADED) return@collect
+
+                    chart = IChartApi(
+                        executeJs = {
+                            Platform.runLater {
+                                webViewState.executeScript(it)
+                            }
+                        },
+                        options = options.copy(
+                            width = (size.width * 1.2).toInt(),
+                            height = (size.height * 1.2).toInt(),
+                        ),
+                    )
+
+                    chart!!.configure()
+                }
+            }
+
+            // Resize chart on window resize
+            LaunchedEffect(Unit) {
+                snapshotFlow { size }.collect {
+                    chart?.resize(
+                        width = (size.width * 1.2).toInt(),
+                        height = (size.height * 1.2).toInt(),
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun WebViewLoadingIndicator(webViewState: WebViewState) {
+
+    var isLoading by state { true }
+
+    if (isLoading) {
+        LinearProgressIndicator(Modifier.fillMaxWidth())
+    }
+
+    LaunchedEffect(webViewState.loadState) {
+        webViewState.loadState.collect {
+            isLoading = it != WebViewState.LoadState.LOADED
+        }
+    }
+}

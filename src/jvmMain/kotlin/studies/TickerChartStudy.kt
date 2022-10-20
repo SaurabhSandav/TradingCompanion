@@ -62,9 +62,9 @@ internal class TickerChartStudy(
         }
     }
 
-    override fun CoroutineScope.configureChart(chart: IChartApi) {
+    override fun IChartApi.configure(scope: CoroutineScope) {
 
-        launch {
+        scope.launch {
 
             snapshotFlow { symbol to timeframe }
                 .distinctUntilChanged()
@@ -109,8 +109,8 @@ internal class TickerChartStudy(
                         )
                     }
 
-                    val candleSeries = chart.addCandlestickSeries()
-                    val histogramSeries = chart.addHistogramSeries(
+                    val candleSeries = addCandlestickSeries()
+                    val histogramSeries = addHistogramSeries(
                         HistogramStyleOptions(
                             priceFormat = PriceFormat.BuiltIn(
                                 type = PriceFormat.Type.Volume,
@@ -131,7 +131,7 @@ internal class TickerChartStudy(
                     candleSeries.setData(candleData)
                     histogramSeries.setData(volumeData)
 
-                    chart.timeScale.applyOptions(
+                    timeScale.applyOptions(
                         TimeScaleOptions(timeVisible = true)
                     )
                 }

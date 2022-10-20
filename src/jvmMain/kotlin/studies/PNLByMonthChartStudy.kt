@@ -63,14 +63,14 @@ internal class PNLByMonthChartStudy(
                 }
         }
 
-    override fun CoroutineScope.configureChart(chart: IChartApi) {
+    override fun IChartApi.configure(scope: CoroutineScope) {
 
-        val baselineSeries = chart.addBaselineSeries()
+        val baselineSeries = addBaselineSeries()
 
-        launch {
+        scope.launch {
             data.collect {
                 baselineSeries.setData(it)
-                chart.timeScale.fitContent()
+                timeScale.fitContent()
             }
         }
     }

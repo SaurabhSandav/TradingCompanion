@@ -60,14 +60,14 @@ internal class PNLByDayChartStudy(
                 }
         }
 
-    override fun CoroutineScope.configureChart(chart: IChartApi) {
+    override fun IChartApi.configure(scope: CoroutineScope) {
 
-        val baselineSeries = chart.addBaselineSeries(BaselineStyleOptions())
+        val baselineSeries = addBaselineSeries(BaselineStyleOptions())
 
-        launch {
+        scope.launch {
             data.collect {
                 baselineSeries.setData(it)
-                chart.timeScale.fitContent()
+                timeScale.fitContent()
             }
         }
     }
