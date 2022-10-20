@@ -20,8 +20,6 @@ internal class PNLByMonthChartStudy(
     appModule: AppModule,
 ) : ChartStudy() {
 
-    override val name: String = "PNL By Month (Chart)"
-
     private val data = appModule.appDB
         .closedTradeQueries
         .getAllClosedTradesDetailed { _, broker, _, instrument, quantity, _, side, entry, _, entryDate, _, exit, _, _, _, _, _ ->
@@ -75,5 +73,12 @@ internal class PNLByMonthChartStudy(
                 chart.timeScale.fitContent()
             }
         }
+    }
+
+    class Factory(private val appModule: AppModule): Study.Factory<PNLByMonthChartStudy> {
+
+        override val name: String = "PNL By Month (Chart)"
+
+        override fun create() = PNLByMonthChartStudy(appModule)
     }
 }

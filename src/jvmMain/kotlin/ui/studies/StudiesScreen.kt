@@ -25,10 +25,10 @@ internal fun StudiesScreen(
 
     LazyColumn(Modifier.fillMaxSize()) {
 
-        items(items = state.studies) { study ->
+        items(items = state.studyFactories) { studyFactory ->
 
-            ListItem(Modifier.clickable { studyWindowsManager.openNewWindow(study) }) {
-                Text(study.name)
+            ListItem(Modifier.clickable { studyWindowsManager.openNewWindow(studyFactory) }) {
+                Text(studyFactory.name)
             }
         }
     }
@@ -40,7 +40,7 @@ internal fun StudiesScreen(
             Window(
                 onCloseRequest = { windowManager.close() },
                 state = rememberWindowState(placement = WindowPlacement.Maximized),
-                title = windowManager.study.name,
+                title = windowManager.studyFactory.name,
             ) {
 
                 val density = LocalDensity.current
@@ -48,7 +48,10 @@ internal fun StudiesScreen(
                 val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
 
                 CompositionLocalProvider(LocalDensity provides newDensity) {
-                    windowManager.study.render()
+
+                    val study = remember(windowManager.studyFactory) { windowManager.studyFactory.create() }
+
+                    study.render()
                 }
             }
         }

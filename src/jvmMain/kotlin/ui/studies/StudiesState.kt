@@ -6,24 +6,24 @@ import studies.Study
 
 @Immutable
 internal data class StudiesState(
-    val studies: List<Study>,
+    val studyFactories: List<Study.Factory<*>>,
 )
 
 internal class StudyWindowsManager {
 
     val windows = mutableStateListOf<StudyWindowState>()
 
-    fun openNewWindow(study: Study) {
+    fun openNewWindow(studyFactory: Study.Factory<*>) {
 
         windows += StudyWindowState(
-            study = study,
+            studyFactory = studyFactory,
             onCloseRequest = windows::remove,
         )
     }
 }
 
 internal class StudyWindowState(
-    val study: Study,
+    val studyFactory: Study.Factory<*>,
     val onCloseRequest: (StudyWindowState) -> Unit,
 ) {
 

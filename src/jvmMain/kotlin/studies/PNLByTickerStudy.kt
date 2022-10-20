@@ -19,8 +19,6 @@ import java.math.RoundingMode
 
 internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerStudy.Model>() {
 
-    override val name: String = "PNL By Ticker"
-
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }
         addColumnText("Trades") { it.noOfTrades }
@@ -109,4 +107,11 @@ internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerSt
         val fees: String,
         val rValue: String,
     )
+
+    class Factory(private val appModule: AppModule): Study.Factory<PNLByTickerStudy> {
+
+        override val name: String = "PNL By Ticker"
+
+        override fun create() = PNLByTickerStudy(appModule)
+    }
 }

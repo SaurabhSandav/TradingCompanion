@@ -23,8 +23,6 @@ import java.time.format.FormatStyle
 
 internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
 
-    override val name: String = "PNL By Day"
-
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Day") { it.day }
         addColumnText("Trades") { it.noOfTrades }
@@ -115,4 +113,11 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
         val fees: String,
         val rValue: String,
     )
+
+    class Factory(private val appModule: AppModule): Study.Factory<PNLByDayStudy> {
+
+        override val name: String = "PNL By Day"
+
+        override fun create() = PNLByDayStudy(appModule)
+    }
 }

@@ -32,8 +32,6 @@ internal class TickerChartStudy(
     private val candleRepo: CandleRepo = CandleRepo(appModule),
 ) : ChartStudy() {
 
-    override val name: String = "Ticker Chart"
-
     var symbol by mutableStateOf<String?>("ICICIBANK")
     var timeframe by mutableStateOf("5m")
 
@@ -138,5 +136,12 @@ internal class TickerChartStudy(
                     )
                 }
         }
+    }
+
+    class Factory(private val appModule: AppModule): Study.Factory<TickerChartStudy> {
+
+        override val name: String = "Ticker Chart"
+
+        override fun create() = TickerChartStudy(appModule)
     }
 }

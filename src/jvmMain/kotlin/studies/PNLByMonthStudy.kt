@@ -20,8 +20,6 @@ import java.math.RoundingMode
 
 internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStudy.Model>() {
 
-    override val name: String = "PNL By Month"
-
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Month") { it.month }
         addColumnText("Trades") { it.noOfTrades }
@@ -113,4 +111,11 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         val fees: String,
         val rValue: String,
     )
+
+    class Factory(private val appModule: AppModule): Study.Factory<PNLByMonthStudy> {
+
+        override val name: String = "PNL By Month"
+
+        override fun create() = PNLByMonthStudy(appModule)
+    }
 }

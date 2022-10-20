@@ -16,19 +16,19 @@ internal class StudiesPresenter(
 
         val studies = remember {
             listOf(
-                PNLStudy(appModule),
-                PNLByDayStudy(appModule),
-                PNLByDayChartStudy(appModule),
-                PNLByMonthStudy(appModule),
-                PNLByMonthChartStudy(appModule),
-                PNLExcursionStudy(appModule),
-                PNLByTickerStudy(appModule),
-                TickerChartStudy(appModule),
+                PNLStudy.Factory(appModule),
+                PNLByDayStudy.Factory(appModule),
+                PNLByDayChartStudy.Factory(appModule),
+                PNLByMonthStudy.Factory(appModule),
+                PNLByMonthChartStudy.Factory(appModule),
+                PNLExcursionStudy.Factory(appModule),
+                PNLByTickerStudy.Factory(appModule),
+                TickerChartStudy.Factory(appModule),
             )
         }
 
         return@launchMolecule StudiesState(
-            studies = studies,
+            studyFactories = studies,
         )
     }
 }

@@ -21,8 +21,6 @@ import java.time.format.FormatStyle
 
 internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursionStudy.Model>() {
 
-    override val name: String = "PNL Excursion"
-
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
@@ -95,6 +93,13 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         val maxAdverseExcursion: String,
         val maePNL: String,
     )
+
+    class Factory(private val appModule: AppModule): Study.Factory<PNLExcursionStudy> {
+
+        override val name: String = "PNL Excursion"
+
+        override fun create() = PNLExcursionStudy(appModule)
+    }
 }
 
 private fun buildPNLString(
