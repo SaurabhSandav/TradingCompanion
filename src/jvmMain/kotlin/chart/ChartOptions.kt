@@ -46,7 +46,7 @@ data class CrosshairOptions(
 ) {
 
     fun toJsonObject() = buildJsonObject {
-        mode?.let { put("mode", it.strValue) }
+        mode?.let { put("mode", it.intValue) }
     }
 }
 
@@ -74,7 +74,7 @@ data class GridLineOptions(
     }
 }
 
-enum class CrosshairMode(val strValue: String) {
-    Normal("Normal"),
-    Magnet("Magnet");
+enum class CrosshairMode(val intValue: Int) {
+    Normal(0),
+    Magnet(1);
 }

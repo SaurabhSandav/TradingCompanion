@@ -8,14 +8,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import chart.ChartOptions
+import chart.CrosshairMode
+import chart.CrosshairOptions
 import chart.IChartApi
-import chart.series.data.Time
-import chart.series.candlestick.CandlestickData
-import chart.series.histogram.HistogramData
-import chart.series.histogram.HistogramStyleOptions
 import chart.misc.PriceFormat
 import chart.pricescale.PriceScaleMargins
 import chart.pricescale.PriceScaleOptions
+import chart.series.candlestick.CandlestickData
+import chart.series.data.Time
+import chart.series.histogram.HistogramData
+import chart.series.histogram.HistogramStyleOptions
 import chart.timescale.TimeScaleOptions
 import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +26,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import ui.common.ResizableChart
 import ui.common.controls.ListSelectionField
 import utils.CandleRepo
 import utils.NIFTY50
@@ -30,13 +34,13 @@ import utils.NIFTY50
 internal class TickerChartStudy(
     private val appModule: AppModule,
     private val candleRepo: CandleRepo = CandleRepo(appModule),
-) : ChartStudy() {
+) : Study {
 
     var symbol by mutableStateOf<String?>("ICICIBANK")
     var timeframe by mutableStateOf("5m")
 
     @Composable
-    override fun render(chart: @Composable () -> Unit) {
+    override fun render() {
 
         Column {
 
@@ -58,11 +62,15 @@ internal class TickerChartStudy(
                 )
             }
 
-            chart()
+            val coroutineScope = rememberCoroutineScope()
+
+            ResizableChart(
+                options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
+            ) { configure(coroutineScope) }
         }
     }
 
-    override fun IChartApi.configure(scope: CoroutineScope) {
+    private fun IChartApi.configure(scope: CoroutineScope) {
 
         scope.launch {
 
@@ -77,7 +85,7 @@ internal class TickerChartStudy(
                             "1D" -> CandleResolution.D1
                             else -> CandleResolution.M5
                         },
-                        from = LocalDate(year = 2022, month = Month.JANUARY, dayOfMonth = 1)
+                        from = LocalDate(year = 2022, month = Month.OCTOBER, dayOfMonth = 1)
                             .atStartOfDayIn(TimeZone.currentSystemDefault()),
                         to = Clock.System.now(),
                     )
@@ -138,7 +146,7 @@ internal class TickerChartStudy(
         }
     }
 
-    class Factory(private val appModule: AppModule): Study.Factory<TickerChartStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<TickerChartStudy> {
 
         override val name: String = "Ticker Chart"
 
