@@ -9,9 +9,11 @@ import javafx.embed.swing.JFXPanel
 import javafx.scene.Scene
 import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 @Composable
 fun JavaFxWebView(
@@ -42,9 +44,16 @@ fun JavaFxWebView(
 }
 
 @Composable
-fun rememberWebViewState() = remember { WebViewState() }
+fun rememberWebViewState(): WebViewState {
 
-class WebViewState {
+    val coroutineScope = rememberCoroutineScope()
+
+    return remember(coroutineScope) { WebViewState(coroutineScope) }
+}
+
+class WebViewState(
+    private val coroutineScope: CoroutineScope,
+) {
 
     private lateinit var engine: WebEngine
 
@@ -78,7 +87,9 @@ class WebViewState {
             if (!_errors.tryEmit(newValue)) error("Could not emit WebView errors")
         }
 
-        isReady = true
+        coroutineScope.launch {
+            isReady = true
+        }
     }
 
     fun load(url: String) {
