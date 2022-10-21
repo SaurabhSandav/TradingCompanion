@@ -12,6 +12,7 @@ import chart.ChartOptions
 import chart.CrosshairMode
 import chart.CrosshairOptions
 import chart.IChartApi
+import chart.misc.LineWidth
 import chart.misc.PriceFormat
 import chart.pricescale.PriceScaleMargins
 import chart.pricescale.PriceScaleOptions
@@ -19,6 +20,8 @@ import chart.series.candlestick.CandlestickData
 import chart.series.data.Time
 import chart.series.histogram.HistogramData
 import chart.series.histogram.HistogramStyleOptions
+import chart.series.line.LineData
+import chart.series.line.LineStyleOptions
 import chart.timescale.TimeScaleOptions
 import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +29,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import trading.indicator.ClosePriceIndicator
+import trading.indicator.EMAIndicator
+import trading.indicator.VWAPIndicator
 import ui.common.ResizableChart
 import ui.common.controls.ListSelectionField
 import utils.CandleRepo
@@ -90,10 +96,19 @@ internal class TickerChartStudy(
                         to = Clock.System.now(),
                     )
 
+                    val sessionStartTime = LocalTime(hour = 9, minute = 15)
+
+                    val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
+                    val vwapIndicator = VWAPIndicator(candles) { candle ->
+                        candle.openInstant.toLocalDateTime(TimeZone.currentSystemDefault()).time == sessionStartTime
+                    }
+
                     val candleData = mutableListOf<CandlestickData>()
                     val volumeData = mutableListOf<HistogramData>()
+                    val ema9Data = mutableListOf<LineData>()
+                    val vwapData = mutableListOf<LineData>()
 
-                    candles.forEach { candle ->
+                    candles.forEachIndexed { index, candle ->
 
                         // Subtract IST Timezone difference
                         val epochTime = candle.openInstant.epochSeconds
@@ -115,10 +130,20 @@ internal class TickerChartStudy(
                                 else -> Color(0, 150, 136)
                             },
                         )
+
+                        ema9Data += LineData(
+                            time = Time.UTCTimestamp(workaroundEpochTime),
+                            value = ema9Indicator[index],
+                        )
+
+                        vwapData += LineData(
+                            time = Time.UTCTimestamp(workaroundEpochTime),
+                            value = vwapIndicator[index],
+                        )
                     }
 
                     val candleSeries = addCandlestickSeries()
-                    val histogramSeries = addHistogramSeries(
+                    val volumeSeries = addHistogramSeries(
                         HistogramStyleOptions(
                             priceFormat = PriceFormat.BuiltIn(
                                 type = PriceFormat.Type.Volume,
@@ -126,8 +151,21 @@ internal class TickerChartStudy(
                             priceScaleId = "",
                         )
                     )
+                    val ema9Series = addLineSeries(
+                        name = "ema9Series",
+                        options = LineStyleOptions(
+                            lineWidth = LineWidth.One,
+                        ),
+                    )
+                    val vwapSeries = addLineSeries(
+                        name = "vwapSeries",
+                        options = LineStyleOptions(
+                            lineWidth = LineWidth.One,
+                            color = Color.Yellow,
+                        ),
+                    )
 
-                    histogramSeries.priceScale.applyOptions(
+                    volumeSeries.priceScale.applyOptions(
                         PriceScaleOptions(
                             scaleMargins = PriceScaleMargins(
                                 top = 0.8,
@@ -137,7 +175,9 @@ internal class TickerChartStudy(
                     )
 
                     candleSeries.setData(candleData)
-                    histogramSeries.setData(volumeData)
+                    volumeSeries.setData(volumeData)
+                    ema9Series.setData(ema9Data)
+                    vwapSeries.setData(vwapData)
 
                     timeScale.applyOptions(
                         TimeScaleOptions(timeVisible = true)

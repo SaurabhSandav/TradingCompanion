@@ -13,6 +13,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import trading.Candle
+import trading.CandleSeries
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -28,7 +29,7 @@ internal class CandleRepo(
         resolution: CandleResolution,
         from: Instant,
         to: Instant,
-    ): List<Candle> {
+    ): CandleSeries {
 
         val accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken) ?: error("Fyers not logged in!")
 
@@ -75,9 +76,14 @@ internal class CandleRepo(
             )
         }
 
-        val candles = months.map { month ->
+        val series = CandleSeries()
+
+        months.map { month ->
 
             val monthFilePath = symbolDir.resolve(month.toString())
+            val dataTxt = monthFilePath.readText()
+            if (dataTxt.isEmpty()) return@map emptyList()
+
             val dataJson = json.parseToJsonElement(monthFilePath.readText())
 
             dataJson.jsonArray.map {
@@ -91,9 +97,11 @@ internal class CandleRepo(
                     volume = it.jsonArray[5].jsonPrimitive.content.toBigDecimal(),
                 )
             }
-        }.flatten().filter { it.openInstant in from..to }
+        }.flatten()
+            .filter { it.openInstant in from..to }
+            .forEach(series::addCandle)
 
-        return candles
+        return series
     }
 
     private suspend fun cacheCandles(
@@ -108,10 +116,6 @@ internal class CandleRepo(
 
         months.forEach { month ->
 
-            // Create file for symbol
-            val monthFilePath = symbolDir.resolve(month.toString())
-            if (!monthFilePath.exists()) monthFilePath.createFile()
-
             // End date = 1st of next Month
             val endDate = month + DatePeriod(months = 1) - DatePeriod(days = 1)
 
@@ -124,6 +128,10 @@ internal class CandleRepo(
                 rangeFrom = month.toString(),
                 rangeTo = endDate.toString(),
             )
+
+            // Create file for symbol
+            val monthFilePath = symbolDir.resolve(month.toString())
+            if (!monthFilePath.exists()) monthFilePath.createFile()
 
             // Write to file
             monthFilePath.writeText(json.encodeToString(history))

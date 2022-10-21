@@ -1,0 +1,25 @@
+package trading.indicator
+
+import trading.Candle
+import trading.CandleSeries
+import trading.indicator.base.CachedIndicator
+import java.math.BigDecimal
+
+class VWAPIndicator(
+    candleSeries: CandleSeries,
+    isSessionStart: (Candle) -> Boolean,
+) : CachedIndicator<BigDecimal>(
+    candleSeries = candleSeries,
+    description = null,
+) {
+
+    private val typicalPrice = TypicalPriceIndicator(candleSeries)
+    private val volume = VolumeIndicator(candleSeries)
+    private val tpv = ProductIndicator(typicalPrice, volume)
+    private val cumulativeTPV = SessionCumulativeIndicator(tpv, isSessionStart)
+    private val cumulativeVolume = SessionCumulativeIndicator(volume, isSessionStart)
+
+    override fun calculate(index: Int): BigDecimal {
+        return cumulativeTPV[index].divide(cumulativeVolume[index], mathContext)
+    }
+}

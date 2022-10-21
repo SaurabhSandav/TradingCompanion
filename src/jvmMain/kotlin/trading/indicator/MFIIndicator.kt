@@ -1,0 +1,47 @@
+package trading.indicator
+
+import trading.CandleSeries
+import trading.indicator.base.CachedIndicator
+import trading.indicator.base.Indicator
+import trading.isZero
+import java.math.BigDecimal
+
+class MFIIndicator(
+    input: Indicator<BigDecimal>,
+    length: Int = 14,
+) : CachedIndicator<BigDecimal>(
+    candleSeries = input.candleSeries,
+    description = "MFIIndicator(${input.description}, $length)",
+) {
+
+    constructor(
+        candleSeries: CandleSeries,
+        length: Int = 14,
+    ) : this(
+        input = TypicalPriceIndicator(candleSeries),
+        length = length
+    )
+
+    private val moneyFlow = MoneyFlowIndicator(input, VolumeIndicator(candleSeries))
+    private val positiveMoneyFlow = CumulativeIndicator(PositiveMoneyFlowIndicator(input, moneyFlow), length)
+    private val negativeMoneyFlow = CumulativeIndicator(NegativeMoneyFlowIndicator(input, moneyFlow), length)
+
+    override fun calculate(index: Int): BigDecimal {
+
+        val positiveMoneyFlow = positiveMoneyFlow[index]
+        val negativeMoneyFlow = negativeMoneyFlow[index]
+
+        val hundred = 100.toBigDecimal()
+
+        if (negativeMoneyFlow.isZero()) {
+            return when {
+                positiveMoneyFlow.isZero() -> BigDecimal.ZERO
+                else -> hundred
+            }
+        }
+
+        val moneyRatio = positiveMoneyFlow.divide(negativeMoneyFlow, mathContext)
+
+        return hundred - (hundred.divide(BigDecimal.ONE + moneyRatio, mathContext))
+    }
+}
