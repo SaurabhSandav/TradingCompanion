@@ -4,6 +4,7 @@ import AppModule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppDB
 import fyers_api.FyersApi
+import fyers_api.model.response.FyersResponse
 import fyers_api.model.CandleResolution
 import fyers_api.model.DateFormat
 import kotlinx.coroutines.Dispatchers
@@ -152,7 +153,7 @@ internal class CandleRepo(
             val endDate = month + DatePeriod(months = 1) - DatePeriod(days = 1)
 
             // Download candles for the month
-            val history = fyersApi.getHistoricalCandles(
+            val response = fyersApi.getHistoricalCandles(
                 accessToken = accessToken,
                 symbol = symbolFull,
                 resolution = resolution,
@@ -161,12 +162,17 @@ internal class CandleRepo(
                 rangeTo = endDate.toString(),
             )
 
+            val candles = when (response) {
+                is FyersResponse.Failure -> error(response.message)
+                is FyersResponse.Success -> response.result.candles
+            }
+
             // Create file for symbol
             val monthFilePath = symbolDir.resolve(month.toString())
             if (!monthFilePath.exists()) monthFilePath.createFile()
 
             // Write to file
-            monthFilePath.writeText(json.encodeToString(history))
+            monthFilePath.writeText(json.encodeToString(candles))
 
             // API Rate limit
             delay(400)

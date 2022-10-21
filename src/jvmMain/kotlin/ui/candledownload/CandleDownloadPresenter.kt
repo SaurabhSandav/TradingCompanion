@@ -9,6 +9,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import fyers_api.FyersApi
+import fyers_api.model.response.FyersResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -88,7 +89,10 @@ internal class CandleDownloadPresenter(
 
     private fun getAccessToken(redirectUrl: String) = coroutineScope.launchUnit {
 
-        val accessToken = fyersApi.getAccessToken(redirectUrl)
+        val accessToken = when (val response = fyersApi.getAccessToken(redirectUrl)) {
+            is FyersResponse.Failure -> error(response.message)
+            is FyersResponse.Success -> response.result.accessToken
+        }
 
         appPrefs.putString(PrefKeys.FyersAccessToken, accessToken)
     }

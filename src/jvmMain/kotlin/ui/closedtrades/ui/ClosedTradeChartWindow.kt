@@ -167,7 +167,7 @@ private fun IChartApi.configure(
 
             if (formModel.entryDateTime.toInstant(TimeZone.currentSystemDefault()) > candle.openInstant)
                 entryIndex = index
-            else if (formModel.exitDateTime.toInstant(TimeZone.currentSystemDefault()) > candle.openInstant)
+            if (formModel.exitDateTime.toInstant(TimeZone.currentSystemDefault()) > candle.openInstant)
                 exitIndex = index
         }
 

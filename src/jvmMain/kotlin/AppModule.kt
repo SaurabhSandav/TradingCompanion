@@ -3,10 +3,6 @@ import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.AppDB
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import fyers_api.FyersApi
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
@@ -37,15 +33,9 @@ internal class AppModule {
         isLenient = true
     }
 
-    val httpClient = HttpClient(OkHttp) {
-        install(ContentNegotiation) {
-            json(json)
-        }
-    }
-
     val appPrefs = JvmPreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
-    val fyersApiFactory = { FyersApi(httpClient) }
+    val fyersApiFactory = { FyersApi() }
 
     init {
 //        TradeImporter(this).importTrades()

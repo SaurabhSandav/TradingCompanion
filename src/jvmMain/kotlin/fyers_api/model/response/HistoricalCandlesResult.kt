@@ -4,11 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class HistoryResponse(
-
-    @SerialName("s")
-    val s: String,
+data class HistoricalCandlesResult(
 
     @SerialName("candles")
     val candles: List<List<String>>,
-)
+) : FyersResult
