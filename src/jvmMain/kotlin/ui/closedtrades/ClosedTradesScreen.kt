@@ -3,14 +3,13 @@ package ui.closedtrades
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import ui.addclosedtradedetailed.CloseTradeDetailedWindow
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
-import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
-import ui.closedtrades.model.ClosedTradesState.EditTradeWindow as EditTradeWindowState
 
 @Composable
 internal fun ClosedTradesScreen(
@@ -21,7 +20,7 @@ internal fun ClosedTradesScreen(
 
     ClosedTradesTable(
         closedTradesItems = state.closedTradesItems,
-        onEditTrade = { presenter.event(EditTradeWindow.Open(it)) },
+        onEditTrade = { presenter.event(ClosedTradesEvent.EditTrade(it)) },
         onDeleteTrade = { presenter.event(ClosedTradesEvent.DeleteTrade(it)) },
     )
 
@@ -35,14 +34,15 @@ internal fun ClosedTradesScreen(
         )
     }
 
-    val closeTradeWindowState = state.closeTradeDetailedWindowState
+    state.editTradeWindowsManager.windows.forEach { windowManager ->
 
-    if (closeTradeWindowState is EditTradeWindowState.Open) {
+        key(windowManager) {
 
-        CloseTradeDetailedWindow(
-            onCloseRequest = { presenter.event(EditTradeWindow.Close) },
-            formModel = closeTradeWindowState.formModel,
-            onSaveTrade = { presenter.event(EditTradeWindow.SaveTrade(it)) },
-        )
+            CloseTradeDetailedWindow(
+                onCloseRequest = { windowManager.close() },
+                formModel = windowManager.formModel,
+                onSaveTrade = { presenter.event(ClosedTradesEvent.SaveTrade(it)) },
+            )
+        }
     }
 }

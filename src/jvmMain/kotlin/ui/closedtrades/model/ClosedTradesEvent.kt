@@ -13,14 +13,9 @@ internal sealed class ClosedTradesEvent {
         object Dismiss : DeleteConfirmationDialog()
     }
 
-    sealed class EditTradeWindow : ClosedTradesEvent() {
+    data class EditTrade(val id: Int) : ClosedTradesEvent()
 
-        data class Open(val id: Int) : EditTradeWindow()
-
-        data class SaveTrade(
-            val model: CloseTradeDetailedFormFields.Model,
-        ) : EditTradeWindow()
-
-        object Close : EditTradeWindow()
-    }
+    data class SaveTrade(
+        val model: CloseTradeDetailedFormFields.Model,
+    ) : ClosedTradesEvent()
 }

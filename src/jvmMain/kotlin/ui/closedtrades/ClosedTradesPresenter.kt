@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
@@ -23,6 +22,7 @@ import ui.closedtrades.model.ClosedTradeListItem
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
 import ui.closedtrades.model.ClosedTradesState
+import ui.closedtrades.model.EditClosedTradeWindowsManager
 import ui.common.CollectEffect
 import ui.common.state
 import utils.brokerage
@@ -32,9 +32,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog as DeleteConfirmationDialogEvent
-import ui.closedtrades.model.ClosedTradesEvent.EditTradeWindow as EditTradeWindowEvent
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
-import ui.closedtrades.model.ClosedTradesState.EditTradeWindow as EditTradeWindowState
 
 internal class ClosedTradesPresenter(
     private val coroutineScope: CoroutineScope,
@@ -43,12 +41,23 @@ internal class ClosedTradesPresenter(
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
+    private val editTradeWindowsManager = EditClosedTradeWindowsManager()
+
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+
+        CollectEffect(events) { event ->
+
+            when (event) {
+                is ClosedTradesEvent.EditTrade -> onEditTrade(event.id)
+                is ClosedTradesEvent.SaveTrade -> onSaveTrade(event.model)
+                else -> Unit
+            }
+        }
 
         return@launchMolecule ClosedTradesState(
             closedTradesItems = getClosedTradeListEntries().value,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
-            closeTradeDetailedWindowState = closeTradeWindowState(events),
+            editTradeWindowsManager = editTradeWindowsManager,
         )
     }
 
@@ -142,59 +151,38 @@ internal class ClosedTradesPresenter(
         )
     }
 
-    @Composable
-    private fun closeTradeWindowState(events: Flow<ClosedTradesEvent>): EditTradeWindowState {
+    private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
 
-        val windowEvents = remember(events) { events.filterIsInstance<EditTradeWindowEvent>() }
-        var state by state<EditTradeWindowState> { EditTradeWindowState.Closed }
+        // Edit window already open
+        if (editTradeWindowsManager.windows.any { it.formModel.id == id }) return@launchUnit
 
-        CollectEffect(windowEvents) { event ->
-
-            if (state is EditTradeWindowState.Open && event is EditTradeWindowEvent.Open)
-                return@CollectEffect
-
-            state = when (event) {
-                is EditTradeWindowEvent.Open -> {
-
-                    val closedTrade = withContext(Dispatchers.IO) {
-                        appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(event.id).executeAsOne()
-                    }
-
-                    val model = CloseTradeDetailedFormFields.Model(
-                        id = closedTrade.id,
-                        ticker = closedTrade.ticker,
-                        quantity = closedTrade.quantity,
-                        isLong = Side.fromString(closedTrade.side) == Side.Long,
-                        entry = closedTrade.entry,
-                        stop = closedTrade.stop.orEmpty(),
-                        entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
-                        target = closedTrade.target.orEmpty(),
-                        exit = closedTrade.exit,
-                        exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
-                        maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
-                        maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
-                        tags = closedTrade.tags?.split(", ")?.let {
-                            if (it.size == 1 && it.first().isBlank()) emptyList() else it
-                        } ?: emptyList(),
-                        persisted = closedTrade.persisted.toBoolean(),
-                    )
-
-                    EditTradeWindowState.Open(model)
-                }
-
-                is EditTradeWindowEvent.SaveTrade -> {
-                    saveClosedTradeDetailsToDB(event.model)
-                    EditTradeWindowState.Closed
-                }
-
-                EditTradeWindowEvent.Close -> EditTradeWindowState.Closed
-            }
+        val closedTrade = withContext(Dispatchers.IO) {
+            appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
-        return state
+        val model = CloseTradeDetailedFormFields.Model(
+            id = closedTrade.id,
+            ticker = closedTrade.ticker,
+            quantity = closedTrade.quantity,
+            isLong = Side.fromString(closedTrade.side) == Side.Long,
+            entry = closedTrade.entry,
+            stop = closedTrade.stop.orEmpty(),
+            entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
+            target = closedTrade.target.orEmpty(),
+            exit = closedTrade.exit,
+            exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
+            maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
+            maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
+            tags = closedTrade.tags?.split(", ")?.let {
+                if (it.size == 1 && it.first().isBlank()) emptyList() else it
+            } ?: emptyList(),
+            persisted = closedTrade.persisted.toBoolean(),
+        )
+
+        editTradeWindowsManager.openNewWindow(model)
     }
 
-    private fun saveClosedTradeDetailsToDB(
+    private fun onSaveTrade(
         model: CloseTradeDetailedFormFields.Model,
     ) = coroutineScope.launchUnit {
 
@@ -264,7 +252,7 @@ internal class ClosedTradesPresenter(
                 }
 
                 DeleteConfirmationDialogEvent.Dismiss -> DeleteConfirmationDialogState.Dismissed
-                is EditTradeWindowEvent -> state
+                else -> state
             }
         }
 
