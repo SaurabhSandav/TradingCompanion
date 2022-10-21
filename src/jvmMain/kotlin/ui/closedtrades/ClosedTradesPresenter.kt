@@ -18,6 +18,7 @@ import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
+import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradeListItem
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
@@ -25,6 +26,7 @@ import ui.closedtrades.model.ClosedTradesState
 import ui.closedtrades.model.EditClosedTradeWindowsManager
 import ui.common.CollectEffect
 import ui.common.state
+import utils.CandleRepo
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -42,12 +44,14 @@ internal class ClosedTradesPresenter(
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val editTradeWindowsManager = EditClosedTradeWindowsManager()
+    private val chartWindowsManager = ClosedTradeChartWindowsManager(CandleRepo(appModule))
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
 
             when (event) {
+                is ClosedTradesEvent.OpenChart -> onOpenChart(event.id)
                 is ClosedTradesEvent.EditTrade -> onEditTrade(event.id)
                 is ClosedTradesEvent.SaveTrade -> onSaveTrade(event.model)
                 else -> Unit
@@ -58,6 +62,7 @@ internal class ClosedTradesPresenter(
             closedTradesItems = getClosedTradeListEntries().value,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
             editTradeWindowsManager = editTradeWindowsManager,
+            chartWindowsManager = chartWindowsManager,
         )
     }
 
@@ -149,6 +154,37 @@ internal class ClosedTradesPresenter(
             persisted = persisted.toBoolean(),
             persistenceResult = persistenceResult,
         )
+    }
+
+    private fun onOpenChart(id: Int) = coroutineScope.launchUnit {
+
+        // Edit window already open
+        if (chartWindowsManager.windows.any { it.formModel.id == id }) return@launchUnit
+
+        val closedTrade = withContext(Dispatchers.IO) {
+            appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
+        }
+
+        val model = CloseTradeDetailedFormFields.Model(
+            id = closedTrade.id,
+            ticker = closedTrade.ticker,
+            quantity = closedTrade.quantity,
+            isLong = Side.fromString(closedTrade.side) == Side.Long,
+            entry = closedTrade.entry,
+            stop = closedTrade.stop.orEmpty(),
+            entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
+            target = closedTrade.target.orEmpty(),
+            exit = closedTrade.exit,
+            exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
+            maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
+            maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
+            tags = closedTrade.tags?.split(", ")?.let {
+                if (it.size == 1 && it.first().isBlank()) emptyList() else it
+            } ?: emptyList(),
+            persisted = closedTrade.persisted.toBoolean(),
+        )
+
+        chartWindowsManager.openNewWindow(model)
     }
 
     private fun onEditTrade(id: Int) = coroutineScope.launchUnit {

@@ -2,10 +2,13 @@ package utils
 
 import AppModule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.AppDB
 import fyers_api.FyersApi
 import fyers_api.model.CandleResolution
 import fyers_api.model.DateFormat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -21,6 +24,7 @@ internal class CandleRepo(
     appModule: AppModule,
     private val json: Json = appModule.json,
     private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val appDB: AppDB = appModule.appDB,
     private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
@@ -33,11 +37,14 @@ internal class CandleRepo(
 
         val accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken) ?: error("Fyers not logged in!")
 
+        // Fyers symbol notation
         val symbolFull = "NSE:$symbol-EQ"
 
+        // Build directory path for symbol and timeframe
         val baseDir = Path(AppPaths.getAppDataPath())
         val symbolDir = baseDir.resolve("Candles/$symbol/$resolution")
 
+        // Create directories if not exists
         if (!symbolDir.exists()) symbolDir.createDirectories()
 
         val currentTime = Clock.System.now()
@@ -48,11 +55,14 @@ internal class CandleRepo(
             else -> to
         }.toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-        val fromMonth = LocalDate(year = fromDate.year, month = fromDate.month, dayOfMonth = 1)
-        val toMonth = LocalDate(year = toDate.year, month = toDate.month, dayOfMonth = 1) + DatePeriod(months = 1)
-
+        // Collect all candles for every month at once
         val months = buildList {
-            var iMonth = fromMonth
+
+            // From 1st of the month of 'from' date
+            var iMonth = LocalDate(year = fromDate.year, month = fromDate.month, dayOfMonth = 1)
+
+            // To 1st of the month after the 'to' date
+            val toMonth = LocalDate(year = toDate.year, month = toDate.month, dayOfMonth = 1) + DatePeriod(months = 1)
 
             while (iMonth < toMonth) {
 
@@ -63,8 +73,22 @@ internal class CandleRepo(
             }
         }
 
-        val unavailableCandleMonths = months.filter { !symbolDir.resolve(it.toString()).exists() }
+        // Get last sync month
+        val lastSyncMonth = withContext(Dispatchers.IO) {
+            val dateStr =
+                appDB.candleLastSyncQueries.getLastUpdateDate(symbol).executeAsOneOrNull() ?: return@withContext null
+            val date = LocalDate.parse(dateStr)
+            LocalDate(year = date.year, month = date.month, dayOfMonth = 1)
+        }
 
+        // Get non-cached months for symbol
+        // 1. Filter months when file does not exist
+        // 2. Filter months greater than or equal to last sync month
+        val unavailableCandleMonths = months.filter {
+            !symbolDir.resolve(it.toString()).exists() || if (lastSyncMonth != null) it >= lastSyncMonth else false
+        }
+
+        // Cache candles if necessary
         if (unavailableCandleMonths.isNotEmpty()) {
 
             cacheCandles(
@@ -76,8 +100,16 @@ internal class CandleRepo(
             )
         }
 
+        // Update last sync date
+        withContext(Dispatchers.IO) {
+            appDB.candleLastSyncQueries.update(ticker = symbol, lastUpdateDate = toDate.toString())
+        }
+
         val series = CandleSeries()
 
+        // Parse json to Candles
+        // Filter out extra candles from before and after the provided range
+        // Add to CandleSeries
         months.map { month ->
 
             val monthFilePath = symbolDir.resolve(month.toString())
@@ -119,7 +151,7 @@ internal class CandleRepo(
             // End date = 1st of next Month
             val endDate = month + DatePeriod(months = 1) - DatePeriod(days = 1)
 
-            // Download
+            // Download candles for the month
             val history = fyersApi.getHistoricalCandles(
                 accessToken = accessToken,
                 symbol = symbolFull,

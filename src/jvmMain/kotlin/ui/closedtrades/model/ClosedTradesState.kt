@@ -7,6 +7,7 @@ internal data class ClosedTradesState(
     val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
     val editTradeWindowsManager: EditClosedTradeWindowsManager,
+    val chartWindowsManager: ClosedTradeChartWindowsManager,
 ) {
 
     @Immutable

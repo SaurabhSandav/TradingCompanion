@@ -21,6 +21,7 @@ import ui.common.table.*
 @Composable
 internal fun ClosedTradesTable(
     closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
+    onOpenChart: (id: Int) -> Unit,
     onEditTrade: (id: Int) -> Unit,
     onDeleteTrade: (id: Int) -> Unit,
 ) {
@@ -78,6 +79,7 @@ internal fun ClosedTradesTable(
                 ContextMenuArea(
                     items = {
                         listOf(
+                            ContextMenuItem("Open Chart") { onOpenChart(item.id) },
                             ContextMenuItem("Edit") { onEditTrade(item.id) },
                             ContextMenuItem("Delete") { onDeleteTrade(item.id) },
                         )

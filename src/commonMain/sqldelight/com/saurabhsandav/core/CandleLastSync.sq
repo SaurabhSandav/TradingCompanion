@@ -1,0 +1,17 @@
+
+CREATE TABLE IF NOT EXISTS CandleLastSync (
+ticker TEXT NOT NULL PRIMARY KEY,
+lastUpdateDate TEXT NOT NULL
+);
+
+update:
+INSERT 
+INTO CandleLastSync(ticker, lastUpdateDate)
+VALUES (:ticker, :lastUpdateDate)
+ON CONFLICT(ticker) DO UPDATE
+SET lastUpdateDate = CASE WHEN date(:lastUpdateDate) > date(lastUpdateDate) THEN :lastUpdateDate ELSE lastUpdateDate END;
+
+getLastUpdateDate:
+SELECT lastUpdateDate
+FROM CandleLastSync
+WHERE ticker = ?;

@@ -13,6 +13,8 @@ internal sealed class ClosedTradesEvent {
         object Dismiss : DeleteConfirmationDialog()
     }
 
+    data class OpenChart(val id: Int) : ClosedTradesEvent()
+
     data class EditTrade(val id: Int) : ClosedTradesEvent()
 
     data class SaveTrade(
