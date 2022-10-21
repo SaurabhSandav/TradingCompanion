@@ -13,6 +13,7 @@ import chart.series.line.LineStyleOptions
 import chart.timescale.ITimeScaleApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.properties.ReadOnlyProperty
 
 class IChartApi(
     private val executeJs: (String) -> Unit,
@@ -96,3 +97,19 @@ class IChartApi(
         return "var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}"
     }
 }
+
+fun IChartApi.baselineSeries(
+    options: BaselineStyleOptions = BaselineStyleOptions(),
+) = ReadOnlyProperty<Any?, BaselineSeries> { _, property -> addBaselineSeries(options, property.name) }
+
+fun IChartApi.candlestickSeries(
+    options: CandlestickStyleOptions = CandlestickStyleOptions(),
+) = ReadOnlyProperty<Any?, CandlestickSeries> { _, property -> addCandlestickSeries(options, property.name) }
+
+fun IChartApi.histogramSeries(
+    options: HistogramStyleOptions = HistogramStyleOptions(),
+) = ReadOnlyProperty<Any?, HistogramSeries> { _, property -> addHistogramSeries(options, property.name) }
+
+fun IChartApi.lineSeries(
+    options: LineStyleOptions = LineStyleOptions(),
+) = ReadOnlyProperty<Any?, LineSeries> { _, property -> addLineSeries(options, property.name) }

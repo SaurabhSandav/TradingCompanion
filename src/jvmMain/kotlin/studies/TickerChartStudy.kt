@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import chart.ChartOptions
-import chart.CrosshairMode
-import chart.CrosshairOptions
-import chart.IChartApi
+import chart.*
 import chart.misc.LineWidth
 import chart.misc.PriceFormat
 import chart.pricescale.PriceScaleMargins
@@ -142,8 +139,8 @@ internal class TickerChartStudy(
                         )
                     }
 
-                    val candleSeries = addCandlestickSeries()
-                    val volumeSeries = addHistogramSeries(
+                    val candleSeries by candlestickSeries()
+                    val volumeSeries by histogramSeries(
                         HistogramStyleOptions(
                             priceFormat = PriceFormat.BuiltIn(
                                 type = PriceFormat.Type.Volume,
@@ -151,14 +148,12 @@ internal class TickerChartStudy(
                             priceScaleId = "",
                         )
                     )
-                    val ema9Series = addLineSeries(
-                        name = "ema9Series",
+                    val ema9Series by lineSeries(
                         options = LineStyleOptions(
                             lineWidth = LineWidth.One,
                         ),
                     )
-                    val vwapSeries = addLineSeries(
-                        name = "vwapSeries",
+                    val vwapSeries by lineSeries(
                         options = LineStyleOptions(
                             lineWidth = LineWidth.One,
                             color = Color.Yellow,

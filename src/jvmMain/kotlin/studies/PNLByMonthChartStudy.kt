@@ -3,6 +3,7 @@ package studies
 import AppModule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import chart.baselineSeries
 import chart.series.data.SingleValueData
 import chart.series.data.Time
 import com.squareup.sqldelight.runtime.coroutines.asFlow
@@ -53,7 +54,6 @@ internal class PNLByMonthChartStudy(
                 )
                 .map { (localDate, bigDecimal) ->
                     SingleValueData(
-//                        time = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(localDate.toJavaLocalDate()),
                         time = Time.BusinessDay(
                             year = localDate.year,
                             month = localDate.monthNumber,
@@ -71,7 +71,7 @@ internal class PNLByMonthChartStudy(
 
         ResizableChart {
 
-            val baselineSeries = addBaselineSeries()
+            val baselineSeries by baselineSeries()
 
             coroutineScope.launch {
                 data.collect {
