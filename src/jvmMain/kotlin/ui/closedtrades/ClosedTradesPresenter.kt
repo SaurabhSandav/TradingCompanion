@@ -5,6 +5,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import chart.misc.SeriesMarker
+import chart.misc.SeriesMarkerPosition
+import chart.misc.SeriesMarkerShape
 import chart.series.candlestick.CandlestickData
 import chart.series.data.Time
 import chart.series.histogram.HistogramData
@@ -282,6 +285,49 @@ internal class ClosedTradesPresenter(
                 exitIndex = index
         }
 
+        val side = Side.fromString(closedTrade.side)
+
+        val markers = listOf(
+            SeriesMarker(
+                time = Time.UTCTimestamp(entryInstant.epochSeconds + 19800),
+                position = when(side) {
+                    Side.Long -> SeriesMarkerPosition.BelowBar
+                    Side.Short -> SeriesMarkerPosition.AboveBar
+                },
+                shape = when(side) {
+                    Side.Long -> SeriesMarkerShape.ArrowUp
+                    Side.Short -> SeriesMarkerShape.ArrowDown
+                },
+                color = when(side) {
+                    Side.Long -> Color.Green
+                    Side.Short -> Color.Red
+                },
+                text = when(side) {
+                    Side.Long -> "Buy @ ${closedTrade.entry}"
+                    Side.Short -> "Sell @ ${closedTrade.entry}"
+                },
+            ),
+            SeriesMarker(
+                time = Time.UTCTimestamp(exitInstant.epochSeconds + 19800),
+                position = when(side) {
+                    Side.Long -> SeriesMarkerPosition.AboveBar
+                    Side.Short -> SeriesMarkerPosition.BelowBar
+                },
+                shape = when(side) {
+                    Side.Long -> SeriesMarkerShape.ArrowDown
+                    Side.Short -> SeriesMarkerShape.ArrowUp
+                },
+                color = when(side) {
+                    Side.Long -> Color.Red
+                    Side.Short -> Color.Green
+                },
+                text = when(side) {
+                    Side.Long -> "Sell @ ${closedTrade.exit}"
+                    Side.Short -> "Buy @ ${closedTrade.exit}"
+                },
+            ),
+        )
+
         // Open Chart
         chartWindowsManager.openNewWindow(
             tradeId = closedTrade.id,
@@ -290,7 +336,8 @@ internal class ClosedTradesPresenter(
                 volumeData = volumeData,
                 ema9Data = ema9Data,
                 vwapData = vwapData,
-                visibilityIndexRange = (entryIndex - 20)..(exitIndex + 20)
+                visibilityIndexRange = (entryIndex - 30)..(exitIndex + 30),
+                markers = markers,
             ),
         )
     }

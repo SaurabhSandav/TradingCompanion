@@ -1,6 +1,7 @@
 package ui.closedtrades.model
 
 import androidx.compose.runtime.mutableStateListOf
+import chart.misc.SeriesMarker
 import chart.series.candlestick.CandlestickData
 import chart.series.histogram.HistogramData
 import chart.series.line.LineData
@@ -37,4 +38,5 @@ data class ClosedTradeChartData(
     val ema9Data: List<LineData>,
     val vwapData: List<LineData>,
     val visibilityIndexRange: ClosedRange<Int>,
+    val markers: List<SeriesMarker>,
 )

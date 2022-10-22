@@ -91,4 +91,6 @@ private fun IChartApi.configure(
     vwapSeries.setData(chartData.vwapData)
 
     timeScale.setVisibleLogicalRange(chartData.visibilityIndexRange.start, chartData.visibilityIndexRange.endInclusive)
+
+    candleSeries.setMarkers(chartData.markers)
 }
