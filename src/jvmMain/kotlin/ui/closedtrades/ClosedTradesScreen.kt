@@ -43,8 +43,7 @@ internal fun ClosedTradesScreen(
 
             ClosedTradeChartWindow(
                 onCloseRequest = { windowManager.close() },
-                candleRepo = state.chartWindowsManager.candleRepo,
-                formModel = windowManager.formModel,
+                chartData = windowManager.chartData,
             )
         }
     }

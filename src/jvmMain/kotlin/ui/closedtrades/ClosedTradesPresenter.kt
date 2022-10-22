@@ -2,11 +2,17 @@ package ui.closedtrades
 
 import AppModule
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import chart.series.candlestick.CandlestickData
+import chart.series.data.Time
+import chart.series.histogram.HistogramData
+import chart.series.line.LineData
 import com.saurabhsandav.core.GetAllClosedTradesDetailed
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,13 +23,12 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
+import trading.indicator.ClosePriceIndicator
+import trading.indicator.EMAIndicator
+import trading.indicator.VWAPIndicator
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 import ui.closedtrades.model.*
-import ui.closedtrades.model.ClosedTradeListItem
-import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
-import ui.closedtrades.model.ClosedTradesState
-import ui.closedtrades.model.EditClosedTradeWindowsManager
 import ui.common.CollectEffect
 import ui.common.state
 import utils.CandleRepo
@@ -44,7 +49,7 @@ internal class ClosedTradesPresenter(
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val editTradeWindowsManager = EditClosedTradeWindowsManager()
-    private val chartWindowsManager = ClosedTradeChartWindowsManager(CandleRepo(appModule))
+    private val chartWindowsManager = ClosedTradeChartWindowsManager()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -158,33 +163,99 @@ internal class ClosedTradesPresenter(
 
     private fun onOpenChart(id: Int) = coroutineScope.launchUnit {
 
-        // Edit window already open
-        if (chartWindowsManager.windows.any { it.formModel.id == id }) return@launchUnit
+        // Chart window already open
+        if (chartWindowsManager.windows.any { it.tradeId == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
             appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
-        val model = CloseTradeDetailedFormFields.Model(
-            id = closedTrade.id,
-            ticker = closedTrade.ticker,
-            quantity = closedTrade.quantity,
-            isLong = Side.fromString(closedTrade.side) == Side.Long,
-            entry = closedTrade.entry,
-            stop = closedTrade.stop.orEmpty(),
-            entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
-            target = closedTrade.target.orEmpty(),
-            exit = closedTrade.exit,
-            exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
-            maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
-            maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
-            tags = closedTrade.tags?.split(", ")?.let {
-                if (it.size == 1 && it.first().isBlank()) emptyList() else it
-            } ?: emptyList(),
-            persisted = closedTrade.persisted.toBoolean(),
+        val entryDateTime = LocalDateTime.parse(closedTrade.entryDate)
+        val exitDateTime = LocalDateTime.parse(closedTrade.exitDate)
+
+        // Candles range of 1 month before and after trade interval
+        val from = entryDateTime.date - DatePeriod(months = 1)
+        val to = exitDateTime.date + DatePeriod(months = 1)
+
+        // Get candles
+        val candles = CandleRepo(appModule).getCandles(
+            symbol = closedTrade.ticker,
+            resolution = CandleResolution.M5,
+            from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
+            to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
         )
 
-        chartWindowsManager.openNewWindow(model)
+        // Setup indicators
+        val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
+        val sessionStartTime = LocalTime(hour = 9, minute = 15)
+        val vwapIndicator = VWAPIndicator(candles) { candle ->
+            candle.openInstant.toLocalDateTime(TimeZone.currentSystemDefault()).time == sessionStartTime
+        }
+
+        val candleData = mutableListOf<CandlestickData>()
+        val volumeData = mutableListOf<HistogramData>()
+        val ema9Data = mutableListOf<LineData>()
+        val vwapData = mutableListOf<LineData>()
+        val entryInstant = entryDateTime.toInstant(TimeZone.currentSystemDefault())
+        val exitInstant = exitDateTime.toInstant(TimeZone.currentSystemDefault())
+        var entryIndex = 0
+        var exitIndex = 0
+
+        // Populate data
+        candles.forEachIndexed { index, candle ->
+
+            // Chart messes with timezone, work around it
+            // Subtract IST Timezone difference
+            val epochTime = candle.openInstant.epochSeconds
+            val workaroundEpochTime = epochTime + 19800
+
+            candleData += CandlestickData(
+                time = Time.UTCTimestamp(workaroundEpochTime),
+                open = candle.open,
+                high = candle.high,
+                low = candle.low,
+                close = candle.close,
+            )
+
+            volumeData += HistogramData(
+                time = Time.UTCTimestamp(workaroundEpochTime),
+                value = candle.volume,
+                color = when {
+                    candle.close < candle.open -> Color(255, 82, 82)
+                    else -> Color(0, 150, 136)
+                },
+            )
+
+            ema9Data += LineData(
+                time = Time.UTCTimestamp(workaroundEpochTime),
+                value = ema9Indicator[index],
+            )
+
+            vwapData += LineData(
+                time = Time.UTCTimestamp(workaroundEpochTime),
+                value = vwapIndicator[index],
+            )
+
+            // Find entry candle index
+            if (entryInstant > candle.openInstant)
+                entryIndex = index
+
+            // Find exit candle index
+            if (exitInstant > candle.openInstant)
+                exitIndex = index
+        }
+
+        // Open Chart
+        chartWindowsManager.openNewWindow(
+            tradeId = closedTrade.id,
+            chartData = ClosedTradeChartData(
+                candleData = candleData,
+                volumeData = volumeData,
+                ema9Data = ema9Data,
+                vwapData = vwapData,
+                visibilityIndexRange = (entryIndex - 20)..(exitIndex + 20)
+            ),
+        )
     }
 
     private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
