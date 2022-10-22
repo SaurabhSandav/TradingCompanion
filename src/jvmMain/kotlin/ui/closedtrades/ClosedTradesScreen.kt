@@ -1,15 +1,19 @@
 package ui.closedtrades
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.*
+import androidx.compose.ui.window.Window
 import ui.addclosedtradedetailed.CloseTradeDetailedWindow
+import ui.candledownload.ui.FyersLoginWebView
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
+import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
 import ui.closedtrades.ui.ClosedTradeChartWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
+import ui.common.ErrorSnackbar
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
 @Composable
@@ -19,45 +23,73 @@ internal fun ClosedTradesScreen(
 
     val state by presenter.state.collectAsState()
 
-    ClosedTradesTable(
-        closedTradesItems = state.closedTradesItems,
-        onOpenChart = { presenter.event(ClosedTradesEvent.OpenChart(it)) },
-        onEditTrade = { presenter.event(ClosedTradesEvent.EditTrade(it)) },
-        onDeleteTrade = { presenter.event(ClosedTradesEvent.DeleteTrade(it)) },
-    )
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val deleteConfirmationDialogState = state.deleteConfirmationDialogState
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) {
 
-    if (deleteConfirmationDialogState is DeleteConfirmationDialogState.Open) {
-
-        DeleteConfirmationDialog(
-            onDismiss = { presenter.event(DeleteConfirmationDialog.Dismiss) },
-            onConfirm = { presenter.event(DeleteConfirmationDialog.Confirm(deleteConfirmationDialogState.id)) },
+        ClosedTradesTable(
+            closedTradesItems = state.closedTradesItems,
+            onOpenChart = { presenter.event(ClosedTradesEvent.OpenChart(it)) },
+            onEditTrade = { presenter.event(ClosedTradesEvent.EditTrade(it)) },
+            onDeleteTrade = { presenter.event(ClosedTradesEvent.DeleteTrade(it)) },
         )
-    }
 
-    // Chart windows
-    state.chartWindowsManager.windows.forEach { windowManager ->
+        val deleteConfirmationDialogState = state.deleteConfirmationDialogState
 
-        key(windowManager) {
+        if (deleteConfirmationDialogState is DeleteConfirmationDialogState.Open) {
 
-            ClosedTradeChartWindow(
-                onCloseRequest = { windowManager.close() },
-                chartData = windowManager.chartData,
+            DeleteConfirmationDialog(
+                onDismiss = { presenter.event(DeleteConfirmationDialog.Dismiss) },
+                onConfirm = { presenter.event(DeleteConfirmationDialog.Confirm(deleteConfirmationDialogState.id)) },
             )
         }
-    }
 
-    // Edit trade windows
-    state.editTradeWindowsManager.windows.forEach { windowManager ->
+        // Chart windows
+        state.chartWindowsManager.windows.forEach { windowManager ->
 
-        key(windowManager) {
+            key(windowManager) {
 
-            CloseTradeDetailedWindow(
-                onCloseRequest = { windowManager.close() },
-                formModel = windowManager.formModel,
-                onSaveTrade = { presenter.event(ClosedTradesEvent.SaveTrade(it)) },
-            )
+                ClosedTradeChartWindow(
+                    onCloseRequest = { windowManager.close() },
+                    chartData = windowManager.chartData,
+                )
+            }
+        }
+
+        // Edit trade windows
+        state.editTradeWindowsManager.windows.forEach { windowManager ->
+
+            key(windowManager) {
+
+                CloseTradeDetailedWindow(
+                    onCloseRequest = { windowManager.close() },
+                    formModel = windowManager.formModel,
+                    onSaveTrade = { presenter.event(ClosedTradesEvent.SaveTrade(it)) },
+                )
+            }
+        }
+
+        // Edit trade windows
+        val candleDataLoginWindowState = state.candleDataLoginWindowState
+
+        if (candleDataLoginWindowState is CandleDataLoginWindow.Open) {
+
+            Window(
+                onCloseRequest = { presenter.event(ClosedTradesEvent.DismissCandleDataWindow) }
+            ) {
+
+                FyersLoginWebView(candleDataLoginWindowState.loginUrl) {
+                    presenter.event(ClosedTradesEvent.CandleDataLoggedIn(it))
+                }
+            }
+        }
+
+        // Errors
+        presenter.errors.forEach { errorMessage ->
+
+            ErrorSnackbar(snackbarHostState, errorMessage)
         }
     }
 }

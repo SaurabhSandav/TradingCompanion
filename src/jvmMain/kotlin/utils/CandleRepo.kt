@@ -4,9 +4,10 @@ import AppModule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppDB
 import fyers_api.FyersApi
-import fyers_api.model.response.FyersResponse
 import fyers_api.model.CandleResolution
 import fyers_api.model.DateFormat
+import fyers_api.model.response.FyersResponse
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ internal class CandleRepo(
         resolution: CandleResolution,
         from: Instant,
         to: Instant,
-    ): CandleSeries {
+    ): CandleResult {
 
         val accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken) ?: error("Fyers not logged in!")
 
@@ -90,15 +91,23 @@ internal class CandleRepo(
         }
 
         // Cache candles if necessary
-        if (unavailableCandleMonths.isNotEmpty()) {
+        kotlin.runCatching {
 
-            cacheCandles(
-                accessToken = accessToken,
-                symbolDir = symbolDir,
-                symbolFull = symbolFull,
-                resolution = resolution,
-                months = unavailableCandleMonths,
-            )
+            if (unavailableCandleMonths.isNotEmpty()) {
+
+                cacheCandles(
+                    accessToken = accessToken,
+                    symbolDir = symbolDir,
+                    symbolFull = symbolFull,
+                    resolution = resolution,
+                    months = unavailableCandleMonths,
+                )
+            }
+        }.onFailure {
+            return when {
+                it is CandleDownloadException && it.failureResponse.statusCode == HttpStatusCode.Unauthorized -> CandleResult.AuthError
+                else -> CandleResult.UnknownError(it)
+            }
         }
 
         // Update last sync date
@@ -134,7 +143,7 @@ internal class CandleRepo(
             .filter { it.openInstant in from..to }
             .forEach(series::addCandle)
 
-        return series
+        return CandleResult.Success(series)
     }
 
     private suspend fun cacheCandles(
@@ -163,7 +172,7 @@ internal class CandleRepo(
             )
 
             val candles = when (response) {
-                is FyersResponse.Failure -> error(response.message)
+                is FyersResponse.Failure -> throw CandleDownloadException(response)
                 is FyersResponse.Success -> response.result.candles
             }
 
@@ -178,4 +187,15 @@ internal class CandleRepo(
             delay(400)
         }
     }
+
+    sealed class CandleResult {
+
+        data class Success(val candles: CandleSeries) : CandleResult()
+
+        class UnknownError(val throwable: Throwable) : CandleResult()
+
+        object AuthError : CandleResult()
+    }
+
+    private class CandleDownloadException(val failureResponse: FyersResponse.Failure<*>): Exception()
 }

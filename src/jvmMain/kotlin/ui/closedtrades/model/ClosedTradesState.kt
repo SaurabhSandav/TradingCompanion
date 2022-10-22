@@ -8,6 +8,7 @@ internal data class ClosedTradesState(
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
     val editTradeWindowsManager: EditClosedTradeWindowsManager,
     val chartWindowsManager: ClosedTradeChartWindowsManager,
+    val candleDataLoginWindowState: CandleDataLoginWindow,
 ) {
 
     @Immutable
@@ -18,6 +19,16 @@ internal data class ClosedTradesState(
 
         @Immutable
         object Dismissed : DeleteConfirmationDialog()
+    }
+
+    @Immutable
+    internal sealed class CandleDataLoginWindow {
+
+        @Immutable
+        class Open(val loginUrl: String): CandleDataLoginWindow()
+
+        @Immutable
+        object Dismissed: CandleDataLoginWindow()
     }
 }
 

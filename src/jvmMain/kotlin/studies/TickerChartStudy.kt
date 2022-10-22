@@ -91,7 +91,7 @@ internal class TickerChartStudy(
                         from = LocalDate(year = 2022, month = Month.OCTOBER, dayOfMonth = 1)
                             .atStartOfDayIn(TimeZone.currentSystemDefault()),
                         to = Clock.System.now(),
-                    )
+                    ).let { (it as CandleRepo.CandleResult.Success).candles }
 
                     val sessionStartTime = LocalTime(hour = 9, minute = 15)
 

@@ -95,13 +95,15 @@ class FyersApi {
                 message = jsonObject["message"]?.jsonPrimitive?.content,
                 result = run {
                     val resultObject = JsonObject(jsonObject.filter { it.key !in listOf("s", "code", "message") })
-                    json.decodeFromJsonElement<T>(resultObject)
+                    json.decodeFromJsonElement(resultObject)
                 }
             )
+
             else -> FyersResponse.Failure(
                 s = successStr,
                 code = jsonObject["code"]?.jsonPrimitive?.intOrNull!!,
                 message = jsonObject["message"]?.jsonPrimitive?.content!!,
+                statusCode = status,
             )
         }
     }

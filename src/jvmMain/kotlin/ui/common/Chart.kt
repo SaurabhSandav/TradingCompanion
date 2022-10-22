@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.IntSize
 import chart.ChartOptions
 import chart.IChartApi
 import javafx.application.Platform
-import ui.candledownload.CandleDownloadPresenter
 
 @Composable
 fun ResizableChart(
@@ -39,7 +38,7 @@ fun ResizableChart(
 
                 // Load chart webpage
                 webViewState.load(
-                    CandleDownloadPresenter::class.java
+                    WebViewState::class.java
                         .getResource("/charts_page/index.html")!!
                         .toExternalForm()
                 )
@@ -77,7 +76,6 @@ fun ResizableChart(
         }
     }
 }
-
 
 @Composable
 private fun WebViewLoadingIndicator(webViewState: WebViewState) {

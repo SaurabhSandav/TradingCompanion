@@ -9,10 +9,14 @@ import chart.series.candlestick.CandlestickData
 import chart.series.data.Time
 import chart.series.histogram.HistogramData
 import chart.series.line.LineData
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.GetAllClosedTradesDetailed
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import fyers_api.FyersApi
 import fyers_api.model.CandleResolution
+import fyers_api.model.response.FyersResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +33,12 @@ import trading.indicator.VWAPIndicator
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
+import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
 import ui.common.CollectEffect
+import ui.common.UIErrorMessage
 import ui.common.state
 import utils.CandleRepo
+import utils.PrefKeys
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -44,12 +51,17 @@ import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as Delet
 internal class ClosedTradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val appDB: AppDB = appModule.appDB,
+    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val editTradeWindowsManager = EditClosedTradeWindowsManager()
     private val chartWindowsManager = ClosedTradeChartWindowsManager()
+
+    private var candleDataLoginWindowState by mutableStateOf<CandleDataLoginWindow>(CandleDataLoginWindow.Dismissed)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -59,6 +71,8 @@ internal class ClosedTradesPresenter(
                 is ClosedTradesEvent.OpenChart -> onOpenChart(event.id)
                 is ClosedTradesEvent.EditTrade -> onEditTrade(event.id)
                 is ClosedTradesEvent.SaveTrade -> onSaveTrade(event.model)
+                is ClosedTradesEvent.CandleDataLoggedIn -> onCandleDataLoggedIn(event.redirectUrl)
+                is ClosedTradesEvent.DismissCandleDataWindow -> onDismissCandleDataLoginWindow()
                 else -> Unit
             }
         }
@@ -68,8 +82,11 @@ internal class ClosedTradesPresenter(
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
             editTradeWindowsManager = editTradeWindowsManager,
             chartWindowsManager = chartWindowsManager,
+            candleDataLoginWindowState = candleDataLoginWindowState,
         )
     }
+
+    val errors = mutableStateListOf<UIErrorMessage>()
 
     fun event(event: ClosedTradesEvent) {
         events.tryEmit(event)
@@ -78,7 +95,7 @@ internal class ClosedTradesPresenter(
     @Composable
     private fun getClosedTradeListEntries(): State<Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>> {
         return remember {
-            appModule.appDB.closedTradeQueries
+            appDB.closedTradeQueries
                 .getAllClosedTradesDetailed()
                 .asFlow()
                 .mapToList(Dispatchers.IO)
@@ -167,7 +184,7 @@ internal class ClosedTradesPresenter(
         if (chartWindowsManager.windows.any { it.tradeId == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
-            appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
+            appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
         val entryDateTime = LocalDateTime.parse(closedTrade.entryDate)
@@ -178,12 +195,32 @@ internal class ClosedTradesPresenter(
         val to = exitDateTime.date + DatePeriod(months = 1)
 
         // Get candles
-        val candles = CandleRepo(appModule).getCandles(
+        val candlesResult = CandleRepo(appModule).getCandles(
             symbol = closedTrade.ticker,
             resolution = CandleResolution.M5,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
         )
+
+        val candles = when (candlesResult) {
+            is CandleRepo.CandleResult.Success -> candlesResult.candles
+            is CandleRepo.CandleResult.UnknownError -> {
+                errors += UIErrorMessage(candlesResult.throwable.message ?: "Unknown Error")
+                candlesResult.throwable.printStackTrace()
+                return@launchUnit
+            }
+
+            CandleRepo.CandleResult.AuthError -> {
+                errors += UIErrorMessage(
+                    message = "Please login",
+                    actionLabel = "Login",
+                    onActionClick = { candleDataLoginWindowState = CandleDataLoginWindow.Open(fyersApi.getLoginURL()) },
+                    withDismissAction = true,
+                    duration = UIErrorMessage.Duration.Indefinite,
+                )
+                return@launchUnit
+            }
+        }
 
         // Setup indicators
         val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
@@ -264,7 +301,7 @@ internal class ClosedTradesPresenter(
         if (editTradeWindowsManager.windows.any { it.formModel.id == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
-            appModule.appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
+            appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
         val model = CloseTradeDetailedFormFields.Model(
@@ -313,9 +350,9 @@ internal class ClosedTradesPresenter(
                 )
             )
 
-            appModule.appDB.transaction {
+            appDB.transaction {
 
-                appModule.appDB.closedTradeQueries.insert(
+                appDB.closedTradeQueries.insert(
                     id = model.id,
                     broker = "Finvasia",
                     ticker = model.ticker!!,
@@ -331,7 +368,7 @@ internal class ClosedTradesPresenter(
                     exitDate = exitDateTime.toString(),
                 )
 
-                appModule.appDB.closedTradeDetailQueries.insert(
+                appDB.closedTradeDetailQueries.insert(
                     closedTradeId = model.id,
                     maxFavorableExcursion = model.maxFavorableExcursion.ifBlank { null },
                     maxAdverseExcursion = model.maxAdverseExcursion.ifBlank { null },
@@ -341,6 +378,26 @@ internal class ClosedTradesPresenter(
                 )
             }
         }
+    }
+
+    private fun onCandleDataLoggedIn(redirectUrl: String) = coroutineScope.launchUnit {
+
+        candleDataLoginWindowState = CandleDataLoginWindow.Dismissed
+
+        val accessToken = when (val response = fyersApi.getAccessToken(redirectUrl)) {
+            is FyersResponse.Failure -> {
+                errors += UIErrorMessage(response.message)
+                return@launchUnit
+            }
+
+            is FyersResponse.Success -> response.result.accessToken
+        }
+
+        appPrefs.putString(PrefKeys.FyersAccessToken, accessToken)
+    }
+
+    private fun onDismissCandleDataLoginWindow() {
+        candleDataLoginWindowState = CandleDataLoginWindow.Dismissed
     }
 
     @Composable
@@ -369,7 +426,7 @@ internal class ClosedTradesPresenter(
     private fun deleteTrade(id: Int) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
-            appModule.appDB.closedTradeQueries.delete(id)
+            appDB.closedTradeQueries.delete(id)
         }
     }
 }

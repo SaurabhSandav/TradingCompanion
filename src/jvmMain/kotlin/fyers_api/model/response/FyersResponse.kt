@@ -1,5 +1,6 @@
 package fyers_api.model.response
 
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
 sealed interface FyersResponse<T> {
@@ -17,6 +18,7 @@ sealed interface FyersResponse<T> {
         override val s: String,
         val code: Int,
         val message: String,
+        val statusCode: HttpStatusCode,
     ): FyersResponse<T>
 }
 

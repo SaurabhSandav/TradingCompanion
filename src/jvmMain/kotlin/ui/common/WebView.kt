@@ -63,6 +63,9 @@ class WebViewState(
     private val _loadState = MutableSharedFlow<LoadState>(extraBufferCapacity = 10)
     val loadState: Flow<LoadState> = _loadState.distinctUntilChanged()
 
+    private val _location = MutableSharedFlow<String>(replay = 1)
+    val location: Flow<String> = _location.asSharedFlow()
+
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     val errors: Flow<Throwable> = _errors.asSharedFlow()
 
@@ -87,6 +90,11 @@ class WebViewState(
         engine.loadWorker.exceptionProperty().addListener { _, _, newValue ->
             newValue ?: return@addListener
             if (!_errors.tryEmit(newValue)) error("Could not emit WebView errors")
+        }
+
+        engine.locationProperty().addListener { _, _, newValue ->
+            newValue ?: return@addListener
+            if (!_location.tryEmit(newValue)) error("Could not emit WebView location")
         }
 
         coroutineScope.launch {
