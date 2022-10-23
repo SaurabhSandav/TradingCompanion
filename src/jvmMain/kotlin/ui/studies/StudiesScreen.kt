@@ -10,7 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
+import studies.Study
 import ui.common.AppWindow
+import ui.common.MultipleWindowManager
 
 @Composable
 internal fun StudiesScreen(
@@ -18,7 +20,7 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val studyWindowsManager = remember { StudyWindowsManager() }
+    val studyWindowsManager = remember { MultipleWindowManager<Study.Factory<*>>() }
 
     LazyColumn(Modifier.fillMaxSize()) {
 
@@ -30,17 +32,19 @@ internal fun StudiesScreen(
         }
     }
 
-    studyWindowsManager.windows.forEach { windowManager ->
+    studyWindowsManager.windows.forEach { windowEntry ->
 
-        key(windowManager) {
+        key(windowEntry) {
+
+            val studyFactory = windowEntry.params
 
             AppWindow(
-                onCloseRequest = { windowManager.close() },
+                onCloseRequest = { windowEntry.close() },
                 state = rememberWindowState(placement = WindowPlacement.Maximized),
-                title = windowManager.studyFactory.name,
+                title = studyFactory.name,
             ) {
 
-                val study = remember(windowManager.studyFactory) { windowManager.studyFactory.create() }
+                val study = remember(studyFactory) { studyFactory.create() }
 
                 study.render()
             }

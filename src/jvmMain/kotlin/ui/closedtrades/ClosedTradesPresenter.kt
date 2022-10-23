@@ -38,6 +38,7 @@ import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
 import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
 import ui.common.CollectEffect
+import ui.common.MultipleWindowManager
 import ui.common.UIErrorMessage
 import ui.common.state
 import utils.CandleRepo
@@ -61,8 +62,8 @@ internal class ClosedTradesPresenter(
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val editTradeWindowsManager = EditClosedTradeWindowsManager()
-    private val chartWindowsManager = ClosedTradeChartWindowsManager()
+    private val editTradeWindowsManager = MultipleWindowManager<CloseTradeDetailedFormFields.Model>()
+    private val chartWindowsManager = MultipleWindowManager<ClosedTradeChartWindowParams>()
 
     private var candleDataLoginWindowState by mutableStateOf<CandleDataLoginWindow>(CandleDataLoginWindow.Dismissed)
 
@@ -184,7 +185,7 @@ internal class ClosedTradesPresenter(
     private fun onOpenChart(id: Int) = coroutineScope.launchUnit {
 
         // Chart window already open
-        if (chartWindowsManager.windows.any { it.tradeId == id }) return@launchUnit
+        if (chartWindowsManager.windows.any { it.params.tradeId == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
@@ -290,46 +291,45 @@ internal class ClosedTradesPresenter(
         val markers = listOf(
             SeriesMarker(
                 time = Time.UTCTimestamp(entryInstant.epochSeconds + 19800),
-                position = when(side) {
+                position = when (side) {
                     Side.Long -> SeriesMarkerPosition.BelowBar
                     Side.Short -> SeriesMarkerPosition.AboveBar
                 },
-                shape = when(side) {
+                shape = when (side) {
                     Side.Long -> SeriesMarkerShape.ArrowUp
                     Side.Short -> SeriesMarkerShape.ArrowDown
                 },
-                color = when(side) {
+                color = when (side) {
                     Side.Long -> Color.Green
                     Side.Short -> Color.Red
                 },
-                text = when(side) {
+                text = when (side) {
                     Side.Long -> "Buy @ ${closedTrade.entry}"
                     Side.Short -> "Sell @ ${closedTrade.entry}"
                 },
             ),
             SeriesMarker(
                 time = Time.UTCTimestamp(exitInstant.epochSeconds + 19800),
-                position = when(side) {
+                position = when (side) {
                     Side.Long -> SeriesMarkerPosition.AboveBar
                     Side.Short -> SeriesMarkerPosition.BelowBar
                 },
-                shape = when(side) {
+                shape = when (side) {
                     Side.Long -> SeriesMarkerShape.ArrowDown
                     Side.Short -> SeriesMarkerShape.ArrowUp
                 },
-                color = when(side) {
+                color = when (side) {
                     Side.Long -> Color.Red
                     Side.Short -> Color.Green
                 },
-                text = when(side) {
+                text = when (side) {
                     Side.Long -> "Sell @ ${closedTrade.exit}"
                     Side.Short -> "Buy @ ${closedTrade.exit}"
                 },
             ),
         )
 
-        // Open Chart
-        chartWindowsManager.openNewWindow(
+        val params = ClosedTradeChartWindowParams(
             tradeId = closedTrade.id,
             chartData = ClosedTradeChartData(
                 candleData = candleData,
@@ -340,12 +340,15 @@ internal class ClosedTradesPresenter(
                 markers = markers,
             ),
         )
+
+        // Open Chart
+        chartWindowsManager.openNewWindow(params)
     }
 
     private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
 
         // Edit window already open
-        if (editTradeWindowsManager.windows.any { it.formModel.id == id }) return@launchUnit
+        if (editTradeWindowsManager.windows.any { it.params.id == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()

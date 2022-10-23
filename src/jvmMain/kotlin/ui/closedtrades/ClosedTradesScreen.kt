@@ -46,25 +46,25 @@ internal fun ClosedTradesScreen(
         }
 
         // Chart windows
-        state.chartWindowsManager.windows.forEach { windowManager ->
+        state.chartWindowsManager.windows.forEach { windowEntry ->
 
-            key(windowManager) {
+            key(windowEntry) {
 
                 ClosedTradeChartWindow(
-                    onCloseRequest = { windowManager.close() },
-                    chartData = windowManager.chartData,
+                    onCloseRequest = { windowEntry.close() },
+                    chartData = windowEntry.params.chartData,
                 )
             }
         }
 
         // Edit trade windows
-        state.editTradeWindowsManager.windows.forEach { windowManager ->
+        state.editTradeWindowsManager.windows.forEach { windowEntry ->
 
-            key(windowManager) {
+            key(windowEntry) {
 
                 CloseTradeDetailedWindow(
-                    onCloseRequest = { windowManager.close() },
-                    formModel = windowManager.formModel,
+                    onCloseRequest = { windowEntry.close() },
+                    formModel = windowEntry.params,
                     onSaveTrade = { presenter.event(ClosedTradesEvent.SaveTrade(it)) },
                 )
             }
