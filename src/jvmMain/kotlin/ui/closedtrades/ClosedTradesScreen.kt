@@ -4,15 +4,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
-import androidx.compose.ui.window.Window
 import ui.addclosedtradedetailed.CloseTradeDetailedWindow
-import ui.candledownload.ui.FyersLoginWebView
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
 import ui.closedtrades.ui.ClosedTradeChartWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
+import ui.closedtrades.ui.FyersLoginWindow
 import ui.common.ErrorSnackbar
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
@@ -76,14 +75,11 @@ internal fun ClosedTradesScreen(
 
         if (candleDataLoginWindowState is CandleDataLoginWindow.Open) {
 
-            Window(
-                onCloseRequest = { presenter.event(ClosedTradesEvent.DismissCandleDataWindow) }
-            ) {
-
-                FyersLoginWebView(candleDataLoginWindowState.loginUrl) {
-                    presenter.event(ClosedTradesEvent.CandleDataLoggedIn(it))
-                }
-            }
+            FyersLoginWindow(
+                loginUrl = candleDataLoginWindowState.loginUrl,
+                onLoginSuccess = { presenter.event(ClosedTradesEvent.CandleDataLoggedIn(it)) },
+                onCloseRequest = { presenter.event(ClosedTradesEvent.DismissCandleDataWindow) },
+            )
         }
 
         // Errors

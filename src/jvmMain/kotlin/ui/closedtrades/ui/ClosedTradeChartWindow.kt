@@ -1,12 +1,7 @@
 package ui.closedtrades.ui
 
-import AppDensityFraction
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import chart.*
@@ -18,6 +13,7 @@ import chart.series.histogram.HistogramStyleOptions
 import chart.series.line.LineStyleOptions
 import chart.timescale.TimeScaleOptions
 import ui.closedtrades.model.ClosedTradeChartData
+import ui.common.AppWindow
 import ui.common.ResizableChart
 
 @Composable
@@ -26,23 +22,16 @@ internal fun ClosedTradeChartWindow(
     chartData: ClosedTradeChartData,
 ) {
 
-    Window(
+    AppWindow(
         onCloseRequest = onCloseRequest,
         state = rememberWindowState(placement = WindowPlacement.Maximized),
         title = "Chart",
     ) {
 
-        val density = LocalDensity.current
-
-        val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
-
-        CompositionLocalProvider(LocalDensity provides newDensity) {
-
-            ResizableChart(
-                options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-            ) {
-                configure(chartData)
-            }
+        ResizableChart(
+            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
+        ) {
+            configure(chartData)
         }
     }
 }

@@ -1,30 +1,27 @@
-package ui.candledownload.ui
+package ui.closedtrades.ui
 
 import AppDensityFraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import ui.common.JavaFxWebView
-import ui.common.WebViewState
-import ui.common.rememberWebViewState
-import ui.common.state
+import ui.common.*
 
 @Composable
-internal fun FyersLoginWebView(
+internal fun FyersLoginWindow(
     loginUrl: String,
     onLoginSuccess: (redirectUrl: String) -> Unit,
+    onCloseRequest: () -> Unit,
 ) {
 
-    val density = LocalDensity.current
-
-    val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
-
-    CompositionLocalProvider(LocalDensity provides newDensity) {
+    AppWindow(
+        onCloseRequest = onCloseRequest,
+    ) {
 
         Column(Modifier.fillMaxSize()) {
 
@@ -34,7 +31,7 @@ internal fun FyersLoginWebView(
 
             JavaFxWebView(
                 state = webViewState,
-                modifier = Modifier.fillMaxSize(0.8F),
+                modifier = Modifier.fillMaxSize(AppDensityFraction),
             )
 
             if (webViewState.isReady) {

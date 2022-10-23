@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import ui.common.AppWindow
 import ui.common.controls.DateField
 import ui.common.controls.ListSelectionField
 import ui.common.controls.TimeField
@@ -31,7 +31,7 @@ internal fun AddOpenTradeWindow(
         size = DpSize(width = 300.dp, height = Dp.Unspecified),
     )
 
-    Window(
+    AppWindow(
         onCloseRequest = onCloseRequest,
         state = windowState,
         title = "New Trade",

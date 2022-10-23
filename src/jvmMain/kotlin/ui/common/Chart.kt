@@ -28,7 +28,7 @@ fun ResizableChart(
 
         JavaFxWebView(
             state = webViewState,
-            modifier = Modifier.fillMaxSize(0.8F).onSizeChanged { size = it },
+            modifier = Modifier.fillMaxSize().onSizeChanged { size = it },
         )
 
         if (webViewState.isReady) {
@@ -55,8 +55,8 @@ fun ResizableChart(
                             }
                         },
                         options = options.copy(
-                            width = (size.width * 1.2).toInt(),
-                            height = (size.height * 1.2).toInt(),
+                            width = size.width,
+                            height = size.height,
                         ),
                     )
 
@@ -68,8 +68,8 @@ fun ResizableChart(
             LaunchedEffect(Unit) {
                 snapshotFlow { size }.collect {
                     chart?.resize(
-                        width = (size.width * 1.2).toInt(),
-                        height = (size.height * 1.2).toInt(),
+                        width = size.width,
+                        height = size.height,
                     )
                 }
             }
