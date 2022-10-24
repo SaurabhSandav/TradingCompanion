@@ -40,6 +40,7 @@ private fun IChartApi.configure(
     val candleSeries by candlestickSeries()
     val volumeSeries by histogramSeries(
         HistogramStyleOptions(
+            lastValueVisible = false,
             priceFormat = PriceFormat.BuiltIn(
                 type = PriceFormat.Type.Volume,
             ),
@@ -49,12 +50,16 @@ private fun IChartApi.configure(
     val ema9Series by lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
+            crosshairMarkerVisible = false,
+            lastValueVisible = false,
         ),
     )
     val vwapSeries by lineSeries(
         options = LineStyleOptions(
-            lineWidth = LineWidth.One,
             color = Color.Yellow,
+            lineWidth = LineWidth.One,
+            crosshairMarkerVisible = false,
+            lastValueVisible = false,
         ),
     )
 
