@@ -2,8 +2,9 @@ package studies
 
 import AppModule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import chart.baselineSeries
+import chart.*
 import chart.series.data.SingleValueData
 import chart.series.data.Time
 import com.squareup.sqldelight.runtime.coroutines.asFlow
@@ -69,7 +70,11 @@ internal class PNLByMonthChartStudy(
 
         val coroutineScope = rememberCoroutineScope()
 
-        ResizableChart {
+        val chart = remember {
+            createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+        }
+
+        ResizableChart(chart) {
 
             val baselineSeries by baselineSeries()
 
@@ -82,7 +87,7 @@ internal class PNLByMonthChartStudy(
         }
     }
 
-    class Factory(private val appModule: AppModule): Study.Factory<PNLByMonthChartStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<PNLByMonthChartStudy> {
 
         override val name: String = "PNL By Month (Chart)"
 

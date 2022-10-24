@@ -2,8 +2,9 @@ package studies
 
 import AppModule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import chart.baselineSeries
+import chart.*
 import chart.series.baseline.BaselineStyleOptions
 import chart.series.data.SingleValueData
 import chart.series.data.Time
@@ -67,7 +68,11 @@ internal class PNLByDayChartStudy(
 
         val coroutineScope = rememberCoroutineScope()
 
-        ResizableChart {
+        val chart = remember {
+            createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+        }
+
+        ResizableChart(chart) {
 
             val baselineSeries by baselineSeries(BaselineStyleOptions())
 

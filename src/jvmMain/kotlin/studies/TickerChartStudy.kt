@@ -67,9 +67,11 @@ internal class TickerChartStudy(
 
             val coroutineScope = rememberCoroutineScope()
 
-            ResizableChart(
-                options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-            ) { configure(coroutineScope) }
+            val chart = remember {
+                createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            }
+
+            ResizableChart(chart) { configure(coroutineScope) }
         }
     }
 

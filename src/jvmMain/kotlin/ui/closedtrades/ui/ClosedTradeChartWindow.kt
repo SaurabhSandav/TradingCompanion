@@ -1,6 +1,7 @@
 package ui.closedtrades.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
@@ -28,11 +29,11 @@ internal fun ClosedTradeChartWindow(
         title = "Chart",
     ) {
 
-        ResizableChart(
-            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-        ) {
-            configure(chartData)
+        val chart = remember {
+            createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
+
+        ResizableChart(chart) { configure(chartData) }
     }
 }
 

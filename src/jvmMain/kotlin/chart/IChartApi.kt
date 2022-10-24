@@ -15,28 +15,45 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.properties.ReadOnlyProperty
 
-class IChartApi(
-    private val executeJs: (String) -> Unit,
+fun createChart(
     options: ChartOptions = ChartOptions(),
+    name: String = "chart",
+): IChartApi = IChartApi(options, name)
+
+class IChartApi internal constructor(
+    private val options: ChartOptions = ChartOptions(),
     val name: String = "chart",
 ) {
 
     private val json = Json { prettyPrint = true }
+    private lateinit var executeJs: (String) -> Unit
 
-    init {
+    var isInitialized = false
+    lateinit var timeScale: ITimeScaleApi
+    lateinit var priceScale: IPriceScaleApi
+
+    fun init(
+        container: String,
+        executeJs: (String) -> Unit,
+    ) {
+
+        this.executeJs = executeJs
+        timeScale = ITimeScaleApi(this, executeJs, json)
+        priceScale = IPriceScaleApi(name, executeJs, json)
 
         val optionsStr = json.encodeToString(options.toJsonObject())
 
-        executeJs("const $name = LightweightCharts.createChart(document.body, $optionsStr);")
-    }
+        executeJs("const $name = LightweightCharts.createChart($container, $optionsStr);")
 
-    val timeScale = ITimeScaleApi(this, executeJs, json)
-    val priceScale = IPriceScaleApi(name, executeJs, json)
+        isInitialized = true
+    }
 
     fun addBaselineSeries(
         options: BaselineStyleOptions = BaselineStyleOptions(),
         name: String = "baselineSeries",
     ): BaselineSeries {
+
+        checkChartInitialized()
 
         val series = BaselineSeries(executeJs, json, name)
         val optionsStr = json.encodeToString(options.toJsonObject())
@@ -51,6 +68,8 @@ class IChartApi(
         name: String = "candlestickSeries",
     ): CandlestickSeries {
 
+        checkChartInitialized()
+
         val series = CandlestickSeries(executeJs, json, name)
         val optionsStr = json.encodeToString(options.toJsonObject())
 
@@ -63,6 +82,8 @@ class IChartApi(
         options: HistogramStyleOptions = HistogramStyleOptions(),
         name: String = "histogramSeries",
     ): HistogramSeries {
+
+        checkChartInitialized()
 
         val series = HistogramSeries(executeJs, json, name)
         val optionsStr = json.encodeToString(options.toJsonObject())
@@ -77,6 +98,8 @@ class IChartApi(
         name: String = "lineSeries",
     ): LineSeries {
 
+        checkChartInitialized()
+
         val series = LineSeries(executeJs, json, name)
         val optionsStr = json.encodeToString(options.toJsonObject())
 
@@ -86,15 +109,25 @@ class IChartApi(
     }
 
     fun resize(width: Int, height: Int) {
+
+        checkChartInitialized()
+
         executeJs("$name.resize($width, $height)")
     }
 
     fun removeSeries(series: ISeriesApi<*>) {
+
+        checkChartInitialized()
+
         executeJs("$name.removeSeries(${series.name});")
     }
 
     private fun buildSeriesDeclaration(series: ISeriesApi<*>): String {
         return "var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}"
+    }
+
+    private fun checkChartInitialized() {
+        check(isInitialized) { "Chart is not initialized. Call init() before any chart operations." }
     }
 }
 

@@ -4,31 +4,36 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.IntSize
-import chart.ChartOptions
 import chart.IChartApi
-import javafx.application.Platform
 
 @Composable
 fun ResizableChart(
-    options: ChartOptions = ChartOptions(),
-    configure: IChartApi.() -> Unit,
+    chart: IChartApi,
+    onChartLoaded: IChartApi.() -> Unit,
 ) {
 
     Column(Modifier.fillMaxSize()) {
 
         val webViewState = rememberWebViewState()
-        var chart by state<IChartApi?> { null }
-        var size by state { IntSize.Zero }
 
         WebViewLoadingIndicator(webViewState)
 
         JavaFxWebView(
             state = webViewState,
-            modifier = Modifier.fillMaxSize().onSizeChanged { size = it },
+            modifier = Modifier.fillMaxSize().onSizeChanged { size ->
+
+                // Resize chart on layout resize
+                if (chart.isInitialized) chart.resize(
+                    width = size.width,
+                    height = size.height,
+                )
+            },
         )
 
         if (webViewState.isReady) {
@@ -44,33 +49,16 @@ fun ResizableChart(
                 )
 
                 // On page load, execute chart script
-                webViewState.loadState.collect {
+                webViewState.loadState.collect { loadState ->
 
-                    if (it != WebViewState.LoadState.LOADED) return@collect
+                    if (loadState != WebViewState.LoadState.LOADED) return@collect
 
-                    chart = IChartApi(
-                        executeJs = {
-                            Platform.runLater {
-                                webViewState.executeScript(it)
-                            }
-                        },
-                        options = options.copy(
-                            width = size.width,
-                            height = size.height,
-                        ),
+                    chart.init(
+                        container = "document.body",
+                        executeJs = webViewState::executeScript,
                     )
 
-                    chart!!.configure()
-                }
-            }
-
-            // Resize chart on window resize
-            LaunchedEffect(Unit) {
-                snapshotFlow { size }.collect {
-                    chart?.resize(
-                        width = size.width,
-                        height = size.height,
-                    )
+                    chart.onChartLoaded()
                 }
             }
         }
