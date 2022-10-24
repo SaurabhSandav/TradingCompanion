@@ -1,13 +1,11 @@
-package chart.series.data
+package chart.data
 
-import kotlinx.serialization.json.JsonElement
+import chart.IsJsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-sealed class Time {
-
-    abstract fun toJsonElement(): JsonElement
+sealed class Time : IsJsonElement {
 
     data class UTCTimestamp(val value: Long) : Time() {
 

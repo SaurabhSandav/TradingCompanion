@@ -1,19 +1,9 @@
 package chart
 
-import chart.pricescale.IPriceScaleApi
-import chart.series.ISeriesApi
-import chart.series.baseline.BaselineSeries
-import chart.series.baseline.BaselineStyleOptions
-import chart.series.candlestick.CandlestickSeries
-import chart.series.candlestick.CandlestickStyleOptions
-import chart.series.histogram.HistogramSeries
-import chart.series.histogram.HistogramStyleOptions
-import chart.series.line.LineSeries
-import chart.series.line.LineStyleOptions
-import chart.timescale.ITimeScaleApi
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import chart.data.*
+import chart.options.*
 import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 fun createChart(
     options: ChartOptions = ChartOptions(),
@@ -25,7 +15,6 @@ class IChartApi internal constructor(
     val name: String = "chart",
 ) {
 
-    private val json = Json { prettyPrint = true }
     private lateinit var executeJs: (String) -> Unit
 
     var isInitialized = false
@@ -38,12 +27,12 @@ class IChartApi internal constructor(
     ) {
 
         this.executeJs = executeJs
-        timeScale = ITimeScaleApi(this, executeJs, json)
-        priceScale = IPriceScaleApi(name, executeJs, json)
+        timeScale = ITimeScaleApi(this, executeJs)
+        priceScale = IPriceScaleApi(name, executeJs)
 
-        val optionsStr = json.encodeToString(options.toJsonObject())
+        val optionsJson = options.toJsonElement()
 
-        executeJs("const $name = LightweightCharts.createChart($container, $optionsStr);")
+        executeJs("const $name = LightweightCharts.createChart($container, $optionsJson);")
 
         isInitialized = true
     }
@@ -51,62 +40,38 @@ class IChartApi internal constructor(
     fun addBaselineSeries(
         options: BaselineStyleOptions = BaselineStyleOptions(),
         name: String = "baselineSeries",
-    ): BaselineSeries {
-
-        checkChartInitialized()
-
-        val series = BaselineSeries(executeJs, json, name)
-        val optionsStr = json.encodeToString(options.toJsonObject())
-
-        executeJs("${buildSeriesDeclaration(series)}.addBaselineSeries(${optionsStr});")
-
-        return series
-    }
+    ): ISeriesApi<SingleValueData> = addSeries(
+        options = options,
+        funcName = "addBaselineSeries",
+        name = name
+    )
 
     fun addCandlestickSeries(
         options: CandlestickStyleOptions = CandlestickStyleOptions(),
         name: String = "candlestickSeries",
-    ): CandlestickSeries {
-
-        checkChartInitialized()
-
-        val series = CandlestickSeries(executeJs, json, name)
-        val optionsStr = json.encodeToString(options.toJsonObject())
-
-        executeJs("${buildSeriesDeclaration(series)}.addCandlestickSeries(${optionsStr});")
-
-        return series
-    }
+    ): ISeriesApi<CandlestickData> = addSeries(
+        options = options,
+        funcName = "addCandlestickSeries",
+        name = name
+    )
 
     fun addHistogramSeries(
         options: HistogramStyleOptions = HistogramStyleOptions(),
         name: String = "histogramSeries",
-    ): HistogramSeries {
-
-        checkChartInitialized()
-
-        val series = HistogramSeries(executeJs, json, name)
-        val optionsStr = json.encodeToString(options.toJsonObject())
-
-        executeJs("${buildSeriesDeclaration(series)}.addHistogramSeries(${optionsStr});")
-
-        return series
-    }
+    ): ISeriesApi<HistogramData> = addSeries(
+        options = options,
+        funcName = "addHistogramSeries",
+        name = name
+    )
 
     fun addLineSeries(
         options: LineStyleOptions = LineStyleOptions(),
         name: String = "lineSeries",
-    ): LineSeries {
-
-        checkChartInitialized()
-
-        val series = LineSeries(executeJs, json, name)
-        val optionsStr = json.encodeToString(options.toJsonObject())
-
-        executeJs("${buildSeriesDeclaration(series)}.addLineSeries(${optionsStr});")
-
-        return series
-    }
+    ): ISeriesApi<LineData> = addSeries(
+        options = options,
+        funcName = "addLineSeries",
+        name = name
+    )
 
     fun resize(width: Int, height: Int) {
 
@@ -122,8 +87,20 @@ class IChartApi internal constructor(
         executeJs("$name.removeSeries(${series.name});")
     }
 
-    private fun buildSeriesDeclaration(series: ISeriesApi<*>): String {
-        return "var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}"
+    private fun <T : SeriesData> addSeries(
+        options: SeriesOptions,
+        funcName: String,
+        name: String,
+    ): ISeriesApi<T> {
+
+        checkChartInitialized()
+
+        val series = ISeriesApi<T>(executeJs, name)
+        val optionsJson = options.toJsonElement()
+
+        executeJs("var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}.$funcName(${optionsJson});")
+
+        return series
     }
 
     private fun checkChartInitialized() {
@@ -133,16 +110,33 @@ class IChartApi internal constructor(
 
 fun IChartApi.baselineSeries(
     options: BaselineStyleOptions = BaselineStyleOptions(),
-) = ReadOnlyProperty<Any?, BaselineSeries> { _, property -> addBaselineSeries(options, property.name) }
+) = SeriesProvider { name -> addBaselineSeries(options, name) }
 
 fun IChartApi.candlestickSeries(
     options: CandlestickStyleOptions = CandlestickStyleOptions(),
-) = ReadOnlyProperty<Any?, CandlestickSeries> { _, property -> addCandlestickSeries(options, property.name) }
+) = SeriesProvider { name -> addCandlestickSeries(options, name) }
 
 fun IChartApi.histogramSeries(
     options: HistogramStyleOptions = HistogramStyleOptions(),
-) = ReadOnlyProperty<Any?, HistogramSeries> { _, property -> addHistogramSeries(options, property.name) }
+) = SeriesProvider { name -> addHistogramSeries(options, name) }
 
 fun IChartApi.lineSeries(
     options: LineStyleOptions = LineStyleOptions(),
-) = ReadOnlyProperty<Any?, LineSeries> { _, property -> addLineSeries(options, property.name) }
+) = SeriesProvider { name -> addLineSeries(options, name) }
+
+class SeriesProvider<T : SeriesData>(
+    private val seriesBuilder: (propertyName: String) -> ISeriesApi<T>,
+) {
+
+    var series: ISeriesApi<T>? = null
+
+    operator fun provideDelegate(
+        thisRef: Any?,
+        prop: KProperty<*>,
+    ): ReadOnlyProperty<Any?, ISeriesApi<T>> {
+
+        series = seriesBuilder(prop.name)
+
+        return ReadOnlyProperty { _, _ -> series!! }
+    }
+}

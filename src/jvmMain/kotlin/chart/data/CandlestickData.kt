@@ -1,8 +1,6 @@
-package chart.series.candlestick
+package chart.data
 
-import chart.series.data.ChartData
-import chart.series.data.Time
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -12,9 +10,9 @@ class CandlestickData(
     val high: Number,
     val low: Number,
     val close: Number,
-) : ChartData {
+) : SeriesData {
 
-    fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonElement = buildJsonObject {
         put("time", time.toJsonElement())
         put("open", open)
         put("high", high)

@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import chart.IChartApi
 
 @Composable
@@ -21,12 +22,15 @@ fun ResizableChart(
     Column(Modifier.fillMaxSize()) {
 
         val webViewState = rememberWebViewState()
+        var initialSize by state { IntSize.Zero }
 
         WebViewLoadingIndicator(webViewState)
 
         JavaFxWebView(
             state = webViewState,
             modifier = Modifier.fillMaxSize().onSizeChanged { size ->
+
+                initialSize = size
 
                 // Resize chart on layout resize
                 if (chart.isInitialized) chart.resize(
@@ -59,6 +63,12 @@ fun ResizableChart(
                     )
 
                     chart.onChartLoaded()
+
+                    // Initial resize in case onSizeChanged isn't called after init()
+                    chart.resize(
+                        width = initialSize.width,
+                        height = initialSize.height,
+                    )
                 }
             }
         }

@@ -1,14 +1,14 @@
-package chart.misc
+package chart.options.common
 
+import chart.IsJsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-sealed class PriceFormat {
+sealed class PriceFormat : IsJsonElement {
 
     abstract val minMove: Number?
-
-    abstract fun toJsonObject(): JsonObject
 
     data class BuiltIn(
         val type: Type? = null,
@@ -16,8 +16,8 @@ sealed class PriceFormat {
         override val minMove: Number? = null,
     ) : PriceFormat() {
 
-        override fun toJsonObject(): JsonObject = buildJsonObject {
-            type?.let { put("type", it.strValue) }
+        override fun toJsonElement(): JsonObject = buildJsonObject {
+            type?.let { put("type", it.toJsonElement()) }
             precision?.let { put("precision", precision) }
             minMove?.let { put("minMove", minMove) }
         }
@@ -27,15 +27,17 @@ sealed class PriceFormat {
         override val minMove: Number? = null,
     ) : PriceFormat() {
 
-        override fun toJsonObject(): JsonObject = buildJsonObject {
+        override fun toJsonElement(): JsonObject = buildJsonObject {
             put("type", "custom")
             minMove?.let { put("minMove", minMove) }
         }
     }
 
-    enum class Type(val strValue: String) {
+    enum class Type(private val strValue: String) : IsJsonElement {
         Percent("percent"),
         Price("price"),
-        Volume("volume"),
+        Volume("volume");
+
+        override fun toJsonElement() = JsonPrimitive(strValue)
     }
 }

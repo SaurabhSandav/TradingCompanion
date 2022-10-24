@@ -1,8 +1,8 @@
-package chart.misc
+package chart.data
 
 import androidx.compose.ui.graphics.Color
-import chart.series.data.Time
-import kotlinx.serialization.json.JsonObject
+import chart.IsJsonElement
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import ui.common.toHexString
@@ -15,9 +15,9 @@ data class SeriesMarker(
     val id: String? = null,
     val text: String? = null,
     val size: Number? = null,
-) {
+) : IsJsonElement {
 
-    fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonElement = buildJsonObject {
         put("time", time.toJsonElement())
         put("position", position.strValue)
         put("shape", shape.strValue)

@@ -1,9 +1,9 @@
 package ui.closedtrades.model
 
-import chart.misc.SeriesMarker
-import chart.series.candlestick.CandlestickData
-import chart.series.histogram.HistogramData
-import chart.series.line.LineData
+import chart.data.CandlestickData
+import chart.data.HistogramData
+import chart.data.LineData
+import chart.data.SeriesMarker
 
 internal class ClosedTradeChartWindowParams(
     val tradeId: Int,

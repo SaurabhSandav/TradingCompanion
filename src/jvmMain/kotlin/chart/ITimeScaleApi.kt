@@ -1,16 +1,13 @@
-package chart.timescale
+package chart
 
-import chart.IChartApi
-import chart.series.data.Time
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import chart.data.Time
+import chart.options.TimeScaleOptions
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 class ITimeScaleApi(
     private val chart: IChartApi,
     private val executeJs: (String) -> Unit,
-    private val json: Json,
 ) {
 
     fun scrollToPosition(position: Int, animated: Boolean) {
@@ -43,8 +40,8 @@ class ITimeScaleApi(
 
     fun applyOptions(options: TimeScaleOptions) {
 
-        val optionsStr = json.encodeToString(options.toJsonObject())
+        val optionsJson = options.toJsonElement()
 
-        executeJs("${chart.name}.timeScale().applyOptions($optionsStr);")
+        executeJs("${chart.name}.timeScale().applyOptions($optionsJson);")
     }
 }

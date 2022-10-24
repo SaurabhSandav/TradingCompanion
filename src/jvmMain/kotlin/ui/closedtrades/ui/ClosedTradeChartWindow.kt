@@ -6,13 +6,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import chart.*
-import chart.misc.LineWidth
-import chart.misc.PriceFormat
-import chart.pricescale.PriceScaleMargins
-import chart.pricescale.PriceScaleOptions
-import chart.series.histogram.HistogramStyleOptions
-import chart.series.line.LineStyleOptions
-import chart.timescale.TimeScaleOptions
+import chart.options.*
+import chart.options.common.LineWidth
+import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
 import ui.common.ResizableChart

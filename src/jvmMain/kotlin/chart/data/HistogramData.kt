@@ -1,22 +1,20 @@
-package chart.series.line
+package chart.data
 
 import androidx.compose.ui.graphics.Color
-import chart.series.data.SingleValueData
-import chart.series.data.Time
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import ui.common.toHexString
 
-class LineData(
+class HistogramData(
     time: Time,
     value: Number,
     val color: Color? = null,
 ) : SingleValueData(time, value) {
 
-    override fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonElement = buildJsonObject {
 
-        putSingleValueDataElements(this@LineData)
+        putSingleValueDataElements(this@HistogramData)
 
         color?.let { put("color", it.toHexString()) }
     }

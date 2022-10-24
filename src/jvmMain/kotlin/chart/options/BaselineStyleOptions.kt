@@ -1,12 +1,7 @@
-package chart.series.baseline
+package chart.options
 
-import chart.misc.LastPriceAnimationMode
-import chart.misc.LineStyle
-import chart.misc.LineWidth
-import chart.series.SeriesOptionsCommon
-import chart.series.SeriesOptionsCommon.Companion.putSeriesOptionsCommonElements
-import chart.misc.PriceFormat
-import chart.pricescale.PriceLineSource
+import chart.IsJsonElement
+import chart.options.common.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -41,35 +36,35 @@ data class BaselineStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon {
+) : SeriesOptionsCommon(), SeriesOptions, IsJsonElement {
 
-    fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonObject = buildJsonObject {
 
-        baseValue?.let { put("baseValue", it.toJsonObject()) }
+        baseValue?.let { put("baseValue", it.toJsonElement()) }
         topFillColor1?.let { put("topFillColor1", it) }
         topFillColor2?.let { put("topFillColor2", it) }
         topLineColor?.let { put("topLineColor", it) }
         bottomFillColor1?.let { put("bottomFillColor1", it) }
         bottomFillColor2?.let { put("bottomFillColor2", it) }
         bottomLineColor?.let { put("bottomLineColor", it) }
-        lineWidth?.let { put("lineWidth", it.intValue) }
-        lineStyle?.let { put("lineStyle", it.strValue) }
+        lineWidth?.let { put("lineWidth", it.toJsonElement()) }
+        lineStyle?.let { put("lineStyle", it.toJsonElement()) }
         crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
         crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
         crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it) }
         crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it) }
-        lastPriceAnimation?.let { put("lastPriceAnimation", it.strValue) }
+        lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
 
-        putSeriesOptionsCommonElements(this@BaselineStyleOptions)
+        putSeriesOptionsCommonElements()
     }
 }
 
 data class BaseValuePrice(
     val type: String,
     val price: Number,
-) {
+) : IsJsonElement {
 
-    fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonObject = buildJsonObject {
         put("type", type)
         put("price", price)
     }

@@ -1,11 +1,10 @@
-package chart.series.histogram
+package chart.options
 
-import chart.series.SeriesOptionsCommon
-import chart.series.SeriesOptionsCommon.Companion.putSeriesOptionsCommonElements
-import chart.misc.LineStyle
-import chart.misc.LineWidth
-import chart.misc.PriceFormat
-import chart.pricescale.PriceLineSource
+import chart.IsJsonElement
+import chart.options.common.LineStyle
+import chart.options.common.LineWidth
+import chart.options.common.PriceFormat
+import chart.options.common.PriceLineSource
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -28,13 +27,13 @@ data class HistogramStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon {
+) : SeriesOptionsCommon(), SeriesOptions, IsJsonElement {
 
-    fun toJsonObject(): JsonObject = buildJsonObject {
+    override fun toJsonElement(): JsonObject = buildJsonObject {
 
         color?.let { put("color", it) }
         base?.let { put("base", it) }
 
-        putSeriesOptionsCommonElements(this@HistogramStyleOptions)
+        putSeriesOptionsCommonElements()
     }
 }
