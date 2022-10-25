@@ -27,7 +27,7 @@ internal fun MainScreen(
 
     var state by state { 3 }
 
-    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies", "Candle Download")
+    val titles = listOf("Account", "Trade Sizing", "Open Trades", "Historical Trades", "Studies")
 
     Column {
 

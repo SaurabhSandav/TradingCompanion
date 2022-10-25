@@ -37,7 +37,11 @@ private fun IChartApi.configure(
     chartData: ClosedTradeChartData,
 ) {
 
-    val candleSeries by candlestickSeries()
+    val candleSeries by candlestickSeries(
+        options = CandlestickStyleOptions(
+            lastValueVisible = false,
+        ),
+    )
     val volumeSeries by histogramSeries(
         HistogramStyleOptions(
             lastValueVisible = false,
@@ -45,6 +49,7 @@ private fun IChartApi.configure(
                 type = PriceFormat.Type.Volume,
             ),
             priceScaleId = "",
+            priceLineVisible = false,
         )
     )
     val ema9Series by lineSeries(
@@ -52,6 +57,7 @@ private fun IChartApi.configure(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
             lastValueVisible = false,
+            priceLineVisible = false,
         ),
     )
     val vwapSeries by lineSeries(
@@ -60,6 +66,7 @@ private fun IChartApi.configure(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
             lastValueVisible = false,
+            priceLineVisible = false,
         ),
     )
 

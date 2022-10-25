@@ -50,9 +50,10 @@ kotlin {
 
                 listOf(
                     "androidx.compose.foundation.ExperimentalFoundationApi",
+                    "androidx.compose.ui.ExperimentalComposeUiApi",
+                    "androidx.compose.animation.ExperimentalAnimationApi",
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
-                    "androidx.compose.ui.ExperimentalComposeUiApi",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "com.russhwolf.settings.ExperimentalSettingsApi",
                     "com.russhwolf.settings.ExperimentalSettingsImplementation",

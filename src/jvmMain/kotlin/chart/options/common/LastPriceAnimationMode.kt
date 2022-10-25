@@ -3,10 +3,10 @@ package chart.options.common
 import chart.IsJsonElement
 import kotlinx.serialization.json.JsonPrimitive
 
-enum class LastPriceAnimationMode(private val strValue: String) : IsJsonElement {
-    Disabled("Disabled"),
-    Continuous("Continuous"),
-    OnDataUpdate("OnDataUpdateUpdate");
+enum class LastPriceAnimationMode(private val intValue: Int) : IsJsonElement {
+    Disabled(0),
+    Continuous(1),
+    OnDataUpdate(2);
 
-    override fun toJsonElement() = JsonPrimitive(strValue)
+    override fun toJsonElement() = JsonPrimitive(intValue)
 }

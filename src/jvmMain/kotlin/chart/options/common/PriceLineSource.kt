@@ -3,9 +3,9 @@ package chart.options.common
 import chart.IsJsonElement
 import kotlinx.serialization.json.JsonPrimitive
 
-enum class PriceLineSource(private val strValue: String) : IsJsonElement {
-    LastBar("LastBar"),
-    LastVisible("LastVisible");
+enum class PriceLineSource(private val intValue: Int) : IsJsonElement {
+    LastBar(0),
+    LastVisible(1);
 
-    override fun toJsonElement() = JsonPrimitive(strValue)
+    override fun toJsonElement() = JsonPrimitive(intValue)
 }

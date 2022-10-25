@@ -203,7 +203,7 @@ internal class ClosedTradesPresenter(
         val candles = when (candlesResult) {
             is CandleRepo.CandleResult.Success -> candlesResult.candles
             is CandleRepo.CandleResult.UnknownError -> {
-                errors += UIErrorMessage(candlesResult.throwable.message ?: "Unknown Error")
+                errors += UIErrorMessage(candlesResult.throwable.message ?: "Unknown Error") { errors -= it }
                 candlesResult.throwable.printStackTrace()
                 return@launchUnit
             }
@@ -215,7 +215,7 @@ internal class ClosedTradesPresenter(
                     onActionClick = { candleDataLoginWindowState = CandleDataLoginWindow.Open(fyersApi.getLoginURL()) },
                     withDismissAction = true,
                     duration = UIErrorMessage.Duration.Indefinite,
-                )
+                ) { errors -= it }
                 return@launchUnit
             }
         }
@@ -430,7 +430,7 @@ internal class ClosedTradesPresenter(
 
         val accessToken = when (val response = fyersApi.getAccessToken(redirectUrl)) {
             is FyersResponse.Failure -> {
-                errors += UIErrorMessage(response.message)
+                errors += UIErrorMessage(response.message) { errors -= it }
                 return@launchUnit
             }
 

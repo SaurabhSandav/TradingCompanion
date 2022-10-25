@@ -29,6 +29,8 @@ fun ErrorSnackbar(
             SnackbarResult.ActionPerformed -> errorMessage.onActionClick?.invoke()
             SnackbarResult.Dismissed -> errorMessage.onDismiss?.invoke()
         }
+
+        errorMessage.onNotified?.invoke(errorMessage)
     }
 }
 
@@ -39,6 +41,7 @@ class UIErrorMessage(
     val withDismissAction: Boolean = false,
     val onDismiss: (() -> Unit)? = null,
     val duration: Duration = Duration.Short,
+    val onNotified: ((UIErrorMessage) -> Unit)? = null,
 ) {
 
     enum class Duration {
