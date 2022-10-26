@@ -41,11 +41,11 @@ fun FormScope.singleSelectionState(
 ): SingleSelectionState {
 
     val saver = listSaver<SingleSelectionState, Any?>(
-        save = { listOf(it.value, isRequired) },
+        save = { listOf(it.value) },
         restore = {
             SingleSelectionState(
                 initial = it[0] as String?,
-                isRequired = it[1] as Boolean,
+                isRequired = isRequired,
                 onSelectionChange = onSelectionChange,
             )
         },

@@ -1,9 +1,6 @@
 package ui.addclosedtradedetailed
 
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import ui.common.form.*
 
 internal class CloseTradeDetailedFormFields(
@@ -82,18 +79,18 @@ internal class CloseTradeDetailedFormFields(
 
     class Model(
         val id: Int,
-        val ticker: String? = null,
-        val quantity: String = "",
-        val isLong: Boolean = true,
-        val entry: String = "",
-        val stop: String = "",
-        val entryDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-        val target: String = "",
-        val exit: String = "",
-        val exitDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-        val maxFavorableExcursion: String = "",
-        val maxAdverseExcursion: String = "",
+        val ticker: String?,
+        val quantity: String,
+        val isLong: Boolean,
+        val entry: String,
+        val stop: String,
+        val entryDateTime: LocalDateTime,
+        val target: String,
+        val exit: String,
+        val exitDateTime: LocalDateTime,
+        val maxFavorableExcursion: String,
+        val maxAdverseExcursion: String,
         val tags: List<String>,
-        val persisted: Boolean = false,
+        val persisted: Boolean,
     )
 }

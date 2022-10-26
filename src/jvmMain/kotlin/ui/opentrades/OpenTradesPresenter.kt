@@ -12,7 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import mapList
 import model.Side
@@ -98,7 +101,19 @@ internal class OpenTradesPresenter(
             ) return@CollectEffect
 
             addTradeWindowState = when (event) {
-                AddTradeWindowEvent.Open -> AddTradeWindowState.Open(AddOpenTradeFormFields.Model())
+                AddTradeWindowEvent.Open -> AddTradeWindowState.Open(
+                    AddOpenTradeFormFields.Model(
+                        id = null,
+                        ticker = null,
+                        quantity = "",
+                        isLong = true,
+                        entry = "",
+                        stop = "",
+                        entryDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                        target = "",
+                    )
+                )
+
                 is AddTradeWindowEvent.OpenEdit -> {
 
                     val openTrade = withContext(Dispatchers.IO) {
@@ -158,6 +173,8 @@ internal class OpenTradesPresenter(
                         stop = openTrade.stop.orEmpty(),
                         entryDateTime = LocalDateTime.parse(openTrade.entryDate),
                         target = openTrade.target.orEmpty(),
+                        exit = "",
+                        exitDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
                     )
 
                     CloseTradeWindowState.Open(model)
@@ -221,7 +238,7 @@ internal class OpenTradesPresenter(
                     exitDate = model.exitDateTime.toString(),
                 )
 
-                appModule.appDB.openTradeQueries.delete(model.id!!)
+                appModule.appDB.openTradeQueries.delete(model.id)
             }
         }
     }

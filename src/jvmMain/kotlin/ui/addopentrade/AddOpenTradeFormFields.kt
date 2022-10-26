@@ -1,9 +1,6 @@
 package ui.addopentrade
 
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import ui.common.form.*
 
 internal class AddOpenTradeFormFields(
@@ -53,13 +50,13 @@ internal class AddOpenTradeFormFields(
     )
 
     class Model(
-        val id: Int? = null,
-        val ticker: String? = null,
-        val quantity: String = "",
-        val isLong: Boolean = true,
-        val entry: String = "",
-        val stop: String = "",
-        val entryDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-        val target: String = "",
+        val id: Int?,
+        val ticker: String?,
+        val quantity: String,
+        val isLong: Boolean,
+        val entry: String,
+        val stop: String,
+        val entryDateTime: LocalDateTime,
+        val target: String,
     )
 }
