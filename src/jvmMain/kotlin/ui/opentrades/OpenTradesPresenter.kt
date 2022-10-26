@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.atTime
 import launchUnit
 import mapList
 import model.Side
@@ -183,15 +181,6 @@ internal class OpenTradesPresenter(
 
         withContext(Dispatchers.IO) {
 
-            val entryTime = model.entryDateTime.time
-            val entryDateTime = model.entryDateTime.date.atTime(
-                LocalTime(
-                    hour = entryTime.hour,
-                    minute = entryTime.minute,
-                    second = entryTime.second,
-                )
-            )
-
             appModule.appDB.openTradeQueries.insert(
                 id = model.id,
                 broker = "Finvasia",
@@ -202,7 +191,7 @@ internal class OpenTradesPresenter(
                 side = (if (model.isLong) Side.Long else Side.Short).strValue,
                 entry = model.entry,
                 stop = model.stop,
-                entryDate = entryDateTime.toString(),
+                entryDate = model.entryDateTime.toString(),
                 target = model.target,
             )
         }
@@ -213,24 +202,6 @@ internal class OpenTradesPresenter(
     ) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
-
-            val entryTime = model.entryDateTime.time
-            val entryDateTime = model.entryDateTime.date.atTime(
-                LocalTime(
-                    hour = entryTime.hour,
-                    minute = entryTime.minute,
-                    second = entryTime.second,
-                )
-            )
-
-            val exitTime = model.exitDateTime.time
-            val exitDateTime = model.exitDateTime.date.atTime(
-                LocalTime(
-                    hour = exitTime.hour,
-                    minute = exitTime.minute,
-                    second = exitTime.second,
-                )
-            )
 
             appModule.appDB.transaction {
 
@@ -244,10 +215,10 @@ internal class OpenTradesPresenter(
                     side = (if (model.isLong) Side.Long else Side.Short).strValue,
                     entry = model.entry,
                     stop = model.stop,
-                    entryDate = entryDateTime.toString(),
+                    entryDate = model.entryDateTime.toString(),
                     target = model.target,
                     exit = model.exit,
-                    exitDate = exitDateTime.toString(),
+                    exitDate = model.exitDateTime.toString(),
                 )
 
                 appModule.appDB.openTradeQueries.delete(model.id!!)

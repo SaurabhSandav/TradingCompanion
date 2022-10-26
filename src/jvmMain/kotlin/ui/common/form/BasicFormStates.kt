@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
 fun FormScope.textFieldState(
@@ -93,6 +94,26 @@ fun FormScope.timeFieldState(
     return controlState(saver) { TimeFieldState(initial, isErrorCheck, onValueChange) }
 }
 
+fun FormScope.dateTimeFieldState(
+    initial: LocalDateTime,
+    isErrorCheck: (LocalDateTime) -> Boolean = { false },
+    onValueChange: MutableFieldState<LocalDateTime>.(LocalDateTime) -> Unit = { setValue(it) },
+): DateTimeFieldState {
+
+    val saver = Saver<DateTimeFieldState, Any>(
+        save = { it.value },
+        restore = {
+            DateTimeFieldState(
+                initial = it as LocalDateTime,
+                isErrorCheck = isErrorCheck,
+                onValueChange = onValueChange,
+            )
+        },
+    )
+
+    return controlState(saver) { DateTimeFieldState(initial, isErrorCheck, onValueChange) }
+}
+
 @Stable
 class TextFieldState internal constructor(
     initial: String,
@@ -170,6 +191,23 @@ class TimeFieldState internal constructor(
 
     val onValueChange: (LocalTime) -> Unit = { newValue ->
         MutableFieldState<LocalTime> { value = it }.onValueChange(newValue)
+        validate()
+    }
+}
+
+@Stable
+class DateTimeFieldState internal constructor(
+    initial: LocalDateTime,
+    private val isErrorCheck: (LocalDateTime) -> Boolean = { false },
+    onValueChange: MutableFieldState<LocalDateTime>.(LocalDateTime) -> Unit = { setValue(it) },
+) : ComposeFormState<LocalDateTime>(initial) {
+
+    override fun validate() {
+        isError = isErrorCheck(value)
+    }
+
+    val onValueChange: (LocalDateTime) -> Unit = { newValue ->
+        MutableFieldState<LocalDateTime> { value = it }.onValueChange(newValue)
         validate()
     }
 }

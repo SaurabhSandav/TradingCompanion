@@ -14,9 +14,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
-import ui.common.controls.DateField
+import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
-import ui.common.controls.TimeField
 import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
@@ -94,16 +93,10 @@ internal fun AddOpenTradeWindow(
                 singleLine = true,
             )
 
-            DateField(
-                value = fields.entryDate.value,
-                onValidValueChange = fields.entryDate.onValueChange,
-                label = { Text("Entry Date") },
-            )
-
-            TimeField(
-                value = fields.entryTime.value,
-                onValidValueChange = fields.entryTime.onValueChange,
-                label = { Text("Entry Time") },
+            DateTimeField(
+                value = fields.entryDateTime.value,
+                onValidValueChange = fields.entryDateTime.onValueChange,
+                label = { Text("Entry DateTime") },
             )
 
             OutlinedTextField(

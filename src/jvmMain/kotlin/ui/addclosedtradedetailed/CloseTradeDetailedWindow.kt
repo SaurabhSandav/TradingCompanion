@@ -18,9 +18,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
-import ui.common.controls.DateField
+import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
-import ui.common.controls.TimeField
 import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
@@ -100,16 +99,10 @@ internal fun CloseTradeDetailedWindow(
                     singleLine = true,
                 )
 
-                DateField(
-                    value = fields.entryDate.value,
-                    onValidValueChange = fields.entryDate.onValueChange,
-                    label = { Text("Entry Date") },
-                )
-
-                TimeField(
-                    value = fields.entryTime.value,
-                    onValidValueChange = fields.entryTime.onValueChange,
-                    label = { Text("Entry Time") },
+                DateTimeField(
+                    value = fields.entryDateTime.value,
+                    onValidValueChange = fields.entryDateTime.onValueChange,
+                    label = { Text("Entry DateTime") },
                 )
 
                 OutlinedTextField(
@@ -135,16 +128,10 @@ internal fun CloseTradeDetailedWindow(
                     focusRequester.requestFocus()
                 }
 
-                DateField(
-                    value = fields.exitDate.value,
-                    onValidValueChange = fields.exitDate.onValueChange,
-                    label = { Text("Exit Date") },
-                )
-
-                TimeField(
-                    value = fields.exitTime.value,
-                    onValidValueChange = fields.exitTime.onValueChange,
-                    label = { Text("Exit Time") },
+                DateTimeField(
+                    value = fields.exitDateTime.value,
+                    onValidValueChange = fields.exitDateTime.onValueChange,
+                    label = { Text("Exit DateTime") },
                 )
 
                 Button(

@@ -1,6 +1,9 @@
 package ui.addopentrade
 
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ui.common.form.*
 
 internal class AddOpenTradeFormFields(
@@ -30,12 +33,7 @@ internal class AddOpenTradeFormFields(
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryDate = formScope.dateFieldState(initial.entryDateTime.date)
-
-    val entryTime = formScope.timeFieldState(initial.entryDateTime.time)
-
-    private val entryDateTime
-        get() = entryDate.value.atTime(entryTime.value)
+    val entryDateTime = formScope.dateTimeFieldState(initial.entryDateTime)
 
     val target = formScope.textFieldState(
         initial = initial.target,
@@ -50,7 +48,7 @@ internal class AddOpenTradeFormFields(
         isLong = isLong.value,
         entry = entry.value,
         stop = stop.value,
-        entryDateTime = entryDateTime,
+        entryDateTime = entryDateTime.value,
         target = target.value,
     )
 

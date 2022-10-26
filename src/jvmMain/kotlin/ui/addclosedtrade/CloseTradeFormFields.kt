@@ -1,6 +1,9 @@
 package ui.addclosedtrade
 
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ui.common.form.*
 
 internal class CloseTradeFormFields(
@@ -30,12 +33,7 @@ internal class CloseTradeFormFields(
         onValueChange = { setValue(it.trim()) },
     )
 
-    val entryDate = formScope.dateFieldState(initial.entryDateTime.date)
-
-    val entryTime = formScope.timeFieldState(initial.entryDateTime.time)
-
-    private val entryDateTime
-        get() = entryDate.value.atTime(entryTime.value)
+    val entryDateTime = formScope.dateTimeFieldState(initial.entryDateTime)
 
     val target = formScope.textFieldState(
         initial = initial.target,
@@ -49,12 +47,7 @@ internal class CloseTradeFormFields(
         onValueChange = { setValue(it.trim()) },
     )
 
-    val exitDate = formScope.dateFieldState(initial.exitDateTime.date)
-
-    val exitTime = formScope.timeFieldState(initial.exitDateTime.time)
-
-    private val exitDateTime
-        get() = exitDate.value.atTime(exitTime.value)
+    val exitDateTime = formScope.dateTimeFieldState(initial.exitDateTime)
 
     fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
         id = initial.id,
@@ -63,10 +56,10 @@ internal class CloseTradeFormFields(
         isLong = isLong.value,
         entry = entry.value,
         stop = stop.value,
-        entryDateTime = entryDateTime,
+        entryDateTime = entryDateTime.value,
         target = target.value,
         exit = exit.value,
-        exitDateTime = exitDateTime,
+        exitDateTime = exitDateTime.value,
     )
 
     class Model(

@@ -376,24 +376,6 @@ internal class ClosedTradesPresenter(
 
         withContext(Dispatchers.IO) {
 
-            val entryTime = model.entryDateTime.time
-            val entryDateTime = model.entryDateTime.date.atTime(
-                LocalTime(
-                    hour = entryTime.hour,
-                    minute = entryTime.minute,
-                    second = entryTime.second,
-                )
-            )
-
-            val exitTime = model.exitDateTime.time
-            val exitDateTime = model.exitDateTime.date.atTime(
-                LocalTime(
-                    hour = exitTime.hour,
-                    minute = exitTime.minute,
-                    second = exitTime.second,
-                )
-            )
-
             appDB.transaction {
 
                 appDB.closedTradeQueries.insert(
@@ -406,10 +388,10 @@ internal class ClosedTradesPresenter(
                     side = (if (model.isLong) Side.Long else Side.Short).strValue,
                     entry = model.entry,
                     stop = model.stop,
-                    entryDate = entryDateTime.toString(),
+                    entryDate = model.entryDateTime.toString(),
                     target = model.target,
                     exit = model.exit,
-                    exitDate = exitDateTime.toString(),
+                    exitDate = model.exitDateTime.toString(),
                 )
 
                 appDB.closedTradeDetailQueries.insert(
