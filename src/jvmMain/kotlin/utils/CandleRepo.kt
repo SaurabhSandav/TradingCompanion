@@ -197,5 +197,7 @@ internal class CandleRepo(
         object AuthError : CandleResult()
     }
 
-    private class CandleDownloadException(val failureResponse: FyersResponse.Failure<*>): Exception()
+    private class CandleDownloadException(
+        val failureResponse: FyersResponse.Failure<*>,
+    ) : Exception("Request failure: $failureResponse")
 }

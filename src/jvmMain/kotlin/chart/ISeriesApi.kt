@@ -18,6 +18,13 @@ class ISeriesApi<T : SeriesData>(
         executeJs("$name.setData($dataJson);")
     }
 
+    fun update(data: T) {
+
+        val dataJson = data.toJsonElement()
+
+        executeJs("$name.update($dataJson);")
+    }
+
     fun setMarkers(list: List<SeriesMarker>) {
 
         val markersJson = JsonArray(list.map { it.toJsonElement() })

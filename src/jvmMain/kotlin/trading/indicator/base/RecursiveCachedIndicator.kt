@@ -9,7 +9,7 @@ abstract class RecursiveCachedIndicator<T : Any>(
 
     override fun get(index: Int): T {
 
-        if (index <= candleSeries.lastIndex) {
+        if (index <= candleSeries.list.lastIndex) {
 
             if (index > RECURSION_THRESHOLD) {
 

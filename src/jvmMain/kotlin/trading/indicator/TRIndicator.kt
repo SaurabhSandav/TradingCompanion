@@ -13,16 +13,16 @@ class TRIndicator(
 
     override fun calculate(index: Int): BigDecimal {
 
-        val ts = candleSeries[index].high - candleSeries[index].low
+        val ts = candleSeries.list[index].high - candleSeries.list[index].low
 
         val ys = when (index) {
             0 -> BigDecimal.ZERO
-            else -> candleSeries[index].high - candleSeries[index - 1].close
+            else -> candleSeries.list[index].high - candleSeries.list[index - 1].close
         }
 
         val yst = when (index) {
             0 -> BigDecimal.ZERO
-            else -> candleSeries[index - 1].close - candleSeries[index].low
+            else -> candleSeries.list[index - 1].close - candleSeries.list[index].low
         }
 
         return listOf(ts.abs(), ys.abs(), yst.abs()).maxOrNull()!!

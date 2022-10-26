@@ -16,7 +16,7 @@ class SessionCumulativeIndicator(
     override fun calculate(index: Int): BigDecimal {
 
         val accumulated = when {
-            isSessionStart(candleSeries[index]) -> BigDecimal.ZERO
+            isSessionStart(candleSeries.list[index]) -> BigDecimal.ZERO
             else -> get(index - 1)
         }
 

@@ -12,6 +12,6 @@ open class PriceIndicator(
 ) : CachedIndicator<BigDecimal>(candleSeries, description) {
 
     override fun calculate(index: Int): BigDecimal {
-        return transform(candleSeries[index])
+        return transform(candleSeries.list[index])
     }
 }

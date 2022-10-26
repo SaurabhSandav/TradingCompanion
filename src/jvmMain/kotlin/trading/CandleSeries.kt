@@ -14,7 +14,7 @@ class CandleSeries(
         20,
         RoundingMode.HALF_EVEN,
     ),
-) : List<Candle> {
+) {
 
     private val series = mutableListOf<Candle>()
     private val indicatorCaches = mutableListOf<IndicatorCache<*>>()
@@ -26,9 +26,17 @@ class CandleSeries(
         initial.forEach { addCandle(it) }
     }
 
+    val list: List<Candle>
+        get() = series
+
     fun addCandle(candle: Candle) {
 
-        val isCandleUpdate = series.lastOrNull()?.openInstant == candle.openInstant
+        val lastCandle = series.lastOrNull()
+
+        if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
+            error("Candle cannot be older than the last candle in the series.")
+
+        val isCandleUpdate = lastCandle?.openInstant == candle.openInstant
 
         if (isCandleUpdate) {
 
@@ -43,7 +51,8 @@ class CandleSeries(
 
             series.add(candle)
 
-            // Drop first candle and first indicator cache values
+            // If series size is greater than max candle count,
+            // drop first candle and first indicator cache values
             if (series.size > maxCandleCount) {
                 series.removeFirst()
                 indicatorCaches.forEach { it.shrink() }
@@ -72,31 +81,4 @@ class CandleSeries(
 
         return cache
     }
-
-    // region List overrides
-
-    override val size: Int
-        get() = series.size
-
-    override fun contains(element: Candle): Boolean = series.contains(element)
-
-    override fun containsAll(elements: Collection<Candle>): Boolean = series.containsAll(elements)
-
-    override fun get(index: Int): Candle = series[index]
-
-    override fun indexOf(element: Candle): Int = series.indexOf(element)
-
-    override fun isEmpty(): Boolean = series.isEmpty()
-
-    override fun iterator(): Iterator<Candle> = series.iterator()
-
-    override fun lastIndexOf(element: Candle): Int = series.lastIndexOf(element)
-
-    override fun listIterator(): ListIterator<Candle> = series.listIterator()
-
-    override fun listIterator(index: Int): ListIterator<Candle> = series.listIterator(index)
-
-    override fun subList(fromIndex: Int, toIndex: Int): List<Candle> = series.subList(fromIndex, toIndex)
-
-    // endregion List overrides
 }

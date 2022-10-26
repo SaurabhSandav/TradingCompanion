@@ -24,6 +24,7 @@ internal class StudiesPresenter(
                 PNLExcursionStudy.Factory(appModule),
                 PNLByTickerStudy.Factory(appModule),
                 TickerChartStudy.Factory(appModule),
+                BarReplayStudy.Factory(appModule),
             )
         }
 

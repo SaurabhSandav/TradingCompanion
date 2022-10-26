@@ -3,6 +3,7 @@ package ui.common.controls
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -100,7 +101,7 @@ private fun ListSelectionDialog(
             derivedStateOf { items.filter { it.startsWith(filterQuery, ignoreCase = true) } }
         }
 
-        Box {
+        Box(Modifier.fillMaxSize()) {
 
             // For filtering list, Size is zero to hide
             BasicTextField(
