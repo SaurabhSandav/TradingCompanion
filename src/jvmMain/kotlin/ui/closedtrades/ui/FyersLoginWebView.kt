@@ -1,6 +1,5 @@
 package ui.closedtrades.ui
 
-import AppDensityFraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +30,7 @@ internal fun FyersLoginWindow(
 
             JavaFxWebView(
                 state = webViewState,
-                modifier = Modifier.fillMaxSize(AppDensityFraction),
+                modifier = Modifier.fillMaxSize(),
             )
 
             if (webViewState.isReady) {

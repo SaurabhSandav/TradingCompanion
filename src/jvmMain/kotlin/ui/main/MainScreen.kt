@@ -1,6 +1,7 @@
 package ui.main
 
 import AppModule
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,12 +52,15 @@ internal fun MainScreen(
             val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
             val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
 
-            when (state) {
-                0 -> AccountScreen(accountPresenter)
-                1 -> SizingScreen(sizingPresenter)
-                2 -> OpenTradesScreen(openTradesPresenter)
-                3 -> ClosedTradesScreen(closedTradesPresenter)
-                4 -> StudiesScreen(studiesPresenter)
+            AnimatedContent(state) { targetState ->
+
+                when (targetState) {
+                    0 -> AccountScreen(accountPresenter)
+                    1 -> SizingScreen(sizingPresenter)
+                    2 -> OpenTradesScreen(openTradesPresenter)
+                    3 -> ClosedTradesScreen(closedTradesPresenter)
+                    4 -> StudiesScreen(studiesPresenter)
+                }
             }
         }
     }

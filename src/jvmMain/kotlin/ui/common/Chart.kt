@@ -16,10 +16,11 @@ import chart.IChartApi
 @Composable
 fun ResizableChart(
     chart: IChartApi,
+    modifier: Modifier = Modifier,
     onChartLoaded: IChartApi.() -> Unit,
 ) {
 
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier) {
 
         val webViewState = rememberWebViewState()
         var initialSize by state { IntSize.Zero }

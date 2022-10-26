@@ -2,7 +2,6 @@ package ui.common
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel
@@ -38,7 +37,7 @@ fun JavaFxWebView(
         }
     }
 
-    SwingPanel(
+    AppSwingPanel(
         modifier = modifier,
         factory = { jfxPanel }
     )
