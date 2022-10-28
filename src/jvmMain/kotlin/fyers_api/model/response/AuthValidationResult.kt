@@ -9,4 +9,4 @@ data class AuthValidationResult(
 
     @SerialName("access_token")
     val accessToken: String,
-) : FyersResult
+)

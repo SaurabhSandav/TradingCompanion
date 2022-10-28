@@ -13,7 +13,6 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import fyers_api.FyersApi
 import fyers_api.model.CandleResolution
-import fyers_api.model.response.FyersResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -409,14 +408,15 @@ internal class ClosedTradesPresenter(
     private fun onCandleDataLoggedIn(redirectUrl: String) = coroutineScope.launchUnit {
 
         candleDataLoginWindowState = CandleDataLoginWindow.Dismissed
+        val response = fyersApi.getAccessToken(redirectUrl)
 
-        val accessToken = when (val response = fyersApi.getAccessToken(redirectUrl)) {
-            is FyersResponse.Failure -> {
-                errors += UIErrorMessage(response.message) { errors -= it }
+        val accessToken = when (response.result) {
+            null -> {
+                errors += UIErrorMessage(response.message ?: "Unknown Error") { errors -= it }
                 return@launchUnit
             }
 
-            is FyersResponse.Success -> response.result.accessToken
+            else -> response.result.accessToken
         }
 
         appPrefs.putString(PrefKeys.FyersAccessToken, accessToken)

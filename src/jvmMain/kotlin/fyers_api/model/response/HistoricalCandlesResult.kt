@@ -8,4 +8,4 @@ data class HistoricalCandlesResult(
 
     @SerialName("candles")
     val candles: List<List<String>>,
-) : FyersResult
+)

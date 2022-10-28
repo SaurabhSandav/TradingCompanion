@@ -171,9 +171,9 @@ internal class CandleRepo(
                 rangeTo = endDate.toString(),
             )
 
-            val candles = when (response) {
-                is FyersResponse.Failure -> throw CandleDownloadException(response)
-                is FyersResponse.Success -> response.result.candles
+            val candles = when (response.result) {
+                null -> throw CandleDownloadException(response)
+                else -> response.result.candles
             }
 
             // Create file for symbol
@@ -198,6 +198,6 @@ internal class CandleRepo(
     }
 
     private class CandleDownloadException(
-        val failureResponse: FyersResponse.Failure<*>,
+        val failureResponse: FyersResponse<*>,
     ) : Exception("Request failure: $failureResponse")
 }

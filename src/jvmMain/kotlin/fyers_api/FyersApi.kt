@@ -7,16 +7,19 @@ import fyers_api.model.DateFormat
 import fyers_api.model.request.AuthValidationRequest
 import fyers_api.model.response.AuthValidationResult
 import fyers_api.model.response.FyersResponse
-import fyers_api.model.response.FyersResult
 import fyers_api.model.response.HistoricalCandlesResult
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class FyersApi {
 
@@ -82,29 +85,16 @@ class FyersApi {
         return response.decodeToFyersReponse()
     }
 
-    private suspend inline fun <reified T : FyersResult> HttpResponse.decodeToFyersReponse(): FyersResponse<T> {
+    private suspend inline fun <reified T> HttpResponse.decodeToFyersReponse(): FyersResponse<T> {
 
         val jsonObject = json.parseToJsonElement(bodyAsText()).jsonObject
 
-        val successStr = jsonObject["s"]?.jsonPrimitive?.content ?: error("FyersResponse: No 's' field found")
-
-        return when (successStr) {
-            "ok" -> FyersResponse.Success(
-                s = successStr,
-                code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
-                message = jsonObject["message"]?.jsonPrimitive?.content,
-                result = run {
-                    val resultObject = JsonObject(jsonObject.filter { it.key !in listOf("s", "code", "message") })
-                    json.decodeFromJsonElement(resultObject)
-                }
-            )
-
-            else -> FyersResponse.Failure(
-                s = successStr,
-                code = jsonObject["code"]?.jsonPrimitive?.intOrNull!!,
-                message = jsonObject["message"]?.jsonPrimitive?.content!!,
-                statusCode = status,
-            )
-        }
+        return FyersResponse(
+            s = jsonObject["s"]?.jsonPrimitive?.content,
+            code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
+            message = jsonObject["message"]?.jsonPrimitive?.content,
+            statusCode = status,
+            result = body()
+        )
     }
 }
