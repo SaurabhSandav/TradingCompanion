@@ -18,13 +18,16 @@ import chart.data.Time
 import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
-import fyers_api.model.CandleResolution
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import trading.CandleSeries
+import trading.Timeframe
+import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
@@ -36,14 +39,13 @@ import ui.common.form.dateTimeFieldState
 import ui.common.form.rememberFormScope
 import ui.common.form.singleSelectionState
 import ui.common.state
-import utils.CandleRepo
 import utils.NIFTY50
 import kotlin.properties.Delegates
 import kotlin.time.Duration.Companion.seconds
 
 internal class BarReplayStudy(
     private val appModule: AppModule,
-    private val candleRepo: CandleRepo = CandleRepo(appModule),
+    private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) : Study {
 
     @Composable
@@ -255,7 +257,7 @@ private class BarReplayFormFields(
 }
 
 private class BarReplay(
-    private val candleRepo: CandleRepo,
+    private val candleRepo: CandleRepository,
     coroutineScope: CoroutineScope,
 ) {
 
@@ -366,15 +368,23 @@ private class BarReplay(
         this.dataTo = dataTo
         this.replayFrom = replayFrom
 
-        candleSeries = candleRepo.getCandles(
+        val candleSeriesResult = candleRepo.getCandles(
             symbol = symbol,
-            resolution = when (timeframe) {
-                "1D" -> CandleResolution.D1
-                else -> CandleResolution.M5
+            timeframe = when (timeframe) {
+                "1D" -> Timeframe.D1
+                else -> Timeframe.M5
             },
             from = dataFrom,
             to = dataTo,
-        ).let { (it as CandleRepo.CandleResult.Success).candles }
+        )
+
+        candleSeries = when (candleSeriesResult) {
+            is Ok -> candleSeriesResult.value
+            is Err -> when (val error = candleSeriesResult.error) {
+                is CandleRepository.Error.AuthError -> error("AuthError")
+                is CandleRepository.Error.UnknownError -> error(error.message)
+            }
+        }
 
         initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
         currentCandleIndex = initialCandleIndex

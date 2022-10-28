@@ -6,13 +6,14 @@ import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import chart.data.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.GetAllClosedTradesDetailed
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import fyers_api.FyersApi
-import fyers_api.model.CandleResolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,8 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
+import trading.Timeframe
+import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
@@ -34,7 +37,6 @@ import ui.common.CollectEffect
 import ui.common.MultipleWindowManager
 import ui.common.UIErrorMessage
 import ui.common.state
-import utils.CandleRepo
 import utils.PrefKeys
 import utils.brokerage
 import java.math.BigDecimal
@@ -192,30 +194,33 @@ internal class ClosedTradesPresenter(
         val to = exitDateTime.date + DatePeriod(months = 1)
 
         // Get candles
-        val candlesResult = CandleRepo(appModule).getCandles(
+        val candlesResult = CandleRepository(appModule).getCandles(
             symbol = closedTrade.ticker,
-            resolution = CandleResolution.M5,
+            timeframe = Timeframe.M5,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
         )
 
         val candles = when (candlesResult) {
-            is CandleRepo.CandleResult.Success -> candlesResult.candles
-            is CandleRepo.CandleResult.UnknownError -> {
-                errors += UIErrorMessage(candlesResult.throwable.message ?: "Unknown Error") { errors -= it }
-                candlesResult.throwable.printStackTrace()
-                return@launchUnit
-            }
+            is Ok -> candlesResult.value
+            is Err -> when (val error = candlesResult.error) {
+                is CandleRepository.Error.UnknownError -> {
+                    errors += UIErrorMessage(error.message) { errors -= it }
+                    return@launchUnit
+                }
 
-            CandleRepo.CandleResult.AuthError -> {
-                errors += UIErrorMessage(
-                    message = "Please login",
-                    actionLabel = "Login",
-                    onActionClick = { candleDataLoginWindowState = CandleDataLoginWindow.Open(fyersApi.getLoginURL()) },
-                    withDismissAction = true,
-                    duration = UIErrorMessage.Duration.Indefinite,
-                ) { errors -= it }
-                return@launchUnit
+                is CandleRepository.Error.AuthError -> {
+                    errors += UIErrorMessage(
+                        message = "Please login",
+                        actionLabel = "Login",
+                        onActionClick = {
+                            candleDataLoginWindowState = CandleDataLoginWindow.Open(fyersApi.getLoginURL())
+                        },
+                        withDismissAction = true,
+                        duration = UIErrorMessage.Duration.Indefinite,
+                    ) { errors -= it }
+                    return@launchUnit
+                }
             }
         }
 

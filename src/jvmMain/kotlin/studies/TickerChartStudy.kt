@@ -16,23 +16,25 @@ import chart.data.Time
 import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
-import fyers_api.model.CandleResolution
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import trading.Timeframe
+import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.common.ResizableChart
 import ui.common.controls.ListSelectionField
-import utils.CandleRepo
 import utils.NIFTY50
 
 internal class TickerChartStudy(
     private val appModule: AppModule,
-    private val candleRepo: CandleRepo = CandleRepo(appModule),
+    private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) : Study {
 
     var symbol by mutableStateOf<String?>("ICICIBANK")
@@ -80,16 +82,24 @@ internal class TickerChartStudy(
                 .filter { (symbol, _) -> symbol != null }
                 .collect { (symbol, timeframe) ->
 
-                    val candles = candleRepo.getCandles(
+                    val candleSeriesResult = candleRepo.getCandles(
                         symbol = symbol!!,
-                        resolution = when (timeframe) {
-                            "1D" -> CandleResolution.D1
-                            else -> CandleResolution.M5
+                        timeframe = when (timeframe) {
+                            "1D" -> Timeframe.D1
+                            else -> Timeframe.M5
                         },
                         from = LocalDate(year = 2022, month = Month.OCTOBER, dayOfMonth = 1)
                             .atStartOfDayIn(TimeZone.currentSystemDefault()),
                         to = Clock.System.now(),
-                    ).let { (it as CandleRepo.CandleResult.Success).candles }
+                    )
+
+                    val candles = when (candleSeriesResult) {
+                        is Ok -> candleSeriesResult.value
+                        is Err -> when (val error = candleSeriesResult.error) {
+                            is CandleRepository.Error.AuthError -> error("AuthError")
+                            is CandleRepository.Error.UnknownError -> error(error.message)
+                        }
+                    }
 
                     val sessionStartTime = LocalTime(hour = 9, minute = 15)
 

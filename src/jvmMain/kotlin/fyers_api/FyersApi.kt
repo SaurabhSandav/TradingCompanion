@@ -60,7 +60,7 @@ class FyersApi {
             setBody(requestBody)
         }
 
-        return response.decodeToFyersReponse()
+        return response.decodeToFyersResponse()
     }
 
     suspend fun getHistoricalCandles(
@@ -82,10 +82,10 @@ class FyersApi {
             parameter("cont_flag", "")
         }
 
-        return response.decodeToFyersReponse()
+        return response.decodeToFyersResponse()
     }
 
-    private suspend inline fun <reified T> HttpResponse.decodeToFyersReponse(): FyersResponse<T> {
+    private suspend inline fun <reified T> HttpResponse.decodeToFyersResponse(): FyersResponse<T> {
 
         val jsonObject = json.parseToJsonElement(bodyAsText()).jsonObject
 
@@ -94,7 +94,7 @@ class FyersApi {
             code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
             message = jsonObject["message"]?.jsonPrimitive?.content,
             statusCode = status,
-            result = body()
+            result = body(),
         )
     }
 }

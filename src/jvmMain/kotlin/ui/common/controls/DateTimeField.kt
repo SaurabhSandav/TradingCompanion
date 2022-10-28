@@ -45,7 +45,7 @@ fun DateTimeField(
 
             // if input length is valid, try to parse date
 
-            if (trimmed.toIntOrNull() == null) return@OutlinedTextField
+            if (trimmed.toLongOrNull() == null) return@OutlinedTextField
 
             val date = runCatching { java.time.LocalDateTime.parse(trimmed, formatter).toKotlinLocalDateTime() }
 

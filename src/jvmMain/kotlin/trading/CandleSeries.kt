@@ -8,8 +8,8 @@ import java.math.MathContext
 import java.math.RoundingMode
 
 class CandleSeries(
-    private val maxCandleCount: Int = Int.MAX_VALUE,
     initial: List<Candle> = emptyList(),
+    private val maxCandleCount: Int = Int.MAX_VALUE,
     val indicatorMathContext: MathContext = MathContext(
         20,
         RoundingMode.HALF_EVEN,
@@ -34,7 +34,7 @@ class CandleSeries(
         val lastCandle = series.lastOrNull()
 
         if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
-            error("Candle cannot be older than the last candle in the series.")
+            error("Candle cannot be older than the last candle in the series: $candle")
 
         val isCandleUpdate = lastCandle?.openInstant == candle.openInstant
 

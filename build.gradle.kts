@@ -106,6 +106,9 @@ kotlin {
 
                 // Krypto
                 implementation("com.soywiz.korlibs.krypto:krypto:3.2.0")
+
+                // kotlin-result
+                implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
             }
         }
         val jvmTest by getting {
