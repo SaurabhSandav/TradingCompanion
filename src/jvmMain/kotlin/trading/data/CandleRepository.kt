@@ -75,15 +75,15 @@ internal class CandleRepository(
             else -> emptyList()
         }
 
-        downloadRanges.map { range ->
+        downloadRanges.forEach { range ->
             when (val result = download(symbol, timeframe, range.start, range.endInclusive)) {
-                is Ok -> result.value
+                is Ok -> candleCache.writeCandles(symbolDir, result.value)
                 is Err -> return when (val error = result.error) {
                     is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
                     is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
                 }
             }
-        }.forEach { candleCache.writeCandles(symbolDir, it) }
+        }
 
         val candleSeries = CandleSeries(candleCache.fetch(symbolDir, from, to))
 

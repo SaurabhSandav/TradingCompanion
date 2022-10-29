@@ -1,6 +1,8 @@
 package fyers_api
 
 import BuildKonfig
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.runCatching
 import com.soywiz.krypto.sha256
 import fyers_api.model.CandleResolution
 import fyers_api.model.DateFormat
@@ -94,7 +96,7 @@ class FyersApi {
             code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
             message = jsonObject["message"]?.jsonPrimitive?.content,
             statusCode = status,
-            result = body(),
+            result = runCatching<T> { body() }.get(),
         )
     }
 }
