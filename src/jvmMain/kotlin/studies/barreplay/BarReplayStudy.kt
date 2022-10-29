@@ -16,6 +16,7 @@ import chart.options.CrosshairOptions
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import studies.Study
+import trading.Timeframe
 import trading.data.CandleRepository
 import ui.common.ResizableChart
 import ui.common.controls.DateTimeField
@@ -140,7 +141,10 @@ internal class BarReplayStudy(
                     coroutineScope = coroutineScope,
                     replayChart = replayChart,
                     symbol = fields.symbol.value ?: error("Invalid symbol!"),
-                    timeframe = fields.timeframe.value ?: error("Invalid timeframe!"),
+                    timeframe = when (fields.timeframe.value) {
+                        "1D" -> Timeframe.D1
+                        else -> Timeframe.M5
+                    },
                     dataFrom = fields.dataFrom.value.toInstant(TimeZone.currentSystemDefault()),
                     dataTo = fields.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
                     replayFrom = fields.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
@@ -200,7 +204,10 @@ internal class BarReplayStudy(
 
             ListSelectionField(
                 items = listOf("5m", "1D"),
-                onSelection = fields.timeframe.onSelectionChange,
+                onSelection = {
+                    fields.timeframe.onSelectionChange(it)
+                    replayControls.newTimeframe(it)
+                },
                 selection = fields.timeframe.value,
                 label = { Text("Timeframe") },
                 placeholderText = "Select Timeframe...",

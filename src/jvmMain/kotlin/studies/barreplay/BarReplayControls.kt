@@ -1,5 +1,7 @@
 package studies.barreplay
 
+import trading.Timeframe
+
 internal class BarReplayControls {
 
     private var barReplay: BarReplay? = null
@@ -21,5 +23,14 @@ internal class BarReplayControls {
 
     fun newSymbol(symbol: String) {
         barReplay?.newSymbol(symbol)
+    }
+
+    fun newTimeframe(timeframe: String) {
+        barReplay?.newTimeframe(
+            when (timeframe) {
+                "1D" -> Timeframe.D1
+                else -> Timeframe.M5
+            }
+        )
     }
 }

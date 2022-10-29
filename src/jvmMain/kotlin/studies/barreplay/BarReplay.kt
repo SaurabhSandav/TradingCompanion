@@ -28,13 +28,15 @@ internal class BarReplay(
     private val coroutineScope: CoroutineScope,
     private val replayChart: BarReplayChart,
     private val symbol: String,
-    private val timeframe: String,
+    private val timeframe: Timeframe,
     private val dataFrom: Instant,
     private val dataTo: Instant,
     private val replayFrom: Instant,
 ) {
 
     private val sessionStartTime = LocalTime(hour = 9, minute = 15)
+    private var currentSymbol = symbol
+    private var currentTimeframe = timeframe
 
     private lateinit var candleSeries: CandleSeries
     private lateinit var ema9Indicator: EMAIndicator
@@ -62,17 +64,14 @@ internal class BarReplay(
 
     suspend fun init() {
 
-        candleSeries = getCandleSeries(symbol)
+        candleSeries = getCandleSeries(symbol, timeframe)
 
         val initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
 
         replayClock = BarReplayClock(
             initialTime = candleSeries.list[initialCandleIndex].openInstant,
             initialIndex = initialCandleIndex,
-            timeframe = when (timeframe) {
-                "1D" -> Timeframe.D1
-                else -> Timeframe.M5
-            },
+            timeframe = timeframe,
         )
 
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
@@ -83,19 +82,22 @@ internal class BarReplay(
 
     fun newSymbol(symbol: String) = coroutineScope.launch {
 
-        candleSeries = getCandleSeries(symbol)
+        currentSymbol = symbol
 
-        val initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayClock.currentTime }
+        candleSeries = getCandleSeries(symbol, currentTimeframe)
+        ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
+        vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
 
-        replayClock = BarReplayClock(
-            initialTime = candleSeries.list[initialCandleIndex].openInstant,
-            initialIndex = initialCandleIndex,
-            timeframe = when (timeframe) {
-                "1D" -> Timeframe.D1
-                else -> Timeframe.M5
-            },
-        )
+        setInitialData()
+    }
 
+    fun newTimeframe(timeframe: Timeframe) = coroutineScope.launch {
+
+        if (timeframe.seconds < this@BarReplay.timeframe.seconds) error("New Timeframe cannot be less than initial Timeframe")
+
+        currentTimeframe = timeframe
+
+        candleSeries = getCandleSeries(symbol, timeframe)
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
         vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
 
@@ -114,26 +116,28 @@ internal class BarReplay(
 
         replayClock.next()
 
-        val currentIndex = replayClock.currentIndex
-        val candle = candleSeries.list[currentIndex]
+        val adjustedIndex = candleSeries.list.indexOfFirst {
+            replayClock.currentTime in it.openInstant..(it.openInstant + currentTimeframe.seconds.seconds)
+        }
+        val candle = candleSeries.list[adjustedIndex]
 
         replayChart.update(
             BarReplayChart.Data(
                 candle = candle,
-                ema9 = ema9Indicator[currentIndex],
-                vwap = vwapIndicator[currentIndex],
+                ema9 = ema9Indicator[adjustedIndex],
+                vwap = vwapIndicator[adjustedIndex],
             )
         )
     }
 
-    private suspend fun getCandleSeries(symbol: String): CandleSeries {
+    private suspend fun getCandleSeries(
+        symbol: String,
+        timeframe: Timeframe,
+    ): CandleSeries {
 
         val candleSeriesResult = candleRepo.getCandles(
             symbol = symbol,
-            timeframe = when (timeframe) {
-                "1D" -> Timeframe.D1
-                else -> Timeframe.M5
-            },
+            timeframe = timeframe,
             from = dataFrom,
             to = dataTo,
         )
@@ -147,9 +151,38 @@ internal class BarReplay(
         }
     }
 
+    private fun CandleSeries.resampled(timeframe: Timeframe): CandleSeries {
+
+        val candleSeries = CandleSeries()
+
+        val initialCandleIndex = candleSeries.list.indexOfFirst(isSessionStart)
+        val timeframeDuration = timeframe.seconds.seconds
+        var currentCandle = list[initialCandleIndex]
+
+        list.slice(initialCandleIndex..list.lastIndex).forEach { candle ->
+
+            if ((currentCandle.openInstant + timeframeDuration) == candle.openInstant) {
+                candleSeries.addCandle(candle)
+                currentCandle = candle
+                return@forEach
+            }
+
+            currentCandle = currentCandle.copy(
+                high = if (candle.high > currentCandle.high) candle.high else currentCandle.high,
+                low = if (candle.low < currentCandle.low) candle.low else currentCandle.low,
+                close = candle.close,
+            )
+        }
+
+        return candleSeries
+    }
+
     private fun setInitialData() {
 
-        val data = candleSeries.list.slice(0 until replayClock.currentIndex).mapIndexed { index, candle ->
+        val adjustedIndex = candleSeries.list.indexOfFirst {
+            replayClock.currentTime in it.openInstant..(it.openInstant + currentTimeframe.seconds.seconds)
+        }
+        val data = candleSeries.list.slice(0..adjustedIndex).mapIndexed { index, candle ->
             BarReplayChart.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
