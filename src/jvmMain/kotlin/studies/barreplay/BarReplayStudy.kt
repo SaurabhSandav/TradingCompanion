@@ -188,10 +188,22 @@ internal class BarReplayStudy(
             }
 
             ListSelectionField(
+                items = NIFTY50,
+                selection = fields.symbol.value,
+                onSelection = {
+                    fields.symbol.onSelectionChange(it)
+                    replayControls.newSymbol(it)
+                },
+                label = { Text("Ticker") },
+                placeholderText = "Select Ticker...",
+            )
+
+            ListSelectionField(
                 items = listOf("5m", "1D"),
-                onSelection = { },
+                onSelection = fields.timeframe.onSelectionChange,
                 selection = fields.timeframe.value,
                 label = { Text("Timeframe") },
+                placeholderText = "Select Timeframe...",
             )
 
             Row(

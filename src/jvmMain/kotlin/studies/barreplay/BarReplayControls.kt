@@ -18,4 +18,8 @@ internal class BarReplayControls {
     fun setIsAutoNextEnabled(value: Boolean) {
         barReplay?.isAutoNextEnabled = value
     }
+
+    fun newSymbol(symbol: String) {
+        barReplay?.newSymbol(symbol)
+    }
 }

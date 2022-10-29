@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class BarReplay(
     private val candleRepo: CandleRepository,
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val replayChart: BarReplayChart,
     private val symbol: String,
     private val timeframe: String,
@@ -62,9 +62,30 @@ internal class BarReplay(
 
     suspend fun init() {
 
-        candleSeries = getCandleSeries()
+        candleSeries = getCandleSeries(symbol)
 
         val initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
+
+        replayClock = BarReplayClock(
+            initialTime = candleSeries.list[initialCandleIndex].openInstant,
+            initialIndex = initialCandleIndex,
+            timeframe = when (timeframe) {
+                "1D" -> Timeframe.D1
+                else -> Timeframe.M5
+            },
+        )
+
+        ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
+        vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
+
+        setInitialData()
+    }
+
+    fun newSymbol(symbol: String) = coroutineScope.launch {
+
+        candleSeries = getCandleSeries(symbol)
+
+        val initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayClock.currentTime }
 
         replayClock = BarReplayClock(
             initialTime = candleSeries.list[initialCandleIndex].openInstant,
@@ -105,7 +126,7 @@ internal class BarReplay(
         )
     }
 
-    private suspend fun getCandleSeries(): CandleSeries {
+    private suspend fun getCandleSeries(symbol: String): CandleSeries {
 
         val candleSeriesResult = candleRepo.getCandles(
             symbol = symbol,
