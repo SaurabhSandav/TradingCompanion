@@ -13,7 +13,6 @@ import chart.createChart
 import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import studies.Study
@@ -123,31 +122,33 @@ internal class BarReplayStudy(
         Row(Modifier.fillMaxSize()) {
 
             val coroutineScope = rememberCoroutineScope()
-            val barReplay = remember { BarReplay(candleRepo, coroutineScope) }
             val chart = remember {
                 createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
             }
+            val replayControls = remember { BarReplayControls() }
 
-            ReplayControls(barReplay, fields, onNewReplay)
+            ReplayControls(fields, replayControls, onNewReplay)
 
             ResizableChart(
                 chart = chart,
                 modifier = Modifier.fillMaxSize(),
             ) {
 
-                barReplay.setupChart(this)
+                val replayChart = BarReplayChart(this)
+                val barReplay = BarReplay(
+                    candleRepo = candleRepo,
+                    coroutineScope = coroutineScope,
+                    replayChart = replayChart,
+                    symbol = fields.symbol.value ?: error("Invalid symbol!"),
+                    timeframe = fields.timeframe.value ?: error("Invalid timeframe!"),
+                    dataFrom = fields.dataFrom.value.toInstant(TimeZone.currentSystemDefault()),
+                    dataTo = fields.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
+                    replayFrom = fields.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
+                )
+                replayControls.setBarReplay(barReplay)
 
                 coroutineScope.launch {
-                    snapshotFlow { fields.symbol.value }.collectLatest {
-
-                        barReplay.init(
-                            symbol = fields.symbol.value ?: error("Invalid symbol!"),
-                            timeframe = fields.timeframe.value ?: error("Invalid timeframe!"),
-                            dataFrom = fields.dataFrom.value.toInstant(TimeZone.currentSystemDefault()),
-                            dataTo = fields.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
-                            replayFrom = fields.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
-                        )
-                    }
+                    barReplay.init()
                 }
             }
         }
@@ -155,8 +156,8 @@ internal class BarReplayStudy(
 
     @Composable
     private fun ReplayControls(
-        barReplay: BarReplay,
         fields: BarReplayFormFields,
+        replayControls: BarReplayControls,
         onNewReplay: () -> Unit,
     ) {
 
@@ -173,14 +174,14 @@ internal class BarReplayStudy(
             }
 
             Button(
-                onClick = barReplay::reset,
+                onClick = replayControls::reset,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Reset Replay")
             }
 
             Button(
-                onClick = barReplay::next,
+                onClick = replayControls::next,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Next")
@@ -201,9 +202,14 @@ internal class BarReplayStudy(
 
                 Text("Auto next: ")
 
+                var isAutoNextEnabled by state { false }
+
                 Switch(
-                    checked = barReplay.isAutoNextEnabled,
-                    onCheckedChange = { barReplay.isAutoNextEnabled = it },
+                    checked = isAutoNextEnabled,
+                    onCheckedChange = {
+                        replayControls.setIsAutoNextEnabled(it)
+                        isAutoNextEnabled = it
+                    },
                 )
             }
         }

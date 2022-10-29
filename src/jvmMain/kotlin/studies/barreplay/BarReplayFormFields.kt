@@ -10,9 +10,11 @@ internal class BarReplayFormFields(
     initial: Model,
 ) {
 
-    val symbol = formScope.singleSelectionState(initial.symbol)
+    // TODO remove initial
+    val symbol = formScope.singleSelectionState("ICICIBANK")
 
-    val timeframe = formScope.singleSelectionState(initial.timeframe)
+    // TODO remove initial
+    val timeframe = formScope.singleSelectionState("5m")
 
     val dataFrom = formScope.dateTimeFieldState(initial.dataFrom)
 
