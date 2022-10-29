@@ -2,7 +2,10 @@ package trading.data
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.*
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import trading.Candle
@@ -78,9 +81,18 @@ class CandleCacheImpl : CandleCache {
 
         if (allFiles.isEmpty()) return@withContext emptyList()
 
+        val fromMonth = run {
+            val date = from.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            LocalDate(year = date.year, month = date.month, dayOfMonth = 1)
+        }
+        val toMonth = run {
+            val date = to.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            LocalDate(year = date.year, month = date.month, dayOfMonth = 1)
+        }
+
         val fetchFiles = allFiles.filter {
             val fileMonth = LocalDate.parse(it.fileName.toString().dropLast(4))
-            fileMonth.atStartOfDayIn(TimeZone.currentSystemDefault()) in from..to
+            fileMonth in fromMonth..toMonth
         }
 
         fun JsonElement.toCandle() = Candle(
