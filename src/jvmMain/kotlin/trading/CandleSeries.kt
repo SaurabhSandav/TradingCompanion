@@ -14,6 +14,7 @@ class CandleSeries(
         20,
         RoundingMode.HALF_EVEN,
     ),
+    seriesTimeframe: Timeframe? = null,
 ) {
 
     private val series = mutableListOf<Candle>()
@@ -22,7 +23,14 @@ class CandleSeries(
     private val _live = MutableStateFlow(initial.lastOrNull())
     val live: StateFlow<Candle?> = _live.asStateFlow()
 
+    var timeframe: Timeframe? = seriesTimeframe
+
     init {
+
+        // Determine timeframe
+        if (initial.size >= 2)
+            timeframe = calculateTimeframe(initial[initial.lastIndex - 1], initial.last())
+
         initial.forEach { addCandle(it) }
     }
 
@@ -32,6 +40,9 @@ class CandleSeries(
     fun addCandle(candle: Candle) {
 
         val lastCandle = series.lastOrNull()
+
+        // Determine timeframe
+        if (timeframe == null && lastCandle != null) timeframe = calculateTimeframe(lastCandle, candle)
 
         if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
             error("Candle cannot be older than the last candle in the series: $candle")
@@ -80,5 +91,15 @@ class CandleSeries(
         }
 
         return cache
+    }
+
+    private fun calculateTimeframe(
+        candle: Candle,
+        nextCandle: Candle,
+    ): Timeframe {
+
+        val diff = nextCandle.openInstant - candle.openInstant
+
+        return Timeframe.fromSeconds(diff.inWholeSeconds) ?: error("Unknown Timeframe")
     }
 }
