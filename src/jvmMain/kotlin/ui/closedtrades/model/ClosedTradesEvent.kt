@@ -20,8 +20,4 @@ internal sealed class ClosedTradesEvent {
     data class SaveTrade(
         val model: CloseTradeDetailedFormFields.Model,
     ) : ClosedTradesEvent()
-
-    object DismissCandleDataWindow : ClosedTradesEvent()
-
-    class CandleDataLoggedIn(val redirectUrl: String) : ClosedTradesEvent()
 }

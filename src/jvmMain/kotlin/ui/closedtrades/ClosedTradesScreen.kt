@@ -7,12 +7,12 @@ import androidx.compose.runtime.*
 import ui.addclosedtradedetailed.CloseTradeDetailedWindow
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
-import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
+import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
 import ui.closedtrades.ui.ClosedTradeChartWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
-import ui.closedtrades.ui.FyersLoginWindow
 import ui.common.ErrorSnackbar
+import ui.fyerslogin.FyersLoginWindow
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
 @Composable
@@ -70,16 +70,12 @@ internal fun ClosedTradesScreen(
             }
         }
 
-        // Edit trade windows
-        val candleDataLoginWindowState = state.candleDataLoginWindowState
+        // Fyers login window
+        val fyersLoginWindowState = state.fyersLoginWindowState
 
-        if (candleDataLoginWindowState is CandleDataLoginWindow.Open) {
+        if (fyersLoginWindowState is FyersLoginWindow.Open) {
 
-            FyersLoginWindow(
-                loginUrl = candleDataLoginWindowState.loginUrl,
-                onLoginSuccess = { presenter.event(ClosedTradesEvent.CandleDataLoggedIn(it)) },
-                onCloseRequest = { presenter.event(ClosedTradesEvent.DismissCandleDataWindow) },
-            )
+            FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
         }
 
         // Errors

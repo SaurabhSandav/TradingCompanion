@@ -3,6 +3,7 @@ package ui.closedtrades.model
 import androidx.compose.runtime.Immutable
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 import ui.common.MultipleWindowManager
+import ui.fyerslogin.FyersLoginState
 
 @Immutable
 internal data class ClosedTradesState(
@@ -10,7 +11,7 @@ internal data class ClosedTradesState(
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
     val editTradeWindowsManager: MultipleWindowManager<CloseTradeDetailedFormFields.Model>,
     val chartWindowsManager: MultipleWindowManager<ClosedTradeChartWindowParams>,
-    val candleDataLoginWindowState: CandleDataLoginWindow,
+    val fyersLoginWindowState: FyersLoginWindow,
 ) {
 
     @Immutable
@@ -24,13 +25,13 @@ internal data class ClosedTradesState(
     }
 
     @Immutable
-    internal sealed class CandleDataLoginWindow {
+    internal sealed class FyersLoginWindow {
 
         @Immutable
-        class Open(val loginUrl: String) : CandleDataLoginWindow()
+        class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
 
         @Immutable
-        object Dismissed : CandleDataLoginWindow()
+        object Dismissed : FyersLoginWindow()
     }
 }
 

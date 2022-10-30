@@ -32,12 +32,12 @@ import trading.indicator.VWAPIndicator
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
 import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
-import ui.closedtrades.model.ClosedTradesState.CandleDataLoginWindow
+import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
 import ui.common.CollectEffect
 import ui.common.MultipleWindowManager
 import ui.common.UIErrorMessage
 import ui.common.state
-import utils.PrefKeys
+import ui.fyerslogin.FyersLoginState
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -60,7 +60,7 @@ internal class ClosedTradesPresenter(
     private val editTradeWindowsManager = MultipleWindowManager<CloseTradeDetailedFormFields.Model>()
     private val chartWindowsManager = MultipleWindowManager<ClosedTradeChartWindowParams>()
 
-    private var candleDataLoginWindowState by mutableStateOf<CandleDataLoginWindow>(CandleDataLoginWindow.Dismissed)
+    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Dismissed)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -70,8 +70,6 @@ internal class ClosedTradesPresenter(
                 is ClosedTradesEvent.OpenChart -> onOpenChart(event.id)
                 is ClosedTradesEvent.EditTrade -> onEditTrade(event.id)
                 is ClosedTradesEvent.SaveTrade -> onSaveTrade(event.model)
-                is ClosedTradesEvent.CandleDataLoggedIn -> onCandleDataLoggedIn(event.redirectUrl)
-                is ClosedTradesEvent.DismissCandleDataWindow -> onDismissCandleDataLoginWindow()
                 else -> Unit
             }
         }
@@ -81,7 +79,7 @@ internal class ClosedTradesPresenter(
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
             editTradeWindowsManager = editTradeWindowsManager,
             chartWindowsManager = chartWindowsManager,
-            candleDataLoginWindowState = candleDataLoginWindowState,
+            fyersLoginWindowState = fyersLoginWindowState,
         )
     }
 
@@ -177,7 +175,7 @@ internal class ClosedTradesPresenter(
         )
     }
 
-    private fun onOpenChart(id: Int) = coroutineScope.launchUnit {
+    private fun onOpenChart(id: Int): Unit = coroutineScope.launchUnit {
 
         // Chart window already open
         if (chartWindowsManager.windows.any { it.params.tradeId == id }) return@launchUnit
@@ -214,7 +212,17 @@ internal class ClosedTradesPresenter(
                         message = "Please login",
                         actionLabel = "Login",
                         onActionClick = {
-                            candleDataLoginWindowState = CandleDataLoginWindow.Open(fyersApi.getLoginURL())
+                            fyersLoginWindowState = FyersLoginWindow.Open(
+                                FyersLoginState(
+                                    fyersApi = fyersApi,
+                                    appPrefs = appPrefs,
+                                    onDismiss = { fyersLoginWindowState = FyersLoginWindow.Dismissed },
+                                    onLoginSuccess = { onOpenChart(id) },
+                                    onLoginFailure = { message ->
+                                        errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
+                                    },
+                                )
+                            )
                         },
                         withDismissAction = true,
                         duration = UIErrorMessage.Duration.Indefinite,
@@ -408,27 +416,6 @@ internal class ClosedTradesPresenter(
                 )
             }
         }
-    }
-
-    private fun onCandleDataLoggedIn(redirectUrl: String) = coroutineScope.launchUnit {
-
-        candleDataLoginWindowState = CandleDataLoginWindow.Dismissed
-        val response = fyersApi.getAccessToken(redirectUrl)
-
-        val accessToken = when (response.result) {
-            null -> {
-                errors += UIErrorMessage(response.message ?: "Unknown Error") { errors -= it }
-                return@launchUnit
-            }
-
-            else -> response.result.accessToken
-        }
-
-        appPrefs.putString(PrefKeys.FyersAccessToken, accessToken)
-    }
-
-    private fun onDismissCandleDataLoginWindow() {
-        candleDataLoginWindowState = CandleDataLoginWindow.Dismissed
     }
 
     @Composable

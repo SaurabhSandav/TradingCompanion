@@ -1,4 +1,4 @@
-package ui.closedtrades.ui
+package ui.fyerslogin
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,13 +13,11 @@ import ui.common.*
 
 @Composable
 internal fun FyersLoginWindow(
-    loginUrl: String,
-    onLoginSuccess: (redirectUrl: String) -> Unit,
-    onCloseRequest: () -> Unit,
+    loginState: FyersLoginState,
 ) {
 
     AppWindow(
-        onCloseRequest = onCloseRequest,
+        onCloseRequest = loginState.onDismiss,
     ) {
 
         Column(Modifier.fillMaxSize()) {
@@ -39,12 +37,12 @@ internal fun FyersLoginWindow(
                 LaunchedEffect(Unit) {
 
                     // Load login page
-                    webViewState.load(loginUrl)
+                    webViewState.load(loginState.url)
 
                     // Watch for successful redirect
                     webViewState.location.collect { newLocation ->
                         if (newLocation.startsWith("http://localhost:8080")) {
-                            onLoginSuccess(newLocation)
+                            loginState.onLoginSuccess(newLocation)
                         }
                     }
                 }
