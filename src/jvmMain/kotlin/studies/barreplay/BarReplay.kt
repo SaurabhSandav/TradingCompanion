@@ -39,6 +39,7 @@ internal class BarReplay(
     private var currentTimeframe = timeframe
 
     private lateinit var candleSeries: CandleSeries
+    private lateinit var baseCandleSeries: CandleSeries
     private lateinit var ema9Indicator: EMAIndicator
     private lateinit var vwapIndicator: VWAPIndicator
 
@@ -65,13 +66,13 @@ internal class BarReplay(
     suspend fun init() {
 
         candleSeries = getCandleSeries(symbol, timeframe)
+        baseCandleSeries = candleSeries
 
         val initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
 
         replayClock = BarReplayClock(
-            initialTime = candleSeries.list[initialCandleIndex].openInstant,
             initialIndex = initialCandleIndex,
-            timeframe = timeframe,
+            initialTime = candleSeries.list[initialCandleIndex].openInstant,
         )
 
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
@@ -85,6 +86,7 @@ internal class BarReplay(
         currentSymbol = symbol
 
         candleSeries = getCandleSeries(symbol, currentTimeframe)
+        baseCandleSeries = candleSeries
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
         vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
 
@@ -93,7 +95,7 @@ internal class BarReplay(
 
     fun newTimeframe(timeframe: Timeframe) = coroutineScope.launch {
 
-        if (timeframe.seconds < this@BarReplay.timeframe.seconds) error("New Timeframe cannot be less than initial Timeframe")
+        if (timeframe.seconds < this@BarReplay.timeframe.seconds) error("New Timeframe cannot be less than Base Timeframe")
 
         currentTimeframe = timeframe
 
@@ -114,18 +116,43 @@ internal class BarReplay(
 
     fun next() {
 
-        replayClock.next()
+        replayClock.next(baseCandleSeries)
 
-        val adjustedIndex = candleSeries.list.indexOfFirst {
-            replayClock.currentTime in it.openInstant..(it.openInstant + currentTimeframe.seconds.seconds)
+        val index = when (currentTimeframe) {
+            timeframe -> replayClock.currentIndex
+            else -> candleSeries.list.indexOfFirst {
+                replayClock.currentTime in it.openInstant..(it.openInstant + currentTimeframe.seconds.seconds)
+            }
         }
-        val candle = candleSeries.list[adjustedIndex]
+
+        val candle = when (currentTimeframe) {
+            timeframe -> candleSeries.list[index]
+            else -> {
+
+                val adjustedCandleOpenInstant = candleSeries.list[index].openInstant
+                val timeframeCandles = baseCandleSeries.list.filter {
+                    it.openInstant in adjustedCandleOpenInstant..replayClock.currentTime
+                }
+
+                var currentCandle = timeframeCandles.first().copy(openInstant = adjustedCandleOpenInstant)
+
+                timeframeCandles.forEach { candle ->
+                    currentCandle = currentCandle.copy(
+                        high = if (candle.high > currentCandle.high) candle.high else currentCandle.high,
+                        low = if (candle.low < currentCandle.low) candle.low else currentCandle.low,
+                        close = candle.close,
+                    )
+                }
+
+                currentCandle
+            }
+        }
 
         replayChart.update(
             BarReplayChart.Data(
                 candle = candle,
-                ema9 = ema9Indicator[adjustedIndex],
-                vwap = vwapIndicator[adjustedIndex],
+                ema9 = ema9Indicator[index],
+                vwap = vwapIndicator[index],
             )
         )
     }
@@ -149,32 +176,6 @@ internal class BarReplay(
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
         }
-    }
-
-    private fun CandleSeries.resampled(timeframe: Timeframe): CandleSeries {
-
-        val candleSeries = CandleSeries()
-
-        val initialCandleIndex = candleSeries.list.indexOfFirst(isSessionStart)
-        val timeframeDuration = timeframe.seconds.seconds
-        var currentCandle = list[initialCandleIndex]
-
-        list.slice(initialCandleIndex..list.lastIndex).forEach { candle ->
-
-            if ((currentCandle.openInstant + timeframeDuration) == candle.openInstant) {
-                candleSeries.addCandle(candle)
-                currentCandle = candle
-                return@forEach
-            }
-
-            currentCandle = currentCandle.copy(
-                high = if (candle.high > currentCandle.high) candle.high else currentCandle.high,
-                low = if (candle.low < currentCandle.low) candle.low else currentCandle.low,
-                close = candle.close,
-            )
-        }
-
-        return candleSeries
     }
 
     private fun setInitialData() {

@@ -1,13 +1,11 @@
 package studies.barreplay
 
 import kotlinx.datetime.Instant
-import trading.Timeframe
-import kotlin.time.Duration.Companion.seconds
+import trading.CandleSeries
 
 internal class BarReplayClock(
-    private val initialTime: Instant,
     private val initialIndex: Int,
-    private val timeframe: Timeframe,
+    private val initialTime: Instant,
 ) {
 
     var currentTime = initialTime
@@ -15,9 +13,9 @@ internal class BarReplayClock(
     var currentIndex = initialIndex
         private set
 
-    fun next() {
-        currentTime += timeframe.seconds.seconds
+    fun next(baseCandleSeries: CandleSeries) {
         currentIndex++
+        currentTime = baseCandleSeries.list[currentIndex].openInstant
     }
 
     fun reset() {
