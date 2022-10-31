@@ -13,7 +13,7 @@ internal data class OpenTradesState(
 )
 
 internal data class OpenTradeListEntry(
-    val id: Int,
+    val id: Long,
     val broker: String,
     val ticker: String,
     val instrument: String,

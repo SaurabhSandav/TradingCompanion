@@ -78,7 +78,7 @@ internal class CloseTradeDetailedFormFields(
     )
 
     class Model(
-        val id: Int,
+        val id: Long,
         val ticker: String?,
         val quantity: String,
         val isLong: Boolean,

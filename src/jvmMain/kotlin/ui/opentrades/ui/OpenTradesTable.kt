@@ -17,10 +17,10 @@ import ui.opentrades.model.OpenTradeListEntry
 @Composable
 internal fun OpenTradesTable(
     openTrades: List<OpenTradeListEntry>,
-    onEditTrade: (id: Int) -> Unit,
-    onDeleteTrade: (id: Int) -> Unit,
+    onEditTrade: (id: Long) -> Unit,
+    onDeleteTrade: (id: Long) -> Unit,
     onAddTrade: () -> Unit,
-    onCloseTrade: (id: Int) -> Unit,
+    onCloseTrade: (id: Long) -> Unit,
 ) {
 
     val schema = rememberTableSchema<OpenTradeListEntry> {

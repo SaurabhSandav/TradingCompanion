@@ -21,9 +21,9 @@ import ui.common.table.*
 @Composable
 internal fun ClosedTradesTable(
     closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
-    onOpenChart: (id: Int) -> Unit,
-    onEditTrade: (id: Int) -> Unit,
-    onDeleteTrade: (id: Int) -> Unit,
+    onOpenChart: (id: Long) -> Unit,
+    onEditTrade: (id: Long) -> Unit,
+    onDeleteTrade: (id: Long) -> Unit,
 ) {
 
     val schema = rememberTableSchema<ClosedTradeListItem.Entry> {

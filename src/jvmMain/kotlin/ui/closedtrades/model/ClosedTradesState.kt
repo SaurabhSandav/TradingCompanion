@@ -19,7 +19,7 @@ internal data class ClosedTradesState(
     internal sealed class DeleteConfirmationDialog {
 
         @Immutable
-        data class Open(val id: Int) : DeleteConfirmationDialog()
+        data class Open(val id: Long) : DeleteConfirmationDialog()
 
         @Immutable
         object Dismissed : DeleteConfirmationDialog()
@@ -44,7 +44,7 @@ internal sealed class ClosedTradeListItem {
 
     @Immutable
     internal data class Entry(
-        val id: Int,
+        val id: Long,
         val broker: String,
         val ticker: String,
         val quantity: String,

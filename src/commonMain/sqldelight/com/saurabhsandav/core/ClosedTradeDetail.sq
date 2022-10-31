@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS ClosedTradeDetail (
-closedTradeId INTEGER AS Int NOT NULL UNIQUE,
+closedTradeId INTEGER AS Long NOT NULL UNIQUE,
 maxFavorableExcursion TEXT,
 maxAdverseExcursion TEXT,
 tags TEXT NOT NULL,

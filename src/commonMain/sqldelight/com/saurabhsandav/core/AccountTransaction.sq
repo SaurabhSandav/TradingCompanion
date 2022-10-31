@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS AccountTransaction (
-accountId INTEGER AS Int NOT NULL,
+accountId INTEGER AS Long NOT NULL,
 date TEXT NOT NULL,
 amount TEXT NOT NULL,
 type TEXT NOT NULL,

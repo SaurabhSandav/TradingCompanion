@@ -116,7 +116,7 @@ internal class OpenTradesPresenter(
         )
     }
 
-    private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
+    private fun onEditTrade(id: Long) = coroutineScope.launchUnit {
 
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
@@ -141,7 +141,7 @@ internal class OpenTradesPresenter(
         )
     }
 
-    private fun onCloseTrade(id: Int) = coroutineScope.launchUnit {
+    private fun onCloseTrade(id: Long) = coroutineScope.launchUnit {
 
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
@@ -171,7 +171,7 @@ internal class OpenTradesPresenter(
         )
     }
 
-    private fun onDeleteTrade(id: Int) = coroutineScope.launchUnit {
+    private fun onDeleteTrade(id: Long) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.delete(id)

@@ -6,7 +6,7 @@ import chart.data.LineData
 import chart.data.SeriesMarker
 
 internal class ClosedTradeChartWindowParams(
-    val tradeId: Int,
+    val tradeId: Long,
     val chartData: ClosedTradeChartData,
 )
 

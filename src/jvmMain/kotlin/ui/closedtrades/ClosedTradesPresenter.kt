@@ -176,7 +176,7 @@ internal class ClosedTradesPresenter(
         )
     }
 
-    private fun onOpenChart(id: Int): Unit = coroutineScope.launchUnit {
+    private fun onOpenChart(id: Long): Unit = coroutineScope.launchUnit {
 
         // Chart window already open
         if (chartWindowsManager.windows.any { it.params.tradeId == id }) return@launchUnit
@@ -352,7 +352,7 @@ internal class ClosedTradesPresenter(
         chartWindowsManager.openNewWindow(params)
     }
 
-    private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
+    private fun onEditTrade(id: Long) = coroutineScope.launchUnit {
 
         // Edit window already open
         if (editTradeWindowStates.any { it.formModel.id == id }) return@launchUnit
@@ -447,7 +447,7 @@ internal class ClosedTradesPresenter(
         return state
     }
 
-    private fun deleteTrade(id: Int) = coroutineScope.launchUnit {
+    private fun deleteTrade(id: Long) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.delete(id)
