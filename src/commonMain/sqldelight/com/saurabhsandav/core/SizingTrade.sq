@@ -1,31 +1,28 @@
 
 CREATE TABLE IF NOT EXISTS SizingTrade (
-ticker TEXT NOT NULL UNIQUE,
+id INTEGER AS Long NOT NULL PRIMARY KEY,
+ticker TEXT NOT NULL,
 entry TEXT NOT NULL,
-stop TEXT NOT NULL,
-hidden TEXT NOT NULL
+stop TEXT NOT NULL
 );
 
 insert:
-INSERT INTO SizingTrade
-VALUES ?
-ON CONFLICT(ticker) DO UPDATE SET hidden = "false";
+INSERT OR REPLACE INTO SizingTrade
+VALUES (?, ?, ?, ?);
 
-getAllNotHidden:
-SELECT * FROM SizingTrade
-WHERE hidden = "false"
-ORDER BY ticker;
+getAll:
+SELECT * FROM SizingTrade;
 
-update:
+updateEntry:
 UPDATE SizingTrade
-SET entry = ?, stop = ?
-WHERE ticker = ?;
+SET entry = ?
+WHERE id = ?;
 
-hide:
+updateStop:
 UPDATE SizingTrade
-SET hidden = "true"
-WHERE ticker = ?;
+SET stop = ?
+WHERE id = ?;
 
-hideAll:
-UPDATE SizingTrade
-SET hidden = "true";
+delete:
+DELETE FROM SizingTrade
+WHERE id = ?;

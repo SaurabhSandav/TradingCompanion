@@ -1,29 +1,18 @@
 package ui.sizing
 
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ListItem
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import ui.common.controls.ListSelectionDialog
 import ui.common.state
-import ui.common.table.*
 import utils.NIFTY50
 
 @Composable
@@ -33,128 +22,168 @@ internal fun SizingScreen(
 
     val state by presenter.state.collectAsState()
 
-    var showStockSelectionDialog by state { false }
+    LazyVerticalGrid(
+        modifier = Modifier.padding(8.dp),
+        columns = GridCells.Adaptive(250.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
 
-    val schema = rememberTableSchema<SizedTrade> {
-        addColumnText("Ticker") { it.ticker }
-        addColumn("Entry") { sizedTrade ->
+        items(
+            items = state.sizedTrades,
+            key = { it.id },
+        ) { sizedTrade ->
+
+            SizingTradeCard(
+                sizedTrade = sizedTrade,
+                onUpdateEntry = { presenter.event(SizingEvent.UpdateTradeEntry(sizedTrade.id, it)) },
+                onUpdateStop = { presenter.event(SizingEvent.UpdateTradeStop(sizedTrade.id, it)) },
+                onOpenTrade = {},
+                onDeleteTrade = { presenter.event(SizingEvent.RemoveTrade(sizedTrade.id)) },
+            )
+        }
+
+        item {
+            AddTradeCard { presenter.event(SizingEvent.AddTrade(it)) }
+        }
+    }
+}
+
+@Composable
+private fun AddTradeCard(
+    onAddTrade: (ticker: String) -> Unit,
+) {
+
+    Card {
+
+        var showStockSelectionDialog by state { false }
+
+        TextButton(
+            onClick = { showStockSelectionDialog = true },
+        ) {
+
+            Text(
+                text = "New Trade",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+        }
+
+        if (showStockSelectionDialog) {
+
+            ListSelectionDialog(
+                items = NIFTY50,
+                onSelection = {
+                    onAddTrade(it)
+                    showStockSelectionDialog = false
+                },
+                selectionDialogTitle = "Select Stock",
+                onCloseRequest = { showStockSelectionDialog = false },
+            )
+        }
+    }
+}
+
+@Composable
+private fun SizingTradeCard(
+    sizedTrade: SizedTrade,
+    onUpdateEntry: (String) -> Unit,
+    onUpdateStop: (String) -> Unit,
+    onOpenTrade: () -> Unit,
+    onDeleteTrade: () -> Unit,
+) {
+
+    Card {
+
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            Text(sizedTrade.ticker)
 
             var entry by state { sizedTrade.entry }
 
             OutlinedTextField(
                 value = entry,
                 onValueChange = {
-                    presenter.updateEntry(sizedTrade, entry)
+                    onUpdateEntry(it)
                     entry = it
                 },
                 isError = entry.toBigDecimalOrNull() == null,
                 singleLine = true,
+                label = { Text("Entry") },
             )
-        }
-        addColumn("Stop") { sizedTrade ->
 
             var stop by state { sizedTrade.stop }
 
             OutlinedTextField(
                 value = stop,
                 onValueChange = {
-                    presenter.updateStop(sizedTrade, stop)
+                    onUpdateStop(it)
                     stop = it
                 },
                 isError = stop.toBigDecimalOrNull() == null,
                 singleLine = true,
+                label = { Text("Stop") },
             )
-        }
-        addColumnText("Side") { it.side }
-        addColumnText("Spread") { it.spread }
-        addColumnText("Calculated Quantity") { it.calculatedQuantity }
-        addColumnText("Max Affordable Quantity") { it.maxAffordableQuantity }
-        addColumnText("Entry Quantity") { it.entryQuantity }
-        addColumnText("Target (1x)") { it.target }
-    }
-
-    LazyTable(
-        schema = schema,
-    ) {
-
-        rows(
-            items = state.sizedTrades,
-            key = { it.ticker },
-        ) { sizedTrade ->
-
-            ContextMenuArea(
-                items = {
-                    listOf(
-                        ContextMenuItem("Delete") { presenter.removeTrade(sizedTrade.ticker) },
-                    )
-                },
-            ) {
-
-                DefaultTableRow(
-                    item = sizedTrade,
-                    schema = schema,
-                )
-            }
-        }
-
-        row {
 
             Row(
-                modifier = Modifier.padding(16.dp).fillParentMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
 
-                Button(
-                    onClick = { showStockSelectionDialog = true },
+                Text("Side")
+
+                Text(
+                    text = sizedTrade.side,
+                    color = sizedTrade.color,
+                    fontWeight = FontWeight.Companion.Bold
+                )
+            }
+
+            val data = remember(sizedTrade) {
+                listOf(
+                    "Spread" to sizedTrade.spread,
+                    "Quantity (Calc)" to sizedTrade.calculatedQuantity,
+                    "Quantity (Max)" to sizedTrade.maxAffordableQuantity,
+                    "Target (1R)" to sizedTrade.target,
+                )
+            }
+
+            data.forEach { (label, value) ->
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
 
-                    Text("New Trade")
+                    Text(label)
+
+                    Text(value)
                 }
             }
         }
-    }
 
-    if (showStockSelectionDialog) {
+        Divider()
 
-        StockSelectionDialog(
-            onTickerSelected = {
-                presenter.addTrade(it)
-                showStockSelectionDialog = false
-            },
-            onCloseRequest = { showStockSelectionDialog = false },
-        )
-    }
-}
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
 
-@Composable
-private fun StockSelectionDialog(
-    onTickerSelected: (ticker: String) -> Unit,
-    onCloseRequest: () -> Unit,
-) {
+            TextButton(
+                onClick = { onOpenTrade() },
+                modifier = Modifier.weight(1F),
+            ) {
+                Text("Open Trade")
+            }
 
-    Dialog(
-        onCloseRequest = onCloseRequest,
-        title = "Select Stock",
-    ) {
-
-        LazyColumn {
-
-            items(
-                items = NIFTY50,
-                key = { it },
-            ) { stock ->
-
-                ListItem(
-                    modifier = Modifier.clickable { onTickerSelected(stock) },
-                ) {
-
-                    Text(
-                        text = stock,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                    )
-                }
+            TextButton(
+                onClick = { onDeleteTrade() },
+                modifier = Modifier.weight(1F),
+            ) {
+                Text("Delete")
             }
         }
     }

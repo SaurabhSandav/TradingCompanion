@@ -1,9 +1,11 @@
 package ui.sizing
 
 import AppModule
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.SizingTrade
@@ -11,20 +13,36 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import launchUnit
 import mapList
 import model.Account
 import model.Side
+import ui.common.AppColor
+import ui.common.CollectEffect
+import ui.sizing.SizingEvent.*
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
 
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
 
+    private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
+
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+
+        CollectEffect(events) { event ->
+
+            when (event) {
+                is AddTrade -> addTrade(event.ticker)
+                is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
+                is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
+                is RemoveTrade -> removeTrade(event.id)
+            }
+        }
 
         val account by appModule.account.collectAsState(
             Account(
@@ -35,57 +53,55 @@ internal class SizingPresenter(
             )
         )
 
-        val sizedTrades by remember {
-            appModule.appDB.sizingTradeQueries
-                .getAllNotHidden()
-                .asFlow()
-                .mapToList(Dispatchers.IO)
-                .mapList { sizingTrade -> sizingTrade.size(account) }
-        }.collectAsState(emptyList())
-
         return@launchMolecule SizingState(
-            sizedTrades = sizedTrades
+            sizedTrades = getSizedTrades(account),
         )
     }
 
-    internal fun updateEntry(sizedTrade: SizedTrade, entry: String) =
-        updateSizingTrade(sizedTrade, entry, sizedTrade.stop)
+    fun event(event: SizingEvent) {
+        events.tryEmit(event)
+    }
 
-    internal fun updateStop(sizedTrade: SizedTrade, stop: String) =
-        updateSizingTrade(sizedTrade, sizedTrade.entry, stop)
+    private fun addTrade(ticker: String) = coroutineScope.launchUnit(Dispatchers.IO) {
+        appModule.appDB.sizingTradeQueries.insert(
+            id = null,
+            ticker = ticker,
+            entry = "0",
+            stop = "0",
+        )
+    }
 
-    internal fun addTrade(ticker: String) {
+    private fun updateTradeEntry(id: Long, entry: String) {
+
+        if (entry.toBigDecimalOrNull() == null) return
 
         coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.insert(
-                SizingTrade(
-                    ticker = ticker,
-                    entry = "0",
-                    stop = "0",
-                    hidden = false.toString(),
-                )
-            )
+            appModule.appDB.sizingTradeQueries.updateEntry(entry = entry, id = id)
         }
     }
 
-    internal fun removeTrade(ticker: String) {
+    private fun updateTradeStop(id: Long, stop: String) {
+
+        if (stop.toBigDecimalOrNull() == null) return
 
         coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.hide(ticker)
+            appModule.appDB.sizingTradeQueries.updateStop(stop = stop, id = id)
         }
     }
 
-    private fun updateSizingTrade(sizedTrade: SizedTrade, entry: String, stop: String) {
+    private fun removeTrade(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
+        appModule.appDB.sizingTradeQueries.delete(id)
+    }
 
-        if (entry.toBigDecimalOrNull() == null || stop.toBigDecimalOrNull() == null) return
-
-        coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.update(
-                ticker = sizedTrade.ticker,
-                entry = entry,
-                stop = stop,
-            )
-        }
+    @Composable
+    private fun getSizedTrades(account: Account): List<SizedTrade> {
+        return remember(account) {
+            appModule.appDB.sizingTradeQueries
+                .getAll()
+                .asFlow()
+                .mapToList(Dispatchers.IO)
+                .mapList { sizingTrade -> sizingTrade.size(account) }
+        }.collectAsState(emptyList()).value
     }
 
     private fun SizingTrade.size(account: Account): SizedTrade {
@@ -108,22 +124,27 @@ internal class SizingPresenter(
         }
 
         return SizedTrade(
+            id = id,
             ticker = ticker,
             entry = entry,
             stop = stop,
             side = when {
                 entryStopComparison > 0 -> Side.Long.strValue
                 entryStopComparison < 0 -> Side.Short.strValue
-                else -> "Invalid"
-            }.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                else -> ""
+            }.uppercase(),
             spread = spread.toPlainString(),
             calculatedQuantity = calculatedQuantity.toPlainString(),
             maxAffordableQuantity = maxAffordableQuantity.toPlainString(),
-            entryQuantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
             target = when {
-                entry > stop -> entryBD + spread // Long
+                entryBD > stopBD -> entryBD + spread // Long
                 else -> entryBD - spread // Short
             }.toPlainString(),
+            color = when {
+                entryStopComparison > 0 -> AppColor.ProfitGreen
+                entryStopComparison < 0 -> AppColor.LossRed
+                else -> Color.Transparent
+            },
         )
     }
 }

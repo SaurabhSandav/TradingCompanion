@@ -83,7 +83,7 @@ fun ListSelectionField(
 }
 
 @Composable
-private fun ListSelectionDialog(
+fun ListSelectionDialog(
     items: List<String>,
     onSelection: (ticker: String) -> Unit,
     selectionDialogTitle: String,

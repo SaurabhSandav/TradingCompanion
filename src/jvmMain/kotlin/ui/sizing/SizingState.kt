@@ -1,6 +1,7 @@
 package ui.sizing
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.Color
 
 @Immutable
 internal data class SizingState(
@@ -9,6 +10,7 @@ internal data class SizingState(
 
 @Immutable
 internal data class SizedTrade(
+    val id: Long,
     val ticker: String,
     val entry: String,
     val stop: String,
@@ -16,6 +18,6 @@ internal data class SizedTrade(
     val spread: String,
     val calculatedQuantity: String,
     val maxAffordableQuantity: String,
-    val entryQuantity: String,
     val target: String,
+    val color: Color,
 )
