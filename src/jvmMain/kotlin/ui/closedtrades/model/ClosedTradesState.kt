@@ -31,7 +31,7 @@ internal data class ClosedTradesState(
         class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
 
         @Immutable
-        object Dismissed : FyersLoginWindow()
+        object Closed : FyersLoginWindow()
     }
 }
 

@@ -7,7 +7,7 @@ import utils.PrefKeys
 internal class FyersLoginState(
     private val fyersApi: FyersApi,
     private val appPrefs: FlowSettings,
-    val onDismiss: () -> Unit,
+    val onCloseRequest: () -> Unit,
     private val onLoginSuccess: () -> Unit,
     private val onLoginFailure: (String?) -> Unit,
 ) {
@@ -20,13 +20,13 @@ internal class FyersLoginState(
 
         when (response.result) {
             null -> {
-                onDismiss()
+                onCloseRequest()
                 onLoginFailure(response.message)
             }
 
             else -> {
                 appPrefs.putString(PrefKeys.FyersAccessToken, response.result.accessToken)
-                onDismiss()
+                onCloseRequest()
                 onLoginSuccess()
             }
         }

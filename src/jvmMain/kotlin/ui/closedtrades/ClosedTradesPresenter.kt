@@ -60,7 +60,7 @@ internal class ClosedTradesPresenter(
     private val editTradeWindowsManager = MultipleWindowManager<CloseTradeDetailedFormFields.Model>()
     private val chartWindowsManager = MultipleWindowManager<ClosedTradeChartWindowParams>()
 
-    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Dismissed)
+    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -216,7 +216,7 @@ internal class ClosedTradesPresenter(
                                 FyersLoginState(
                                     fyersApi = fyersApi,
                                     appPrefs = appPrefs,
-                                    onDismiss = { fyersLoginWindowState = FyersLoginWindow.Dismissed },
+                                    onCloseRequest = { fyersLoginWindowState = FyersLoginWindow.Closed },
                                     onLoginSuccess = { onOpenChart(id) },
                                     onLoginFailure = { message ->
                                         errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }

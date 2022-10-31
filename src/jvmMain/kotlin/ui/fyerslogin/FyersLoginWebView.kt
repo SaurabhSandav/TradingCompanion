@@ -17,7 +17,7 @@ internal fun FyersLoginWindow(
 ) {
 
     AppWindow(
-        onCloseRequest = loginState.onDismiss,
+        onCloseRequest = loginState.onCloseRequest,
     ) {
 
         Column(Modifier.fillMaxSize()) {
