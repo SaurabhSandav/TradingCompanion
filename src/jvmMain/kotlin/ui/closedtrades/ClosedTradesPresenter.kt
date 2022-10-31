@@ -30,6 +30,7 @@ import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
+import ui.addclosedtradedetailed.CloseTradeDetailedWindowState
 import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
 import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
@@ -57,7 +58,7 @@ internal class ClosedTradesPresenter(
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val editTradeWindowsManager = MultipleWindowManager<CloseTradeDetailedFormFields.Model>()
+    private val editTradeWindowStates = mutableStateListOf<CloseTradeDetailedWindowState>()
     private val chartWindowsManager = MultipleWindowManager<ClosedTradeChartWindowParams>()
 
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
@@ -77,7 +78,7 @@ internal class ClosedTradesPresenter(
         return@launchMolecule ClosedTradesState(
             closedTradesItems = getClosedTradeListEntries().value,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
-            editTradeWindowsManager = editTradeWindowsManager,
+            editTradeWindowStates = editTradeWindowStates,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
         )
@@ -354,7 +355,7 @@ internal class ClosedTradesPresenter(
     private fun onEditTrade(id: Int) = coroutineScope.launchUnit {
 
         // Edit window already open
-        if (editTradeWindowsManager.windows.any { it.params.id == id }) return@launchUnit
+        if (editTradeWindowStates.any { it.formModel.id == id }) return@launchUnit
 
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
@@ -379,7 +380,12 @@ internal class ClosedTradesPresenter(
             persisted = closedTrade.persisted.toBoolean(),
         )
 
-        editTradeWindowsManager.openNewWindow(model)
+        editTradeWindowStates += CloseTradeDetailedWindowState(
+            appDB = appDB,
+            formModel = model,
+            coroutineScope = coroutineScope,
+            onCloseRequest = { editTradeWindowStates.removeIf { it.formModel.id == id } },
+        )
     }
 
     private fun onSaveTrade(

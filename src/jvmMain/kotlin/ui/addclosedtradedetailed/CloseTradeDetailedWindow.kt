@@ -25,9 +25,7 @@ import utils.NIFTY50
 
 @Composable
 internal fun CloseTradeDetailedWindow(
-    onCloseRequest: () -> Unit,
-    formModel: CloseTradeDetailedFormFields.Model,
-    onSaveTrade: (CloseTradeDetailedFormFields.Model) -> Unit,
+    state: CloseTradeDetailedWindowState,
 ) {
 
     val windowState = rememberWindowState(
@@ -35,7 +33,7 @@ internal fun CloseTradeDetailedWindow(
     )
 
     AppWindow(
-        onCloseRequest = onCloseRequest,
+        onCloseRequest = state.onCloseRequest,
         state = windowState,
         title = "Close Trade",
         resizable = false,
@@ -44,7 +42,7 @@ internal fun CloseTradeDetailedWindow(
         Row {
 
             val formScope = rememberFormScope()
-            val fields = remember { CloseTradeDetailedFormFields(formScope, formModel) }
+            val fields = remember { CloseTradeDetailedFormFields(formScope, state.formModel) }
 
             Column(
                 modifier = Modifier.weight(1F).padding(16.dp).width(IntrinsicSize.Min),
@@ -136,7 +134,7 @@ internal fun CloseTradeDetailedWindow(
 
                 Button(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onClick = { fields.getModelIfValidOrNull()?.let { onSaveTrade(it) } },
+                    onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
                 ) {
 
                     Text("Save")
@@ -178,7 +176,7 @@ internal fun CloseTradeDetailedWindow(
                     )
                 }
 
-                formModel.tags.forEach {
+                state.formModel.tags.forEach {
 
                     Chip({}) {
                         Text(it)

@@ -3,14 +3,12 @@ package ui.opentrades
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import ui.addclosedtrade.CloseTradeWindow
 import ui.addopentrade.AddOpenTradeWindow
 import ui.opentrades.model.OpenTradesEvent
-import ui.opentrades.model.OpenTradesEvent.AddTradeWindow
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.ui.OpenTradesTable
-import ui.opentrades.model.OpenTradesState.AddTradeWindow as AddTradeWindowState
-import ui.opentrades.model.OpenTradesState.CloseTradeWindow as CloseTradeWindowState
 
 @Composable
 internal fun OpenTradesScreen(
@@ -21,31 +19,25 @@ internal fun OpenTradesScreen(
 
     OpenTradesTable(
         openTrades = state.openTrades,
-        onEditTrade = { presenter.event(AddTradeWindow.OpenEdit(it)) },
+        onEditTrade = { presenter.event(OpenTradesEvent.EditTrade(it)) },
         onDeleteTrade = { presenter.event(DeleteTrade(it)) },
-        onAddTrade = { presenter.event(AddTradeWindow.Open) },
-        onCloseTrade = { presenter.event(OpenTradesEvent.CloseTradeWindow.Open(it)) },
+        onAddTrade = { presenter.event(OpenTradesEvent.AddTrade) },
+        onCloseTrade = { presenter.event(OpenTradesEvent.CloseTrade(it)) },
     )
 
-    val addOpenTradeWindowState = state.addTradeWindowState
+    // Add Trade windows
+    state.addTradeWindowStates.forEach { windowState ->
 
-    if (addOpenTradeWindowState is AddTradeWindowState.Open) {
-
-        AddOpenTradeWindow(
-            onCloseRequest = { presenter.event(AddTradeWindow.Close) },
-            formModel = addOpenTradeWindowState.formModel,
-            onSaveTrade = { presenter.event(AddTradeWindow.SaveTrade(it)) },
-        )
+        key(windowState) {
+            AddOpenTradeWindow(windowState)
+        }
     }
 
-    val closeTradeWindowState = state.closeTradeWindowState
+    // Close Trade windows
+    state.closeTradeWindowStates.forEach { windowState ->
 
-    if (closeTradeWindowState is CloseTradeWindowState.Open) {
-
-        CloseTradeWindow(
-            onCloseRequest = { presenter.event(OpenTradesEvent.CloseTradeWindow.Close) },
-            formModel = closeTradeWindowState.formModel,
-            onSaveTrade = { presenter.event(OpenTradesEvent.CloseTradeWindow.SaveTrade(it)) },
-        )
+        key(windowState) {
+            CloseTradeWindow(windowState)
+        }
     }
 }

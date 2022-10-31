@@ -58,15 +58,11 @@ internal fun ClosedTradesScreen(
         }
 
         // Edit trade windows
-        state.editTradeWindowsManager.windows.forEach { windowEntry ->
+        state.editTradeWindowStates.forEach { windowState ->
 
-            key(windowEntry) {
+            key(windowState) {
 
-                CloseTradeDetailedWindow(
-                    onCloseRequest = { windowEntry.close() },
-                    formModel = windowEntry.params,
-                    onSaveTrade = { presenter.event(ClosedTradesEvent.SaveTrade(it)) },
-                )
+                CloseTradeDetailedWindow(windowState)
             }
         }
 

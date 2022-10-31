@@ -24,9 +24,7 @@ import utils.NIFTY50
 
 @Composable
 internal fun CloseTradeWindow(
-    onCloseRequest: () -> Unit,
-    formModel: CloseTradeFormFields.Model,
-    onSaveTrade: (CloseTradeFormFields.Model) -> Unit,
+    state: CloseTradeWindowState,
 ) {
 
     val windowState = rememberWindowState(
@@ -34,7 +32,7 @@ internal fun CloseTradeWindow(
     )
 
     AppWindow(
-        onCloseRequest = onCloseRequest,
+        onCloseRequest = state.onCloseRequest,
         state = windowState,
         title = "Close Trade",
         resizable = false,
@@ -46,7 +44,7 @@ internal fun CloseTradeWindow(
         ) {
 
             val formScope = rememberFormScope()
-            val fields = remember { CloseTradeFormFields(formScope, formModel) }
+            val fields = remember { CloseTradeFormFields(formScope, state.formModel) }
 
             ListSelectionField(
                 items = NIFTY50,
@@ -133,7 +131,7 @@ internal fun CloseTradeWindow(
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { fields.getModelIfValidOrNull()?.let { onSaveTrade(it) } },
+                onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
             ) {
 
                 Text("Add")

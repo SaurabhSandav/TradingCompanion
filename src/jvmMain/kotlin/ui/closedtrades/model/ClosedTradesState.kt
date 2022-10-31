@@ -1,7 +1,8 @@
 package ui.closedtrades.model
 
 import androidx.compose.runtime.Immutable
-import ui.addclosedtradedetailed.CloseTradeDetailedFormFields
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import ui.addclosedtradedetailed.CloseTradeDetailedWindowState
 import ui.common.MultipleWindowManager
 import ui.fyerslogin.FyersLoginState
 
@@ -9,7 +10,7 @@ import ui.fyerslogin.FyersLoginState
 internal data class ClosedTradesState(
     val closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
-    val editTradeWindowsManager: MultipleWindowManager<CloseTradeDetailedFormFields.Model>,
+    val editTradeWindowStates: SnapshotStateList<CloseTradeDetailedWindowState>,
     val chartWindowsManager: MultipleWindowManager<ClosedTradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
 ) {
