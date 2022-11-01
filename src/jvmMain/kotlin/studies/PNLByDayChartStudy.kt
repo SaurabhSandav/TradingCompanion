@@ -2,13 +2,12 @@ package studies
 
 import AppModule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import chart.baselineSeries
 import chart.createChart
 import chart.data.SingleValueData
 import chart.data.Time
-import chart.options.BaselineStyleOptions
 import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
@@ -16,7 +15,6 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import ui.common.ResizableChart
@@ -70,21 +68,19 @@ internal class PNLByDayChartStudy(
     @Composable
     override fun render() {
 
-        val coroutineScope = rememberCoroutineScope()
-
         val chart = remember {
             createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ResizableChart(chart) {
+        ResizableChart(chart)
 
-            val baselineSeries by baselineSeries(BaselineStyleOptions())
+        LaunchedEffect(chart) {
 
-            coroutineScope.launch {
-                data.collect {
-                    baselineSeries.setData(it)
-                    timeScale.fitContent()
-                }
+            val baselineSeries by chart.baselineSeries()
+
+            data.collect {
+                baselineSeries.setData(it)
+                chart.timeScale.fitContent()
             }
         }
     }

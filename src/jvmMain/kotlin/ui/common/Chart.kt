@@ -17,7 +17,6 @@ import chart.IChartApi
 fun ResizableChart(
     chart: IChartApi,
     modifier: Modifier = Modifier,
-    onChartLoaded: IChartApi.() -> Unit,
 ) {
 
     Column(modifier) {
@@ -34,7 +33,7 @@ fun ResizableChart(
                 initialSize = size
 
                 // Resize chart on layout resize
-                if (chart.isInitialized) chart.resize(
+                chart.resize(
                     width = size.width,
                     height = size.height,
                 )
@@ -53,23 +52,12 @@ fun ResizableChart(
                         .toExternalForm()
                 )
 
-                // On page load, execute chart script
+                // On page load, execute chart scripts
                 webViewState.loadState.collect { loadState ->
 
                     if (loadState != WebViewState.LoadState.LOADED) return@collect
 
-                    chart.init(
-                        container = "document.body",
-                        executeJs = webViewState::executeScript,
-                    )
-
-                    chart.onChartLoaded()
-
-                    // Initial resize in case onSizeChanged isn't called after init()
-                    chart.resize(
-                        width = initialSize.width,
-                        height = initialSize.height,
-                    )
+                    chart.scripts.collect(webViewState::executeScript)
                 }
             }
         }

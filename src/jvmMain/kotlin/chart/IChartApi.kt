@@ -2,6 +2,8 @@ package chart
 
 import chart.data.*
 import chart.options.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -11,30 +13,25 @@ fun createChart(
 ): IChartApi = IChartApi(options, name)
 
 class IChartApi internal constructor(
-    private val options: ChartOptions = ChartOptions(),
+    options: ChartOptions = ChartOptions(),
     val name: String = "chart",
 ) {
 
-    private lateinit var executeJs: (String) -> Unit
+    private val _scripts = MutableSharedFlow<String>(
+        replay = Int.MAX_VALUE,
+        extraBufferCapacity = Int.MAX_VALUE,
+    )
+    val scripts: Flow<String>
+        get() = _scripts
 
-    var isInitialized = false
-    lateinit var timeScale: ITimeScaleApi
-    lateinit var priceScale: IPriceScaleApi
+    val timeScale = ITimeScaleApi(this, ::executeJs)
+    val priceScale = IPriceScaleApi(name, ::executeJs)
 
-    fun init(
-        container: String,
-        executeJs: (String) -> Unit,
-    ) {
-
-        this.executeJs = executeJs
-        timeScale = ITimeScaleApi(this, executeJs)
-        priceScale = IPriceScaleApi(name, executeJs)
+    init {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("const $name = LightweightCharts.createChart($container, $optionsJson);")
-
-        isInitialized = true
+        executeJs("const $name = LightweightCharts.createChart(document.body, $optionsJson);")
     }
 
     fun addBaselineSeries(
@@ -74,16 +71,10 @@ class IChartApi internal constructor(
     )
 
     fun resize(width: Int, height: Int) {
-
-        checkChartInitialized()
-
         executeJs("$name.resize($width, $height)")
     }
 
     fun removeSeries(series: ISeriesApi<*>) {
-
-        checkChartInitialized()
-
         executeJs("$name.removeSeries(${series.name});")
     }
 
@@ -93,9 +84,7 @@ class IChartApi internal constructor(
         name: String,
     ): ISeriesApi<T> {
 
-        checkChartInitialized()
-
-        val series = ISeriesApi<T>(executeJs, name)
+        val series = ISeriesApi<T>(::executeJs, name)
         val optionsJson = options.toJsonElement()
 
         executeJs("var ${series.name} = (typeof ${series.name} != \"undefined\") ? ${series.name} : ${this@IChartApi.name}.$funcName(${optionsJson});")
@@ -103,8 +92,8 @@ class IChartApi internal constructor(
         return series
     }
 
-    private fun checkChartInitialized() {
-        check(isInitialized) { "Chart is not initialized. Call init() before any chart operations." }
+    private fun executeJs(script: String) {
+        _scripts.tryEmit(script)
     }
 }
 

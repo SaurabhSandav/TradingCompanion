@@ -13,7 +13,6 @@ import chart.createChart
 import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
-import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import studies.Study
 import trading.Timeframe
@@ -133,9 +132,11 @@ internal class BarReplayStudy(
             ResizableChart(
                 chart = chart,
                 modifier = Modifier.fillMaxSize(),
-            ) {
+            )
 
-                val replayChart = BarReplayChart(this)
+            LaunchedEffect(chart) {
+
+                val replayChart = BarReplayChart(chart)
                 val barReplay = BarReplay(
                     candleRepo = candleRepo,
                     coroutineScope = coroutineScope,
@@ -151,9 +152,7 @@ internal class BarReplayStudy(
                 )
                 replayControls.setBarReplay(barReplay)
 
-                coroutineScope.launch {
-                    barReplay.init()
-                }
+                barReplay.init()
             }
         }
     }

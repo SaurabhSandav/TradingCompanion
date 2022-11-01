@@ -2,8 +2,8 @@ package studies
 
 import AppModule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import chart.baselineSeries
 import chart.createChart
 import chart.data.SingleValueData
@@ -15,7 +15,6 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import model.Side
@@ -72,21 +71,19 @@ internal class PNLByMonthChartStudy(
     @Composable
     override fun render() {
 
-        val coroutineScope = rememberCoroutineScope()
-
         val chart = remember {
             createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ResizableChart(chart) {
+        ResizableChart(chart)
 
-            val baselineSeries by baselineSeries()
+        LaunchedEffect(chart) {
 
-            coroutineScope.launch {
-                data.collect {
-                    baselineSeries.setData(it)
-                    timeScale.fitContent()
-                }
+            val baselineSeries by chart.baselineSeries()
+
+            data.collect {
+                baselineSeries.setData(it)
+                chart.timeScale.fitContent()
             }
         }
     }
