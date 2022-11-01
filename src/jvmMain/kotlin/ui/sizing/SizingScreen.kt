@@ -11,8 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import ui.addopentrade.AddOpenTradeWindow
 import ui.common.controls.ListSelectionDialog
 import ui.common.state
+import ui.sizing.model.SizedTrade
+import ui.sizing.model.SizingEvent
 import utils.NIFTY50
 
 @Composable
@@ -22,6 +25,35 @@ internal fun SizingScreen(
 
     val state by presenter.state.collectAsState()
 
+    SizingTradesGrid(
+        sizedTrades = state.sizedTrades,
+        onUpdateEntry = { id, entry -> presenter.event(SizingEvent.UpdateTradeEntry(id, entry)) },
+        onUpdateStop = { id, stop -> presenter.event(SizingEvent.UpdateTradeStop(id, stop)) },
+        onOpenTrade = { presenter.event(SizingEvent.OpenTrade(it)) },
+        onDeleteTrade = { presenter.event(SizingEvent.RemoveTrade(it)) },
+        onAddTrade = { presenter.event(SizingEvent.AddTrade(it)) },
+    )
+
+    // Add open trade windows
+    state.addOpenTradeWindowStates.forEach { windowState ->
+
+        key(windowState) {
+
+            AddOpenTradeWindow(windowState)
+        }
+    }
+}
+
+@Composable
+private fun SizingTradesGrid(
+    sizedTrades: List<SizedTrade>,
+    onUpdateEntry: (id: Long, entry: String) -> Unit,
+    onUpdateStop: (id: Long, stop: String) -> Unit,
+    onOpenTrade: (Long) -> Unit,
+    onDeleteTrade: (Long) -> Unit,
+    onAddTrade: (ticker: String) -> Unit,
+) {
+
     LazyVerticalGrid(
         modifier = Modifier.padding(8.dp),
         columns = GridCells.Adaptive(250.dp),
@@ -30,56 +62,21 @@ internal fun SizingScreen(
     ) {
 
         items(
-            items = state.sizedTrades,
+            items = sizedTrades,
             key = { it.id },
         ) { sizedTrade ->
 
             SizingTradeCard(
                 sizedTrade = sizedTrade,
-                onUpdateEntry = { presenter.event(SizingEvent.UpdateTradeEntry(sizedTrade.id, it)) },
-                onUpdateStop = { presenter.event(SizingEvent.UpdateTradeStop(sizedTrade.id, it)) },
-                onOpenTrade = {},
-                onDeleteTrade = { presenter.event(SizingEvent.RemoveTrade(sizedTrade.id)) },
+                onUpdateEntry = { entry -> onUpdateEntry(sizedTrade.id, entry) },
+                onUpdateStop = { stop -> onUpdateStop(sizedTrade.id, stop) },
+                onOpenTrade = { onOpenTrade(sizedTrade.id) },
+                onDeleteTrade = { onDeleteTrade(sizedTrade.id) },
             )
         }
 
         item {
-            AddTradeCard { presenter.event(SizingEvent.AddTrade(it)) }
-        }
-    }
-}
-
-@Composable
-private fun AddTradeCard(
-    onAddTrade: (ticker: String) -> Unit,
-) {
-
-    Card {
-
-        var showStockSelectionDialog by state { false }
-
-        TextButton(
-            onClick = { showStockSelectionDialog = true },
-        ) {
-
-            Text(
-                text = "New Trade",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        if (showStockSelectionDialog) {
-
-            ListSelectionDialog(
-                items = NIFTY50,
-                onSelection = {
-                    onAddTrade(it)
-                    showStockSelectionDialog = false
-                },
-                selectionDialogTitle = "Select Stock",
-                onCloseRequest = { showStockSelectionDialog = false },
-            )
+            AddTradeCard(onAddTrade)
         }
     }
 }
@@ -185,6 +182,41 @@ private fun SizingTradeCard(
             ) {
                 Text("Delete")
             }
+        }
+    }
+}
+
+@Composable
+private fun AddTradeCard(
+    onAddTrade: (ticker: String) -> Unit,
+) {
+
+    Card {
+
+        var showStockSelectionDialog by state { false }
+
+        TextButton(
+            onClick = { showStockSelectionDialog = true },
+        ) {
+
+            Text(
+                text = "New Trade",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+        }
+
+        if (showStockSelectionDialog) {
+
+            ListSelectionDialog(
+                items = NIFTY50,
+                onSelection = {
+                    onAddTrade(it)
+                    showStockSelectionDialog = false
+                },
+                selectionDialogTitle = "Select Stock",
+                onCloseRequest = { showStockSelectionDialog = false },
+            )
         }
     }
 }

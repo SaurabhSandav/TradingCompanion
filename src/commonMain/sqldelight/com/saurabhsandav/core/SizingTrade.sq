@@ -10,6 +10,10 @@ insert:
 INSERT OR REPLACE INTO SizingTrade
 VALUES (?, ?, ?, ?);
 
+get:
+SELECT * FROM SizingTrade
+WHERE id = ?;
+
 getAll:
 SELECT * FROM SizingTrade;
 

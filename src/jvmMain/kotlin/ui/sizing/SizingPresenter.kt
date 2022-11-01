@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
@@ -14,16 +15,26 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import mapList
 import model.Account
 import model.Side
+import ui.addopentrade.AddOpenTradeFormFields
+import ui.addopentrade.AddOpenTradeWindowState
 import ui.common.AppColor
 import ui.common.CollectEffect
-import ui.sizing.SizingEvent.*
+import ui.sizing.model.SizedTrade
+import ui.sizing.model.SizingEvent
+import ui.sizing.model.SizingEvent.*
+import ui.sizing.model.SizingState
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.time.Duration.Companion.nanoseconds
 
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
@@ -31,6 +42,8 @@ internal class SizingPresenter(
 ) {
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
+
+    private val addOpenTradeWindowStates = SnapshotStateList<AddOpenTradeWindowState>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -40,6 +53,7 @@ internal class SizingPresenter(
                 is AddTrade -> addTrade(event.ticker)
                 is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
                 is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
+                is OpenTrade -> openTrade(event.id)
                 is RemoveTrade -> removeTrade(event.id)
             }
         }
@@ -55,6 +69,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
+            addOpenTradeWindowStates = addOpenTradeWindowStates,
         )
     }
 
@@ -87,6 +102,62 @@ internal class SizingPresenter(
         coroutineScope.launch(Dispatchers.IO) {
             appModule.appDB.sizingTradeQueries.updateStop(stop = stop, id = id)
         }
+    }
+
+    private fun openTrade(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
+
+        val sizingTrade = appModule.appDB.sizingTradeQueries.get(id).executeAsOne()
+
+        val entryBD = sizingTrade.entry.toBigDecimal()
+        val stopBD = sizingTrade.stop.toBigDecimal()
+
+        val entryStopComparison = entryBD.compareTo(stopBD)
+
+        val isLong = when {
+            // Long
+            entryStopComparison > 0 -> true
+            // Short
+            entryStopComparison < 0 -> false
+            else -> return@launchUnit
+        }
+
+        val spread = (entryBD - stopBD).abs()
+        val account = appModule.account.first()
+
+        val calculatedQuantity = when {
+            spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+        }
+
+        val maxAffordableQuantity = when {
+            entryBD.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            else -> (account.balancePerTrade * account.leverage) / entryBD
+        }
+
+        val currentTime = Clock.System.now()
+        val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+
+        val model = AddOpenTradeFormFields.Model(
+            id = null,
+            ticker = sizingTrade.ticker,
+            quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
+            isLong = isLong,
+            entry = sizingTrade.entry,
+            stop = sizingTrade.stop,
+            entryDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
+            target = when {
+                entryBD > stopBD -> entryBD + spread // Long
+                else -> entryBD - spread // Short
+            }.toPlainString()
+        )
+
+        addOpenTradeWindowStates += AddOpenTradeWindowState(
+            appDB = appModule.appDB,
+            formModel = model,
+            coroutineScope = coroutineScope,
+            sizingTradeId = id,
+            onCloseRequest = { addOpenTradeWindowStates.removeIf { it.sizingTradeId == id } }
+        )
     }
 
     private fun removeTrade(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {

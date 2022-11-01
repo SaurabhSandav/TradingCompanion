@@ -1,7 +1,7 @@
 package ui.main
 
 import androidx.compose.runtime.Immutable
-import ui.sizing.SizedTrade
+import ui.sizing.model.SizedTrade
 
 @Immutable
 internal data class MainState(
