@@ -24,8 +24,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import trading.Timeframe
+import trading.dailySessionStart
 import trading.data.CandleRepository
-import trading.defaultIsSessionStart
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
@@ -105,7 +105,7 @@ internal class TickerChartStudy(
                     }
 
                     val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
-                    val vwapIndicator = VWAPIndicator(candles, ::defaultIsSessionStart)
+                    val vwapIndicator = VWAPIndicator(candles, ::dailySessionStart)
 
                     val candleData = mutableListOf<CandlestickData>()
                     val volumeData = mutableListOf<HistogramData>()

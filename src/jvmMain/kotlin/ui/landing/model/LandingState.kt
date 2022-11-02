@@ -27,7 +27,7 @@ enum class LandingScreen(
             TradeSizing,
             OpenTrades,
             ClosedTrades,
-            Studies
+            Studies,
         )
     }
 }

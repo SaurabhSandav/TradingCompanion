@@ -6,7 +6,6 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import kotlinx.coroutines.CoroutineScope
 import studies.*
-import studies.barreplay.BarReplayStudy
 
 internal class StudiesPresenter(
     coroutineScope: CoroutineScope,
@@ -25,7 +24,6 @@ internal class StudiesPresenter(
                 PNLExcursionStudy.Factory(appModule),
                 PNLByTickerStudy.Factory(appModule),
                 TickerChartStudy.Factory(appModule),
-                BarReplayStudy.Factory(appModule),
             )
         }
 

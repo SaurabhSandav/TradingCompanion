@@ -1,17 +1,12 @@
-package studies.barreplay
+package ui.barreplay
 
 import androidx.compose.ui.graphics.Color
-import chart.IChartApi
-import chart.PriceScaleMargins
-import chart.PriceScaleOptions
+import chart.*
 import chart.data.CandlestickData
 import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.Time
-import chart.options.CandlestickStyleOptions
-import chart.options.HistogramStyleOptions
-import chart.options.LineStyleOptions
-import chart.options.TimeScaleOptions
+import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import kotlinx.datetime.TimeZone
@@ -19,19 +14,18 @@ import kotlinx.datetime.offsetIn
 import trading.Candle
 import java.math.BigDecimal
 
-internal class BarReplayChart(
-    private val chart: IChartApi,
-) {
+internal class ReplayChartState {
 
-    private val candlestickSeries = chart.addCandlestickSeries(
-        name = "candlestickSeries",
+    val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+
+    private val candlestickSeries by chart.candlestickSeries(
         options = CandlestickStyleOptions(
             lastValueVisible = false,
         ),
     )
 
-    private val volumeSeries = chart.addHistogramSeries(
-        name = "volumeSeries", options = HistogramStyleOptions(
+    private val volumeSeries by chart.histogramSeries(
+        options = HistogramStyleOptions(
             lastValueVisible = false,
             priceFormat = PriceFormat.BuiltIn(
                 type = PriceFormat.Type.Volume,
@@ -41,8 +35,7 @@ internal class BarReplayChart(
         )
     )
 
-    private val ema9Series = chart.addLineSeries(
-        name = "ema9Series",
+    private val ema9Series by chart.lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
@@ -51,8 +44,7 @@ internal class BarReplayChart(
         ),
     )
 
-    private val vwapSeries = chart.addLineSeries(
-        name = "vwapSeries",
+    private val vwapSeries by chart.lineSeries(
         options = LineStyleOptions(
             color = Color.Yellow,
             lineWidth = LineWidth.One,

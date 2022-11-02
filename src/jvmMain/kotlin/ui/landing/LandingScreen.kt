@@ -8,13 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
 import ui.account.AccountScreen
+import ui.barreplay.BarReplayScreen
 import ui.closedtrades.ClosedTradesPresenter
 import ui.closedtrades.ClosedTradesScreen
 import ui.common.AppWindow
@@ -82,6 +86,21 @@ private fun LandingScreen(
             Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
             TooltipArea(
+                tooltip = { Tooltip("Bar Replay") },
+            ) {
+
+                NavigationRailItem(
+                    icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
+                    selected = false,
+                    onClick = {
+                        openWindows.putIfAbsent("Bar Replay") {
+                            BarReplayScreen(appModule)
+                        }
+                    }
+                )
+            }
+
+            TooltipArea(
                 tooltip = { Tooltip("Settings") },
             ) {
 
@@ -121,10 +140,18 @@ private fun LandingScreen(
 
         openWindows.forEach { (key, content) ->
 
-            AppWindow(
-                onCloseRequest = { openWindows.remove(key) },
-                content = { content() },
-            )
+            key(key) {
+
+                val windowState = rememberWindowState(
+                    placement = WindowPlacement.Maximized,
+                )
+
+                AppWindow(
+                    state = windowState,
+                    onCloseRequest = { openWindows.remove(key) },
+                    content = { content() },
+                )
+            }
         }
     }
 }

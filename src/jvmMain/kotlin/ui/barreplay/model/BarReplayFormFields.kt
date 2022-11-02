@@ -1,4 +1,4 @@
-package studies.barreplay
+package ui.barreplay.model
 
 import kotlinx.datetime.LocalDateTime
 import ui.common.form.FormScope

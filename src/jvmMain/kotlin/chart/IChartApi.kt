@@ -71,7 +71,7 @@ class IChartApi internal constructor(
     )
 
     fun resize(width: Int, height: Int) {
-        executeJs("$name.resize($width, $height)")
+        executeJs("$name.resize($width, $height);")
     }
 
     fun removeSeries(series: ISeriesApi<*>) {

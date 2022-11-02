@@ -74,6 +74,19 @@ class CandleSeries private constructor(
         _live.tryEmit(candle)
     }
 
+    fun removeLast(n: Int = 1) {
+
+        repeat(n) {
+
+            val removeIndex = list.lastIndex
+
+            list.removeLast()
+
+            // Drop cached indicators values at index
+            indicatorCaches.forEach { it[removeIndex] = null }
+        }
+    }
+
     internal fun <T> getIndicatorCache(key: String?): IndicatorCache<T> {
 
         val cache = when (key) {
