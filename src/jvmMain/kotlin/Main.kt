@@ -1,37 +1,43 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
-import ui.main.MainScreen
+import ui.landing.LandingScreen
 import ui.theme.AppTheme
+import utils.PrefDefaults
+import utils.PrefKeys
 
 @Composable
 @Preview
-fun App() {
+internal fun App(appModule: AppModule) {
 
     AppTheme(useDarkTheme = false) {
 
-        val appModule = remember { AppModule() }
-
-        MainScreen(appModule)
+        LandingScreen(appModule)
     }
 }
 
 fun main() = application {
 
     val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
+    val appModule = remember { AppModule() }
 
-    AppWindow(
-        onCloseRequest = ::exitApplication,
-        state = windowState,
-    ) {
+    val densityFraction by appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
+        .collectAsState(PrefDefaults.DensityFraction)
 
-        App()
+    CompositionLocalProvider(LocalDensityFraction provides densityFraction) {
+
+        AppWindow(
+            onCloseRequest = ::exitApplication,
+            state = windowState,
+        ) {
+
+            App(appModule)
+        }
     }
 }
 
-const val AppDensityFraction = 0.8F
+internal val LocalDensityFraction = staticCompositionLocalOf { PrefDefaults.DensityFraction }

@@ -1,0 +1,9 @@
+package ui.settings.model
+
+import androidx.compose.runtime.Immutable
+
+@Immutable
+data class SettingsState(
+    val landingScreen: String,
+    val densityFraction: Float,
+)

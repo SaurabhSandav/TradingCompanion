@@ -1,6 +1,6 @@
 package ui.common
 
-import AppDensityFraction
+import LocalDensityFraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -21,8 +21,9 @@ fun <T : Component> AppSwingPanel(
 
     // Workaround SwingPanel weird behaviour on density change
     val density = LocalDensity.current
+    val densityFraction = LocalDensityFraction.current
 
-    val newDensity = Density(density.density / AppDensityFraction, density.fontScale)
+    val newDensity = Density(density.density / densityFraction, density.fontScale)
 
     CompositionLocalProvider(LocalDensity provides newDensity) {
 

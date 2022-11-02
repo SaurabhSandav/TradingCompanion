@@ -1,13 +1,16 @@
 package ui.common
 
-import AppDensityFraction
+import LocalDensityFraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.rememberWindowState
 
 @Composable
 fun AppWindow(
@@ -44,8 +47,9 @@ fun AppWindow(
     ) {
 
         val density = LocalDensity.current
+        val densityFraction = LocalDensityFraction.current
 
-        val newDensity = Density(density.density * AppDensityFraction, density.fontScale)
+        val newDensity = Density(density.density * densityFraction, density.fontScale)
 
         CompositionLocalProvider(LocalDensity provides newDensity) {
 
