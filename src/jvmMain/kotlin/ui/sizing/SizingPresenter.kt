@@ -9,9 +9,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.SizingTrade
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +34,7 @@ import ui.sizing.model.SizedTrade
 import ui.sizing.model.SizingEvent
 import ui.sizing.model.SizingEvent.*
 import ui.sizing.model.SizingState
+import utils.PrefKeys
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.nanoseconds
@@ -39,6 +42,8 @@ import kotlin.time.Duration.Companion.nanoseconds
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -78,11 +83,16 @@ internal class SizingPresenter(
     }
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit(Dispatchers.IO) {
+
+        val accessToken = appPrefs.getString(PrefKeys.FyersAccessToken)
+        val response = fyersApi.getQuotes(accessToken, listOf("NSE:$ticker-EQ"))
+        val currentPrice = response.result?.quote?.first()?.quoteData?.cmd?.close?.toString() ?: "0"
+
         appModule.appDB.sizingTradeQueries.insert(
             id = null,
             ticker = ticker,
-            entry = "0",
-            stop = "0",
+            entry = currentPrice,
+            stop = currentPrice,
         )
     }
 
@@ -118,7 +128,7 @@ internal class SizingPresenter(
             entryStopComparison > 0 -> true
             // Short
             entryStopComparison < 0 -> false
-            else -> return@launchUnit
+            else -> return@launchUnit // TODO show error
         }
 
         val spread = (entryBD - stopBD).abs()

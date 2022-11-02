@@ -10,6 +10,7 @@ import fyers_api.model.request.AuthValidationRequest
 import fyers_api.model.response.AuthValidationResult
 import fyers_api.model.response.FyersResponse
 import fyers_api.model.response.HistoricalCandlesResult
+import fyers_api.model.response.Quotes
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -82,6 +83,19 @@ class FyersApi {
             parameter("range_from", rangeFrom)
             parameter("range_to", rangeTo)
             parameter("cont_flag", "")
+        }
+
+        return response.decodeToFyersResponse()
+    }
+
+    suspend fun getQuotes(
+        accessToken: String,
+        symbols: List<String>,
+    ): FyersResponse<Quotes> {
+
+        val response = client.get("https://api.fyers.in/data-rest/v2/quotes/") {
+            header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
+            parameter("symbols", symbols.joinToString(","))
         }
 
         return response.decodeToFyersResponse()

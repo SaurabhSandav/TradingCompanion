@@ -7,8 +7,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,11 +31,14 @@ import ui.opentrades.model.OpenTradeListEntry
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.model.OpenTradesState
+import utils.PrefKeys
 import kotlin.time.Duration.Companion.nanoseconds
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
     private val events = MutableSharedFlow<OpenTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -150,6 +155,10 @@ internal class OpenTradesPresenter(
         val currentTime = Clock.System.now()
         val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
 
+        val accessToken = appPrefs.getString(PrefKeys.FyersAccessToken)
+        val response = fyersApi.getQuotes(accessToken, listOf("NSE:${openTrade.ticker}-EQ"))
+        val currentPrice = response.result?.quote?.first()?.quoteData?.cmd?.close?.toString() ?: "0"
+
         val model = CloseTradeFormFields.Model(
             id = openTrade.id,
             ticker = openTrade.ticker,
@@ -159,7 +168,7 @@ internal class OpenTradesPresenter(
             stop = openTrade.stop.orEmpty(),
             entryDateTime = LocalDateTime.parse(openTrade.entryDate),
             target = openTrade.target.orEmpty(),
-            exit = "",
+            exit = currentPrice,
             exitDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
         )
 

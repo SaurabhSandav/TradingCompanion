@@ -2,7 +2,7 @@ package fyers_api.model.response
 
 import io.ktor.http.*
 
-class FyersResponse<T>(
+data class FyersResponse<T>(
     val s: String?,
     val code: Int?,
     val message: String?,
