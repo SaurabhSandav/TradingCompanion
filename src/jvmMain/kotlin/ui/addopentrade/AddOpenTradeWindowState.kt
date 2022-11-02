@@ -30,9 +30,9 @@ internal class AddOpenTradeWindowState(
                     lots = null,
                     side = (if (model.isLong) Side.Long else Side.Short).strValue,
                     entry = model.entry,
-                    stop = model.stop,
+                    stop = model.stop.ifBlank { null },
                     entryDate = model.entryDateTime.toString(),
-                    target = model.target,
+                    target = model.target.ifBlank { null },
                 )
 
                 sizingTradeId?.let {
