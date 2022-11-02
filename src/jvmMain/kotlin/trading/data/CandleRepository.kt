@@ -106,6 +106,8 @@ internal class CandleRepository(
         var currentFrom = from
         var currentTo = if (requestedInterval > downloadInterval) from + downloadInterval else correctedTo
 
+        if (currentFrom > currentTo) return Ok(emptyList())
+
         while (currentTo <= correctedTo && currentFrom != currentTo) {
 
             when (val result = candleDownloader.download(symbol, timeframe, currentFrom, currentTo)) {
