@@ -61,7 +61,7 @@ internal class BarReplay(
         candleSeries = getCandleSeries(symbol, timeframe)
         baseCandleSeries = candleSeries
 
-        initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
+        initialCandleIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom }
 
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
         vwapIndicator = VWAPIndicator(candleSeries, ::defaultIsSessionStart)
@@ -106,22 +106,22 @@ internal class BarReplay(
 
         replayClock.next()
 
-        val currentInstant = baseCandleSeries.list[initialCandleIndex + replayClock.currentOffset].openInstant
+        val currentInstant = baseCandleSeries[initialCandleIndex + replayClock.currentOffset].openInstant
 
         val index = when (currentTimeframe) {
             timeframe -> initialCandleIndex + replayClock.currentOffset
-            else -> candleSeries.list.indexOfFirst {
+            else -> candleSeries.indexOfFirst {
                 val candleCloseInstant = it.openInstant + (currentTimeframe.seconds - 1).seconds
                 currentInstant in it.openInstant..candleCloseInstant
             }
         }
 
         val candle = when (currentTimeframe) {
-            timeframe -> candleSeries.list[index]
+            timeframe -> candleSeries[index]
             else -> {
 
-                val adjustedCandleOpenInstant = candleSeries.list[index].openInstant
-                val timeframeCandles = baseCandleSeries.list.filter {
+                val adjustedCandleOpenInstant = candleSeries[index].openInstant
+                val timeframeCandles = baseCandleSeries.filter {
                     it.openInstant in adjustedCandleOpenInstant..currentInstant
                 }
 
@@ -171,14 +171,14 @@ internal class BarReplay(
 
     private fun setInitialData() {
 
-        val currentInstant = baseCandleSeries.list[initialCandleIndex + replayClock.currentOffset].openInstant
+        val currentInstant = baseCandleSeries[initialCandleIndex + replayClock.currentOffset].openInstant
 
-        val adjustedIndex = candleSeries.list.indexOfFirst {
+        val adjustedIndex = candleSeries.indexOfFirst {
             val candleCloseInstant = it.openInstant + (currentTimeframe.seconds - 1).seconds
             currentInstant in it.openInstant..candleCloseInstant
         }
 
-        val data = candleSeries.list.slice(0..adjustedIndex).mapIndexed { index, candle ->
+        val data = candleSeries.slice(0..adjustedIndex).mapIndexed { index, candle ->
             BarReplayChart.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],

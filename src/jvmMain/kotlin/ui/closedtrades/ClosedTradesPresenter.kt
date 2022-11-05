@@ -248,7 +248,7 @@ internal class ClosedTradesPresenter(
         var exitIndex = 0
 
         // Populate data
-        candles.list.forEachIndexed { index, candle ->
+        candles.forEachIndexed { index, candle ->
 
             // Chart messes with timezone, work around it
             // Subtract IST Timezone difference

@@ -19,7 +19,7 @@ class VolumeIndicator(
         var volumeSum = BigDecimal.ZERO
 
         for (i in startIndex..index) {
-            volumeSum += candleSeries.list[i].volume
+            volumeSum += candleSeries[i].volume
         }
 
         return volumeSum

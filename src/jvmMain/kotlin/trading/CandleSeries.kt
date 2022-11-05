@@ -5,17 +5,30 @@ import trading.indicator.base.IndicatorCache
 import java.math.MathContext
 import java.math.RoundingMode
 
-class CandleSeries(
-    initial: List<Candle> = emptyList(),
-    private val maxCandleCount: Int = Int.MAX_VALUE,
-    val indicatorMathContext: MathContext = MathContext(
-        20,
-        RoundingMode.HALF_EVEN,
-    ),
-    val timeframe: Timeframe? = null,
-) {
+class CandleSeries private constructor(
+    initial: List<Candle>,
+    private val maxCandleCount: Int,
+    val indicatorMathContext: MathContext,
+    val timeframe: Timeframe?,
+    private val list: MutableList<Candle>,
+) : List<Candle> by list {
 
-    private val series = mutableListOf<Candle>()
+    constructor(
+        initial: List<Candle> = emptyList(),
+        maxCandleCount: Int = Int.MAX_VALUE,
+        indicatorMathContext: MathContext = MathContext(
+            20,
+            RoundingMode.HALF_EVEN,
+        ),
+        timeframe: Timeframe? = null,
+    ) : this(
+        initial = initial,
+        maxCandleCount = maxCandleCount,
+        indicatorMathContext = indicatorMathContext,
+        timeframe = timeframe,
+        list = mutableListOf()
+    )
+
     private val indicatorCaches = mutableListOf<IndicatorCache<*>>()
 
     private val _live = MutableSharedFlow<Candle>(extraBufferCapacity = Int.MAX_VALUE)
@@ -25,12 +38,9 @@ class CandleSeries(
         initial.forEach(::addCandle)
     }
 
-    val list: List<Candle>
-        get() = series
-
     fun addCandle(candle: Candle) {
 
-        val lastCandle = series.lastOrNull()
+        val lastCandle = list.lastOrNull()
 
         if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
             error(
@@ -42,21 +52,21 @@ class CandleSeries(
 
         if (isCandleUpdate) {
 
-            val updateIndex = series.lastIndex
+            val updateIndex = list.lastIndex
 
-            series.removeLast()
-            series.add(candle)
+            list.removeLast()
+            list.add(candle)
 
             // Drop cached indicators values at index
             indicatorCaches.forEach { it[updateIndex] = null }
         } else {
 
-            series.add(candle)
+            list.add(candle)
 
             // If series size is greater than max candle count,
             // drop first candle and first indicator cache values
-            if (series.size > maxCandleCount) {
-                series.removeFirst()
+            if (list.size > maxCandleCount) {
+                list.removeFirst()
                 indicatorCaches.forEach(IndicatorCache<*>::shrink)
             }
         }

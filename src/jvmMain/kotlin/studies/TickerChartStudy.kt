@@ -112,7 +112,7 @@ internal class TickerChartStudy(
                     val ema9Data = mutableListOf<LineData>()
                     val vwapData = mutableListOf<LineData>()
 
-                    candles.list.forEachIndexed { index, candle ->
+                    candles.forEachIndexed { index, candle ->
 
                         // Subtract IST Timezone difference
                         val epochTime = candle.openInstant.epochSeconds
