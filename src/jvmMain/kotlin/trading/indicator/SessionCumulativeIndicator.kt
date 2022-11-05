@@ -1,13 +1,13 @@
 package trading.indicator
 
-import trading.Candle
+import trading.CandleSeries
 import trading.indicator.base.CachedIndicator
 import trading.indicator.base.Indicator
 import java.math.BigDecimal
 
 class SessionCumulativeIndicator(
     private val input: Indicator<BigDecimal>,
-    private val isSessionStart: (Candle) -> Boolean,
+    private val isSessionStart: (CandleSeries, index: Int) -> Boolean,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
     description = null,
@@ -16,7 +16,7 @@ class SessionCumulativeIndicator(
     override fun calculate(index: Int): BigDecimal {
 
         val accumulated = when {
-            isSessionStart(candleSeries.list[index]) || index == 0 -> BigDecimal.ZERO
+            isSessionStart(candleSeries, index) || index == 0 -> BigDecimal.ZERO
             else -> get(index - 1)
         }
 

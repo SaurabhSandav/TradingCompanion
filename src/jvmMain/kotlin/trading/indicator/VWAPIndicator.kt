@@ -1,13 +1,12 @@
 package trading.indicator
 
-import trading.Candle
 import trading.CandleSeries
 import trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
 
 class VWAPIndicator(
     candleSeries: CandleSeries,
-    isSessionStart: (Candle) -> Boolean,
+    isSessionStart: (CandleSeries, index: Int) -> Boolean,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = candleSeries,
     description = null,

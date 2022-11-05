@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import trading.Timeframe
 import trading.data.CandleRepository
+import trading.defaultIsSessionStart
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
@@ -103,12 +104,8 @@ internal class TickerChartStudy(
                         }
                     }
 
-                    val sessionStartTime = LocalTime(hour = 9, minute = 15)
-
                     val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
-                    val vwapIndicator = VWAPIndicator(candles) { candle ->
-                        candle.openInstant.toLocalDateTime(TimeZone.currentSystemDefault()).time == sessionStartTime
-                    }
+                    val vwapIndicator = VWAPIndicator(candles, ::defaultIsSessionStart)
 
                     val candleData = mutableListOf<CandlestickData>()
                     val volumeData = mutableListOf<HistogramData>()

@@ -11,13 +11,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import trading.Candle
 import trading.CandleSeries
 import trading.Timeframe
 import trading.data.CandleRepository
+import trading.defaultIsSessionStart
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
@@ -34,7 +31,6 @@ internal class BarReplay(
     private val replayFrom: Instant,
 ) {
 
-    private val sessionStartTime = LocalTime(hour = 9, minute = 15)
     private var currentSymbol = symbol
     private var currentTimeframe = timeframe
     private var initialCandleIndex: Int = -1
@@ -43,10 +39,6 @@ internal class BarReplay(
     private lateinit var baseCandleSeries: CandleSeries
     private lateinit var ema9Indicator: EMAIndicator
     private lateinit var vwapIndicator: VWAPIndicator
-
-    private val isSessionStart: (Candle) -> Boolean = { candle ->
-        candle.openInstant.toLocalDateTime(TimeZone.currentSystemDefault()).time == sessionStartTime
-    }
 
     private val replayClock = BarReplayClock()
 
@@ -72,7 +64,7 @@ internal class BarReplay(
         initialCandleIndex = candleSeries.list.indexOfFirst { it.openInstant >= replayFrom }
 
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
-        vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
+        vwapIndicator = VWAPIndicator(candleSeries, ::defaultIsSessionStart)
 
         setInitialData()
     }
@@ -84,7 +76,7 @@ internal class BarReplay(
         candleSeries = getCandleSeries(symbol, currentTimeframe)
         baseCandleSeries = candleSeries
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
-        vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
+        vwapIndicator = VWAPIndicator(candleSeries, ::defaultIsSessionStart)
 
         setInitialData()
     }
@@ -97,7 +89,7 @@ internal class BarReplay(
 
         candleSeries = getCandleSeries(symbol, timeframe)
         ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
-        vwapIndicator = VWAPIndicator(candleSeries, isSessionStart)
+        vwapIndicator = VWAPIndicator(candleSeries, ::defaultIsSessionStart)
 
         setInitialData()
     }
