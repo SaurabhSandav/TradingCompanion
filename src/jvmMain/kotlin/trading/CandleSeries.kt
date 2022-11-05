@@ -1,8 +1,6 @@
 package trading
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import trading.indicator.base.IndicatorCache
 import java.math.MathContext
 import java.math.RoundingMode
@@ -14,24 +12,17 @@ class CandleSeries(
         20,
         RoundingMode.HALF_EVEN,
     ),
-    seriesTimeframe: Timeframe? = null,
+    val timeframe: Timeframe? = null,
 ) {
 
     private val series = mutableListOf<Candle>()
     private val indicatorCaches = mutableListOf<IndicatorCache<*>>()
 
-    private val _live = MutableStateFlow(initial.lastOrNull())
-    val live: StateFlow<Candle?> = _live.asStateFlow()
-
-    var timeframe: Timeframe? = seriesTimeframe
+    private val _live = MutableSharedFlow<Candle>(extraBufferCapacity = Int.MAX_VALUE)
+    val live: Flow<Candle> = _live.asSharedFlow()
 
     init {
-
-        // Determine timeframe
-        if (initial.size >= 2)
-            timeframe = calculateTimeframe(initial[initial.lastIndex - 1], initial.last())
-
-        initial.forEach { addCandle(it) }
+        initial.forEach(::addCandle)
     }
 
     val list: List<Candle>
@@ -41,11 +32,11 @@ class CandleSeries(
 
         val lastCandle = series.lastOrNull()
 
-        // Determine timeframe
-        if (timeframe == null && lastCandle != null) timeframe = calculateTimeframe(lastCandle, candle)
-
         if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
-            error("Candle cannot be older than the last candle in the series: $candle")
+            error(
+                "Candle cannot be older than the last candle in the series: " +
+                        "\nNew Candle: $candle \nLast Candle: $lastCandle"
+            )
 
         val isCandleUpdate = lastCandle?.openInstant == candle.openInstant
 
@@ -66,11 +57,11 @@ class CandleSeries(
             // drop first candle and first indicator cache values
             if (series.size > maxCandleCount) {
                 series.removeFirst()
-                indicatorCaches.forEach { it.shrink() }
+                indicatorCaches.forEach(IndicatorCache<*>::shrink)
             }
         }
 
-        _live.value = candle
+        _live.tryEmit(candle)
     }
 
     internal fun <T> getIndicatorCache(key: String?): IndicatorCache<T> {
@@ -82,7 +73,7 @@ class CandleSeries(
 
             // Return pre-exiting cache or create new
             else -> when (val cache = indicatorCaches.firstOrNull { key == it.key }) {
-                null -> IndicatorCache<T>(key).also { indicatorCaches.add(it) }
+                null -> IndicatorCache<T>(key).also(indicatorCaches::add)
                 else -> {
                     @Suppress("UNCHECKED_CAST")
                     cache as IndicatorCache<T>
@@ -91,15 +82,5 @@ class CandleSeries(
         }
 
         return cache
-    }
-
-    private fun calculateTimeframe(
-        candle: Candle,
-        nextCandle: Candle,
-    ): Timeframe {
-
-        val diff = nextCandle.openInstant - candle.openInstant
-
-        return Timeframe.fromSeconds(diff.inWholeSeconds) ?: error("Unknown Timeframe")
     }
 }

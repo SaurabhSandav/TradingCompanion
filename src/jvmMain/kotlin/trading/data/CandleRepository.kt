@@ -85,7 +85,10 @@ internal class CandleRepository(
             }
         }
 
-        val candleSeries = CandleSeries(candleCache.fetch(symbolDir, from, to))
+        val candleSeries = CandleSeries(
+            initial = candleCache.fetch(symbolDir, from, to),
+            timeframe = timeframe,
+        )
 
         return Ok(candleSeries)
     }
