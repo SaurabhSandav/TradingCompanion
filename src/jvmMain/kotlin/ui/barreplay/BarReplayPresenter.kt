@@ -17,6 +17,8 @@ import launchUnit
 import trading.CandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplay
+import trading.barreplay.ReplaySession
+import trading.dailySessionStart
 import trading.data.CandleRepository
 import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayFormFields
@@ -169,13 +171,16 @@ internal class BarReplayPresenter(
             dataTo = sessionParams.dataTo,
         )
 
-        val session = barReplay.addReplaySession(
-            candleSeries = candleSeries,
-            initialReplayIndex = candleSeries.indexOfFirst { it.openInstant >= sessionParams.replayFrom },
-        )
+        val session = barReplay.newSession { currentOffset ->
+            ReplaySession(
+                inputSeries = candleSeries,
+                initialIndex = candleSeries.indexOfFirst { it.openInstant >= sessionParams.replayFrom },
+                currentOffset = currentOffset,
+                isSessionStart = ::dailySessionStart,
+            )
+        }
 
         return SessionReplayManager(
-            barReplay = barReplay,
             session = session,
             sessionParams = sessionParams,
             chartState = chartState,

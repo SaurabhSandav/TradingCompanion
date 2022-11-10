@@ -49,6 +49,7 @@ kotlin {
                 progressiveMode = true
 
                 listOf(
+                    "kotlin.contracts.ExperimentalContracts",
                     "androidx.compose.foundation.ExperimentalFoundationApi",
                     "androidx.compose.ui.ExperimentalComposeUiApi",
                     "androidx.compose.animation.ExperimentalAnimationApi",

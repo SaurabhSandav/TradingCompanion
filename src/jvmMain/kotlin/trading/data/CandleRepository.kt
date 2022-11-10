@@ -8,9 +8,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.datetime.*
 import kotlinx.serialization.json.*
-import trading.Candle
-import trading.CandleSeries
-import trading.Timeframe
+import trading.*
 import utils.AppPaths
 import kotlin.io.path.*
 import kotlin.time.Duration.Companion.days
@@ -85,10 +83,10 @@ internal class CandleRepository(
             }
         }
 
-        val candleSeries = CandleSeries(
+        val candleSeries = MutableCandleSeries(
             initial = candleCache.fetch(symbolDir, from, to),
             timeframe = timeframe,
-        )
+        ).asCandleSeries()
 
         return Ok(candleSeries)
     }

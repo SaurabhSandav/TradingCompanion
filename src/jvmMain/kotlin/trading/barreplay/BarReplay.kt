@@ -1,53 +1,30 @@
 package trading.barreplay
 
-import trading.CandleSeries
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 class BarReplay {
 
     private var offset = 0
 
-    private val sessionList = mutableListOf<Session>()
+    private val sessionList = mutableListOf<ReplaySession>()
 
-    fun addReplaySession(candleSeries: CandleSeries, initialReplayIndex: Int): Session {
-
-        val replayCandleSeries = CandleSeries(
-            initial = candleSeries.subList(0, initialReplayIndex + offset),
-            timeframe = candleSeries.timeframe,
-        )
-
-        val session = Session(
-            candleSeries,
-            replayCandleSeries,
-            initialReplayIndex,
-        )
-
-        sessionList.add(session)
-
-        return session
+    fun newSession(session: (currentOffset: Int) -> ReplaySession): ReplaySession {
+        contract { callsInPlace(session, InvocationKind.EXACTLY_ONCE) }
+        return session(offset).also(sessionList::add)
     }
 
-    fun removeSession(session: Session) {
+    fun removeSession(session: ReplaySession) {
         sessionList.remove(session)
     }
 
     fun next() {
-
-        sessionList.forEach {
-            val currentIndex = it.initialIndex + offset
-            it.replayCandleSeries.addCandle(it.inputCandleSeries[currentIndex])
-        }
-
+        sessionList.forEach { it.addCandle(offset) }
         offset++
     }
 
     fun reset() {
-        sessionList.forEach { it.replayCandleSeries.removeLast(offset) }
+        sessionList.forEach { it.reset(offset) }
         offset = 0
     }
-
-    class Session(
-        val inputCandleSeries: CandleSeries,
-        val replayCandleSeries: CandleSeries,
-        val initialIndex: Int,
-    )
 }
