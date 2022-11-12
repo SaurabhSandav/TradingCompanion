@@ -1,11 +1,7 @@
 package ui.addclosedtradedetailed
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Chip
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -176,11 +172,12 @@ internal fun CloseTradeDetailedWindow(
                     )
                 }
 
-                state.formModel.tags.forEach {
+                state.formModel.tags.forEach { tag ->
 
-                    Chip({}) {
-                        Text(it)
-                    }
+                    InputChip(
+                        onClick = {},
+                        label = { Text(tag) }
+                    )
                 }
             }
         }

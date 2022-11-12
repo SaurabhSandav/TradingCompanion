@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.ListItem
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,8 +71,8 @@ private fun LandingScreenPreference(
 ) {
 
     ListItem(
-        text = { Text("Landing Screen") },
-        trailing = {
+        headlineText = { Text("Landing Screen") },
+        trailingContent = {
 
             ListSelectionField(
                 items = items,
@@ -90,7 +90,7 @@ private fun DensityPreference(
 ) {
 
     ListItem(
-        text = {
+        headlineText = {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.ListItem
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -121,31 +121,32 @@ fun ListSelectionDialog(
 
                     ListItem(
                         modifier = Modifier.clickable { onSelection(itemText) },
-                    ) {
+                        headlineText = {
 
-                        val filterHighlightedText by remember(itemText) {
-                            derivedStateOf {
-                                buildAnnotatedString {
+                            val filterHighlightedText by remember(itemText) {
+                                derivedStateOf {
+                                    buildAnnotatedString {
 
-                                    val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
-                                    val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                    val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+                                        val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
+                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
+                                        val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
 
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(itemText.substring(filterQueryIndices))
+                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append(itemText.substring(filterQueryIndices))
+                                        }
+
+                                        append(itemText.removeRange(filterQueryIndices))
                                     }
-
-                                    append(itemText.removeRange(filterQueryIndices))
                                 }
                             }
-                        }
 
-                        Text(
-                            text = filterHighlightedText,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                            Text(
+                                text = filterHighlightedText,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    )
                 }
             }
 
