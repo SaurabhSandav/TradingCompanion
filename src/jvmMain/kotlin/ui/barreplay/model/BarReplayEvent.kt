@@ -1,18 +1,10 @@
 package ui.barreplay.model
 
+import ui.barreplay.launchform.ReplayLaunchFormFields
+
 internal sealed class BarReplayEvent {
 
-    data class LaunchReplay(val fields: BarReplayFormFields) : BarReplayEvent()
+    data class LaunchReplay(val formModel: ReplayLaunchFormFields.Model) : BarReplayEvent()
 
     object NewReplay : BarReplayEvent()
-
-    object Reset : BarReplayEvent()
-
-    object Next : BarReplayEvent()
-
-    data class ChangeSymbol(val symbol: String) : BarReplayEvent()
-
-    data class ChangeTimeframe(val timeframe: String) : BarReplayEvent()
-
-    data class ChangeIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : BarReplayEvent()
 }

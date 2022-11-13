@@ -1,17 +1,26 @@
 package ui.barreplay.model
 
 import androidx.compose.runtime.Immutable
-import ui.barreplay.ReplayChartState
+import kotlinx.datetime.Instant
+import trading.Timeframe
+import ui.barreplay.launchform.ReplayLaunchFormFields
 
 @Immutable
 internal data class BarReplayState(
     val currentScreen: BarReplayScreen,
-    val areReplayControlsEnabled: Boolean,
 )
 
 internal sealed class BarReplayScreen {
 
-    object LaunchForm : BarReplayScreen()
+    data class LaunchForm(
+        val formModel: ReplayLaunchFormFields.Model,
+    ) : BarReplayScreen()
 
-    data class Chart(val chartState: ReplayChartState) : BarReplayScreen()
+    data class Chart(
+        val baseTimeframe: Timeframe,
+        val dataFrom: Instant,
+        val dataTo: Instant,
+        val replayFrom: Instant,
+        val initialSymbol: String,
+    ) : BarReplayScreen()
 }

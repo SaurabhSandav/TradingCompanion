@@ -1,7 +1,8 @@
-package ui.barreplay.ui
+package ui.barreplay.charts.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,14 +11,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ui.barreplay.model.BarReplayFormFields
+import ui.barreplay.charts.model.ReplayControlsState
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import utils.NIFTY50
 
 @Composable
 internal fun ReplayControls(
-    fields: BarReplayFormFields,
+    state: ReplayControlsState,
     enabled: Boolean,
     onNewReplay: () -> Unit,
     onReset: () -> Unit,
@@ -56,30 +57,6 @@ internal fun ReplayControls(
             Text("Next")
         }
 
-        ListSelectionField(
-            items = NIFTY50,
-            selection = fields.symbol.value,
-            onSelection = {
-                fields.symbol.onSelectionChange(it)
-                onSymbolChange(it)
-            },
-            label = { Text("Ticker") },
-            placeholderText = "Select Ticker...",
-            enabled = enabled,
-        )
-
-        ListSelectionField(
-            items = listOf("5m", "1D"),
-            onSelection = {
-                fields.timeframe.onSelectionChange(it)
-                onTimeframeChange(it)
-            },
-            selection = fields.timeframe.value,
-            label = { Text("Timeframe") },
-            placeholderText = "Select Timeframe...",
-            enabled = enabled,
-        )
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -99,5 +76,23 @@ internal fun ReplayControls(
                 enabled = enabled,
             )
         }
+
+        Divider()
+
+        ListSelectionField(
+            items = NIFTY50,
+            selection = state.symbol,
+            onSelection = onSymbolChange,
+            label = { Text("Change Ticker") },
+            enabled = enabled,
+        )
+
+        ListSelectionField(
+            items = listOf("5m", "1D"),
+            onSelection = onTimeframeChange,
+            selection = state.timeframe,
+            label = { Text("Change Timeframe") },
+            enabled = enabled,
+        )
     }
 }

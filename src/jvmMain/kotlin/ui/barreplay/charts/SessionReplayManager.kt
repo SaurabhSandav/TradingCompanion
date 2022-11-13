@@ -1,9 +1,8 @@
-package ui.barreplay
+package ui.barreplay.charts
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import trading.Candle
 import trading.Timeframe
 import trading.barreplay.ReplaySession
@@ -14,15 +13,15 @@ import trading.indicator.VWAPIndicator
 
 internal data class SessionReplayManager(
     val session: ReplaySession,
-    val sessionParams: SessionParams,
-    val chartState: ReplayChartState,
+    val timeframe: Timeframe,
+    val chartState: ReplayChartBridge,
 ) {
 
     val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    private val chartCandleSeries = when (sessionParams.timeframe) {
+    private val chartCandleSeries = when (timeframe) {
         session.inputSeries.timeframe!! -> session.replaySeries
-        else -> session.resampled(sessionParams.timeframe)
+        else -> session.resampled(timeframe)
     }
 
     private val ema9Indicator = EMAIndicator(ClosePriceIndicator(chartCandleSeries), length = 9)
@@ -43,7 +42,7 @@ internal data class SessionReplayManager(
     private fun setInitialData() {
 
         val data = chartCandleSeries.mapIndexed { index, candle ->
-            ReplayChartState.Data(
+            ReplayChartBridge.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
                 vwap = vwapIndicator[index],
@@ -58,19 +57,11 @@ internal data class SessionReplayManager(
         val index = chartCandleSeries.indexOf(candle)
 
         chartState.update(
-            ReplayChartState.Data(
+            ReplayChartBridge.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
                 vwap = vwapIndicator[index],
             )
         )
     }
-
-    data class SessionParams(
-        val symbol: String,
-        val timeframe: Timeframe,
-        val dataFrom: Instant,
-        val dataTo: Instant,
-        val replayFrom: Instant,
-    )
 }

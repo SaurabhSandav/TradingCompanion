@@ -1,4 +1,4 @@
-package ui.barreplay
+package ui.barreplay.charts
 
 import androidx.compose.ui.graphics.Color
 import chart.*
@@ -14,7 +14,7 @@ import kotlinx.datetime.offsetIn
 import trading.Candle
 import java.math.BigDecimal
 
-internal class ReplayChartState {
+internal class ReplayChartBridge {
 
     val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
 
