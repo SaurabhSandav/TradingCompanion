@@ -1,4 +1,4 @@
-package ui.barreplay.charts
+package ui.barreplay.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import chart.*
@@ -14,17 +14,17 @@ import kotlinx.datetime.offsetIn
 import trading.Candle
 import java.math.BigDecimal
 
-internal class ReplayChartBridge {
+internal class ReplayChart {
 
-    val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+    val actualChart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
 
-    private val candlestickSeries by chart.candlestickSeries(
+    private val candlestickSeries by actualChart.candlestickSeries(
         options = CandlestickStyleOptions(
             lastValueVisible = false,
         ),
     )
 
-    private val volumeSeries by chart.histogramSeries(
+    private val volumeSeries by actualChart.histogramSeries(
         options = HistogramStyleOptions(
             lastValueVisible = false,
             priceFormat = PriceFormat.BuiltIn(
@@ -35,7 +35,7 @@ internal class ReplayChartBridge {
         )
     )
 
-    private val ema9Series by chart.lineSeries(
+    private val ema9Series by actualChart.lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
@@ -44,7 +44,7 @@ internal class ReplayChartBridge {
         ),
     )
 
-    private val vwapSeries by chart.lineSeries(
+    private val vwapSeries by actualChart.lineSeries(
         options = LineStyleOptions(
             color = Color.Yellow,
             lineWidth = LineWidth.One,
@@ -65,7 +65,7 @@ internal class ReplayChartBridge {
             )
         )
 
-        chart.timeScale.applyOptions(
+        actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
     }
@@ -115,7 +115,7 @@ internal class ReplayChartBridge {
         ema9Series.setData(ema9Data)
         vwapSeries.setData(vwapData)
 
-        chart.timeScale.scrollToPosition(40, false)
+        actualChart.timeScale.scrollToPosition(40, false)
     }
 
     fun update(data: Data) {

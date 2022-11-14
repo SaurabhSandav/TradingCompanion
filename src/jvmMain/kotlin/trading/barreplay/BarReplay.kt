@@ -7,14 +7,14 @@ class BarReplay {
 
     private var offset = 0
 
-    private val sessionList = mutableListOf<ReplaySession>()
+    private val sessionList = mutableListOf<BarReplaySession>()
 
-    fun newSession(session: (currentOffset: Int) -> ReplaySession): ReplaySession {
+    fun newSession(session: (currentOffset: Int) -> BarReplaySession): BarReplaySession {
         contract { callsInPlace(session, InvocationKind.EXACTLY_ONCE) }
         return session(offset).also(sessionList::add)
     }
 
-    fun removeSession(session: ReplaySession) {
+    fun removeSession(session: BarReplaySession) {
         sessionList.remove(session)
     }
 

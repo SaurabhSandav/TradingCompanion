@@ -16,7 +16,7 @@ import launchUnit
 import trading.CandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplay
-import trading.barreplay.ReplaySession
+import trading.barreplay.BarReplaySession
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import ui.barreplay.charts.model.ReplayChartState
@@ -24,6 +24,7 @@ import ui.barreplay.charts.model.ReplayChartsEvent
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.model.ReplayChartsState
 import ui.barreplay.charts.model.ReplayControlsState
+import ui.barreplay.charts.ui.ReplayChart
 import ui.common.CollectEffect
 import kotlin.time.Duration.Companion.seconds
 
@@ -43,8 +44,8 @@ internal class ReplayChartsPresenter(
     private var controlsState by mutableStateOf(ReplayControlsState(initialSymbol, baseTimeframe.toText()))
 
     private val barReplay = BarReplay()
-    private val chartBridge = ReplayChartBridge()
-    private var sessionReplayManager: SessionReplayManager? = null
+    private val chart = ReplayChart()
+    private var replayDataManager: ReplayDataManager? = null
     private var autoNextJob: Job? = null
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -63,7 +64,7 @@ internal class ReplayChartsPresenter(
         return@launchMolecule ReplayChartsState(
             areReplayControlsEnabled = areReplayControlsEnabled,
             controlsState = controlsState,
-            chartState = remember { ReplayChartState(chartBridge.chart) },
+            chartState = remember { ReplayChartState(chart.actualChart) },
         )
     }
 
@@ -75,8 +76,8 @@ internal class ReplayChartsPresenter(
 
         coroutineScope.launch {
 
-            sessionReplayManager = createReplaySession(
-                chartState = chartBridge,
+            replayDataManager = createReplayDataManager(
+                chart = chart,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
             )
@@ -88,7 +89,7 @@ internal class ReplayChartsPresenter(
     private fun onReset() {
         onChangeIsAutoNextEnabled(false)
         barReplay.reset()
-        sessionReplayManager?.reset()
+        replayDataManager?.reset()
     }
 
     private fun onNext() {
@@ -117,15 +118,20 @@ internal class ReplayChartsPresenter(
         areReplayControlsEnabled = false
         controlsState = controlsState.copy(symbol = symbol)
 
-        val replayManager = sessionReplayManager!!
-        replayManager.coroutineScope.cancel()
+        // Find existing session
+        val dataManager = replayDataManager!!
 
-        barReplay.removeSession(replayManager.session)
+        // Stop watching live candles
+        dataManager.unsubscribeLiveCandles()
 
-        sessionReplayManager = createReplaySession(
-            chartState = replayManager.chartState,
+        // Remove session from BarReplay
+        barReplay.removeSession(dataManager.replaySession)
+
+        // Create new session with new data
+        replayDataManager = createReplayDataManager(
+            chart = dataManager.chart,
             symbol = symbol,
-            timeframe = replayManager.timeframe,
+            timeframe = dataManager.timeframe,
         )
 
         areReplayControlsEnabled = true
@@ -141,30 +147,36 @@ internal class ReplayChartsPresenter(
             else -> Timeframe.M5
         }
 
-        val replayManager = sessionReplayManager!!
-        replayManager.coroutineScope.cancel()
+        // Find existing session
+        val dataManager = replayDataManager!!
 
-        sessionReplayManager = replayManager.copy(timeframe = timeframe)
+        // Stop watching live candles
+        dataManager.unsubscribeLiveCandles()
+
+        // Create new session with existing data but a different timeframe
+        replayDataManager = dataManager.copy(timeframe = timeframe)
 
         areReplayControlsEnabled = true
     }
 
-    private suspend fun createReplaySession(
+    private suspend fun createReplayDataManager(
+        chart: ReplayChart,
         symbol: String,
         timeframe: Timeframe,
-        chartState: ReplayChartBridge,
-    ): SessionReplayManager {
+    ): ReplayDataManager {
 
+        // Get candles
         val candleSeries = getCandleSeries(
             symbol = symbol,
             timeframe = baseTimeframe,
         )
 
+        // Create new BarReplaySession
         val session = barReplay.newSession { currentOffset ->
 
             val replayFrom = replayFrom
 
-            ReplaySession(
+            BarReplaySession(
                 inputSeries = candleSeries,
                 initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
                 currentOffset = currentOffset,
@@ -172,10 +184,10 @@ internal class ReplayChartsPresenter(
             )
         }
 
-        return SessionReplayManager(
-            session = session,
+        return ReplayDataManager(
+            chart = chart,
+            replaySession = session,
             timeframe = timeframe,
-            chartState = chartState,
         )
     }
 

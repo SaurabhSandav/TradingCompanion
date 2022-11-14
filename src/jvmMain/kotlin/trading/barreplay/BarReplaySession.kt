@@ -2,7 +2,7 @@ package trading.barreplay
 
 import trading.*
 
-interface ReplaySession {
+interface BarReplaySession {
 
     val inputSeries: CandleSeries
 
@@ -21,7 +21,7 @@ interface ReplaySession {
             initialIndex: Int,
             currentOffset: Int,
             isSessionStart: (CandleSeries, Int) -> Boolean,
-        ): ReplaySession = ReplaySessionImpl(
+        ): BarReplaySession = BarReplaySessionImpl(
             inputSeries = inputSeries,
             initialIndex = initialIndex,
             currentOffset = currentOffset,
@@ -30,12 +30,12 @@ interface ReplaySession {
     }
 }
 
-private class ReplaySessionImpl(
+private class BarReplaySessionImpl(
     override val inputSeries: CandleSeries,
     private val initialIndex: Int,
     currentOffset: Int,
     private val isSessionStart: (CandleSeries, Int) -> Boolean,
-) : ReplaySession {
+) : BarReplaySession {
 
     private val _replaySeries = MutableCandleSeries(
         initial = inputSeries.subList(0, initialIndex + currentOffset),

@@ -2,26 +2,28 @@ package ui.barreplay.charts
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import trading.Candle
 import trading.Timeframe
-import trading.barreplay.ReplaySession
+import trading.barreplay.BarReplaySession
 import trading.dailySessionStart
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
+import ui.barreplay.charts.ui.ReplayChart
 
-internal data class SessionReplayManager(
-    val session: ReplaySession,
+internal data class ReplayDataManager(
+    val chart: ReplayChart,
+    val replaySession: BarReplaySession,
     val timeframe: Timeframe,
-    val chartState: ReplayChartBridge,
 ) {
 
-    val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private val chartCandleSeries = when (timeframe) {
-        session.inputSeries.timeframe!! -> session.replaySeries
-        else -> session.resampled(timeframe)
+        replaySession.inputSeries.timeframe!! -> replaySession.replaySeries
+        else -> replaySession.resampled(timeframe)
     }
 
     private val ema9Indicator = EMAIndicator(ClosePriceIndicator(chartCandleSeries), length = 9)
@@ -39,25 +41,29 @@ internal data class SessionReplayManager(
         setInitialData()
     }
 
+    fun unsubscribeLiveCandles() {
+        coroutineScope.cancel()
+    }
+
     private fun setInitialData() {
 
         val data = chartCandleSeries.mapIndexed { index, candle ->
-            ReplayChartBridge.Data(
+            ReplayChart.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
                 vwap = vwapIndicator[index],
             )
         }
 
-        chartState.setData(data)
+        chart.setData(data)
     }
 
     private fun update(candle: Candle) {
 
         val index = chartCandleSeries.indexOf(candle)
 
-        chartState.update(
-            ReplayChartBridge.Data(
+        chart.update(
+            ReplayChart.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
                 vwap = vwapIndicator[index],
