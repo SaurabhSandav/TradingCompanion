@@ -5,18 +5,27 @@ import chart.IChartApi
 
 @Immutable
 data class ReplayChartsState(
-    val areReplayControlsEnabled: Boolean,
-    val controlsState: ReplayControlsState,
-    val chartState: ReplayChartState,
+    val chartTabsState: ReplayChartTabsState,
+    val chartState: ReplayChartState?,
 )
 
 @Immutable
-data class ReplayControlsState(
-    val symbol: String,
-    val timeframe: String,
-)
+data class ReplayChartTabsState(
+    val tabs: List<TabInfo>,
+    val selectedTabIndex: Int,
+) {
+
+    @Immutable
+    data class TabInfo(
+        val id: Int,
+        val title: String,
+    )
+}
 
 @Immutable
 data class ReplayChartState(
+    val id: Int,
+    val symbol: String,
+    val timeframe: String,
     val chart: IChartApi,
 )

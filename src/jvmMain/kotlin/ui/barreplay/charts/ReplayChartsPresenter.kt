@@ -3,7 +3,6 @@ package ui.barreplay.charts
 import AppModule
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
@@ -20,10 +19,10 @@ import trading.barreplay.BarReplaySession
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import ui.barreplay.charts.model.ReplayChartState
+import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.barreplay.charts.model.ReplayChartsEvent
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.model.ReplayChartsState
-import ui.barreplay.charts.model.ReplayControlsState
 import ui.barreplay.charts.ui.ReplayChart
 import ui.common.CollectEffect
 import kotlin.time.Duration.Companion.seconds
@@ -40,13 +39,13 @@ internal class ReplayChartsPresenter(
 ) {
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
-    private var areReplayControlsEnabled by mutableStateOf(false)
-    private var controlsState by mutableStateOf(ReplayControlsState(initialSymbol, baseTimeframe.toText()))
 
     private val barReplay = BarReplay()
-    private val chart = ReplayChart()
-    private var replayDataManager: ReplayDataManager? = null
     private var autoNextJob: Job? = null
+    private val dataManagers = mutableListOf<ReplayDataManager>()
+
+    private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
+    private var chartState by mutableStateOf<ReplayChartState?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -56,15 +55,17 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
-                is ChangeSymbol -> onChangeSymbol(event.symbol)
-                is ChangeTimeframe -> onChangeTimeframe(event.timeframe)
+                is NewChart -> onNewChart()
+                is CloseChart -> onCloseChart(event.id)
+                is SelectChart -> onSelectChart(event.id)
+                is ChangeSymbol -> onChangeSymbol(event.newSymbol)
+                is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
         }
 
         return@launchMolecule ReplayChartsState(
-            areReplayControlsEnabled = areReplayControlsEnabled,
-            controlsState = controlsState,
-            chartState = remember { ReplayChartState(chart.actualChart) },
+            chartTabsState = chartTabsState,
+            chartState = chartState,
         )
     }
 
@@ -76,20 +77,29 @@ internal class ReplayChartsPresenter(
 
         coroutineScope.launch {
 
-            replayDataManager = createReplayDataManager(
-                chart = chart,
+            // Create new session with initial params
+            val dataManager = createReplayDataManager(
+                chartId = 0,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
+                chart = ReplayChart(),
             )
 
-            areReplayControlsEnabled = true
+            // Cache newly created session
+            dataManagers += dataManager
+
+            // Add newly created chart into chart tabs
+            updateChartTabs()
+
+            // Display chart
+            chartState = dataManager.createReplayChartState()
         }
     }
 
     private fun onReset() {
         onChangeIsAutoNextEnabled(false)
         barReplay.reset()
-        replayDataManager?.reset()
+        dataManagers.forEach { it.reset() }
     }
 
     private fun onNext() {
@@ -113,13 +123,74 @@ internal class ReplayChartsPresenter(
         }
     }
 
+    private fun onNewChart() = coroutineScope.launchUnit {
+
+        // Currently selected chart
+        val chartState = requireNotNull(chartState)
+
+        // Copy currently selected chart session
+        val dataManager = run {
+
+            // Find session associated with current chart
+            val dataManager = findReplayDataManager(chartState.id)
+
+            // Create new session with existing params
+            createReplayDataManager(
+                // New unique id
+                chartId = dataManagers.maxOf { it.chartId } + 1,
+                symbol = dataManager.symbol,
+                timeframe = dataManager.timeframe,
+                chart = ReplayChart(),
+            )
+        }
+
+        // Cache newly created session
+        dataManagers += dataManager
+
+        // Add newly created chart into chart tabs
+        updateChartTabs()
+    }
+
+    private fun onCloseChart(id: Int) {
+
+        // Find session associated with chart
+        val dataManager = findReplayDataManager(id)
+
+        // Hold currently selected chart
+        val currentSelection = dataManagers[chartTabsState.selectedTabIndex]
+
+        // Remove session from cache
+        dataManagers.remove(dataManager)
+
+        // Remove chart from chart tabs
+        updateChartTabs()
+
+        // Index of currently selected chart might've changed, change tab state accordingly
+        val newSelectionIndex = dataManagers.indexOf(currentSelection)
+        chartTabsState = chartTabsState.copy(selectedTabIndex = newSelectionIndex)
+    }
+
+    private fun onSelectChart(id: Int) {
+
+        // Find session and index associated with chart
+        val dataManager = findReplayDataManager(id)
+        val dataManagerIndex = dataManagers.indexOf(dataManager)
+
+        // Display newly selected chart
+        chartState = dataManager.createReplayChartState()
+
+        // Update tab selection index
+        chartTabsState = chartTabsState.copy(selectedTabIndex = dataManagerIndex)
+    }
+
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
 
-        areReplayControlsEnabled = false
-        controlsState = controlsState.copy(symbol = symbol)
+        // Currently selected chart
+        val chartState = requireNotNull(chartState)
 
-        // Find existing session
-        val dataManager = replayDataManager!!
+        // Find session and index associated with current chart
+        val dataManager = findReplayDataManager(chartState.id)
+        val dataManagerIndex = dataManagers.indexOf(dataManager)
 
         // Stop watching live candles
         dataManager.unsubscribeLiveCandles()
@@ -127,52 +198,67 @@ internal class ReplayChartsPresenter(
         // Remove session from BarReplay
         barReplay.removeSession(dataManager.replaySession)
 
+        // Remove session from cache
+        dataManagers.removeAt(dataManagerIndex)
+
         // Create new session with new data
-        replayDataManager = createReplayDataManager(
-            chart = dataManager.chart,
+        val newDataManager = createReplayDataManager(
+            chartId = chartState.id,
             symbol = symbol,
             timeframe = dataManager.timeframe,
+            chart = dataManager.chart,
         )
 
-        areReplayControlsEnabled = true
+        // Cache newly created session at same index
+        dataManagers.add(dataManagerIndex, newDataManager)
+
+        // Update tab title
+        updateChartTabs()
     }
 
     private fun onChangeTimeframe(newTimeframe: String) = coroutineScope.launchUnit {
 
-        areReplayControlsEnabled = false
-        controlsState = controlsState.copy(timeframe = newTimeframe)
+        // Currently selected chart
+        val chartState = requireNotNull(chartState)
 
         val timeframe = when (newTimeframe) {
             "1D" -> Timeframe.D1
             else -> Timeframe.M5
         }
 
-        // Find existing session
-        val dataManager = replayDataManager!!
+        // Find session and index associated with current chart
+        val dataManager = findReplayDataManager(chartState.id)
+        val dataManagerIndex = dataManagers.indexOf(dataManager)
 
         // Stop watching live candles
         dataManager.unsubscribeLiveCandles()
 
-        // Create new session with existing data but a different timeframe
-        replayDataManager = dataManager.copy(timeframe = timeframe)
+        // Remove session from cache
+        dataManagers.removeAt(dataManagerIndex)
 
-        areReplayControlsEnabled = true
+        // Create new session with existing data but a different timeframe
+        val newDataManager = dataManager.copy(timeframe = timeframe)
+
+        // Cache newly created session at same index
+        dataManagers.add(dataManagerIndex, newDataManager)
+
+        // Update tab title
+        updateChartTabs()
     }
 
     private suspend fun createReplayDataManager(
-        chart: ReplayChart,
+        chartId: Int,
         symbol: String,
         timeframe: Timeframe,
+        chart: ReplayChart,
     ): ReplayDataManager {
 
-        // Get candles
         val candleSeries = getCandleSeries(
             symbol = symbol,
             timeframe = baseTimeframe,
         )
 
-        // Create new BarReplaySession
-        val session = barReplay.newSession { currentOffset ->
+        val replaySession = barReplay.newSession { currentOffset ->
 
             val replayFrom = replayFrom
 
@@ -185,9 +271,11 @@ internal class ReplayChartsPresenter(
         }
 
         return ReplayDataManager(
-            chart = chart,
-            replaySession = session,
+            chartId = chartId,
+            replaySession = replaySession,
+            symbol = symbol,
             timeframe = timeframe,
+            chart = chart,
         )
     }
 
@@ -213,8 +301,31 @@ internal class ReplayChartsPresenter(
     }
 
     private fun Timeframe.toText(): String = when (this) {
-        Timeframe.M1 -> "1m"
-        Timeframe.M5 -> "5m"
+        Timeframe.M1 -> "1M"
+        Timeframe.M5 -> "5M"
         Timeframe.D1 -> "1D"
+    }
+
+    private fun updateChartTabs() {
+
+        val newTabs = dataManagers.map {
+            ReplayChartTabsState.TabInfo(
+                id = it.chartId,
+                title = "${it.symbol} (${it.timeframe.toText()})",
+            )
+        }
+
+        chartTabsState = chartTabsState.copy(tabs = newTabs)
+    }
+
+    private fun ReplayDataManager.createReplayChartState() = ReplayChartState(
+        id = chartId,
+        symbol = symbol,
+        timeframe = timeframe.toText(),
+        chart = chart.actualChart,
+    )
+
+    private fun findReplayDataManager(chartId: Int): ReplayDataManager {
+        return dataManagers.find { it.chartId == chartId }.let(::requireNotNull)
     }
 }

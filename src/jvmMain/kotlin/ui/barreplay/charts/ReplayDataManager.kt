@@ -14,9 +14,11 @@ import trading.indicator.VWAPIndicator
 import ui.barreplay.charts.ui.ReplayChart
 
 internal data class ReplayDataManager(
+    val chartId: Int,
+    val symbol: String,
+    val timeframe: Timeframe,
     val chart: ReplayChart,
     val replaySession: BarReplaySession,
-    val timeframe: Timeframe,
 ) {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)

@@ -11,21 +11,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ui.barreplay.charts.model.ReplayControlsState
+import ui.barreplay.charts.model.ReplayChartState
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import utils.NIFTY50
 
 @Composable
 internal fun ReplayControls(
-    state: ReplayControlsState,
-    enabled: Boolean,
+    chartState: ReplayChartState,
     onNewReplay: () -> Unit,
     onReset: () -> Unit,
     onNext: () -> Unit,
+    onIsAutoNextEnabledChange: (Boolean) -> Unit,
+    onNewChart: () -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
-    onIsAutoNextEnabledChange: (Boolean) -> Unit,
 ) {
 
     Column(
@@ -36,7 +36,6 @@ internal fun ReplayControls(
         Button(
             onClick = onNewReplay,
             modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
         ) {
             Text("New Replay")
         }
@@ -44,7 +43,6 @@ internal fun ReplayControls(
         Button(
             onClick = onReset,
             modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
         ) {
             Text("Reset Replay")
         }
@@ -52,7 +50,6 @@ internal fun ReplayControls(
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
         ) {
             Text("Next")
         }
@@ -73,26 +70,30 @@ internal fun ReplayControls(
                     onIsAutoNextEnabledChange(it)
                     isAutoNextEnabled = it
                 },
-                enabled = enabled,
             )
+        }
+
+        Button(
+            onClick = { onNewChart() },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("New Chart")
         }
 
         Divider()
 
         ListSelectionField(
             items = NIFTY50,
-            selection = state.symbol,
+            selection = chartState.symbol,
             onSelection = onSymbolChange,
             label = { Text("Change Ticker") },
-            enabled = enabled,
         )
 
         ListSelectionField(
-            items = listOf("5m", "1D"),
+            items = listOf("5M", "1D"),
             onSelection = onTimeframeChange,
-            selection = state.timeframe,
+            selection = chartState.timeframe,
             label = { Text("Change Timeframe") },
-            enabled = enabled,
         )
     }
 }

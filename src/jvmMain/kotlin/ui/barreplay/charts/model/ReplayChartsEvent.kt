@@ -8,7 +8,13 @@ sealed class ReplayChartsEvent {
 
     data class ChangeIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplayChartsEvent()
 
-    data class ChangeSymbol(val symbol: String) : ReplayChartsEvent()
+    object NewChart : ReplayChartsEvent()
 
-    data class ChangeTimeframe(val timeframe: String) : ReplayChartsEvent()
+    data class CloseChart(val id: Int) : ReplayChartsEvent()
+
+    data class SelectChart(val id: Int) : ReplayChartsEvent()
+
+    data class ChangeSymbol(val newSymbol: String) : ReplayChartsEvent()
+
+    data class ChangeTimeframe(val newTimeframe: String) : ReplayChartsEvent()
 }
