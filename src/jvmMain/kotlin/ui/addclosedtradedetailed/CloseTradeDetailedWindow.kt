@@ -16,6 +16,7 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
+import ui.common.flow.FlowRow
 import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
@@ -172,15 +173,19 @@ internal fun CloseTradeDetailedWindow(
                     )
                 }
 
-                state.formModel.tags.forEach { tag ->
+                FlowRow(
+                    mainAxisSpacing = 8.dp,
+                ) {
 
-                    InputChip(
-                        onClick = {},
-                        label = { Text(tag) }
-                    )
+                    state.formModel.tags.forEach { tag ->
+
+                        InputChip(
+                            onClick = {},
+                            label = { Text(tag) }
+                        )
+                    }
                 }
             }
         }
-
     }
 }
