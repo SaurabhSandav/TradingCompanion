@@ -42,6 +42,7 @@ internal class ReplayChartsPresenter(
 
     private val barReplay = BarReplay()
     private var autoNextJob: Job? = null
+    private val candleCache = mutableMapOf<String, CandleSeries>()
     private val dataManagers = mutableListOf<ReplayDataManager>()
 
     private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
@@ -253,10 +254,7 @@ internal class ReplayChartsPresenter(
         chart: ReplayChart,
     ): ReplayDataManager {
 
-        val candleSeries = getCandleSeries(
-            symbol = symbol,
-            timeframe = baseTimeframe,
-        )
+        val candleSeries = getCandleSeries(symbol)
 
         val replaySession = barReplay.newSession { currentOffset ->
 
@@ -279,19 +277,16 @@ internal class ReplayChartsPresenter(
         )
     }
 
-    private suspend fun getCandleSeries(
-        symbol: String,
-        timeframe: Timeframe,
-    ): CandleSeries {
+    private suspend fun getCandleSeries(symbol: String): CandleSeries = candleCache.getOrPut(symbol) {
 
         val candleSeriesResult = candleRepo.getCandles(
             symbol = symbol,
-            timeframe = timeframe,
+            timeframe = baseTimeframe,
             from = dataFrom,
             to = dataTo,
         )
 
-        return when (candleSeriesResult) {
+        when (candleSeriesResult) {
             is Ok -> candleSeriesResult.value
             is Err -> when (val error = candleSeriesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")
