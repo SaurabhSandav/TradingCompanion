@@ -1,7 +1,7 @@
 package ui.barreplay.charts.model
 
 import androidx.compose.runtime.Immutable
-import chart.IChartApi
+import ui.common.ChartState
 
 @Immutable
 data class ReplayChartsState(
@@ -27,5 +27,5 @@ data class ReplayChartState(
     val id: Int,
     val symbol: String,
     val timeframe: String,
-    val chart: IChartApi,
+    val state: ChartState,
 )

@@ -13,6 +13,7 @@ import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
 import ui.common.ResizableChart
+import ui.common.rememberChartState
 
 @Composable
 internal fun ClosedTradeChartWindow(
@@ -30,7 +31,7 @@ internal fun ClosedTradeChartWindow(
             createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ResizableChart(chart)
+        ResizableChart(rememberChartState(chart))
 
         LaunchedEffect(chart) {
             chart.configure(chartData)

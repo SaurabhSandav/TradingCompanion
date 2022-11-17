@@ -31,6 +31,7 @@ import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.common.ResizableChart
 import ui.common.controls.ListSelectionField
+import ui.common.rememberChartState
 import utils.NIFTY50
 
 internal class TickerChartStudy(
@@ -68,7 +69,7 @@ internal class TickerChartStudy(
                 createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
             }
 
-            ResizableChart(chart)
+            ResizableChart(rememberChartState(chart))
 
             LaunchedEffect(chart) {
                 chart.configure(this)

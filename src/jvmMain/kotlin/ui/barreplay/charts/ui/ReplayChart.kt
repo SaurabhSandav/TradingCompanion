@@ -9,22 +9,25 @@ import chart.data.Time
 import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
+import ui.common.ChartState
 import java.math.BigDecimal
 
-internal class ReplayChart {
+internal class ReplayChart(coroutineScope: CoroutineScope) {
 
-    val actualChart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+    private val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+    val chartState = ChartState(coroutineScope, chart)
 
-    private val candlestickSeries by actualChart.candlestickSeries(
+    private val candlestickSeries by chart.candlestickSeries(
         options = CandlestickStyleOptions(
             lastValueVisible = false,
         ),
     )
 
-    private val ema9Series by actualChart.lineSeries(
+    private val ema9Series by chart.lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
@@ -39,7 +42,7 @@ internal class ReplayChart {
 
     init {
 
-        actualChart.timeScale.applyOptions(
+        chart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
     }
@@ -94,7 +97,7 @@ internal class ReplayChart {
         ema9Series.setData(ema9Data)
         vwapSeries?.setData(vwapData)
 
-        actualChart.timeScale.scrollToPosition(40, false)
+        chart.timeScale.scrollToPosition(40, false)
     }
 
     fun update(data: Data) {
@@ -142,7 +145,7 @@ internal class ReplayChart {
 
         if (volumeSeries != null) return
 
-        volumeSeries = actualChart.addHistogramSeries(
+        volumeSeries = chart.addHistogramSeries(
             name = "volumeSeries",
             options = HistogramStyleOptions(
                 lastValueVisible = false,
@@ -154,7 +157,7 @@ internal class ReplayChart {
             )
         )
 
-        vwapSeries = actualChart.addLineSeries(
+        vwapSeries = chart.addLineSeries(
             name = "vwapSeries",
             options = LineStyleOptions(
                 color = Color.Yellow,
@@ -179,8 +182,8 @@ internal class ReplayChart {
 
         if (volumeSeries == null) return
 
-        actualChart.removeSeries(volumeSeries!!)
-        actualChart.removeSeries(vwapSeries!!)
+        chart.removeSeries(volumeSeries!!)
+        chart.removeSeries(vwapSeries!!)
 
         volumeSeries = null
         vwapSeries = null

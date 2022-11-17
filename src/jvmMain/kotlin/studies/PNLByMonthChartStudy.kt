@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import ui.common.ResizableChart
+import ui.common.rememberChartState
 import utils.brokerage
 import java.math.BigDecimal
 
@@ -75,7 +76,7 @@ internal class PNLByMonthChartStudy(
             createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ResizableChart(chart)
+        ResizableChart(rememberChartState(chart))
 
         LaunchedEffect(chart) {
 

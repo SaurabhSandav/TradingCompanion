@@ -83,7 +83,7 @@ internal class ReplayChartsPresenter(
                 chartId = 0,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
-                chart = ReplayChart(),
+                chart = ReplayChart(coroutineScope),
             )
 
             // Cache newly created session
@@ -141,7 +141,7 @@ internal class ReplayChartsPresenter(
                 chartId = dataManagers.maxOf { it.chartId } + 1,
                 symbol = dataManager.symbol,
                 timeframe = dataManager.timeframe,
-                chart = ReplayChart(),
+                chart = ReplayChart(coroutineScope),
             )
         }
 
@@ -207,6 +207,7 @@ internal class ReplayChartsPresenter(
             chartId = chartState.id,
             symbol = symbol,
             timeframe = dataManager.timeframe,
+            // Keep chart but reset data
             chart = dataManager.chart,
         )
 
@@ -317,7 +318,7 @@ internal class ReplayChartsPresenter(
         id = chartId,
         symbol = symbol,
         timeframe = timeframe.toText(),
-        chart = chart.actualChart,
+        state = chart.chartState,
     )
 
     private fun findReplayDataManager(chartId: Int): ReplayDataManager {

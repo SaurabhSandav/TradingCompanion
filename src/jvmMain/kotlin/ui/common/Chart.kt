@@ -4,46 +4,61 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import chart.IChartApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 
 @Composable
 fun ResizableChart(
-    chart: IChartApi,
+    state: ChartState,
     modifier: Modifier = Modifier,
 ) {
 
     Column(modifier) {
 
-        val webViewState = rememberWebViewState()
         var initialSize by state { IntSize.Zero }
 
-        WebViewLoadingIndicator(webViewState)
+        WebViewLoadingIndicator(state.webViewState)
 
         JavaFxWebView(
-            state = webViewState,
+            state = state.webViewState,
             modifier = Modifier.fillMaxSize().onSizeChanged { size ->
 
                 initialSize = size
 
                 // Resize chart on layout resize
-                chart.resize(
+                state.chart.resize(
                     width = size.width,
                     height = size.height,
                 )
             },
         )
+    }
+}
 
-        if (webViewState.isReady) {
+@Composable
+fun rememberChartState(chart: IChartApi): ChartState {
+    val coroutineScope = rememberCoroutineScope()
+    return remember { ChartState(coroutineScope, chart) }
+}
+
+class ChartState(
+    coroutineScope: CoroutineScope,
+    val chart: IChartApi,
+) {
+
+    val webViewState = WebViewState(coroutineScope)
+
+    init {
+        coroutineScope.launch {
 
             // Configure chart if WebView is ready
-            LaunchedEffect(Unit) {
+            snapshotFlow { webViewState.isReady }.filter { it }.collect {
 
                 // Load chart webpage
                 webViewState.load(
@@ -54,10 +69,8 @@ fun ResizableChart(
 
                 // On page load, execute chart scripts
                 webViewState.loadState.collect { loadState ->
-
-                    if (loadState != WebViewState.LoadState.LOADED) return@collect
-
-                    chart.scripts.collect(webViewState::executeScript)
+                    if (loadState == WebViewState.LoadState.LOADED)
+                        chart.scripts.collect(webViewState::executeScript)
                 }
             }
         }

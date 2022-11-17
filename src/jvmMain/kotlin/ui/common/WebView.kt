@@ -21,25 +21,9 @@ fun JavaFxWebView(
     modifier: Modifier = Modifier,
 ) {
 
-    val jfxPanel = remember {
-        JFXPanel().apply {
-
-            Platform.runLater {
-
-                Platform.setImplicitExit(false)
-
-                val webView = WebView()
-
-                state.setEngine(webView.engine)
-
-                scene = Scene(webView)
-            }
-        }
-    }
-
     AppSwingPanel(
         modifier = modifier,
-        factory = { jfxPanel }
+        factory = { state.jfxPanel }
     )
 }
 
@@ -59,7 +43,10 @@ class WebViewState(
 
     var isReady by mutableStateOf(false)
 
-    private val _loadState = MutableSharedFlow<LoadState>(extraBufferCapacity = 10)
+    private val _loadState = MutableSharedFlow<LoadState>(
+        replay = 1,
+        extraBufferCapacity = 10,
+    )
     val loadState: Flow<LoadState> = _loadState.distinctUntilChanged()
 
     private val _location = MutableSharedFlow<String>(replay = 1)
@@ -68,7 +55,39 @@ class WebViewState(
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     val errors: Flow<Throwable> = _errors.asSharedFlow()
 
-    internal fun setEngine(webEngine: WebEngine) {
+    internal val jfxPanel = JFXPanel().apply {
+
+        Platform.runLater {
+
+            Platform.setImplicitExit(false)
+
+            val webView = WebView()
+
+            setEngine(webView.engine)
+
+            scene = Scene(webView)
+        }
+    }
+
+    fun load(url: String) {
+
+        requireReady()
+
+        Platform.runLater {
+            engine.load(url)
+        }
+    }
+
+    fun executeScript(script: String) {
+
+        requireReady()
+
+        Platform.runLater {
+            engine.executeScript(script)
+        }
+    }
+
+    private fun setEngine(webEngine: WebEngine) {
 
         engine = webEngine
 
@@ -98,24 +117,6 @@ class WebViewState(
 
         coroutineScope.launch {
             isReady = true
-        }
-    }
-
-    fun load(url: String) {
-
-        requireReady()
-
-        Platform.runLater {
-            engine.load(url)
-        }
-    }
-
-    fun executeScript(script: String) {
-
-        requireReady()
-
-        Platform.runLater {
-            engine.executeScript(script)
         }
     }
 

@@ -50,7 +50,7 @@ fun ReplayChartSwitcher(
         key(chartState.id) {
 
             ResizableChart(
-                chart = chartState.chart,
+                state = chartState.state,
                 modifier = Modifier.fillMaxSize(),
             )
         }
