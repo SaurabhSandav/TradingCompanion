@@ -35,7 +35,10 @@ internal class FyersCandleDownloader(
         }
 
         // Fyers symbol notation
-        val symbolFull = "NSE:$symbol-EQ"
+        val symbolFull = when (symbol) {
+            "NIFTY50" -> "NSE:$symbol-INDEX"
+            else -> "NSE:$symbol-EQ"
+        }
 
         val response = fyersApi.getHistoricalCandles(
             accessToken = accessToken!!,

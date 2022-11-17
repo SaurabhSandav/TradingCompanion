@@ -19,6 +19,9 @@ class VWAPIndicator(
     private val cumulativeVolume = SessionCumulativeIndicator(volume, isSessionStart)
 
     override fun calculate(index: Int): BigDecimal {
-        return cumulativeTPV[index].divide(cumulativeVolume[index], mathContext)
+        return when {
+            cumulativeVolume[index] == BigDecimal.ZERO -> BigDecimal.ZERO
+            else -> cumulativeTPV[index].divide(cumulativeVolume[index], mathContext)
+        }
     }
 }

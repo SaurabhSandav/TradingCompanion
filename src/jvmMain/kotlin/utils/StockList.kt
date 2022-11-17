@@ -1,6 +1,7 @@
 package utils
 
 val NIFTY50 = listOf(
+    "NIFTY50",
     "ADANIPORTS",
     "APOLLOHOSP",
     "ASIANPAINT",

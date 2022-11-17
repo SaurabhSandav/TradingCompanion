@@ -57,7 +57,7 @@ internal data class ReplayDataManager(
             )
         }
 
-        chart.setData(data)
+        chart.setData(data, hasVolume = symbol != "NIFTY50")
     }
 
     private fun update(candle: Candle) {

@@ -24,17 +24,6 @@ internal class ReplayChart {
         ),
     )
 
-    private val volumeSeries by actualChart.histogramSeries(
-        options = HistogramStyleOptions(
-            lastValueVisible = false,
-            priceFormat = PriceFormat.BuiltIn(
-                type = PriceFormat.Type.Volume,
-            ),
-            priceScaleId = "",
-            priceLineVisible = false,
-        )
-    )
-
     private val ema9Series by actualChart.lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
@@ -44,33 +33,23 @@ internal class ReplayChart {
         ),
     )
 
-    private val vwapSeries by actualChart.lineSeries(
-        options = LineStyleOptions(
-            color = Color.Yellow,
-            lineWidth = LineWidth.One,
-            crosshairMarkerVisible = false,
-            lastValueVisible = false,
-            priceLineVisible = false,
-        ),
-    )
+    private var volumeSeries: ISeriesApi<HistogramData>? = null
+
+    private var vwapSeries: ISeriesApi<LineData>? = null
 
     init {
-
-        volumeSeries.priceScale.applyOptions(
-            PriceScaleOptions(
-                scaleMargins = PriceScaleMargins(
-                    top = 0.8,
-                    bottom = 0,
-                )
-            )
-        )
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
     }
 
-    fun setData(dataList: List<Data>) {
+    fun setData(dataList: List<Data>, hasVolume: Boolean) {
+
+        when {
+            hasVolume -> enableVolume()
+            else -> disableVolume()
+        }
 
         val candleData = mutableListOf<CandlestickData>()
         val volumeData = mutableListOf<HistogramData>()
@@ -111,9 +90,9 @@ internal class ReplayChart {
         }
 
         candlestickSeries.setData(candleData)
-        volumeSeries.setData(volumeData)
+        volumeSeries?.setData(volumeData)
         ema9Series.setData(ema9Data)
-        vwapSeries.setData(vwapData)
+        vwapSeries?.setData(vwapData)
 
         actualChart.timeScale.scrollToPosition(40, false)
     }
@@ -133,7 +112,7 @@ internal class ReplayChart {
             )
         )
 
-        volumeSeries.update(
+        volumeSeries?.update(
             HistogramData(
                 time = Time.UTCTimestamp(offsetTime),
                 value = candle.volume,
@@ -151,12 +130,60 @@ internal class ReplayChart {
             )
         )
 
-        vwapSeries.update(
+        vwapSeries?.update(
             LineData(
                 time = Time.UTCTimestamp(offsetTime),
                 value = data.vwap,
             )
         )
+    }
+
+    private fun enableVolume() {
+
+        if (volumeSeries != null) return
+
+        volumeSeries = actualChart.addHistogramSeries(
+            name = "volumeSeries",
+            options = HistogramStyleOptions(
+                lastValueVisible = false,
+                priceFormat = PriceFormat.BuiltIn(
+                    type = PriceFormat.Type.Volume,
+                ),
+                priceScaleId = "",
+                priceLineVisible = false,
+            )
+        )
+
+        vwapSeries = actualChart.addLineSeries(
+            name = "vwapSeries",
+            options = LineStyleOptions(
+                color = Color.Yellow,
+                lineWidth = LineWidth.One,
+                crosshairMarkerVisible = false,
+                lastValueVisible = false,
+                priceLineVisible = false,
+            ),
+        )
+
+        volumeSeries!!.priceScale.applyOptions(
+            PriceScaleOptions(
+                scaleMargins = PriceScaleMargins(
+                    top = 0.8,
+                    bottom = 0,
+                )
+            )
+        )
+    }
+
+    private fun disableVolume() {
+
+        if (volumeSeries == null) return
+
+        actualChart.removeSeries(volumeSeries!!)
+        actualChart.removeSeries(vwapSeries!!)
+
+        volumeSeries = null
+        vwapSeries = null
     }
 
     private fun Candle.offsetTimeForChart(): Long {
