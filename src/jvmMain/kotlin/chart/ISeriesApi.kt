@@ -7,28 +7,29 @@ import kotlinx.serialization.json.JsonArray
 class ISeriesApi<T : SeriesData>(
     private val executeJs: (String) -> Unit,
     val name: String,
+    val reference: String,
 ) {
 
-    val priceScale: IPriceScaleApi = IPriceScaleApi(name, executeJs)
+    val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
 
     fun setData(list: List<T>) {
 
         val dataJson = JsonArray(list.map { it.toJsonElement() })
 
-        executeJs("$name.setData($dataJson);")
+        executeJs("$reference.setData($dataJson);")
     }
 
     fun update(data: T) {
 
         val dataJson = data.toJsonElement()
 
-        executeJs("$name.update($dataJson);")
+        executeJs("$reference.update($dataJson);")
     }
 
     fun setMarkers(list: List<SeriesMarker>) {
 
         val markersJson = JsonArray(list.map { it.toJsonElement() })
 
-        executeJs("$name.setMarkers($markersJson);")
+        executeJs("$reference.setMarkers($markersJson);")
     }
 }
