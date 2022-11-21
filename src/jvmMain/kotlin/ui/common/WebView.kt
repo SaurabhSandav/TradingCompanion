@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import netscape.javascript.JSObject
 
 @Composable
 fun JavaFxWebView(
@@ -84,6 +85,16 @@ class WebViewState(
 
         Platform.runLater {
             engine.executeScript(script)
+        }
+    }
+
+    fun setMember(name: String, memberObject: Any) {
+
+        requireReady()
+
+        Platform.runLater {
+            val window = engine.executeScript("window") as JSObject
+            window.setMember(name, memberObject)
         }
     }
 

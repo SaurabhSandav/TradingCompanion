@@ -69,8 +69,10 @@ class ChartState(
 
                 // On page load, execute chart scripts
                 webViewState.loadState.collect { loadState ->
-                    if (loadState == WebViewState.LoadState.LOADED)
+                    if (loadState == WebViewState.LoadState.LOADED) {
+                        webViewState.setMember(chart.javaCallbacksObjectName, chart.javaCallbacks)
                         chart.scripts.collect(webViewState::executeScript)
+                    }
                 }
             }
         }

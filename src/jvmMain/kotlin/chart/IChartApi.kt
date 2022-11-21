@@ -1,5 +1,7 @@
 package chart
 
+import chart.callbacks.JavaCallbacks
+import chart.callbacks.MouseEventHandler
 import chart.data.*
 import chart.options.*
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +16,10 @@ class IChartApi internal constructor(
         replay = Int.MAX_VALUE,
         extraBufferCapacity = Int.MAX_VALUE,
     )
+
     private val seriesList = mutableListOf<ISeriesApi<*>>()
+    internal val javaCallbacksObjectName = "javaCallbacks"
+    internal val javaCallbacks = JavaCallbacks(seriesList)
 
     val scripts: Flow<String>
         get() = _scripts
@@ -29,6 +34,37 @@ class IChartApi internal constructor(
         executeJs("const $name = LightweightCharts.createChart(document.body, $optionsJson);")
 
         executeJs("const seriesMap = new Map();")
+
+        executeJs(
+            """|
+            |
+            |function getByValue(map, searchValue) {
+            |  for (let [key, value] of map) {
+            |    if (value === searchValue)
+            |      return key;
+            |  }
+            |}
+            |
+            |function replacerSeriesByName(key, value) {
+            |
+            |    if (key == 'seriesPrices' && value instanceof Map) {
+            |
+            |        var namedMap = new Map();
+            |
+            |        value.forEach(function (value, key) {
+            |            namedMap.set(getByValue(seriesMap, key), value);
+            |        });
+            |
+            |        return Array.from(namedMap.entries());
+            |    } else {
+            |        return value;
+            |    }
+            |}
+        """.trimMargin()
+        )
+
+        declareSubscribeClickCallback()
+        declareSubscribeCrosshairMoveCallback()
     }
 
     fun addBaselineSeries(
@@ -78,6 +114,38 @@ class IChartApi internal constructor(
         executeJs("$name.removeSeries(${series.reference});")
     }
 
+    fun subscribeClick(handler: MouseEventHandler) {
+
+        if (javaCallbacks.subscribeClickCallbacks.isEmpty())
+            executeJs("$name.subscribeClick(subscribeClickCallback);")
+
+        javaCallbacks.subscribeClickCallbacks.add(handler)
+    }
+
+    fun unsubscribeClick(handler: MouseEventHandler) {
+
+        javaCallbacks.subscribeClickCallbacks.remove(handler)
+
+        if (javaCallbacks.subscribeClickCallbacks.isEmpty())
+            executeJs("$name.unsubscribeClick(subscribeClickCallback);")
+    }
+
+    fun subscribeCrosshairMove(handler: MouseEventHandler) {
+
+        if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
+            executeJs("$name.subscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+
+        javaCallbacks.subscribeCrosshairMoveCallbacks.add(handler)
+    }
+
+    fun unsubscribeCrosshairMove(handler: MouseEventHandler) {
+
+        javaCallbacks.subscribeCrosshairMoveCallbacks.remove(handler)
+
+        if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
+            executeJs("$name.unsubscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+    }
+
     private fun <T : SeriesData> addSeries(
         options: SeriesOptions,
         funcName: String,
@@ -97,6 +165,28 @@ class IChartApi internal constructor(
         executeJs("seriesMap.set(\"${name}\", ${this@IChartApi.name}.$funcName(${optionsJson}));")
 
         return series
+    }
+
+    private fun declareSubscribeClickCallback() {
+
+        executeJs(
+            """|
+            |const subscribeClickCallback = (function (params) {
+            |  $javaCallbacksObjectName.subscribeClickMouseEventHandler(JSON.stringify(params, replacerSeriesByName));
+            |})
+        """.trimMargin()
+        )
+    }
+
+    private fun declareSubscribeCrosshairMoveCallback() {
+
+        executeJs(
+            """|
+            |const subscribeCrosshairMoveCallback = (function (params) {
+            |  $javaCallbacksObjectName.subscribeCrosshairMoveMouseEventHandler(JSON.stringify(params, replacerSeriesByName));
+            |})
+        """.trimMargin()
+        )
     }
 
     private fun executeJs(script: String) {
