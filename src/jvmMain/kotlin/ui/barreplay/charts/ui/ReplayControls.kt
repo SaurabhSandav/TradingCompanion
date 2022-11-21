@@ -1,5 +1,6 @@
 package ui.barreplay.charts.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -30,70 +31,96 @@ internal fun ReplayControls(
 
     Column(
         modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
 
-        Button(
-            onClick = onNewReplay,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("New Replay")
-        }
-
-        Button(
-            onClick = onReset,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Reset Replay")
-        }
-
-        Button(
-            onClick = onNext,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Next")
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier.animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
 
-            Text("Auto next: ")
+            chartState.data.forEach {
 
-            var isAutoNextEnabled by state { false }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
 
-            Switch(
-                checked = isAutoNextEnabled,
-                onCheckedChange = {
-                    onIsAutoNextEnabledChange(it)
-                    isAutoNextEnabled = it
-                },
+                    Text(it.first)
+
+                    Text(it.second)
+                }
+            }
+
+            Divider()
+
+            ListSelectionField(
+                items = NIFTY50,
+                selection = chartState.symbol,
+                onSelection = onSymbolChange,
+                label = { Text("Change Ticker") },
             )
+
+            ListSelectionField(
+                items = listOf("5M", "1D"),
+                onSelection = onTimeframeChange,
+                selection = chartState.timeframe,
+                label = { Text("Change Timeframe") },
+            )
+
+            Divider()
         }
 
-        Button(
-            onClick = { onNewChart() },
-            modifier = Modifier.fillMaxWidth(),
+        Column(
+            modifier = Modifier.weight(1F),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
-            Text("New Chart")
+
+            Button(
+                onClick = { onNewChart() },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("New Chart")
+            }
+
+            Button(
+                onClick = onNewReplay,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("New Replay")
+            }
+
+            Button(
+                onClick = onReset,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Reset Replay")
+            }
+
+            Button(
+                onClick = onNext,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Next")
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Text("Auto next: ")
+
+                var isAutoNextEnabled by state { false }
+
+                Switch(
+                    checked = isAutoNextEnabled,
+                    onCheckedChange = {
+                        onIsAutoNextEnabledChange(it)
+                        isAutoNextEnabled = it
+                    },
+                )
+            }
         }
-
-        Divider()
-
-        ListSelectionField(
-            items = NIFTY50,
-            selection = chartState.symbol,
-            onSelection = onSymbolChange,
-            label = { Text("Change Ticker") },
-        )
-
-        ListSelectionField(
-            items = listOf("5M", "1D"),
-            onSelection = onTimeframeChange,
-            selection = chartState.timeframe,
-            label = { Text("Change Timeframe") },
-        )
     }
 }

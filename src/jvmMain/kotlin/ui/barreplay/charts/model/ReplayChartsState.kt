@@ -28,4 +28,5 @@ data class ReplayChartState(
     val symbol: String,
     val timeframe: String,
     val state: ChartState,
+    val data: List<Pair<String, String>>,
 )

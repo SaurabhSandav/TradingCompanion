@@ -2,6 +2,7 @@ package ui.barreplay.charts
 
 import AppModule
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
@@ -47,6 +48,7 @@ internal class ReplayChartsPresenter(
 
     private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
     private var chartState by mutableStateOf<ReplayChartState?>(null)
+    private var chartData = mutableStateListOf<Pair<String, String>>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -83,7 +85,10 @@ internal class ReplayChartsPresenter(
                 chartId = 0,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
-                chart = ReplayChart(coroutineScope),
+                chart = ReplayChart(coroutineScope) {
+                    chartData.clear()
+                    chartData.addAll(it)
+                },
             )
 
             // Cache newly created session
@@ -141,7 +146,10 @@ internal class ReplayChartsPresenter(
                 chartId = dataManagers.maxOf { it.chartId } + 1,
                 symbol = dataManager.symbol,
                 timeframe = dataManager.timeframe,
-                chart = ReplayChart(coroutineScope),
+                chart = ReplayChart(coroutineScope) {
+                    chartData.clear()
+                    chartData.addAll(it)
+                },
             )
         }
 
@@ -319,7 +327,8 @@ internal class ReplayChartsPresenter(
         symbol = symbol,
         timeframe = timeframe.toText(),
         state = chart.chartState,
-    )
+        data = chartData,
+    ).also { chartData.clear() }
 
     private fun findReplayDataManager(chartId: Int): ReplayDataManager {
         return dataManagers.find { it.chartId == chartId }.let(::requireNotNull)

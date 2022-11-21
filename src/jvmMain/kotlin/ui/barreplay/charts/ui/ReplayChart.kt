@@ -2,10 +2,7 @@ package ui.barreplay.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import chart.*
-import chart.data.CandlestickData
-import chart.data.HistogramData
-import chart.data.LineData
-import chart.data.Time
+import chart.data.*
 import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
@@ -15,8 +12,12 @@ import kotlinx.datetime.offsetIn
 import trading.Candle
 import ui.common.ChartState
 import java.math.BigDecimal
+import java.math.RoundingMode
 
-internal class ReplayChart(coroutineScope: CoroutineScope) {
+internal class ReplayChart(
+    coroutineScope: CoroutineScope,
+    onDataUpdate: (List<Pair<String, String>>) -> Unit,
+) {
 
     private val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
     val chartState = ChartState(coroutineScope, chart)
@@ -45,6 +46,21 @@ internal class ReplayChart(coroutineScope: CoroutineScope) {
         chart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
+
+        chart.subscribeCrosshairMove { params ->
+
+            val displayData = when {
+                params.seriesPrices.isEmpty() -> getDataList()
+                else -> getDataList(
+                    price = (params.seriesPrices[candlestickSeries] as GeneralData.BarPrices).close,
+                    volume = volumeSeries?.let { (params.seriesPrices[it] as GeneralData.BarPrice).value },
+                    ema9 = (params.seriesPrices[ema9Series] as GeneralData.BarPrice).value,
+                    vwap = vwapSeries?.let { (params.seriesPrices[it] as GeneralData.BarPrice).value },
+                )
+            }
+
+            onDataUpdate(displayData)
+        }
     }
 
     fun setData(dataList: List<Data>, hasVolume: Boolean) {
@@ -83,12 +99,12 @@ internal class ReplayChart(coroutineScope: CoroutineScope) {
 
             ema9Data += LineData(
                 time = Time.UTCTimestamp(offsetTime),
-                value = data.ema9,
+                value = data.ema9.setScale(2, RoundingMode.DOWN),
             )
 
             vwapData += LineData(
                 time = Time.UTCTimestamp(offsetTime),
-                value = data.vwap,
+                value = data.vwap.setScale(2, RoundingMode.DOWN),
             )
         }
 
@@ -129,14 +145,14 @@ internal class ReplayChart(coroutineScope: CoroutineScope) {
         ema9Series.update(
             LineData(
                 time = Time.UTCTimestamp(offsetTime),
-                value = data.ema9,
+                value = data.ema9.setScale(2, RoundingMode.DOWN),
             )
         )
 
         vwapSeries?.update(
             LineData(
                 time = Time.UTCTimestamp(offsetTime),
-                value = data.vwap,
+                value = data.vwap.setScale(2, RoundingMode.DOWN),
             )
         )
     }
@@ -193,6 +209,18 @@ internal class ReplayChart(coroutineScope: CoroutineScope) {
         val epochTime = openInstant.epochSeconds
         val timeZoneOffset = openInstant.offsetIn(TimeZone.currentSystemDefault()).totalSeconds
         return epochTime + timeZoneOffset
+    }
+
+    private fun getDataList(
+        price: BigDecimal? = null,
+        volume: BigDecimal? = null,
+        ema9: BigDecimal? = null,
+        vwap: BigDecimal? = null,
+    ): List<Pair<String, String>> = buildList {
+        add("Price" to price?.toPlainString().orEmpty())
+        add("Volume" to volume?.toPlainString().orEmpty())
+        add("EMA (9)" to ema9?.toPlainString().orEmpty())
+        add("VWAP" to vwap?.toPlainString().orEmpty())
     }
 
     data class Data(
