@@ -35,6 +35,8 @@ class IChartApi internal constructor(
 
         executeJs("const seriesMap = new Map();")
 
+        executeJs("var priceLinesMapMap = new Map();")
+
         executeJs(
             """|
             |
@@ -112,6 +114,10 @@ class IChartApi internal constructor(
         seriesList.remove(series)
 
         executeJs("$name.removeSeries(${series.reference});")
+
+        executeJs("seriesMap.delete(\"${name}\");")
+
+        executeJs("priceLinesMapMap.delete(\"${name}\");")
     }
 
     fun subscribeClick(handler: MouseEventHandler) {
@@ -156,6 +162,7 @@ class IChartApi internal constructor(
             executeJs = ::executeJs,
             name = name,
             reference = "seriesMap.get(\"$name\")",
+            priceLineMapReference = "priceLinesMapMap.get(\"$name\")",
         )
 
         val optionsJson = options.toJsonElement()
@@ -163,6 +170,8 @@ class IChartApi internal constructor(
         seriesList.add(series)
 
         executeJs("seriesMap.set(\"${name}\", ${this@IChartApi.name}.$funcName(${optionsJson}));")
+
+        executeJs("priceLinesMapMap.set(\"${name}\", new Map());")
 
         return series
     }

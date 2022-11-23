@@ -2,15 +2,19 @@ package chart
 
 import chart.data.SeriesData
 import chart.data.SeriesMarker
+import chart.options.PriceLineOptions
 import kotlinx.serialization.json.JsonArray
 
 class ISeriesApi<T : SeriesData>(
     private val executeJs: (String) -> Unit,
     val name: String,
     val reference: String,
+    val priceLineMapReference: String,
 ) {
 
     val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
+
+    private var nextPriceLineId = 0
 
     fun setData(list: List<T>) {
 
@@ -31,5 +35,27 @@ class ISeriesApi<T : SeriesData>(
         val markersJson = JsonArray(list.map { it.toJsonElement() })
 
         executeJs("$reference.setMarkers($markersJson);")
+    }
+
+    fun createPriceLine(options: PriceLineOptions): IPriceLine {
+
+        val optionsJson = options.toJsonElement()
+
+        val id = nextPriceLineId++
+
+        executeJs("$priceLineMapReference.set($id, $reference.createPriceLine($optionsJson));")
+
+        return IPriceLine(
+            executeJs = executeJs,
+            id = id,
+            reference = "$priceLineMapReference.get($id)",
+        )
+    }
+
+    fun removePriceLine(line: IPriceLine) {
+
+        executeJs("$reference.removePriceLine(${line.reference});")
+
+        executeJs("$priceLineMapReference.delete(${line.id});")
     }
 }

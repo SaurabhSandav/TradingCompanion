@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import chart.data.*
+import chart.options.PriceLineOptions
+import chart.options.common.LineStyle
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -35,10 +37,7 @@ import ui.addclosedtradedetailed.CloseTradeDetailedWindowState
 import ui.closedtrades.model.*
 import ui.closedtrades.model.ClosedTradesEvent.DeleteTrade
 import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
-import ui.common.CollectEffect
-import ui.common.MultipleWindowManager
-import ui.common.UIErrorMessage
-import ui.common.state
+import ui.common.*
 import ui.fyerslogin.FyersLoginState
 import utils.brokerage
 import java.math.BigDecimal
@@ -334,6 +333,31 @@ internal class ClosedTradesPresenter(
             ),
         )
 
+        val priceLines = buildList {
+
+            val stop = closedTrade.stop
+            if (stop != null)
+                add(
+                    PriceLineOptions(
+                        price = stop.toBigDecimal(),
+                        color = AppColor.LossRed,
+                        lineStyle = LineStyle.Solid,
+                        title = "Stop",
+                    )
+                )
+
+            val target = closedTrade.target
+            if (target != null)
+                add(
+                    PriceLineOptions(
+                        price = target.toBigDecimal(),
+                        color = AppColor.ProfitGreen,
+                        lineStyle = LineStyle.Solid,
+                        title = "Target",
+                    )
+                )
+        }
+
         val params = ClosedTradeChartWindowParams(
             tradeId = closedTrade.id,
             chartData = ClosedTradeChartData(
@@ -343,6 +367,7 @@ internal class ClosedTradesPresenter(
                 vwapData = vwapData,
                 visibilityIndexRange = (entryIndex - 30)..(exitIndex + 30),
                 markers = markers,
+                priceLines = priceLines,
             ),
         )
 

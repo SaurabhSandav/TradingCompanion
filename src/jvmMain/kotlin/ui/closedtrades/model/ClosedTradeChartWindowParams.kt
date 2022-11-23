@@ -4,6 +4,7 @@ import chart.data.CandlestickData
 import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.SeriesMarker
+import chart.options.PriceLineOptions
 
 internal class ClosedTradeChartWindowParams(
     val tradeId: Long,
@@ -17,4 +18,5 @@ data class ClosedTradeChartData(
     val vwapData: List<LineData>,
     val visibilityIndexRange: ClosedRange<Int>,
     val markers: List<SeriesMarker>,
+    val priceLines: List<PriceLineOptions>,
 )

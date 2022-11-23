@@ -97,4 +97,6 @@ private fun IChartApi.configure(
     timeScale.setVisibleLogicalRange(chartData.visibilityIndexRange.start, chartData.visibilityIndexRange.endInclusive)
 
     candleSeries.setMarkers(chartData.markers)
+
+    chartData.priceLines.forEach(candleSeries::createPriceLine)
 }
