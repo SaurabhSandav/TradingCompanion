@@ -8,7 +8,6 @@ import chart.baselineSeries
 import chart.createChart
 import chart.data.SingleValueData
 import chart.data.Time
-import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
 import com.squareup.sqldelight.runtime.coroutines.asFlow
@@ -19,6 +18,7 @@ import kotlinx.datetime.toLocalDateTime
 import model.Side
 import ui.common.ResizableChart
 import ui.common.rememberChartState
+import ui.common.themedChartOptions
 import utils.brokerage
 import java.math.BigDecimal
 
@@ -69,8 +69,10 @@ internal class PNLByDayChartStudy(
     @Composable
     override fun render() {
 
+        val themedOptions = themedChartOptions()
+
         val chart = remember {
-            createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            createChart(themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
         ResizableChart(rememberChartState(chart))
@@ -83,6 +85,10 @@ internal class PNLByDayChartStudy(
                 baselineSeries.setData(it)
                 chart.timeScale.fitContent()
             }
+        }
+
+        LaunchedEffect(themedOptions) {
+            chart.applyOptions(themedOptions)
         }
     }
 

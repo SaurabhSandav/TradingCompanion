@@ -1,10 +1,12 @@
 package ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.luminance
 
 
 private val LightColors = lightColorScheme(
@@ -67,6 +69,12 @@ private val DarkColors = darkColorScheme(
     inversePrimary = md_theme_dark_inversePrimary,
     surfaceTint = md_theme_dark_surfaceTint,
 )
+
+@Composable
+fun ColorScheme.isLight() = this.background.luminance() > 0.5
+
+@Composable
+fun ColorScheme.isDark() = !isLight()
 
 @Composable
 fun AppTheme(

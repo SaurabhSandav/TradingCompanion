@@ -32,6 +32,7 @@ import trading.indicator.VWAPIndicator
 import ui.common.ResizableChart
 import ui.common.controls.ListSelectionField
 import ui.common.rememberChartState
+import ui.common.themedChartOptions
 import utils.NIFTY50
 
 internal class TickerChartStudy(
@@ -65,14 +66,20 @@ internal class TickerChartStudy(
                 )
             }
 
+            val themedOptions = themedChartOptions()
+
             val chart = remember {
-                createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+                createChart(themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
             }
 
             ResizableChart(rememberChartState(chart))
 
             LaunchedEffect(chart) {
                 chart.configure(this)
+            }
+
+            LaunchedEffect(themedOptions) {
+                chart.applyOptions(themedOptions)
             }
         }
     }

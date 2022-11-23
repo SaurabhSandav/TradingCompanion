@@ -152,6 +152,13 @@ class IChartApi internal constructor(
             executeJs("$name.unsubscribeCrosshairMove(subscribeCrosshairMoveCallback);")
     }
 
+    fun applyOptions(options: ChartOptions) {
+
+        val optionsJson = options.toJsonElement()
+
+        executeJs("$name.applyOptions($optionsJson);")
+    }
+
     private fun <T : SeriesData> addSeries(
         options: SeriesOptions,
         funcName: String,

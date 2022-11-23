@@ -14,6 +14,7 @@ import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
 import ui.common.ResizableChart
 import ui.common.rememberChartState
+import ui.common.themedChartOptions
 
 @Composable
 internal fun ClosedTradeChartWindow(
@@ -27,14 +28,20 @@ internal fun ClosedTradeChartWindow(
         title = "Chart",
     ) {
 
+        val themedOptions = themedChartOptions()
+
         val chart = remember {
-            createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            createChart(themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
         ResizableChart(rememberChartState(chart))
 
         LaunchedEffect(chart) {
             chart.configure(chartData)
+        }
+
+        LaunchedEffect(themedOptions) {
+            chart.applyOptions(themedOptions)
         }
     }
 }

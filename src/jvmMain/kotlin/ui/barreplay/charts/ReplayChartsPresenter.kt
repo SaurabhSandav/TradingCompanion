@@ -9,6 +9,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Instant
@@ -36,6 +37,7 @@ internal class ReplayChartsPresenter(
     private val replayFrom: Instant,
     private val initialSymbol: String,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
 
@@ -85,7 +87,7 @@ internal class ReplayChartsPresenter(
                 chartId = 0,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
-                chart = ReplayChart(coroutineScope) {
+                chart = ReplayChart(coroutineScope, appPrefs) {
                     chartData.clear()
                     chartData.addAll(it)
                 },
@@ -146,7 +148,7 @@ internal class ReplayChartsPresenter(
                 chartId = dataManagers.maxOf { it.chartId } + 1,
                 symbol = dataManager.symbol,
                 timeframe = dataManager.timeframe,
-                chart = ReplayChart(coroutineScope) {
+                chart = ReplayChart(coroutineScope, appPrefs) {
                     chartData.clear()
                     chartData.addAll(it)
                 },

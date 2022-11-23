@@ -6,16 +6,23 @@ import chart.data.*
 import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
+import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
+import ui.common.ChartDarkModeOptions
+import ui.common.ChartLightModeOptions
 import ui.common.ChartState
+import utils.PrefDefaults
+import utils.PrefKeys
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class ReplayChart(
     coroutineScope: CoroutineScope,
+    appPrefs: FlowSettings,
     onDataUpdate: (List<Pair<String, String>>) -> Unit,
 ) {
 
@@ -42,6 +49,12 @@ internal class ReplayChart(
     private var vwapSeries: ISeriesApi<LineData>? = null
 
     init {
+
+        coroutineScope.launch {
+            appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled).collect { isDark ->
+                chart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
+            }
+        }
 
         chart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
