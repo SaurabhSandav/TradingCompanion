@@ -14,6 +14,7 @@ import launchUnit
 import ui.common.CollectEffect
 import ui.landing.model.LandingScreen
 import ui.settings.model.SettingsEvent
+import ui.settings.model.SettingsEvent.*
 import ui.settings.model.SettingsState
 import utils.PrefDefaults
 import utils.PrefKeys
@@ -31,10 +32,15 @@ internal class SettingsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is SettingsEvent.ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
-                is SettingsEvent.ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
+                is ChangeDarkModeEnabled -> onDarkModeEnabledChange(event.isEnabled)
+                is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
+                is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
             }
         }
+
+        val darkModeEnabled by remember {
+            appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
+        }.collectAsState(PrefDefaults.DarkModeEnabled)
 
         val landingScreen by remember {
             appPrefs.getStringFlow(PrefKeys.LandingScreen, PrefDefaults.LandingScreen.name)
@@ -45,6 +51,7 @@ internal class SettingsPresenter(
             .collectAsState(PrefDefaults.DensityFraction)
 
         return@launchMolecule SettingsState(
+            darkModeEnabled = darkModeEnabled,
             landingScreen = landingScreen,
             densityFraction = densityFraction,
         )
@@ -52,6 +59,10 @@ internal class SettingsPresenter(
 
     fun event(event: SettingsEvent) {
         events.tryEmit(event)
+    }
+
+    private fun onDarkModeEnabledChange(isEnabled: Boolean) = coroutineScope.launchUnit {
+        appPrefs.putBoolean(PrefKeys.DarkModeEnabled, isEnabled)
     }
 
     private fun onLandingScreenChange(landingScreen: String) = coroutineScope.launchUnit {

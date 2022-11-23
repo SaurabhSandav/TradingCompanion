@@ -1,5 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -14,9 +15,15 @@ import utils.PrefKeys
 @Preview
 internal fun App(appModule: AppModule) {
 
-    AppTheme(useDarkTheme = false) {
+    val useDarkTheme by remember {
+        appModule.appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
+    }.collectAsState(PrefDefaults.DarkModeEnabled)
 
-        LandingScreen(appModule)
+    AppTheme(useDarkTheme = useDarkTheme) {
+
+        Surface {
+            LandingScreen(appModule)
+        }
     }
 }
 

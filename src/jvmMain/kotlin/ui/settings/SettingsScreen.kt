@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import ui.landing.model.LandingScreen
-import ui.settings.model.SettingsEvent
+import ui.settings.model.SettingsEvent.*
 
 @Composable
 internal fun SettingsScreen(appModule: AppModule) {
@@ -28,15 +25,19 @@ internal fun SettingsScreen(appModule: AppModule) {
     val state by presenter.state.collectAsState()
 
     SettingsScreen(
+        darkModeEnabled = state.darkModeEnabled,
+        onDarkThemeEnabledChange = { presenter.event(ChangeDarkModeEnabled(it)) },
         landingScreen = state.landingScreen,
-        onLandingScreenChange = { presenter.event(SettingsEvent.ChangeLandingScreen(it)) },
+        onLandingScreenChange = { presenter.event(ChangeLandingScreen(it)) },
         densityFraction = state.densityFraction,
-        onDensityFractionChange = { presenter.event(SettingsEvent.ChangeDensityFraction(it)) },
+        onDensityFractionChange = { presenter.event(ChangeDensityFraction(it)) },
     )
 }
 
 @Composable
 internal fun SettingsScreen(
+    darkModeEnabled: Boolean,
+    onDarkThemeEnabledChange: (Boolean) -> Unit,
     landingScreen: String,
     onLandingScreenChange: (String) -> Unit,
     densityFraction: Float,
@@ -47,6 +48,13 @@ internal fun SettingsScreen(
         modifier = Modifier.verticalScroll(rememberScrollState()).padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+
+        DarkModePreference(
+            darkModeEnabled = darkModeEnabled,
+            onDarkThemeEnabledChange = onDarkThemeEnabledChange,
+        )
+
+        Divider()
 
         LandingScreenPreference(
             items = remember { LandingScreen.items.map { it.title } },
@@ -61,6 +69,24 @@ internal fun SettingsScreen(
             onDensityFractionChange = onDensityFractionChange,
         )
     }
+}
+
+@Composable
+private fun DarkModePreference(
+    darkModeEnabled: Boolean,
+    onDarkThemeEnabledChange: (Boolean) -> Unit,
+) {
+
+    ListItem(
+        headlineText = { Text("Dark Mode") },
+        trailingContent = {
+
+            Switch(
+                checked = darkModeEnabled,
+                onCheckedChange = onDarkThemeEnabledChange,
+            )
+        },
+    )
 }
 
 @Composable

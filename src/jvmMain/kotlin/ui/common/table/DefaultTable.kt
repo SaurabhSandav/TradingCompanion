@@ -1,15 +1,15 @@
 package ui.common.table
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
@@ -43,19 +43,26 @@ fun <T> DefaultTableRow(
 
     var rowActive by state { false }
 
-    Row(
-        modifier = Modifier
-            .background(color = if (rowActive) Color.LightGray else Color.White)
-            .onPointerEvent(PointerEventType.Enter) { rowActive = true }
-            .onPointerEvent(PointerEventType.Exit) { rowActive = false }
-            .padding(8.dp)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        color = when {
+            rowActive -> MaterialTheme.colorScheme.surfaceVariant
+            else -> MaterialTheme.colorScheme.surface
+        }
     ) {
 
-        schema.columns.forEach { column ->
-            Box(Modifier.weight(1F)) {
-                column.content(item)
+        Row(
+            modifier = Modifier
+                .onPointerEvent(PointerEventType.Enter) { rowActive = true }
+                .onPointerEvent(PointerEventType.Exit) { rowActive = false }
+                .padding(8.dp)
+                .then(modifier),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            schema.columns.forEach { column ->
+                Box(Modifier.weight(1F)) {
+                    column.content(item)
+                }
             }
         }
     }

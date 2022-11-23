@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,56 +98,59 @@ fun ListSelectionDialog(
             derivedStateOf { items.filter { it.startsWith(filterQuery, ignoreCase = true) } }
         }
 
-        Box(Modifier.fillMaxSize()) {
+        Surface(Modifier.fillMaxSize()) {
 
-            // For filtering list, Size is zero to hide
-            BasicTextField(
-                value = filterQuery,
-                onValueChange = { value -> filterQuery = value.trim() },
-                modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
-            )
+            Box {
 
-            SideEffect { focusRequester.requestFocus() }
+                // For filtering list, Size is zero to hide
+                BasicTextField(
+                    value = filterQuery,
+                    onValueChange = { value -> filterQuery = value.trim() },
+                    modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
+                )
 
-            LazyColumn {
+                SideEffect { focusRequester.requestFocus() }
 
-                items(
-                    items = filteredItems,
-                    key = { it },
-                ) { itemText ->
+                LazyColumn {
 
-                    ListItem(
-                        modifier = Modifier.clickable { onSelection(itemText) },
-                        headlineText = {
+                    items(
+                        items = filteredItems,
+                        key = { it },
+                    ) { itemText ->
 
-                            val filterHighlightedText by remember(itemText) {
-                                derivedStateOf {
-                                    buildAnnotatedString {
+                        ListItem(
+                            modifier = Modifier.clickable { onSelection(itemText) },
+                            headlineText = {
 
-                                        val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
-                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                        val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+                                val filterHighlightedText by remember(itemText) {
+                                    derivedStateOf {
+                                        buildAnnotatedString {
 
-                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                            append(itemText.substring(filterQueryIndices))
+                                            val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
+                                            val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
+                                            val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+
+                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                append(itemText.substring(filterQueryIndices))
+                                            }
+
+                                            append(itemText.removeRange(filterQueryIndices))
                                         }
-
-                                        append(itemText.removeRange(filterQueryIndices))
                                     }
                                 }
+
+                                Text(
+                                    text = filterHighlightedText,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                )
                             }
-
-                            Text(
-                                text = filterHighlightedText,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
-            }
 
-            Text(filterQuery, Modifier.align(Alignment.BottomStart))
+                Text(filterQuery, Modifier.align(Alignment.BottomStart))
+            }
         }
     }
 }

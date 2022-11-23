@@ -2,17 +2,16 @@ package ui.closedtrades.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ui.closedtrades.model.ClosedTradeListItem
 import ui.common.AppColor
@@ -57,11 +56,12 @@ internal fun ClosedTradesTable(
 
             stickyHeader {
 
-                Surface {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                ) {
+
                     Box(
-                        modifier = Modifier.fillParentMaxWidth()
-                            .background(Color.LightGray)
-                            .padding(8.dp),
+                        modifier = Modifier.fillParentMaxWidth().padding(8.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(dayHeader.header)
