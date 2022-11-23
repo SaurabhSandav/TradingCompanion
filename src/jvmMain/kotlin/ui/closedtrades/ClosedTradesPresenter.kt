@@ -295,7 +295,7 @@ internal class ClosedTradesPresenter(
 
         val markers = listOf(
             SeriesMarker(
-                time = Time.UTCTimestamp(entryInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(candles[entryIndex].openInstant.epochSeconds + 19800),
                 position = when (side) {
                     Side.Long -> SeriesMarkerPosition.BelowBar
                     Side.Short -> SeriesMarkerPosition.AboveBar
@@ -314,7 +314,7 @@ internal class ClosedTradesPresenter(
                 },
             ),
             SeriesMarker(
-                time = Time.UTCTimestamp(exitInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(candles[exitIndex].openInstant.epochSeconds + 19800),
                 position = when (side) {
                     Side.Long -> SeriesMarkerPosition.AboveBar
                     Side.Short -> SeriesMarkerPosition.BelowBar
