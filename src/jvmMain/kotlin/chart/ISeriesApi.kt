@@ -8,10 +8,12 @@ import kotlinx.serialization.json.JsonArray
 class ISeriesApi<T : SeriesData>(
     private val executeJs: (String) -> Unit,
     val name: String,
-    val reference: String,
-    val priceLineMapReference: String,
+    seriesInstanceReference: String,
 ) {
 
+    private val priceLineMapReference = "$seriesInstanceReference.priceLinesMap"
+
+    val reference = "$seriesInstanceReference.series"
     val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
 
     private var nextPriceLineId = 0

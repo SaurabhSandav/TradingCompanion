@@ -17,6 +17,8 @@ class IChartApi internal constructor(
         extraBufferCapacity = Int.MAX_VALUE,
     )
 
+    private val chartInstanceReference = "charts.get(\"$name\")"
+    private val seriesMapReference = "$chartInstanceReference.seriesMap"
     private val seriesList = mutableListOf<ISeriesApi<*>>()
     internal val javaCallbacksObjectName = "javaCallbacks"
     internal val javaCallbacks = JavaCallbacks(seriesList)
@@ -24,18 +26,15 @@ class IChartApi internal constructor(
     val scripts: Flow<String>
         get() = _scripts
 
+    val reference = "$chartInstanceReference.chart"
     val timeScale = ITimeScaleApi(this, ::executeJs)
-    val priceScale = IPriceScaleApi(name, ::executeJs)
+    val priceScale = IPriceScaleApi(reference, ::executeJs)
 
     init {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("const $name = LightweightCharts.createChart(document.body, $optionsJson);")
-
-        executeJs("const seriesMap = new Map();")
-
-        executeJs("var priceLinesMapMap = new Map();")
+        executeJs("charts.set(\"$name\", new ChartInstance(LightweightCharts.createChart(document.body, $optionsJson)));")
 
         executeJs(
             """|
@@ -106,24 +105,22 @@ class IChartApi internal constructor(
     )
 
     fun resize(width: Int, height: Int) {
-        executeJs("$name.resize($width, $height);")
+        executeJs("$reference.resize($width, $height);")
     }
 
     fun removeSeries(series: ISeriesApi<*>) {
 
         seriesList.remove(series)
 
-        executeJs("$name.removeSeries(${series.reference});")
+        executeJs("$reference.removeSeries(${series.reference});")
 
-        executeJs("seriesMap.delete(\"${name}\");")
-
-        executeJs("priceLinesMapMap.delete(\"${name}\");")
+        executeJs("$seriesMapReference.delete(\"$name\");")
     }
 
     fun subscribeClick(handler: MouseEventHandler) {
 
         if (javaCallbacks.subscribeClickCallbacks.isEmpty())
-            executeJs("$name.subscribeClick(subscribeClickCallback);")
+            executeJs("$reference.subscribeClick(subscribeClickCallback);")
 
         javaCallbacks.subscribeClickCallbacks.add(handler)
     }
@@ -133,13 +130,13 @@ class IChartApi internal constructor(
         javaCallbacks.subscribeClickCallbacks.remove(handler)
 
         if (javaCallbacks.subscribeClickCallbacks.isEmpty())
-            executeJs("$name.unsubscribeClick(subscribeClickCallback);")
+            executeJs("$reference.unsubscribeClick(subscribeClickCallback);")
     }
 
     fun subscribeCrosshairMove(handler: MouseEventHandler) {
 
         if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
-            executeJs("$name.subscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+            executeJs("$reference.subscribeCrosshairMove(subscribeCrosshairMoveCallback);")
 
         javaCallbacks.subscribeCrosshairMoveCallbacks.add(handler)
     }
@@ -149,14 +146,14 @@ class IChartApi internal constructor(
         javaCallbacks.subscribeCrosshairMoveCallbacks.remove(handler)
 
         if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
-            executeJs("$name.unsubscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+            executeJs("$reference.unsubscribeCrosshairMove(subscribeCrosshairMoveCallback);")
     }
 
     fun applyOptions(options: ChartOptions) {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("$name.applyOptions($optionsJson);")
+        executeJs("$reference.applyOptions($optionsJson);")
     }
 
     private fun <T : SeriesData> addSeries(
@@ -168,17 +165,14 @@ class IChartApi internal constructor(
         val series = ISeriesApi<T>(
             executeJs = ::executeJs,
             name = name,
-            reference = "seriesMap.get(\"$name\")",
-            priceLineMapReference = "priceLinesMapMap.get(\"$name\")",
+            seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
         )
 
         val optionsJson = options.toJsonElement()
 
         seriesList.add(series)
 
-        executeJs("seriesMap.set(\"${name}\", ${this@IChartApi.name}.$funcName(${optionsJson}));")
-
-        executeJs("priceLinesMapMap.set(\"${name}\", new Map());")
+        executeJs("$seriesMapReference.set(\"$name\", new SeriesInstance($reference.$funcName(${optionsJson})));")
 
         return series
     }

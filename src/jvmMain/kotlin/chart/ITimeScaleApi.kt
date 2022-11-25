@@ -11,7 +11,7 @@ class ITimeScaleApi(
 ) {
 
     fun scrollToPosition(position: Int, animated: Boolean) {
-        executeJs("${chart.name}.timeScale().scrollToPosition($position, $animated);")
+        executeJs("${chart.reference}.timeScale().scrollToPosition($position, $animated);")
     }
 
     fun setVisibleRange(from: Time, to: Time) {
@@ -21,7 +21,7 @@ class ITimeScaleApi(
             put("to", to.toJsonElement())
         }
 
-        executeJs("${chart.name}.timeScale().setVisibleRange($rangeStr);")
+        executeJs("${chart.reference}.timeScale().setVisibleRange($rangeStr);")
     }
 
     fun setVisibleLogicalRange(from: Int, to: Int) {
@@ -31,17 +31,17 @@ class ITimeScaleApi(
             put("to", to)
         }
 
-        executeJs("${chart.name}.timeScale().setVisibleLogicalRange($rangeStr);")
+        executeJs("${chart.reference}.timeScale().setVisibleLogicalRange($rangeStr);")
     }
 
     fun fitContent() {
-        executeJs("${chart.name}.timeScale().fitContent();")
+        executeJs("${chart.reference}.timeScale().fitContent();")
     }
 
     fun applyOptions(options: TimeScaleOptions) {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("${chart.name}.timeScale().applyOptions($optionsJson);")
+        executeJs("${chart.reference}.timeScale().applyOptions($optionsJson);")
     }
 }
