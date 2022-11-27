@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class IChartApi internal constructor(
+    container: String = "document.body",
     options: ChartOptions = ChartOptions(),
     val name: String = "chart",
 ) {
@@ -23,7 +24,7 @@ class IChartApi internal constructor(
     private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
 
     private val seriesList = mutableListOf<ISeriesApi<*>>()
-    private val callbacksDelegate = CallbackDelegate(seriesList)
+    private val callbacksDelegate = CallbackDelegate(name, seriesList)
 
     val scripts: Flow<String>
         get() = _scripts
@@ -40,7 +41,7 @@ class IChartApi internal constructor(
             """
             |charts.set("$name", new ChartInstance(
             |  "$name",
-            |  LightweightCharts.createChart(document.body, $optionsJson),
+            |  LightweightCharts.createChart($container, $optionsJson),
             |));""".trimMargin()
         )
     }
@@ -80,6 +81,10 @@ class IChartApi internal constructor(
         funcName = "addLineSeries",
         name = name
     )
+
+    fun remove() {
+        executeJs("$reference.remove();")
+    }
 
     fun resize(width: Int, height: Int) {
         executeJs("$reference.resize($width, $height);")

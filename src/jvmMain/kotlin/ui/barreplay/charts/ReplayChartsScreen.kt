@@ -13,7 +13,7 @@ import trading.Timeframe
 import ui.barreplay.charts.model.ReplayChartState
 import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.barreplay.charts.model.ReplayChartsEvent.*
-import ui.barreplay.charts.ui.ReplayChartSwitcher
+import ui.barreplay.charts.ui.ReplayChartPage
 import ui.barreplay.charts.ui.ReplayControls
 
 @Composable
@@ -85,7 +85,7 @@ internal fun ReplayCharts(
                 onTimeframeChange = onTimeframeChange,
             )
 
-            ReplayChartSwitcher(
+            ReplayChartPage(
                 chartTabsState = chartTabsState,
                 chartState = chartState,
                 onSelectChart = onSelectChart,

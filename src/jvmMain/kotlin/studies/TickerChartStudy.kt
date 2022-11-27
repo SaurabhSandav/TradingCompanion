@@ -29,8 +29,8 @@ import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
-import ui.common.chart.ResizableChart
-import ui.common.chart.rememberChartState
+import ui.common.chart.ChartPage
+import ui.common.chart.state.SinglePageChartState
 import ui.common.chart.themedChartOptions
 import ui.common.controls.ListSelectionField
 import utils.NIFTY50
@@ -67,19 +67,23 @@ internal class TickerChartStudy(
             }
 
             val themedOptions = themedChartOptions()
+            val coroutineScope = rememberCoroutineScope()
 
-            val chart = remember {
-                createChart(themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            val chartState = remember {
+                SinglePageChartState(
+                    coroutineScope = coroutineScope,
+                    options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
+                )
             }
 
-            ResizableChart(rememberChartState(chart))
+            ChartPage(chartState)
 
-            LaunchedEffect(chart) {
-                chart.configure(this)
+            LaunchedEffect(chartState) {
+                chartState.chart.configure(this)
             }
 
             LaunchedEffect(themedOptions) {
-                chart.applyOptions(themedOptions)
+                chartState.chart.applyOptions(themedOptions)
             }
         }
     }

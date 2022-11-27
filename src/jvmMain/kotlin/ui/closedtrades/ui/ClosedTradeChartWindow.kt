@@ -3,6 +3,7 @@ package ui.closedtrades.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
@@ -12,8 +13,8 @@ import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
-import ui.common.chart.ResizableChart
-import ui.common.chart.rememberChartState
+import ui.common.chart.ChartPage
+import ui.common.chart.state.SinglePageChartState
 import ui.common.chart.themedChartOptions
 
 @Composable
@@ -29,19 +30,23 @@ internal fun ClosedTradeChartWindow(
     ) {
 
         val themedOptions = themedChartOptions()
+        val coroutineScope = rememberCoroutineScope()
 
-        val chart = remember {
-            createChart(themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+        val chartState = remember {
+            SinglePageChartState(
+                coroutineScope = coroutineScope,
+                options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
+            )
         }
 
-        ResizableChart(rememberChartState(chart))
+        ChartPage(chartState)
 
-        LaunchedEffect(chart) {
-            chart.configure(chartData)
+        LaunchedEffect(chartState) {
+            chartState.chart.configure(chartData)
         }
 
         LaunchedEffect(themedOptions) {
-            chart.applyOptions(themedOptions)
+            chartState.chart.applyOptions(themedOptions)
         }
     }
 }

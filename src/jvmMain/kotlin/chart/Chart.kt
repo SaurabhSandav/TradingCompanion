@@ -6,9 +6,10 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 fun createChart(
+    container: String = "document.body",
     options: ChartOptions = ChartOptions(),
     name: String = "chart",
-): IChartApi = IChartApi(options, name)
+): IChartApi = IChartApi(container, options, name)
 
 fun IChartApi.baselineSeries(
     options: BaselineStyleOptions = BaselineStyleOptions(),

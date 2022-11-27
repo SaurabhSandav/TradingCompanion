@@ -6,6 +6,7 @@ import chart.data.Time
 import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
+    private val chartName: String,
     private val seriesList: List<ISeriesApi<*>>,
 ) {
 
@@ -21,6 +22,9 @@ internal class CallbackDelegate(
             callbackType = callbackElement.jsonObject["callbackType"]!!.jsonPrimitive.content,
             message = callbackElement.jsonObject["message"]!!.toString(),
         )
+
+        // Callback not related to this chart
+        if (chartCallback.chartName != chartName) return
 
         when (chartCallback.callbackType) {
             "subscribeClickCallback" -> {

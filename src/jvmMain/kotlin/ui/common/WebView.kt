@@ -36,6 +36,7 @@ fun rememberWebViewState(): WebViewState {
     return remember(coroutineScope) { WebViewState(coroutineScope) }
 }
 
+@Stable
 class WebViewState(
     private val coroutineScope: CoroutineScope,
 ) {

@@ -3,7 +3,10 @@ package ui.barreplay.charts.ui
 import androidx.compose.ui.graphics.Color
 import chart.*
 import chart.data.*
-import chart.options.*
+import chart.options.CandlestickStyleOptions
+import chart.options.HistogramStyleOptions
+import chart.options.LineStyleOptions
+import chart.options.TimeScaleOptions
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -14,7 +17,6 @@ import kotlinx.datetime.offsetIn
 import trading.Candle
 import ui.common.chart.ChartDarkModeOptions
 import ui.common.chart.ChartLightModeOptions
-import ui.common.chart.ChartState
 import utils.PrefDefaults
 import utils.PrefKeys
 import java.math.BigDecimal
@@ -23,11 +25,9 @@ import java.math.RoundingMode
 internal class ReplayChart(
     coroutineScope: CoroutineScope,
     appPrefs: FlowSettings,
+    val chart: IChartApi,
     onDataUpdate: (List<Pair<String, String>>) -> Unit,
 ) {
-
-    private val chart = createChart(ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
-    val chartState = ChartState(coroutineScope, chart)
 
     private val candlestickSeries by chart.candlestickSeries(
         options = CandlestickStyleOptions(

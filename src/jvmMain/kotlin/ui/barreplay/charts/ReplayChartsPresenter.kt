@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import chart.options.ChartOptions
+import chart.options.CrosshairMode
+import chart.options.CrosshairOptions
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -27,6 +30,7 @@ import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.model.ReplayChartsState
 import ui.barreplay.charts.ui.ReplayChart
 import ui.common.CollectEffect
+import ui.common.chart.state.TabbedChartState
 import kotlin.time.Duration.Companion.seconds
 
 internal class ReplayChartsPresenter(
@@ -51,6 +55,8 @@ internal class ReplayChartsPresenter(
     private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
     private var chartState by mutableStateOf<ReplayChartState?>(null)
     private var chartData = mutableStateListOf<Pair<String, String>>()
+    private val tabbedChartState = TabbedChartState(coroutineScope)
+    private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -82,12 +88,17 @@ internal class ReplayChartsPresenter(
 
         coroutineScope.launch {
 
+            val id = 0
+
+            // Add Tab
+            val chart = tabbedChartState.addChart("Chart$id", chartOptions)
+
             // Create new session with initial params
             val dataManager = createReplayDataManager(
-                chartId = 0,
+                chartId = id,
                 symbol = initialSymbol,
                 timeframe = baseTimeframe,
-                chart = ReplayChart(coroutineScope, appPrefs) {
+                chart = ReplayChart(coroutineScope, appPrefs, chart) {
                     chartData.clear()
                     chartData.addAll(it)
                 },
@@ -96,10 +107,13 @@ internal class ReplayChartsPresenter(
             // Cache newly created session
             dataManagers += dataManager
 
+            // Show Tab
+            tabbedChartState.showChart(dataManager.chart.chart)
+
             // Add newly created chart into chart tabs
             updateChartTabs()
 
-            // Display chart
+            // Update chart info
             chartState = dataManager.createReplayChartState()
         }
     }
@@ -136,6 +150,12 @@ internal class ReplayChartsPresenter(
         // Currently selected chart
         val chartState = requireNotNull(chartState)
 
+        // New unique id
+        val id = dataManagers.maxOf { it.chartId } + 1
+
+        // Add Tab
+        val chart = tabbedChartState.addChart("Chart$id", chartOptions)
+
         // Copy currently selected chart session
         val dataManager = run {
 
@@ -144,11 +164,10 @@ internal class ReplayChartsPresenter(
 
             // Create new session with existing params
             createReplayDataManager(
-                // New unique id
-                chartId = dataManagers.maxOf { it.chartId } + 1,
+                chartId = id,
                 symbol = dataManager.symbol,
                 timeframe = dataManager.timeframe,
-                chart = ReplayChart(coroutineScope, appPrefs) {
+                chart = ReplayChart(coroutineScope, appPrefs, chart) {
                     chartData.clear()
                     chartData.addAll(it)
                 },
@@ -173,6 +192,9 @@ internal class ReplayChartsPresenter(
         // Remove session from cache
         dataManagers.remove(dataManager)
 
+        // Replace Tab
+        tabbedChartState.removeChart(dataManager.chart.chart)
+
         // Remove chart from chart tabs
         updateChartTabs()
 
@@ -192,6 +214,9 @@ internal class ReplayChartsPresenter(
 
         // Update tab selection index
         chartTabsState = chartTabsState.copy(selectedTabIndex = dataManagerIndex)
+
+        // Show Tab
+        tabbedChartState.showChart(dataManager.chart.chart)
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
@@ -328,7 +353,7 @@ internal class ReplayChartsPresenter(
         id = chartId,
         symbol = symbol,
         timeframe = timeframe.toText(),
-        state = chart.chartState,
+        state = tabbedChartState,
         data = chartData,
     ).also { chartData.clear() }
 

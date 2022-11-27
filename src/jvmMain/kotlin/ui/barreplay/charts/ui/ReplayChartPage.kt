@@ -17,10 +17,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import ui.barreplay.charts.model.ReplayChartState
 import ui.barreplay.charts.model.ReplayChartTabsState
-import ui.common.chart.ResizableChart
+import ui.common.chart.ChartPage
 
 @Composable
-fun ReplayChartSwitcher(
+fun ReplayChartPage(
     chartTabsState: ReplayChartTabsState,
     chartState: ReplayChartState,
     onSelectChart: (Int) -> Unit,
@@ -47,13 +47,10 @@ fun ReplayChartSwitcher(
             }
         }
 
-        key(chartState.id) {
-
-            ResizableChart(
-                state = chartState.state,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        ChartPage(
+            state = chartState.state,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
