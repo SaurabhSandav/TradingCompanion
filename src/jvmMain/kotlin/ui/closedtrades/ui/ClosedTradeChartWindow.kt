@@ -12,9 +12,9 @@ import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
-import ui.common.ResizableChart
-import ui.common.rememberChartState
-import ui.common.themedChartOptions
+import ui.common.chart.ResizableChart
+import ui.common.chart.rememberChartState
+import ui.common.chart.themedChartOptions
 
 @Composable
 internal fun ClosedTradeChartWindow(

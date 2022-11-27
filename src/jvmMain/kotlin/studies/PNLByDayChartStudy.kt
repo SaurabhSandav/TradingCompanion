@@ -16,9 +16,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toLocalDateTime
 import model.Side
-import ui.common.ResizableChart
-import ui.common.rememberChartState
-import ui.common.themedChartOptions
+import ui.common.chart.ResizableChart
+import ui.common.chart.rememberChartState
+import ui.common.chart.themedChartOptions
 import utils.brokerage
 import java.math.BigDecimal
 

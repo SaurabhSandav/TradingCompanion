@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
-import ui.common.ChartDarkModeOptions
-import ui.common.ChartLightModeOptions
-import ui.common.ChartState
+import ui.common.chart.ChartDarkModeOptions
+import ui.common.chart.ChartLightModeOptions
+import ui.common.chart.ChartState
 import utils.PrefDefaults
 import utils.PrefKeys
 import java.math.BigDecimal

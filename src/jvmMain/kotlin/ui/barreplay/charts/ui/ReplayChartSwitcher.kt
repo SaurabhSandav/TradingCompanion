@@ -17,7 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import ui.barreplay.charts.model.ReplayChartState
 import ui.barreplay.charts.model.ReplayChartTabsState
-import ui.common.ResizableChart
+import ui.common.chart.ResizableChart
 
 @Composable
 fun ReplayChartSwitcher(

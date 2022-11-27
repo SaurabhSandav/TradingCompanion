@@ -29,10 +29,10 @@ import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
-import ui.common.ResizableChart
+import ui.common.chart.ResizableChart
+import ui.common.chart.rememberChartState
+import ui.common.chart.themedChartOptions
 import ui.common.controls.ListSelectionField
-import ui.common.rememberChartState
-import ui.common.themedChartOptions
 import utils.NIFTY50
 
 internal class TickerChartStudy(

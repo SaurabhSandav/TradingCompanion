@@ -1,6 +1,6 @@
 package chart
 
-import chart.callbacks.JavaCallbacks
+import chart.callbacks.CallbackDelegate
 import chart.callbacks.MouseEventHandler
 import chart.data.*
 import chart.options.*
@@ -19,9 +19,11 @@ class IChartApi internal constructor(
 
     private val chartInstanceReference = "charts.get(\"$name\")"
     private val seriesMapReference = "$chartInstanceReference.seriesMap"
+    private val subscribeClickCallbackReference = "$chartInstanceReference.subscribeClickCallback"
+    private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
+
     private val seriesList = mutableListOf<ISeriesApi<*>>()
-    internal val javaCallbacksObjectName = "javaCallbacks"
-    internal val javaCallbacks = JavaCallbacks(seriesList)
+    private val callbacksDelegate = CallbackDelegate(seriesList)
 
     val scripts: Flow<String>
         get() = _scripts
@@ -34,38 +36,13 @@ class IChartApi internal constructor(
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("charts.set(\"$name\", new ChartInstance(LightweightCharts.createChart(document.body, $optionsJson)));")
-
         executeJs(
-            """|
-            |
-            |function getByValue(map, searchValue) {
-            |  for (let [key, value] of map) {
-            |    if (value === searchValue)
-            |      return key;
-            |  }
-            |}
-            |
-            |function replacerSeriesByName(key, value) {
-            |
-            |    if (key == 'seriesPrices' && value instanceof Map) {
-            |
-            |        var namedMap = new Map();
-            |
-            |        value.forEach(function (value, key) {
-            |            namedMap.set(getByValue(seriesMap, key), value);
-            |        });
-            |
-            |        return Array.from(namedMap.entries());
-            |    } else {
-            |        return value;
-            |    }
-            |}
-        """.trimMargin()
+            """
+            |charts.set("$name", new ChartInstance(
+            |  "$name",
+            |  LightweightCharts.createChart(document.body, $optionsJson),
+            |));""".trimMargin()
         )
-
-        declareSubscribeClickCallback()
-        declareSubscribeCrosshairMoveCallback()
     }
 
     fun addBaselineSeries(
@@ -119,34 +96,34 @@ class IChartApi internal constructor(
 
     fun subscribeClick(handler: MouseEventHandler) {
 
-        if (javaCallbacks.subscribeClickCallbacks.isEmpty())
-            executeJs("$reference.subscribeClick(subscribeClickCallback);")
+        if (callbacksDelegate.subscribeClickCallbacks.isEmpty())
+            executeJs("$reference.subscribeClick($subscribeClickCallbackReference);")
 
-        javaCallbacks.subscribeClickCallbacks.add(handler)
+        callbacksDelegate.subscribeClickCallbacks.add(handler)
     }
 
     fun unsubscribeClick(handler: MouseEventHandler) {
 
-        javaCallbacks.subscribeClickCallbacks.remove(handler)
+        callbacksDelegate.subscribeClickCallbacks.remove(handler)
 
-        if (javaCallbacks.subscribeClickCallbacks.isEmpty())
-            executeJs("$reference.unsubscribeClick(subscribeClickCallback);")
+        if (callbacksDelegate.subscribeClickCallbacks.isEmpty())
+            executeJs("$reference.unsubscribeClick($subscribeClickCallbackReference);")
     }
 
     fun subscribeCrosshairMove(handler: MouseEventHandler) {
 
-        if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
-            executeJs("$reference.subscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty())
+            executeJs("$reference.subscribeCrosshairMove($subscribeCrosshairMoveCallbackReference);")
 
-        javaCallbacks.subscribeCrosshairMoveCallbacks.add(handler)
+        callbacksDelegate.subscribeCrosshairMoveCallbacks.add(handler)
     }
 
     fun unsubscribeCrosshairMove(handler: MouseEventHandler) {
 
-        javaCallbacks.subscribeCrosshairMoveCallbacks.remove(handler)
+        callbacksDelegate.subscribeCrosshairMoveCallbacks.remove(handler)
 
-        if (javaCallbacks.subscribeCrosshairMoveCallbacks.isEmpty())
-            executeJs("$reference.unsubscribeCrosshairMove(subscribeCrosshairMoveCallback);")
+        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty())
+            executeJs("$reference.unsubscribeCrosshairMove($subscribeCrosshairMoveCallbackReference);")
     }
 
     fun applyOptions(options: ChartOptions) {
@@ -154,6 +131,10 @@ class IChartApi internal constructor(
         val optionsJson = options.toJsonElement()
 
         executeJs("$reference.applyOptions($optionsJson);")
+    }
+
+    fun onCallback(callbackMessage: String) {
+        callbacksDelegate.onCallback(callbackMessage)
     }
 
     private fun <T : SeriesData> addSeries(
@@ -175,28 +156,6 @@ class IChartApi internal constructor(
         executeJs("$seriesMapReference.set(\"$name\", new SeriesInstance($reference.$funcName(${optionsJson})));")
 
         return series
-    }
-
-    private fun declareSubscribeClickCallback() {
-
-        executeJs(
-            """|
-            |const subscribeClickCallback = (function (params) {
-            |  $javaCallbacksObjectName.subscribeClickMouseEventHandler(JSON.stringify(params, replacerSeriesByName));
-            |})
-        """.trimMargin()
-        )
-    }
-
-    private fun declareSubscribeCrosshairMoveCallback() {
-
-        executeJs(
-            """|
-            |const subscribeCrosshairMoveCallback = (function (params) {
-            |  $javaCallbacksObjectName.subscribeCrosshairMoveMouseEventHandler(JSON.stringify(params, replacerSeriesByName));
-            |})
-        """.trimMargin()
-        )
     }
 
     private fun executeJs(script: String) {

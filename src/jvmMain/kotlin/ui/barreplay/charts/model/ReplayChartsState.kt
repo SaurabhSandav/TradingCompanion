@@ -1,7 +1,7 @@
 package ui.barreplay.charts.model
 
 import androidx.compose.runtime.Immutable
-import ui.common.ChartState
+import ui.common.chart.ChartState
 
 @Immutable
 data class ReplayChartsState(
