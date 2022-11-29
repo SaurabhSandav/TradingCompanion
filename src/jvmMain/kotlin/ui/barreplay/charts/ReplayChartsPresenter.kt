@@ -27,6 +27,8 @@ import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.ui.ReplayChart
 import ui.common.CollectEffect
 import ui.common.chart.state.TabbedChartState
+import ui.common.timeframeFromLabel
+import ui.common.toLabel
 import kotlin.time.Duration.Companion.seconds
 
 internal class ReplayChartsPresenter(
@@ -53,7 +55,7 @@ internal class ReplayChartsPresenter(
     private val candleCache = mutableMapOf<String, CandleSeries>()
     private val dataManagers = mutableListOf<ReplayDataManager>()
     private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
-    private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe.toText()))
+    private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe.toLabel()))
     private var legendValues by mutableStateOf(LegendValues())
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -203,7 +205,7 @@ internal class ReplayChartsPresenter(
         // Display newly selected chart info
         chartInfo = ReplayChartInfo(
             symbol = dataManager.symbol,
-            timeframe = dataManager.timeframe.toText(),
+            timeframe = dataManager.timeframe.toLabel(),
         )
 
         // Update tab selection
@@ -247,10 +249,7 @@ internal class ReplayChartsPresenter(
 
     private fun onChangeTimeframe(newTimeframe: String) = coroutineScope.launchUnit {
 
-        val timeframe = when (newTimeframe) {
-            "1D" -> Timeframe.D1
-            else -> Timeframe.M5
-        }
+        val timeframe = timeframeFromLabel(newTimeframe)
 
         // Find data manager and index associated with current chart
         val dataManager = findReplayDataManager(currentChartId)
@@ -267,7 +266,7 @@ internal class ReplayChartsPresenter(
         dataManagers.add(dataManagerIndex, newDataManager)
 
         // Update chart info
-        chartInfo = chartInfo.copy(timeframe = timeframe.toText())
+        chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())
 
         // Update tab title
         updateChartTabs()
@@ -319,18 +318,12 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun Timeframe.toText(): String = when (this) {
-        Timeframe.M1 -> "1M"
-        Timeframe.M5 -> "5M"
-        Timeframe.D1 -> "1D"
-    }
-
     private fun updateChartTabs() {
 
         val newTabs = dataManagers.map {
             ReplayChartTabsState.TabInfo(
                 id = it.chartId,
-                title = "${it.symbol} (${it.timeframe.toText()})",
+                title = "${it.symbol} (${it.timeframe.toLabel()})",
             )
         }
 

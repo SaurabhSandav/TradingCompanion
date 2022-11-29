@@ -17,6 +17,9 @@ import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayScreen
 import ui.barreplay.model.BarReplayState
 import ui.common.CollectEffect
+import ui.common.TimeframeLabels
+import ui.common.timeframeFromLabel
+import utils.NIFTY50
 import kotlin.time.Duration.Companion.days
 
 internal class BarReplayPresenter(
@@ -51,9 +54,9 @@ internal class BarReplayPresenter(
     private fun onLaunchReplay(formModel: ReplayLaunchFormFields.Model) {
 
         screen = BarReplayScreen.Chart(
-            baseTimeframe = when (formModel.baseTimeframe) {
-                "1D" -> Timeframe.D1
-                else -> Timeframe.M5
+            baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe) {
+                null -> Timeframe.M5
+                else -> timeframeFromLabel(timeframeLabel)
             },
             dataFrom = formModel.dataFrom.toInstant(TimeZone.currentSystemDefault()),
             dataTo = formModel.dataTo.toInstant(TimeZone.currentSystemDefault()),
@@ -79,11 +82,11 @@ internal class BarReplayPresenter(
         val replayFrom = currentTime.minus(days15).toLocalDateTime(TimeZone.currentSystemDefault())
 
         return ReplayLaunchFormFields.Model(
-            baseTimeframe = "5m",
+            baseTimeframe = TimeframeLabels.first(),
             dataFrom = dataFrom,
             dataTo = dataTo,
             replayFrom = replayFrom,
-            initialSymbol = "ICICIBANK",
+            initialSymbol = NIFTY50.first(),
         )
     }
 }

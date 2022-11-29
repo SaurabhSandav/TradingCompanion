@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ui.common.TimeframeLabels
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
 import ui.common.form.rememberFormScope
@@ -41,7 +42,7 @@ internal fun ReplayLaunchFormScreen(
             }
 
             ListSelectionField(
-                items = listOf("5m", "1D"),
+                items = TimeframeLabels,
                 onSelection = fields.baseTimeframe.onSelectionChange,
                 selection = fields.baseTimeframe.value,
                 isError = fields.baseTimeframe.isError,

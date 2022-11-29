@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ui.barreplay.charts.model.ReplayChartInfo
+import ui.common.TimeframeLabels
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import utils.NIFTY50
@@ -60,7 +61,7 @@ internal fun ReplayControls(
             )
 
             ListSelectionField(
-                items = listOf("5M", "1D"),
+                items = TimeframeLabels,
                 selection = chartInfo.timeframe,
                 onSelection = onTimeframeChange,
                 label = { Text("Change Timeframe") },

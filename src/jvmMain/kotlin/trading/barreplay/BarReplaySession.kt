@@ -55,9 +55,9 @@ private class BarReplaySessionImpl(
 
         resamplings.forEach { (_, candleSeries) ->
 
-            // If session start, Add candle, else, Resample already added candle
+            // Add candle unchanged if new candle start, else resample already added candle
             val resampledCandle = when {
-                isSessionStart(replaySeries, replaySeries.lastIndex) -> candle
+                isResampleCandleStart(replaySeries, replaySeries.lastIndex, candleSeries.timeframe!!) -> candle
                 else -> candleSeries.last().resample(candle)
             }
 
@@ -73,9 +73,7 @@ private class BarReplaySessionImpl(
         resamplings.values.forEach { resampledSeries ->
 
             // Resample initial candles again
-            val initialResampledCandles = replaySeries.getCandlesBySession(isSessionStart).map { candles ->
-                candles.reduce { resampledCandle, newCandle -> resampledCandle.resample(newCandle) }
-            }
+            val initialResampledCandles = initialResampleCandles(resampledSeries.timeframe!!)
 
             // Remove extra candles
             resampledSeries.removeLast(resampledSeries.size - initialResampledCandles.size)
@@ -89,44 +87,89 @@ private class BarReplaySessionImpl(
         }
     }
 
-    override fun resampled(timeframe: Timeframe): CandleSeries = resamplings.getOrPut(timeframe) {
-        MutableCandleSeries(
-            initial = replaySeries.getCandlesBySession(isSessionStart).map { candles ->
-                candles.reduce { resampledCandle, newCandle -> resampledCandle.resample(newCandle) }
-            },
-            timeframe = Timeframe.D1,
-        )
-    }.asCandleSeries()
+    override fun resampled(timeframe: Timeframe): CandleSeries {
 
-    private fun CandleSeries.getCandlesBySession(
-        isSessionStart: (CandleSeries, Int) -> Boolean,
-    ): List<List<Candle>> {
+        val inputTimeframe = requireNotNull(inputSeries.timeframe) { "inputSeries needs a timeframe" }
+
+        // Can only resampled to greater timeframes
+        check(timeframe.seconds > inputTimeframe.seconds) {
+            "CandleSeries can only be resampled to greater timeframes"
+        }
+
+        // Check if resample possible
+        check(timeframe.seconds.rem(inputTimeframe.seconds) == 0L) { "Cannot resample to $timeframe" }
+
+        return resamplings.getOrPut(timeframe) {
+            MutableCandleSeries(
+                initial = initialResampleCandles(timeframe),
+                timeframe = timeframe,
+            )
+        }.asCandleSeries()
+    }
+
+    private fun initialResampleCandles(timeframe: Timeframe): List<Candle> {
+        return replaySeries.getResampleCandles(timeframe).map { candles ->
+            candles.reduce { resampledCandle, newCandle -> resampledCandle.resample(newCandle) }
+        }
+    }
+
+    private fun CandleSeries.getResampleCandles(timeframe: Timeframe): List<List<Candle>> {
 
         // If no candles then no candles
         if (isEmpty()) return emptyList()
 
         val result = mutableListOf<List<Candle>>()
 
-        var currentSessionStartIndex = 0
+        var currentResampleCandleStartIndex = 0
 
-        // Add a list of all candles for every session to result
+        // Add a list of all candles for every resample candle to result
         indices.forEach { index ->
 
-            // If it's session start and index is 0, there is no session before it to add
-            if (isSessionStart(this, index) && index != 0) {
+            // If it's resample candle start and index is 0, there is no candle before it to add
+            if (isResampleCandleStart(this, index, timeframe) && index != 0) {
 
                 // Add previous session
-                result.add(subList(currentSessionStartIndex, index))
+                result.add(subList(currentResampleCandleStartIndex, index))
 
-                // Remember current session start
-                currentSessionStartIndex = index
+                // Remember current resample candle start
+                currentResampleCandleStartIndex = index
             }
         }
 
         // Add candles for last session
-        result.add(subList(currentSessionStartIndex, size))
+        result.add(subList(currentResampleCandleStartIndex, size))
 
         return result
+    }
+
+    private fun isResampleCandleStart(
+        candleSeries: CandleSeries,
+        index: Int,
+        timeframe: Timeframe,
+    ): Boolean {
+
+        // Session start is also candle start
+        if (isSessionStart(candleSeries, index)) return true
+
+        // Find candle for current session start
+        // If no session start found, default to the first candle
+        var sessionStartCandle = candleSeries.first()
+
+        for (i in candleSeries.indices.reversed()) {
+            if (isSessionStart(candleSeries, i)) {
+                sessionStartCandle = candleSeries[i]
+                break
+            }
+        }
+
+        // If interval from session start to current candle is multiple of timeframe,
+        // candle is start of resample candle.
+        val currentCandleEpochSeconds = candleSeries[index].openInstant.epochSeconds
+        val secondsSinceSessionStart = sessionStartCandle.openInstant.epochSeconds - currentCandleEpochSeconds
+        if (secondsSinceSessionStart.rem(timeframe.seconds) == 0L) return true
+
+        // Not candle start
+        return false
     }
 
     private fun Candle.resample(newCandle: Candle): Candle = copy(

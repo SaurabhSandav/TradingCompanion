@@ -45,7 +45,12 @@ internal class FyersCandleDownloader(
             symbol = symbolFull,
             resolution = when (timeframe) {
                 Timeframe.M1 -> CandleResolution.M1
+                Timeframe.M3 -> CandleResolution.M3
                 Timeframe.M5 -> CandleResolution.M5
+                Timeframe.M15 -> CandleResolution.M15
+                Timeframe.M30 -> CandleResolution.M30
+                Timeframe.H1 -> CandleResolution.M60
+                Timeframe.H4 -> CandleResolution.M240
                 Timeframe.D1 -> CandleResolution.D1
             },
             dateFormat = DateFormat.EPOCH,

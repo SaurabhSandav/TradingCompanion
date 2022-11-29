@@ -9,12 +9,16 @@ fun dailySessionStart(candleSeries: CandleSeries, index: Int): Boolean {
     val timeframe = candleSeries.timeframe ?: error("Timeframe is necessary to detect session start")
 
     return when {
+        // First candle is considered start of session for simplicity
         index == 0 -> true
+        // There's no session at/after 1-day timeframe
         timeframe >= Timeframe.D1 -> false
+        // If the time between last candle and current candle is greater than the timeframe,
+        // current candle is considered start of a new session.
         else -> {
             val candleTime = candleSeries[index].openInstant
             val lastCandleTime = candleSeries[index - 1].openInstant
-            (candleTime - lastCandleTime).inWholeSeconds != timeframe.seconds
+            (candleTime - lastCandleTime).inWholeSeconds > timeframe.seconds
         }
     }
 }

@@ -23,16 +23,17 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
-import trading.Timeframe
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
+import ui.common.TimeframeLabels
 import ui.common.chart.ChartPage
 import ui.common.chart.state.SinglePageChartState
 import ui.common.chart.themedChartOptions
 import ui.common.controls.ListSelectionField
+import ui.common.timeframeFromLabel
 import utils.NIFTY50
 
 internal class TickerChartStudy(
@@ -41,7 +42,7 @@ internal class TickerChartStudy(
 ) : Study {
 
     var symbol by mutableStateOf<String?>("ICICIBANK")
-    var timeframe by mutableStateOf("5m")
+    var timeframe by mutableStateOf(TimeframeLabels.first())
 
     @Composable
     override fun render() {
@@ -60,7 +61,7 @@ internal class TickerChartStudy(
                 )
 
                 ListSelectionField(
-                    items = listOf("5m", "1D"),
+                    items = TimeframeLabels,
                     onSelection = { timeframe = it },
                     selection = timeframe,
                 )
@@ -99,10 +100,7 @@ internal class TickerChartStudy(
 
                     val candleSeriesResult = candleRepo.getCandles(
                         symbol = symbol!!,
-                        timeframe = when (timeframe) {
-                            "1D" -> Timeframe.D1
-                            else -> Timeframe.M5
-                        },
+                        timeframe = timeframeFromLabel(timeframe),
                         from = LocalDate(year = 2022, month = Month.OCTOBER, dayOfMonth = 1)
                             .atStartOfDayIn(TimeZone.currentSystemDefault()),
                         to = Clock.System.now(),
