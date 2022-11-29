@@ -1,6 +1,5 @@
 package ui.barreplay.charts.ui
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -12,14 +11,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ui.barreplay.charts.model.ReplayChartState
+import ui.barreplay.charts.model.ReplayChartInfo
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import utils.NIFTY50
 
 @Composable
 internal fun ReplayControls(
-    chartState: ReplayChartState,
+    chartInfo: ReplayChartInfo,
     onNewReplay: () -> Unit,
     onReset: () -> Unit,
     onNext: () -> Unit,
@@ -34,36 +33,36 @@ internal fun ReplayControls(
     ) {
 
         Column(
-            modifier = Modifier.animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
 
-            chartState.data.forEach {
+            LegendItem("Open", chartInfo.legendValues.open)
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
+            LegendItem("High", chartInfo.legendValues.high)
 
-                    Text(it.first)
+            LegendItem("Low", chartInfo.legendValues.low)
 
-                    Text(it.second)
-                }
-            }
+            LegendItem("Close", chartInfo.legendValues.close)
+
+            LegendItem("Volume", chartInfo.legendValues.volume)
+
+            LegendItem("EMA (9)", chartInfo.legendValues.ema9)
+
+            LegendItem("VWAP", chartInfo.legendValues.vwap)
 
             Divider()
 
             ListSelectionField(
                 items = NIFTY50,
-                selection = chartState.symbol,
+                selection = chartInfo.symbol,
                 onSelection = onSymbolChange,
                 label = { Text("Change Ticker") },
             )
 
             ListSelectionField(
                 items = listOf("5M", "1D"),
+                selection = chartInfo.timeframe,
                 onSelection = onTimeframeChange,
-                selection = chartState.timeframe,
                 label = { Text("Change Timeframe") },
             )
 
@@ -122,5 +121,22 @@ internal fun ReplayControls(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun LegendItem(
+    title: String,
+    value: String,
+) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+
+        Text(title)
+
+        Text(value)
     }
 }

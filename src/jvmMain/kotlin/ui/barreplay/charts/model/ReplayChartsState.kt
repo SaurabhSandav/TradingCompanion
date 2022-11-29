@@ -6,7 +6,8 @@ import ui.common.chart.state.ChartState
 @Immutable
 data class ReplayChartsState(
     val chartTabsState: ReplayChartTabsState,
-    val chartState: ReplayChartState?,
+    val chartState: ChartState,
+    val chartInfo: ReplayChartInfo,
 )
 
 @Immutable
@@ -23,10 +24,19 @@ data class ReplayChartTabsState(
 }
 
 @Immutable
-data class ReplayChartState(
-    val id: Int,
+data class ReplayChartInfo(
     val symbol: String,
     val timeframe: String,
-    val state: ChartState,
-    val data: List<Pair<String, String>>,
+    val legendValues: LegendValues = LegendValues(),
+)
+
+@Immutable
+data class LegendValues(
+    val open: String = "",
+    val high: String = "",
+    val low: String = "",
+    val close: String = "",
+    val volume: String = "",
+    val ema9: String = "",
+    val vwap: String = "",
 )

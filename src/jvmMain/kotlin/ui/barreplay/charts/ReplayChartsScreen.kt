@@ -1,20 +1,18 @@
 package ui.barreplay.charts
 
 import AppModule
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.datetime.Instant
 import trading.Timeframe
-import ui.barreplay.charts.model.ReplayChartState
+import ui.barreplay.charts.model.ReplayChartInfo
 import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.ui.ReplayChartPage
 import ui.barreplay.charts.ui.ReplayControls
+import ui.common.chart.state.ChartState
 
 @Composable
 internal fun ReplayChartsScreen(
@@ -37,6 +35,7 @@ internal fun ReplayChartsScreen(
         onNewReplay = onNewReplay,
         chartTabsState = state.chartTabsState,
         chartState = state.chartState,
+        chartInfo = state.chartInfo,
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
         onIsAutoNextEnabledChange = { presenter.event(ChangeIsAutoNextEnabled(it)) },
@@ -52,7 +51,8 @@ internal fun ReplayChartsScreen(
 internal fun ReplayCharts(
     onNewReplay: () -> Unit,
     chartTabsState: ReplayChartTabsState,
-    chartState: ReplayChartState?,
+    chartState: ChartState,
+    chartInfo: ReplayChartInfo,
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
@@ -65,32 +65,22 @@ internal fun ReplayCharts(
 
     Row(Modifier.fillMaxSize()) {
 
-        if (chartState == null) {
+        ReplayControls(
+            chartInfo = chartInfo,
+            onNewReplay = onNewReplay,
+            onReset = onReset,
+            onNext = onNext,
+            onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
+            onNewChart = onNewChart,
+            onSymbolChange = onSymbolChange,
+            onTimeframeChange = onTimeframeChange,
+        )
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-                content = { CircularProgressIndicator() },
-            )
-        } else {
-
-            ReplayControls(
-                chartState = chartState,
-                onNewReplay = onNewReplay,
-                onReset = onReset,
-                onNext = onNext,
-                onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
-                onNewChart = onNewChart,
-                onSymbolChange = onSymbolChange,
-                onTimeframeChange = onTimeframeChange,
-            )
-
-            ReplayChartPage(
-                chartTabsState = chartTabsState,
-                chartState = chartState,
-                onSelectChart = onSelectChart,
-                onCloseChart = onCloseChart,
-            )
-        }
+        ReplayChartPage(
+            chartTabsState = chartTabsState,
+            chartState = chartState,
+            onSelectChart = onSelectChart,
+            onCloseChart = onCloseChart,
+        )
     }
 }

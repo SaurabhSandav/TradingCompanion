@@ -2,7 +2,10 @@ package ui.barreplay.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import chart.*
-import chart.data.*
+import chart.data.CandlestickData
+import chart.data.HistogramData
+import chart.data.LineData
+import chart.data.Time
 import chart.options.CandlestickStyleOptions
 import chart.options.HistogramStyleOptions
 import chart.options.LineStyleOptions
@@ -15,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
+import ui.barreplay.charts.model.LegendValues
 import ui.common.chart.ChartDarkModeOptions
 import ui.common.chart.ChartLightModeOptions
 import utils.PrefDefaults
@@ -26,7 +30,7 @@ internal class ReplayChart(
     coroutineScope: CoroutineScope,
     appPrefs: FlowSettings,
     val chart: IChartApi,
-    onDataUpdate: (List<Pair<String, String>>) -> Unit,
+    onLegendUpdate: (LegendValues) -> Unit,
 ) {
 
     private val candlestickSeries by chart.candlestickSeries(
@@ -62,17 +66,26 @@ internal class ReplayChart(
 
         chart.subscribeCrosshairMove { params ->
 
-            val displayData = when {
-                params.seriesPrices.isEmpty() -> getDataList()
-                else -> getDataList(
-                    price = (params.seriesPrices[candlestickSeries] as GeneralData.BarPrices).close,
-                    volume = volumeSeries?.let { (params.seriesPrices[it] as GeneralData.BarPrice).value },
-                    ema9 = (params.seriesPrices[ema9Series] as GeneralData.BarPrice).value,
-                    vwap = vwapSeries?.let { (params.seriesPrices[it] as GeneralData.BarPrice).value },
-                )
-            }
+            val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
+            val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
+            val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
+            val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
+            val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
+            val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
+            val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
+            val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
 
-            onDataUpdate(displayData)
+            onLegendUpdate(
+                LegendValues(
+                    open = open,
+                    high = high,
+                    low = low,
+                    close = close,
+                    volume = volume,
+                    ema9 = ema9,
+                    vwap = vwap,
+                )
+            )
         }
     }
 
@@ -222,18 +235,6 @@ internal class ReplayChart(
         val epochTime = openInstant.epochSeconds
         val timeZoneOffset = openInstant.offsetIn(TimeZone.currentSystemDefault()).totalSeconds
         return epochTime + timeZoneOffset
-    }
-
-    private fun getDataList(
-        price: BigDecimal? = null,
-        volume: BigDecimal? = null,
-        ema9: BigDecimal? = null,
-        vwap: BigDecimal? = null,
-    ): List<Pair<String, String>> = buildList {
-        add("Price" to price?.toPlainString().orEmpty())
-        add("Volume" to volume?.toPlainString().orEmpty())
-        add("EMA (9)" to ema9?.toPlainString().orEmpty())
-        add("VWAP" to vwap?.toPlainString().orEmpty())
     }
 
     data class Data(
