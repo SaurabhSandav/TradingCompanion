@@ -9,8 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
@@ -24,93 +22,93 @@ internal fun AddOpenTradeWindow(
     state: AddOpenTradeWindowState,
 ) {
 
-    val windowState = rememberWindowState(
-        size = DpSize(width = 300.dp, height = Dp.Unspecified),
-    )
+    val windowState = rememberWindowState()
 
     AppWindow(
         onCloseRequest = state.onCloseRequest,
         state = windowState,
         title = "New Trade",
-        resizable = false,
     ) {
 
-        Column(
-            modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        Box(Modifier.wrapContentSize()) {
 
-            val formScope = rememberFormScope()
-            val fields = remember { AddOpenTradeFormFields(formScope, state.formModel) }
-
-            ListSelectionField(
-                items = NIFTY50,
-                onSelection = fields.ticker.onSelectionChange,
-                selection = fields.ticker.value,
-                label = { Text("Ticker") },
-                isError = fields.ticker.isError,
-            )
-
-            OutlinedTextField(
-                value = fields.quantity.value,
-                onValueChange = fields.quantity.onValueChange,
-                label = { Text("Quantity") },
-                isError = fields.quantity.isError,
-                singleLine = true,
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
 
-                Text("Short")
+                val formScope = rememberFormScope()
+                val fields = remember { AddOpenTradeFormFields(formScope, state.formModel) }
 
-                Switch(
-                    checked = fields.isLong.value,
-                    onCheckedChange = fields.isLong.onCheckedChange,
+                ListSelectionField(
+                    items = NIFTY50,
+                    onSelection = fields.ticker.onSelectionChange,
+                    selection = fields.ticker.value,
+                    label = { Text("Ticker") },
+                    isError = fields.ticker.isError,
                 )
 
-                Text("Long")
-            }
+                OutlinedTextField(
+                    value = fields.quantity.value,
+                    onValueChange = fields.quantity.onValueChange,
+                    label = { Text("Quantity") },
+                    isError = fields.quantity.isError,
+                    singleLine = true,
+                )
 
-            OutlinedTextField(
-                value = fields.entry.value,
-                onValueChange = fields.entry.onValueChange,
-                label = { Text("Entry") },
-                isError = fields.entry.isError,
-                singleLine = true,
-            )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
 
-            OutlinedTextField(
-                value = fields.stop.value,
-                onValueChange = fields.stop.onValueChange,
-                label = { Text("Stop") },
-                isError = fields.stop.isError,
-                singleLine = true,
-            )
+                    Text("Short")
 
-            DateTimeField(
-                value = fields.entryDateTime.value,
-                onValidValueChange = fields.entryDateTime.onValueChange,
-                label = { Text("Entry DateTime") },
-            )
+                    Switch(
+                        checked = fields.isLong.value,
+                        onCheckedChange = fields.isLong.onCheckedChange,
+                    )
 
-            OutlinedTextField(
-                value = fields.target.value,
-                onValueChange = fields.target.onValueChange,
-                label = { Text("Target") },
-                isError = fields.target.isError,
-                singleLine = true,
-            )
+                    Text("Long")
+                }
 
-            Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
-            ) {
+                OutlinedTextField(
+                    value = fields.entry.value,
+                    onValueChange = fields.entry.onValueChange,
+                    label = { Text("Entry") },
+                    isError = fields.entry.isError,
+                    singleLine = true,
+                )
 
-                Text("Add")
+                OutlinedTextField(
+                    value = fields.stop.value,
+                    onValueChange = fields.stop.onValueChange,
+                    label = { Text("Stop") },
+                    isError = fields.stop.isError,
+                    singleLine = true,
+                )
+
+                DateTimeField(
+                    value = fields.entryDateTime.value,
+                    onValidValueChange = fields.entryDateTime.onValueChange,
+                    label = { Text("Entry DateTime") },
+                )
+
+                OutlinedTextField(
+                    value = fields.target.value,
+                    onValueChange = fields.target.onValueChange,
+                    label = { Text("Target") },
+                    isError = fields.target.isError,
+                    singleLine = true,
+                )
+
+                Button(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
+                ) {
+
+                    Text("Add")
+                }
             }
         }
     }
