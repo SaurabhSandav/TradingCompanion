@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CandlestickChart
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import ui.account.AccountScreen
 import ui.barreplay.BarReplayScreen
+import ui.charts.ChartsScreen
 import ui.closedtrades.ClosedTradesPresenter
 import ui.closedtrades.ClosedTradesScreen
 import ui.common.AppWindow
@@ -84,6 +86,21 @@ private fun LandingScreen(
             }
 
             Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
+
+            TooltipArea(
+                tooltip = { Tooltip("Charts") },
+            ) {
+
+                NavigationRailItem(
+                    icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
+                    selected = false,
+                    onClick = {
+                        openWindows.putIfAbsent("Charts") {
+                            ChartsScreen(appModule)
+                        }
+                    }
+                )
+            }
 
             TooltipArea(
                 tooltip = { Tooltip("Bar Replay") },

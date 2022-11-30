@@ -23,7 +23,6 @@ internal class StudiesPresenter(
                 PNLByMonthChartStudy.Factory(appModule),
                 PNLExcursionStudy.Factory(appModule),
                 PNLByTickerStudy.Factory(appModule),
-                TickerChartStudy.Factory(appModule),
             )
         }
 
