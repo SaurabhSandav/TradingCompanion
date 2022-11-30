@@ -148,6 +148,9 @@ internal class OpenTradesPresenter(
 
     private fun onCloseTrade(id: Long) = coroutineScope.launchUnit {
 
+        // Close trade window already open
+        if (closeTradeWindowStates.any { it.formModel.id == id }) return@launchUnit
+
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
         }
