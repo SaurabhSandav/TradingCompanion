@@ -5,7 +5,6 @@ import chart.createChart
 import chart.options.ChartOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -56,15 +55,14 @@ class TabbedChartState(
 
         // Create chart inside previously created div
         val chart = createChart("document.getElementById('$name')", options, name)
-        val scope = CoroutineScope(coroutineScope.coroutineContext + Job())
-
-        // Add to tabs
-        tabs += Tab(chart, scope)
 
         // Collect chart js commands
-        scope.launch {
+        val job = coroutineScope.launch {
             chart.scripts.collect(_jsCommands::emit)
         }
+
+        // Add to tabs
+        tabs += Tab(chart, job)
 
         return chart
     }
@@ -87,7 +85,7 @@ class TabbedChartState(
         tabs.remove(tab)
 
         // Stop collecting chart js commands
-        tab?.scope?.cancel()
+        tab?.job?.cancel()
     }
 
     fun showChart(chart: IChartApi) {
@@ -109,6 +107,6 @@ class TabbedChartState(
 
     private class Tab(
         val chart: IChartApi,
-        val scope: CoroutineScope,
+        val job: Job,
     )
 }
