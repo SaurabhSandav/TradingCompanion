@@ -36,7 +36,15 @@ kotlin {
         }
 
         compilations.all {
-            kotlinOptions.jvmTarget = "18"
+            kotlinOptions {
+                jvmTarget = "18"
+
+                // TODO Remove on compose compiler update
+                freeCompilerArgs += listOf(
+                    "-P",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+                )
+            }
         }
     }
 
@@ -99,15 +107,15 @@ kotlin {
                 implementation(libs.kotlinCsvJvm)
 
                 // JavaFx
-                implementation("org.openjfx:javafx-base:18.0.2:linux")
-                implementation("org.openjfx:javafx-controls:18.0.2:linux")
-                implementation("org.openjfx:javafx-graphics:18.0.2:linux")
-                implementation("org.openjfx:javafx-media:18.0.2:linux")
-                implementation("org.openjfx:javafx-swing:18.0.2:linux")
-                implementation("org.openjfx:javafx-web:18.0.2:linux")
+                implementation("org.openjfx:javafx-base:19:linux")
+                implementation("org.openjfx:javafx-controls:19:linux")
+                implementation("org.openjfx:javafx-graphics:19:linux")
+                implementation("org.openjfx:javafx-media:19:linux")
+                implementation("org.openjfx:javafx-swing:19:linux")
+                implementation("org.openjfx:javafx-web:19:linux")
 
                 // Krypto
-                implementation("com.soywiz.korlibs.krypto:krypto:3.2.0")
+                implementation("com.soywiz.korlibs.krypto:krypto:3.4.0")
 
                 // kotlin-result
                 implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
@@ -119,6 +127,10 @@ kotlin {
             }
         }
     }
+}
+
+compose {
+    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.0-alpha02")
 }
 
 @Suppress("PropertyName")
