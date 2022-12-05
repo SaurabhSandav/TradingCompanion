@@ -55,8 +55,11 @@ private class MutableCandleSeriesImpl(
 
         if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
             error(
-                "Candle cannot be older than the last candle in the series: " +
-                        "\nNew Candle: $candle \nLast Candle: $lastCandle"
+                """
+                    |Candle cannot be older than the last candle in the series: 
+                    |New Candle: $candle
+                    |Last Candle: $lastCandle
+                """.trimMargin()
             )
 
         val isCandleUpdate = lastCandle?.openInstant == candle.openInstant
@@ -103,7 +106,7 @@ private class MutableCandleSeriesImpl(
         val cache = when (key) {
 
             // New cache requested
-            null -> IndicatorCache(null)
+            null -> IndicatorCache<T>(null).also(indicatorCaches::add)
 
             // Return pre-exiting cache or create new
             else -> when (val cache = indicatorCaches.firstOrNull { key == it.key }) {
