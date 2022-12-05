@@ -1,6 +1,7 @@
 package trading.barreplay
 
 import trading.*
+import java.math.BigDecimal
 
 interface BarReplaySession {
 
@@ -10,7 +11,9 @@ interface BarReplaySession {
 
     fun addCandle(offset: Int)
 
-    fun reset(offset: Int)
+    fun addCandle(offset: Int, candleState: BarReplay.CandleState)
+
+    fun reset()
 
     fun resampled(timeframe: Timeframe): CandleSeries
 
@@ -20,20 +23,28 @@ interface BarReplaySession {
             inputSeries: CandleSeries,
             initialIndex: Int,
             currentOffset: Int,
+            currentCandleState: BarReplay.CandleState,
             isSessionStart: (CandleSeries, Int) -> Boolean,
         ): BarReplaySession = BarReplaySessionImpl(
             inputSeries = inputSeries,
             initialIndex = initialIndex,
             currentOffset = currentOffset,
+            currentCandleState = currentCandleState,
             isSessionStart = isSessionStart,
         )
     }
+}
+
+enum class CandleUpdateType {
+    FullBar,
+    OHLC;
 }
 
 private class BarReplaySessionImpl(
     override val inputSeries: CandleSeries,
     private val initialIndex: Int,
     currentOffset: Int,
+    currentCandleState: BarReplay.CandleState,
     private val isSessionStart: (CandleSeries, Int) -> Boolean,
 ) : BarReplaySession {
 
@@ -41,6 +52,16 @@ private class BarReplaySessionImpl(
         initial = inputSeries.subList(0, initialIndex + currentOffset),
         timeframe = inputSeries.timeframe,
     )
+
+    init {
+
+        // If CandleState is not Close, a new partially formed candle is added to chart.
+        if (currentCandleState != BarReplay.CandleState.Close) {
+            val fullCandle = inputSeries[initialIndex + currentOffset]
+            val candle = fullCandle.atState(currentCandleState)
+            _replaySeries.addCandle(candle)
+        }
+    }
 
     private val resamplings = mutableMapOf<Timeframe, MutableCandleSeries>()
 
@@ -66,20 +87,44 @@ private class BarReplaySessionImpl(
         }
     }
 
-    override fun reset(offset: Int) {
+    override fun addCandle(offset: Int, candleState: BarReplay.CandleState) {
 
-        _replaySeries.removeLast(offset)
+        val index = initialIndex + offset
+        val fullCandle = inputSeries[index]
+        val candle = fullCandle.atState(candleState)
 
+        _replaySeries.addCandle(candle)
+
+        resamplings.forEach { (_, candleSeries) ->
+
+            // Add candle unchanged if new candle start, else resample already added candle
+            val resampledCandle = when {
+                isResampleCandleStart(replaySeries, replaySeries.lastIndex, candleSeries.timeframe!!) -> candle
+                else -> candleSeries.last().resample(candle)
+            }
+
+            // Add candle
+            candleSeries.addCandle(resampledCandle)
+        }
+    }
+
+    override fun reset() {
+
+        // Reset replaySeries to initial state
+        _replaySeries.removeLast(_replaySeries.size - initialIndex)
+
+        // This is the simplest way of accomplishing this task. Replacing all candles in the resampledSeries would mean
+        // notifying resampledSeries observers about every single candle.
         resamplings.values.forEach { resampledSeries ->
 
-            // Resample initial candles again
+            // Resample candles for the given timeframe again
             val initialResampledCandles = initialResampleCandles(resampledSeries.timeframe!!)
 
-            // Remove extra candles
+            // Remove extra candles in resampledSeries based on the size of the initial resampled candles
             resampledSeries.removeLast(resampledSeries.size - initialResampledCandles.size)
 
-            // Last candle could be resampled with more candles than initialized with.
-            // Replace last candle if that's the case.
+            // Check if last candle in resampledSeries is same. If not, candle might've been resampled with more
+            // up-to-date data and must be replaced to match replay series data.
             if (initialResampledCandles.last() != resampledSeries.last()) {
                 resampledSeries.removeLast()
                 resampledSeries.addCandle(initialResampledCandles.last())
@@ -105,6 +150,47 @@ private class BarReplaySessionImpl(
                 timeframe = timeframe,
             )
         }.asCandleSeries()
+    }
+
+    private fun Candle.atState(state: BarReplay.CandleState): Candle {
+
+        val isCandleBullish = close > open
+
+        return when (state) {
+            // Open
+            BarReplay.CandleState.Open -> copy(
+                high = open,
+                low = open,
+                close = open,
+                volume = BigDecimal.ZERO
+            )
+
+            BarReplay.CandleState.Extreme1 -> when {
+                // Bullish candle, update low first
+                isCandleBullish -> copy(
+                    high = open,
+                    close = low,
+                    volume = BigDecimal.ZERO
+                )
+
+                // Bearish candle, update high first
+                else -> copy(
+                    low = open,
+                    close = high,
+                    volume = BigDecimal.ZERO
+                )
+            }
+
+            BarReplay.CandleState.Extreme2 -> when {
+                // Bullish candle, update high second
+                isCandleBullish -> copy(close = high, volume = BigDecimal.ZERO)
+                // Bearish candle, update low second
+                else -> copy(close = low, volume = BigDecimal.ZERO)
+            }
+
+            // Close
+            BarReplay.CandleState.Close -> this
+        }
     }
 
     private fun initialResampleCandles(timeframe: Timeframe): List<Candle> {

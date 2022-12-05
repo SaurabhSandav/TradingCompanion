@@ -3,15 +3,20 @@ package trading.barreplay
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-class BarReplay {
+class BarReplay(
+    private val candleUpdateType: CandleUpdateType = CandleUpdateType.FullBar,
+) {
 
     private var offset = 0
+    private var candleState = CandleState.Close
 
     private val sessionList = mutableListOf<BarReplaySession>()
 
-    fun newSession(session: (currentOffset: Int) -> BarReplaySession): BarReplaySession {
+    fun newSession(
+        session: (currentOffset: Int, currentCandleState: CandleState) -> BarReplaySession,
+    ): BarReplaySession {
         contract { callsInPlace(session, InvocationKind.EXACTLY_ONCE) }
-        return session(offset).also(sessionList::add)
+        return session(offset, candleState).also(sessionList::add)
     }
 
     fun removeSession(session: BarReplaySession) {
@@ -19,12 +24,45 @@ class BarReplay {
     }
 
     fun next() {
-        sessionList.forEach { it.addCandle(offset) }
-        offset++
+
+        when (candleUpdateType) {
+            CandleUpdateType.FullBar -> {
+                sessionList.forEach { it.addCandle(offset) }
+                offset++
+            }
+
+            CandleUpdateType.OHLC -> {
+
+                // Move to next candle state
+                candleState = candleState.next()
+
+                // Add/Update bar
+                sessionList.forEach { it.addCandle(offset, candleState) }
+
+                // If candle has closed, increment offset
+                if (candleState == CandleState.Close) offset++
+            }
+        }
     }
 
     fun reset() {
-        sessionList.forEach { it.reset(offset) }
+        sessionList.forEach { it.reset() }
         offset = 0
+        candleState = CandleState.Close
+    }
+
+    enum class CandleState {
+        Open,
+        Extreme1,
+        Extreme2,
+        Close;
+
+        fun next(): CandleState {
+            return vals[(ordinal + 1) % vals.size]
+        }
+
+        private companion object {
+            private val vals = values()
+        }
     }
 }

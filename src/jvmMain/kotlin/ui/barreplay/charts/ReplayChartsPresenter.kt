@@ -23,6 +23,7 @@ import trading.CandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplay
 import trading.barreplay.BarReplaySession
+import trading.barreplay.CandleUpdateType
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import ui.barreplay.charts.model.*
@@ -49,7 +50,7 @@ internal class ReplayChartsPresenter(
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val barReplay = BarReplay()
+    private val barReplay = BarReplay(CandleUpdateType.OHLC)
     private val tabbedChartState = TabbedChartState(coroutineScope)
     private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
     private var autoNextJob: Job? = null
@@ -303,12 +304,13 @@ internal class ReplayChartsPresenter(
 
         val candleSeries = getCandleSeries(symbol)
 
-        val replaySession = barReplay.newSession { currentOffset ->
+        val replaySession = barReplay.newSession { currentOffset, currentCandleState ->
 
             BarReplaySession(
                 inputSeries = candleSeries,
                 initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
                 currentOffset = currentOffset,
+                currentCandleState = currentCandleState,
                 isSessionStart = ::dailySessionStart,
             )
         }
