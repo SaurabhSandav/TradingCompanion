@@ -21,6 +21,7 @@ internal sealed class BarReplayScreen {
         val dataFrom: Instant,
         val dataTo: Instant,
         val replayFrom: Instant,
+        val replayFullBar: Boolean,
         val initialSymbol: String,
     ) : BarReplayScreen()
 }

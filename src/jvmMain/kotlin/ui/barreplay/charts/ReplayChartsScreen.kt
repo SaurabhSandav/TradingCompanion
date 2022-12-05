@@ -22,12 +22,22 @@ internal fun ReplayChartsScreen(
     dataFrom: Instant,
     dataTo: Instant,
     replayFrom: Instant,
+    replayFullBar: Boolean,
     initialSymbol: String,
 ) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember {
-        ReplayChartsPresenter(scope, baseTimeframe, dataFrom, dataTo, replayFrom, initialSymbol, appModule)
+        ReplayChartsPresenter(
+            coroutineScope = scope,
+            baseTimeframe = baseTimeframe,
+            dataFrom = dataFrom,
+            dataTo = dataTo,
+            replayFrom = replayFrom,
+            replayFullBar = replayFullBar,
+            initialSymbol = initialSymbol,
+            appModule = appModule
+        )
     }
     val state by presenter.state.collectAsState()
 

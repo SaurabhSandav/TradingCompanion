@@ -3,6 +3,7 @@ package ui.barreplay.launchform
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -67,6 +68,22 @@ internal fun ReplayLaunchFormScreen(
                 onValidValueChange = fields.replayFrom.onValueChange,
                 label = { Text("Replay From") },
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Text("OHLC")
+
+                Switch(
+                    checked = fields.replayFullBar.value,
+                    onCheckedChange = fields.replayFullBar.onCheckedChange,
+                )
+
+                Text("Full Bar")
+            }
 
             Divider()
 

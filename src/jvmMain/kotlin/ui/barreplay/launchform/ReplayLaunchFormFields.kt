@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import ui.common.form.FormScope
 import ui.common.form.dateTimeFieldState
 import ui.common.form.singleSelectionState
+import ui.common.form.switchState
 
 internal class ReplayLaunchFormFields(
     private val formScope: FormScope,
@@ -18,6 +19,8 @@ internal class ReplayLaunchFormFields(
 
     val replayFrom = formScope.dateTimeFieldState(initial.replayFrom)
 
+    val replayFullBar = formScope.switchState(initial.replayFullBar)
+
     val initialSymbol = formScope.singleSelectionState(initial.initialSymbol)
 
     fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
@@ -25,6 +28,7 @@ internal class ReplayLaunchFormFields(
         dataFrom = dataFrom.value,
         dataTo = dataTo.value,
         replayFrom = replayFrom.value,
+        replayFullBar = replayFullBar.value,
         initialSymbol = initialSymbol.value,
     )
 
@@ -33,6 +37,7 @@ internal class ReplayLaunchFormFields(
         val dataFrom: LocalDateTime,
         val dataTo: LocalDateTime,
         val replayFrom: LocalDateTime,
+        val replayFullBar: Boolean,
         val initialSymbol: String?,
     )
 }

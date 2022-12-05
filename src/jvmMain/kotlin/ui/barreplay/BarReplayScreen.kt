@@ -44,6 +44,7 @@ private fun BarReplayScreen(
             dataFrom = currentScreen.dataFrom,
             dataTo = currentScreen.dataTo,
             replayFrom = currentScreen.replayFrom,
+            replayFullBar = currentScreen.replayFullBar,
             initialSymbol = currentScreen.initialSymbol,
         )
     }

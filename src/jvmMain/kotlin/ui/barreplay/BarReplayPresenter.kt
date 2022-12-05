@@ -61,6 +61,7 @@ internal class BarReplayPresenter(
             dataFrom = formModel.dataFrom.toInstant(TimeZone.currentSystemDefault()),
             dataTo = formModel.dataTo.toInstant(TimeZone.currentSystemDefault()),
             replayFrom = formModel.replayFrom.toInstant(TimeZone.currentSystemDefault()),
+            replayFullBar = formModel.replayFullBar,
             initialSymbol = formModel.initialSymbol ?: error("Invalid symbol!"),
         )
     }
@@ -86,6 +87,7 @@ internal class BarReplayPresenter(
             dataFrom = dataFrom,
             dataTo = dataTo,
             replayFrom = replayFrom,
+            replayFullBar = true,
             initialSymbol = NIFTY50.first(),
         )
     }

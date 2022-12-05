@@ -42,6 +42,7 @@ internal class ReplayChartsPresenter(
     private val dataFrom: Instant,
     private val dataTo: Instant,
     private val replayFrom: Instant,
+    replayFullBar: Boolean,
     private val initialSymbol: String,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
@@ -50,7 +51,7 @@ internal class ReplayChartsPresenter(
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val barReplay = BarReplay(CandleUpdateType.OHLC)
+    private val barReplay = BarReplay(if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC)
     private val tabbedChartState = TabbedChartState(coroutineScope)
     private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
     private var autoNextJob: Job? = null
