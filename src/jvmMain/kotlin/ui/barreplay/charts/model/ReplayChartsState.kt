@@ -27,6 +27,7 @@ data class ReplayChartTabsState(
 data class ReplayChartInfo(
     val symbol: String,
     val timeframe: String,
+    val replayTime: String = "",
     val legendValues: LegendValues = LegendValues(),
 )
 

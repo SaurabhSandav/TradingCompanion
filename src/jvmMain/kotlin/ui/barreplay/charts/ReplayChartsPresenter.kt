@@ -15,6 +15,9 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import trading.CandleSeries
 import trading.Timeframe
@@ -29,6 +32,7 @@ import ui.common.CollectEffect
 import ui.common.chart.state.TabbedChartState
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
+import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.seconds
 
 internal class ReplayChartsPresenter(
@@ -51,11 +55,13 @@ internal class ReplayChartsPresenter(
     private var autoNextJob: Job? = null
     private var maxChartId = 0
     private var currentChartId = 0
+    private var replayTimeJob: Job = Job()
 
     private val candleCache = mutableMapOf<String, CandleSeries>()
     private val dataManagers = mutableListOf<ReplayDataManager>()
     private var chartTabsState by mutableStateOf(ReplayChartTabsState(emptyList(), 0))
     private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe.toLabel()))
+    private var replayTime by mutableStateOf("")
     private var legendValues by mutableStateOf(LegendValues())
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -77,7 +83,10 @@ internal class ReplayChartsPresenter(
         return@launchMolecule ReplayChartsState(
             chartTabsState = chartTabsState,
             chartState = tabbedChartState,
-            chartInfo = chartInfo.copy(legendValues = legendValues),
+            chartInfo = chartInfo.copy(
+                replayTime = replayTime,
+                legendValues = legendValues,
+            ),
         )
     }
 
@@ -108,6 +117,12 @@ internal class ReplayChartsPresenter(
 
             // Add new tab
             updateChartTabs()
+
+            // Show replay time using currently selected chart data
+            updateTime(dataManager.replaySession.replaySeries.last().openInstant)
+            replayTimeJob = coroutineScope.launch {
+                dataManager.replaySession.replaySeries.live.collect { updateTime(it.openInstant) }
+            }
         }
     }
 
@@ -213,6 +228,13 @@ internal class ReplayChartsPresenter(
 
         // Show selected chart
         tabbedChartState.showChart(dataManager.chart.chart)
+
+        // Show replay time using currently selected chart data
+        updateTime(dataManager.replaySession.replaySeries.last().openInstant)
+        replayTimeJob.cancel()
+        replayTimeJob = coroutineScope.launch {
+            dataManager.replaySession.replaySeries.live.collect { updateTime(it.openInstant) }
+        }
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
@@ -332,5 +354,10 @@ internal class ReplayChartsPresenter(
 
     private fun findReplayDataManager(chartId: Int): ReplayDataManager {
         return dataManagers.find { it.chartId == chartId }.let(::requireNotNull)
+    }
+
+    private fun updateTime(currentInstant: Instant) {
+        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+        replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
     }
 }

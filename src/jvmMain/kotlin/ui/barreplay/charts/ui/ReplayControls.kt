@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ui.barreplay.charts.model.ReplayChartInfo
 import ui.common.TimeframeLabels
@@ -36,6 +37,10 @@ internal fun ReplayControls(
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
+
+            LegendItem("Time", chartInfo.replayTime)
+
+            Divider()
 
             LegendItem("Open", chartInfo.legendValues.open)
 
@@ -138,6 +143,6 @@ private fun LegendItem(
 
         Text(title)
 
-        Text(value)
+        Text(value, textAlign = TextAlign.End)
     }
 }
