@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 import model.Account
+import trading.data.CandleDBCollection
 import utils.AppPaths
 import java.util.prefs.Preferences
 
@@ -36,6 +37,8 @@ internal class AppModule {
     val appPrefs = JvmPreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
     val fyersApiFactory = { FyersApi() }
+
+    val candleDBCollection = CandleDBCollection()
 
     init {
 //        TradeImporter(this).importTrades()

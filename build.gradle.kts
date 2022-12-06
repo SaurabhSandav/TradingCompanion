@@ -140,7 +140,14 @@ sqldelight {
 
     database("AppDB") {
         packageName = "com.saurabhsandav.core"
-        sourceFolders = listOf("sqldelight")
+        sourceFolders = listOf("sqldelight/app")
+        schemaOutputDirectory = file("build/dbs")
+        dialect = "sqlite:3.25"
+    }
+
+    database("CandleDB") {
+        packageName = "com.saurabhsandav.core"
+        sourceFolders = listOf("sqldelight/candles")
         schemaOutputDirectory = file("build/dbs")
         dialect = "sqlite:3.25"
     }

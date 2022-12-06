@@ -9,14 +9,13 @@ import kotlinx.coroutines.*
 import kotlinx.datetime.*
 import kotlinx.serialization.json.*
 import trading.*
-import utils.AppPaths
 import kotlin.io.path.*
 import kotlin.time.Duration.Companion.days
 
 internal class CandleRepository(
     appModule: AppModule,
     private val candleDownloader: CandleDownloader = FyersCandleDownloader(appModule),
-    private val candleCache: CandleCache = CandleCacheImpl(),
+    private val candleCache: CandleCache = CandleCacheDB(appModule),
 ) {
 
     suspend fun getCandles(
@@ -24,16 +23,9 @@ internal class CandleRepository(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ): Result<CandleSeries, Error> {
+    ): Result<CandleSeries, Error> = withContext(Dispatchers.IO) {
 
-        // Build directory path for symbol and timeframe
-        val baseDir = Path(AppPaths.getAppDataPath())
-        val symbolDir = baseDir.resolve("Candles/$symbol/${timeframe.name}")
-
-        // Create directories if not exists
-        if (!symbolDir.exists()) symbolDir.createDirectories()
-
-        val availableRange = candleCache.getAvailableCandleRange(symbolDir)
+        val availableRange = candleCache.getAvailableCandleRange(symbol, timeframe)
 
         fun ClosedRange<Instant>.prevCandleInstant() = start.minus(timeframe.seconds, DateTimeUnit.SECOND)
         fun ClosedRange<Instant>.nextCandleInstant() = endInclusive.plus(timeframe.seconds, DateTimeUnit.SECOND)
@@ -75,8 +67,8 @@ internal class CandleRepository(
 
         downloadRanges.forEach { range ->
             when (val result = download(symbol, timeframe, range.start, range.endInclusive)) {
-                is Ok -> candleCache.writeCandles(symbolDir, result.value)
-                is Err -> return when (val error = result.error) {
+                is Ok -> candleCache.writeCandles(symbol, timeframe, result.value)
+                is Err -> return@withContext when (val error = result.error) {
                     is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
                     is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
                 }
@@ -84,11 +76,11 @@ internal class CandleRepository(
         }
 
         val candleSeries = MutableCandleSeries(
-            initial = candleCache.fetch(symbolDir, from, to),
+            initial = candleCache.fetch(symbol, timeframe, from, to),
             timeframe = timeframe,
         ).asCandleSeries()
 
-        return Ok(candleSeries)
+        return@withContext Ok(candleSeries)
     }
 
     private suspend fun download(

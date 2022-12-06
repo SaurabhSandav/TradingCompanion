@@ -1,0 +1,23 @@
+
+CREATE TABLE IF NOT EXISTS Candles (
+epochSeconds INTEGER AS Long NOT NULL PRIMARY KEY,
+open TEXT NOT NULL,
+high TEXT NOT NULL,
+low TEXT NOT NULL,
+close TEXT NOT NULL,
+volume INTEGER AS Long NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO Candles
+VALUES (?, ?, ?, ?, ?, ?);
+
+getRange:
+SELECT epochSeconds FROM (SELECT * FROM Candles ORDER BY epochSeconds ASC LIMIT 1)
+UNION
+SELECT epochSeconds FROM (SELECT * FROM Candles ORDER BY epochSeconds DESC LIMIT 1);
+
+getInRange:
+SELECT * FROM Candles
+WHERE epochSeconds BETWEEN :from AND :to
+ORDER BY epochSeconds;
