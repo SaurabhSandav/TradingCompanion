@@ -1,9 +1,11 @@
 package trading.barreplay
 
+import trading.Timeframe
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 class BarReplay(
+    private val timeframe: Timeframe,
     private val candleUpdateType: CandleUpdateType = CandleUpdateType.FullBar,
 ) {
 
@@ -15,8 +17,13 @@ class BarReplay(
     fun newSession(
         session: (currentOffset: Int, currentCandleState: CandleState) -> BarReplaySession,
     ): BarReplaySession {
+
         contract { callsInPlace(session, InvocationKind.EXACTLY_ONCE) }
-        return session(offset, candleState).also(sessionList::add)
+
+        return session(offset, candleState).also {
+            check(it.inputSeries.timeframe == timeframe) { "BarReplay: Session timeframe is invalid" }
+            sessionList.add(it)
+        }
     }
 
     fun removeSession(session: BarReplaySession) {

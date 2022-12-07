@@ -22,8 +22,9 @@ import launchUnit
 import trading.CandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplay
-import trading.barreplay.BarReplaySession
 import trading.barreplay.CandleUpdateType
+import trading.barreplay.ResampledBarReplaySession
+import trading.barreplay.SimpleBarReplaySession
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import ui.barreplay.charts.model.*
@@ -51,7 +52,10 @@ internal class ReplayChartsPresenter(
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val barReplay = BarReplay(if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC)
+    private val barReplay = BarReplay(
+        timeframe = baseTimeframe,
+        candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
+    )
     private val tabbedChartState = TabbedChartState(coroutineScope)
     private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
     private var autoNextJob: Job? = null
@@ -282,8 +286,17 @@ internal class ReplayChartsPresenter(
         // Stop watching live candles
         dataManager.unsubscribeLiveCandles()
 
+        // Remove session from BarReplay
+        barReplay.removeSession(dataManager.replaySession)
+
         // Create new resampled data manager
-        val newDataManager = dataManager.copy(timeframe = timeframe)
+        val newDataManager = createReplayDataManager(
+            chartId = currentChartId,
+            symbol = dataManager.symbol,
+            timeframe = timeframe,
+            // Keep chart but reset data
+            chart = dataManager.chart,
+        )
 
         // Replace previous data manager with new data manager at same location
         dataManagers.removeAt(dataManagerIndex)
@@ -303,17 +316,28 @@ internal class ReplayChartsPresenter(
         chart: ReplayChart,
     ): ReplayDataManager {
 
-        val candleSeries = getCandleSeries(symbol)
+        val candleSeries = getCandleSeries(symbol, baseTimeframe)
+        val timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(symbol, timeframe)
 
         val replaySession = barReplay.newSession { currentOffset, currentCandleState ->
 
-            BarReplaySession(
-                inputSeries = candleSeries,
-                initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
-                currentOffset = currentOffset,
-                currentCandleState = currentCandleState,
-                isSessionStart = ::dailySessionStart,
-            )
+            when (baseTimeframe) {
+                timeframe -> SimpleBarReplaySession(
+                    inputSeries = candleSeries,
+                    initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
+                    currentOffset = currentOffset,
+                    currentCandleState = currentCandleState,
+                )
+
+                else -> ResampledBarReplaySession(
+                    inputSeries = candleSeries,
+                    initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
+                    currentOffset = currentOffset,
+                    currentCandleState = currentCandleState,
+                    timeframeSeries = timeframeSeries!!,
+                    isSessionStart = ::dailySessionStart,
+                )
+            }
         }
 
         return ReplayDataManager(
@@ -325,11 +349,14 @@ internal class ReplayChartsPresenter(
         )
     }
 
-    private suspend fun getCandleSeries(symbol: String): CandleSeries = candleCache.getOrPut(symbol) {
+    private suspend fun getCandleSeries(
+        symbol: String,
+        timeframe: Timeframe,
+    ): CandleSeries = candleCache.getOrPut("${symbol}_${timeframe.seconds}") {
 
         val candleSeriesResult = candleRepo.getCandles(
             symbol = symbol,
-            timeframe = baseTimeframe,
+            timeframe = timeframe,
             from = dataFrom,
             to = dataTo,
         )

@@ -23,19 +23,14 @@ internal data class ReplayDataManager(
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    private val chartCandleSeries = when (timeframe) {
-        replaySession.inputSeries.timeframe!! -> replaySession.replaySeries
-        else -> replaySession.resampled(timeframe)
-    }
-
-    private val ema9Indicator = EMAIndicator(ClosePriceIndicator(chartCandleSeries), length = 9)
-    private val vwapIndicator = VWAPIndicator(chartCandleSeries, ::dailySessionStart)
+    private val ema9Indicator = EMAIndicator(ClosePriceIndicator(replaySession.replaySeries), length = 9)
+    private val vwapIndicator = VWAPIndicator(replaySession.replaySeries, ::dailySessionStart)
 
     init {
         setInitialData()
 
         coroutineScope.launch {
-            chartCandleSeries.live.collect(::update)
+            replaySession.replaySeries.live.collect(::update)
         }
     }
 
@@ -49,7 +44,7 @@ internal data class ReplayDataManager(
 
     private fun setInitialData() {
 
-        val data = chartCandleSeries.mapIndexed { index, candle ->
+        val data = replaySession.replaySeries.mapIndexed { index, candle ->
             ReplayChart.Data(
                 candle = candle,
                 ema9 = ema9Indicator[index],
@@ -62,7 +57,7 @@ internal data class ReplayDataManager(
 
     private fun update(candle: Candle) {
 
-        val index = chartCandleSeries.indexOf(candle)
+        val index = replaySession.replaySeries.indexOf(candle)
 
         chart.update(
             ReplayChart.Data(
