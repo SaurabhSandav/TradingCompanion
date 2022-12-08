@@ -108,9 +108,6 @@ internal class CandleRepository(
                 is Ok -> candles.addAll(result.value)
             }
 
-            // API Rate limit
-            delay(400)
-
             currentFrom = currentTo
             val newCurrentTo = currentFrom + downloadInterval
             currentTo = if (newCurrentTo > correctedTo) correctedTo else newCurrentTo

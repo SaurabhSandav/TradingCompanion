@@ -37,6 +37,8 @@ class FyersApi {
         }
     }
 
+    private val rateLimiter = FyersRateLimiter()
+
     private val redirectURL = "http://localhost:8080"
 
     fun getLoginURL(): String {
@@ -51,6 +53,9 @@ class FyersApi {
     }
 
     suspend fun getAccessToken(redirectUrl: String): FyersResponse<AuthValidationResult> {
+
+        // Rate-limit
+        rateLimiter.limit()
 
         val requestBody = AuthValidationRequest(
             code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
@@ -75,6 +80,9 @@ class FyersApi {
         rangeTo: String,
     ): FyersResponse<HistoricalCandlesResult> {
 
+        // Rate-limit
+        rateLimiter.limit()
+
         val response = client.get("https://api.fyers.in/data-rest/v2/history/") {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
             parameter("symbol", symbol)
@@ -92,6 +100,9 @@ class FyersApi {
         accessToken: String,
         symbols: List<String>,
     ): FyersResponse<Quotes> {
+
+        // Rate-limit
+        rateLimiter.limit()
 
         val response = client.get("https://api.fyers.in/data-rest/v2/quotes/") {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
