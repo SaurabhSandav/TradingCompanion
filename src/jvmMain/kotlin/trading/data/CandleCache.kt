@@ -13,7 +13,7 @@ interface CandleCache {
         to: Instant,
     )
 
-    suspend fun getAvailableCandleRange(
+    suspend fun getCachedRange(
         symbol: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
@@ -25,7 +25,7 @@ interface CandleCache {
         to: Instant,
     ): List<Candle>
 
-    suspend fun writeCandles(
+    suspend fun save(
         symbol: String,
         timeframe: Timeframe,
         candles: List<Candle>,

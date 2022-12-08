@@ -22,9 +22,29 @@ internal class CandleRepository(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ): Result<CandleSeries, Error> = withContext(Dispatchers.IO) {
+    ): Result<CandleSeries, Error> {
 
-        val availableRange = candleCache.getAvailableCandleRange(symbol, timeframe)
+        // Download entire range / Fill gaps at ends of cached range (if necessary)
+        val fillResult = checkAndFillRange(symbol, timeframe, from, to)
+        if (fillResult is Err) return fillResult
+
+        // Fetch candles
+        val candleSeries = MutableCandleSeries(
+            initial = candleCache.fetch(symbol, timeframe, from, to),
+            timeframe = timeframe,
+        ).asCandleSeries()
+
+        return Ok(candleSeries)
+    }
+
+    private suspend fun checkAndFillRange(
+        symbol: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    ): Result<Unit, Error> {
+
+        val availableRange = candleCache.getCachedRange(symbol, timeframe)
 
         fun ClosedRange<Instant>.prevCandleInstant() = start.minus(timeframe.seconds, DateTimeUnit.SECOND)
         fun ClosedRange<Instant>.nextCandleInstant() = endInclusive.plus(timeframe.seconds, DateTimeUnit.SECOND)
@@ -65,35 +85,31 @@ internal class CandleRepository(
         }
 
         downloadRanges.forEach { range ->
-            when (val result = download(symbol, timeframe, range.start, range.endInclusive)) {
-                is Ok -> candleCache.writeCandles(symbol, timeframe, result.value)
-                is Err -> return@withContext when (val error = result.error) {
+            when (val result = download(symbol, timeframe, range)) {
+                is Ok -> candleCache.save(symbol, timeframe, result.value)
+                is Err -> return when (val error = result.error) {
                     is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
                     is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
                 }
             }
         }
 
-        val candleSeries = MutableCandleSeries(
-            initial = candleCache.fetch(symbol, timeframe, from, to),
-            timeframe = timeframe,
-        ).asCandleSeries()
-
-        return@withContext Ok(candleSeries)
+        return Ok(Unit)
     }
 
     private suspend fun download(
         symbol: String,
         timeframe: Timeframe,
-        from: Instant,
-        to: Instant,
+        range: ClosedRange<Instant>,
     ): Result<List<Candle>, CandleDownloader.Error> {
 
+        val from = range.start
+        val to = range.endInclusive
         val currentTime = Clock.System.now()
         val correctedTo = if (currentTime < to) currentTime else to
 
-        require(from < currentTime) { "Candle Download: from must be before current time" }
-        require(from < correctedTo) { "Candle Download: from must be less than to" }
+        // Invalid range, return success with no candles
+        if (from == correctedTo || from > currentTime) return Ok(emptyList())
 
         // Download candles
         val candles = when (val result = candleDownloader.download(symbol, timeframe, from, correctedTo)) {

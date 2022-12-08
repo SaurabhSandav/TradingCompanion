@@ -45,7 +45,7 @@ internal class CandleCacheDB(
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
         val checkedRangeQueries = candleDBCollection.get(symbol, timeframe).checkedRangeQueries
-        val currentRange = getAvailableCandleRange(symbol, timeframe)
+        val currentRange = getCachedRange(symbol, timeframe)
 
         // Expand range on either side
         val minFrom = minOf(from, currentRange?.start ?: from)
@@ -54,7 +54,7 @@ internal class CandleCacheDB(
         checkedRangeQueries.insert(minFrom.epochSeconds, maxTo.epochSeconds)
     }
 
-    override suspend fun getAvailableCandleRange(
+    override suspend fun getCachedRange(
         symbol: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>? {
@@ -92,7 +92,7 @@ internal class CandleCacheDB(
         }.asFlow().mapToList(Dispatchers.IO).first()
     }
 
-    override suspend fun writeCandles(
+    override suspend fun save(
         symbol: String,
         timeframe: Timeframe,
         candles: List<Candle>,
