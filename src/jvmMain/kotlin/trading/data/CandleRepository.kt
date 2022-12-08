@@ -10,7 +10,6 @@ import kotlinx.datetime.*
 import kotlinx.serialization.json.*
 import trading.*
 import kotlin.io.path.*
-import kotlin.time.Duration.Companion.days
 
 internal class CandleRepository(
     appModule: AppModule,
@@ -92,29 +91,20 @@ internal class CandleRepository(
 
         val currentTime = Clock.System.now()
         val correctedTo = if (currentTime < to) currentTime else to
-        val downloadInterval = DownloadIntervalDays.days
-        val requestedInterval = correctedTo - from
-        val candles = mutableListOf<Candle>()
 
-        var currentFrom = from
-        var currentTo = if (requestedInterval > downloadInterval) from + downloadInterval else correctedTo
+        require(from < currentTime) { "Candle Download: from must be before current time" }
+        require(from < correctedTo) { "Candle Download: from must be less than to" }
 
-        if (currentFrom > currentTo) return Ok(emptyList())
-
-        while (currentTo <= correctedTo && currentFrom != currentTo) {
-
-            when (val result = candleDownloader.download(symbol, timeframe, currentFrom, currentTo)) {
-                is Err -> return result
-                is Ok -> candles.addAll(result.value)
-            }
-
-            currentFrom = currentTo
-            val newCurrentTo = currentFrom + downloadInterval
-            currentTo = if (newCurrentTo > correctedTo) correctedTo else newCurrentTo
+        // Download candles
+        val candles = when (val result = candleDownloader.download(symbol, timeframe, from, correctedTo)) {
+            is Err -> return result
+            is Ok -> result.value
         }
 
+        // Save checked range to avoid re-attempt at downloading already checked range
         candleCache.saveCheckedRange(symbol, timeframe, from, correctedTo)
 
+        // Success
         return Ok(candles)
     }
 
@@ -127,5 +117,3 @@ internal class CandleRepository(
         class UnknownError(override val message: String) : Error()
     }
 }
-
-private const val DownloadIntervalDays = 31
