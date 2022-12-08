@@ -4,6 +4,7 @@ import AppModule
 import com.saurabhsandav.core.CandleDB
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -34,19 +35,37 @@ internal class CandleCacheDB(
     private val candleDBCollection: CandleDBCollection = appModule.candleDBCollection,
 ) : CandleCache {
 
+    override suspend fun saveCheckedRange(
+        symbol: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    ) = withContext(Dispatchers.IO) {
+
+        // Assumes calling code downloads candles in a single expanding range without any gaps
+
+        val checkedRangeQueries = candleDBCollection.get(symbol, timeframe).checkedRangeQueries
+        val currentRange = getAvailableCandleRange(symbol, timeframe)
+
+        // Expand range on either side
+        val minFrom = minOf(from, currentRange?.start ?: from)
+        val maxTo = maxOf(to, currentRange?.endInclusive ?: to)
+
+        checkedRangeQueries.insert(minFrom.epochSeconds, maxTo.epochSeconds)
+    }
+
     override suspend fun getAvailableCandleRange(
         symbol: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>? {
 
-        val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
-        val result = candlesQueries.getRange().asFlow().mapToList(Dispatchers.IO).first()
-            .map(Instant.Companion::fromEpochSeconds)
+        val checkedRangeQueries = candleDBCollection.get(symbol, timeframe).checkedRangeQueries
 
-        return when {
-            result.isEmpty() -> null
-            else -> result[0]..result[1]
-        }
+        return checkedRangeQueries
+            .get { _, start, end -> Instant.fromEpochSeconds(start)..Instant.fromEpochSeconds(end) }
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .first()
     }
 
     override suspend fun fetch(

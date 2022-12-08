@@ -6,6 +6,13 @@ import trading.Timeframe
 
 interface CandleCache {
 
+    suspend fun saveCheckedRange(
+        symbol: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    )
+
     suspend fun getAvailableCandleRange(
         symbol: String,
         timeframe: Timeframe,

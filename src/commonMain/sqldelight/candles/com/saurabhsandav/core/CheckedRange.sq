@@ -1,0 +1,14 @@
+
+CREATE TABLE IF NOT EXISTS CheckedRange (
+    id INTEGER PRIMARY KEY CHECK (id = 0),
+    fromEpochSeconds INTEGER AS Long NOT NULL,
+    toEpochSeconds INTEGER AS Long NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO CheckedRange
+VALUES (0, ?, ?);
+
+get:
+SELECT * FROM CheckedRange
+WHERE id = 0;

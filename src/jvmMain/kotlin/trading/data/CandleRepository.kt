@@ -116,6 +116,8 @@ internal class CandleRepository(
             currentTo = if (newCurrentTo > correctedTo) correctedTo else newCurrentTo
         }
 
+        candleCache.saveCheckedRange(symbol, timeframe, from, correctedTo)
+
         return Ok(candles)
     }
 
