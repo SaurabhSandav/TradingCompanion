@@ -12,12 +12,33 @@ insert:
 INSERT OR REPLACE INTO Candles
 VALUES (?, ?, ?, ?, ?, ?);
 
-getRange:
-SELECT epochSeconds FROM (SELECT * FROM Candles ORDER BY epochSeconds ASC LIMIT 1)
-UNION
-SELECT epochSeconds FROM (SELECT * FROM Candles ORDER BY epochSeconds DESC LIMIT 1);
-
 getInRange:
 SELECT * FROM Candles
 WHERE epochSeconds BETWEEN :from AND :to
 ORDER BY epochSeconds;
+
+getEpochSecondsAndCountAt:
+SELECT * FROM (
+  SELECT MIN(epochSeconds), COUNT(*) FROM Candles
+  WHERE epochSeconds <= :at
+)
+UNION ALL
+SELECT * FROM (
+  SELECT MAX(epochSeconds), COUNT(*) FROM Candles
+  WHERE epochSeconds > :at
+);
+
+getAtByCount:
+SELECT * FROM (
+  SELECT * FROM Candles
+  WHERE epochSeconds <= :at
+  ORDER BY epochSeconds DESC
+  LIMIT :before
+)
+UNION
+SELECT * FROM (
+  SELECT * FROM Candles
+  WHERE epochSeconds > :at
+  ORDER BY epochSeconds ASC
+  LIMIT :after
+);
