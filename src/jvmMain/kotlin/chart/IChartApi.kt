@@ -1,11 +1,14 @@
 package chart
 
 import chart.callbacks.CallbackDelegate
+import chart.callbacks.CommandCallback
 import chart.callbacks.MouseEventHandler
 import chart.data.*
 import chart.options.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class IChartApi internal constructor(
     container: String = "document.body",
@@ -25,12 +28,19 @@ class IChartApi internal constructor(
 
     private val seriesList = mutableListOf<ISeriesApi<*>>()
     private val callbacksDelegate = CallbackDelegate(name, seriesList)
+    private var nextCommandCallbackId = 0
 
     val scripts: Flow<String>
         get() = _scripts
 
     private val reference = "$chartInstanceReference.chart"
-    val timeScale = ITimeScaleApi(reference, chartInstanceReference, callbacksDelegate, ::executeJs)
+    val timeScale = ITimeScaleApi(
+        receiver = reference,
+        chartInstanceReference = chartInstanceReference,
+        callbacksDelegate = callbacksDelegate,
+        executeJs = ::executeJs,
+        executeJsWithResult = ::executeJsWithResult,
+    )
     val priceScale = IPriceScaleApi(reference, ::executeJs)
 
     init {
@@ -165,5 +175,32 @@ class IChartApi internal constructor(
 
     private fun executeJs(script: String) {
         _scripts.tryEmit(script)
+    }
+
+    private suspend fun executeJsWithResult(command: String): String = suspendCoroutine { continuation ->
+
+        val id = nextCommandCallbackId++
+
+        val commandCallback = CommandCallback(
+            id = id,
+            onResult = continuation::resume,
+        )
+
+        callbacksDelegate.commandCallbacks += commandCallback
+
+        executeJs(
+            """
+            |(function() {
+            |  var result = $command;
+            |  chartCallback(
+            |    JSON.stringify(new ChartCallback(
+            |      "$name",
+            |      "commandCallback",
+            |      { id: $id, result: result },
+            |    ))
+            |  );
+            |})()
+            """.trimMargin()
+        )
     }
 }

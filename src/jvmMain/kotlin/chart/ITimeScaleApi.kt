@@ -5,6 +5,8 @@ import chart.callbacks.LogicalRangeChangeEventHandler
 import chart.callbacks.SizeChangeEventHandler
 import chart.callbacks.TimeRangeChangeEventHandler
 import chart.data.Time
+import chart.misc.LogicalRange
+import chart.misc.TimeRange
 import chart.options.TimeScaleOptions
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -14,6 +16,7 @@ class ITimeScaleApi internal constructor(
     chartInstanceReference: String,
     private val callbacksDelegate: CallbackDelegate,
     private val executeJs: (String) -> Unit,
+    private val executeJsWithResult: suspend (String) -> String,
 ) {
 
     private val subscribeVisibleTimeRangeChangeCallbackReference =
@@ -22,8 +25,17 @@ class ITimeScaleApi internal constructor(
         "$chartInstanceReference.subscribeVisibleLogicalRangeChangeCallback"
     private val subscribeSizeChangeCallbackReference = "$chartInstanceReference.subscribeSizeChangeCallback"
 
+    suspend fun scrollPosition(): Float {
+        return executeJsWithResult("$receiver.timeScale().scrollPosition()").toFloat()
+    }
+
     fun scrollToPosition(position: Int, animated: Boolean) {
         executeJs("$receiver.timeScale().scrollToPosition($position, $animated);")
+    }
+
+    suspend fun getVisibleRange(): TimeRange? {
+        val result = executeJsWithResult("$receiver.timeScale().getVisibleRange()")
+        return TimeRange.fromJson(result)
     }
 
     fun setVisibleRange(from: Time, to: Time) {
@@ -34,6 +46,11 @@ class ITimeScaleApi internal constructor(
         }
 
         executeJs("$receiver.timeScale().setVisibleRange($rangeStr);")
+    }
+
+    suspend fun getVisibleLogicalRange(): LogicalRange? {
+        val result = executeJsWithResult("$receiver.timeScale().getVisibleLogicalRange()")
+        return LogicalRange.fromJson(result)
     }
 
     fun setVisibleLogicalRange(from: Int, to: Int) {

@@ -1,15 +1,18 @@
 package chart.callbacks
 
 import chart.ISeriesApi
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.float
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import chart.misc.LogicalRange
+import chart.misc.MouseEventParams
+import chart.misc.TimeRange
+import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
     private val chartName: String,
     private val seriesList: List<ISeriesApi<*>>,
 ) {
+
+    // Commands
+    internal val commandCallbacks = mutableListOf<CommandCallback>()
 
     // Chart
     internal val subscribeClickCallbacks = mutableListOf<MouseEventHandler>()
@@ -69,6 +72,18 @@ internal class CallbackDelegate(
                 val height = result.jsonObject["height"]!!.jsonPrimitive.float
 
                 subscribeSizeChangeCallbacks.forEach { it.onEvent(width, height) }
+            }
+
+            "commandCallback" -> {
+
+                val message = Json.parseToJsonElement(chartCallback.message)
+                val id = message.jsonObject["id"]!!.jsonPrimitive.int
+                val result = message.jsonObject["result"]!!.toString()
+
+                val callback = commandCallbacks.find { it.id == id }!!
+                commandCallbacks -= callback
+
+                callback.onResult(result)
             }
 
             else -> error("Unknown callback type. Callback: $chartCallback")
