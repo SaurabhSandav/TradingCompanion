@@ -1,17 +1,24 @@
 package chart.callbacks
 
 import chart.ISeriesApi
-import chart.data.GeneralData
-import chart.data.Time
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 internal class CallbackDelegate(
     private val chartName: String,
     private val seriesList: List<ISeriesApi<*>>,
 ) {
 
+    // Chart
     internal val subscribeClickCallbacks = mutableListOf<MouseEventHandler>()
     internal val subscribeCrosshairMoveCallbacks = mutableListOf<MouseEventHandler>()
+
+    // Timescale
+    internal val subscribeVisibleTimeRangeChangeCallbacks = mutableListOf<TimeRangeChangeEventHandler>()
+    internal val subscribeVisibleLogicalRangeChangeCallbacks = mutableListOf<LogicalRangeChangeEventHandler>()
+    internal val subscribeSizeChangeCallbacks = mutableListOf<SizeChangeEventHandler>()
 
     fun onCallback(callbackStr: String) {
 
@@ -29,70 +36,42 @@ internal class CallbackDelegate(
         when (chartCallback.callbackType) {
             "subscribeClickCallback" -> {
 
-                val params = MouseEventParams(Json.parseToJsonElement(chartCallback.message), seriesList)
+                val params = MouseEventParams.fromJson(chartCallback.message, seriesList)
 
                 subscribeClickCallbacks.forEach { it.onEvent(params) }
             }
 
             "subscribeCrosshairMoveCallback" -> {
 
-                val params = MouseEventParams(Json.parseToJsonElement(chartCallback.message), seriesList)
+                val params = MouseEventParams.fromJson(chartCallback.message, seriesList)
 
                 subscribeCrosshairMoveCallbacks.forEach { it.onEvent(params) }
             }
-        }
-    }
 
-    private fun MouseEventParams(
-        paramsElement: JsonElement,
-        seriesList: List<ISeriesApi<*>>,
-    ): MouseEventParams {
+            "subscribeVisibleTimeRangeChangeCallback" -> {
 
-        val time = when (val time = paramsElement.jsonObject["time"]) {
-            is JsonObject -> Time.BusinessDay(
-                year = time["year"]!!.jsonPrimitive.int,
-                month = time["month"]!!.jsonPrimitive.int,
-                day = time["day"]!!.jsonPrimitive.int,
-            )
+                val range = TimeRange.fromJson(chartCallback.message)
 
-            is JsonPrimitive -> when {
-                time.isString -> Time.String(time.content)
-                else -> Time.UTCTimestamp(time.long)
+                subscribeVisibleTimeRangeChangeCallbacks.forEach { it.onEvent(range) }
             }
 
-            else -> null
-        }
+            "subscribeVisibleLogicalRangeChangeCallback" -> {
 
-        val point = paramsElement.jsonObject["point"]?.let {
-            val x = it.jsonObject["x"]!!.jsonPrimitive.float
-            val y = it.jsonObject["y"]!!.jsonPrimitive.float
-            Point(x = x, y = y)
-        }
+                val range = LogicalRange.fromJson(chartCallback.message)
 
-        val seriesPrices = paramsElement.jsonObject["seriesPrices"]?.jsonArray?.associate {
-
-            val name = it.jsonArray[0].jsonPrimitive.content
-            val series = seriesList.find { series -> series.name == name }!!
-
-            val value = when (val data = it.jsonArray[1]) {
-                is JsonObject -> GeneralData.BarPrices(
-                    open = data["open"]!!.jsonPrimitive.content.toBigDecimal(),
-                    high = data["high"]!!.jsonPrimitive.content.toBigDecimal(),
-                    low = data["low"]!!.jsonPrimitive.content.toBigDecimal(),
-                    close = data["close"]!!.jsonPrimitive.content.toBigDecimal(),
-                )
-
-                is JsonPrimitive -> GeneralData.BarPrice(data.content.toBigDecimal())
-                else -> error("MouseEventParams: Invalid GenericData")
+                subscribeVisibleLogicalRangeChangeCallbacks.forEach { it.onEvent(range) }
             }
 
-            series to value
-        }.orEmpty()
+            "subscribeSizeChangeCallback" -> {
 
-        return MouseEventParams(
-            time = time,
-            point = point,
-            seriesPrices = seriesPrices,
-        )
+                val result = Json.parseToJsonElement(chartCallback.message)
+                val width = result.jsonObject["width"]!!.jsonPrimitive.float
+                val height = result.jsonObject["height"]!!.jsonPrimitive.float
+
+                subscribeSizeChangeCallbacks.forEach { it.onEvent(width, height) }
+            }
+
+            else -> error("Unknown callback type. Callback: $chartCallback")
+        }
     }
 }

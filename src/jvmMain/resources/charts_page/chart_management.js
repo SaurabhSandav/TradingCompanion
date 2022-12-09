@@ -25,6 +25,33 @@ class ChartInstance {
         ), replacerSeriesByName(seriesMap))
       );
     })
+    this.subscribeVisibleTimeRangeChangeCallback = (function (timeRange) {
+      chartCallback(
+        JSON.stringify(new ChartCallback(
+          name,
+          "subscribeVisibleTimeRangeChangeCallback",
+          timeRange,
+        ))
+      );
+    })
+    this.subscribeVisibleLogicalRangeChangeCallback = (function (logicalRange) {
+      chartCallback(
+        JSON.stringify(new ChartCallback(
+          name,
+          "subscribeVisibleLogicalRangeChangeCallback",
+          logicalRange,
+        ))
+      );
+    })
+    this.subscribeSizeChangeCallback = (function (width, height) {
+      chartCallback(
+        JSON.stringify(new ChartCallback(
+          name,
+          "subscribeSizeChangeCallback",
+          { width: width, height: height },
+        ))
+      );
+    })
   }
 }
 

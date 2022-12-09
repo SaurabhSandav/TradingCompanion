@@ -29,8 +29,8 @@ class IChartApi internal constructor(
     val scripts: Flow<String>
         get() = _scripts
 
-    val reference = "$chartInstanceReference.chart"
-    val timeScale = ITimeScaleApi(this, ::executeJs)
+    private val reference = "$chartInstanceReference.chart"
+    val timeScale = ITimeScaleApi(reference, chartInstanceReference, callbacksDelegate, ::executeJs)
     val priceScale = IPriceScaleApi(reference, ::executeJs)
 
     init {

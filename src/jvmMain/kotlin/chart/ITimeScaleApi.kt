@@ -1,17 +1,29 @@
 package chart
 
+import chart.callbacks.CallbackDelegate
+import chart.callbacks.LogicalRangeChangeEventHandler
+import chart.callbacks.SizeChangeEventHandler
+import chart.callbacks.TimeRangeChangeEventHandler
 import chart.data.Time
 import chart.options.TimeScaleOptions
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class ITimeScaleApi(
-    private val chart: IChartApi,
+class ITimeScaleApi internal constructor(
+    private val receiver: String,
+    chartInstanceReference: String,
+    private val callbacksDelegate: CallbackDelegate,
     private val executeJs: (String) -> Unit,
 ) {
 
+    private val subscribeVisibleTimeRangeChangeCallbackReference =
+        "$chartInstanceReference.subscribeVisibleTimeRangeChangeCallback"
+    private val subscribeVisibleLogicalRangeChangeCallbackReference =
+        "$chartInstanceReference.subscribeVisibleLogicalRangeChangeCallback"
+    private val subscribeSizeChangeCallbackReference = "$chartInstanceReference.subscribeSizeChangeCallback"
+
     fun scrollToPosition(position: Int, animated: Boolean) {
-        executeJs("${chart.reference}.timeScale().scrollToPosition($position, $animated);")
+        executeJs("$receiver.timeScale().scrollToPosition($position, $animated);")
     }
 
     fun setVisibleRange(from: Time, to: Time) {
@@ -21,7 +33,7 @@ class ITimeScaleApi(
             put("to", to.toJsonElement())
         }
 
-        executeJs("${chart.reference}.timeScale().setVisibleRange($rangeStr);")
+        executeJs("$receiver.timeScale().setVisibleRange($rangeStr);")
     }
 
     fun setVisibleLogicalRange(from: Int, to: Int) {
@@ -31,17 +43,65 @@ class ITimeScaleApi(
             put("to", to)
         }
 
-        executeJs("${chart.reference}.timeScale().setVisibleLogicalRange($rangeStr);")
+        executeJs("$receiver.timeScale().setVisibleLogicalRange($rangeStr);")
     }
 
     fun fitContent() {
-        executeJs("${chart.reference}.timeScale().fitContent();")
+        executeJs("$receiver.timeScale().fitContent();")
+    }
+
+    fun subscribeVisibleTimeRangeChange(handler: TimeRangeChangeEventHandler) {
+
+        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().subscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);")
+
+        callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.add(handler)
+    }
+
+    fun unsubscribeVisibleTimeRangeChange(handler: TimeRangeChangeEventHandler) {
+
+        callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.remove(handler)
+
+        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().unsubscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);")
+    }
+
+    fun subscribeVisibleLogicalRangeChange(handler: LogicalRangeChangeEventHandler) {
+
+        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().subscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);")
+
+        callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.add(handler)
+    }
+
+    fun unsubscribeVisibleLogicalRangeChange(handler: LogicalRangeChangeEventHandler) {
+
+        callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.remove(handler)
+
+        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().unsubscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);")
+    }
+
+    fun subscribeSizeChange(handler: SizeChangeEventHandler) {
+
+        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().subscribeSizeChange($subscribeSizeChangeCallbackReference);")
+
+        callbacksDelegate.subscribeSizeChangeCallbacks.add(handler)
+    }
+
+    fun unsubscribeSizeChange(handler: SizeChangeEventHandler) {
+
+        callbacksDelegate.subscribeSizeChangeCallbacks.remove(handler)
+
+        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty())
+            executeJs("$receiver.timeScale().unsubscribeSizeChange($subscribeSizeChangeCallbackReference);")
     }
 
     fun applyOptions(options: TimeScaleOptions) {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("${chart.reference}.timeScale().applyOptions($optionsJson);")
+        executeJs("$receiver.timeScale().applyOptions($optionsJson);")
     }
 }
