@@ -5,8 +5,9 @@ import chart.callbacks.CommandCallback
 import chart.callbacks.MouseEventHandler
 import chart.data.*
 import chart.options.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -16,10 +17,7 @@ class IChartApi internal constructor(
     val name: String = "chart",
 ) {
 
-    private val _scripts = MutableSharedFlow<String>(
-        replay = Int.MAX_VALUE,
-        extraBufferCapacity = Int.MAX_VALUE,
-    )
+    private val _scripts = Channel<String>(Channel.UNLIMITED)
 
     private val chartInstanceReference = "charts.get(\"$name\")"
     private val seriesMapReference = "$chartInstanceReference.seriesMap"
@@ -30,8 +28,7 @@ class IChartApi internal constructor(
     private val callbacksDelegate = CallbackDelegate(name, seriesList)
     private var nextCommandCallbackId = 0
 
-    val scripts: Flow<String>
-        get() = _scripts
+    val scripts: Flow<String> = _scripts.consumeAsFlow()
 
     private val reference = "$chartInstanceReference.chart"
     val timeScale = ITimeScaleApi(
@@ -174,7 +171,7 @@ class IChartApi internal constructor(
     }
 
     private fun executeJs(script: String) {
-        _scripts.tryEmit(script)
+        _scripts.trySend(script)
     }
 
     private suspend fun executeJsWithResult(command: String): String = suspendCoroutine { continuation ->
