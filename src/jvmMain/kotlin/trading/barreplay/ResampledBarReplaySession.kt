@@ -44,7 +44,7 @@ class ResampledBarReplaySession(
         val currentIndex = initialIndex + offset
 
         val candle = when {
-            isResampleCandleStart(inputSeries, currentIndex, timeframeSeries.timeframe!!) -> {
+            isResampleCandleStart(inputSeries, currentIndex, timeframeSeries.timeframe) -> {
 
                 // Replace previous finished candle with timeframe candle
                 _replaySeries.removeLast()
@@ -70,7 +70,7 @@ class ResampledBarReplaySession(
         val currentIndex = initialIndex + offset
 
         val candle = when {
-            isResampleCandleStart(inputSeries, currentIndex, timeframeSeries.timeframe!!)
+            isResampleCandleStart(inputSeries, currentIndex, timeframeSeries.timeframe)
                     && candleState == BarReplay.CandleState.Open -> {
 
                 // Replace previous finished candle with timeframe candle

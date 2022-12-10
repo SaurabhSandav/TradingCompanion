@@ -6,7 +6,7 @@ import java.math.MathContext
 
 interface CandleSeries : List<Candle> {
 
-    val timeframe: Timeframe?
+    val timeframe: Timeframe
 
     val live: Flow<Candle>
 

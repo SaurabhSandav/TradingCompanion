@@ -17,26 +17,26 @@ interface MutableCandleSeries : CandleSeries {
 
         operator fun invoke(
             initial: List<Candle> = emptyList(),
+            timeframe: Timeframe,
             maxCandleCount: Int = Int.MAX_VALUE,
             indicatorMathContext: MathContext = MathContext(
                 20,
                 RoundingMode.HALF_EVEN,
             ),
-            timeframe: Timeframe? = null,
         ): MutableCandleSeries = MutableCandleSeriesImpl(
             initial = initial,
+            timeframe = timeframe,
             maxCandleCount = maxCandleCount,
             indicatorMathContext = indicatorMathContext,
-            timeframe = timeframe,
         )
     }
 }
 
 private class MutableCandleSeriesImpl(
     initial: List<Candle>,
+    override val timeframe: Timeframe,
     private val maxCandleCount: Int,
     override val indicatorMathContext: MathContext,
-    override val timeframe: Timeframe?,
     private val list: MutableList<Candle> = mutableListOf(),
 ) : MutableCandleSeries, List<Candle> by list {
 

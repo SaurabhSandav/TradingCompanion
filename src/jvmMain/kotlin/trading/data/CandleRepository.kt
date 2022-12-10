@@ -23,19 +23,14 @@ internal class CandleRepository(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ): Result<CandleSeries, Error> {
+    ): Result<List<Candle>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
         val fillResult = checkAndFillRange(symbol, timeframe, from, to)
         if (fillResult is Err) return fillResult
 
-        // Fetch candles
-        val candleSeries = MutableCandleSeries(
-            initial = candleCache.fetchRange(symbol, timeframe, from, to),
-            timeframe = timeframe,
-        ).asCandleSeries()
-
-        return Ok(candleSeries)
+        // Fetch and return candles
+        return Ok(candleCache.fetchRange(symbol, timeframe, from, to))
     }
 
     suspend fun getCandles(
@@ -44,19 +39,14 @@ internal class CandleRepository(
         at: Instant,
         before: Int,
         after: Int,
-    ): Result<CandleSeries, Error> {
+    ): Result<List<Candle>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
         val fillResult = checkAndFillRangeByCount(symbol, timeframe, at, before, after)
         if (fillResult is Err) return fillResult
 
-        // Fetch candles
-        val candleSeries = MutableCandleSeries(
-            initial = candleCache.fetchByCount(symbol, timeframe, at, before, after),
-            timeframe = timeframe,
-        ).asCandleSeries()
-
-        return Ok(candleSeries)
+        // Fetch and return candles
+        return Ok(candleCache.fetchByCount(symbol, timeframe, at, before, after))
     }
 
     private suspend fun checkAndFillRange(

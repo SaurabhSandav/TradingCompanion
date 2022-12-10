@@ -6,7 +6,7 @@ internal fun BigDecimal.isZero(): Boolean = compareTo(BigDecimal.ZERO) == 0
 
 fun dailySessionStart(candleSeries: CandleSeries, index: Int): Boolean {
 
-    val timeframe = candleSeries.timeframe ?: error("Timeframe is necessary to detect session start")
+    val timeframe = candleSeries.timeframe
 
     return when {
         // First candle is considered start of session for simplicity

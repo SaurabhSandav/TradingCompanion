@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import launchUnit
 import trading.CandleSeries
+import trading.MutableCandleSeries
 import trading.Timeframe
 import trading.data.CandleRepository
 import ui.charts.model.ChartsEvent
@@ -259,7 +260,7 @@ internal class ChartsPresenter(
 
         val currentTime = Clock.System.now()
 
-        val candleSeriesResult = candleRepo.getCandles(
+        val candlesResult = candleRepo.getCandles(
             symbol = symbol,
             timeframe = timeframe,
             // Starting from 3 months before current time
@@ -267,9 +268,9 @@ internal class ChartsPresenter(
             to = currentTime,
         )
 
-        when (candleSeriesResult) {
-            is Ok -> candleSeriesResult.value
-            is Err -> when (val error = candleSeriesResult.error) {
+        when (candlesResult) {
+            is Ok ->  MutableCandleSeries(candlesResult.value, timeframe)
+            is Err -> when (val error = candlesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }

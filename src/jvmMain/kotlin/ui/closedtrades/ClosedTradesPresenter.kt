@@ -26,7 +26,9 @@ import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import launchUnit
 import model.Side
+import trading.MutableCandleSeries
 import trading.Timeframe
+import trading.asCandleSeries
 import trading.dailySessionStart
 import trading.data.CandleRepository
 import trading.indicator.ClosePriceIndicator
@@ -191,17 +193,18 @@ internal class ClosedTradesPresenter(
         // Candles range of 1 month before and after trade interval
         val from = entryDateTime.date - DatePeriod(months = 1)
         val to = exitDateTime.date + DatePeriod(months = 1)
+        val timeframe = Timeframe.M5
 
         // Get candles
         val candlesResult = CandleRepository(appModule).getCandles(
             symbol = closedTrade.ticker,
-            timeframe = Timeframe.M5,
+            timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
         )
 
         val candles = when (candlesResult) {
-            is Ok -> candlesResult.value
+            is Ok -> MutableCandleSeries(candlesResult.value, timeframe).asCandleSeries()
             is Err -> when (val error = candlesResult.error) {
                 is CandleRepository.Error.UnknownError -> {
                     errors += UIErrorMessage(error.message) { errors -= it }

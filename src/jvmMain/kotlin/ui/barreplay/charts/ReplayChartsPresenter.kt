@@ -20,6 +20,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import trading.CandleSeries
+import trading.MutableCandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplay
 import trading.barreplay.CandleUpdateType
@@ -354,16 +355,16 @@ internal class ReplayChartsPresenter(
         timeframe: Timeframe,
     ): CandleSeries = candleCache.getOrPut("${symbol}_${timeframe.seconds}") {
 
-        val candleSeriesResult = candleRepo.getCandles(
+        val candlesResult = candleRepo.getCandles(
             symbol = symbol,
             timeframe = timeframe,
             from = dataFrom,
             to = dataTo,
         )
 
-        when (candleSeriesResult) {
-            is Ok -> candleSeriesResult.value
-            is Err -> when (val error = candleSeriesResult.error) {
+        when (candlesResult) {
+            is Ok ->  MutableCandleSeries(candlesResult.value, timeframe)
+            is Err -> when (val error = candlesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
