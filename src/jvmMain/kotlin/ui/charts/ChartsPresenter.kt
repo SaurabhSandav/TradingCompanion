@@ -48,7 +48,7 @@ internal class ChartsPresenter(
     private var maxChartId = 0
     private var currentChartId = 0
     private val candleCache = mutableMapOf<String, CandleSeries>()
-    private val dataManagers = mutableListOf<DataManager>()
+    private val chartManagers = mutableListOf<ChartManager>()
 
     private var tabsState by mutableStateOf(TabsState(emptyList(), 0))
     private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe.toLabel()))
@@ -85,19 +85,19 @@ internal class ChartsPresenter(
             // Add new chart
             val chart = tabbedChartState.addChart("Chart$currentChartId", chartOptions)
 
-            // Create new data manager with initial params
-            val dataManager = createDataManager(
+            // Create new chart manager with initial params
+            val chartManager = createChartManager(
                 chartId = currentChartId,
                 symbol = initialSymbol,
                 timeframe = initialTimeframe,
                 chart = Chart(coroutineScope, appPrefs, chart) { legendValues = it },
             )
 
-            // Cache newly created data manager
-            dataManagers += dataManager
+            // Cache newly created chart manager
+            chartManagers += chartManager
 
             // Show Chart
-            tabbedChartState.showChart(dataManager.chart.chart)
+            tabbedChartState.showChart(chartManager.chart.chart)
 
             // Add new tab
             updateChartTabs()
@@ -112,23 +112,23 @@ internal class ChartsPresenter(
         // Add new chart
         val chart = tabbedChartState.addChart("Chart$id", chartOptions)
 
-        // Copy currently selected data manager
-        val dataManager = run {
+        // Copy currently selected chart manager
+        val chartManager = run {
 
-            // Find data manager associated with current chart
-            val dataManager = findDataManager(currentChartId)
+            // Find chart manager associated with current chart
+            val chartManager = findChartManager(currentChartId)
 
-            // Create new data manager with existing params
-            createDataManager(
+            // Create new chart manager with existing params
+            createChartManager(
                 chartId = id,
-                symbol = dataManager.symbol,
-                timeframe = dataManager.timeframe,
+                symbol = chartManager.symbol,
+                timeframe = chartManager.timeframe,
                 chart = Chart(coroutineScope, appPrefs, chart) { legendValues = it },
             )
         }
 
-        // Cache newly created data manager
-        dataManagers += dataManager
+        // Cache newly created chart manager
+        chartManagers += chartManager
 
         // Add new tab
         updateChartTabs()
@@ -139,66 +139,66 @@ internal class ChartsPresenter(
 
     private fun onCloseChart(id: Int) {
 
-        // Find data manager associated with chart
-        val dataManager = findDataManager(id)
+        // Find chart manager associated with chart
+        val chartManager = findChartManager(id)
 
-        // Hold currently selected data manager
-        val currentSelection = dataManagers[tabsState.selectedTabIndex]
+        // Hold currently selected chart manager
+        val currentSelection = chartManagers[tabsState.selectedTabIndex]
 
-        // Remove data manager from cache
-        dataManagers.remove(dataManager)
+        // Remove chart manager from cache
+        chartManagers.remove(chartManager)
 
         // Remove chart
-        tabbedChartState.removeChart(dataManager.chart.chart)
+        tabbedChartState.removeChart(chartManager.chart.chart)
 
         // Remove chart tab
         updateChartTabs()
 
         // Index of currently selected chart might've changed, change tab state accordingly
-        val newSelectionIndex = dataManagers.indexOf(currentSelection)
+        val newSelectionIndex = chartManagers.indexOf(currentSelection)
         tabsState = tabsState.copy(selectedTabIndex = newSelectionIndex)
     }
 
     private fun onSelectChart(id: Int) {
 
-        // Find data manager and index associated with current chart
-        val dataManager = findDataManager(id)
-        val dataManagerIndex = dataManagers.indexOf(dataManager)
+        // Find chart manager and index associated with current chart
+        val chartManager = findChartManager(id)
+        val chartManagerIndex = chartManagers.indexOf(chartManager)
 
         // Update current chart id
         currentChartId = id
 
         // Display newly selected chart info
         chartInfo = ChartInfo(
-            symbol = dataManager.symbol,
-            timeframe = dataManager.timeframe.toLabel(),
+            symbol = chartManager.symbol,
+            timeframe = chartManager.timeframe.toLabel(),
         )
 
         // Update tab selection
-        tabsState = tabsState.copy(selectedTabIndex = dataManagerIndex)
+        tabsState = tabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        tabbedChartState.showChart(dataManager.chart.chart)
+        tabbedChartState.showChart(chartManager.chart.chart)
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
 
-        // Find data manager and index associated with current chart
-        val dataManager = findDataManager(currentChartId)
-        val dataManagerIndex = dataManagers.indexOf(dataManager)
+        // Find chart manager and index associated with current chart
+        val chartManager = findChartManager(currentChartId)
+        val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Create new data manager with new data
-        val newDataManager = createDataManager(
+        // Create new chart manager with new data
+        val newChartManager = createChartManager(
             chartId = currentChartId,
             symbol = symbol,
-            timeframe = dataManager.timeframe,
+            timeframe = chartManager.timeframe,
             // Keep chart but reset data
-            chart = dataManager.chart,
+            chart = chartManager.chart,
         )
 
-        // Replace previous data manager with new data manager at same location
-        dataManagers.removeAt(dataManagerIndex)
-        dataManagers.add(dataManagerIndex, newDataManager)
+        // Replace previous chart manager with new chart manager at same location
+        chartManagers.removeAt(chartManagerIndex)
+        chartManagers.add(chartManagerIndex, newChartManager)
 
         // Update chart info
         chartInfo = chartInfo.copy(symbol = symbol)
@@ -211,22 +211,22 @@ internal class ChartsPresenter(
 
         val timeframe = timeframeFromLabel(newTimeframe)
 
-        // Find data manager and index associated with current chart
-        val dataManager = findDataManager(currentChartId)
-        val dataManagerIndex = dataManagers.indexOf(dataManager)
+        // Find chart manager and index associated with current chart
+        val chartManager = findChartManager(currentChartId)
+        val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Create new data manager with new data
-        val newDataManager = createDataManager(
+        // Create new chart manager with new data
+        val newChartManager = createChartManager(
             chartId = currentChartId,
-            symbol = dataManager.symbol,
+            symbol = chartManager.symbol,
             timeframe = timeframe,
             // Keep chart but reset data
-            chart = dataManager.chart,
+            chart = chartManager.chart,
         )
 
-        // Replace previous data manager with new data manager at same location
-        dataManagers.removeAt(dataManagerIndex)
-        dataManagers.add(dataManagerIndex, newDataManager)
+        // Replace previous chart manager with new chart manager at same location
+        chartManagers.removeAt(chartManagerIndex)
+        chartManagers.add(chartManagerIndex, newChartManager)
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())
@@ -235,16 +235,16 @@ internal class ChartsPresenter(
         updateChartTabs()
     }
 
-    private suspend fun createDataManager(
+    private suspend fun createChartManager(
         chartId: Int,
         symbol: String,
         timeframe: Timeframe,
         chart: Chart,
-    ): DataManager {
+    ): ChartManager {
 
         val candleSeries = getCandleSeries(symbol, timeframe)
 
-        return DataManager(
+        return ChartManager(
             chartId = chartId,
             symbol = symbol,
             timeframe = timeframe,
@@ -279,7 +279,7 @@ internal class ChartsPresenter(
 
     private fun updateChartTabs() {
 
-        val newTabs = dataManagers.map {
+        val newTabs = chartManagers.map {
             TabsState.TabInfo(
                 id = it.chartId,
                 title = "${it.symbol} (${it.timeframe.toLabel()})",
@@ -289,7 +289,7 @@ internal class ChartsPresenter(
         tabsState = tabsState.copy(tabs = newTabs)
     }
 
-    private fun findDataManager(chartId: Int): DataManager {
-        return dataManagers.find { it.chartId == chartId }.let(::requireNotNull)
+    private fun findChartManager(chartId: Int): ChartManager {
+        return chartManagers.find { it.chartId == chartId }.let(::requireNotNull)
     }
 }

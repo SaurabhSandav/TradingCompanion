@@ -8,7 +8,7 @@ import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.charts.ui.Chart
 
-internal class DataManager(
+internal class ChartManager(
     val chartId: Int,
     val symbol: String,
     val timeframe: Timeframe,
