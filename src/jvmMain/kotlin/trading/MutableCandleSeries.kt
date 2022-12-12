@@ -11,6 +11,8 @@ interface MutableCandleSeries : CandleSeries {
 
     fun addCandle(candle: Candle)
 
+    fun prependCandles(candles: List<Candle>)
+
     fun removeLast(n: Int = 1)
 
     companion object {
@@ -86,6 +88,43 @@ private class MutableCandleSeriesImpl(
         }
 
         _live.tryEmit(candle)
+    }
+
+    override fun prependCandles(candles: List<Candle>) {
+
+        candles.asReversed().forEach(::prependCandle)
+
+        // Recalculate all indicator values
+        indicatorCaches.forEach { it.clear() }
+    }
+
+    private fun prependCandle(candle: Candle) {
+
+        val firstCandle = list.firstOrNull()
+
+        if (firstCandle != null && firstCandle.openInstant < candle.openInstant) {
+            error(
+                """
+                |Candle cannot be newer than the oldest candle in the series: 
+                |New Candle: $candle
+                |Current oldest Candle: $firstCandle
+                """.trimMargin()
+            )
+        }
+
+        // If series size is greater than max candle count,
+        // drop first candle and first indicator cache values
+        if (list.size > maxCandleCount) {
+            error("maxCandleCount exceeded, cannot add candle.")
+        }
+
+        val isCandleUpdate = firstCandle?.openInstant == candle.openInstant
+
+        if (isCandleUpdate) {
+            list.removeAt(0)
+        }
+
+        list.add(0, candle)
     }
 
     override fun removeLast(n: Int) {

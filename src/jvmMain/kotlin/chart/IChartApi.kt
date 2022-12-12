@@ -157,6 +157,7 @@ class IChartApi internal constructor(
 
         val series = ISeriesApi<T>(
             executeJs = ::executeJs,
+            executeJsWithResult = ::executeJsWithResult,
             name = name,
             seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
         )

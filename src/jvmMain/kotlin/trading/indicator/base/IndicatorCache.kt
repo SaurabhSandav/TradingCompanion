@@ -21,4 +21,8 @@ class IndicatorCache<T> internal constructor(val key: String?) {
     internal fun shrink() {
         cache.removeFirst()
     }
+
+    internal fun clear() {
+        cache.clear()
+    }
 }

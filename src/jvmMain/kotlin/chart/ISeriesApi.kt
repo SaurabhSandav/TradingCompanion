@@ -2,11 +2,14 @@ package chart
 
 import chart.data.SeriesData
 import chart.data.SeriesMarker
+import chart.misc.BarsInfo
+import chart.misc.LogicalRange
 import chart.options.PriceLineOptions
 import kotlinx.serialization.json.JsonArray
 
 class ISeriesApi<T : SeriesData>(
     private val executeJs: (String) -> Unit,
+    private val executeJsWithResult: suspend (String) -> String,
     val name: String,
     seriesInstanceReference: String,
 ) {
@@ -17,6 +20,13 @@ class ISeriesApi<T : SeriesData>(
     val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
 
     private var nextPriceLineId = 0
+
+    suspend fun barsInLogicalRange(range: LogicalRange): BarsInfo? {
+
+        val result = executeJsWithResult("$reference.barsInLogicalRange(${range.toJsonElement()})")
+
+        return BarsInfo.fromJson(result)
+    }
 
     fun setData(list: List<T>) {
 

@@ -1,11 +1,17 @@
 package chart.misc
 
+import chart.IsJsonElement
 import kotlinx.serialization.json.*
 
 data class LogicalRange(
     val from: Float,
     val to: Float,
-) {
+) : IsJsonElement {
+
+    override fun toJsonElement(): JsonElement = buildJsonObject {
+        put("from", from)
+        put("to", to)
+    }
 
     companion object {
 

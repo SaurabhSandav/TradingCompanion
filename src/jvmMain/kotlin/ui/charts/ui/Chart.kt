@@ -13,11 +13,14 @@ import chart.options.LineStyleOptions
 import chart.options.TimeScaleOptions
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
@@ -29,6 +32,8 @@ import java.math.RoundingMode
 
 internal class Chart(
     val actualChart: IChartApi,
+    private val coroutineScope: CoroutineScope,
+    onLoadMore: suspend () -> Unit,
 ) {
 
     val legendValues = legendValuesFlow()
@@ -52,11 +57,30 @@ internal class Chart(
 
     private var vwapSeries: ISeriesApi<LineData>? = null
 
+    private var moreCandlesJob: Job? = null
+
     init {
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
+
+        actualChart.timeScale.subscribeVisibleLogicalRangeChange { logicalRange ->
+
+            if (moreCandlesJob != null || logicalRange == null) return@subscribeVisibleLogicalRangeChange
+
+            moreCandlesJob = coroutineScope.launch {
+
+                val barsInfo = candlestickSeries.barsInLogicalRange(logicalRange)
+
+                // Load more historical data if there are less than 100 bars to the left of the visible area
+                if (barsInfo != null && barsInfo.barsBefore < 100) {
+                    onLoadMore()
+                }
+
+                moreCandlesJob = null
+            }
+        }
 
         actualChart.timeScale.scrollToPosition(40, false)
     }

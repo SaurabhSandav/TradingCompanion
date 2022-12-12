@@ -32,11 +32,17 @@ internal class ChartManager(
 ) {
 
     val coroutineScope = CoroutineScope(Dispatchers.Main)
-    val chart = Chart(actualChart)
+    val chart = Chart(
+        actualChart = actualChart,
+        coroutineScope = coroutineScope,
+        onLoadMore = ::onLoadMore,
+    )
 
     private val candleSeries = MutableCandleSeries(emptyList(), params.timeframe)
     private val ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
     private val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
+
+    private val downloadIntervalDays = 90.days
 
     init {
 
@@ -56,7 +62,7 @@ internal class ChartManager(
                 // Range of 3 months before current time to current time
                 range = run {
                     val currentTime = Clock.System.now()
-                    currentTime.minus(90.days)..currentTime
+                    currentTime.minus(downloadIntervalDays)..currentTime
                 }
             )
 
@@ -98,6 +104,22 @@ internal class ChartManager(
         }
 
         chart.setData(data, hasVolume = params.symbol != "NIFTY50")
+    }
+
+    private suspend fun onLoadMore() {
+
+        val firstCandleInstant = candleSeries.first().openInstant
+
+        val candles = getCandles(
+            params.symbol,
+            params.timeframe,
+            firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+        )
+
+        if (candles.isNotEmpty()) {
+            candleSeries.prependCandles(candles)
+            setInitialData()
+        }
     }
 
     private suspend fun getCandles(
