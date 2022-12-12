@@ -9,34 +9,26 @@ import app.cash.molecule.launchMolecule
 import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import launchUnit
-import trading.CandleSeries
-import trading.MutableCandleSeries
 import trading.Timeframe
-import trading.data.CandleRepository
 import ui.charts.model.ChartsEvent
 import ui.charts.model.ChartsState
 import ui.charts.model.ChartsState.*
-import ui.charts.ui.Chart
 import ui.common.CollectEffect
 import ui.common.chart.state.TabbedChartState
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import utils.NIFTY50
-import kotlin.time.Duration.Companion.days
 
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -47,7 +39,6 @@ internal class ChartsPresenter(
     private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
     private var maxChartId = 0
     private var currentChartId = 0
-    private val candleCache = mutableMapOf<String, CandleSeries>()
     private val chartManagers = mutableListOf<ChartManager>()
 
     private var tabsState by mutableStateOf(TabsState(emptyList(), 0))
@@ -82,22 +73,31 @@ internal class ChartsPresenter(
 
         coroutineScope.launch {
 
+            // New unique id
+            val id = 0
+
             // Add new chart
-            val chart = tabbedChartState.addChart("Chart$currentChartId", chartOptions)
+            val actualChart = tabbedChartState.addChart("Chart$id", chartOptions)
 
             // Create new chart manager with initial params
-            val chartManager = createChartManager(
-                chartId = currentChartId,
-                symbol = initialSymbol,
-                timeframe = initialTimeframe,
-                chart = Chart(coroutineScope, appPrefs, chart) { legendValues = it },
+            val chartManager = ChartManager(
+                params = ChartManager.ChartParams(
+                    id = id,
+                    symbol = initialSymbol,
+                    timeframe = initialTimeframe,
+                ),
+                actualChart = actualChart,
+                appModule = appModule,
             )
+
+            // Observe legend values
+            chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
             // Cache newly created chart manager
             chartManagers += chartManager
 
             // Show Chart
-            tabbedChartState.showChart(chartManager.chart.chart)
+            tabbedChartState.showChart(chartManager.chart.actualChart)
 
             // Add new tab
             updateChartTabs()
@@ -110,7 +110,7 @@ internal class ChartsPresenter(
         val id = ++maxChartId
 
         // Add new chart
-        val chart = tabbedChartState.addChart("Chart$id", chartOptions)
+        val actualChart = tabbedChartState.addChart("Chart$id", chartOptions)
 
         // Copy currently selected chart manager
         val chartManager = run {
@@ -119,13 +119,14 @@ internal class ChartsPresenter(
             val chartManager = findChartManager(currentChartId)
 
             // Create new chart manager with existing params
-            createChartManager(
-                chartId = id,
-                symbol = chartManager.symbol,
-                timeframe = chartManager.timeframe,
-                chart = Chart(coroutineScope, appPrefs, chart) { legendValues = it },
+            chartManager.withNewChart(
+                id = id,
+                actualChart = actualChart,
             )
         }
+
+        // Observe legend values
+        chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
         chartManagers += chartManager
@@ -149,7 +150,10 @@ internal class ChartsPresenter(
         chartManagers.remove(chartManager)
 
         // Remove chart
-        tabbedChartState.removeChart(chartManager.chart.chart)
+        tabbedChartState.removeChart(chartManager.chart.actualChart)
+
+        // Cancel ChartManager CoroutineScope
+        chartManager.coroutineScope.cancel()
 
         // Remove chart tab
         updateChartTabs()
@@ -170,15 +174,15 @@ internal class ChartsPresenter(
 
         // Display newly selected chart info
         chartInfo = ChartInfo(
-            symbol = chartManager.symbol,
-            timeframe = chartManager.timeframe.toLabel(),
+            symbol = chartManager.params.symbol,
+            timeframe = chartManager.params.timeframe.toLabel(),
         )
 
         // Update tab selection
         tabsState = tabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        tabbedChartState.showChart(chartManager.chart.chart)
+        tabbedChartState.showChart(chartManager.chart.actualChart)
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
@@ -188,13 +192,7 @@ internal class ChartsPresenter(
         val chartManagerIndex = chartManagers.indexOf(chartManager)
 
         // Create new chart manager with new data
-        val newChartManager = createChartManager(
-            chartId = currentChartId,
-            symbol = symbol,
-            timeframe = chartManager.timeframe,
-            // Keep chart but reset data
-            chart = chartManager.chart,
-        )
+        val newChartManager = chartManager.withNewSymbol(symbol)
 
         // Replace previous chart manager with new chart manager at same location
         chartManagers.removeAt(chartManagerIndex)
@@ -216,13 +214,7 @@ internal class ChartsPresenter(
         val chartManagerIndex = chartManagers.indexOf(chartManager)
 
         // Create new chart manager with new data
-        val newChartManager = createChartManager(
-            chartId = currentChartId,
-            symbol = chartManager.symbol,
-            timeframe = timeframe,
-            // Keep chart but reset data
-            chart = chartManager.chart,
-        )
+        val newChartManager = chartManager.withNewTimeframe(timeframe)
 
         // Replace previous chart manager with new chart manager at same location
         chartManagers.removeAt(chartManagerIndex)
@@ -235,54 +227,12 @@ internal class ChartsPresenter(
         updateChartTabs()
     }
 
-    private suspend fun createChartManager(
-        chartId: Int,
-        symbol: String,
-        timeframe: Timeframe,
-        chart: Chart,
-    ): ChartManager {
-
-        val candleSeries = getCandleSeries(symbol, timeframe)
-
-        return ChartManager(
-            chartId = chartId,
-            symbol = symbol,
-            timeframe = timeframe,
-            chart = chart,
-            candleSeries = candleSeries,
-        )
-    }
-
-    private suspend fun getCandleSeries(
-        symbol: String,
-        timeframe: Timeframe,
-    ): CandleSeries = candleCache.getOrPut(symbol) {
-
-        val currentTime = Clock.System.now()
-
-        val candlesResult = candleRepo.getCandles(
-            symbol = symbol,
-            timeframe = timeframe,
-            // Starting from 3 months before current time
-            from = currentTime.minus(90.days),
-            to = currentTime,
-        )
-
-        when (candlesResult) {
-            is Ok ->  MutableCandleSeries(candlesResult.value, timeframe)
-            is Err -> when (val error = candlesResult.error) {
-                is CandleRepository.Error.AuthError -> error("AuthError")
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
-        }
-    }
-
     private fun updateChartTabs() {
 
         val newTabs = chartManagers.map {
             TabsState.TabInfo(
-                id = it.chartId,
-                title = "${it.symbol} (${it.timeframe.toLabel()})",
+                id = it.params.id,
+                title = "${it.params.symbol} (${it.params.timeframe.toLabel()})",
             )
         }
 
@@ -290,6 +240,6 @@ internal class ChartsPresenter(
     }
 
     private fun findChartManager(chartId: Int): ChartManager {
-        return chartManagers.find { it.chartId == chartId }.let(::requireNotNull)
+        return chartManagers.find { it.params.id == chartId }.let(::requireNotNull)
     }
 }
