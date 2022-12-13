@@ -11,6 +11,7 @@ import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,9 +42,9 @@ import kotlin.time.Duration.Companion.seconds
 internal class ReplayChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val baseTimeframe: Timeframe,
-    private val dataFrom: Instant,
-    private val dataTo: Instant,
+    private val candlesBefore: Int,
     private val replayFrom: Instant,
+    private val dataTo: Instant,
     replayFullBar: Boolean,
     private val initialSymbol: String,
     private val appModule: AppModule,
@@ -355,16 +356,33 @@ internal class ReplayChartsPresenter(
         timeframe: Timeframe,
     ): CandleSeries = candleCache.getOrPut("${symbol}_${timeframe.seconds}") {
 
-        val candlesResult = candleRepo.getCandles(
-            symbol = symbol,
-            timeframe = timeframe,
-            from = dataFrom,
-            to = dataTo,
-        )
+        val allCandlesResult = binding {
 
-        when (candlesResult) {
-            is Ok ->  MutableCandleSeries(candlesResult.value, timeframe)
-            is Err -> when (val error = candlesResult.error) {
+            val candlesBefore = async {
+                candleRepo.getCandles(
+                    symbol = symbol,
+                    timeframe = timeframe,
+                    at = replayFrom,
+                    before = candlesBefore,
+                    after = 0,
+                ).bind()
+            }
+
+            val candlesAfter = async {
+                candleRepo.getCandles(
+                    symbol = symbol,
+                    timeframe = timeframe,
+                    from = replayFrom,
+                    to = dataTo,
+                ).bind()
+            }
+
+            candlesBefore.await() + candlesAfter.await()
+        }
+
+        when (allCandlesResult) {
+            is Ok -> MutableCandleSeries(allCandlesResult.value, timeframe)
+            is Err -> when (val error = allCandlesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }

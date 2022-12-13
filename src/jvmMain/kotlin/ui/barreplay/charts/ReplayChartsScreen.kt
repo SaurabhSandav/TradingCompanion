@@ -19,9 +19,9 @@ internal fun ReplayChartsScreen(
     appModule: AppModule,
     onNewReplay: () -> Unit,
     baseTimeframe: Timeframe,
-    dataFrom: Instant,
-    dataTo: Instant,
+    candlesBefore: Int,
     replayFrom: Instant,
+    dataTo: Instant,
     replayFullBar: Boolean,
     initialSymbol: String,
 ) {
@@ -31,9 +31,9 @@ internal fun ReplayChartsScreen(
         ReplayChartsPresenter(
             coroutineScope = scope,
             baseTimeframe = baseTimeframe,
-            dataFrom = dataFrom,
-            dataTo = dataTo,
+            candlesBefore = candlesBefore,
             replayFrom = replayFrom,
+            dataTo = dataTo,
             replayFullBar = replayFullBar,
             initialSymbol = initialSymbol,
             appModule = appModule

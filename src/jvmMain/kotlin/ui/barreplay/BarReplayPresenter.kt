@@ -17,8 +17,8 @@ import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayScreen
 import ui.barreplay.model.BarReplayState
 import ui.common.CollectEffect
-import ui.common.TimeframeLabels
 import ui.common.timeframeFromLabel
+import ui.common.toLabel
 import utils.NIFTY50
 import kotlin.time.Duration.Companion.days
 
@@ -58,9 +58,9 @@ internal class BarReplayPresenter(
                 null -> Timeframe.M5
                 else -> timeframeFromLabel(timeframeLabel)
             },
-            dataFrom = formModel.dataFrom.toInstant(TimeZone.currentSystemDefault()),
-            dataTo = formModel.dataTo.toInstant(TimeZone.currentSystemDefault()),
+            candlesBefore = formModel.candlesBefore,
             replayFrom = formModel.replayFrom.toInstant(TimeZone.currentSystemDefault()),
+            dataTo = formModel.dataTo.toInstant(TimeZone.currentSystemDefault()),
             replayFullBar = formModel.replayFullBar,
             initialSymbol = formModel.initialSymbol ?: error("Invalid symbol!"),
         )
@@ -76,17 +76,16 @@ internal class BarReplayPresenter(
 
         val currentTime = Clock.System.now()
         val days30 = 30.days
-        val days15 = 15.days
 
-        val dataFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
+        val candlesBefore = 200
         val dataTo = currentTime.toLocalDateTime(TimeZone.currentSystemDefault())
-        val replayFrom = currentTime.minus(days15).toLocalDateTime(TimeZone.currentSystemDefault())
+        val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
 
         return ReplayLaunchFormFields.Model(
-            baseTimeframe = TimeframeLabels.first(),
-            dataFrom = dataFrom,
-            dataTo = dataTo,
+            baseTimeframe = Timeframe.M5.toLabel(),
+            candlesBefore = candlesBefore,
             replayFrom = replayFrom,
+            dataTo = dataTo,
             replayFullBar = true,
             initialSymbol = NIFTY50.first(),
         )

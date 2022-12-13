@@ -18,9 +18,9 @@ internal sealed class BarReplayScreen {
 
     data class Chart(
         val baseTimeframe: Timeframe,
-        val dataFrom: Instant,
-        val dataTo: Instant,
+        val candlesBefore: Int,
         val replayFrom: Instant,
+        val dataTo: Instant,
         val replayFullBar: Boolean,
         val initialSymbol: String,
     ) : BarReplayScreen()

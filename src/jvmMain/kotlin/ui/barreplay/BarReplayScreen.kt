@@ -41,9 +41,9 @@ private fun BarReplayScreen(
             appModule = appModule,
             onNewReplay = onNewReplay,
             baseTimeframe = currentScreen.baseTimeframe,
-            dataFrom = currentScreen.dataFrom,
-            dataTo = currentScreen.dataTo,
+            candlesBefore = currentScreen.candlesBefore,
             replayFrom = currentScreen.replayFrom,
+            dataTo = currentScreen.dataTo,
             replayFullBar = currentScreen.replayFullBar,
             initialSymbol = currentScreen.initialSymbol,
         )

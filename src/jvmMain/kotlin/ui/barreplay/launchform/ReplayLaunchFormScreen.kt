@@ -1,14 +1,13 @@
 package ui.barreplay.launchform
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ui.common.TimeframeLabels
 import ui.common.controls.DateTimeField
@@ -51,10 +50,13 @@ internal fun ReplayLaunchFormScreen(
                 placeholderText = "Select Timeframe...",
             )
 
-            DateTimeField(
-                value = fields.dataFrom.value,
-                onValidValueChange = fields.dataFrom.onValueChange,
-                label = { Text("Data From") },
+            OutlinedTextField(
+                value = fields.candlesBefore.value,
+                onValueChange = fields.candlesBefore.onValueChange,
+                label = { Text("Candles Before") },
+                isError = fields.candlesBefore.isError,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 
             DateTimeField(

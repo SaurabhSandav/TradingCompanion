@@ -1,10 +1,7 @@
 package ui.barreplay.launchform
 
 import kotlinx.datetime.LocalDateTime
-import ui.common.form.FormScope
-import ui.common.form.dateTimeFieldState
-import ui.common.form.singleSelectionState
-import ui.common.form.switchState
+import ui.common.form.*
 
 internal class ReplayLaunchFormFields(
     private val formScope: FormScope,
@@ -13,7 +10,11 @@ internal class ReplayLaunchFormFields(
 
     val baseTimeframe = formScope.singleSelectionState(initial.baseTimeframe)
 
-    val dataFrom = formScope.dateTimeFieldState(initial.dataFrom)
+    val candlesBefore = formScope.textFieldState(
+        initial = initial.candlesBefore.toString(),
+        isErrorCheck = { it.isEmpty() || it.toIntOrNull() == null },
+        onValueChange = { setValue(it.trim()) },
+    )
 
     val dataTo = formScope.dateTimeFieldState(initial.dataTo)
 
@@ -25,18 +26,18 @@ internal class ReplayLaunchFormFields(
 
     fun getModelIfValidOrNull(): Model? = if (!formScope.isFormValid()) null else Model(
         baseTimeframe = baseTimeframe.value,
-        dataFrom = dataFrom.value,
-        dataTo = dataTo.value,
+        candlesBefore = candlesBefore.value.toInt(),
         replayFrom = replayFrom.value,
+        dataTo = dataTo.value,
         replayFullBar = replayFullBar.value,
         initialSymbol = initialSymbol.value,
     )
 
     class Model(
         val baseTimeframe: String?,
-        val dataFrom: LocalDateTime,
-        val dataTo: LocalDateTime,
+        val candlesBefore: Int,
         val replayFrom: LocalDateTime,
+        val dataTo: LocalDateTime,
         val replayFullBar: Boolean,
         val initialSymbol: String?,
     )
