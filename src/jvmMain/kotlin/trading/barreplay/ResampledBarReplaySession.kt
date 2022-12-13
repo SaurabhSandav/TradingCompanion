@@ -96,10 +96,12 @@ class ResampledBarReplaySession(
     override fun reset() {
 
         currentTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[initialIndex - 1])
-        val timeframeCandle = timeframeSeries[currentTimeframeCandleIndex]
+
+        // Get timeframe candle before last
+        val timeframeCandle = timeframeSeries[currentTimeframeCandleIndex - 1]
 
         // Remove all candles not included in initial interval
-        while (_replaySeries.last() != timeframeCandle) {
+        while (_replaySeries.lastOrNull() != timeframeCandle) {
             _replaySeries.removeLast()
         }
 
