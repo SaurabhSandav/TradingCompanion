@@ -13,7 +13,7 @@ import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.barreplay.charts.ui.ReplayChart
 
-internal data class ReplayDataManager(
+internal data class ReplayChartManager(
     val chartId: Int,
     val symbol: String,
     val timeframe: Timeframe,
