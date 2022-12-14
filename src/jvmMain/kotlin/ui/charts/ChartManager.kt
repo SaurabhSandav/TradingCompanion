@@ -27,6 +27,7 @@ internal class ChartManager(
     val appModule: AppModule,
     initialParams: ChartParams,
     actualChart: IChartApi,
+    private val onCandleDataLogin: suspend () -> Boolean,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
@@ -77,6 +78,7 @@ internal class ChartManager(
         appModule = appModule,
         initialParams = params.copy(id = id),
         actualChart = actualChart,
+        onCandleDataLogin = onCandleDataLogin,
     )
 
     fun changeSymbol(symbol: String) {
@@ -164,6 +166,7 @@ internal class ChartManager(
         symbol: String,
         timeframe: Timeframe,
         range: ClosedRange<Instant>,
+        retryOnLogin: Boolean = true,
     ): List<Candle> {
 
         val candlesResult = candleRepo.getCandles(
@@ -176,7 +179,15 @@ internal class ChartManager(
         return when (candlesResult) {
             is Ok -> candlesResult.value
             is Err -> when (val error = candlesResult.error) {
-                is CandleRepository.Error.AuthError -> error("AuthError")
+                is CandleRepository.Error.AuthError -> {
+
+                    if (retryOnLogin) {
+                        val loginSuccessful = onCandleDataLogin()
+                        if (loginSuccessful) return getCandles(symbol, timeframe, range, false)
+                    }
+
+                    error("AuthError")
+                }
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
         }

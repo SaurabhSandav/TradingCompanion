@@ -1,9 +1,7 @@
 package ui.charts.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -17,49 +15,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import ui.charts.model.ChartsState
-import ui.common.chart.ChartPage
-import ui.common.chart.state.ChartState
 
 @Composable
-fun ChartPage(
+fun ChartTabRow(
     tabsState: ChartsState.TabsState,
-    chartState: ChartState,
     onSelectChart: (Int) -> Unit,
     onCloseChart: (Int) -> Unit,
 ) {
 
-    Column {
-
-        ScrollableTabRow(
-            selectedTabIndex = tabsState.selectedTabIndex,
-            indicator = { tabPositions ->
-                val selectedTabIndex = tabsState.selectedTabIndex
-                if (selectedTabIndex < tabPositions.size) {
-                    TabRowDefaults.Indicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-                    )
-                }
-            }
-        ) {
-
-            tabsState.tabs.forEachIndexed { index, chartTab ->
-
-                key(chartTab.id) {
-
-                    ChartTab(
-                        title = chartTab.title,
-                        isSelected = index == tabsState.selectedTabIndex,
-                        onSelect = { onSelectChart(chartTab.id) },
-                        onCloseChart = { onCloseChart(chartTab.id) },
-                    )
-                }
+    ScrollableTabRow(
+        selectedTabIndex = tabsState.selectedTabIndex,
+        indicator = { tabPositions ->
+            val selectedTabIndex = tabsState.selectedTabIndex
+            if (selectedTabIndex < tabPositions.size) {
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+                )
             }
         }
+    ) {
 
-        ChartPage(
-            state = chartState,
-            modifier = Modifier.fillMaxSize(),
-        )
+        tabsState.tabs.forEachIndexed { index, chartTab ->
+
+            key(chartTab.id) {
+
+                ChartTab(
+                    title = chartTab.title,
+                    isSelected = index == tabsState.selectedTabIndex,
+                    onSelect = { onSelectChart(chartTab.id) },
+                    onCloseChart = { onCloseChart(chartTab.id) },
+                )
+            }
+        }
     }
 }
 

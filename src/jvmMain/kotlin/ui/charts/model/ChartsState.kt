@@ -1,13 +1,17 @@
 package ui.charts.model
 
 import androidx.compose.runtime.Immutable
+import ui.common.UIErrorMessage
 import ui.common.chart.state.ChartState
+import ui.fyerslogin.FyersLoginState
 
 @Immutable
 data class ChartsState(
     val tabsState: TabsState,
     val chartState: ChartState,
     val chartInfo: ChartInfo,
+    val fyersLoginWindowState: FyersLoginWindow,
+    val errors: List<UIErrorMessage>,
 ) {
 
     @Immutable
@@ -40,4 +44,14 @@ data class ChartsState(
         val ema9: String = "",
         val vwap: String = "",
     )
+
+    @Immutable
+    sealed class FyersLoginWindow {
+
+        @Immutable
+        internal class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
+
+        @Immutable
+        object Closed : FyersLoginWindow()
+    }
 }

@@ -2,6 +2,7 @@ package ui.charts
 
 import AppModule
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
@@ -9,6 +10,8 @@ import app.cash.molecule.launchMolecule
 import chart.options.ChartOptions
 import chart.options.CrosshairMode
 import chart.options.CrosshairOptions
+import com.russhwolf.settings.coroutines.FlowSettings
+import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,14 +24,20 @@ import ui.charts.model.ChartsEvent
 import ui.charts.model.ChartsState
 import ui.charts.model.ChartsState.*
 import ui.common.CollectEffect
+import ui.common.UIErrorMessage
 import ui.common.chart.state.TabbedChartState
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
+import ui.fyerslogin.FyersLoginState
 import utils.NIFTY50
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -44,6 +53,8 @@ internal class ChartsPresenter(
     private var tabsState by mutableStateOf(TabsState(emptyList(), 0))
     private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe.toLabel()))
     private var legendValues by mutableStateOf(LegendValues())
+    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
+    private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -62,6 +73,8 @@ internal class ChartsPresenter(
             tabsState = tabsState,
             chartState = tabbedChartState,
             chartInfo = chartInfo.copy(legendValues = legendValues),
+            fyersLoginWindowState = fyersLoginWindowState,
+            errors = errors,
         )
     }
 
@@ -88,6 +101,7 @@ internal class ChartsPresenter(
                 ),
                 actualChart = actualChart,
                 appModule = appModule,
+                onCandleDataLogin = ::onCandleDataLogin,
             )
 
             // Observe legend values
@@ -231,5 +245,31 @@ internal class ChartsPresenter(
 
     private fun findChartManager(chartId: Int): ChartManager {
         return chartManagers.find { it.params.id == chartId }.let(::requireNotNull)
+    }
+
+    private suspend fun onCandleDataLogin(): Boolean = suspendCoroutine {
+        errors += UIErrorMessage(
+            message = "Please login",
+            actionLabel = "Login",
+            onActionClick = {
+                fyersLoginWindowState = FyersLoginWindow.Open(
+                    FyersLoginState(
+                        fyersApi = fyersApi,
+                        appPrefs = appPrefs,
+                        onCloseRequest = {
+                            fyersLoginWindowState = FyersLoginWindow.Closed
+                        },
+                        onLoginSuccess = { it.resume(true) },
+                        onLoginFailure = { message ->
+                            errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
+                            it.resume(false)
+                        },
+                    )
+                )
+            },
+            withDismissAction = true,
+            duration = UIErrorMessage.Duration.Indefinite,
+            onNotified = { errors -= it },
+        )
     }
 }
