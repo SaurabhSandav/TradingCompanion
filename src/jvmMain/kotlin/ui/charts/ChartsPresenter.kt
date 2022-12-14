@@ -81,7 +81,7 @@ internal class ChartsPresenter(
 
             // Create new chart manager with initial params
             val chartManager = ChartManager(
-                params = ChartManager.ChartParams(
+                initialParams = ChartManager.ChartParams(
                     id = id,
                     symbol = initialSymbol,
                     timeframe = initialTimeframe,
@@ -187,16 +187,11 @@ internal class ChartsPresenter(
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
 
-        // Find chart manager and index associated with current chart
+        // Find chart manager associated with current chart
         val chartManager = findChartManager(currentChartId)
-        val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Create new chart manager with new data
-        val newChartManager = chartManager.withNewSymbol(symbol)
-
-        // Replace previous chart manager with new chart manager at same location
-        chartManagers.removeAt(chartManagerIndex)
-        chartManagers.add(chartManagerIndex, newChartManager)
+        // Update chart manager
+        chartManager.changeSymbol(symbol)
 
         // Update chart info
         chartInfo = chartInfo.copy(symbol = symbol)
@@ -209,16 +204,11 @@ internal class ChartsPresenter(
 
         val timeframe = timeframeFromLabel(newTimeframe)
 
-        // Find chart manager and index associated with current chart
+        // Find chart manager associated with current chart
         val chartManager = findChartManager(currentChartId)
-        val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Create new chart manager with new data
-        val newChartManager = chartManager.withNewTimeframe(timeframe)
-
-        // Replace previous chart manager with new chart manager at same location
-        chartManagers.removeAt(chartManagerIndex)
-        chartManagers.add(chartManagerIndex, newChartManager)
+        // Update chart manager
+        chartManager.changeTimeframe(timeframe)
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())

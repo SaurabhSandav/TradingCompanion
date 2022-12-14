@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.days
 
 internal class ChartManager(
     val appModule: AppModule,
-    val params: ChartParams,
+    initialParams: ChartParams,
     actualChart: IChartApi,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
@@ -37,10 +37,8 @@ internal class ChartManager(
         coroutineScope = coroutineScope,
         onLoadMore = ::onLoadMore,
     )
-
-    private val candleSeries = MutableCandleSeries(emptyList(), params.timeframe)
-    private val ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
-    private val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
+    var params = initialParams
+    private var data = ChartData(initialParams.timeframe)
 
     private val downloadIntervalDays = 90.days
 
@@ -66,7 +64,7 @@ internal class ChartManager(
                 }
             )
 
-            initialCandles.forEach(candleSeries::addCandle)
+            initialCandles.forEach(data.candleSeries::addCandle)
 
             setInitialData()
         }
@@ -77,29 +75,69 @@ internal class ChartManager(
         actualChart: IChartApi,
     ) = ChartManager(
         appModule = appModule,
-        params = params.copy(id = id),
+        initialParams = params.copy(id = id),
         actualChart = actualChart,
     )
 
-    fun withNewSymbol(symbol: String) = ChartManager(
-        appModule = appModule,
-        params = params.copy(symbol = symbol),
-        actualChart = chart.actualChart,
-    )
+    fun changeSymbol(symbol: String) {
 
-    fun withNewTimeframe(timeframe: Timeframe) = ChartManager(
-        appModule = appModule,
-        params = params.copy(timeframe = timeframe),
-        actualChart = chart.actualChart,
-    )
+        // Update params
+        params = params.copy(symbol = symbol)
+
+        // Initial data
+        coroutineScope.launch {
+
+            val initialCandles = getCandles(
+                symbol = params.symbol,
+                timeframe = params.timeframe,
+                // Range of 3 months before current time to current time
+                range = run {
+                    val currentTime = Clock.System.now()
+                    currentTime.minus(downloadIntervalDays)..currentTime
+                }
+            )
+
+            data = ChartData(params.timeframe)
+
+            initialCandles.forEach(data.candleSeries::addCandle)
+
+            setInitialData()
+        }
+    }
+
+    fun changeTimeframe(timeframe: Timeframe) {
+
+        // Update params
+        params = params.copy(timeframe = timeframe)
+
+        // Initial data
+        coroutineScope.launch {
+
+            val initialCandles = getCandles(
+                symbol = params.symbol,
+                timeframe = params.timeframe,
+                // Range of 3 months before current time to current time
+                range = run {
+                    val currentTime = Clock.System.now()
+                    currentTime.minus(downloadIntervalDays)..currentTime
+                }
+            )
+
+            data = ChartData(params.timeframe)
+
+            initialCandles.forEach(data.candleSeries::addCandle)
+
+            setInitialData()
+        }
+    }
 
     private fun setInitialData() {
 
-        val data = candleSeries.mapIndexed { index, candle ->
+        val data = data.candleSeries.mapIndexed { index, candle ->
             Chart.Data(
                 candle = candle,
-                ema9 = ema9Indicator[index],
-                vwap = vwapIndicator[index],
+                ema9 = data.ema9Indicator[index],
+                vwap = data.vwapIndicator[index],
             )
         }
 
@@ -108,16 +146,16 @@ internal class ChartManager(
 
     private suspend fun onLoadMore() {
 
-        val firstCandleInstant = candleSeries.first().openInstant
+        val firstCandleInstant = data.candleSeries.first().openInstant
 
         val candles = getCandles(
-            params.symbol,
-            params.timeframe,
-            firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+            symbol = params.symbol,
+            timeframe = params.timeframe,
+            range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
         )
 
         if (candles.isNotEmpty()) {
-            candleSeries.prependCandles(candles)
+            data.candleSeries.prependCandles(candles)
             setInitialData()
         }
     }
@@ -149,4 +187,12 @@ internal class ChartManager(
         val symbol: String,
         val timeframe: Timeframe,
     )
+
+    private class ChartData(timeframe: Timeframe) {
+
+        val candleSeries = MutableCandleSeries(emptyList(), timeframe)
+
+        val ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
+        val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
+    }
 }
