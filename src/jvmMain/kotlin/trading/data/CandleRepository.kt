@@ -96,7 +96,7 @@ internal class CandleRepository(
             else -> emptyList()
         }
 
-        downloadRanges.forEach { range ->
+        downloadRanges.filterNot { range -> range.start > range.endInclusive }.forEach { range ->
             when (val result = download(symbol, timeframe, range)) {
                 is Ok -> candleCache.save(symbol, timeframe, result.value)
                 is Err -> return when (val error = result.error) {
