@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import launchUnit
 import trading.Timeframe
 import ui.charts.model.ChartsEvent
+import ui.charts.model.ChartsEvent.*
 import ui.charts.model.ChartsState
 import ui.charts.model.ChartsState.*
 import ui.common.CollectEffect
@@ -61,11 +62,13 @@ internal class ChartsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is ChartsEvent.NewChart -> onNewChart()
-                is ChartsEvent.CloseChart -> onCloseChart(event.id)
-                is ChartsEvent.SelectChart -> onSelectChart(event.id)
-                is ChartsEvent.ChangeSymbol -> onChangeSymbol(event.newSymbol)
-                is ChartsEvent.ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
+                is NewChart -> onNewChart()
+                is CloseChart -> onCloseChart(event.id)
+                is SelectChart -> onSelectChart(event.id)
+                NextChart -> onNextChart()
+                PreviousChart -> onPreviousChart()
+                is ChangeSymbol -> onChangeSymbol(event.newSymbol)
+                is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
         }
 
@@ -197,6 +200,34 @@ internal class ChartsPresenter(
 
         // Show selected chart
         tabbedChartState.showChart(chartManager.chart.actualChart)
+    }
+
+    private fun onNextChart() {
+
+        val tabs = tabsState.tabs
+        val selectedTabIndex = tabsState.selectedTabIndex
+        tabs[selectedTabIndex]
+
+        val nextChartId = when (selectedTabIndex) {
+            tabs.lastIndex -> tabs.first().id
+            else -> tabs[selectedTabIndex + 1].id
+        }
+
+        onSelectChart(nextChartId)
+    }
+
+    private fun onPreviousChart() {
+
+        val tabs = tabsState.tabs
+        val selectedTabIndex = tabsState.selectedTabIndex
+        tabs[selectedTabIndex]
+
+        val previousChartId = when (selectedTabIndex) {
+            0 -> tabs.last().id
+            else -> tabs[selectedTabIndex - 1].id
+        }
+
+        onSelectChart(previousChartId)
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {

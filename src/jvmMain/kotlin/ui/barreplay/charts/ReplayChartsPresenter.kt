@@ -83,6 +83,8 @@ internal class ReplayChartsPresenter(
                 is NewChart -> onNewChart()
                 is CloseChart -> onCloseChart(event.id)
                 is SelectChart -> onSelectChart(event.id)
+                NextChart -> onNextChart()
+                PreviousChart -> onPreviousChart()
                 is ChangeSymbol -> onChangeSymbol(event.newSymbol)
                 is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
@@ -243,6 +245,34 @@ internal class ReplayChartsPresenter(
         replayTimeJob = coroutineScope.launch {
             chartManager.replaySession.replaySeries.live.collect { updateTime(it.openInstant) }
         }
+    }
+
+    private fun onNextChart() {
+
+        val tabs = chartTabsState.tabs
+        val selectedTabIndex = chartTabsState.selectedTabIndex
+        tabs[selectedTabIndex]
+
+        val nextChartId = when (selectedTabIndex) {
+            tabs.lastIndex -> tabs.first().id
+            else -> tabs[selectedTabIndex + 1].id
+        }
+
+        onSelectChart(nextChartId)
+    }
+
+    private fun onPreviousChart() {
+
+        val tabs = chartTabsState.tabs
+        val selectedTabIndex = chartTabsState.selectedTabIndex
+        tabs[selectedTabIndex]
+
+        val previousChartId = when (selectedTabIndex) {
+            0 -> tabs.last().id
+            else -> tabs[selectedTabIndex - 1].id
+        }
+
+        onSelectChart(previousChartId)
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {

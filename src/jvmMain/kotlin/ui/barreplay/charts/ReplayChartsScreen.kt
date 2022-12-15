@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import kotlinx.datetime.Instant
 import trading.Timeframe
 import ui.barreplay.charts.model.ReplayChartInfo
@@ -52,6 +53,8 @@ internal fun ReplayChartsScreen(
         onNewChart = { presenter.event(NewChart) },
         onCloseChart = { presenter.event(CloseChart(it)) },
         onSelectChart = { presenter.event(SelectChart(it)) },
+        onPreviousTab = { presenter.event(PreviousChart) },
+        onNextTab = { presenter.event(NextChart) },
         onSymbolChange = { presenter.event(ChangeSymbol(it)) },
         onTimeframeChange = { presenter.event(ChangeTimeframe(it)) },
     )
@@ -68,12 +71,31 @@ internal fun ReplayCharts(
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     onNewChart: () -> Unit,
     onSelectChart: (Int) -> Unit,
+    onPreviousTab: () -> Unit,
+    onNextTab: () -> Unit,
     onCloseChart: (Int) -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
 ) {
 
-    Row(Modifier.fillMaxSize()) {
+    Row(Modifier.fillMaxSize().onPreviewKeyEvent { keyEvent ->
+
+        when {
+            keyEvent.isCtrlPressed &&
+                    keyEvent.key == Key.Tab &&
+                    keyEvent.type == KeyEventType.KeyDown -> {
+
+                when {
+                    keyEvent.isShiftPressed -> onPreviousTab()
+                    else -> onNextTab()
+                }
+
+                true
+            }
+
+            else -> false
+        }
+    }) {
 
         ReplayControls(
             chartInfo = chartInfo,

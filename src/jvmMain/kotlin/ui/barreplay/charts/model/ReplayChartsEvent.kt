@@ -14,6 +14,10 @@ sealed class ReplayChartsEvent {
 
     data class SelectChart(val id: Int) : ReplayChartsEvent()
 
+    object NextChart : ReplayChartsEvent()
+
+    object PreviousChart : ReplayChartsEvent()
+
     data class ChangeSymbol(val newSymbol: String) : ReplayChartsEvent()
 
     data class ChangeTimeframe(val newTimeframe: String) : ReplayChartsEvent()

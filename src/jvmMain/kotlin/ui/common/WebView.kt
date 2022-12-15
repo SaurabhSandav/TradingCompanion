@@ -39,6 +39,7 @@ fun rememberWebViewState(): WebViewState {
 @Stable
 class WebViewState(
     private val coroutineScope: CoroutineScope,
+    private val isFocusable: Boolean = true,
 ) {
 
     private lateinit var engine: WebEngine
@@ -62,6 +63,8 @@ class WebViewState(
         Platform.runLater {
 
             Platform.setImplicitExit(false)
+
+            isFocusable = this@WebViewState.isFocusable
 
             val webView = WebView()
 

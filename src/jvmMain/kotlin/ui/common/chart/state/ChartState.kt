@@ -9,7 +9,10 @@ import ui.common.WebViewState
 
 abstract class ChartState(val coroutineScope: CoroutineScope) {
 
-    val webViewState: WebViewState = WebViewState(coroutineScope)
+    val webViewState: WebViewState = WebViewState(
+        coroutineScope = coroutineScope,
+        isFocusable = false,
+    )
 
     abstract fun resize(width: Int, height: Int)
 
