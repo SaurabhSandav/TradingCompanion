@@ -16,20 +16,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import ui.account.AccountScreen
-import ui.barreplay.BarReplayScreen
-import ui.charts.ChartsScreen
+import ui.barreplay.BarReplayWindow
+import ui.charts.ChartsWindow
 import ui.closedtrades.ClosedTradesPresenter
 import ui.closedtrades.ClosedTradesScreen
-import ui.common.AppWindow
 import ui.common.Tooltip
+import ui.common.state
 import ui.landing.model.LandingEvent
 import ui.landing.model.LandingScreen
 import ui.opentrades.OpenTradesPresenter
 import ui.opentrades.OpenTradesScreen
-import ui.settings.SettingsScreen
+import ui.settings.SettingsWindow
 import ui.sizing.SizingPresenter
 import ui.sizing.SizingScreen
 import ui.studies.StudiesPresenter
@@ -63,7 +61,9 @@ private fun LandingScreen(
     onCurrentScreenChange: (LandingScreen) -> Unit,
 ) {
 
-    val openWindows = remember { mutableStateMapOf<String, @Composable () -> Unit>() }
+    var showChartsWindow by state { false }
+    var showBarReplayWindow by state { false }
+    var showSettingsWindow by state { false }
 
     Row {
 
@@ -94,11 +94,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
                     selected = false,
-                    onClick = {
-                        openWindows.putIfAbsent("Charts") {
-                            ChartsScreen(appModule)
-                        }
-                    }
+                    onClick = { showChartsWindow = true }
                 )
             }
 
@@ -109,11 +105,8 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
                     selected = false,
-                    onClick = {
-                        openWindows.putIfAbsent("Bar Replay") {
-                            BarReplayScreen(appModule)
-                        }
-                    }
+                    onClick = { showBarReplayWindow = true }
+
                 )
             }
 
@@ -124,11 +117,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
                     selected = false,
-                    onClick = {
-                        openWindows.putIfAbsent("Settings") {
-                            SettingsScreen(appModule)
-                        }
-                    }
+                    onClick = { showSettingsWindow = true }
                 )
             }
         }
@@ -155,20 +144,28 @@ private fun LandingScreen(
             }
         }
 
-        openWindows.forEach { (key, content) ->
+        if (showChartsWindow) {
 
-            key(key) {
+            ChartsWindow(
+                appModule = appModule,
+                onCloseRequest = { showChartsWindow = false },
+            )
+        }
 
-                val windowState = rememberWindowState(
-                    placement = WindowPlacement.Maximized,
-                )
+        if (showBarReplayWindow) {
 
-                AppWindow(
-                    state = windowState,
-                    onCloseRequest = { openWindows.remove(key) },
-                    content = { content() },
-                )
-            }
+            BarReplayWindow(
+                appModule = appModule,
+                onCloseRequest = { showBarReplayWindow = false },
+            )
+        }
+
+        if (showSettingsWindow) {
+
+            SettingsWindow(
+                appModule = appModule,
+                onCloseRequest = { showSettingsWindow = false },
+            )
         }
     }
 }

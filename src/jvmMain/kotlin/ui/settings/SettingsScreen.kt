@@ -12,26 +12,42 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
+import ui.common.AppWindow
 import ui.common.controls.ListSelectionField
 import ui.common.state
 import ui.landing.model.LandingScreen
 import ui.settings.model.SettingsEvent.*
 
 @Composable
-internal fun SettingsScreen(appModule: AppModule) {
+internal fun SettingsWindow(
+    appModule: AppModule,
+    onCloseRequest: () -> Unit,
+) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember { SettingsPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 
-    SettingsScreen(
-        darkModeEnabled = state.darkModeEnabled,
-        onDarkThemeEnabledChange = { presenter.event(ChangeDarkModeEnabled(it)) },
-        landingScreen = state.landingScreen,
-        onLandingScreenChange = { presenter.event(ChangeLandingScreen(it)) },
-        densityFraction = state.densityFraction,
-        onDensityFractionChange = { presenter.event(ChangeDensityFraction(it)) },
+    val windowState = rememberWindowState(
+        placement = WindowPlacement.Maximized,
     )
+
+    AppWindow(
+        state = windowState,
+        onCloseRequest = onCloseRequest,
+    ) {
+
+        SettingsScreen(
+            darkModeEnabled = state.darkModeEnabled,
+            onDarkThemeEnabledChange = { presenter.event(ChangeDarkModeEnabled(it)) },
+            landingScreen = state.landingScreen,
+            onLandingScreenChange = { presenter.event(ChangeLandingScreen(it)) },
+            densityFraction = state.densityFraction,
+            onDensityFractionChange = { presenter.event(ChangeDensityFraction(it)) },
+        )
+    }
 }
 
 @Composable

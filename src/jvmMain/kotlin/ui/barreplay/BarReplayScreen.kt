@@ -2,25 +2,41 @@ package ui.barreplay
 
 import AppModule
 import androidx.compose.runtime.*
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
 import ui.barreplay.charts.ReplayChartsScreen
 import ui.barreplay.launchform.ReplayLaunchFormFields
 import ui.barreplay.launchform.ReplayLaunchFormScreen
 import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayScreen
+import ui.common.AppWindow
 
 @Composable
-internal fun BarReplayScreen(appModule: AppModule) {
+internal fun BarReplayWindow(
+    appModule: AppModule,
+    onCloseRequest: () -> Unit,
+) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember { BarReplayPresenter(scope) }
     val state by presenter.state.collectAsState()
 
-    BarReplayScreen(
-        appModule = appModule,
-        currentScreen = state.currentScreen,
-        onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay(it)) },
-        onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
+    val windowState = rememberWindowState(
+        placement = WindowPlacement.Maximized,
     )
+
+    AppWindow(
+        state = windowState,
+        onCloseRequest = onCloseRequest,
+    ) {
+
+        BarReplayScreen(
+            appModule = appModule,
+            currentScreen = state.currentScreen,
+            onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay(it)) },
+            onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
+        )
+    }
 }
 
 @Composable
