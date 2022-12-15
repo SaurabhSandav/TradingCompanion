@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +37,13 @@ fun ChartPage(
                 )
             },
         )
+
+        val backgroundColor = MaterialTheme.colorScheme.background
+
+        // Set Material background as page background
+        LaunchedEffect(backgroundColor) {
+            state.webViewState.setBackgroundColor(backgroundColor)
+        }
     }
 }
 

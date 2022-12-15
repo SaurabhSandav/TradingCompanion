@@ -1,6 +1,7 @@
 package ui.common
 
 import LocalDensityFraction
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -13,7 +14,7 @@ import java.awt.Component
 
 @Composable
 fun <T : Component> AppSwingPanel(
-    background: Color = Color.White,
+    background: Color = MaterialTheme.colorScheme.background,
     factory: () -> T,
     modifier: Modifier = Modifier,
     update: (T) -> Unit = NoOpUpdate,

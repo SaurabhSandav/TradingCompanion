@@ -6,6 +6,7 @@ import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel
 import javafx.scene.Scene
+import javafx.scene.paint.Color
 import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +43,9 @@ class WebViewState(
     private val isFocusable: Boolean = true,
 ) {
 
+    private lateinit var webView: WebView
     private lateinit var engine: WebEngine
+    private var backgroundColor: Color? = null
 
     var isReady by mutableStateOf(false)
 
@@ -66,7 +69,7 @@ class WebViewState(
 
             isFocusable = this@WebViewState.isFocusable
 
-            val webView = WebView()
+            webView = WebView()
 
             setEngine(webView.engine)
 
@@ -102,9 +105,23 @@ class WebViewState(
         }
     }
 
+    fun setBackgroundColor(color: androidx.compose.ui.graphics.Color) {
+
+        backgroundColor = Color.web(color.toHexString())
+
+        if (isReady) {
+            Platform.runLater {
+                webView.pageFill = backgroundColor
+            }
+        }
+    }
+
     private fun setEngine(webEngine: WebEngine) {
 
         engine = webEngine
+
+        // Page background color
+        backgroundColor?.let { webView.pageFill = it }
 
         engine.loadWorker.stateProperty().addListener { _, _, newValue ->
 
