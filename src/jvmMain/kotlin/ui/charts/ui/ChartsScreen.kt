@@ -24,6 +24,8 @@ fun ChartsScreen(
     chartState: ChartState,
     chartInfo: ChartsState.ChartInfo,
     onNewChart: () -> Unit,
+    onMoveTabBackward: () -> Unit,
+    onMoveTabForward: () -> Unit,
     onSelectChart: (Int) -> Unit,
     onCloseChart: (Int) -> Unit,
     onSymbolChange: (String) -> Unit,
@@ -39,6 +41,8 @@ fun ChartsScreen(
             onNewChart = onNewChart,
             onSymbolChange = onSymbolChange,
             onTimeframeChange = onTimeframeChange,
+            onMoveTabBackward = onMoveTabBackward,
+            onMoveTabForward = onMoveTabForward,
         )
 
         Column {

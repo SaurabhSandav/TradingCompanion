@@ -26,6 +26,8 @@ internal fun ReplayControls(
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     onNewChart: () -> Unit,
+    onMoveTabBackward: () -> Unit,
+    onMoveTabForward: () -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
 ) {
@@ -85,6 +87,20 @@ internal fun ReplayControls(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("New Chart")
+            }
+
+            Button(
+                onClick = onMoveTabBackward,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Move Tab Backward")
+            }
+
+            Button(
+                onClick = onMoveTabForward,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Move Tab Forward")
             }
 
             Button(

@@ -30,6 +30,8 @@ internal fun ChartsWindow(
             chartState = state.chartState,
             chartInfo = state.chartInfo,
             onNewChart = { presenter.event(NewChart) },
+            onMoveTabBackward = { presenter.event(MoveTabBackward) },
+            onMoveTabForward = { presenter.event(MoveTabForward) },
             onCloseChart = { presenter.event(CloseChart(it)) },
             onSelectChart = { presenter.event(SelectChart(it)) },
             onSymbolChange = { presenter.event(ChangeSymbol(it)) },

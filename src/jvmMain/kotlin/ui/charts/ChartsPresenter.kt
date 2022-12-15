@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import launchUnit
 import trading.Timeframe
 import ui.charts.model.ChartsEvent
 import ui.charts.model.ChartsEvent.*
@@ -35,7 +34,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class ChartsPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApiFactory(),
@@ -62,7 +61,9 @@ internal class ChartsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is NewChart -> onNewChart()
+                NewChart -> onNewChart()
+                MoveTabBackward -> onMoveTabBackward()
+                MoveTabForward -> onMoveTabForward()
                 is CloseChart -> onCloseChart(event.id)
                 is SelectChart -> onSelectChart(event.id)
                 NextChart -> onNextChart()
@@ -121,7 +122,7 @@ internal class ChartsPresenter(
         }
     }
 
-    private fun onNewChart() = coroutineScope.launchUnit {
+    private fun onNewChart() {
 
         // New unique id
         val id = ++maxChartId
@@ -153,6 +154,44 @@ internal class ChartsPresenter(
 
         // Switch to new tab/chart
         onSelectChart(id)
+    }
+
+    private fun onMoveTabBackward() {
+
+        // Find chart manager associated with current chart
+        val chartManager = findChartManager(currentChartId)
+
+        val currentIndex = chartManagers.indexOf(chartManager)
+
+        if (currentIndex != 0) {
+
+            // Reorder chart manager
+            chartManagers.removeAt(currentIndex)
+            chartManagers.add(currentIndex - 1, chartManager)
+
+            // Update tabs and selection
+            updateChartTabs()
+            tabsState = tabsState.copy(selectedTabIndex = currentIndex - 1)
+        }
+    }
+
+    private fun onMoveTabForward() {
+
+        // Find chart manager associated with current chart
+        val chartManager = findChartManager(currentChartId)
+
+        val currentIndex = chartManagers.indexOf(chartManager)
+
+        if (currentIndex != chartManagers.lastIndex) {
+
+            // Reorder chart manager
+            chartManagers.removeAt(currentIndex)
+            chartManagers.add(currentIndex + 1, chartManager)
+
+            // Update tabs and selection
+            updateChartTabs()
+            tabsState = tabsState.copy(selectedTabIndex = currentIndex + 1)
+        }
     }
 
     private fun onCloseChart(id: Int) {
@@ -230,7 +269,7 @@ internal class ChartsPresenter(
         onSelectChart(previousChartId)
     }
 
-    private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
+    private fun onChangeSymbol(symbol: String) {
 
         // Find chart manager associated with current chart
         val chartManager = findChartManager(currentChartId)
@@ -245,7 +284,7 @@ internal class ChartsPresenter(
         updateChartTabs()
     }
 
-    private fun onChangeTimeframe(newTimeframe: String) = coroutineScope.launchUnit {
+    private fun onChangeTimeframe(newTimeframe: String) {
 
         val timeframe = timeframeFromLabel(newTimeframe)
 

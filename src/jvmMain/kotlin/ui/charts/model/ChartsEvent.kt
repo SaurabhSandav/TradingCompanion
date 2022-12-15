@@ -4,6 +4,10 @@ internal sealed class ChartsEvent {
 
     object NewChart : ChartsEvent()
 
+    object MoveTabBackward : ChartsEvent()
+
+    object MoveTabForward : ChartsEvent()
+
     data class CloseChart(val id: Int) : ChartsEvent()
 
     data class SelectChart(val id: Int) : ChartsEvent()

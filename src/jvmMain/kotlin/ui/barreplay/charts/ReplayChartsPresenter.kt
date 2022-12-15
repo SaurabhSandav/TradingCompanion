@@ -80,7 +80,9 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
-                is NewChart -> onNewChart()
+                NewChart -> onNewChart()
+                MoveTabBackward -> onMoveTabBackward()
+                MoveTabForward -> onMoveTabForward()
                 is CloseChart -> onCloseChart(event.id)
                 is SelectChart -> onSelectChart(event.id)
                 NextChart -> onNextChart()
@@ -194,6 +196,44 @@ internal class ReplayChartsPresenter(
 
         // Switch to new tab/chart
         onSelectChart(id)
+    }
+
+    private fun onMoveTabBackward() {
+
+        // Find chart manager associated with current chart
+        val chartManager = findReplayChartManager(currentChartId)
+
+        val currentIndex = chartManagers.indexOf(chartManager)
+
+        if (currentIndex != 0) {
+
+            // Reorder chart manager
+            chartManagers.removeAt(currentIndex)
+            chartManagers.add(currentIndex - 1, chartManager)
+
+            // Update tabs and selection
+            updateChartTabs()
+            chartTabsState = chartTabsState.copy(selectedTabIndex = currentIndex - 1)
+        }
+    }
+
+    private fun onMoveTabForward() {
+
+        // Find chart manager associated with current chart
+        val chartManager = findReplayChartManager(currentChartId)
+
+        val currentIndex = chartManagers.indexOf(chartManager)
+
+        if (currentIndex != chartManagers.lastIndex) {
+
+            // Reorder chart manager
+            chartManagers.removeAt(currentIndex)
+            chartManagers.add(currentIndex + 1, chartManager)
+
+            // Update tabs and selection
+            updateChartTabs()
+            chartTabsState = chartTabsState.copy(selectedTabIndex = currentIndex + 1)
+        }
     }
 
     private fun onCloseChart(id: Int) {

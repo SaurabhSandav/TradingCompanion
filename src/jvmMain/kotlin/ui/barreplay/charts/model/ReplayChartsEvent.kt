@@ -10,6 +10,10 @@ sealed class ReplayChartsEvent {
 
     object NewChart : ReplayChartsEvent()
 
+    object MoveTabBackward : ReplayChartsEvent()
+
+    object MoveTabForward : ReplayChartsEvent()
+
     data class CloseChart(val id: Int) : ReplayChartsEvent()
 
     data class SelectChart(val id: Int) : ReplayChartsEvent()

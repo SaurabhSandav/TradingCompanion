@@ -17,6 +17,8 @@ import utils.NIFTY50
 internal fun ChartControls(
     chartInfo: ChartsState.ChartInfo,
     onNewChart: () -> Unit,
+    onMoveTabBackward: () -> Unit,
+    onMoveTabForward: () -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
 ) {
@@ -62,10 +64,24 @@ internal fun ChartControls(
             Divider()
 
             Button(
-                onClick = { onNewChart() },
+                onClick = onNewChart,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("New Chart")
+            }
+
+            Button(
+                onClick = onMoveTabBackward,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Move Tab Backward")
+            }
+
+            Button(
+                onClick = onMoveTabForward,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Move Tab Forward")
             }
         }
     }
