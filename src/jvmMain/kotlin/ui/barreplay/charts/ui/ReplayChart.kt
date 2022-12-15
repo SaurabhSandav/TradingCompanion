@@ -2,10 +2,12 @@ package ui.barreplay.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import chart.*
+import chart.callbacks.TimeRangeChangeEventHandler
 import chart.data.CandlestickData
 import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.Time
+import chart.misc.TimeRange
 import chart.options.CandlestickStyleOptions
 import chart.options.HistogramStyleOptions
 import chart.options.LineStyleOptions
@@ -14,6 +16,11 @@ import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
@@ -32,6 +39,8 @@ internal class ReplayChart(
     val chart: IChartApi,
     onLegendUpdate: (LegendValues) -> Unit,
 ) {
+
+    val visibleTimeRange = visibleTimeRangeFlow()
 
     private val candlestickSeries by chart.candlestickSeries(
         options = CandlestickStyleOptions(
@@ -182,6 +191,19 @@ internal class ReplayChart(
             )
         )
     }
+
+    fun setVisibleRange(range: TimeRange) {
+        chart.timeScale.setVisibleRange(range.from, range.to)
+    }
+
+    private fun visibleTimeRangeFlow(): Flow<TimeRange?> = callbackFlow {
+
+        val handler = TimeRangeChangeEventHandler { range -> trySend(range) }
+
+        chart.timeScale.subscribeVisibleTimeRangeChange(handler)
+
+        awaitClose { chart.timeScale.unsubscribeVisibleTimeRangeChange(handler) }
+    }.buffer(Channel.CONFLATED)
 
     private fun enableVolume() {
 

@@ -120,7 +120,7 @@ internal class ReplayChartsPresenter(
             )
 
             // Cache newly created chart manager
-            chartManagers += chartManager
+            saveChartManager(chartManager)
 
             // Show Chart
             tabbedChartState.showChart(chartManager.chart.chart)
@@ -187,7 +187,7 @@ internal class ReplayChartsPresenter(
         }
 
         // Cache newly created chart manager
-        chartManagers += chartManager
+        saveChartManager(chartManager)
 
         // Add new tab
         updateChartTabs()
@@ -429,6 +429,25 @@ internal class ReplayChartsPresenter(
         }
 
         chartTabsState = chartTabsState.copy(tabs = newTabs)
+    }
+
+    private fun saveChartManager(chartManager: ReplayChartManager) {
+
+        chartManagers += chartManager
+
+        // Sync visible time range across charts
+        chartManager.coroutineScope.launch {
+            chartManager.chart.visibleTimeRange.collect { range ->
+                if (range == null) return@collect
+
+                // Watch only the current chart
+                if (chartManager.chartId != currentChartId) return@collect
+
+                // Update all other charts with same timeframe
+                chartManagers.filter { it.timeframe == chartManager.timeframe && it != chartManager }
+                    .forEach { it.chart.setVisibleRange(range) }
+            }
+        }
     }
 
     private fun findReplayChartManager(chartId: Int): ReplayChartManager {

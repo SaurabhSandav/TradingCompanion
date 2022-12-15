@@ -106,7 +106,10 @@ private fun IChartApi.configure(
     ema9Series.setData(chartData.ema9Data)
     vwapSeries.setData(chartData.vwapData)
 
-    timeScale.setVisibleLogicalRange(chartData.visibilityIndexRange.start, chartData.visibilityIndexRange.endInclusive)
+    timeScale.setVisibleLogicalRange(
+        from = chartData.visibilityIndexRange.start.toFloat(),
+        to = chartData.visibilityIndexRange.endInclusive.toFloat(),
+    )
 
     candleSeries.setMarkers(chartData.markers)
 

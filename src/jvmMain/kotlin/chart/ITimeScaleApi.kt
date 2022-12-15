@@ -53,7 +53,7 @@ class ITimeScaleApi internal constructor(
         return LogicalRange.fromJson(result)
     }
 
-    fun setVisibleLogicalRange(from: Int, to: Int) {
+    fun setVisibleLogicalRange(from: Float, to: Float) {
 
         val rangeStr = buildJsonObject {
             put("from", from)

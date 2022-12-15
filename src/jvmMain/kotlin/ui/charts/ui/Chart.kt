@@ -3,10 +3,12 @@ package ui.charts.ui
 import androidx.compose.ui.graphics.Color
 import chart.*
 import chart.callbacks.MouseEventHandler
+import chart.callbacks.TimeRangeChangeEventHandler
 import chart.data.CandlestickData
 import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.Time
+import chart.misc.TimeRange
 import chart.options.CandlestickStyleOptions
 import chart.options.HistogramStyleOptions
 import chart.options.LineStyleOptions
@@ -32,11 +34,12 @@ import java.math.RoundingMode
 
 internal class Chart(
     val actualChart: IChartApi,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     onLoadMore: suspend () -> Unit,
 ) {
 
     val legendValues = legendValuesFlow()
+    val visibleTimeRange = visibleTimeRangeFlow()
 
     private val candlestickSeries by actualChart.candlestickSeries(
         options = CandlestickStyleOptions(
@@ -82,6 +85,7 @@ internal class Chart(
             }
         }
 
+        // Initially, leave some empty space to the right of the candles
         actualChart.timeScale.scrollToPosition(40, false)
     }
 
@@ -181,6 +185,10 @@ internal class Chart(
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
     }
 
+    fun setVisibleRange(range: TimeRange) {
+        actualChart.timeScale.setVisibleRange(range.from, range.to)
+    }
+
     private fun legendValuesFlow(): Flow<LegendValues> = callbackFlow {
 
         val handler = MouseEventHandler { params ->
@@ -210,6 +218,15 @@ internal class Chart(
         actualChart.subscribeCrosshairMove(handler)
 
         awaitClose { actualChart.unsubscribeCrosshairMove(handler) }
+    }.buffer(Channel.CONFLATED)
+
+    private fun visibleTimeRangeFlow(): Flow<TimeRange?> = callbackFlow {
+
+        val handler = TimeRangeChangeEventHandler { range -> trySend(range) }
+
+        actualChart.timeScale.subscribeVisibleTimeRangeChange(handler)
+
+        awaitClose { actualChart.timeScale.unsubscribeVisibleTimeRangeChange(handler) }
     }.buffer(Channel.CONFLATED)
 
     private fun enableVolume() {

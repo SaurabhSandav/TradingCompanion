@@ -111,7 +111,7 @@ internal class ChartsPresenter(
             chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
             // Cache newly created chart manager
-            chartManagers += chartManager
+            saveChartManager(chartManager)
 
             // Show Chart
             tabbedChartState.showChart(chartManager.chart.actualChart)
@@ -146,7 +146,7 @@ internal class ChartsPresenter(
         chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
-        chartManagers += chartManager
+        saveChartManager(chartManager)
 
         // Add new tab
         updateChartTabs()
@@ -272,6 +272,25 @@ internal class ChartsPresenter(
         }
 
         tabsState = tabsState.copy(tabs = newTabs)
+    }
+
+    private fun saveChartManager(chartManager: ChartManager) {
+
+        chartManagers += chartManager
+
+        // Sync visible range across charts
+        chartManager.coroutineScope.launch {
+            chartManager.chart.visibleTimeRange.collect { range ->
+                if (range == null) return@collect
+
+                // Watch only the current chart
+                if (chartManager.params.id != currentChartId) return@collect
+
+                // Update all other charts with same timeframe
+                chartManagers.filter { it.params.timeframe == chartManager.params.timeframe && it != chartManager }
+                    .forEach { it.chart.setVisibleRange(range) }
+            }
+        }
     }
 
     private fun findChartManager(chartId: Int): ChartManager {

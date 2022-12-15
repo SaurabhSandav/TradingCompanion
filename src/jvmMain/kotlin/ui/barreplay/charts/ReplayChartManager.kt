@@ -21,7 +21,7 @@ internal data class ReplayChartManager(
     val replaySession: BarReplaySession,
 ) {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private val ema9Indicator = EMAIndicator(ClosePriceIndicator(replaySession.replaySeries), length = 9)
     private val vwapIndicator = VWAPIndicator(replaySession.replaySeries, ::dailySessionStart)
