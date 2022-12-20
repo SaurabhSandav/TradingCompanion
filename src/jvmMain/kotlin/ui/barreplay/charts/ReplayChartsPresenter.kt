@@ -131,9 +131,8 @@ internal class ReplayChartsPresenter(
             updateChartTabs()
 
             // Show replay time using currently selected chart data
-            updateTime(chartManager.replaySession.replaySeries.last().openInstant)
             replayTimeJob = coroutineScope.launch {
-                chartManager.replaySession.replaySeries.live.collect { updateTime(it.openInstant) }
+                chartManager.replaySession.replayTime.collect(::updateTime)
             }
         }
     }
@@ -280,10 +279,9 @@ internal class ReplayChartsPresenter(
         tabbedChartState.showChart(chartManager.chart.chart)
 
         // Show replay time using currently selected chart data
-        updateTime(chartManager.replaySession.replaySeries.last().openInstant)
         replayTimeJob.cancel()
         replayTimeJob = coroutineScope.launch {
-            chartManager.replaySession.replaySeries.live.collect { updateTime(it.openInstant) }
+            chartManager.replaySession.replayTime.collect(::updateTime)
         }
     }
 
@@ -345,6 +343,12 @@ internal class ReplayChartsPresenter(
 
         // Update tab title
         updateChartTabs()
+
+        // Show replay time using new session
+        replayTimeJob.cancel()
+        replayTimeJob = coroutineScope.launch {
+            newChartManager.replaySession.replayTime.collect(::updateTime)
+        }
     }
 
     private fun onChangeTimeframe(newTimeframe: String) = coroutineScope.launchUnit {
@@ -379,6 +383,12 @@ internal class ReplayChartsPresenter(
 
         // Update tab title
         updateChartTabs()
+
+        // Show replay time using new session
+        replayTimeJob.cancel()
+        replayTimeJob = coroutineScope.launch {
+            newChartManager.replaySession.replayTime.collect(::updateTime)
+        }
     }
 
     private suspend fun createReplayChartManager(

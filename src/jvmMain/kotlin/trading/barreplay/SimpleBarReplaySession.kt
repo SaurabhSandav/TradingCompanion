@@ -1,5 +1,10 @@
 package trading.barreplay
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
 import subList
 import trading.CandleSeries
 import trading.MutableCandleSeries
@@ -16,6 +21,7 @@ class SimpleBarReplaySession(
         initial = inputSeries.subList(0, toIndexExclusive = initialIndex + currentOffset),
         timeframe = inputSeries.timeframe,
     )
+    private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
 
     init {
 
@@ -26,10 +32,18 @@ class SimpleBarReplaySession(
 
     override val replaySeries: CandleSeries = _replaySeries.asCandleSeries()
 
+    override val replayTime: StateFlow<Instant> = _replayTime.asStateFlow()
+
     override fun addCandle(offset: Int) {
 
-        // Get candle as-is and add it to replay series
-        _replaySeries.addCandle(inputSeries[initialIndex + offset])
+        // Get candle as-is
+        val inputCandle = inputSeries[initialIndex + offset]
+
+        // Add candle to replay series
+        _replaySeries.addCandle(inputCandle)
+
+        // Update time
+        _replayTime.update { inputCandle.openInstant }
     }
 
     override fun addCandle(offset: Int, candleState: BarReplay.CandleState) {
@@ -42,11 +56,17 @@ class SimpleBarReplaySession(
 
         // Add candle to replay series
         _replaySeries.addCandle(candle)
+
+        // Update time
+        _replayTime.update { candle.openInstant }
     }
 
     override fun reset() {
 
         // Reset replaySeries to initial state
         _replaySeries.removeLast(_replaySeries.size - initialIndex)
+
+        // Update time
+        _replayTime.update { _replaySeries.last().openInstant }
     }
 }

@@ -1,5 +1,10 @@
 package trading.barreplay
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
 import subList
 import subListInclusive
 import trading.*
@@ -15,6 +20,7 @@ class ResampledBarReplaySession(
 
     private val _replaySeries: MutableCandleSeries
     private var currentTimeframeCandleIndex: Int
+    private val _replayTime: MutableStateFlow<Instant>
 
     init {
 
@@ -35,9 +41,14 @@ class ResampledBarReplaySession(
         // If candle is not closed, a new partially formed candle needs to be added.
         if (currentCandleState != BarReplay.CandleState.Close)
             addCandle(currentOffset, currentCandleState)
+
+        // Set initial time
+        _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
     }
 
     override val replaySeries: CandleSeries = _replaySeries.asCandleSeries()
+
+    override val replayTime: StateFlow<Instant> = _replayTime.asStateFlow()
 
     override fun addCandle(offset: Int) {
 
@@ -63,6 +74,9 @@ class ResampledBarReplaySession(
 
         // Add to replay series
         _replaySeries.addCandle(candle)
+
+        // Update time
+        _replayTime.update { inputSeries[currentIndex].openInstant }
     }
 
     override fun addCandle(offset: Int, candleState: BarReplay.CandleState) {
@@ -91,6 +105,9 @@ class ResampledBarReplaySession(
 
         // Add to replay series
         _replaySeries.addCandle(candle)
+
+        // Update time
+        _replayTime.update { inputSeries[currentIndex].openInstant }
     }
 
     override fun reset() {
@@ -108,7 +125,11 @@ class ResampledBarReplaySession(
         // Last candle is resampled from inputSeries to make it more accurate to current replay state
         val resampledCandle = resampleCandleAt(offset = 0)
 
+        // Add resampled candle
         _replaySeries.addCandle(resampledCandle)
+
+        // Update time
+        _replayTime.update { resampledCandle.openInstant }
     }
 
     /**
