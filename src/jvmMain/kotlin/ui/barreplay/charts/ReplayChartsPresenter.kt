@@ -15,6 +15,9 @@ import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -122,7 +125,10 @@ internal class ReplayChartsPresenter(
             )
 
             // Cache newly created chart manager
-            saveChartManager(chartManager)
+            chartManagers += chartManager
+
+            // Sync with other charts
+            syncCharts(chartManager)
 
             // Show Chart
             tabbedChartState.showChart(chartManager.chart.chart)
@@ -188,7 +194,10 @@ internal class ReplayChartsPresenter(
         }
 
         // Cache newly created chart manager
-        saveChartManager(chartManager)
+        chartManagers += chartManager
+
+        // Sync with other charts
+        syncCharts(chartManager)
 
         // Add new tab
         updateChartTabs()
@@ -242,6 +251,9 @@ internal class ReplayChartsPresenter(
 
         // Hold currently selected chart manager
         val currentSelection = chartManagers[chartTabsState.selectedTabIndex]
+
+        // Cancel chart manager coroutines
+        chartManager.coroutineScope.cancel()
 
         // Remove chart manager from cache
         chartManagers.remove(chartManager)
@@ -319,8 +331,8 @@ internal class ReplayChartsPresenter(
         val chartManager = findReplayChartManager(currentChartId)
         val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Stop watching live candles
-        chartManager.unsubscribeLiveCandles()
+        // Cancel chart manager coroutines
+        chartManager.coroutineScope.cancel()
 
         // Remove session from BarReplay
         barReplay.removeSession(chartManager.replaySession)
@@ -337,6 +349,9 @@ internal class ReplayChartsPresenter(
         // Replace previous chart manager with new chart manager at same location
         chartManagers.removeAt(chartManagerIndex)
         chartManagers.add(chartManagerIndex, newChartManager)
+
+        // Sync with other charts
+        syncCharts(newChartManager)
 
         // Update chart info
         chartInfo = chartInfo.copy(symbol = symbol)
@@ -359,8 +374,8 @@ internal class ReplayChartsPresenter(
         val chartManager = findReplayChartManager(currentChartId)
         val chartManagerIndex = chartManagers.indexOf(chartManager)
 
-        // Stop watching live candles
-        chartManager.unsubscribeLiveCandles()
+        // Cancel chart manager coroutines
+        chartManager.coroutineScope.cancel()
 
         // Remove session from BarReplay
         barReplay.removeSession(chartManager.replaySession)
@@ -377,6 +392,9 @@ internal class ReplayChartsPresenter(
         // Replace previous chart manager with new chart manager at same location
         chartManagers.removeAt(chartManagerIndex)
         chartManagers.add(chartManagerIndex, newChartManager)
+
+        // Sync with other charts
+        syncCharts(newChartManager)
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())
@@ -481,23 +499,17 @@ internal class ReplayChartsPresenter(
         chartTabsState = chartTabsState.copy(tabs = newTabs)
     }
 
-    private fun saveChartManager(chartManager: ReplayChartManager) {
+    private fun syncCharts(chartManager: ReplayChartManager) {
 
-        chartManagers += chartManager
+        chartManager.chart.visibleTimeRange.filterNotNull().onEach { range ->
 
-        // Sync visible time range across charts
-        chartManager.coroutineScope.launch {
-            chartManager.chart.visibleTimeRange.collect { range ->
-                if (range == null) return@collect
+            // Watch only the current chart
+            if (chartManager.chartId != currentChartId) return@onEach
 
-                // Watch only the current chart
-                if (chartManager.chartId != currentChartId) return@collect
-
-                // Update all other charts with same timeframe
-                chartManagers.filter { it.timeframe == chartManager.timeframe && it != chartManager }
-                    .forEach { it.chart.setVisibleRange(range) }
-            }
-        }
+            // Update all other charts with same timeframe
+            chartManagers.filter { it.timeframe == chartManager.timeframe && it != chartManager }
+                .forEach { it.chart.setVisibleRange(range) }
+        }.launchIn(chartManager.coroutineScope)
     }
 
     private fun findReplayChartManager(chartId: Int): ReplayChartManager {

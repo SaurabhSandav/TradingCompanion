@@ -2,7 +2,6 @@ package ui.barreplay.charts
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import trading.Candle
 import trading.Timeframe
@@ -36,10 +35,6 @@ internal data class ReplayChartManager(
 
     fun reset() {
         setInitialData()
-    }
-
-    fun unsubscribeLiveCandles() {
-        coroutineScope.cancel()
     }
 
     private fun setInitialData() {
