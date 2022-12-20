@@ -26,7 +26,7 @@ internal fun ClosedTradeChartWindow(
     AppWindow(
         onCloseRequest = onCloseRequest,
         state = rememberWindowState(placement = WindowPlacement.Maximized),
-        title = "Chart",
+        title = "Trade Chart",
     ) {
 
         val themedOptions = themedChartOptions()

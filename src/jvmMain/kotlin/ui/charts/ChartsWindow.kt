@@ -56,6 +56,7 @@ private fun ChartsWindow(
 
     AppWindow(
         state = windowState,
+        title = "Charts",
         onCloseRequest = onCloseRequest,
         onPreviewKeyEvent = { keyEvent ->
 

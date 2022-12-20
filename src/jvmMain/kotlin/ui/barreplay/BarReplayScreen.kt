@@ -27,6 +27,7 @@ internal fun BarReplayWindow(
 
     AppWindow(
         state = windowState,
+        title = "Bar Replay",
         onCloseRequest = onCloseRequest,
     ) {
 

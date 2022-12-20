@@ -12,6 +12,7 @@ import ui.closedtrades.ui.ClosedTradeChartWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
 import ui.common.ErrorSnackbar
+import ui.common.LocalAppWindowState
 import ui.fyerslogin.FyersLoginWindow
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
@@ -21,6 +22,10 @@ internal fun ClosedTradesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
+    val appWindowState = LocalAppWindowState.current
+
+    // Set window title
+    LaunchedEffect(appWindowState) { appWindowState.title = "Closed Trades" }
 
     val snackbarHostState = remember { SnackbarHostState() }
 

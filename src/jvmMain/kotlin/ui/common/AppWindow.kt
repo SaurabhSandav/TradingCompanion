@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -20,7 +21,7 @@ fun AppWindow(
     onCloseRequest: () -> Unit,
     state: WindowState = rememberWindowState(),
     visible: Boolean = true,
-    title: String = "Untitled",
+    title: String? = null,
     icon: Painter? = null,
     undecorated: Boolean = false,
     transparent: Boolean = false,
@@ -33,11 +34,13 @@ fun AppWindow(
     content: @Composable FrameWindowScope.() -> Unit,
 ) {
 
+    val appWindowState = remember { AppWindowState() }
+
     Window(
         onCloseRequest = onCloseRequest,
         state = state,
         visible = visible,
-        title = title,
+        title = title ?: appWindowState.title,
         icon = icon,
         undecorated = undecorated,
         transparent = transparent,
@@ -54,7 +57,10 @@ fun AppWindow(
 
         val newDensity = Density(density.density * densityFraction, density.fontScale)
 
-        CompositionLocalProvider(LocalDensity provides newDensity) {
+        CompositionLocalProvider(
+            LocalDensity provides newDensity,
+            LocalAppWindowState provides appWindowState,
+        ) {
 
             Surface(
                 modifier = Modifier.fillMaxSize(),

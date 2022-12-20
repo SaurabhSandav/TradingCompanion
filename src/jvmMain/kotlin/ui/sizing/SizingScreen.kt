@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ui.addopentrade.AddOpenTradeWindow
+import ui.common.LocalAppWindowState
 import ui.common.controls.ListSelectionDialog
 import ui.common.state
 import ui.sizing.model.SizedTrade
@@ -24,6 +25,10 @@ internal fun SizingScreen(
 ) {
 
     val state by presenter.state.collectAsState()
+    val appWindowState = LocalAppWindowState.current
+
+    // Set window title
+    LaunchedEffect(appWindowState) { appWindowState.title = "Trade Sizing" }
 
     SizingTradesGrid(
         sizedTrades = state.sizedTrades,

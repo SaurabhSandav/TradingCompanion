@@ -36,6 +36,7 @@ internal fun SettingsWindow(
 
     AppWindow(
         state = windowState,
+        title = "Settings",
         onCloseRequest = onCloseRequest,
     ) {
 

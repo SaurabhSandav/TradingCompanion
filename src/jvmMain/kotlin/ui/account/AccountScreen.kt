@@ -6,14 +6,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ui.common.AppColor
+import ui.common.LocalAppWindowState
 import ui.common.state
 import ui.common.table.*
 
@@ -23,6 +21,10 @@ internal fun AccountScreen(
 ) {
 
     val state by presenter.state.collectAsState()
+    val appWindowState = LocalAppWindowState.current
+
+    // Set window title
+    LaunchedEffect(appWindowState) { appWindowState.title = "Account" }
 
     val schema = rememberTableSchema<Transaction> {
         addColumnText("Date") { it.date }

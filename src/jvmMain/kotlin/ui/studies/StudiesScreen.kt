@@ -12,6 +12,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import studies.Study
 import ui.common.AppWindow
+import ui.common.LocalAppWindowState
 import ui.common.MultipleWindowManager
 
 @Composable
@@ -20,7 +21,12 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
+    val appWindowState = LocalAppWindowState.current
     val studyWindowsManager = remember { MultipleWindowManager<Study.Factory<*>>() }
+
+    // Set window title
+    LaunchedEffect(appWindowState) { appWindowState.title = "Studies" }
+
 
     LazyColumn(Modifier.fillMaxSize()) {
 
