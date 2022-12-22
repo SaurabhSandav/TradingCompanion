@@ -13,6 +13,8 @@ import kotlinx.datetime.Instant
 import trading.Candle
 import trading.Timeframe
 import utils.AppPaths
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 class CandleDBCollection {
 
@@ -20,10 +22,15 @@ class CandleDBCollection {
 
     fun get(symbol: String, timeframe: Timeframe): CandleDB {
 
+        val candlesFolderPath = Path("${AppPaths.getAppDataPath()}/Candles")
+
+        // Create if not exists
+        if (!Files.exists(candlesFolderPath)) Files.createDirectory(candlesFolderPath)
+
         val dbName = "${symbol}_${timeframe.seconds}"
 
         return dbMap.getOrPut(dbName) {
-            val driver = JdbcSqliteDriver("jdbc:sqlite:${AppPaths.getAppDataPath()}/Candles/${dbName}.db")
+            val driver = JdbcSqliteDriver("jdbc:sqlite:$candlesFolderPath/${dbName}.db")
             CandleDB.Schema.create(driver)
             CandleDB(driver = driver)
         }
@@ -99,7 +106,8 @@ internal class CandleCacheDB(
     ): CandleCache.CountRange? {
 
         val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
-        val result = candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds).asFlow().mapToList(Dispatchers.IO).first()
+        val result =
+            candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds).asFlow().mapToList(Dispatchers.IO).first()
 
         return when {
             result.size != 2 -> null
