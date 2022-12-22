@@ -27,7 +27,7 @@ internal fun ChartsWindow(
 
         ChartsScreen(
             tabsState = state.tabsState,
-            chartState = state.chartState,
+            chartPageState = state.chartPageState,
             chartInfo = state.chartInfo,
             onNewChart = { presenter.event(NewChart) },
             onMoveTabBackward = { presenter.event(MoveTabBackward) },

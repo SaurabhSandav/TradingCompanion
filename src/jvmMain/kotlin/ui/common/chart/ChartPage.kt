@@ -13,12 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import ui.common.JavaFxWebView
 import ui.common.WebViewState
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 import ui.common.state
 
 @Composable
 fun ChartPage(
-    state: ChartState,
+    state: ChartPageState,
     modifier: Modifier = Modifier,
 ) {
 
@@ -31,10 +31,7 @@ fun ChartPage(
             modifier = Modifier.fillMaxSize().onSizeChanged { size ->
 
                 // Resize chart on layout resize
-                state.resize(
-                    width = size.width,
-                    height = size.height,
-                )
+                state.resize(size)
             },
         )
 

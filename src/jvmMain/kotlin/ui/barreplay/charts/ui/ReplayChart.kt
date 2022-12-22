@@ -9,10 +9,7 @@ import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.Time
 import chart.misc.TimeRange
-import chart.options.CandlestickStyleOptions
-import chart.options.HistogramStyleOptions
-import chart.options.LineStyleOptions
-import chart.options.TimeScaleOptions
+import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import kotlinx.coroutines.channels.Channel
@@ -30,9 +27,15 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class ReplayChart(
-    val actualChart: IChartApi,
+    container: String,
+    name: String,
 ) {
 
+    val actualChart = createChart(
+        container = container,
+        name = name,
+        options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+    )
     val legendValues = legendValuesFlow()
     val visibleTimeRange = visibleTimeRangeFlow()
 

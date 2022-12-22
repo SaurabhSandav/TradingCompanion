@@ -13,7 +13,7 @@ import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.ui.ReplayChartPage
 import ui.barreplay.charts.ui.ReplayControls
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 
 @Composable
 internal fun ReplayChartsScreen(
@@ -45,7 +45,7 @@ internal fun ReplayChartsScreen(
     ReplayCharts(
         onNewReplay = onNewReplay,
         chartTabsState = state.chartTabsState,
-        chartState = state.chartState,
+        chartPageState = state.chartPageState,
         chartInfo = state.chartInfo,
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
@@ -66,7 +66,7 @@ internal fun ReplayChartsScreen(
 internal fun ReplayCharts(
     onNewReplay: () -> Unit,
     chartTabsState: ReplayChartTabsState,
-    chartState: ChartState,
+    chartPageState: ChartPageState,
     chartInfo: ReplayChartInfo,
     onReset: () -> Unit,
     onNext: () -> Unit,
@@ -116,7 +116,7 @@ internal fun ReplayCharts(
 
         ReplayChartPage(
             chartTabsState = chartTabsState,
-            chartState = chartState,
+            chartPageState = chartPageState,
             onSelectChart = onSelectChart,
             onCloseChart = onCloseChart,
         )

@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import chart.baselineSeries
+import chart.createChart
 import chart.data.SingleValueData
 import chart.data.Time
 import chart.options.CrosshairMode
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import ui.common.chart.ChartPage
-import ui.common.chart.state.SinglePageChartState
+import ui.common.chart.state.ChartPageState
 import ui.common.chart.themedChartOptions
 import utils.brokerage
 import java.math.BigDecimal
@@ -72,27 +73,26 @@ internal class PNLByDayChartStudy(
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
 
-        val chartState = remember {
-            SinglePageChartState(
-                coroutineScope = coroutineScope,
-                options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-            )
+        val chart = remember {
+            createChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ChartPage(chartState)
+        val chartPageState = remember { ChartPageState(coroutineScope, chart) }
 
-        LaunchedEffect(chartState) {
+        ChartPage(chartPageState)
 
-            val baselineSeries by chartState.chart.baselineSeries()
+        LaunchedEffect(chart) {
+
+            val baselineSeries by chart.baselineSeries()
 
             data.collect {
                 baselineSeries.setData(it)
-                chartState.chart.timeScale.fitContent()
+                chart.timeScale.fitContent()
             }
         }
 
         LaunchedEffect(themedOptions) {
-            chartState.chart.applyOptions(themedOptions)
+            chart.applyOptions(themedOptions)
         }
     }
 

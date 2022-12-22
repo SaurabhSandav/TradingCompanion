@@ -18,12 +18,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.common.chart.ChartPage
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 
 @Composable
 fun ReplayChartPage(
     chartTabsState: ReplayChartTabsState,
-    chartState: ChartState,
+    chartPageState: ChartPageState,
     onSelectChart: (Int) -> Unit,
     onCloseChart: (Int) -> Unit,
 ) {
@@ -57,7 +57,7 @@ fun ReplayChartPage(
         }
 
         ChartPage(
-            state = chartState,
+            state = chartPageState,
             modifier = Modifier.fillMaxSize(),
         )
     }

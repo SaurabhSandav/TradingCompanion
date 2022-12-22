@@ -9,10 +9,7 @@ import chart.data.HistogramData
 import chart.data.LineData
 import chart.data.Time
 import chart.misc.TimeRange
-import chart.options.CandlestickStyleOptions
-import chart.options.HistogramStyleOptions
-import chart.options.LineStyleOptions
-import chart.options.TimeScaleOptions
+import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import kotlinx.coroutines.CoroutineScope
@@ -33,11 +30,17 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class Chart(
-    val actualChart: IChartApi,
     coroutineScope: CoroutineScope,
+    container: String,
+    name: String,
     onLoadMore: suspend () -> Unit,
 ) {
 
+    val actualChart = createChart(
+        container = container,
+        name = name,
+        options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+    )
     val legendValues = legendValuesFlow()
     val visibleTimeRange = visibleTimeRangeFlow()
 

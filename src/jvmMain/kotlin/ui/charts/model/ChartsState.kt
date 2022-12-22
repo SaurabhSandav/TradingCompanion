@@ -2,13 +2,13 @@ package ui.charts.model
 
 import androidx.compose.runtime.Immutable
 import ui.common.UIErrorMessage
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 import ui.fyerslogin.FyersLoginState
 
 @Immutable
 data class ChartsState(
     val tabsState: TabsState,
-    val chartState: ChartState,
+    val chartPageState: ChartPageState,
     val chartInfo: ChartInfo,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: List<UIErrorMessage>,

@@ -7,9 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
-import chart.options.ChartOptions
-import chart.options.CrosshairMode
-import chart.options.CrosshairOptions
 import com.russhwolf.settings.coroutines.FlowSettings
 import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +14,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import trading.Timeframe
 import ui.charts.model.ChartsEvent
 import ui.charts.model.ChartsEvent.*
@@ -25,7 +21,9 @@ import ui.charts.model.ChartsState
 import ui.charts.model.ChartsState.*
 import ui.common.CollectEffect
 import ui.common.UIErrorMessage
-import ui.common.chart.state.TabbedChartState
+import ui.common.chart.state.ChartArrangement
+import ui.common.chart.state.ChartPageState
+import ui.common.chart.state.paged
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import ui.fyerslogin.FyersLoginState
@@ -44,10 +42,10 @@ internal class ChartsPresenter(
 
     private val initialSymbol = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
-    private val tabbedChartState = TabbedChartState(coroutineScope)
-    private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-    private var maxChartId = 0
-    private var currentChartId = 0
+    private val pagedChartArrangement = ChartArrangement.paged()
+    private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
+    private var maxChartId = -1
+    private var currentChartId = -1
     private val chartManagers = mutableListOf<ChartManager>()
 
     private var tabsState by mutableStateOf(TabsState(emptyList(), 0))
@@ -75,7 +73,7 @@ internal class ChartsPresenter(
 
         return@launchMolecule ChartsState(
             tabsState = tabsState,
-            chartState = tabbedChartState,
+            chartPageState = chartPageState,
             chartInfo = chartInfo.copy(legendValues = legendValues),
             fyersLoginWindowState = fyersLoginWindowState,
             errors = errors,
@@ -88,38 +86,8 @@ internal class ChartsPresenter(
 
     init {
 
-        coroutineScope.launch {
-
-            // New unique id
-            val id = 0
-
-            // Add new chart
-            val actualChart = tabbedChartState.addChart("Chart$id", chartOptions)
-
-            // Create new chart manager with initial params
-            val chartManager = ChartManager(
-                initialParams = ChartManager.ChartParams(
-                    id = id,
-                    symbol = initialSymbol,
-                    timeframe = initialTimeframe,
-                ),
-                actualChart = actualChart,
-                appModule = appModule,
-                onCandleDataLogin = ::onCandleDataLogin,
-            )
-
-            // Observe legend values
-            chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
-
-            // Cache newly created chart manager
-            saveChartManager(chartManager)
-
-            // Show Chart
-            tabbedChartState.showChart(chartManager.chart.actualChart)
-
-            // Add new tab
-            updateChartTabs()
-        }
+        // Initial chart
+        onNewChart()
     }
 
     private fun onNewChart() {
@@ -128,26 +96,55 @@ internal class ChartsPresenter(
         val id = ++maxChartId
 
         // Add new chart
-        val actualChart = tabbedChartState.addChart("Chart$id", chartOptions)
+        val chartName = chartName(id)
+        val chartContainer = pagedChartArrangement.addPage(chartName)
 
-        // Copy currently selected chart manager
-        val chartManager = run {
-
-            // Find chart manager associated with current chart
-            val chartManager = findChartManager(currentChartId)
-
-            // Create new chart manager with existing params
-            chartManager.withNewChart(
-                id = id,
-                actualChart = actualChart,
+        // Create new chart manager
+        val chartManager = when (currentChartId) {
+            // First chart, create chart manager with initial params
+            -1 -> ChartManager(
+                initialParams = ChartManager.ChartParams(
+                    id = id,
+                    symbol = initialSymbol,
+                    timeframe = initialTimeframe,
+                ),
+                container = chartContainer.value,
+                name = chartName,
+                appModule = appModule,
+                onCandleDataLogin = ::onCandleDataLogin,
             )
+            // Copy currently selected chart manager
+            else -> {
+                // Find chart manager associated with current chart
+                val chartManager = findChartManager(currentChartId)
+
+                // Create new chart manager with existing params
+                chartManager.withNewChart(
+                    id = id,
+                    container = chartContainer.value,
+                    name = chartName,
+                )
+            }
         }
+
+        // Connect chart to web page
+        chartPageState.connect(
+            chart = chartManager.chart.actualChart,
+            syncConfig = ChartPageState.SyncConfig(
+                isChartFocused = { currentChartId == id },
+                syncChartWith = { chart ->
+                    val filterChartManager = chartManagers.find { it.chart.actualChart == chart }!!
+                    // Sync charts with same timeframes
+                    filterChartManager.params.timeframe == chartManager.params.timeframe
+                },
+            )
+        )
 
         // Observe legend values
         chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
-        saveChartManager(chartManager)
+        chartManagers += chartManager
 
         // Add new tab
         updateChartTabs()
@@ -205,8 +202,11 @@ internal class ChartsPresenter(
         // Remove chart manager from cache
         chartManagers.remove(chartManager)
 
-        // Remove chart
-        tabbedChartState.removeChart(chartManager.chart.actualChart)
+        // Remove chart page
+        pagedChartArrangement.removePage(chartName(id))
+
+        // Disconnect chart from web page
+        chartPageState.disconnect(chartManager.chart.actualChart)
 
         // Cancel ChartManager CoroutineScope
         chartManager.coroutineScope.cancel()
@@ -238,7 +238,7 @@ internal class ChartsPresenter(
         tabsState = tabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        tabbedChartState.showChart(chartManager.chart.actualChart)
+        pagedChartArrangement.showPage(chartName(id))
     }
 
     private fun onNextChart() {
@@ -313,25 +313,6 @@ internal class ChartsPresenter(
         tabsState = tabsState.copy(tabs = newTabs)
     }
 
-    private fun saveChartManager(chartManager: ChartManager) {
-
-        chartManagers += chartManager
-
-        // Sync visible range across charts
-        chartManager.coroutineScope.launch {
-            chartManager.chart.visibleTimeRange.collect { range ->
-                if (range == null) return@collect
-
-                // Watch only the current chart
-                if (chartManager.params.id != currentChartId) return@collect
-
-                // Update all other charts with same timeframe
-                chartManagers.filter { it.params.timeframe == chartManager.params.timeframe && it != chartManager }
-                    .forEach { it.chart.setVisibleRange(range) }
-            }
-        }
-    }
-
     private fun findChartManager(chartId: Int): ChartManager {
         return chartManagers.find { it.params.id == chartId }.let(::requireNotNull)
     }
@@ -361,4 +342,6 @@ internal class ChartsPresenter(
             onNotified = { errors -= it },
         )
     }
+
+    private fun chartName(id: Int): String = "Chart$id"
 }

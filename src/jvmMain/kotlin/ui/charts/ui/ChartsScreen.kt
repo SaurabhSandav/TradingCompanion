@@ -15,13 +15,13 @@ import ui.charts.model.ChartsState.FyersLoginWindow
 import ui.common.ErrorSnackbar
 import ui.common.UIErrorMessage
 import ui.common.chart.ChartPage
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 import ui.fyerslogin.FyersLoginWindow
 
 @Composable
 fun ChartsScreen(
     tabsState: ChartsState.TabsState,
-    chartState: ChartState,
+    chartPageState: ChartPageState,
     chartInfo: ChartsState.ChartInfo,
     onNewChart: () -> Unit,
     onMoveTabBackward: () -> Unit,
@@ -56,7 +56,7 @@ fun ChartsScreen(
             Column(Modifier.weight(1F)) {
 
                 ChartPage(
-                    state = chartState,
+                    state = chartPageState,
                     modifier = Modifier.weight(1F),
                 )
 

@@ -14,7 +14,7 @@ import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
 import ui.common.AppWindow
 import ui.common.chart.ChartPage
-import ui.common.chart.state.SinglePageChartState
+import ui.common.chart.state.ChartPageState
 import ui.common.chart.themedChartOptions
 
 @Composable
@@ -32,21 +32,20 @@ internal fun ClosedTradeChartWindow(
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
 
-        val chartState = remember {
-            SinglePageChartState(
-                coroutineScope = coroutineScope,
-                options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
-            )
+        val chart = remember {
+            createChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ChartPage(chartState)
+        val chartPageState = remember { ChartPageState(coroutineScope, chart) }
 
-        LaunchedEffect(chartState) {
-            chartState.chart.configure(chartData)
+        ChartPage(chartPageState)
+
+        LaunchedEffect(chart) {
+            chart.configure(chartData)
         }
 
         LaunchedEffect(themedOptions) {
-            chartState.chart.applyOptions(themedOptions)
+            chart.applyOptions(themedOptions)
         }
     }
 }

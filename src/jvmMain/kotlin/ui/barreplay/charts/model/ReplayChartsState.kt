@@ -1,12 +1,12 @@
 package ui.barreplay.charts.model
 
 import androidx.compose.runtime.Immutable
-import ui.common.chart.state.ChartState
+import ui.common.chart.state.ChartPageState
 
 @Immutable
 data class ReplayChartsState(
     val chartTabsState: ReplayChartTabsState,
-    val chartState: ChartState,
+    val chartPageState: ChartPageState,
     val chartInfo: ReplayChartInfo,
 )
 

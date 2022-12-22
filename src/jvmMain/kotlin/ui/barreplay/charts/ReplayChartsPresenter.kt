@@ -6,15 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
-import chart.options.ChartOptions
-import chart.options.CrosshairMode
-import chart.options.CrosshairOptions
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
@@ -31,7 +27,9 @@ import trading.data.CandleRepository
 import ui.barreplay.charts.model.*
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.common.CollectEffect
-import ui.common.chart.state.TabbedChartState
+import ui.common.chart.state.ChartArrangement
+import ui.common.chart.state.ChartPageState
+import ui.common.chart.state.paged
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import java.time.format.DateTimeFormatter
@@ -55,11 +53,11 @@ internal class ReplayChartsPresenter(
         timeframe = baseTimeframe,
         candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
-    private val tabbedChartState = TabbedChartState(coroutineScope)
-    private val chartOptions = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal))
+    private val pagedChartArrangement = ChartArrangement.paged()
+    private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
     private var autoNextJob: Job? = null
-    private var maxChartId = 0
-    private var currentChartId = 0
+    private var maxChartId = -1
+    private var currentChartId = -1
     private var replayTimeJob: Job = Job()
 
     private val candleCache = mutableMapOf<String, CandleSeries>()
@@ -91,7 +89,7 @@ internal class ReplayChartsPresenter(
 
         return@launchMolecule ReplayChartsState(
             chartTabsState = chartTabsState,
-            chartState = tabbedChartState,
+            chartPageState = chartPageState,
             chartInfo = chartInfo.copy(
                 replayTime = replayTime,
                 legendValues = legendValues,
@@ -105,46 +103,8 @@ internal class ReplayChartsPresenter(
 
     init {
 
-        coroutineScope.launch {
-
-            // Add new chart
-            val actualChart = tabbedChartState.addChart("Chart$currentChartId", chartOptions)
-
-            // New replay session
-            val replaySession = createReplaySession(initialSymbol, baseTimeframe)
-
-            // Create new chart manager with initial params
-            val chartManager = ReplayChartManager(
-                initialParams = ReplayChartManager.ChartParams(
-                    id = currentChartId,
-                    symbol = initialSymbol,
-                    timeframe = baseTimeframe,
-                    replaySession = replaySession,
-                ),
-                actualChart = actualChart,
-                appModule = appModule,
-            )
-
-            // Observe legend values
-            chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
-
-            // Cache newly created chart manager
-            chartManagers += chartManager
-
-            // Sync with other charts
-            syncCharts(chartManager)
-
-            // Show Chart
-            tabbedChartState.showChart(chartManager.chart.actualChart)
-
-            // Add new tab
-            updateChartTabs()
-
-            // Show replay time using currently selected chart data
-            replayTimeJob = coroutineScope.launch {
-                replaySession.replayTime.collect(::updateTime)
-            }
-        }
+        // Initial chart
+        onNewChart()
     }
 
     private fun onReset() {
@@ -180,36 +140,64 @@ internal class ReplayChartsPresenter(
         val id = ++maxChartId
 
         // Add new chart
-        val actualChart = tabbedChartState.addChart("Chart$id", chartOptions)
+        val chartName = chartName(id)
+        val chartContainer = pagedChartArrangement.addPage(chartName)
 
-        // Copy currently selected chart manager
-        val chartManager = run {
-
-            // Find chart manager associated with current chart
-            val chartManager = findReplayChartManager(currentChartId)
-
-            // New replay session
-            val replaySession = createReplaySession(
-                symbol = chartManager.params.symbol,
-                timeframe = chartManager.params.timeframe,
+        // Create new chart manager
+        val chartManager = when (currentChartId) {
+            // First chart, create chart manager with initial params
+            -1 -> ReplayChartManager(
+                initialParams = ReplayChartManager.ChartParams(
+                    id = currentChartId,
+                    symbol = initialSymbol,
+                    timeframe = baseTimeframe,
+                    // New replay session
+                    replaySession = createReplaySession(initialSymbol, baseTimeframe),
+                ),
+                container = chartContainer.value,
+                name = chartName,
+                appModule = appModule,
             )
 
-            // Create new chart manager with existing params
-            chartManager.withNewChart(
-                id = id,
-                actualChart = actualChart,
-                replaySession = replaySession,
-            )
+            else -> {
+
+                // Find chart manager associated with current chart
+                val chartManager = findReplayChartManager(currentChartId)
+
+                // New replay session
+                val replaySession = createReplaySession(
+                    symbol = chartManager.params.symbol,
+                    timeframe = chartManager.params.timeframe,
+                )
+
+                // Create new chart manager with existing params
+                chartManager.withNewChart(
+                    id = id,
+                    container = chartContainer.value,
+                    name = chartName,
+                    replaySession = replaySession,
+                )
+            }
         }
+
+        // Connect chart to web page
+        chartPageState.connect(
+            chart = chartManager.chart.actualChart,
+            syncConfig = ChartPageState.SyncConfig(
+                isChartFocused = { currentChartId == id },
+                syncChartWith = { chart ->
+                    val filterChartManager = chartManagers.find { it.chart.actualChart == chart }!!
+                    // Sync charts with same timeframes
+                    filterChartManager.params.timeframe == chartManager.params.timeframe
+                },
+            )
+        )
 
         // Observe legend values
         chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
         chartManagers += chartManager
-
-        // Sync with other charts
-        syncCharts(chartManager)
 
         // Add new tab
         updateChartTabs()
@@ -270,8 +258,11 @@ internal class ReplayChartsPresenter(
         // Remove chart manager from cache
         chartManagers.remove(chartManager)
 
-        // Remove chart
-        tabbedChartState.removeChart(chartManager.chart.actualChart)
+        // Remove chart page
+        pagedChartArrangement.removePage(chartName(id))
+
+        // Disconnect chart from web page
+        chartPageState.disconnect(chartManager.chart.actualChart)
 
         // Remove chart tab
         updateChartTabs()
@@ -300,7 +291,7 @@ internal class ReplayChartsPresenter(
         chartTabsState = chartTabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        tabbedChartState.showChart(chartManager.chart.actualChart)
+        pagedChartArrangement.showPage(chartName(id))
 
         // Show replay time using currently selected chart data
         replayTimeJob.cancel()
@@ -473,19 +464,6 @@ internal class ReplayChartsPresenter(
         chartTabsState = chartTabsState.copy(tabs = newTabs)
     }
 
-    private fun syncCharts(chartManager: ReplayChartManager) {
-
-        chartManager.chart.visibleTimeRange.filterNotNull().onEach { range ->
-
-            // Watch only the current chart
-            if (chartManager.params.id != currentChartId) return@onEach
-
-            // Update all other charts with same timeframe
-            chartManagers.filter { it.params.timeframe == chartManager.params.timeframe && it != chartManager }
-                .forEach { it.chart.setVisibleRange(range) }
-        }.launchIn(chartManager.coroutineScope)
-    }
-
     private fun findReplayChartManager(chartId: Int): ReplayChartManager {
         return chartManagers.find { it.params.id == chartId }.let(::requireNotNull)
     }
@@ -494,4 +472,6 @@ internal class ReplayChartsPresenter(
         val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
         replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
     }
+
+    private fun chartName(id: Int): String = "Chart$id"
 }

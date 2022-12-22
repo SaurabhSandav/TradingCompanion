@@ -90,7 +90,15 @@ class IChartApi internal constructor(
     )
 
     fun remove() {
+
+        // Destroy chart
         executeJs("$reference.remove();")
+
+        // Remove from JS cache
+        executeJs("charts.delete(\"$name\")")
+
+        // Close scripts stream
+        _scripts.close()
     }
 
     fun resize(width: Int, height: Int) {
