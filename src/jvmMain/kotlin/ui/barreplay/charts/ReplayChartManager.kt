@@ -1,9 +1,14 @@
 package ui.barreplay.charts
 
+import AppModule
+import chart.IChartApi
+import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import trading.Candle
+import trading.CandleSeries
 import trading.Timeframe
 import trading.barreplay.BarReplaySession
 import trading.dailySessionStart
@@ -11,25 +16,39 @@ import trading.indicator.ClosePriceIndicator
 import trading.indicator.EMAIndicator
 import trading.indicator.VWAPIndicator
 import ui.barreplay.charts.ui.ReplayChart
+import utils.PrefDefaults
+import utils.PrefKeys
 
-internal data class ReplayChartManager(
-    val chartId: Int,
-    val symbol: String,
-    val timeframe: Timeframe,
-    val chart: ReplayChart,
-    val replaySession: BarReplaySession,
+internal class ReplayChartManager(
+    initialParams: ChartParams,
+    actualChart: IChartApi,
+    private val appModule: AppModule,
+    appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
     val coroutineScope = CoroutineScope(Dispatchers.Main)
+    val chart = ReplayChart(actualChart)
+    var params = initialParams
+    private set
 
-    private val ema9Indicator = EMAIndicator(ClosePriceIndicator(replaySession.replaySeries), length = 9)
-    private val vwapIndicator = VWAPIndicator(replaySession.replaySeries, ::dailySessionStart)
+    private var data = ChartData(initialParams.replaySession.replaySeries)
+    private var liveCandleJob: Job
 
     init {
+
+        // Setting dark mode according to settings
+        coroutineScope.launch {
+            appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled).collect { isDark ->
+                chart.setDarkMode(isDark)
+            }
+        }
+
+        // Initial data
         setInitialData()
 
-        coroutineScope.launch {
-            replaySession.replaySeries.live.collect(::update)
+        // Update chart with live candles
+        liveCandleJob = coroutineScope.launch {
+            data.replaySeries.live.collect(::update)
         }
     }
 
@@ -37,29 +56,94 @@ internal data class ReplayChartManager(
         setInitialData()
     }
 
+    fun withNewChart(
+        id: Int,
+        actualChart: IChartApi,
+        replaySession: BarReplaySession,
+    ) = ReplayChartManager(
+        initialParams = params.copy(id = id, replaySession = replaySession),
+        actualChart = actualChart,
+        appModule = appModule,
+    )
+
+    fun changeSymbol(
+        symbol: String,
+        replaySession: BarReplaySession,
+    ) {
+
+        // Update params
+        params = params.copy(symbol = symbol, replaySession = replaySession)
+
+        // Set data
+        data = ChartData(replaySession.replaySeries)
+
+        // Update chart
+        setInitialData()
+
+        // Update chart with live candles
+        liveCandleJob.cancel()
+        liveCandleJob = coroutineScope.launch {
+            replaySession.replaySeries.live.collect(::update)
+        }
+    }
+
+    fun changeTimeframe(
+        timeframe: Timeframe,
+        replaySession: BarReplaySession,
+    ) {
+
+        // Update params
+        params = params.copy(timeframe = timeframe, replaySession = replaySession)
+
+        // Set data
+        data = ChartData(replaySession.replaySeries)
+
+        // Update chart
+        setInitialData()
+
+        // Update chart with live candles
+        liveCandleJob.cancel()
+        liveCandleJob = coroutineScope.launch {
+            replaySession.replaySeries.live.collect(::update)
+        }
+    }
+
     private fun setInitialData() {
 
-        val data = replaySession.replaySeries.mapIndexed { index, candle ->
+        val data = data.replaySeries.mapIndexed { index, candle ->
             ReplayChart.Data(
                 candle = candle,
-                ema9 = ema9Indicator[index],
-                vwap = vwapIndicator[index],
+                ema9 = data.ema9Indicator[index],
+                vwap = data.vwapIndicator[index],
             )
         }
 
-        chart.setData(data, hasVolume = symbol != "NIFTY50")
+        chart.setData(data, hasVolume = params.symbol != "NIFTY50")
     }
 
     private fun update(candle: Candle) {
 
-        val index = replaySession.replaySeries.indexOf(candle)
+        val index = data.replaySeries.indexOf(candle)
 
         chart.update(
             ReplayChart.Data(
                 candle = candle,
-                ema9 = ema9Indicator[index],
-                vwap = vwapIndicator[index],
+                ema9 = data.ema9Indicator[index],
+                vwap = data.vwapIndicator[index],
             )
         )
+    }
+
+    data class ChartParams(
+        val id: Int,
+        val symbol: String,
+        val timeframe: Timeframe,
+        val replaySession: BarReplaySession,
+    )
+
+    private class ChartData(val replaySeries: CandleSeries) {
+
+        val ema9Indicator = EMAIndicator(ClosePriceIndicator(replaySeries), length = 9)
+        val vwapIndicator = VWAPIndicator(replaySeries, ::dailySessionStart)
     }
 }

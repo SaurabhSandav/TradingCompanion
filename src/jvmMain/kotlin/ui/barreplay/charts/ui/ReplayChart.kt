@@ -2,6 +2,7 @@ package ui.barreplay.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import chart.*
+import chart.callbacks.MouseEventHandler
 import chart.callbacks.TimeRangeChangeEventHandler
 import chart.data.CandlestickData
 import chart.data.HistogramData
@@ -14,41 +15,34 @@ import chart.options.LineStyleOptions
 import chart.options.TimeScaleOptions
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
-import com.russhwolf.settings.coroutines.FlowSettings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
 import trading.Candle
 import ui.barreplay.charts.model.LegendValues
 import ui.common.chart.ChartDarkModeOptions
 import ui.common.chart.ChartLightModeOptions
-import utils.PrefDefaults
-import utils.PrefKeys
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class ReplayChart(
-    coroutineScope: CoroutineScope,
-    appPrefs: FlowSettings,
-    val chart: IChartApi,
-    onLegendUpdate: (LegendValues) -> Unit,
+    val actualChart: IChartApi,
 ) {
 
+    val legendValues = legendValuesFlow()
     val visibleTimeRange = visibleTimeRangeFlow()
 
-    private val candlestickSeries by chart.candlestickSeries(
+    private val candlestickSeries by actualChart.candlestickSeries(
         options = CandlestickStyleOptions(
             lastValueVisible = false,
         ),
     )
 
-    private val ema9Series by chart.lineSeries(
+    private val ema9Series by actualChart.lineSeries(
         options = LineStyleOptions(
             lineWidth = LineWidth.One,
             crosshairMarkerVisible = false,
@@ -63,39 +57,9 @@ internal class ReplayChart(
 
     init {
 
-        coroutineScope.launch {
-            appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled).collect { isDark ->
-                chart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
-            }
-        }
-
-        chart.timeScale.applyOptions(
+        actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
-
-        chart.subscribeCrosshairMove { params ->
-
-            val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
-            val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
-            val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
-            val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
-            val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
-            val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
-            val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
-            val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
-
-            onLegendUpdate(
-                LegendValues(
-                    open = open,
-                    high = high,
-                    low = low,
-                    close = close,
-                    volume = volume,
-                    ema9 = ema9,
-                    vwap = vwap,
-                )
-            )
-        }
     }
 
     fun setData(dataList: List<Data>, hasVolume: Boolean) {
@@ -148,7 +112,7 @@ internal class ReplayChart(
         ema9Series.setData(ema9Data)
         vwapSeries?.setData(vwapData)
 
-        chart.timeScale.scrollToPosition(40, false)
+        actualChart.timeScale.scrollToPosition(40, false)
     }
 
     fun update(data: Data) {
@@ -192,24 +156,59 @@ internal class ReplayChart(
         )
     }
 
-    fun setVisibleRange(range: TimeRange) {
-        chart.timeScale.setVisibleRange(range.from, range.to)
+    fun setDarkMode(isDark: Boolean) {
+        actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
     }
+
+    fun setVisibleRange(range: TimeRange) {
+        actualChart.timeScale.setVisibleRange(range.from, range.to)
+    }
+
+    private fun legendValuesFlow(): Flow<LegendValues> = callbackFlow {
+
+        val handler = MouseEventHandler { params ->
+
+            val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
+            val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
+            val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
+            val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
+            val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
+            val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
+            val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
+            val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
+
+            trySend(
+                LegendValues(
+                    open = open,
+                    high = high,
+                    low = low,
+                    close = close,
+                    volume = volume,
+                    ema9 = ema9,
+                    vwap = vwap,
+                )
+            )
+        }
+
+        actualChart.subscribeCrosshairMove(handler)
+
+        awaitClose { actualChart.unsubscribeCrosshairMove(handler) }
+    }.buffer(Channel.CONFLATED)
 
     private fun visibleTimeRangeFlow(): Flow<TimeRange?> = callbackFlow {
 
         val handler = TimeRangeChangeEventHandler { range -> trySend(range) }
 
-        chart.timeScale.subscribeVisibleTimeRangeChange(handler)
+        actualChart.timeScale.subscribeVisibleTimeRangeChange(handler)
 
-        awaitClose { chart.timeScale.unsubscribeVisibleTimeRangeChange(handler) }
+        awaitClose { actualChart.timeScale.unsubscribeVisibleTimeRangeChange(handler) }
     }.buffer(Channel.CONFLATED)
 
     private fun enableVolume() {
 
         if (volumeSeries != null) return
 
-        volumeSeries = chart.addHistogramSeries(
+        volumeSeries = actualChart.addHistogramSeries(
             name = "volumeSeries",
             options = HistogramStyleOptions(
                 lastValueVisible = false,
@@ -221,7 +220,7 @@ internal class ReplayChart(
             )
         )
 
-        vwapSeries = chart.addLineSeries(
+        vwapSeries = actualChart.addLineSeries(
             name = "vwapSeries",
             options = LineStyleOptions(
                 color = Color.Yellow,
@@ -246,8 +245,8 @@ internal class ReplayChart(
 
         if (volumeSeries == null) return
 
-        chart.removeSeries(volumeSeries!!)
-        chart.removeSeries(vwapSeries!!)
+        actualChart.removeSeries(volumeSeries!!)
+        actualChart.removeSeries(vwapSeries!!)
 
         volumeSeries = null
         vwapSeries = null
