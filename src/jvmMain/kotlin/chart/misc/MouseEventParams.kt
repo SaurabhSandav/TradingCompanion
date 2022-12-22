@@ -38,10 +38,14 @@ data class MouseEventParams(
                 Point(x = x, y = y)
             }
 
-            val seriesPrices = paramsElement.jsonObject["seriesPrices"]?.jsonArray?.associate {
+            val seriesPrices = paramsElement.jsonObject["seriesPrices"]?.jsonArray?.mapNotNull {
 
                 val name = it.jsonArray[0].jsonPrimitive.content
-                val series = seriesList.find { series -> series.name == name }!!
+
+                // If series is not found, chart data was probably replaced. In such a case, a race condition occurs
+                // where this function may be called with the new series list while callback params were received
+                // for the old data. It's a rare occurrence. The best way to deal with it is to pass empty prices.
+                val series = seriesList.find { series -> series.name == name } ?: return@mapNotNull null
 
                 val value = when (val data = it.jsonArray[1]) {
                     is JsonObject -> GeneralData.BarPrices(
@@ -56,7 +60,7 @@ data class MouseEventParams(
                 }
 
                 series to value
-            }.orEmpty()
+            }?.toMap().orEmpty()
 
             return MouseEventParams(
                 time = time,
