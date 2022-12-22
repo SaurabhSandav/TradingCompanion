@@ -11,6 +11,7 @@ import kotlinx.serialization.json.*
 import trading.*
 import kotlin.io.path.*
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 
 internal class CandleRepository(
     appModule: AppModule,
@@ -200,7 +201,14 @@ internal class CandleRepository(
         }
 
         // Save checked range to avoid re-attempt at downloading already checked range
-        candleCache.saveCheckedRange(symbol, timeframe, from, correctedTo)
+        candleCache.saveCheckedRange(
+            symbol = symbol,
+            timeframe = timeframe,
+            from = from,
+            // Next time re-fetch last candle just in case it wasn't finished this time.
+            // Unfinished candle is not available with Fyers historical data.
+            to = correctedTo - timeframe.seconds.seconds,
+        )
 
         // Success
         return Ok(candles)
