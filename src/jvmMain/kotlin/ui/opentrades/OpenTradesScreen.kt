@@ -2,6 +2,7 @@ package ui.opentrades
 
 import androidx.compose.runtime.*
 import ui.closetradeform.CloseTradeFormWindow
+import ui.closetradeform.rememberCloseTradeFormWindowState
 import ui.common.LocalAppWindowState
 import ui.opentradeform.OpenTradeFormWindow
 import ui.opentradeform.rememberOpenTradeFormWindowState
@@ -38,10 +39,11 @@ internal fun OpenTradesScreen(
     }
 
     // Close Trade windows
-    state.closeTradeFormWindowStates.forEach { windowState ->
+    state.closeTradeFormWindowParams.forEach { params ->
 
-        key(windowState) {
-            CloseTradeFormWindow(windowState)
+        key(params) {
+
+            CloseTradeFormWindow(rememberCloseTradeFormWindowState(params))
         }
     }
 }

@@ -1,47 +1,39 @@
 package ui.opentrades
 
 import AppModule
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import mapList
-import model.Side
-import ui.closetradeform.CloseTradeFormFields
-import ui.closetradeform.CloseTradeFormWindowState
+import ui.closetradeform.CloseTradeFormWindowParams
 import ui.common.CollectEffect
 import ui.opentradeform.OpenTradeFormWindowParams
 import ui.opentrades.model.OpenTradeListEntry
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.model.OpenTradesState
-import utils.PrefKeys
 import java.util.*
-import kotlin.time.Duration.Companion.nanoseconds
 
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
 ) {
 
     private val events = MutableSharedFlow<OpenTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val openTradeFormWindowParams = mutableStateMapOf<UUID, OpenTradeFormWindowParams>()
-    private val closeTradeFormWindowStates = mutableStateListOf<CloseTradeFormWindowState>()
+    private val closeTradeFormWindowParams = mutableStateMapOf<UUID, CloseTradeFormWindowParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -58,7 +50,7 @@ internal class OpenTradesPresenter(
         return@launchMolecule OpenTradesState(
             openTrades = getOpenTradeListEntries(),
             openTradeFormWindowParams = openTradeFormWindowParams.values,
-            closeTradeFormWindowStates = closeTradeFormWindowStates,
+            closeTradeFormWindowParams = closeTradeFormWindowParams.values,
         )
     }
 
@@ -122,41 +114,21 @@ internal class OpenTradesPresenter(
         openTradeFormWindowParams[key] = params
     }
 
-    private fun onCloseTrade(id: Long) = coroutineScope.launchUnit {
+    private fun onCloseTrade(id: Long) {
 
-        // Close trade window already open
-        if (closeTradeFormWindowStates.any { it.formModel.id == id }) return@launchUnit
-
-        val openTrade = withContext(Dispatchers.IO) {
-            appModule.appDB.openTradeQueries.getById(id).executeAsOne()
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = closeTradeFormWindowParams.values.any {
+            it.operationType is CloseTradeFormWindowParams.OperationType.CloseOpenTrade && it.operationType.openTradeId == id
         }
+        if (isWindowAlreadyOpen) return
 
-        val currentTime = Clock.System.now()
-        val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-
-        val accessToken = appPrefs.getString(PrefKeys.FyersAccessToken)
-        val response = fyersApi.getQuotes(accessToken, listOf("NSE:${openTrade.ticker}-EQ"))
-        val currentPrice = response.result?.quote?.first()?.quoteData?.cmd?.close?.toString() ?: "0"
-
-        val model = CloseTradeFormFields.Model(
-            id = openTrade.id,
-            ticker = openTrade.ticker,
-            quantity = openTrade.quantity,
-            isLong = Side.fromString(openTrade.side) == Side.Long,
-            entry = openTrade.entry,
-            stop = openTrade.stop.orEmpty(),
-            entryDateTime = LocalDateTime.parse(openTrade.entryDate),
-            target = openTrade.target.orEmpty(),
-            exit = currentPrice,
-            exitDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
+        val key = UUID.randomUUID()
+        val params = CloseTradeFormWindowParams(
+            operationType = CloseTradeFormWindowParams.OperationType.CloseOpenTrade(id),
+            onCloseRequest = { closeTradeFormWindowParams.remove(key) }
         )
 
-        closeTradeFormWindowStates += CloseTradeFormWindowState(
-            appDB = appModule.appDB,
-            formModel = model,
-            coroutineScope = coroutineScope,
-            onCloseRequest = { closeTradeFormWindowStates.removeIf { it.formModel.id == id } },
-        )
+        closeTradeFormWindowParams[key] = params
     }
 
     private fun onDeleteTrade(id: Long) = coroutineScope.launchUnit {
