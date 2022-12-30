@@ -67,6 +67,8 @@ internal class CloseTradeFormWindowState(
         )
     )
 
+    var detailModel by mutableStateOf<CloseTradeDetailedFormFields.Model?>(null)
+
     init {
 
         coroutineScope.launch {
@@ -80,14 +82,22 @@ internal class CloseTradeFormWindowState(
         }
     }
 
-    fun onSaveTrade(model: CloseTradeFormFields.Model) = coroutineScope.launch {
+    fun onSaveTrade(
+        model: CloseTradeFormFields.Model,
+        detailModel: CloseTradeDetailedFormFields.Model?,
+    ) = coroutineScope.launch {
 
         withContext(Dispatchers.IO) {
 
             appDB.transaction {
 
+                val id = when (params.operationType) {
+                    is CloseOpenTrade -> null
+                    is EditExistingTrade -> params.operationType.id
+                }
+
                 appDB.closedTradeQueries.insert(
-                    id = null,
+                    id = id,
                     broker = "Finvasia",
                     ticker = model.ticker!!,
                     instrument = "equity",
@@ -102,8 +112,22 @@ internal class CloseTradeFormWindowState(
                     exitDate = model.exitDateTime.toString(),
                 )
 
+                if (id != null) {
+
+                    requireNotNull(detailModel)
+
+                    appDB.closedTradeDetailQueries.insert(
+                        closedTradeId = id,
+                        maxFavorableExcursion = detailModel.maxFavorableExcursion.ifBlank { null },
+                        maxAdverseExcursion = detailModel.maxAdverseExcursion.ifBlank { null },
+                        tags = detailModel.tags.joinToString(", "),
+                        persisted = detailModel.persisted.toString(),
+                        persistenceResult = null,
+                    )
+                }
+
                 if (params.operationType is CloseOpenTrade) {
-                    appDB.openTradeQueries.delete(model.id)
+                    appDB.openTradeQueries.delete(params.operationType.openTradeId)
                 }
             }
         }
@@ -116,6 +140,16 @@ internal class CloseTradeFormWindowState(
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
+
+        detailModel = CloseTradeDetailedFormFields.Model(
+            id = closedTrade.id,
+            maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
+            maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
+            tags = closedTrade.tags?.split(", ")?.let {
+                if (it.size == 1 && it.first().isBlank()) emptyList() else it
+            } ?: emptyList(),
+            persisted = closedTrade.persisted.toBoolean(),
+        )
 
         return CloseTradeFormFields.Model(
             id = closedTrade.id,

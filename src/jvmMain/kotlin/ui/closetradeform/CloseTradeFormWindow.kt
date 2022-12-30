@@ -1,12 +1,11 @@
 package ui.closetradeform
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -16,7 +15,9 @@ import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
+import ui.common.flow.FlowRow
 import ui.common.form.rememberFormScope
+import ui.common.state
 import utils.NIFTY50
 
 @Composable
@@ -35,7 +36,7 @@ internal fun CloseTradeFormWindow(
         Box(Modifier.wrapContentSize()) {
 
             when {
-                state.isReady -> CloseTradeForm(state)
+                state.isReady -> MainForm(state)
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
@@ -43,7 +44,7 @@ internal fun CloseTradeFormWindow(
 }
 
 @Composable
-private fun CloseTradeForm(state: CloseTradeFormWindowState) {
+private fun MainForm(state: CloseTradeFormWindowState) {
 
     Column(
         modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min).verticalScroll(rememberScrollState()),
@@ -126,8 +127,11 @@ private fun CloseTradeForm(state: CloseTradeFormWindowState) {
             singleLine = true,
         )
 
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
+        if (state.detailModel == null) {
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
         }
 
         DateTimeField(
@@ -136,12 +140,105 @@ private fun CloseTradeForm(state: CloseTradeFormWindowState) {
             label = { Text("Exit DateTime") },
         )
 
+        val detailModel = state.detailModel
+        val detailFields = remember(detailModel) {
+            if (detailModel == null) null else CloseTradeDetailedFormFields(formScope, detailModel)
+        }
+
+        if (detailModel != null && detailFields != null) {
+
+            var showDetails by state { false }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+
+                Text("Show Details")
+
+                Switch(
+                    checked = showDetails,
+                    onCheckedChange = { showDetails = it },
+                )
+            }
+
+            AnimatedVisibility(showDetails) {
+
+                DetailForm(
+                    fields = detailFields,
+                    tags = detailModel.tags,
+                )
+            }
+        }
+
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
+            onClick = {
+                fields.getModelIfValidOrNull()?.let { model ->
+                    state.onSaveTrade(model, detailFields?.getModelIfValidOrNull())
+                }
+            },
         ) {
 
             Text("Add")
+        }
+    }
+}
+
+@Composable
+private fun DetailForm(
+    fields: CloseTradeDetailedFormFields,
+    tags: List<String>,
+) {
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+
+        Divider(Modifier.padding(16.dp))
+
+        OutlinedTextField(
+            value = fields.maxFavorableExcursion.value,
+            onValueChange = fields.maxFavorableExcursion.onValueChange,
+            label = { Text("Max Favorable Excursion") },
+            isError = fields.maxFavorableExcursion.isError,
+            singleLine = true,
+        )
+
+        OutlinedTextField(
+            value = fields.maxAdverseExcursion.value,
+            onValueChange = fields.maxAdverseExcursion.onValueChange,
+            label = { Text("Max Adverse Excursion") },
+            isError = fields.maxAdverseExcursion.isError,
+            singleLine = true,
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            Text("Persisted")
+
+            Switch(
+                checked = fields.persisted.value,
+                onCheckedChange = fields.persisted.onCheckedChange,
+            )
+        }
+
+        FlowRow(
+            mainAxisSpacing = 8.dp,
+        ) {
+
+            tags.forEach { tag ->
+
+                InputChip(
+                    onClick = {},
+                    label = { Text(tag) }
+                )
+            }
         }
     }
 }

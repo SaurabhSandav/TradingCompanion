@@ -4,13 +4,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
-import ui.addclosedtradedetailed.CloseTradeDetailedWindow
 import ui.closedtrades.model.ClosedTradesEvent
 import ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog
 import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
 import ui.closedtrades.ui.ClosedTradeChartWindow
 import ui.closedtrades.ui.ClosedTradesTable
 import ui.closedtrades.ui.DeleteConfirmationDialog
+import ui.closetradeform.CloseTradeFormWindow
+import ui.closetradeform.rememberCloseTradeFormWindowState
 import ui.common.ErrorSnackbar
 import ui.common.LocalAppWindowState
 import ui.fyerslogin.FyersLoginWindow
@@ -63,11 +64,11 @@ internal fun ClosedTradesScreen(
         }
 
         // Edit trade windows
-        state.editTradeWindowStates.forEach { windowState ->
+        state.editTradeFormWindowParams.forEach { params ->
 
-            key(windowState) {
+            key(params) {
 
-                CloseTradeDetailedWindow(windowState)
+                CloseTradeFormWindow(rememberCloseTradeFormWindowState(params))
             }
         }
 
