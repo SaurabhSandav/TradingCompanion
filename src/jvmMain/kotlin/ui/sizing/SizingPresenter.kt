@@ -1,11 +1,7 @@
 package ui.sizing
 
 import AppModule
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
@@ -17,17 +13,12 @@ import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import mapList
 import model.Account
 import model.Side
-import ui.opentradeform.OpenTradeFormFields
-import ui.opentradeform.OpenTradeFormWindowState
+import ui.opentradeform.OpenTradeFormWindowParams
 import ui.common.AppColor
 import ui.common.CollectEffect
 import ui.sizing.model.SizedTrade
@@ -37,7 +28,7 @@ import ui.sizing.model.SizingState
 import utils.PrefKeys
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.time.Duration.Companion.nanoseconds
+import java.util.*
 
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
@@ -48,7 +39,7 @@ internal class SizingPresenter(
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val openTradeFormWindowStates = SnapshotStateList<OpenTradeFormWindowState>()
+    private val openTradeFormWindowParams = mutableStateMapOf<UUID, OpenTradeFormWindowParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -74,7 +65,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
-            openTradeFormWindowStates = openTradeFormWindowStates,
+            openTradeFormWindowParams = openTradeFormWindowParams.values,
         )
     }
 
@@ -114,59 +105,19 @@ internal class SizingPresenter(
         }
     }
 
-    private fun openTrade(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
+    private fun openTrade(id: Long) {
 
-        val sizingTrade = appModule.appDB.sizingTradeQueries.get(id).executeAsOne()
-
-        val entryBD = sizingTrade.entry.toBigDecimal()
-        val stopBD = sizingTrade.stop.toBigDecimal()
-
-        val entryStopComparison = entryBD.compareTo(stopBD)
-
-        val isLong = when {
-            // Long
-            entryStopComparison > 0 -> true
-            // Short
-            entryStopComparison < 0 -> false
-            else -> return@launchUnit // TODO show error
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = openTradeFormWindowParams.values.any {
+            (it.operationType as OpenTradeFormWindowParams.OperationType.OpenFromSizingTrade).sizingTradeId == id
         }
+        if (isWindowAlreadyOpen) return
 
-        val spread = (entryBD - stopBD).abs()
-        val account = appModule.account.first()
+        val key = UUID.randomUUID()
 
-        val calculatedQuantity = when {
-            spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
-        }
-
-        val maxAffordableQuantity = when {
-            entryBD.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.balancePerTrade * account.leverage) / entryBD
-        }
-
-        val currentTime = Clock.System.now()
-        val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-
-        val model = OpenTradeFormFields.Model(
-            id = null,
-            ticker = sizingTrade.ticker,
-            quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
-            isLong = isLong,
-            entry = sizingTrade.entry,
-            stop = sizingTrade.stop,
-            entryDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
-            target = when {
-                entryBD > stopBD -> entryBD + spread // Long
-                else -> entryBD - spread // Short
-            }.toPlainString()
-        )
-
-        openTradeFormWindowStates += OpenTradeFormWindowState(
-            appDB = appModule.appDB,
-            formModel = model,
-            coroutineScope = coroutineScope,
-            sizingTradeId = id,
-            onCloseRequest = { openTradeFormWindowStates.removeIf { it.sizingTradeId == id } }
+        openTradeFormWindowParams[key] = OpenTradeFormWindowParams(
+            operationType = OpenTradeFormWindowParams.OperationType.OpenFromSizingTrade(id),
+            onCloseRequest = { openTradeFormWindowParams.remove(key) }
         )
     }
 

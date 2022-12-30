@@ -15,6 +15,7 @@ import ui.common.LocalAppWindowState
 import ui.common.controls.ListSelectionDialog
 import ui.common.state
 import ui.opentradeform.OpenTradeFormWindow
+import ui.opentradeform.rememberOpenTradeFormWindowState
 import ui.sizing.model.SizedTrade
 import ui.sizing.model.SizingEvent
 import utils.NIFTY50
@@ -40,11 +41,11 @@ internal fun SizingScreen(
     )
 
     // Add open trade windows
-    state.openTradeFormWindowStates.forEach { windowState ->
+    state.openTradeFormWindowParams.forEach { params ->
 
-        key(windowState) {
+        key(params) {
 
-            OpenTradeFormWindow(windowState)
+            OpenTradeFormWindow(rememberOpenTradeFormWindowState(params))
         }
     }
 }
