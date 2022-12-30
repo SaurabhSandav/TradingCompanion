@@ -1,4 +1,4 @@
-package ui.addclosedtrade
+package ui.closetradeform
 
 import kotlinx.datetime.LocalDateTime
 import ui.common.form.*

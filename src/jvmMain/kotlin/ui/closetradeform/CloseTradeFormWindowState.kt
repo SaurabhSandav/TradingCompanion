@@ -1,4 +1,4 @@
-package ui.addclosedtrade
+package ui.closetradeform
 
 import com.saurabhsandav.core.AppDB
 import kotlinx.coroutines.CoroutineScope
@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.Side
 
-internal class CloseTradeWindowState(
+internal class CloseTradeFormWindowState(
     private val appDB: AppDB,
     val formModel: CloseTradeFormFields.Model,
     private val coroutineScope: CoroutineScope,

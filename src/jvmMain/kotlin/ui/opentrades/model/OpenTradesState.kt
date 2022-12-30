@@ -2,14 +2,14 @@ package ui.opentrades.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import ui.addclosedtrade.CloseTradeWindowState
+import ui.closetradeform.CloseTradeFormWindowState
 import ui.opentradeform.OpenTradeFormWindowParams
 
 @Immutable
 internal data class OpenTradesState(
     val openTrades: List<OpenTradeListEntry>,
     val openTradeFormWindowParams: Collection<OpenTradeFormWindowParams>,
-    val closeTradeWindowStates: SnapshotStateList<CloseTradeWindowState>,
+    val closeTradeFormWindowStates: SnapshotStateList<CloseTradeFormWindowState>,
 )
 
 internal data class OpenTradeListEntry(

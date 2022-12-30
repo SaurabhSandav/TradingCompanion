@@ -19,8 +19,8 @@ import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import mapList
 import model.Side
-import ui.addclosedtrade.CloseTradeFormFields
-import ui.addclosedtrade.CloseTradeWindowState
+import ui.closetradeform.CloseTradeFormFields
+import ui.closetradeform.CloseTradeFormWindowState
 import ui.common.CollectEffect
 import ui.opentradeform.OpenTradeFormWindowParams
 import ui.opentrades.model.OpenTradeListEntry
@@ -41,7 +41,7 @@ internal class OpenTradesPresenter(
     private val events = MutableSharedFlow<OpenTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val openTradeFormWindowParams = mutableStateMapOf<UUID, OpenTradeFormWindowParams>()
-    private val closeTradeWindowStates = mutableStateListOf<CloseTradeWindowState>()
+    private val closeTradeFormWindowStates = mutableStateListOf<CloseTradeFormWindowState>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -58,7 +58,7 @@ internal class OpenTradesPresenter(
         return@launchMolecule OpenTradesState(
             openTrades = getOpenTradeListEntries(),
             openTradeFormWindowParams = openTradeFormWindowParams.values,
-            closeTradeWindowStates = closeTradeWindowStates,
+            closeTradeFormWindowStates = closeTradeFormWindowStates,
         )
     }
 
@@ -125,7 +125,7 @@ internal class OpenTradesPresenter(
     private fun onCloseTrade(id: Long) = coroutineScope.launchUnit {
 
         // Close trade window already open
-        if (closeTradeWindowStates.any { it.formModel.id == id }) return@launchUnit
+        if (closeTradeFormWindowStates.any { it.formModel.id == id }) return@launchUnit
 
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
@@ -151,11 +151,11 @@ internal class OpenTradesPresenter(
             exitDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
         )
 
-        closeTradeWindowStates += CloseTradeWindowState(
+        closeTradeFormWindowStates += CloseTradeFormWindowState(
             appDB = appModule.appDB,
             formModel = model,
             coroutineScope = coroutineScope,
-            onCloseRequest = { closeTradeWindowStates.removeIf { it.formModel.id == id } },
+            onCloseRequest = { closeTradeFormWindowStates.removeIf { it.formModel.id == id } },
         )
     }
 

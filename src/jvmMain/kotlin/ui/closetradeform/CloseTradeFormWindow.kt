@@ -1,4 +1,4 @@
-package ui.addclosedtrade
+package ui.closetradeform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,8 +23,8 @@ import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
 @Composable
-internal fun CloseTradeWindow(
-    state: CloseTradeWindowState,
+internal fun CloseTradeFormWindow(
+    state: CloseTradeFormWindowState,
 ) {
 
     val windowState = rememberWindowState()
