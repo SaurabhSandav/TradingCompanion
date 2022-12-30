@@ -1,6 +1,8 @@
 package ui.addclosedtrade
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -36,7 +38,7 @@ internal fun CloseTradeWindow(
         Box(Modifier.wrapContentSize()) {
 
             Column(
-                modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
+                modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
 
