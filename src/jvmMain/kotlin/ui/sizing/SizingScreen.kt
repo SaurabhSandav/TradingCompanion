@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import ui.addopentrade.AddOpenTradeWindow
 import ui.common.LocalAppWindowState
 import ui.common.controls.ListSelectionDialog
 import ui.common.state
+import ui.opentradeform.OpenTradeFormWindow
 import ui.sizing.model.SizedTrade
 import ui.sizing.model.SizingEvent
 import utils.NIFTY50
@@ -40,11 +40,11 @@ internal fun SizingScreen(
     )
 
     // Add open trade windows
-    state.addOpenTradeWindowStates.forEach { windowState ->
+    state.openTradeFormWindowStates.forEach { windowState ->
 
         key(windowState) {
 
-            AddOpenTradeWindow(windowState)
+            OpenTradeFormWindow(windowState)
         }
     }
 }

@@ -1,4 +1,4 @@
-package ui.addopentrade
+package ui.opentradeform
 
 import com.saurabhsandav.core.AppDB
 import kotlinx.coroutines.CoroutineScope
@@ -7,15 +7,15 @@ import kotlinx.coroutines.withContext
 import launchUnit
 import model.Side
 
-internal class AddOpenTradeWindowState(
+internal class OpenTradeFormWindowState(
     private val appDB: AppDB,
-    val formModel: AddOpenTradeFormFields.Model,
+    val formModel: OpenTradeFormFields.Model,
     private val coroutineScope: CoroutineScope,
     val sizingTradeId: Long? = null,
     val onCloseRequest: () -> Unit,
 ) {
 
-    fun onSaveTrade(model: AddOpenTradeFormFields.Model) = coroutineScope.launchUnit {
+    fun onSaveTrade(model: OpenTradeFormFields.Model) = coroutineScope.launchUnit {
 
         withContext(Dispatchers.IO) {
 

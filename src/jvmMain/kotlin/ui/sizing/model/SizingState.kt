@@ -3,12 +3,12 @@ package ui.sizing.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
-import ui.addopentrade.AddOpenTradeWindowState
+import ui.opentradeform.OpenTradeFormWindowState
 
 @Immutable
 internal data class SizingState(
     val sizedTrades: List<SizedTrade>,
-    val addOpenTradeWindowStates: SnapshotStateList<AddOpenTradeWindowState>,
+    val openTradeFormWindowStates: SnapshotStateList<OpenTradeFormWindowState>,
 )
 
 @Immutable

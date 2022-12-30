@@ -26,8 +26,8 @@ import launchUnit
 import mapList
 import model.Account
 import model.Side
-import ui.addopentrade.AddOpenTradeFormFields
-import ui.addopentrade.AddOpenTradeWindowState
+import ui.opentradeform.OpenTradeFormFields
+import ui.opentradeform.OpenTradeFormWindowState
 import ui.common.AppColor
 import ui.common.CollectEffect
 import ui.sizing.model.SizedTrade
@@ -48,7 +48,7 @@ internal class SizingPresenter(
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val addOpenTradeWindowStates = SnapshotStateList<AddOpenTradeWindowState>()
+    private val openTradeFormWindowStates = SnapshotStateList<OpenTradeFormWindowState>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -74,7 +74,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
-            addOpenTradeWindowStates = addOpenTradeWindowStates,
+            openTradeFormWindowStates = openTradeFormWindowStates,
         )
     }
 
@@ -147,7 +147,7 @@ internal class SizingPresenter(
         val currentTime = Clock.System.now()
         val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
 
-        val model = AddOpenTradeFormFields.Model(
+        val model = OpenTradeFormFields.Model(
             id = null,
             ticker = sizingTrade.ticker,
             quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
@@ -161,12 +161,12 @@ internal class SizingPresenter(
             }.toPlainString()
         )
 
-        addOpenTradeWindowStates += AddOpenTradeWindowState(
+        openTradeFormWindowStates += OpenTradeFormWindowState(
             appDB = appModule.appDB,
             formModel = model,
             coroutineScope = coroutineScope,
             sizingTradeId = id,
-            onCloseRequest = { addOpenTradeWindowStates.removeIf { it.sizingTradeId == id } }
+            onCloseRequest = { openTradeFormWindowStates.removeIf { it.sizingTradeId == id } }
         )
     }
 

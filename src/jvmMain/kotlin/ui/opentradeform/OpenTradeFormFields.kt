@@ -1,9 +1,9 @@
-package ui.addopentrade
+package ui.opentradeform
 
 import kotlinx.datetime.LocalDateTime
 import ui.common.form.*
 
-internal class AddOpenTradeFormFields(
+internal class OpenTradeFormFields(
     private val formScope: FormScope,
     private val initial: Model,
 ) {

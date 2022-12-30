@@ -1,4 +1,4 @@
-package ui.addopentrade
+package ui.opentradeform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,8 +20,8 @@ import ui.common.form.rememberFormScope
 import utils.NIFTY50
 
 @Composable
-internal fun AddOpenTradeWindow(
-    state: AddOpenTradeWindowState,
+internal fun OpenTradeFormWindow(
+    state: OpenTradeFormWindowState,
 ) {
 
     val windowState = rememberWindowState()
@@ -40,7 +40,7 @@ internal fun AddOpenTradeWindow(
             ) {
 
                 val formScope = rememberFormScope()
-                val fields = remember { AddOpenTradeFormFields(formScope, state.formModel) }
+                val fields = remember { OpenTradeFormFields(formScope, state.formModel) }
 
                 ListSelectionField(
                     items = NIFTY50,

@@ -24,9 +24,9 @@ import mapList
 import model.Side
 import ui.addclosedtrade.CloseTradeFormFields
 import ui.addclosedtrade.CloseTradeWindowState
-import ui.addopentrade.AddOpenTradeFormFields
-import ui.addopentrade.AddOpenTradeWindowState
 import ui.common.CollectEffect
+import ui.opentradeform.OpenTradeFormFields
+import ui.opentradeform.OpenTradeFormWindowState
 import ui.opentrades.model.OpenTradeListEntry
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
@@ -43,7 +43,7 @@ internal class OpenTradesPresenter(
 
     private val events = MutableSharedFlow<OpenTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val addTradeWindowStates = mutableStateListOf<AddOpenTradeWindowState>()
+    private val addTradeWindowStates = mutableStateListOf<OpenTradeFormWindowState>()
     private val closeTradeWindowStates = mutableStateListOf<CloseTradeWindowState>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -102,7 +102,7 @@ internal class OpenTradesPresenter(
         val currentTime = Clock.System.now()
         val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
 
-        val model = AddOpenTradeFormFields.Model(
+        val model = OpenTradeFormFields.Model(
             id = null,
             ticker = null,
             quantity = "",
@@ -113,7 +113,7 @@ internal class OpenTradesPresenter(
             target = "",
         )
 
-        addTradeWindowStates += AddOpenTradeWindowState(
+        addTradeWindowStates += OpenTradeFormWindowState(
             appDB = appModule.appDB,
             formModel = model,
             coroutineScope = coroutineScope,
@@ -127,7 +127,7 @@ internal class OpenTradesPresenter(
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
         }
 
-        val model = AddOpenTradeFormFields.Model(
+        val model = OpenTradeFormFields.Model(
             id = openTrade.id,
             ticker = openTrade.ticker,
             quantity = openTrade.quantity,
@@ -138,7 +138,7 @@ internal class OpenTradesPresenter(
             target = openTrade.target.orEmpty(),
         )
 
-        addTradeWindowStates += AddOpenTradeWindowState(
+        addTradeWindowStates += OpenTradeFormWindowState(
             appDB = appModule.appDB,
             formModel = model,
             coroutineScope = coroutineScope,
