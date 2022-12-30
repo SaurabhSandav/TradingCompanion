@@ -1,6 +1,6 @@
 package ui.settings
 
-import AppModule
+import LocalAppModule
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,11 +22,11 @@ import ui.settings.model.SettingsEvent.*
 
 @Composable
 internal fun SettingsWindow(
-    appModule: AppModule,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
     val presenter = remember { SettingsPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 

@@ -1,6 +1,5 @@
 package ui.barreplay
 
-import AppModule
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
@@ -13,7 +12,6 @@ import ui.common.AppWindow
 
 @Composable
 internal fun BarReplayWindow(
-    appModule: AppModule,
     onCloseRequest: () -> Unit,
 ) {
 
@@ -32,7 +30,6 @@ internal fun BarReplayWindow(
     ) {
 
         BarReplayScreen(
-            appModule = appModule,
             currentScreen = state.currentScreen,
             onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay(it)) },
             onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
@@ -42,7 +39,6 @@ internal fun BarReplayWindow(
 
 @Composable
 private fun BarReplayScreen(
-    appModule: AppModule,
     currentScreen: BarReplayScreen,
     onLaunchReplay: (ReplayLaunchFormFields.Model) -> Unit,
     onNewReplay: () -> Unit,
@@ -55,7 +51,6 @@ private fun BarReplayScreen(
         )
 
         is BarReplayScreen.Chart -> ReplayChartsScreen(
-            appModule = appModule,
             onNewReplay = onNewReplay,
             baseTimeframe = currentScreen.baseTimeframe,
             candlesBefore = currentScreen.candlesBefore,

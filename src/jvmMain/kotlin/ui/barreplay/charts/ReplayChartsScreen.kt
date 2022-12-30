@@ -1,6 +1,6 @@
 package ui.barreplay.charts
 
-import AppModule
+import LocalAppModule
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
@@ -17,7 +17,6 @@ import ui.common.chart.state.ChartPageState
 
 @Composable
 internal fun ReplayChartsScreen(
-    appModule: AppModule,
     onNewReplay: () -> Unit,
     baseTimeframe: Timeframe,
     candlesBefore: Int,
@@ -28,6 +27,7 @@ internal fun ReplayChartsScreen(
 ) {
 
     val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
     val presenter = remember {
         ReplayChartsPresenter(
             coroutineScope = scope,

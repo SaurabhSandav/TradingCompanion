@@ -14,8 +14,9 @@ import utils.PrefKeys
 
 @Composable
 @Preview
-internal fun App(appModule: AppModule) {
+internal fun App() {
 
+    val appModule = LocalAppModule.current
     val useDarkTheme by remember {
         appModule.appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
     }.collectAsState(PrefDefaults.DarkModeEnabled)
@@ -23,7 +24,7 @@ internal fun App(appModule: AppModule) {
     AppTheme(useDarkTheme = useDarkTheme) {
 
         Surface {
-            LandingScreen(appModule)
+            LandingScreen()
         }
     }
 }
@@ -36,7 +37,10 @@ fun main() = application {
     val densityFraction by appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
         .collectAsState(PrefDefaults.DensityFraction)
 
-    CompositionLocalProvider(LocalDensityFraction provides densityFraction) {
+    CompositionLocalProvider(
+        LocalDensityFraction provides densityFraction,
+        LocalAppModule provides appModule,
+    ) {
 
         AppWindow(
             onCloseRequest = ::exitApplication,
@@ -48,9 +52,11 @@ fun main() = application {
             // Set window title inside window scope, so it can be overridden in child composables
             LaunchedEffect(appWindowState) { appWindowState.title = "Trading Companion" }
 
-            App(appModule)
+            App()
         }
     }
 }
 
 internal val LocalDensityFraction = staticCompositionLocalOf { PrefDefaults.DensityFraction }
+
+internal val LocalAppModule = staticCompositionLocalOf<AppModule> { error("AppModule is not provided") }

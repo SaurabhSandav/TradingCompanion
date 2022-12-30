@@ -1,6 +1,7 @@
 package ui.landing
 
 import AppModule
+import LocalAppModule
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Box
@@ -34,11 +35,10 @@ import ui.studies.StudiesPresenter
 import ui.studies.StudiesScreen
 
 @Composable
-internal fun LandingScreen(
-    appModule: AppModule,
-) {
+internal fun LandingScreen() {
 
     val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
     val presenter = remember { LandingPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 
@@ -147,7 +147,6 @@ private fun LandingScreen(
         if (showChartsWindow) {
 
             ChartsWindow(
-                appModule = appModule,
                 onCloseRequest = { showChartsWindow = false },
             )
         }
@@ -155,7 +154,6 @@ private fun LandingScreen(
         if (showBarReplayWindow) {
 
             BarReplayWindow(
-                appModule = appModule,
                 onCloseRequest = { showBarReplayWindow = false },
             )
         }
@@ -163,7 +161,6 @@ private fun LandingScreen(
         if (showSettingsWindow) {
 
             SettingsWindow(
-                appModule = appModule,
                 onCloseRequest = { showSettingsWindow = false },
             )
         }

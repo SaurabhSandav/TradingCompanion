@@ -1,6 +1,6 @@
 package ui.charts
 
-import AppModule
+import LocalAppModule
 import androidx.compose.runtime.*
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.WindowPlacement
@@ -11,11 +11,11 @@ import ui.common.AppWindow
 
 @Composable
 internal fun ChartsWindow(
-    appModule: AppModule,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
     val presenter = remember { ChartsPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 
