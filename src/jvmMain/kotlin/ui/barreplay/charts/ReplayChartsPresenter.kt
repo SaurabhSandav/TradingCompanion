@@ -148,7 +148,7 @@ internal class ReplayChartsPresenter(
             // First chart, create chart manager with initial params
             -1 -> ReplayChartManager(
                 initialParams = ReplayChartManager.ChartParams(
-                    id = currentChartId,
+                    id = id,
                     symbol = initialSymbol,
                     timeframe = baseTimeframe,
                     // New replay session
