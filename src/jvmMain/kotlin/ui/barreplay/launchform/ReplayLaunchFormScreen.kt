@@ -2,23 +2,26 @@ package ui.barreplay.launchform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import ui.common.OutlinedTextField
 import ui.common.TimeframeLabels
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
-import ui.common.form.rememberFormScope
+import ui.common.form.isError
 import utils.NIFTY50
 
 @Composable
 internal fun ReplayLaunchFormScreen(
-    formModel: ReplayLaunchFormFields.Model,
-    onLaunchReplay: (ReplayLaunchFormFields.Model) -> Unit,
+    model: ReplayLaunchFormModel,
+    onLaunchReplay: () -> Unit,
 ) {
 
     Box(
@@ -32,43 +35,40 @@ internal fun ReplayLaunchFormScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            val formScope = rememberFormScope()
-
-            val fields = remember {
-                ReplayLaunchFormFields(
-                    formScope = formScope,
-                    initial = formModel,
-                )
-            }
-
             ListSelectionField(
                 items = TimeframeLabels,
-                onSelection = fields.baseTimeframe.onSelectionChange,
-                selection = fields.baseTimeframe.value,
-                isError = fields.baseTimeframe.isError,
+                onSelection = { model.baseTimeframe.value = it },
+                selection = model.baseTimeframe.value,
                 label = { Text("Base Timeframe") },
                 placeholderText = "Select Timeframe...",
+                isError = model.baseTimeframe.isError,
+                errorText = { Text(model.baseTimeframe.errorMessage) },
             )
 
             OutlinedTextField(
-                value = fields.candlesBefore.value,
-                onValueChange = fields.candlesBefore.onValueChange,
+                value = model.candlesBefore.value,
+                onValueChange = { model.candlesBefore.value = it.trim() },
                 label = { Text("Candles Before") },
-                isError = fields.candlesBefore.isError,
+                isError = model.candlesBefore.isError,
+                errorText = { Text(model.candlesBefore.errorMessage) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 
             DateTimeField(
-                value = fields.dataTo.value,
-                onValidValueChange = fields.dataTo.onValueChange,
-                label = { Text("Data To") },
+                value = model.replayFrom.value,
+                onValidValueChange = { model.replayFrom.value = it },
+                label = { Text("Replay From") },
+                isError = model.replayFrom.isError,
+                errorText = { Text(model.replayFrom.errorMessage) },
             )
 
             DateTimeField(
-                value = fields.replayFrom.value,
-                onValidValueChange = fields.replayFrom.onValueChange,
-                label = { Text("Replay From") },
+                value = model.dataTo.value,
+                onValidValueChange = { model.dataTo.value = it },
+                label = { Text("Data To") },
+                isError = model.dataTo.isError,
+                errorText = { Text(model.dataTo.errorMessage) },
             )
 
             Row(
@@ -80,8 +80,8 @@ internal fun ReplayLaunchFormScreen(
                 Text("OHLC")
 
                 Switch(
-                    checked = fields.replayFullBar.value,
-                    onCheckedChange = fields.replayFullBar.onCheckedChange,
+                    checked = model.replayFullBar,
+                    onCheckedChange = { model.replayFullBar = it },
                 )
 
                 Text("Full Bar")
@@ -91,16 +91,17 @@ internal fun ReplayLaunchFormScreen(
 
             ListSelectionField(
                 items = NIFTY50,
-                onSelection = fields.initialSymbol.onSelectionChange,
-                selection = fields.initialSymbol.value,
-                isError = fields.initialSymbol.isError,
-                label = { Text("Initial Ticker") },
+                onSelection = { model.initialSymbol.value = it },
+                selection = model.initialSymbol.value,
+                label = { Text("Ticker") },
                 placeholderText = "Select Ticker...",
+                isError = model.initialSymbol.isError,
+                errorText = { Text(model.initialSymbol.errorMessage) },
             )
 
             Divider()
 
-            Button(onClick = { fields.getModelIfValidOrNull()?.let(onLaunchReplay) }) {
+            Button(onClick = onLaunchReplay) {
                 Text("Launch")
             }
         }

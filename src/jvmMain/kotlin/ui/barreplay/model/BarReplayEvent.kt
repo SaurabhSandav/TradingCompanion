@@ -1,10 +1,8 @@
 package ui.barreplay.model
 
-import ui.barreplay.launchform.ReplayLaunchFormFields
-
 internal sealed class BarReplayEvent {
 
-    data class LaunchReplay(val formModel: ReplayLaunchFormFields.Model) : BarReplayEvent()
+    object LaunchReplay : BarReplayEvent()
 
     object NewReplay : BarReplayEvent()
 }

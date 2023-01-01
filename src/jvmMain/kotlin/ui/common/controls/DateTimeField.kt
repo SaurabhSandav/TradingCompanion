@@ -1,6 +1,5 @@
 package ui.common.controls
 
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -12,6 +11,7 @@ import androidx.compose.ui.text.input.TransformedText
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import ui.common.OutlinedTextField
 import ui.common.state
 import java.time.format.DateTimeFormatter
 
@@ -21,6 +21,7 @@ fun DateTimeField(
     onValidValueChange: (LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    errorText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 ) {
@@ -54,6 +55,7 @@ fun DateTimeField(
             dateTimeStr = trimmed
         },
         label = label,
+        errorText = errorText,
         isError = isError || !isDateTimeValid,
         singleLine = true,
         enabled = enabled,

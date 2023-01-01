@@ -3,7 +3,7 @@ package ui.barreplay.model
 import androidx.compose.runtime.Immutable
 import kotlinx.datetime.Instant
 import trading.Timeframe
-import ui.barreplay.launchform.ReplayLaunchFormFields
+import ui.barreplay.launchform.ReplayLaunchFormModel
 
 @Immutable
 internal data class BarReplayState(
@@ -13,7 +13,7 @@ internal data class BarReplayState(
 internal sealed class BarReplayScreen {
 
     data class LaunchForm(
-        val formModel: ReplayLaunchFormFields.Model,
+        val model: ReplayLaunchFormModel,
     ) : BarReplayScreen()
 
     data class Chart(

@@ -3,17 +3,20 @@ package ui.opentradeform
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
+import ui.common.OutlinedTextField
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
-import ui.common.form.rememberFormScope
+import ui.common.form.isError
 import utils.NIFTY50
 
 @Composable
@@ -47,22 +50,23 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        val formScope = rememberFormScope()
-        val fields = remember { OpenTradeFormFields(formScope, state.model) }
+        val model = state.model
 
         ListSelectionField(
             items = NIFTY50,
-            onSelection = fields.ticker.onSelectionChange,
-            selection = fields.ticker.value,
+            onSelection = { model.ticker.value = it },
+            selection = model.ticker.value,
             label = { Text("Ticker") },
-            isError = fields.ticker.isError,
+            isError = model.ticker.isError,
+            errorText = { Text(model.ticker.errorMessage) },
         )
 
         OutlinedTextField(
-            value = fields.quantity.value,
-            onValueChange = fields.quantity.onValueChange,
+            value = model.quantity.value,
+            onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
-            isError = fields.quantity.isError,
+            isError = model.quantity.isError,
+            errorText = { Text(model.quantity.errorMessage) },
             singleLine = true,
         )
 
@@ -75,46 +79,51 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             Text("Short")
 
             Switch(
-                checked = fields.isLong.value,
-                onCheckedChange = fields.isLong.onCheckedChange,
+                checked = model.isLong.value,
+                onCheckedChange = { model.isLong.value = it },
             )
 
             Text("Long")
         }
 
         OutlinedTextField(
-            value = fields.entry.value,
-            onValueChange = fields.entry.onValueChange,
+            value = model.entry.value,
+            onValueChange = { model.entry.value = it.trim() },
             label = { Text("Entry") },
-            isError = fields.entry.isError,
+            isError = model.entry.isError,
+            errorText = { Text(model.entry.errorMessage) },
             singleLine = true,
         )
 
         OutlinedTextField(
-            value = fields.stop.value,
-            onValueChange = fields.stop.onValueChange,
+            value = model.stop.value,
+            onValueChange = { model.stop.value = it.trim() },
             label = { Text("Stop") },
-            isError = fields.stop.isError,
+            isError = model.stop.isError,
+            errorText = { Text(model.stop.errorMessage) },
             singleLine = true,
         )
 
         DateTimeField(
-            value = fields.entryDateTime.value,
-            onValidValueChange = fields.entryDateTime.onValueChange,
+            value = model.entryDateTime.value,
+            onValidValueChange = { model.entryDateTime.value = it },
             label = { Text("Entry DateTime") },
+            isError = model.entryDateTime.isError,
+            errorText = { Text(model.entryDateTime.errorMessage) },
         )
 
         OutlinedTextField(
-            value = fields.target.value,
-            onValueChange = fields.target.onValueChange,
+            value = model.target.value,
+            onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
-            isError = fields.target.isError,
+            isError = model.target.isError,
+            errorText = { Text(model.target.errorMessage) },
             singleLine = true,
         )
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = { fields.getModelIfValidOrNull()?.let(state::onSaveTrade) },
+            onClick = state::onSaveTrade,
         ) {
 
             Text("Add")

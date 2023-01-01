@@ -15,6 +15,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import launchUnit
 import model.Side
+import ui.common.form.FormValidator
 import ui.opentradeform.OpenTradeFormWindowParams.OperationType.*
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -44,58 +45,60 @@ internal class OpenTradeFormWindowState(
     private val appDB: AppDB = appModule.appDB,
 ) {
 
+    private val formValidator = FormValidator()
+
     var isReady by mutableStateOf(false)
         private set
 
-    var model by mutableStateOf(
-        OpenTradeFormFields.Model(
-            id = null,
-            ticker = null,
-            quantity = "",
-            isLong = true,
-            entry = "",
-            stop = "",
-            entryDateTime = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
-            target = "",
-        )
+    val model = OpenTradeFormModel(
+        validator = formValidator,
+        ticker = null,
+        quantity = "",
+        isLong = true,
+        entry = "",
+        stop = "",
+        entryDateTime = run {
+            val currentTime = Clock.System.now()
+            val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+            currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+        },
+        target = "",
     )
 
     init {
 
         coroutineScope.launch {
 
-            model = when (params.operationType) {
-                New -> model
+            when (params.operationType) {
                 is EditExisting -> editExistingTrade(params.operationType.id)
                 is OpenFromSizingTrade -> openFromSizingTrade(params.operationType.sizingTradeId)
+                New -> Unit
             }
 
             isReady = true
         }
     }
 
-    fun onSaveTrade(model: OpenTradeFormFields.Model) = coroutineScope.launchUnit {
+    fun onSaveTrade() = coroutineScope.launchUnit {
+
+        if (!formValidator.isValid()) return@launchUnit
 
         withContext(Dispatchers.IO) {
 
             appDB.transaction {
 
                 appDB.openTradeQueries.insert(
-                    id = model.id,
+                    id = if (params.operationType is EditExisting) params.operationType.id else null,
                     broker = "Finvasia",
-                    ticker = model.ticker!!,
+                    ticker = model.ticker.value!!,
                     instrument = "equity",
-                    quantity = model.quantity,
+                    quantity = model.quantity.value,
                     lots = null,
-                    side = (if (model.isLong) Side.Long else Side.Short).strValue,
-                    entry = model.entry,
-                    stop = model.stop.ifBlank { null },
-                    entryDate = model.entryDateTime.toString(),
-                    target = model.target.ifBlank { null },
+                    side = (if (model.isLong.value) Side.Long else Side.Short).strValue,
+                    entry = model.entry.value,
+                    stop = model.stop.value.ifBlank { null },
+                    entryDate = model.entryDateTime.value.toString(),
+                    target = model.target.value.ifBlank { null },
                 )
 
                 if (params.operationType is OpenFromSizingTrade) {
@@ -107,25 +110,22 @@ internal class OpenTradeFormWindowState(
         params.onCloseRequest()
     }
 
-    private suspend fun editExistingTrade(id: Long): OpenTradeFormFields.Model {
+    private suspend fun editExistingTrade(id: Long) {
 
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
         }
 
-        return OpenTradeFormFields.Model(
-            id = openTrade.id,
-            ticker = openTrade.ticker,
-            quantity = openTrade.quantity,
-            isLong = Side.fromString(openTrade.side) == Side.Long,
-            entry = openTrade.entry,
-            stop = openTrade.stop.orEmpty(),
-            entryDateTime = LocalDateTime.parse(openTrade.entryDate),
-            target = openTrade.target.orEmpty(),
-        )
+        model.ticker.value = openTrade.ticker
+        model.quantity.value = openTrade.quantity
+        model.isLong.value = Side.fromString(openTrade.side) == Side.Long
+        model.entry.value = openTrade.entry
+        model.stop.value = openTrade.stop.orEmpty()
+        model.entryDateTime.value = LocalDateTime.parse(openTrade.entryDate)
+        model.target.value = openTrade.target.orEmpty()
     }
 
-    private suspend fun openFromSizingTrade(sizingTradeId: Long): OpenTradeFormFields.Model {
+    private suspend fun openFromSizingTrade(sizingTradeId: Long) {
 
         val sizingTrade = withContext(Dispatchers.IO) {
             appModule.appDB.sizingTradeQueries.get(sizingTradeId).executeAsOne()
@@ -159,19 +159,16 @@ internal class OpenTradeFormWindowState(
         val currentTime = Clock.System.now()
         val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
 
-        return OpenTradeFormFields.Model(
-            id = null,
-            ticker = sizingTrade.ticker,
-            quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
-            isLong = isLong,
-            entry = sizingTrade.entry,
-            stop = sizingTrade.stop,
-            entryDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
-            target = when {
-                entryBD > stopBD -> entryBD + spread // Long
-                else -> entryBD - spread // Short
-            }.toPlainString()
-        )
+        model.ticker.value = sizingTrade.ticker
+        model.quantity.value = calculatedQuantity.min(maxAffordableQuantity).toPlainString()
+        model.isLong.value = isLong
+        model.entry.value = sizingTrade.entry
+        model.stop.value = sizingTrade.stop
+        model.entryDateTime.value = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+        model.target.value = when {
+            entryBD > stopBD -> entryBD + spread // Long
+            else -> entryBD - spread // Short
+        }.toPlainString()
     }
 }
 

@@ -12,9 +12,11 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import launchUnit
 import model.Side
 import ui.closetradeform.CloseTradeFormWindowParams.OperationType.CloseOpenTrade
 import ui.closetradeform.CloseTradeFormWindowParams.OperationType.EditExistingTrade
+import ui.common.form.FormValidator
 import kotlin.time.Duration.Companion.nanoseconds
 
 @Composable
@@ -41,39 +43,42 @@ internal class CloseTradeFormWindowState(
     private val appDB: AppDB = appModule.appDB,
 ) {
 
+    private val formValidator = FormValidator()
+
     var isReady by mutableStateOf(false)
         private set
 
-    var model by mutableStateOf(
-        CloseTradeFormFields.Model(
-            id = -1,
-            ticker = null,
-            quantity = "",
-            isLong = true,
-            entry = "",
-            stop = "",
-            entryDateTime = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
-            target = "",
-            exit = "",
-            exitDateTime = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
-        )
+    var showDetails by mutableStateOf(false)
+        private set
+
+    val model = CloseTradeFormModel(
+        validator = formValidator,
+        ticker = null,
+        quantity = "",
+        isLong = true,
+        entry = "",
+        stop = "",
+        entryDateTime = run {
+            val currentTime = Clock.System.now()
+            val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+            currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+        },
+        target = "",
+        exit = "",
+        exitDateTime = run {
+            val currentTime = Clock.System.now()
+            val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+            currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+        },
     )
 
-    var detailModel by mutableStateOf<CloseTradeDetailedFormFields.Model?>(null)
+    var detailModel: CloseTradeDetailFormModel? = null
 
     init {
 
         coroutineScope.launch {
 
-            model = when (params.operationType) {
+            when (params.operationType) {
                 is EditExistingTrade -> editExistingTrade(params.operationType.id)
                 is CloseOpenTrade -> closeOpenTrade(params.operationType.openTradeId)
             }
@@ -82,10 +87,9 @@ internal class CloseTradeFormWindowState(
         }
     }
 
-    fun onSaveTrade(
-        model: CloseTradeFormFields.Model,
-        detailModel: CloseTradeDetailedFormFields.Model?,
-    ) = coroutineScope.launch {
+    fun onSaveTrade() = coroutineScope.launchUnit {
+
+        if (!formValidator.isValid()) return@launchUnit
 
         withContext(Dispatchers.IO) {
 
@@ -99,27 +103,27 @@ internal class CloseTradeFormWindowState(
                 appDB.closedTradeQueries.insert(
                     id = id,
                     broker = "Finvasia",
-                    ticker = model.ticker!!,
+                    ticker = model.ticker.value!!,
                     instrument = "equity",
-                    quantity = model.quantity,
+                    quantity = model.quantity.value,
                     lots = null,
-                    side = (if (model.isLong) Side.Long else Side.Short).strValue,
-                    entry = model.entry,
-                    stop = model.stop.ifBlank { null },
-                    entryDate = model.entryDateTime.toString(),
-                    target = model.target.ifBlank { null },
-                    exit = model.exit,
-                    exitDate = model.exitDateTime.toString(),
+                    side = (if (model.isLong.value) Side.Long else Side.Short).strValue,
+                    entry = model.entry.value,
+                    stop = model.stop.value.ifBlank { null },
+                    entryDate = model.entryDateTime.value.toString(),
+                    target = model.target.value.ifBlank { null },
+                    exit = model.exit.value,
+                    exitDate = model.exitDateTime.value.toString(),
                 )
 
                 if (id != null) {
 
-                    requireNotNull(detailModel)
+                    val detailModel = requireNotNull(detailModel)
 
                     appDB.closedTradeDetailQueries.insert(
                         closedTradeId = id,
-                        maxFavorableExcursion = detailModel.maxFavorableExcursion.ifBlank { null },
-                        maxAdverseExcursion = detailModel.maxAdverseExcursion.ifBlank { null },
+                        maxFavorableExcursion = detailModel.maxFavorableExcursion.value.ifBlank { null },
+                        maxAdverseExcursion = detailModel.maxAdverseExcursion.value.ifBlank { null },
                         tags = detailModel.tags.joinToString(", "),
                         persisted = detailModel.persisted.toString(),
                         persistenceResult = null,
@@ -135,14 +139,19 @@ internal class CloseTradeFormWindowState(
         params.onCloseRequest()
     }
 
-    private suspend fun editExistingTrade(id: Long): CloseTradeFormFields.Model {
+    fun showDetails() {
+        showDetails = true
+    }
+
+    private suspend fun editExistingTrade(id: Long) {
 
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
-        detailModel = CloseTradeDetailedFormFields.Model(
-            id = closedTrade.id,
+        detailModel = CloseTradeDetailFormModel(
+            validator = formValidator,
+            closeTradeFormModel = model,
             maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
             maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
             tags = closedTrade.tags?.split(", ")?.let {
@@ -151,21 +160,18 @@ internal class CloseTradeFormWindowState(
             persisted = closedTrade.persisted.toBoolean(),
         )
 
-        return CloseTradeFormFields.Model(
-            id = closedTrade.id,
-            ticker = closedTrade.ticker,
-            quantity = closedTrade.quantity,
-            isLong = Side.fromString(closedTrade.side) == Side.Long,
-            entry = closedTrade.entry,
-            stop = closedTrade.stop.orEmpty(),
-            entryDateTime = LocalDateTime.parse(closedTrade.entryDate),
-            target = closedTrade.target.orEmpty(),
-            exit = closedTrade.exit,
-            exitDateTime = LocalDateTime.parse(closedTrade.exitDate),
-        )
+        model.ticker.value = closedTrade.ticker
+        model.quantity.value = closedTrade.quantity
+        model.isLong.value = Side.fromString(closedTrade.side) == Side.Long
+        model.entry.value = closedTrade.entry
+        model.stop.value = closedTrade.stop.orEmpty()
+        model.entryDateTime.value = LocalDateTime.parse(closedTrade.entryDate)
+        model.target.value = closedTrade.target.orEmpty()
+        model.exit.value = closedTrade.exit
+        model.exitDateTime.value = LocalDateTime.parse(closedTrade.exitDate)
     }
 
-    private suspend fun closeOpenTrade(openTradeId: Long): CloseTradeFormFields.Model {
+    private suspend fun closeOpenTrade(openTradeId: Long) {
 
         val openTrade = withContext(Dispatchers.IO) {
             appModule.appDB.openTradeQueries.getById(openTradeId).executeAsOne()
@@ -179,18 +185,15 @@ internal class CloseTradeFormWindowState(
         // val response = fyersApi.getQuotes(accessToken, listOf("NSE:${openTrade.ticker}-EQ"))
         // val currentPrice = response.result?.quote?.first()?.quoteData?.cmd?.close?.toString() ?: "0"
 
-        return CloseTradeFormFields.Model(
-            id = openTrade.id,
-            ticker = openTrade.ticker,
-            quantity = openTrade.quantity,
-            isLong = Side.fromString(openTrade.side) == Side.Long,
-            entry = openTrade.entry,
-            stop = openTrade.stop.orEmpty(),
-            entryDateTime = LocalDateTime.parse(openTrade.entryDate),
-            target = openTrade.target.orEmpty(),
-            exit = "",
-            exitDateTime = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
-        )
+        model.ticker.value = openTrade.ticker
+        model.quantity.value = openTrade.quantity
+        model.isLong.value = Side.fromString(openTrade.side) == Side.Long
+        model.entry.value = openTrade.entry
+        model.stop.value = openTrade.stop.orEmpty()
+        model.entryDateTime.value = LocalDateTime.parse(openTrade.entryDate)
+        model.target.value = openTrade.target.orEmpty()
+        model.exit.value = ""
+        model.exitDateTime.value = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
     }
 }
 

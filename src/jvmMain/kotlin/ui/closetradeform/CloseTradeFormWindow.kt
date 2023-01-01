@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -13,11 +15,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import ui.common.AppWindow
+import ui.common.OutlinedTextField
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
 import ui.common.flow.FlowRow
-import ui.common.form.rememberFormScope
-import ui.common.state
+import ui.common.form.isError
 import utils.NIFTY50
 
 @Composable
@@ -51,22 +53,23 @@ private fun MainForm(state: CloseTradeFormWindowState) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        val formScope = rememberFormScope()
-        val fields = remember { CloseTradeFormFields(formScope, state.model) }
+        val model = state.model
 
         ListSelectionField(
             items = NIFTY50,
-            onSelection = fields.ticker.onSelectionChange,
-            selection = fields.ticker.value,
+            onSelection = { model.ticker.value = it },
+            selection = model.ticker.value,
             label = { Text("Ticker") },
-            isError = fields.ticker.isError,
+            isError = model.ticker.isError,
+            errorText = { Text(model.ticker.errorMessage) },
         )
 
         OutlinedTextField(
-            value = fields.quantity.value,
-            onValueChange = fields.quantity.onValueChange,
+            value = model.quantity.value,
+            onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
-            isError = fields.quantity.isError,
+            isError = model.quantity.isError,
+            errorText = { Text(model.quantity.errorMessage) },
             singleLine = true,
         )
 
@@ -79,40 +82,45 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             Text("Short")
 
             Switch(
-                checked = fields.isLong.value,
-                onCheckedChange = fields.isLong.onCheckedChange,
+                checked = model.isLong.value,
+                onCheckedChange = { model.isLong.value = it },
             )
 
             Text("Long")
         }
 
         OutlinedTextField(
-            value = fields.entry.value,
-            onValueChange = fields.entry.onValueChange,
+            value = model.entry.value,
+            onValueChange = { model.entry.value = (it.trim()) },
             label = { Text("Entry") },
-            isError = fields.entry.isError,
+            isError = model.entry.isError,
+            errorText = { Text(model.entry.errorMessage) },
             singleLine = true,
         )
 
         OutlinedTextField(
-            value = fields.stop.value,
-            onValueChange = fields.stop.onValueChange,
+            value = model.stop.value,
+            onValueChange = { model.stop.value = (it.trim()) },
             label = { Text("Stop") },
-            isError = fields.stop.isError,
+            isError = model.stop.isError,
+            errorText = { Text(model.stop.errorMessage) },
             singleLine = true,
         )
 
         DateTimeField(
-            value = fields.entryDateTime.value,
-            onValidValueChange = fields.entryDateTime.onValueChange,
+            value = model.entryDateTime.value,
+            onValidValueChange = { model.entryDateTime.value = it },
             label = { Text("Entry DateTime") },
+            isError = model.entryDateTime.isError,
+            errorText = { Text(model.entryDateTime.errorMessage) },
         )
 
         OutlinedTextField(
-            value = fields.target.value,
-            onValueChange = fields.target.onValueChange,
+            value = model.target.value,
+            onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
-            isError = fields.target.isError,
+            isError = model.target.isError,
+            errorText = { Text(model.target.errorMessage) },
             singleLine = true,
         )
 
@@ -120,10 +128,11 @@ private fun MainForm(state: CloseTradeFormWindowState) {
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(focusRequester),
-            value = fields.exit.value,
-            onValueChange = fields.exit.onValueChange,
+            value = model.exit.value,
+            onValueChange = { model.exit.value = it.trim() },
             label = { Text("Exit") },
-            isError = fields.exit.isError,
+            isError = model.exit.isError,
+            errorText = { Text(model.exit.errorMessage) },
             singleLine = true,
         )
 
@@ -135,50 +144,39 @@ private fun MainForm(state: CloseTradeFormWindowState) {
         }
 
         DateTimeField(
-            value = fields.exitDateTime.value,
-            onValidValueChange = fields.exitDateTime.onValueChange,
+            value = model.exitDateTime.value,
+            onValidValueChange = { model.exitDateTime.value = it },
             label = { Text("Exit DateTime") },
+            isError = model.exitDateTime.isError,
+            errorText = { Text(model.exitDateTime.errorMessage) },
         )
 
         val detailModel = state.detailModel
-        val detailFields = remember(detailModel) {
-            if (detailModel == null) null else CloseTradeDetailedFormFields(formScope, detailModel)
-        }
 
-        if (detailModel != null && detailFields != null) {
+        if (detailModel != null) {
 
-            var showDetails by state { false }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+            AnimatedVisibility(
+                visible = !state.showDetails,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             ) {
 
-                Text("Show Details")
+                Button(
+                    onClick = state::showDetails,
+                ) {
 
-                Switch(
-                    checked = showDetails,
-                    onCheckedChange = { showDetails = it },
-                )
+                    Text("Show Details")
+                }
             }
 
-            AnimatedVisibility(showDetails) {
+            AnimatedVisibility(state.showDetails) {
 
-                DetailForm(
-                    fields = detailFields,
-                    tags = detailModel.tags,
-                )
+                DetailForm(detailModel)
             }
         }
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = {
-                fields.getModelIfValidOrNull()?.let { model ->
-                    state.onSaveTrade(model, detailFields?.getModelIfValidOrNull())
-                }
-            },
+            onClick = state::onSaveTrade,
         ) {
 
             Text("Add")
@@ -188,8 +186,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
 
 @Composable
 private fun DetailForm(
-    fields: CloseTradeDetailedFormFields,
-    tags: List<String>,
+    model: CloseTradeDetailFormModel,
 ) {
 
     Column(
@@ -199,18 +196,20 @@ private fun DetailForm(
         Divider(Modifier.padding(16.dp))
 
         OutlinedTextField(
-            value = fields.maxFavorableExcursion.value,
-            onValueChange = fields.maxFavorableExcursion.onValueChange,
+            value = model.maxFavorableExcursion.value,
+            onValueChange = { model.maxFavorableExcursion.value = it.trim() },
             label = { Text("Max Favorable Excursion") },
-            isError = fields.maxFavorableExcursion.isError,
+            isError = model.maxFavorableExcursion.isError,
+            errorText = { Text(model.maxFavorableExcursion.errorMessage) },
             singleLine = true,
         )
 
         OutlinedTextField(
-            value = fields.maxAdverseExcursion.value,
-            onValueChange = fields.maxAdverseExcursion.onValueChange,
+            value = model.maxAdverseExcursion.value,
+            onValueChange = { model.maxAdverseExcursion.value = it.trim() },
             label = { Text("Max Adverse Excursion") },
-            isError = fields.maxAdverseExcursion.isError,
+            isError = model.maxAdverseExcursion.isError,
+            errorText = { Text(model.maxAdverseExcursion.errorMessage) },
             singleLine = true,
         )
 
@@ -223,8 +222,8 @@ private fun DetailForm(
             Text("Persisted")
 
             Switch(
-                checked = fields.persisted.value,
-                onCheckedChange = fields.persisted.onCheckedChange,
+                checked = model.persisted,
+                onCheckedChange = { model.persisted = it },
             )
         }
 
@@ -232,7 +231,7 @@ private fun DetailForm(
             mainAxisSpacing = 8.dp,
         ) {
 
-            tags.forEach { tag ->
+            model.tags.forEach { tag ->
 
                 InputChip(
                     onClick = {},

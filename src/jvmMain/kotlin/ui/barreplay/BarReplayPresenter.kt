@@ -12,11 +12,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import trading.Timeframe
-import ui.barreplay.launchform.ReplayLaunchFormFields
+import ui.barreplay.launchform.ReplayLaunchFormModel
 import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayScreen
 import ui.barreplay.model.BarReplayState
 import ui.common.CollectEffect
+import ui.common.form.FormValidator
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import utils.NIFTY50
@@ -26,18 +27,18 @@ internal class BarReplayPresenter(
     coroutineScope: CoroutineScope,
 ) {
 
-    private val events = MutableSharedFlow<BarReplayEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private val formValidator = FormValidator()
+    private val formModel = initialLaunchFormModel()
 
-    private var screen by mutableStateOf<BarReplayScreen>(
-        BarReplayScreen.LaunchForm(formModel = initialLaunchFormModel())
-    )
+    private val events = MutableSharedFlow<BarReplayEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private var screen by mutableStateOf<BarReplayScreen>(BarReplayScreen.LaunchForm(model = formModel))
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
 
             when (event) {
-                is BarReplayEvent.LaunchReplay -> onLaunchReplay(event.formModel)
+                BarReplayEvent.LaunchReplay -> onLaunchReplay()
                 BarReplayEvent.NewReplay -> onNewReplay()
             }
         }
@@ -51,28 +52,28 @@ internal class BarReplayPresenter(
         events.tryEmit(event)
     }
 
-    private fun onLaunchReplay(formModel: ReplayLaunchFormFields.Model) {
+    private fun onLaunchReplay() {
+
+        if (!formValidator.isValid()) return
 
         screen = BarReplayScreen.Chart(
-            baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe) {
+            baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe.value) {
                 null -> Timeframe.M5
                 else -> timeframeFromLabel(timeframeLabel)
             },
-            candlesBefore = formModel.candlesBefore,
-            replayFrom = formModel.replayFrom.toInstant(TimeZone.currentSystemDefault()),
-            dataTo = formModel.dataTo.toInstant(TimeZone.currentSystemDefault()),
+            candlesBefore = formModel.candlesBefore.value.toInt(),
+            replayFrom = formModel.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
+            dataTo = formModel.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
             replayFullBar = formModel.replayFullBar,
-            initialSymbol = formModel.initialSymbol ?: error("Invalid symbol!"),
+            initialSymbol = formModel.initialSymbol.value!!,
         )
     }
 
     private fun onNewReplay() {
-        screen = BarReplayScreen.LaunchForm(
-            formModel = initialLaunchFormModel(),
-        )
+        screen = BarReplayScreen.LaunchForm(model = formModel)
     }
 
-    private fun initialLaunchFormModel(): ReplayLaunchFormFields.Model {
+    private fun initialLaunchFormModel(): ReplayLaunchFormModel {
 
         val currentTime = Clock.System.now()
         val days30 = 30.days
@@ -81,9 +82,10 @@ internal class BarReplayPresenter(
         val dataTo = currentTime.toLocalDateTime(TimeZone.currentSystemDefault())
         val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
 
-        return ReplayLaunchFormFields.Model(
+        return ReplayLaunchFormModel(
+            validator = formValidator,
             baseTimeframe = Timeframe.M5.toLabel(),
-            candlesBefore = candlesBefore,
+            candlesBefore = candlesBefore.toString(),
             replayFrom = replayFrom,
             dataTo = dataTo,
             replayFullBar = true,
