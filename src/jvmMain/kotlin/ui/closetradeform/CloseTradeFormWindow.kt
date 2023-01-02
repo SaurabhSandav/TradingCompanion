@@ -14,6 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
+import optionalContent
 import ui.common.AppWindow
 import ui.common.OutlinedTextField
 import ui.common.controls.DateTimeField
@@ -61,7 +62,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             selection = model.ticker.value,
             label = { Text("Ticker") },
             isError = model.ticker.isError,
-            errorText = { Text(model.ticker.errorMessage) },
+            errorText = optionalContent(model.ticker.errorMessage) { Text(it) },
         )
 
         OutlinedTextField(
@@ -69,7 +70,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantity.isError,
-            errorText = { Text(model.quantity.errorMessage) },
+            errorText = optionalContent(model.quantity.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -94,7 +95,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValueChange = { model.entry.value = (it.trim()) },
             label = { Text("Entry") },
             isError = model.entry.isError,
-            errorText = { Text(model.entry.errorMessage) },
+            errorText = optionalContent(model.entry.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -103,7 +104,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValueChange = { model.stop.value = (it.trim()) },
             label = { Text("Stop") },
             isError = model.stop.isError,
-            errorText = { Text(model.stop.errorMessage) },
+            errorText = optionalContent(model.stop.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -112,7 +113,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValidValueChange = { model.entryDateTime.value = it },
             label = { Text("Entry DateTime") },
             isError = model.entryDateTime.isError,
-            errorText = { Text(model.entryDateTime.errorMessage) },
+            errorText = optionalContent(model.entryDateTime.errorMessage) { Text(it) },
         )
 
         OutlinedTextField(
@@ -120,7 +121,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
             isError = model.target.isError,
-            errorText = { Text(model.target.errorMessage) },
+            errorText = optionalContent(model.target.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -132,7 +133,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValueChange = { model.exit.value = it.trim() },
             label = { Text("Exit") },
             isError = model.exit.isError,
-            errorText = { Text(model.exit.errorMessage) },
+            errorText = optionalContent(model.exit.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -148,7 +149,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             onValidValueChange = { model.exitDateTime.value = it },
             label = { Text("Exit DateTime") },
             isError = model.exitDateTime.isError,
-            errorText = { Text(model.exitDateTime.errorMessage) },
+            errorText = optionalContent(model.exitDateTime.errorMessage) { Text(it) },
         )
 
         val detailModel = state.detailModel
@@ -200,7 +201,7 @@ private fun DetailForm(
             onValueChange = { model.maxFavorableExcursion.value = it.trim() },
             label = { Text("Max Favorable Excursion") },
             isError = model.maxFavorableExcursion.isError,
-            errorText = { Text(model.maxFavorableExcursion.errorMessage) },
+            errorText = optionalContent(model.maxFavorableExcursion.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -209,7 +210,7 @@ private fun DetailForm(
             onValueChange = { model.maxAdverseExcursion.value = it.trim() },
             label = { Text("Max Adverse Excursion") },
             isError = model.maxAdverseExcursion.isError,
-            errorText = { Text(model.maxAdverseExcursion.errorMessage) },
+            errorText = optionalContent(model.maxAdverseExcursion.errorMessage) { Text(it) },
             singleLine = true,
         )
 

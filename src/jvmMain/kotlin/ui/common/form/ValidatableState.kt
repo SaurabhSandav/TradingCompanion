@@ -17,7 +17,7 @@ class ValidatableState<T> internal constructor(
     private val _value = mutableStateOf(initial)
     private val dependents = mutableSetOf<ValidatableState<*>>()
 
-    var errorMessage: String by mutableStateOf("")
+    var errorMessage: String? by mutableStateOf(null)
         private set
 
     var isValid by mutableStateOf(true)
@@ -50,7 +50,7 @@ class ValidatableState<T> internal constructor(
         when (firstFailedValidation) {
             null -> {
                 isValid = true
-                errorMessage = ""
+                errorMessage = null
             }
 
             else -> {
