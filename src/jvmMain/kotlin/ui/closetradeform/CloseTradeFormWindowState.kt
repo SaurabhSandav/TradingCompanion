@@ -3,21 +3,24 @@ package ui.closetradeform
 import AppModule
 import LocalAppModule
 import androidx.compose.runtime.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.saurabhsandav.core.AppDB
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import launchUnit
 import model.Side
+import trading.Candle
+import trading.Timeframe
+import trading.data.CandleRepository
 import ui.closetradeform.CloseTradeFormWindowParams.OperationType.CloseOpenTrade
 import ui.closetradeform.CloseTradeFormWindowParams.OperationType.EditExistingTrade
 import ui.common.form.FormValidator
 import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun rememberCloseTradeFormWindowState(
@@ -41,6 +44,7 @@ internal class CloseTradeFormWindowState(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appDB: AppDB = appModule.appDB,
+    private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
 
     private val formValidator = FormValidator()
@@ -139,8 +143,72 @@ internal class CloseTradeFormWindowState(
         params.onCloseRequest()
     }
 
-    fun showDetails() {
+    fun onShowDetails() {
         showDetails = true
+    }
+
+    fun onCalculateMFE() = coroutineScope.launchUnit {
+
+        val dependencyFields = listOf(
+            model.ticker,
+            model.entry,
+            model.entryDateTime,
+            model.exitDateTime,
+        )
+
+        if (!dependencyFields.onEach { it.validate() }.all { it.isValid }) return@launchUnit
+
+        val candles = getCandlesInSession()
+
+        var mfe = model.entry.value.toBigDecimal()
+
+        for (candle in candles) {
+            when {
+                model.isLong.value -> {
+                    mfe = maxOf(mfe, candle.high)
+                    if (candle.low <= model.stop.value.toBigDecimal()) break
+                }
+
+                else -> {
+                    mfe = minOf(mfe, candle.low)
+                    if (candle.high >= model.stop.value.toBigDecimal()) break
+                }
+            }
+        }
+
+        detailModel!!.maxFavorableExcursion.value = mfe.toPlainString()
+    }
+
+    fun onCalculateMAE() = coroutineScope.launchUnit {
+
+        val dependencyFields = listOf(
+            model.ticker,
+            model.entry,
+            model.entryDateTime,
+            model.exitDateTime,
+        )
+
+        if (!dependencyFields.onEach { it.validate() }.all { it.isValid }) return@launchUnit
+
+        val candles = getCandlesInSession()
+
+        var mae = model.entry.value.toBigDecimal()
+
+        for (candle in candles) {
+            when {
+                model.isLong.value -> {
+                    mae = minOf(mae, candle.low)
+                    if (candle.high >= model.target.value.toBigDecimal()) break
+                }
+
+                else -> {
+                    mae = maxOf(mae, candle.high)
+                    if (candle.low <= model.target.value.toBigDecimal()) break
+                }
+            }
+        }
+
+        detailModel!!.maxAdverseExcursion.value = mae.toPlainString()
     }
 
     private suspend fun editExistingTrade(id: Long) {
@@ -194,6 +262,37 @@ internal class CloseTradeFormWindowState(
         model.target.value = openTrade.target.orEmpty()
         model.exit.value = ""
         model.exitDateTime.value = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+    }
+
+    private suspend fun getCandlesInSession(): List<Candle> {
+
+        val timeframe = Timeframe.M5
+
+        val entryInstant = model.entryDateTime.value.toInstant(TimeZone.currentSystemDefault())
+
+        val candlesResult = candleRepo.getCandles(
+            symbol = model.ticker.value!!,
+            timeframe = timeframe,
+            from = entryInstant - timeframe.seconds.seconds,
+            // Up to start of next day. Assume session only lasts the same day
+            to = (model.exitDateTime.value.date + DatePeriod(days = 1)).atStartOfDayIn(TimeZone.currentSystemDefault()),
+        )
+
+        val candles = when (candlesResult) {
+            is Ok -> candlesResult.value
+            is Err -> when (val error = candlesResult.error) {
+                is CandleRepository.Error.AuthError -> error("AuthError")
+                is CandleRepository.Error.UnknownError -> error(error.message)
+            }
+        }
+
+        val firstCandleOpenInstant = candles.first().openInstant
+
+        // Make sure first candle is actually the entry candle
+        return when (entryInstant) {
+            in firstCandleOpenInstant..firstCandleOpenInstant + timeframe.seconds.seconds -> candles
+            else -> candles.drop(1)
+        }.dropLast(2) // Square-off 10 minutes before market close
     }
 }
 

@@ -39,7 +39,16 @@ internal fun CloseTradeFormWindow(
         Box(Modifier.wrapContentSize()) {
 
             when {
-                state.isReady -> MainForm(state)
+                state.isReady -> MainForm(
+                    model = state.model,
+                    showDetails = state.showDetails,
+                    onShowDetails = state::onShowDetails,
+                    detailModel = state.detailModel,
+                    onCalculateMFE = state::onCalculateMFE,
+                    onCalculateMAE = state::onCalculateMAE,
+                    onSaveTrade = state::onSaveTrade,
+                )
+
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
@@ -47,14 +56,20 @@ internal fun CloseTradeFormWindow(
 }
 
 @Composable
-private fun MainForm(state: CloseTradeFormWindowState) {
+private fun MainForm(
+    model: CloseTradeFormModel,
+    showDetails: Boolean,
+    onShowDetails: () -> Unit,
+    detailModel: CloseTradeDetailFormModel?,
+    onCalculateMFE: () -> Unit,
+    onCalculateMAE: () -> Unit,
+    onSaveTrade: () -> Unit,
+) {
 
     Column(
         modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-
-        val model = state.model
 
         ListSelectionField(
             items = NIFTY50,
@@ -137,7 +152,7 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             singleLine = true,
         )
 
-        if (state.detailModel == null) {
+        if (detailModel == null) {
 
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
@@ -152,32 +167,32 @@ private fun MainForm(state: CloseTradeFormWindowState) {
             errorText = optionalContent(model.exitDateTime.errorMessage) { Text(it) },
         )
 
-        val detailModel = state.detailModel
-
         if (detailModel != null) {
 
             AnimatedVisibility(
-                visible = !state.showDetails,
+                visible = !showDetails,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             ) {
 
-                Button(
-                    onClick = state::showDetails,
-                ) {
+                Button(onClick = onShowDetails) {
 
                     Text("Show Details")
                 }
             }
 
-            AnimatedVisibility(state.showDetails) {
+            AnimatedVisibility(showDetails) {
 
-                DetailForm(detailModel)
+                DetailForm(
+                    model = detailModel,
+                    onCalculateMFE = onCalculateMFE,
+                    onCalculateMAE = onCalculateMAE,
+                )
             }
         }
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = state::onSaveTrade,
+            onClick = onSaveTrade,
         ) {
 
             Text("Add")
@@ -188,6 +203,8 @@ private fun MainForm(state: CloseTradeFormWindowState) {
 @Composable
 private fun DetailForm(
     model: CloseTradeDetailFormModel,
+    onCalculateMFE: () -> Unit,
+    onCalculateMAE: () -> Unit,
 ) {
 
     Column(
@@ -203,6 +220,11 @@ private fun DetailForm(
             isError = model.maxFavorableExcursion.isError,
             errorText = optionalContent(model.maxFavorableExcursion.errorMessage) { Text(it) },
             singleLine = true,
+            trailingIcon = {
+                TextButton(onClick = onCalculateMFE) {
+                    Text("CALCULATE")
+                }
+            },
         )
 
         OutlinedTextField(
@@ -212,6 +234,11 @@ private fun DetailForm(
             isError = model.maxAdverseExcursion.isError,
             errorText = optionalContent(model.maxAdverseExcursion.errorMessage) { Text(it) },
             singleLine = true,
+            trailingIcon = {
+                TextButton(onClick = onCalculateMAE) {
+                    Text("CALCULATE")
+                }
+            },
         )
 
         Row(
