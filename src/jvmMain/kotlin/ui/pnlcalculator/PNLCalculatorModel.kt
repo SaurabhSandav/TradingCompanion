@@ -1,7 +1,12 @@
 package ui.pnlcalculator
 
 import androidx.compose.runtime.*
-import ui.common.form.*
+import ui.common.form.FormValidator
+import ui.common.form.IsBigDecimal
+import ui.common.form.IsInt
+import ui.common.form.Validation
+import ui.common.form.fields.switch
+import ui.common.form.fields.textField
 
 @Stable
 internal class PNLCalculatorModel(
@@ -14,29 +19,24 @@ internal class PNLCalculatorModel(
 
     var enableModification by mutableStateOf(true)
 
-    val quantity = validator.newField(
+    val quantity = validator.textField(
         initial = quantity,
         validations = setOf(
-            IsNotEmpty,
             IsInt,
             Validation("Cannot be 0 or negative") { it.toInt() > 0 },
         ),
     )
 
-    val isLong = validator.newField(isLong)
+    val isLong = validator.switch(isLong)
 
-    val entry = validator.newField(
+    val entry = validator.textField(
         initial = entry,
-        validations = setOf(IsNotEmpty, IsBigDecimal),
+        validations = setOf(IsBigDecimal),
     )
 
-    val exit = validator.newField(
+    val exit = validator.textField(
         initial = exit,
-        dependsOn = setOf(this.isLong, this.entry),
-        validations = setOf(
-            IsNotEmpty,
-            IsBigDecimal,
-        ),
+        validations = setOf(IsBigDecimal),
     )
 
     val pnlEntries = mutableStateListOf<PNLEntry>()

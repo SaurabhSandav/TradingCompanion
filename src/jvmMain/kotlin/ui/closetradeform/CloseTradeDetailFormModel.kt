@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import ui.common.form.FormValidator
 import ui.common.form.IsBigDecimal
 import ui.common.form.Validation
+import ui.common.form.fields.textField
 
 @Stable
 class CloseTradeDetailFormModel(
@@ -18,14 +19,14 @@ class CloseTradeDetailFormModel(
     tags: List<String>,
 ) {
 
-    val maxFavorableExcursion = validator.newField(
+    val maxFavorableExcursion = validator.textField(
         initial = maxFavorableExcursion,
-        dependsOn = setOf(closeTradeFormModel.isLong, closeTradeFormModel.entry),
+        isRequired = false,
         validations = setOf(
             IsBigDecimal,
             Validation(
                 errorMessage = "Invalid value",
-                validateDependencies = true,
+                dependsOn = setOf(closeTradeFormModel.isLong, closeTradeFormModel.entry),
             ) {
                 val current = it.toBigDecimal()
                 val entryBD = closeTradeFormModel.entry.value.toBigDecimal()
@@ -34,14 +35,14 @@ class CloseTradeDetailFormModel(
         ),
     )
 
-    val maxAdverseExcursion = validator.newField(
+    val maxAdverseExcursion = validator.textField(
         initial = maxAdverseExcursion,
-        dependsOn = setOf(closeTradeFormModel.isLong, closeTradeFormModel.entry),
+        isRequired = false,
         validations = setOf(
             IsBigDecimal,
             Validation(
                 errorMessage = "Invalid value",
-                validateDependencies = true,
+                dependsOn = setOf(closeTradeFormModel.isLong, closeTradeFormModel.entry),
             ) {
                 val current = it.toBigDecimal()
                 val entryBD = closeTradeFormModel.entry.value.toBigDecimal()

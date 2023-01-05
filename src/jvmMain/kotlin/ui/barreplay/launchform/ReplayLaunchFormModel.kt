@@ -7,7 +7,12 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import ui.common.form.*
+import ui.common.form.FormValidator
+import ui.common.form.IsInt
+import ui.common.form.Validation
+import ui.common.form.fields.dateTimeField
+import ui.common.form.fields.listSelectionField
+import ui.common.form.fields.textField
 
 class ReplayLaunchFormModel(
     validator: FormValidator,
@@ -19,15 +24,11 @@ class ReplayLaunchFormModel(
     initialSymbol: String?,
 ) {
 
-    val baseTimeframe = validator.newField(
-        initial = baseTimeframe,
-        validations = setOf(IsNotNull),
-    )
+    val baseTimeframe = validator.listSelectionField(baseTimeframe)
 
-    val candlesBefore = validator.newField(
+    val candlesBefore = validator.textField(
         initial = candlesBefore,
         validations = setOf(
-            IsNotEmpty,
             IsInt,
             Validation(
                 errorMessage = "Cannot be 0 or negative",
@@ -36,7 +37,7 @@ class ReplayLaunchFormModel(
         ),
     )
 
-    val replayFrom = validator.newField(
+    val replayFrom = validator.dateTimeField(
         initial = replayFrom,
         validations = setOf(
             Validation(
@@ -46,12 +47,12 @@ class ReplayLaunchFormModel(
         ),
     )
 
-    val dataTo = validator.newField(
+    val dataTo = validator.dateTimeField(
         initial = dataTo,
-        dependsOn = setOf(this.replayFrom),
         validations = setOf(
             Validation(
                 errorMessage = "Cannot be before entry time",
+                dependsOn = setOf(this.replayFrom),
                 isValid = { this.replayFrom.value < it },
             ),
         ),
@@ -59,8 +60,5 @@ class ReplayLaunchFormModel(
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialSymbol = validator.newField(
-        initial = initialSymbol,
-        validations = setOf(IsNotNull),
-    )
+    val initialSymbol = validator.listSelectionField(initialSymbol)
 }

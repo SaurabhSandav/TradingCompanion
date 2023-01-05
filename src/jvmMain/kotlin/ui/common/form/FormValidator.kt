@@ -2,32 +2,20 @@ package ui.common.form
 
 class FormValidator {
 
-    private val fields = mutableListOf<ValidatableState<*>>()
+    private val fields = mutableListOf<FormField<*>>()
 
-    fun <T> newField(
-        initial: T,
-        validations: Set<Validation<T>> = emptySet(),
-        dependsOn: Set<ValidatableState<*>> = emptySet(),
-    ): ValidatableState<T> {
+    fun <T> addField(field: FormField<T>) {
 
-        val state = ValidatableState(
-            initial = initial,
-            validations = validations,
-            dependsOn = dependsOn,
-        )
+        fields.add(field)
 
-        fields.add(state)
-
-        dependsOn.forEach { it.registerDependent(state) }
-
-        return state
+        field.validations.flatMap { it.dependsOn }.forEach { it.registerDependent(field) }
     }
 
-    fun removeField(state: ValidatableState<*>) {
+    fun removeField(field: FormField<*>) {
 
-        state.dependsOn.forEach { it.unregisterDependent(state) }
+        field.validations.flatMap { it.dependsOn }.forEach { it.unregisterDependent(field) }
 
-        fields.remove(state)
+        fields.remove(field)
     }
 
     fun isValid(): Boolean {

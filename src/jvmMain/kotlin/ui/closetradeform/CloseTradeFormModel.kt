@@ -5,7 +5,14 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import ui.common.form.*
+import ui.common.form.FormValidator
+import ui.common.form.IsBigDecimal
+import ui.common.form.IsInt
+import ui.common.form.Validation
+import ui.common.form.fields.dateTimeField
+import ui.common.form.fields.listSelectionField
+import ui.common.form.fields.switch
+import ui.common.form.fields.textField
 
 @Stable
 class CloseTradeFormModel(
@@ -21,36 +28,31 @@ class CloseTradeFormModel(
     exitDateTime: LocalDateTime,
 ) {
 
-    val ticker = validator.newField(
-        initial = ticker,
-        validations = setOf(IsNotNull),
-    )
+    val ticker = validator.listSelectionField(ticker)
 
-    val quantity = validator.newField(
+    val quantity = validator.textField(
         initial = quantity,
         validations = setOf(
-            IsNotEmpty,
             IsInt,
             Validation("Cannot be 0 or negative") { it.toInt() > 0 },
         ),
     )
 
-    val isLong = validator.newField(isLong)
+    val isLong = validator.switch(isLong)
 
-    val entry = validator.newField(
+    val entry = validator.textField(
         initial = entry,
-        validations = setOf(IsNotEmpty, IsBigDecimal),
+        validations = setOf(IsBigDecimal),
     )
 
-    val stop = validator.newField(
+    val stop = validator.textField(
         initial = stop,
-        dependsOn = setOf(this.isLong, this.entry),
+        isRequired = false,
         validations = setOf(
-            IsNotEmpty,
             IsBigDecimal,
             Validation(
                 errorMessage = "Invalid stop",
-                validateDependencies = true,
+                dependsOn = setOf(this.isLong, this.entry),
             ) {
                 val current = it.toBigDecimal()
                 val entryBD = this.entry.value.toBigDecimal()
@@ -59,7 +61,7 @@ class CloseTradeFormModel(
         ),
     )
 
-    val entryDateTime = validator.newField(
+    val entryDateTime = validator.dateTimeField(
         initial = entryDateTime,
         validations = setOf(
             Validation(
@@ -69,15 +71,14 @@ class CloseTradeFormModel(
         ),
     )
 
-    val target = validator.newField(
+    val target = validator.textField(
         initial = target,
-        dependsOn = setOf(this.isLong, this.entry),
+        isRequired = false,
         validations = setOf(
-            IsNotEmpty,
             IsBigDecimal,
             Validation(
                 errorMessage = "Invalid target",
-                validateDependencies = true,
+                dependsOn = setOf(this.isLong, this.entry),
             ) {
                 val current = it.toBigDecimal()
                 val entryBD = this.entry.value.toBigDecimal()
@@ -86,17 +87,17 @@ class CloseTradeFormModel(
         ),
     )
 
-    val exit = validator.newField(
+    val exit = validator.textField(
         initial = exit,
-        validations = setOf(IsNotEmpty, IsBigDecimal),
+        validations = setOf(IsBigDecimal),
     )
 
-    val exitDateTime = validator.newField(
+    val exitDateTime = validator.dateTimeField(
         initial = exitDateTime,
-        dependsOn = setOf(this.entryDateTime),
         validations = setOf(
             Validation(
                 errorMessage = "Cannot be before entry time",
+                dependsOn = setOf(this.entryDateTime),
                 isValid = { this.entryDateTime.value < it },
             ),
             Validation(
