@@ -2,6 +2,7 @@ package ui.common.table
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,7 +23,7 @@ fun <T> DefaultTableHeader(
 ) {
 
     Row(
-        modifier = modifier.padding(8.dp),
+        modifier = modifier.height(64.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 

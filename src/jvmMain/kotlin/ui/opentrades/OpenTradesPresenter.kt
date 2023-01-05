@@ -69,11 +69,13 @@ internal class OpenTradesPresenter(
 
                     val entryDateTime = LocalDateTime.parse(openTrade.entryDate)
 
+                    val instrumentCapitalized = openTrade.instrument
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
                     OpenTradeListEntry(
                         id = openTrade.id,
-                        broker = openTrade.broker,
+                        broker = "${openTrade.broker} ($instrumentCapitalized)",
                         ticker = openTrade.ticker,
-                        instrument = openTrade.instrument,
                         quantity = openTrade.lots?.let { "${openTrade.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
                             ?: openTrade.quantity,
                         side = openTrade.side.uppercase(),

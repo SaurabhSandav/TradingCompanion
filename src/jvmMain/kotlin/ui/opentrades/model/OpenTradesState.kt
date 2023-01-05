@@ -15,7 +15,6 @@ internal data class OpenTradeListEntry(
     val id: Long,
     val broker: String,
     val ticker: String,
-    val instrument: String,
     val quantity: String,
     val side: String,
     val entry: String,

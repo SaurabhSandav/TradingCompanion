@@ -5,12 +5,15 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ui.common.AppColor
 import ui.common.table.*
 import ui.opentrades.model.OpenTradeListEntry
 
@@ -26,15 +29,19 @@ internal fun OpenTradesTable(
     val schema = rememberTableSchema<OpenTradeListEntry> {
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
-        addColumnText("Instrument") { it.instrument }
         addColumnText("Quantity") { it.quantity }
-        addColumnText("Side") { it.side }
+        addColumn("Side") {
+            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+        }
         addColumnText("Entry") { it.entry }
         addColumnText("Stop") { it.stop }
         addColumnText("Entry Time") { it.entryTime }
         addColumnText("Target") { it.target }
         addColumn {
-            Button(onClick = { onCloseTrade(it.id) }) {
+            OutlinedButton(
+                onClick = { onCloseTrade(it.id) },
+                shape = RoundedCornerShape(8.dp),
+            ) {
                 Text("Close")
             }
         }

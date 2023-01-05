@@ -1,6 +1,7 @@
 package studies
 
 import AppModule
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
@@ -10,6 +11,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import model.Side
 import ui.common.AppColor
+import ui.common.Tooltip
 import ui.common.table.TableSchema
 import ui.common.table.addColumn
 import ui.common.table.addColumnText
@@ -37,10 +39,46 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         addColumn("MFE PNL") {
             Text(text = it.mfePNL, color = AppColor.ProfitGreen)
         }
-        addColumnText("MAE") { it.maxAdverseExcursion }
-        addColumn("MAE PNL") {
-            Text(text = it.maePNL, color = AppColor.LossRed)
-        }
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Favorable Excursion") },
+                    content = { Text("MFE") },
+                )
+            },
+            content = { Text(it.maxFavorableExcursion) }
+        )
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Favorable Excursion PNL") },
+                    content = { Text("MFE PNL") },
+                )
+            },
+            content = { Text(text = it.mfePNL, color = AppColor.ProfitGreen) }
+        )
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Adverse Excursion") },
+                    content = { Text("MAE") },
+                )
+            },
+            content = { Text(it.maxAdverseExcursion) }
+        )
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Adverse Excursion PNL") },
+                    content = { Text("MAE PNL") },
+                )
+            },
+            content = { Text(text = it.maePNL, color = AppColor.LossRed) }
+        )
     }
 
     override val data: Flow<List<Model>> = appModule.appDB.closedTradeQueries.getAllClosedTradesDetailed {

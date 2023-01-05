@@ -2,6 +2,7 @@ package ui.closedtrades.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ui.closedtrades.model.ClosedTradeListItem
 import ui.common.AppColor
+import ui.common.Tooltip
 import ui.common.table.*
 
 @Composable
@@ -37,8 +39,26 @@ internal fun ClosedTradesTable(
         addColumnText("Duration") { it.duration }
         addColumnText("Target") { it.target }
         addColumnText("Exit") { it.exit }
-        addColumnText("Maximum Favorable Excursion") { it.maxFavorableExcursion }
-        addColumnText("Maximum Adverse Excursion") { it.maxAdverseExcursion }
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Favorable Excursion") },
+                    content = { Text("MFE") },
+                )
+            },
+            content = { Text(it.maxFavorableExcursion) }
+        )
+        addColumn(
+            header = {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Maximum Adverse Excursion") },
+                    content = { Text("MAE") },
+                )
+            },
+            content = { Text(it.maxAdverseExcursion) }
+        )
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
         }
