@@ -69,7 +69,7 @@ internal class TradeImporter(
                 maxFavorableExcursion = row.getValue("Maximum Favorable Excursion").ifBlank { null },
                 maxAdverseExcursion = row.getValue("Maximum Adverse Excursion").ifBlank { null },
                 persisted = row.getValue("Persisted"),
-                tags = row.getValue("Tags"),
+//                tags = row.getValue("Tags"),
                 persistenceResult = row.getValue("Persistence Result"),
             )
         }

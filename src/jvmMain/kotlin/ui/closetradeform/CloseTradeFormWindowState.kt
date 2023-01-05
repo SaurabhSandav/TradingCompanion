@@ -128,7 +128,6 @@ internal class CloseTradeFormWindowState(
                         closedTradeId = id,
                         maxFavorableExcursion = detailModel.maxFavorableExcursion.value.ifBlank { null },
                         maxAdverseExcursion = detailModel.maxAdverseExcursion.value.ifBlank { null },
-                        tags = detailModel.tags.joinToString(", "),
                         persisted = detailModel.persisted.toString(),
                         persistenceResult = null,
                     )
@@ -217,14 +216,16 @@ internal class CloseTradeFormWindowState(
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
         }
 
+        val tags = withContext(Dispatchers.IO) {
+            appDB.closedTradeTagQueries.getTagsByTrade(id).executeAsList()
+        }
+
         detailModel = CloseTradeDetailFormModel(
             validator = formValidator,
             closeTradeFormModel = model,
             maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
             maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
-            tags = closedTrade.tags?.split(", ")?.let {
-                if (it.size == 1 && it.first().isBlank()) emptyList() else it
-            } ?: emptyList(),
+            tags = tags.map { it.name },
             persisted = closedTrade.persisted.toBoolean(),
         )
 

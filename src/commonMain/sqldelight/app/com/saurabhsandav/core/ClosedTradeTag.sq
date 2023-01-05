@@ -1,0 +1,28 @@
+
+CREATE TABLE IF NOT EXISTS ClosedTradeTag (
+id INTEGER AS Long NOT NULL PRIMARY KEY,
+tradeId INTEGER AS Long NOT NULL,
+tagId INTEGER AS Long NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES ClosedTrade(id),
+FOREIGN KEY(tagId) REFERENCES TradeTag(id)
+);
+
+insert:
+INSERT OR REPLACE INTO ClosedTradeTag
+VALUES (?, ?, ?);
+
+getTagsByTrade:
+SELECT TradeTag.* FROM ClosedTradeTag
+INNER JOIN TradeTag
+ON ClosedTradeTag.tagId = TradeTag.id
+WHERE ClosedTradeTag.tradeId = ?;
+
+getTradesByTag:
+SELECT ClosedTrade.* FROM ClosedTradeTag
+INNER JOIN ClosedTrade
+ON ClosedTradeTag.tradeId = ClosedTrade.id
+WHERE ClosedTradeTag.tagId = ?;
+
+delete:
+DELETE FROM ClosedTradeTag
+WHERE id = ?;
