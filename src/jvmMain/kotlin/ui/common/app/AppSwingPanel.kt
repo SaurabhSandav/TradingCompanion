@@ -1,9 +1,8 @@
-package ui.common
+package ui.common.app
 
 import LocalDensityFraction
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.NoOpUpdate
 import androidx.compose.ui.awt.SwingPanel
@@ -36,3 +35,11 @@ fun <T : Component> AppSwingPanel(
         )
     }
 }
+
+@Stable
+class AppWindowState {
+
+    var title by mutableStateOf("Untitled")
+}
+
+val LocalAppWindowState = compositionLocalOf { AppWindowState() }

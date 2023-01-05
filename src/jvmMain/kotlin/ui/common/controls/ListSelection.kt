@@ -3,14 +3,12 @@ package ui.common.controls
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
@@ -24,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import ui.common.OutlinedTextField
+import ui.common.app.AppDialog
 import ui.common.state
 
 @Composable
@@ -93,7 +91,7 @@ fun ListSelectionDialog(
     onCloseRequest: () -> Unit,
 ) {
 
-    Dialog(
+    AppDialog(
         onCloseRequest = onCloseRequest,
         title = selectionDialogTitle,
     ) {
@@ -104,59 +102,56 @@ fun ListSelectionDialog(
             derivedStateOf { items.filter { it.startsWith(filterQuery, ignoreCase = true) } }
         }
 
-        Surface(Modifier.fillMaxSize()) {
+        Box {
 
-            Box {
+            // For filtering list, Size is zero to hide
+            BasicTextField(
+                value = filterQuery,
+                onValueChange = { value -> filterQuery = value.trim() },
+                modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
+            )
 
-                // For filtering list, Size is zero to hide
-                BasicTextField(
-                    value = filterQuery,
-                    onValueChange = { value -> filterQuery = value.trim() },
-                    modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
-                )
+            SideEffect { focusRequester.requestFocus() }
 
-                SideEffect { focusRequester.requestFocus() }
+            LazyColumn {
 
-                LazyColumn {
+                items(
+                    items = filteredItems,
+                    key = { it },
+                ) { itemText ->
 
-                    items(
-                        items = filteredItems,
-                        key = { it },
-                    ) { itemText ->
+                    ListItem(
+                        modifier = Modifier.clickable { onSelection(itemText) },
+                        headlineText = {
 
-                        ListItem(
-                            modifier = Modifier.clickable { onSelection(itemText) },
-                            headlineText = {
+                            val filterHighlightedText by remember(itemText) {
+                                derivedStateOf {
+                                    buildAnnotatedString {
 
-                                val filterHighlightedText by remember(itemText) {
-                                    derivedStateOf {
-                                        buildAnnotatedString {
+                                        val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
+                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
+                                        val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
 
-                                            val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
-                                            val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                            val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
-
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                                append(itemText.substring(filterQueryIndices))
-                                            }
-
-                                            append(itemText.removeRange(filterQueryIndices))
+                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append(itemText.substring(filterQueryIndices))
                                         }
+
+                                        append(itemText.removeRange(filterQueryIndices))
                                     }
                                 }
-
-                                Text(
-                                    text = filterHighlightedText,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                )
                             }
-                        )
-                    }
-                }
 
-                Text(filterQuery, Modifier.align(Alignment.BottomStart))
+                            Text(
+                                text = filterHighlightedText,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    )
+                }
             }
+
+            Text(filterQuery, Modifier.align(Alignment.BottomStart))
         }
     }
 }

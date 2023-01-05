@@ -7,7 +7,7 @@ import ui.barreplay.charts.ReplayChartsScreen
 import ui.barreplay.launchform.ReplayLaunchFormScreen
 import ui.barreplay.model.BarReplayEvent
 import ui.barreplay.model.BarReplayScreen
-import ui.common.AppWindow
+import ui.common.app.AppWindow
 
 @Composable
 internal fun BarReplayWindow(

@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import studies.Study
-import ui.common.AppWindow
-import ui.common.LocalAppWindowState
 import ui.common.MultipleWindowManager
+import ui.common.app.AppWindow
+import ui.common.app.LocalAppWindowState
 
 @Composable
 internal fun StudiesScreen(

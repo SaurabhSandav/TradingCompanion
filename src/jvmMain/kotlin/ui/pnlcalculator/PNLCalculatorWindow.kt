@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import optionalContent
 import ui.common.AppColor
-import ui.common.AppWindow
 import ui.common.OutlinedTextField
+import ui.common.app.AppWindow
 import ui.common.form.isError
 import ui.common.table.*
 

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ui.common.AppColor
-import ui.common.LocalAppWindowState
+import ui.common.app.LocalAppWindowState
 import ui.common.state
 import ui.common.table.*
 

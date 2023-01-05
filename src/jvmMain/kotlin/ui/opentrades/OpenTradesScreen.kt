@@ -3,7 +3,7 @@ package ui.opentrades
 import androidx.compose.runtime.*
 import ui.closetradeform.CloseTradeFormWindow
 import ui.closetradeform.rememberCloseTradeFormWindowState
-import ui.common.LocalAppWindowState
+import ui.common.app.LocalAppWindowState
 import ui.opentradeform.OpenTradeFormWindow
 import ui.opentradeform.rememberOpenTradeFormWindowState
 import ui.opentrades.model.OpenTradesEvent

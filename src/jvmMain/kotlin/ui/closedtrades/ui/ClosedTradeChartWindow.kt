@@ -12,7 +12,7 @@ import chart.options.*
 import chart.options.common.LineWidth
 import chart.options.common.PriceFormat
 import ui.closedtrades.model.ClosedTradeChartData
-import ui.common.AppWindow
+import ui.common.app.AppWindow
 import ui.common.chart.ChartPage
 import ui.common.chart.state.ChartPageState
 import ui.common.chart.themedChartOptions

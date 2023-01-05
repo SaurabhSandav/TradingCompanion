@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import netscape.javascript.JSObject
+import ui.common.app.AppSwingPanel
 
 @Composable
 fun JavaFxWebView(

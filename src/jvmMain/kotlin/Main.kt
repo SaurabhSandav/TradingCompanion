@@ -5,8 +5,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import ui.common.AppWindow
-import ui.common.LocalAppWindowState
+import ui.common.app.AppWindow
+import ui.common.app.LocalAppWindowState
 import ui.landing.LandingScreen
 import ui.theme.AppTheme
 import utils.PrefDefaults

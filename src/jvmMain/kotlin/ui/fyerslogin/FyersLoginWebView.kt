@@ -9,7 +9,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import ui.common.*
+import ui.common.JavaFxWebView
+import ui.common.WebViewState
+import ui.common.app.AppWindow
+import ui.common.rememberWebViewState
+import ui.common.state
 
 @Composable
 internal fun FyersLoginWindow(

@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import optionalContent
-import ui.common.AppWindow
 import ui.common.OutlinedTextField
+import ui.common.app.AppWindow
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
 import ui.common.form.isError

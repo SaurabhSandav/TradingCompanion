@@ -7,7 +7,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import ui.charts.model.ChartsEvent.*
 import ui.charts.ui.ChartsScreen
-import ui.common.AppWindow
+import ui.common.app.AppWindow
 
 @Composable
 internal fun ChartsWindow(

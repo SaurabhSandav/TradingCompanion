@@ -13,7 +13,7 @@ import ui.closedtrades.ui.DeleteConfirmationDialog
 import ui.closetradeform.CloseTradeFormWindow
 import ui.closetradeform.rememberCloseTradeFormWindowState
 import ui.common.ErrorSnackbar
-import ui.common.LocalAppWindowState
+import ui.common.app.LocalAppWindowState
 import ui.fyerslogin.FyersLoginWindow
 import ui.pnlcalculator.PNLCalculatorWindow
 import ui.pnlcalculator.rememberPNLCalculatorWindowState
