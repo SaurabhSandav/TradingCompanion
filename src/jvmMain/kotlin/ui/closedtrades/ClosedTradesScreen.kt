@@ -15,6 +15,8 @@ import ui.closetradeform.rememberCloseTradeFormWindowState
 import ui.common.ErrorSnackbar
 import ui.common.LocalAppWindowState
 import ui.fyerslogin.FyersLoginWindow
+import ui.pnlcalculator.PNLCalculatorWindow
+import ui.pnlcalculator.rememberPNLCalculatorWindowState
 import ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
 @Composable
@@ -38,6 +40,7 @@ internal fun ClosedTradesScreen(
             closedTradesItems = state.closedTradesItems,
             onOpenChart = { presenter.event(ClosedTradesEvent.OpenChart(it)) },
             onEditTrade = { presenter.event(ClosedTradesEvent.EditTrade(it)) },
+            onOpenPNLCalculator = { presenter.event(ClosedTradesEvent.OpenPNLCalculator(it)) },
             onDeleteTrade = { presenter.event(ClosedTradesEvent.DeleteTrade(it)) },
         )
 
@@ -69,6 +72,15 @@ internal fun ClosedTradesScreen(
             key(params) {
 
                 CloseTradeFormWindow(rememberCloseTradeFormWindowState(params))
+            }
+        }
+
+        // PNL Calculator windows
+        state.pnlCalculatorWindowParams.forEach { params ->
+
+            key(params) {
+
+                PNLCalculatorWindow(rememberPNLCalculatorWindowState(params))
             }
         }
 

@@ -24,6 +24,7 @@ internal fun ClosedTradesTable(
     closedTradesItems: Map<ClosedTradeListItem.DayHeader, List<ClosedTradeListItem.Entry>>,
     onOpenChart: (id: Long) -> Unit,
     onEditTrade: (id: Long) -> Unit,
+    onOpenPNLCalculator: (id: Long) -> Unit,
     onDeleteTrade: (id: Long) -> Unit,
 ) {
 
@@ -101,6 +102,7 @@ internal fun ClosedTradesTable(
                         listOf(
                             ContextMenuItem("Open Chart") { onOpenChart(item.id) },
                             ContextMenuItem("Edit") { onEditTrade(item.id) },
+                            ContextMenuItem("PNL Calculator") { onOpenPNLCalculator(item.id) },
                             ContextMenuItem("Delete") { onDeleteTrade(item.id) },
                         )
                     },

@@ -21,6 +21,7 @@ import ui.opentrades.model.OpenTradeListEntry
 internal fun OpenTradesTable(
     openTrades: List<OpenTradeListEntry>,
     onEditTrade: (id: Long) -> Unit,
+    onOpenPNLCalculator: (id: Long) -> Unit,
     onDeleteTrade: (id: Long) -> Unit,
     onAddTrade: () -> Unit,
     onCloseTrade: (id: Long) -> Unit,
@@ -60,6 +61,7 @@ internal fun OpenTradesTable(
                 items = {
                     listOf(
                         ContextMenuItem("Edit") { onEditTrade(openTrade.id) },
+                        ContextMenuItem("PNL Calculator") { onOpenPNLCalculator(openTrade.id) },
                         ContextMenuItem("Delete") { onDeleteTrade(openTrade.id) },
                     )
                 },

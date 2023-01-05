@@ -3,11 +3,13 @@ package ui.opentrades.model
 import androidx.compose.runtime.Immutable
 import ui.closetradeform.CloseTradeFormWindowParams
 import ui.opentradeform.OpenTradeFormWindowParams
+import ui.pnlcalculator.PNLCalculatorWindowParams
 
 @Immutable
 internal data class OpenTradesState(
     val openTrades: List<OpenTradeListEntry>,
     val openTradeFormWindowParams: Collection<OpenTradeFormWindowParams>,
+    val pnlCalculatorWindowParams: Collection<PNLCalculatorWindowParams>,
     val closeTradeFormWindowParams: Collection<CloseTradeFormWindowParams>,
 )
 

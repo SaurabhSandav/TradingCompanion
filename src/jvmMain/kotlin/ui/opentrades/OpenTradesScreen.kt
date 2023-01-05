@@ -9,6 +9,8 @@ import ui.opentradeform.rememberOpenTradeFormWindowState
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.ui.OpenTradesTable
+import ui.pnlcalculator.PNLCalculatorWindow
+import ui.pnlcalculator.rememberPNLCalculatorWindowState
 
 @Composable
 internal fun OpenTradesScreen(
@@ -24,6 +26,7 @@ internal fun OpenTradesScreen(
     OpenTradesTable(
         openTrades = state.openTrades,
         onEditTrade = { presenter.event(OpenTradesEvent.EditTrade(it)) },
+        onOpenPNLCalculator = { presenter.event(OpenTradesEvent.OpenPNLCalculator(it)) },
         onDeleteTrade = { presenter.event(DeleteTrade(it)) },
         onAddTrade = { presenter.event(OpenTradesEvent.AddTrade) },
         onCloseTrade = { presenter.event(OpenTradesEvent.CloseTrade(it)) },
@@ -35,6 +38,15 @@ internal fun OpenTradesScreen(
         key(params) {
 
             OpenTradeFormWindow(rememberOpenTradeFormWindowState(params))
+        }
+    }
+
+    // PNL Calculator windows
+    state.pnlCalculatorWindowParams.forEach { params ->
+
+        key(params) {
+
+            PNLCalculatorWindow(rememberPNLCalculatorWindowState(params))
         }
     }
 

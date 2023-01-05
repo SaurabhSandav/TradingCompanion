@@ -23,6 +23,7 @@ import ui.opentrades.model.OpenTradeListEntry
 import ui.opentrades.model.OpenTradesEvent
 import ui.opentrades.model.OpenTradesEvent.DeleteTrade
 import ui.opentrades.model.OpenTradesState
+import ui.pnlcalculator.PNLCalculatorWindowParams
 import java.util.*
 
 internal class OpenTradesPresenter(
@@ -33,6 +34,7 @@ internal class OpenTradesPresenter(
     private val events = MutableSharedFlow<OpenTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val openTradeFormWindowParams = mutableStateMapOf<UUID, OpenTradeFormWindowParams>()
+    private val pnlCalculatorWindowParams = mutableStateMapOf<UUID, PNLCalculatorWindowParams>()
     private val closeTradeFormWindowParams = mutableStateMapOf<UUID, CloseTradeFormWindowParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -42,6 +44,7 @@ internal class OpenTradesPresenter(
             when (event) {
                 OpenTradesEvent.AddTrade -> onAddTrade()
                 is OpenTradesEvent.EditTrade -> onEditTrade(event.id)
+                is OpenTradesEvent.OpenPNLCalculator -> onOpenPNLCalculator(event.id)
                 is OpenTradesEvent.CloseTrade -> onCloseTrade(event.id)
                 is DeleteTrade -> onDeleteTrade(event.id)
             }
@@ -50,6 +53,7 @@ internal class OpenTradesPresenter(
         return@launchMolecule OpenTradesState(
             openTrades = getOpenTradeListEntries(),
             openTradeFormWindowParams = openTradeFormWindowParams.values,
+            pnlCalculatorWindowParams = pnlCalculatorWindowParams.values,
             closeTradeFormWindowParams = closeTradeFormWindowParams.values,
         )
     }
@@ -114,6 +118,23 @@ internal class OpenTradesPresenter(
         )
 
         openTradeFormWindowParams[key] = params
+    }
+
+    private fun onOpenPNLCalculator(id: Long) {
+
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = pnlCalculatorWindowParams.values.any {
+            it.operationType is PNLCalculatorWindowParams.OperationType.FromOpenTrade && it.operationType.id == id
+        }
+        if (isWindowAlreadyOpen) return
+
+        val key = UUID.randomUUID()
+        val params = PNLCalculatorWindowParams(
+            operationType = PNLCalculatorWindowParams.OperationType.FromOpenTrade(id),
+            onCloseRequest = { pnlCalculatorWindowParams.remove(key) }
+        )
+
+        pnlCalculatorWindowParams[key] = params
     }
 
     private fun onCloseTrade(id: Long) {

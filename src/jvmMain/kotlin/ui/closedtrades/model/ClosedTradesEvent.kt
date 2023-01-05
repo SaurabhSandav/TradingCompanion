@@ -14,4 +14,6 @@ internal sealed class ClosedTradesEvent {
     data class OpenChart(val id: Long) : ClosedTradesEvent()
 
     data class EditTrade(val id: Long) : ClosedTradesEvent()
+
+    data class OpenPNLCalculator(val id: Long) : ClosedTradesEvent()
 }

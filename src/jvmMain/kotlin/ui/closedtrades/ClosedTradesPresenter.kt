@@ -40,6 +40,7 @@ import ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
 import ui.closetradeform.CloseTradeFormWindowParams
 import ui.common.*
 import ui.fyerslogin.FyersLoginState
+import ui.pnlcalculator.PNLCalculatorWindowParams
 import utils.brokerage
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -60,6 +61,7 @@ internal class ClosedTradesPresenter(
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val editTradeFormWindowParams = mutableStateMapOf<UUID, CloseTradeFormWindowParams>()
+    private val pnlCalculatorWindowParams = mutableStateMapOf<UUID, PNLCalculatorWindowParams>()
     private val chartWindowsManager = MultipleWindowManager<ClosedTradeChartWindowParams>()
 
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
@@ -71,6 +73,7 @@ internal class ClosedTradesPresenter(
             when (event) {
                 is ClosedTradesEvent.OpenChart -> onOpenChart(event.id)
                 is ClosedTradesEvent.EditTrade -> onEditTrade(event.id)
+                is ClosedTradesEvent.OpenPNLCalculator -> onOpenPNLCalculator(event.id)
                 else -> Unit
             }
         }
@@ -79,6 +82,7 @@ internal class ClosedTradesPresenter(
             closedTradesItems = getClosedTradeListEntries().value,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
             editTradeFormWindowParams = editTradeFormWindowParams.values,
+            pnlCalculatorWindowParams = pnlCalculatorWindowParams.values,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
         )
@@ -391,6 +395,23 @@ internal class ClosedTradesPresenter(
         )
 
         editTradeFormWindowParams[key] = params
+    }
+
+    private fun onOpenPNLCalculator(id: Long) {
+
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = pnlCalculatorWindowParams.values.any {
+            it.operationType is PNLCalculatorWindowParams.OperationType.FromClosedTrade && it.operationType.id == id
+        }
+        if (isWindowAlreadyOpen) return
+
+        val key = UUID.randomUUID()
+        val params = PNLCalculatorWindowParams(
+            operationType = PNLCalculatorWindowParams.OperationType.FromClosedTrade(id),
+            onCloseRequest = { pnlCalculatorWindowParams.remove(key) }
+        )
+
+        pnlCalculatorWindowParams[key] = params
     }
 
     @Composable
