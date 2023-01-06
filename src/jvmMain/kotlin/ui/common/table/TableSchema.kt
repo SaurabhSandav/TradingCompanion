@@ -10,6 +10,7 @@ interface TableSchema<T> {
 
     fun addColumn(
         header: (@Composable () -> Unit)? = null,
+        span: Float = 1F,
         content: @Composable (T) -> Unit,
     )
 }
@@ -20,11 +21,13 @@ internal class TableSchemaImpl<T> : TableSchema<T> {
 
     override fun addColumn(
         header: (@Composable () -> Unit)?,
+        span: Float,
         content: @Composable (T) -> Unit,
     ) {
         columns.add(
             Column(
                 header = header,
+                span = span,
                 content = content,
             )
         )
@@ -33,20 +36,24 @@ internal class TableSchemaImpl<T> : TableSchema<T> {
 
 fun <T> TableSchema<T>.addColumn(
     headerText: String,
+    span: Float = 1F,
     content: @Composable (T) -> Unit,
 ) {
     addColumn(
         header = { Text(headerText) },
+        span = span,
         content = content,
     )
 }
 
 fun <T> TableSchema<T>.addColumnText(
     headerText: String,
+    span: Float = 1F,
     contentText: (T) -> String,
 ) {
     addColumn(
         header = { Text(headerText) },
+        span = span,
         content = { Text(contentText(it)) },
     )
 }

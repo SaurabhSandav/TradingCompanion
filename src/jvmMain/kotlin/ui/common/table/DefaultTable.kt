@@ -23,12 +23,12 @@ fun <T> DefaultTableHeader(
 ) {
 
     Row(
-        modifier = modifier.height(64.dp),
+        modifier = modifier.height(64.dp).padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
         schema.columns.forEach { column ->
-            Box(Modifier.weight(1F)) {
+            Box(Modifier.weight(column.span)) {
                 column.header?.invoke()
             }
         }
@@ -61,7 +61,7 @@ fun <T> DefaultTableRow(
         ) {
 
             schema.columns.forEach { column ->
-                Box(Modifier.weight(1F)) {
+                Box(Modifier.weight(column.span)) {
                     column.content(item)
                 }
             }
