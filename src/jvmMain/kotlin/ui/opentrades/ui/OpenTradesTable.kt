@@ -28,8 +28,8 @@ internal fun OpenTradesTable(
 ) {
 
     val schema = rememberTableSchema<OpenTradeListEntry> {
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
+        addColumnText("Broker", span = 1.5F) { it.broker }
+        addColumnText("Ticker", span = 1.5F) { it.ticker }
         addColumnText("Quantity") { it.quantity }
         addColumn("Side") {
             Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
@@ -38,7 +38,7 @@ internal fun OpenTradesTable(
         addColumnText("Stop") { it.stop }
         addColumnText("Entry Time") { it.entryTime }
         addColumnText("Target") { it.target }
-        addColumn {
+        addColumn(span = .5F) {
             OutlinedButton(
                 onClick = { onCloseTrade(it.id) },
                 shape = RoundedCornerShape(8.dp),

@@ -1,12 +1,15 @@
 package ui.pnlcalculator
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import optionalContent
@@ -112,20 +115,23 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
         ) {
 
             val schema = rememberTableSchema<PNLEntry> {
-                addColumnText("Price") { it.price }
+                addColumnText("Price", span = 2F) { it.price }
                 addColumn("PNL") {
                     Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 addColumn("Net PNL") {
                     Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                addColumn("") {
+                addColumn("", span = .5F) {
 
-                    if (it.isRemovable) {
+                    val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
 
-                        IconButton(onClick = { state.onRemoveCalculation(it.price) }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
+                    IconButton(
+                        onClick = { state.onRemoveCalculation(it.price) },
+                        modifier = Modifier.alpha(alpha),
+                        enabled = it.isRemovable,
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
                     }
                 }
             }
