@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import model.Side
 import ui.common.form.FormValidator
 import ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.*
+import utils.Brokerage
 import utils.brokerage
 import java.math.BigDecimal
 
@@ -37,6 +38,7 @@ internal class PNLCalculatorWindowState(
 ) {
 
     private val formValidator = FormValidator()
+    private var maxId = 0
 
     var isReady by mutableStateOf(false)
         private set
@@ -65,9 +67,16 @@ internal class PNLCalculatorWindowState(
 
     fun onCalculate() {
 
-        if (!formValidator.isValid() || model.pnlEntries.any { it.price == model.exit.value }) return
+        val side = if (model.isLong.value) "LONG" else "SHORT"
 
-        val (pnl, netPNL) = calculatePNLNetPNL(
+        if (!formValidator.isValid() || model.pnlEntries.any {
+                it.quantity == model.quantity.value &&
+                        it.side == side &&
+                        it.entry == model.entry.value &&
+                        it.exit == model.exit.value
+            }) return
+
+        val brokerage = brokerage(
             quantity = model.quantity.value.toBigDecimal(),
             entry = model.entry.value.toBigDecimal(),
             exit = model.exit.value.toBigDecimal(),
@@ -75,17 +84,23 @@ internal class PNLCalculatorWindowState(
         )
 
         model.pnlEntries += PNLEntry(
-            price = model.exit.value,
-            pnl = pnl.toPlainString(),
-            isProfitable = pnl > BigDecimal.ZERO,
-            netPNL = netPNL.toPlainString(),
-            isNetProfitable = netPNL > BigDecimal.ZERO,
+            id = maxId++,
+            side = side,
+            quantity = model.quantity.value,
+            entry = model.entry.value,
+            exit = model.exit.value,
+            breakeven = brokerage.breakeven.toPlainString(),
+            pnl = brokerage.pnl.toPlainString(),
+            isProfitable = brokerage.pnl > BigDecimal.ZERO,
+            netPNL = brokerage.netPNL.toPlainString(),
+            charges = brokerage.totalCharges.toPlainString(),
+            isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             isRemovable = true,
         )
     }
 
-    fun onRemoveCalculation(price: String) {
-        model.pnlEntries.removeIf { it.price == price }
+    fun onRemoveCalculation(id: Int) {
+        model.pnlEntries.removeIf { it.id == id }
     }
 
     private suspend fun openFromOpenTrade(id: Long) {
@@ -103,7 +118,7 @@ internal class PNLCalculatorWindowState(
 
         openTrade.stop?.let {
 
-            val (pnl, netPNL) = calculatePNLNetPNL(
+            val brokerage = brokerage(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
@@ -111,17 +126,23 @@ internal class PNLCalculatorWindowState(
             )
 
             model.pnlEntries += PNLEntry(
-                price = "$it (Stop)",
-                pnl = pnl.toPlainString(),
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPNL = netPNL.toPlainString(),
-                isNetProfitable = netPNL > BigDecimal.ZERO,
+                id = maxId++,
+                side = openTrade.side.uppercase(),
+                quantity = openTrade.quantity,
+                entry = openTrade.entry,
+                exit = "$it\n(Stop)",
+                breakeven = brokerage.breakeven.toPlainString(),
+                pnl = brokerage.pnl.toPlainString(),
+                isProfitable = brokerage.pnl > BigDecimal.ZERO,
+                charges = brokerage.totalCharges.toPlainString(),
+                netPNL = brokerage.netPNL.toPlainString(),
+                isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             )
         }
 
         openTrade.target?.let {
 
-            val (pnl, netPNL) = calculatePNLNetPNL(
+            val brokerage = brokerage(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
@@ -129,11 +150,17 @@ internal class PNLCalculatorWindowState(
             )
 
             model.pnlEntries += PNLEntry(
-                price = "$it (Target)",
-                pnl = pnl.toPlainString(),
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPNL = netPNL.toPlainString(),
-                isNetProfitable = netPNL > BigDecimal.ZERO,
+                id = maxId++,
+                side = openTrade.side.uppercase(),
+                quantity = openTrade.quantity,
+                entry = openTrade.entry,
+                exit = "$it (Target)",
+                breakeven = brokerage.breakeven.toPlainString(),
+                pnl = brokerage.pnl.toPlainString(),
+                isProfitable = brokerage.pnl > BigDecimal.ZERO,
+                charges = brokerage.totalCharges.toPlainString(),
+                netPNL = brokerage.netPNL.toPlainString(),
+                isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             )
         }
     }
@@ -153,7 +180,7 @@ internal class PNLCalculatorWindowState(
 
         closedTrade.stop?.let {
 
-            val (pnl, netPNL) = calculatePNLNetPNL(
+            val brokerage = brokerage(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
@@ -161,17 +188,23 @@ internal class PNLCalculatorWindowState(
             )
 
             model.pnlEntries += PNLEntry(
-                price = "$it (Stop)",
-                pnl = pnl.toPlainString(),
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPNL = netPNL.toPlainString(),
-                isNetProfitable = netPNL > BigDecimal.ZERO,
+                id = maxId++,
+                side = closedTrade.side.uppercase(),
+                quantity = closedTrade.quantity,
+                entry = closedTrade.entry,
+                exit = "$it\n(Stop)",
+                breakeven = brokerage.breakeven.toPlainString(),
+                pnl = brokerage.pnl.toPlainString(),
+                isProfitable = brokerage.pnl > BigDecimal.ZERO,
+                charges = brokerage.totalCharges.toPlainString(),
+                netPNL = brokerage.netPNL.toPlainString(),
+                isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             )
         }
 
         closedTrade.target?.let {
 
-            val (pnl, netPNL) = calculatePNLNetPNL(
+            val brokerage = brokerage(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
@@ -179,17 +212,23 @@ internal class PNLCalculatorWindowState(
             )
 
             model.pnlEntries += PNLEntry(
-                price = "$it (Target)",
-                pnl = pnl.toPlainString(),
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPNL = netPNL.toPlainString(),
-                isNetProfitable = netPNL > BigDecimal.ZERO,
+                id = maxId++,
+                side = closedTrade.side.uppercase(),
+                quantity = closedTrade.quantity,
+                entry = closedTrade.entry,
+                exit = "$it\n(Target)",
+                breakeven = brokerage.breakeven.toPlainString(),
+                pnl = brokerage.pnl.toPlainString(),
+                isProfitable = brokerage.pnl > BigDecimal.ZERO,
+                charges = brokerage.totalCharges.toPlainString(),
+                netPNL = brokerage.netPNL.toPlainString(),
+                isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             )
         }
 
         closedTrade.exit.let {
 
-            val (pnl, netPNL) = calculatePNLNetPNL(
+            val brokerage = brokerage(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
@@ -197,33 +236,34 @@ internal class PNLCalculatorWindowState(
             )
 
             model.pnlEntries += PNLEntry(
-                price = "$it (Exit)",
-                pnl = pnl.toPlainString(),
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPNL = netPNL.toPlainString(),
-                isNetProfitable = netPNL > BigDecimal.ZERO,
+                id = maxId++,
+                side = closedTrade.side.uppercase(),
+                quantity = closedTrade.quantity,
+                entry = closedTrade.entry,
+                exit = "$it\n(Exit)",
+                breakeven = brokerage.breakeven.toPlainString(),
+                pnl = brokerage.pnl.toPlainString(),
+                isProfitable = brokerage.pnl > BigDecimal.ZERO,
+                charges = brokerage.totalCharges.toPlainString(),
+                netPNL = brokerage.netPNL.toPlainString(),
+                isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
             )
         }
     }
 
-    private fun calculatePNLNetPNL(
+    private fun brokerage(
         quantity: BigDecimal,
         entry: BigDecimal,
         exit: BigDecimal,
         side: Side,
-    ): Pair<BigDecimal, BigDecimal> {
-
-        val brokerage = brokerage(
-            broker = "Finvasia",
-            instrument = "equity",
-            entry = entry,
-            exit = exit,
-            quantity = quantity,
-            side = side,
-        )
-
-        return brokerage.pnl to brokerage.netPNL
-    }
+    ): Brokerage = brokerage(
+        broker = "Finvasia",
+        instrument = "equity",
+        entry = entry,
+        exit = exit,
+        quantity = quantity,
+        side = side,
+    )
 }
 
 internal class PNLCalculatorWindowParams(

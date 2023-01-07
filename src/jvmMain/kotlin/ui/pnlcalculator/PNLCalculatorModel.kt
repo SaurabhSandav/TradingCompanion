@@ -43,9 +43,15 @@ internal class PNLCalculatorModel(
 }
 
 class PNLEntry(
-    val price: String,
+    val id: Int,
+    val side: String,
+    val quantity: String,
+    val entry: String,
+    val exit: String,
+    val breakeven: String,
     val pnl: String,
     val isProfitable: Boolean,
+    val charges: String,
     val netPNL: String,
     val isNetProfitable: Boolean,
     val isRemovable: Boolean = false,

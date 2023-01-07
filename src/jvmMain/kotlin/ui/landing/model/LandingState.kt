@@ -15,7 +15,7 @@ enum class LandingScreen(
     val icon: ImageVector,
 ) {
     Account("Account", Icons.Filled.AccountBalance),
-    TradeSizing("Trade Sizing", Icons.Filled.Calculate),
+    TradeSizing("Trade Sizing", Icons.Filled.Straighten),
     OpenTrades("Open Trades", Icons.Filled.FolderOpen),
     ClosedTrades("Closed Trades", Icons.Filled.Folder),
     Studies("Studies", Icons.Filled.FactCheck);

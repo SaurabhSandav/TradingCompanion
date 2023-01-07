@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CandlestickChart
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Settings
@@ -28,6 +29,9 @@ import ui.landing.model.LandingEvent
 import ui.landing.model.LandingScreen
 import ui.opentrades.OpenTradesPresenter
 import ui.opentrades.OpenTradesScreen
+import ui.pnlcalculator.PNLCalculatorWindow
+import ui.pnlcalculator.PNLCalculatorWindowParams
+import ui.pnlcalculator.rememberPNLCalculatorWindowState
 import ui.settings.SettingsWindow
 import ui.sizing.SizingPresenter
 import ui.sizing.SizingScreen
@@ -62,6 +66,7 @@ private fun LandingScreen(
 ) {
 
     var showChartsWindow by state { false }
+    var showPNLCalculatorWindow by state { false }
     var showBarReplayWindow by state { false }
     var showSettingsWindow by state { false }
 
@@ -95,6 +100,17 @@ private fun LandingScreen(
                     icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
                     selected = false,
                     onClick = { showChartsWindow = true }
+                )
+            }
+
+            TooltipArea(
+                tooltip = { Tooltip("PNL Calculator") },
+            ) {
+
+                NavigationRailItem(
+                    icon = { Icon(Icons.Filled.Calculate, contentDescription = "PNL Calculator") },
+                    selected = false,
+                    onClick = { showPNLCalculatorWindow = true }
                 )
             }
 
@@ -148,6 +164,18 @@ private fun LandingScreen(
 
             ChartsWindow(
                 onCloseRequest = { showChartsWindow = false },
+            )
+        }
+
+        if (showPNLCalculatorWindow) {
+
+            PNLCalculatorWindow(
+                state = rememberPNLCalculatorWindowState(
+                    params = PNLCalculatorWindowParams(
+                        operationType = PNLCalculatorWindowParams.OperationType.New,
+                        onCloseRequest = { showPNLCalculatorWindow = false },
+                    )
+                )
             )
         }
 

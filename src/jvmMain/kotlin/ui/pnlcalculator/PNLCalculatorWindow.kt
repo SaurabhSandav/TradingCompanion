@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import optionalContent
@@ -24,7 +25,7 @@ internal fun PNLCalculatorWindow(
     state: PNLCalculatorWindowState,
 ) {
 
-    val windowState = rememberWindowState()
+    val windowState = rememberWindowState(size = DpSize(width = 1150.dp, height = 600.dp))
 
     AppWindow(
         onCloseRequest = state.params.onCloseRequest,
@@ -45,7 +46,7 @@ internal fun PNLCalculatorWindow(
 @Composable
 private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
-    Row(Modifier.width(800.dp).fillMaxHeight()) {
+    Row(Modifier.width(1100.dp).fillMaxHeight()) {
 
         val model = state.model
 
@@ -110,15 +111,22 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
         }
 
         Column(
-            modifier = Modifier.padding(16.dp).width(400.dp).fillMaxHeight(),
+            modifier = Modifier.padding(16.dp).width(800.dp).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         ) {
 
             val schema = rememberTableSchema<PNLEntry> {
-                addColumnText("Price", span = 2F) { it.price }
+                addColumn("Side") {
+                    Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                }
+                addColumnText("Quantity") { it.quantity }
+                addColumnText("Entry") { it.entry }
+                addColumnText("Exit") { it.exit }
+                addColumnText("Breakeven") { it.breakeven }
                 addColumn("PNL") {
                     Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
+                addColumnText("Charges") { it.charges }
                 addColumn("Net PNL") {
                     Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
@@ -127,7 +135,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                     val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
 
                     IconButton(
-                        onClick = { state.onRemoveCalculation(it.price) },
+                        onClick = { state.onRemoveCalculation(it.id) },
                         modifier = Modifier.alpha(alpha),
                         enabled = it.isRemovable,
                     ) {
