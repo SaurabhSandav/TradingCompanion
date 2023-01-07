@@ -44,7 +44,7 @@ internal class PNLByMonthChartStudy(
                 exit = exitBD,
                 quantity = quantityBD,
                 side = sideEnum,
-            )
+            ).netPNL
         }
         .asFlow()
         .mapToList(Dispatchers.IO)

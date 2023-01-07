@@ -57,12 +57,7 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
                         val quantityBD = it.quantity.toBigDecimal()
                         val sideEnum = Side.fromString(it.side)
 
-                        val pnlBD = when (sideEnum) {
-                            Side.Long -> (exitBD - entryBD) * quantityBD
-                            Side.Short -> (entryBD - exitBD) * quantityBD
-                        }
-
-                        val netPnlBD = brokerage(
+                        val brokerage = brokerage(
                             broker = it.broker,
                             instrument = it.instrument,
                             entry = entryBD,
@@ -70,6 +65,9 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
                             quantity = quantityBD,
                             side = sideEnum,
                         )
+
+                        val pnlBD = brokerage.pnl
+                        val netPnlBD = brokerage.netPNL
 
                         val rValue = when (stopBD) {
                             null -> null

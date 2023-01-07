@@ -4,6 +4,14 @@ import model.Side
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+data class Brokerage(
+    val totalCharges: BigDecimal,
+    val pointsToBreakeven: BigDecimal,
+    val breakeven: BigDecimal,
+    val pnl: BigDecimal,
+    val netPNL: BigDecimal,
+)
+
 internal fun brokerage(
     broker: String,
     instrument: String,
@@ -11,7 +19,7 @@ internal fun brokerage(
     exit: BigDecimal,
     quantity: BigDecimal,
     side: Side,
-): BigDecimal {
+): Brokerage {
 
     val (sttMultiplier, excTransChargeMultiplier) = when (instrument.lowercase()) {
         "equity" -> "0.00025".toBigDecimal() to "0.0000345".toBigDecimal()
@@ -48,9 +56,22 @@ internal fun brokerage(
 
     val totalCharges = brokerage + sttTotal + excTransCharge + stax + sebiCharges + stampCharges
 
+    val pointsToBreakeven = (totalCharges / quantity).setScale(2, RoundingMode.HALF_EVEN)
+
+    val breakeven = when (side) {
+        Side.Long -> entry + pointsToBreakeven
+        Side.Short -> entry - pointsToBreakeven
+    }
+
     val netProfit = (sellTurnover - buyTurnover - totalCharges).setScale(2, RoundingMode.HALF_EVEN)
 
-    return netProfit
+    return Brokerage(
+        totalCharges = totalCharges,
+        pointsToBreakeven = pointsToBreakeven,
+        breakeven = breakeven,
+        pnl = (sellTurnover - buyTurnover).setScale(2, RoundingMode.HALF_EVEN),
+        netPNL = netProfit,
+    )
 }
 
 private fun calculateBrokerageZerodha(buyTurnover: BigDecimal, sellTurnover: BigDecimal): BigDecimal {

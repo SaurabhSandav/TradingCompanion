@@ -126,12 +126,7 @@ internal class ClosedTradesPresenter(
         val quantityBD = quantity.toBigDecimal()
         val side = Side.fromString(side)
 
-        val pnlBD = when (side) {
-            Side.Long -> (exitBD - entryBD) * quantityBD
-            Side.Short -> (entryBD - exitBD) * quantityBD
-        }
-
-        val netPnlBD = brokerage(
+        val brokerage = brokerage(
             broker = broker,
             instrument = instrument,
             entry = entryBD,
@@ -139,6 +134,9 @@ internal class ClosedTradesPresenter(
             quantity = quantityBD,
             side = side,
         )
+
+        val pnlBD = brokerage.pnl
+        val netPnlBD = brokerage.netPNL
 
         val rValue = when (stopBD) {
             null -> null

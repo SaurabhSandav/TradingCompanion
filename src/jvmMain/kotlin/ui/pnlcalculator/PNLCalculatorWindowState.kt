@@ -213,12 +213,7 @@ internal class PNLCalculatorWindowState(
         side: Side,
     ): Pair<BigDecimal, BigDecimal> {
 
-        val pnl = when (side) {
-            Side.Long -> (exit - entry) * quantity
-            Side.Short -> (entry - exit) * quantity
-        }
-
-        val netPNL = brokerage(
+        val brokerage = brokerage(
             broker = "Finvasia",
             instrument = "equity",
             entry = entry,
@@ -227,7 +222,7 @@ internal class PNLCalculatorWindowState(
             side = side,
         )
 
-        return pnl to netPNL
+        return brokerage.pnl to brokerage.netPNL
     }
 }
 
