@@ -1,15 +1,15 @@
 
 CREATE TABLE IF NOT EXISTS ClosedTradeTag (
-id INTEGER AS Long NOT NULL PRIMARY KEY,
 tradeId INTEGER AS Long NOT NULL,
 tagId INTEGER AS Long NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES ClosedTrade(id),
-FOREIGN KEY(tagId) REFERENCES TradeTag(id)
+FOREIGN KEY(tagId) REFERENCES TradeTag(id),
+PRIMARY KEY (tradeId, tagId)
 );
 
 insert:
-INSERT OR REPLACE INTO ClosedTradeTag
-VALUES (?, ?, ?);
+INSERT OR IGNORE INTO ClosedTradeTag
+VALUES (?, ?);
 
 getTagsByTrade:
 SELECT TradeTag.* FROM ClosedTradeTag
@@ -25,4 +25,4 @@ WHERE ClosedTradeTag.tagId = ?;
 
 delete:
 DELETE FROM ClosedTradeTag
-WHERE id = ?;
+WHERE tradeId = :tradeId AND tagId = :tagId;
