@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.saurabhsandav.core.TradeTag
 import ui.common.form.FormValidator
 import ui.common.form.IsBigDecimal
 import ui.common.form.Validation
@@ -16,7 +17,6 @@ class CloseTradeDetailFormModel(
     maxFavorableExcursion: String,
     maxAdverseExcursion: String,
     persisted: Boolean,
-    tags: List<String>,
 ) {
 
     val maxFavorableExcursion = validator.textField(
@@ -53,5 +53,5 @@ class CloseTradeDetailFormModel(
 
     var persisted by mutableStateOf(persisted)
 
-    val tags by mutableStateOf(tags)
+    var tags by mutableStateOf<List<TradeTag>>(emptyList())
 }

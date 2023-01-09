@@ -1,19 +1,27 @@
 package ui.closetradeform
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.TradeTag
+import kotlinx.coroutines.flow.collectLatest
 import optionalContent
 import ui.common.OutlinedTextField
 import ui.common.app.AppWindow
@@ -21,6 +29,7 @@ import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
 import ui.common.flow.FlowRow
 import ui.common.form.isError
+import ui.common.state
 import utils.NIFTY50
 
 @Composable
@@ -46,6 +55,10 @@ internal fun CloseTradeFormWindow(
                     detailModel = state.detailModel,
                     onCalculateMFE = state::onCalculateMFE,
                     onCalculateMAE = state::onCalculateMAE,
+                    tagsSuggestionProvider = state::getSuggestedTags,
+                    onAddTag = state::onAddTag,
+                    onSelectTag = state::onSelectTag,
+                    onRemoveTag = state::onRemoveTag,
                     onSaveTrade = state::onSaveTrade,
                 )
 
@@ -63,11 +76,15 @@ private fun MainForm(
     detailModel: CloseTradeDetailFormModel?,
     onCalculateMFE: () -> Unit,
     onCalculateMAE: () -> Unit,
+    tagsSuggestionProvider: suspend (String) -> List<TradeTag>,
+    onAddTag: (String) -> Unit,
+    onSelectTag: (Long) -> Unit,
+    onRemoveTag: (Long) -> Unit,
     onSaveTrade: () -> Unit,
 ) {
 
     Column(
-        modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min).verticalScroll(rememberScrollState()),
+        modifier = Modifier.padding(16.dp).width(TextFieldDefaults.MinWidth).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
@@ -186,6 +203,10 @@ private fun MainForm(
                     model = detailModel,
                     onCalculateMFE = onCalculateMFE,
                     onCalculateMAE = onCalculateMAE,
+                    tagsSuggestionProvider = tagsSuggestionProvider,
+                    onAddTag = onAddTag,
+                    onSelectTag = onSelectTag,
+                    onRemoveTag = onRemoveTag,
                 )
             }
         }
@@ -205,6 +226,10 @@ private fun DetailForm(
     model: CloseTradeDetailFormModel,
     onCalculateMFE: () -> Unit,
     onCalculateMAE: () -> Unit,
+    onAddTag: (String) -> Unit,
+    onSelectTag: (Long) -> Unit,
+    onRemoveTag: (Long) -> Unit,
+    tagsSuggestionProvider: suspend (String) -> List<TradeTag>,
 ) {
 
     Column(
@@ -255,16 +280,121 @@ private fun DetailForm(
             )
         }
 
+        TagsBox(
+            tags = model.tags,
+            onAddTag = onAddTag,
+            onSelectTag = onSelectTag,
+            onRemoveTag = onRemoveTag,
+            tagsSuggestionProvider = tagsSuggestionProvider,
+        )
+    }
+}
+
+@Composable
+private fun TagsBox(
+    tags: List<TradeTag>,
+    onAddTag: (String) -> Unit,
+    onSelectTag: (Long) -> Unit,
+    onRemoveTag: (Long) -> Unit,
+    tagsSuggestionProvider: suspend (String) -> List<TradeTag>,
+) {
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+
+        var showTextField by state { false }
+
         FlowRow(
             mainAxisSpacing = 8.dp,
         ) {
 
-            model.tags.forEach { tag ->
+            tags.forEach { tag ->
 
                 InputChip(
                     onClick = {},
-                    label = { Text(tag) }
+                    label = { Text(tag.name) },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { onRemoveTag(tag.id) },
+                            modifier = Modifier.size(InputChipDefaults.IconSize),
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Remove tag")
+                        }
+                    },
                 )
+            }
+
+            InputChip(
+                onClick = { showTextField = !showTextField },
+                label = { Text("Add Tag") },
+                leadingIcon = {
+
+                    Crossfade(showTextField) {
+
+                        Icon(
+                            imageVector = if (showTextField) Icons.Default.Remove else Icons.Default.Add,
+                            contentDescription = if (showTextField) "Remove" else "Add",
+                            modifier = Modifier.size(InputChipDefaults.IconSize),
+                        )
+                    }
+                },
+            )
+        }
+
+        AnimatedVisibility(showTextField) {
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+
+                Divider()
+
+                Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+
+                    var text by state { "" }
+
+                    androidx.compose.material3.OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        trailingIcon = {
+                            TextButton(
+                                onClick = {
+                                    onAddTag(text)
+                                    text = ""
+                                    showTextField = false
+                                },
+                            ) {
+                                Text("ADD")
+                            }
+                        }
+                    )
+
+                    val suggestions by produceState<List<TradeTag>>(emptyList()) {
+                        snapshotFlow { text }.collectLatest { value = tagsSuggestionProvider(text) }
+                    }
+
+                    DropdownMenu(
+                        expanded = suggestions.isNotEmpty(),
+                        focusable = false,
+                        onDismissRequest = { text = "" },
+                    ) {
+
+                        suggestions.forEach { tag ->
+
+                            DropdownMenuItem(
+                                modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                                onClick = {
+                                    text = ""
+                                    onSelectTag(tag.id)
+                                },
+                            ) {
+
+                                Text(tag.name)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

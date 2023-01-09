@@ -6,8 +6,13 @@ import androidx.compose.runtime.*
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.TradeTag
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
@@ -210,14 +215,43 @@ internal class CloseTradeFormWindowState(
         detailModel!!.maxAdverseExcursion.value = mae.toPlainString()
     }
 
+    suspend fun getSuggestedTags(text: String): List<TradeTag> = withContext(Dispatchers.IO) {
+        return@withContext when {
+            text.isBlank() -> emptyList()
+            else -> appDB.tradeTagQueries.getAllLike("%$text%").executeAsList()
+        }
+    }
+
+    fun onAddTag(tag: String) = coroutineScope.launchUnit(Dispatchers.IO) {
+
+        appDB.tradeTagQueries.insert(null, tag)
+
+        val tagId = appDB.tradeTagQueries.getByName(tag).executeAsOne().id
+
+        appDB.closedTradeTagQueries.insert(
+            tradeId = (params.operationType as EditExistingTrade).id,
+            tagId = tagId,
+        )
+    }
+
+    fun onSelectTag(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
+        appDB.closedTradeTagQueries.insert(
+            tradeId = (params.operationType as EditExistingTrade).id,
+            tagId = id,
+        )
+    }
+
+    fun onRemoveTag(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
+        appDB.closedTradeTagQueries.delete(
+            tradeId = (params.operationType as EditExistingTrade).id,
+            tagId = id,
+        )
+    }
+
     private suspend fun editExistingTrade(id: Long) {
 
         val closedTrade = withContext(Dispatchers.IO) {
             appDB.closedTradeQueries.getClosedTradesDetailedById(id).executeAsOne()
-        }
-
-        val tags = withContext(Dispatchers.IO) {
-            appDB.closedTradeTagQueries.getTagsByTrade(id).executeAsList()
         }
 
         detailModel = CloseTradeDetailFormModel(
@@ -225,9 +259,15 @@ internal class CloseTradeFormWindowState(
             closeTradeFormModel = model,
             maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
             maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
-            tags = tags.map { it.name },
             persisted = closedTrade.persisted.toBoolean(),
         )
+
+        // Tags
+        appDB.closedTradeTagQueries.getTagsByTrade(id)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .onEach { detailModel!!.tags = it }
+            .launchIn(coroutineScope)
 
         model.ticker.value = closedTrade.ticker
         model.quantity.value = closedTrade.quantity

@@ -13,8 +13,16 @@ get:
 SELECT * FROM TradeTag
 WHERE id = ?;
 
+getByName:
+SELECT * FROM TradeTag
+WHERE LOWER(name) = LOWER(:name);
+
 getAll:
 SELECT * FROM TradeTag;
+
+getAllLike:
+SELECT * FROM TradeTag
+WHERE name LIKE ?;
 
 delete:
 DELETE FROM TradeTag
