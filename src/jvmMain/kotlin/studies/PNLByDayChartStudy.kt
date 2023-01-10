@@ -29,7 +29,7 @@ internal class PNLByDayChartStudy(
 
     private val data = appModule.appDB
         .closedTradeQueries
-        .getAllClosedTradesDetailed { _, broker, _, instrument, quantity, _, side, entry, _, entryDate, _, exit, _, _, _, _, _ ->
+        .getAllClosedTradesDetailed { _, broker, _, instrument, quantity, _, side, entry, _, entryDate, _, exit, _, _, _, _, _, _ ->
 
             val entryBD = entry.toBigDecimal()
             val exitBD = exit.toBigDecimal()

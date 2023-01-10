@@ -287,6 +287,12 @@ private fun DetailForm(
             onRemoveTag = onRemoveTag,
             tagsSuggestionProvider = tagsSuggestionProvider,
         )
+
+        OutlinedTextField(
+            value = model.notes.value,
+            onValueChange = { model.notes.value = it.trim() },
+            label = { Text("Notes") },
+        )
     }
 }
 

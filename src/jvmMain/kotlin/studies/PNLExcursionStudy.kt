@@ -83,7 +83,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
 
     override val data: Flow<List<Model>> = appModule.appDB.closedTradeQueries.getAllClosedTradesDetailed {
             _, _, ticker, _, quantity, _, side, entry, stop, entryDate, target,
-            exit, exitDate, maxFavorableExcursion, maxAdverseExcursion, _, _,
+            exit, exitDate, maxFavorableExcursion, maxAdverseExcursion, _, _, _,
         ->
 
         val entryBD = entry.toBigDecimal()

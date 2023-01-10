@@ -71,6 +71,7 @@ internal class TradeImporter(
                 persisted = row.getValue("Persisted"),
 //                tags = row.getValue("Tags"),
                 persistenceResult = row.getValue("Persistence Result"),
+                notes = null,
             )
         }
 

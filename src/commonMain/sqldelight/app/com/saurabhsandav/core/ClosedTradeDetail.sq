@@ -5,10 +5,11 @@ maxFavorableExcursion TEXT,
 maxAdverseExcursion TEXT,
 persisted TEXT,
 persistenceResult TEXT,
+notes TEXT,
 FOREIGN KEY (closedTradeId) REFERENCES ClosedTrade(id) ON DELETE CASCADE
 );
 
 insert:
 INSERT OR REPLACE
-INTO ClosedTradeDetail(closedTradeId, maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult)
-VALUES (?, ?, ?, ?, ?);
+INTO ClosedTradeDetail(closedTradeId, maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult, notes)
+VALUES (?, ?, ?, ?, ?, ?);

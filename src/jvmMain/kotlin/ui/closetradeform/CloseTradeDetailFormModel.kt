@@ -17,6 +17,7 @@ class CloseTradeDetailFormModel(
     maxFavorableExcursion: String,
     maxAdverseExcursion: String,
     persisted: Boolean,
+    notes: String,
 ) {
 
     val maxFavorableExcursion = validator.textField(
@@ -54,4 +55,9 @@ class CloseTradeDetailFormModel(
     var persisted by mutableStateOf(persisted)
 
     var tags by mutableStateOf<List<TradeTag>>(emptyList())
+
+    val notes = validator.textField(
+        initial = notes,
+        isRequired = false,
+    )
 }

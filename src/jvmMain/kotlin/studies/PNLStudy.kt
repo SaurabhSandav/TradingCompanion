@@ -45,7 +45,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
 
     override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
-        .getAllClosedTradesDetailed { _, broker, ticker, instrument, quantity, _, side, entry, stop, entryDate, target, exit, exitDate, _, _, _, _ ->
+        .getAllClosedTradesDetailed { _, broker, ticker, instrument, quantity, _, side, entry, stop, entryDate, target, exit, exitDate, _, _, _, _, _ ->
 
             val entryBD = entry.toBigDecimal()
             val stopBD = stop?.toBigDecimalOrNull()

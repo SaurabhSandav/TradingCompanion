@@ -135,6 +135,7 @@ internal class CloseTradeFormWindowState(
                         maxAdverseExcursion = detailModel.maxAdverseExcursion.value.ifBlank { null },
                         persisted = detailModel.persisted.toString(),
                         persistenceResult = null,
+                        notes = detailModel.notes.value.ifBlank { null },
                     )
                 }
 
@@ -260,6 +261,7 @@ internal class CloseTradeFormWindowState(
             maxFavorableExcursion = closedTrade.maxFavorableExcursion.orEmpty(),
             maxAdverseExcursion = closedTrade.maxAdverseExcursion.orEmpty(),
             persisted = closedTrade.persisted.toBoolean(),
+            notes = closedTrade.notes.orEmpty(),
         )
 
         // Tags
