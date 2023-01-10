@@ -37,12 +37,12 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
 
     override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
-        .getAllClosedTradesDetailed()
+        .getAll()
         .asFlow()
         .mapToList(Dispatchers.IO)
-        .map { getAllClosedTradesDetailed ->
+        .map { closedTrades ->
 
-            getAllClosedTradesDetailed
+            closedTrades
                 .groupBy {
                     val date = LocalDateTime.parse(it.entryDate)
                     "${date.month} ${date.year}"

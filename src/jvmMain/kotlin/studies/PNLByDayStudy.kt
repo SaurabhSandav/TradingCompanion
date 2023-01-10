@@ -40,12 +40,12 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
 
     override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
-        .getAllClosedTradesDetailed()
+        .getAll()
         .asFlow()
         .mapToList(Dispatchers.IO)
-        .map { getAllClosedTradesDetailed ->
+        .map { closedTrades ->
 
-            getAllClosedTradesDetailed
+            closedTrades
                 .groupBy { LocalDateTime.parse(it.entryDate).date }
                 .map { entries ->
 

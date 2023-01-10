@@ -36,12 +36,12 @@ internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerSt
 
     override val data: Flow<List<Model>> = appModule.appDB
         .closedTradeQueries
-        .getAllClosedTradesDetailed()
+        .getAll()
         .asFlow()
         .mapToList(Dispatchers.IO)
-        .map { getAllClosedTradesDetailed ->
+        .map { closedTrades ->
 
-            getAllClosedTradesDetailed
+            closedTrades
                 .groupBy { it.ticker }
                 .map { entries ->
 
