@@ -35,10 +35,6 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         addColumnText("Target") { it.target }
         addColumnText("Exit") { it.exit }
         addColumnText("PNL") { it.pnl }
-        addColumnText("MFE") { it.maxFavorableExcursion }
-        addColumn("MFE PNL") {
-            Text(text = it.mfePNL, color = AppColor.ProfitGreen)
-        }
         addColumn(
             header = {
 
