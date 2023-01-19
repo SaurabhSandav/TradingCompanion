@@ -290,7 +290,7 @@ private fun DetailForm(
 
         OutlinedTextField(
             value = model.notes.value,
-            onValueChange = { model.notes.value = it.trim() },
+            onValueChange = { model.notes.value = it },
             label = { Text("Notes") },
         )
     }
