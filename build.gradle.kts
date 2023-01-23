@@ -51,12 +51,6 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "18"
-
-                // TODO Remove on compose compiler update
-                freeCompilerArgs += listOf(
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
-                )
             }
         }
     }
@@ -76,9 +70,7 @@ kotlin {
                     "androidx.compose.animation.ExperimentalAnimationApi",
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
-                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "com.russhwolf.settings.ExperimentalSettingsApi",
-                    "com.russhwolf.settings.ExperimentalSettingsImplementation",
                 ).forEach { optIn(it) }
             }
         }
@@ -144,7 +136,7 @@ kotlin {
 }
 
 compose {
-    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.0-alpha02")
+    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.0")
 }
 
 @Suppress("PropertyName")

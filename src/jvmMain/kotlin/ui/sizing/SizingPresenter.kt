@@ -18,9 +18,9 @@ import launchUnit
 import mapList
 import model.Account
 import model.Side
-import ui.opentradeform.OpenTradeFormWindowParams
 import ui.common.AppColor
 import ui.common.CollectEffect
+import ui.opentradeform.OpenTradeFormWindowParams
 import ui.sizing.model.SizedTrade
 import ui.sizing.model.SizingEvent
 import ui.sizing.model.SizingEvent.*
@@ -75,9 +75,11 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit(Dispatchers.IO) {
 
-        val accessToken = appPrefs.getString(PrefKeys.FyersAccessToken)
-        val response = fyersApi.getQuotes(accessToken, listOf("NSE:$ticker-EQ"))
-        val currentPrice = response.result?.quote?.first()?.quoteData?.cmd?.close?.toString() ?: "0"
+        val accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken)
+        val currentPrice = accessToken?.let {
+            val response = fyersApi.getQuotes(accessToken, listOf("NSE:$ticker-EQ"))
+            response.result?.quote?.first()?.quoteData?.cmd?.close?.toString()
+        } ?: "0"
 
         appModule.appDB.sizingTradeQueries.insert(
             id = null,

@@ -1,4 +1,4 @@
-import com.russhwolf.settings.JvmPreferencesSettings
+import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.AppDB
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
@@ -34,7 +34,7 @@ internal class AppModule {
         isLenient = true
     }
 
-    val appPrefs = JvmPreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
+    val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
     val fyersApiFactory = { FyersApi() }
 
