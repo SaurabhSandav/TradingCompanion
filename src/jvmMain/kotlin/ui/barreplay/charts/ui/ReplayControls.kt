@@ -25,7 +25,6 @@ internal fun ReplayControls(
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
-    onNewChart: () -> Unit,
     onMoveTabBackward: () -> Unit,
     onMoveTabForward: () -> Unit,
     onSymbolChange: (String) -> Unit,
@@ -81,13 +80,6 @@ internal fun ReplayControls(
             modifier = Modifier.weight(1F),
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
-
-            Button(
-                onClick = { onNewChart() },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("New Chart")
-            }
 
             Button(
                 onClick = onMoveTabBackward,

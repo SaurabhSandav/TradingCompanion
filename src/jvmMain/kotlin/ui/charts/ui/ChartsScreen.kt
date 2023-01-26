@@ -38,7 +38,6 @@ fun ChartsScreen(
 
         ChartControls(
             chartInfo = chartInfo,
-            onNewChart = onNewChart,
             onSymbolChange = onSymbolChange,
             onTimeframeChange = onTimeframeChange,
             onMoveTabBackward = onMoveTabBackward,
@@ -49,6 +48,7 @@ fun ChartsScreen(
 
             ChartTabRow(
                 tabsState = tabsState,
+                onNewChart = onNewChart,
                 onSelectChart = onSelectChart,
                 onCloseChart = onCloseChart,
             )

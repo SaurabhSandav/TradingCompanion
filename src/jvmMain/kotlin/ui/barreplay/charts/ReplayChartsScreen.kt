@@ -107,7 +107,6 @@ internal fun ReplayCharts(
             onReset = onReset,
             onNext = onNext,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
-            onNewChart = onNewChart,
             onMoveTabBackward = onMoveTabBackward,
             onMoveTabForward = onMoveTabForward,
             onSymbolChange = onSymbolChange,
@@ -117,6 +116,7 @@ internal fun ReplayCharts(
         ReplayChartPage(
             chartTabsState = chartTabsState,
             chartPageState = chartPageState,
+            onNewChart = onNewChart,
             onSelectChart = onSelectChart,
             onCloseChart = onCloseChart,
         )

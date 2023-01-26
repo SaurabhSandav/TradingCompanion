@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -19,6 +20,7 @@ import ui.charts.model.ChartsState
 @Composable
 fun ChartTabRow(
     tabsState: ChartsState.TabsState,
+    onNewChart: () -> Unit,
     onSelectChart: (Int) -> Unit,
     onCloseChart: (Int) -> Unit,
 ) {
@@ -46,6 +48,19 @@ fun ChartTabRow(
                     onCloseChart = { onCloseChart(chartTab.id) },
                 )
             }
+        }
+
+        Tab(
+            selected = false,
+            onClick = onNewChart,
+        ) {
+
+            IconButton(
+                onClick = onNewChart,
+                content = {
+                    Icon(Icons.Default.Add, contentDescription = "New Tab")
+                }
+            )
         }
     }
 }

@@ -16,7 +16,6 @@ import utils.NIFTY50
 @Composable
 internal fun ChartControls(
     chartInfo: ChartsState.ChartInfo,
-    onNewChart: () -> Unit,
     onMoveTabBackward: () -> Unit,
     onMoveTabForward: () -> Unit,
     onSymbolChange: (String) -> Unit,
@@ -62,13 +61,6 @@ internal fun ChartControls(
             )
 
             Divider()
-
-            Button(
-                onClick = onNewChart,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("New Chart")
-            }
 
             Button(
                 onClick = onMoveTabBackward,
