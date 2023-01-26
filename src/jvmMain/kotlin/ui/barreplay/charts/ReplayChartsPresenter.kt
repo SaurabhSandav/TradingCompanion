@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import chart.options.ChartOptions
+import chart.options.CrosshairMode
+import chart.options.CrosshairOptions
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
@@ -27,9 +30,9 @@ import trading.data.CandleRepository
 import ui.barreplay.charts.model.*
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.common.CollectEffect
-import ui.common.chart.state.ChartArrangement
+import ui.common.chart.arrangement.ChartArrangement
+import ui.common.chart.arrangement.paged
 import ui.common.chart.state.ChartPageState
-import ui.common.chart.state.paged
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import java.time.format.DateTimeFormatter
@@ -140,8 +143,10 @@ internal class ReplayChartsPresenter(
         val id = ++maxChartId
 
         // Add new chart
-        val chartName = chartName(id)
-        val chartContainer = pagedChartArrangement.addPage(chartName)
+        val actualChart = pagedChartArrangement.newChart(
+            name = "Chart$id",
+            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+        )
 
         // Create new chart manager
         val chartManager = when (currentChartId) {
@@ -154,8 +159,7 @@ internal class ReplayChartsPresenter(
                     // New replay session
                     replaySession = createReplaySession(initialSymbol, baseTimeframe),
                 ),
-                container = chartContainer.value,
-                name = chartName,
+                actualChart = actualChart,
                 appModule = appModule,
             )
 
@@ -173,8 +177,7 @@ internal class ReplayChartsPresenter(
                 // Create new chart manager with existing params
                 chartManager.withNewChart(
                     id = id,
-                    container = chartContainer.value,
-                    name = chartName,
+                    actualChart = actualChart,
                     replaySession = replaySession,
                 )
             }
@@ -259,7 +262,7 @@ internal class ReplayChartsPresenter(
         chartManagers.remove(chartManager)
 
         // Remove chart page
-        pagedChartArrangement.removePage(chartName(id))
+        pagedChartArrangement.removeChart(chartManager.chart.actualChart)
 
         // Disconnect chart from web page
         chartPageState.disconnect(chartManager.chart.actualChart)
@@ -291,7 +294,7 @@ internal class ReplayChartsPresenter(
         chartTabsState = chartTabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        pagedChartArrangement.showPage(chartName(id))
+        pagedChartArrangement.showChart(chartManager.chart.actualChart)
 
         // Show replay time using currently selected chart data
         replayTimeJob.cancel()
@@ -472,6 +475,4 @@ internal class ReplayChartsPresenter(
         val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
         replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
     }
-
-    private fun chartName(id: Int): String = "Chart$id"
 }

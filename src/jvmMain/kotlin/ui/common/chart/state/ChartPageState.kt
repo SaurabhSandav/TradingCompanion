@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ui.common.WebViewState
+import ui.common.chart.arrangement.ChartArrangement
 
 @Stable
 fun ChartPageState(

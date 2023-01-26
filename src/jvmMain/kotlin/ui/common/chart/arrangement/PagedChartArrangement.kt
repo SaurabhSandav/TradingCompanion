@@ -1,4 +1,8 @@
-package ui.common.chart.state
+package ui.common.chart.arrangement
+
+import chart.IChartApi
+import chart.createChart
+import chart.options.ChartOptions
 
 fun ChartArrangement.Companion.paged(): PagedChartArrangement {
     return PagedChartArrangement()
@@ -6,12 +10,15 @@ fun ChartArrangement.Companion.paged(): PagedChartArrangement {
 
 class PagedChartArrangement internal constructor() : ChartArrangement() {
 
-    private val pages = mutableSetOf<String>()
+    private val charts = mutableSetOf<IChartApi>()
 
-    fun addPage(name: String): ChartContainer {
+    fun newChart(
+        name: String,
+        options: ChartOptions = ChartOptions(),
+    ): IChartApi {
 
         // Error if chart name already exists
-        check(!pages.any { it == name })
+        check(!charts.any { it.name == name })
 
         // Create hidden div for new chart
         executeJs(
@@ -26,22 +33,28 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
             """.trimMargin()
         )
 
-        // Add to tabs
-        pages += name
+        val chart = createChart(
+            container = "document.getElementById('$name')",
+            options = options,
+            name = name,
+        )
 
-        return ChartContainer("document.getElementById('$name')")
+        // Add to tabs
+        charts += chart
+
+        return chart
     }
 
-    fun removePage(name: String) {
+    fun removeChart(chart: IChartApi) {
 
         // Delete chart div
-        executeJs("document.getElementById('$name').remove();")
+        executeJs("document.getElementById('${chart.name}').remove();")
 
         // Remove tab
-        pages.remove(name)
+        charts.remove(chart)
     }
 
-    fun showPage(name: String) {
+    fun showChart(chart: IChartApi) {
 
         // Hide all chart divs, then show selected chart div
         executeJs(
@@ -52,7 +65,7 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
             |    tabcontent[i].style.display = "none";
             |  }
             |  
-            |  document.getElementById('$name').style.display = "block";
+            |  document.getElementById('${chart.name}').style.display = "block";
             |})()
             """.trimMargin()
         )

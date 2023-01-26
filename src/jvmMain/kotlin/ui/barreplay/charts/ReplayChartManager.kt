@@ -1,6 +1,7 @@
 package ui.barreplay.charts
 
 import AppModule
+import chart.IChartApi
 import com.russhwolf.settings.coroutines.FlowSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,19 +21,15 @@ import utils.PrefKeys
 
 internal class ReplayChartManager(
     initialParams: ChartParams,
-    container: String,
-    name: String,
+    actualChart: IChartApi,
     private val appModule: AppModule,
     appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
     val coroutineScope = CoroutineScope(Dispatchers.Main)
-    val chart = ReplayChart(
-        container = container,
-        name = name,
-        )
+    val chart = ReplayChart(actualChart)
     var params = initialParams
-    private set
+        private set
 
     private var data = ChartData(initialParams.replaySession.replaySeries)
     private var liveCandleJob: Job
@@ -61,13 +58,11 @@ internal class ReplayChartManager(
 
     fun withNewChart(
         id: Int,
-        container: String,
-        name: String,
+        actualChart: IChartApi,
         replaySession: BarReplaySession,
     ) = ReplayChartManager(
         initialParams = params.copy(id = id, replaySession = replaySession),
-        container = container,
-        name = name,
+        actualChart = actualChart,
         appModule = appModule,
     )
 

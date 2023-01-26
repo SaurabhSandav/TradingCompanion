@@ -1,4 +1,4 @@
-package ui.common.chart.state
+package ui.common.chart.arrangement
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -11,9 +11,6 @@ abstract class ChartArrangement {
     protected fun executeJs(script: String) {
         _scripts.trySend(script)
     }
-
-    @JvmInline
-    value class ChartContainer(val value: String)
 
     companion object
 }

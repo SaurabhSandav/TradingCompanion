@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import chart.options.ChartOptions
+import chart.options.CrosshairMode
+import chart.options.CrosshairOptions
 import com.russhwolf.settings.coroutines.FlowSettings
 import fyers_api.FyersApi
 import kotlinx.coroutines.CoroutineScope
@@ -21,9 +24,9 @@ import ui.charts.model.ChartsState
 import ui.charts.model.ChartsState.*
 import ui.common.CollectEffect
 import ui.common.UIErrorMessage
-import ui.common.chart.state.ChartArrangement
+import ui.common.chart.arrangement.ChartArrangement
+import ui.common.chart.arrangement.paged
 import ui.common.chart.state.ChartPageState
-import ui.common.chart.state.paged
 import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import ui.fyerslogin.FyersLoginState
@@ -96,8 +99,10 @@ internal class ChartsPresenter(
         val id = ++maxChartId
 
         // Add new chart
-        val chartName = chartName(id)
-        val chartContainer = pagedChartArrangement.addPage(chartName)
+        val actualChart = pagedChartArrangement.newChart(
+            name = "Chart$id",
+            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+        )
 
         // Create new chart manager
         val chartManager = when (currentChartId) {
@@ -108,8 +113,7 @@ internal class ChartsPresenter(
                     symbol = initialSymbol,
                     timeframe = initialTimeframe,
                 ),
-                container = chartContainer.value,
-                name = chartName,
+                actualChart = actualChart,
                 appModule = appModule,
                 onCandleDataLogin = ::onCandleDataLogin,
             )
@@ -121,8 +125,7 @@ internal class ChartsPresenter(
                 // Create new chart manager with existing params
                 chartManager.withNewChart(
                     id = id,
-                    container = chartContainer.value,
-                    name = chartName,
+                    actualChart = actualChart,
                 )
             }
         }
@@ -203,7 +206,7 @@ internal class ChartsPresenter(
         chartManagers.remove(chartManager)
 
         // Remove chart page
-        pagedChartArrangement.removePage(chartName(id))
+        pagedChartArrangement.removeChart(chartManager.chart.actualChart)
 
         // Disconnect chart from web page
         chartPageState.disconnect(chartManager.chart.actualChart)
@@ -238,7 +241,7 @@ internal class ChartsPresenter(
         tabsState = tabsState.copy(selectedTabIndex = chartManagerIndex)
 
         // Show selected chart
-        pagedChartArrangement.showPage(chartName(id))
+        pagedChartArrangement.showChart(chartManager.chart.actualChart)
     }
 
     private fun onNextChart() {
@@ -342,6 +345,4 @@ internal class ChartsPresenter(
             onNotified = { errors -= it },
         )
     }
-
-    private fun chartName(id: Int): String = "Chart$id"
 }

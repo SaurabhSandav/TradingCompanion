@@ -1,6 +1,7 @@
 package ui.charts
 
 import AppModule
+import chart.IChartApi
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -25,8 +26,7 @@ import kotlin.time.Duration.Companion.days
 internal class ChartManager(
     val appModule: AppModule,
     initialParams: ChartParams,
-    container: String,
-    name: String,
+    actualChart: IChartApi,
     private val onCandleDataLogin: suspend () -> Boolean,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
@@ -34,8 +34,7 @@ internal class ChartManager(
 
     val coroutineScope = CoroutineScope(Dispatchers.Main)
     val chart = Chart(
-        container = container,
-        name = name,
+        actualChart = actualChart,
         coroutineScope = coroutineScope,
         onLoadMore = ::onLoadMore,
     )
@@ -74,13 +73,11 @@ internal class ChartManager(
 
     fun withNewChart(
         id: Int,
-        container: String,
-        name: String,
+        actualChart: IChartApi,
     ) = ChartManager(
         appModule = appModule,
         initialParams = params.copy(id = id),
-        container = container,
-        name = name,
+        actualChart = actualChart,
         onCandleDataLogin = onCandleDataLogin,
     )
 
@@ -191,6 +188,7 @@ internal class ChartManager(
 
                     error("AuthError")
                 }
+
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
         }
