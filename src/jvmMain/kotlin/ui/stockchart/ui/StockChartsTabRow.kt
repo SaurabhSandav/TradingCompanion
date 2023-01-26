@@ -1,19 +1,17 @@
 package ui.stockchart.ui
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import ui.stockchart.StockChartTabsState
 
@@ -24,14 +22,6 @@ fun StockChartsTabRow(
 
     ScrollableTabRow(
         selectedTabIndex = state.selectedTabIndex,
-        indicator = { tabPositions ->
-            val selectedTabIndex = state.selectedTabIndex
-            if (selectedTabIndex < tabPositions.size) {
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-                )
-            }
-        }
     ) {
 
         state.tabs.forEachIndexed { index, tab ->
@@ -41,6 +31,7 @@ fun StockChartsTabRow(
                 ChartTab(
                     title = tab.title,
                     isSelected = index == state.selectedTabIndex,
+                    isCloseable = state.tabs.size != 1,
                     onSelect = { state.selectTab(tab.id) },
                     onCloseChart = { state.closeTab(tab.id) },
                 )
@@ -66,11 +57,13 @@ fun StockChartsTabRow(
 private fun ChartTab(
     title: String,
     isSelected: Boolean,
+    isCloseable: Boolean,
     onSelect: () -> Unit,
     onCloseChart: () -> Unit,
 ) {
 
     Tab(
+        modifier = Modifier.height(48.dp),
         selected = isSelected,
         onClick = onSelect,
         content = {
@@ -82,14 +75,11 @@ private fun ChartTab(
 
                 Text(title)
 
-                val alpha by animateFloatAsState(if (!isSelected) 1F else 0F)
+                AnimatedVisibility(isCloseable) {
 
-                IconButton(
-                    onClick = onCloseChart,
-                    modifier = Modifier.alpha(alpha),
-                    enabled = !isSelected,
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    IconButton(onClick = onCloseChart) {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
+                    }
                 }
             }
         }

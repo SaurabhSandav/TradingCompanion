@@ -19,26 +19,8 @@ fun StockCharts(
 ) {
 
     Row(
-        modifier.fillMaxSize().then(
-            if (tabsState == null) Modifier else Modifier.onPreviewKeyEvent { keyEvent ->
-
-                when {
-                    keyEvent.isCtrlPressed &&
-                            keyEvent.key == Key.Tab &&
-                            keyEvent.type == KeyEventType.KeyDown -> {
-
-                        when {
-                            keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
-                            else -> tabsState.selectNextTab()
-                        }
-
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-        )) {
+        modifier = modifier.fillMaxSize().chartKeyboardShortcuts(tabsState)
+    ) {
 
         // Controls
         Column(
@@ -62,4 +44,45 @@ fun StockCharts(
             )
         }
     }
+}
+
+private fun Modifier.chartKeyboardShortcuts(tabsState: StockChartTabsState?): Modifier {
+    return then(
+        if (tabsState == null) Modifier else Modifier.onPreviewKeyEvent { keyEvent ->
+
+            when {
+                keyEvent.isCtrlPressed &&
+                        keyEvent.key == Key.Tab &&
+                        keyEvent.type == KeyEventType.KeyUp -> {
+
+                    when {
+                        keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
+                        else -> tabsState.selectNextTab()
+                    }
+
+                    true
+                }
+
+                keyEvent.isCtrlPressed &&
+                        keyEvent.key == Key.T &&
+                        keyEvent.type == KeyEventType.KeyUp -> {
+
+                    tabsState.newTab()
+
+                    true
+                }
+
+                keyEvent.isCtrlPressed &&
+                        keyEvent.key == Key.W &&
+                        keyEvent.type == KeyEventType.KeyUp -> {
+
+                    tabsState.closeCurrentTab()
+
+                    true
+                }
+
+                else -> false
+            }
+        }
+    )
 }

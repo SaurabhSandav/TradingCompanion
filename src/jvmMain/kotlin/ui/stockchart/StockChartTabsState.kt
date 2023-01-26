@@ -38,11 +38,39 @@ class StockChartTabsState(
 
     fun closeTab(id: Int) {
 
-        if (tabs.size == 1) return
+        if (tabs.size <= 1) return
 
-        tabs.remove(tabs.first { it.id == id })
+        val tabIndex = tabs.indexOfFirst { it.id == id }
+
+        if (tabIndex == selectedTabIndex) {
+
+            // Try selecting next tab, or if current tab is last, select previous tab
+            val nextSelectedTab = when {
+                tabIndex != tabs.lastIndex -> tabs[tabIndex + 1]
+                else -> tabs[tabIndex - 1]
+            }
+
+            // Close tab
+            tabs.removeAt(tabIndex)
+
+            // Select another tab
+            selectTab(nextSelectedTab.id)
+        } else {
+
+            val currentTab = tabs[selectedTabIndex]
+
+            // Close tab
+            tabs.remove(tabs.first { it.id == id })
+
+            // Update selection to reflect list index changes
+            selectedTabIndex = tabs.indexOf(currentTab)
+        }
 
         onClose(id)
+    }
+
+    fun closeCurrentTab() {
+        closeTab(tabs[selectedTabIndex].id)
     }
 
     fun selectNextTab() {
