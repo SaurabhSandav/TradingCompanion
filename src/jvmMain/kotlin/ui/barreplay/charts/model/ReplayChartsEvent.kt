@@ -1,5 +1,7 @@
 package ui.barreplay.charts.model
 
+import trading.Timeframe
+
 sealed class ReplayChartsEvent {
 
     object Reset : ReplayChartsEvent()
@@ -10,5 +12,5 @@ sealed class ReplayChartsEvent {
 
     data class ChangeSymbol(val newSymbol: String) : ReplayChartsEvent()
 
-    data class ChangeTimeframe(val newTimeframe: String) : ReplayChartsEvent()
+    data class ChangeTimeframe(val newTimeframe: Timeframe) : ReplayChartsEvent()
 }

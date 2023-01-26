@@ -36,7 +36,6 @@ import ui.common.CollectEffect
 import ui.common.chart.arrangement.ChartArrangement
 import ui.common.chart.arrangement.paged
 import ui.common.chart.state.ChartPageState
-import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import ui.stockchart.StockChartTabsState
 import java.time.format.DateTimeFormatter
@@ -73,7 +72,7 @@ internal class ReplayChartsPresenter(
         onSelect = ::selectChart,
         onClose = ::closeChart,
     )
-    private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe.toLabel()))
+    private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe))
     private var replayTime by mutableStateOf("")
     private var legendValues by mutableStateOf(LegendValues())
 
@@ -236,7 +235,7 @@ internal class ReplayChartsPresenter(
         // Display newly selected chart info
         chartInfo = ReplayChartInfo(
             symbol = chartManager.params.symbol,
-            timeframe = chartManager.params.timeframe.toLabel(),
+            timeframe = chartManager.params.timeframe,
         )
 
         // Show selected chart
@@ -276,9 +275,7 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun onChangeTimeframe(newTimeframe: String) = coroutineScope.launchUnit {
-
-        val timeframe = timeframeFromLabel(newTimeframe)
+    private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
 
         // Currently selected chart manager
         val chartManager = requireNotNull(selectedChartManager)
@@ -293,7 +290,7 @@ internal class ReplayChartsPresenter(
         chartManager.changeTimeframe(timeframe, replaySession)
 
         // Update chart info
-        chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())
+        chartInfo = chartInfo.copy(timeframe = timeframe)
 
         // Update tab title
         tabsState.setTitle(chartManager.params.tabId, tabTitle(chartManager.params.symbol, timeframe))

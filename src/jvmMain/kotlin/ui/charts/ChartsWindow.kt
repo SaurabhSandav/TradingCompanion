@@ -2,7 +2,6 @@ package ui.charts
 
 import LocalAppModule
 import androidx.compose.runtime.*
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import ui.charts.model.ChartsEvent.ChangeSymbol
@@ -20,9 +19,13 @@ internal fun ChartsWindow(
     val presenter = remember { ChartsPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 
-    ChartsWindow(
-        onPreviousTab = state.tabsState::selectPreviousTab,
-        onNextTab = state.tabsState::selectNextTab,
+    val windowState = rememberWindowState(
+        placement = WindowPlacement.Maximized,
+    )
+
+    AppWindow(
+        state = windowState,
+        title = "Charts",
         onCloseRequest = onCloseRequest,
     ) {
 
@@ -36,42 +39,4 @@ internal fun ChartsWindow(
             errors = state.errors,
         )
     }
-}
-
-@Composable
-private fun ChartsWindow(
-    onPreviousTab: () -> Unit,
-    onNextTab: () -> Unit,
-    onCloseRequest: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-
-    val windowState = rememberWindowState(
-        placement = WindowPlacement.Maximized,
-    )
-
-    AppWindow(
-        state = windowState,
-        title = "Charts",
-        onCloseRequest = onCloseRequest,
-        onPreviewKeyEvent = { keyEvent ->
-
-            when {
-                keyEvent.isCtrlPressed &&
-                        keyEvent.key == Key.Tab &&
-                        keyEvent.type == KeyEventType.KeyDown -> {
-
-                    when {
-                        keyEvent.isShiftPressed -> onPreviousTab()
-                        else -> onNextTab()
-                    }
-
-                    true
-                }
-
-                else -> false
-            }
-        },
-        content = { content() },
-    )
 }

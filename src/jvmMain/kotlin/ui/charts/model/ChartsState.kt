@@ -1,6 +1,7 @@
 package ui.charts.model
 
 import androidx.compose.runtime.Immutable
+import trading.Timeframe
 import ui.common.UIErrorMessage
 import ui.common.chart.state.ChartPageState
 import ui.fyerslogin.FyersLoginState
@@ -18,7 +19,7 @@ data class ChartsState(
     @Immutable
     data class ChartInfo(
         val symbol: String,
-        val timeframe: String,
+        val timeframe: Timeframe,
         val legendValues: LegendValues = LegendValues(),
     )
 

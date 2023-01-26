@@ -29,7 +29,6 @@ import ui.common.UIErrorMessage
 import ui.common.chart.arrangement.ChartArrangement
 import ui.common.chart.arrangement.paged
 import ui.common.chart.state.ChartPageState
-import ui.common.timeframeFromLabel
 import ui.common.toLabel
 import ui.fyerslogin.FyersLoginState
 import ui.stockchart.StockChartTabsState
@@ -58,7 +57,7 @@ internal class ChartsPresenter(
         onSelect = ::selectChart,
         onClose = ::closeChart,
     )
-    private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe.toLabel()))
+    private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe))
     private var legendValues by mutableStateOf(LegendValues())
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
@@ -182,7 +181,7 @@ internal class ChartsPresenter(
         // Display newly selected chart info
         chartInfo = ChartInfo(
             symbol = chartManager.params.symbol,
-            timeframe = chartManager.params.timeframe.toLabel(),
+            timeframe = chartManager.params.timeframe,
         )
 
         // Show selected chart
@@ -204,9 +203,7 @@ internal class ChartsPresenter(
         tabsState.setTitle(chartManager.params.tabId, tabTitle(symbol, chartManager.params.timeframe))
     }
 
-    private fun onChangeTimeframe(newTimeframe: String) {
-
-        val timeframe = timeframeFromLabel(newTimeframe)
+    private fun onChangeTimeframe(timeframe: Timeframe) {
 
         // Currently selected chart manager
         val chartManager = requireNotNull(selectedChartManager)
@@ -215,7 +212,7 @@ internal class ChartsPresenter(
         chartManager.changeTimeframe(timeframe)
 
         // Update chart info
-        chartInfo = chartInfo.copy(timeframe = timeframe.toLabel())
+        chartInfo = chartInfo.copy(timeframe = timeframe)
 
         // Update tab title
         tabsState.setTitle(chartManager.params.tabId, tabTitle(chartManager.params.symbol, timeframe))

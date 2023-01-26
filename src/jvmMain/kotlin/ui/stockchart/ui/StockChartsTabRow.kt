@@ -1,4 +1,4 @@
-package ui.charts.ui
+package ui.stockchart.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Row
@@ -18,14 +18,14 @@ import androidx.compose.ui.unit.dp
 import ui.stockchart.StockChartTabsState
 
 @Composable
-fun ChartTabRow(
-    tabsState: StockChartTabsState,
+fun StockChartsTabRow(
+    state: StockChartTabsState,
 ) {
 
     ScrollableTabRow(
-        selectedTabIndex = tabsState.selectedTabIndex,
+        selectedTabIndex = state.selectedTabIndex,
         indicator = { tabPositions ->
-            val selectedTabIndex = tabsState.selectedTabIndex
+            val selectedTabIndex = state.selectedTabIndex
             if (selectedTabIndex < tabPositions.size) {
                 TabRowDefaults.Indicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
@@ -34,26 +34,26 @@ fun ChartTabRow(
         }
     ) {
 
-        tabsState.tabs.forEachIndexed { index, chartTab ->
+        state.tabs.forEachIndexed { index, tab ->
 
-            key(chartTab.id) {
+            key(tab.id) {
 
                 ChartTab(
-                    title = chartTab.title,
-                    isSelected = index == tabsState.selectedTabIndex,
-                    onSelect = { tabsState.selectTab(chartTab.id) },
-                    onCloseChart = { tabsState.closeTab(chartTab.id) },
+                    title = tab.title,
+                    isSelected = index == state.selectedTabIndex,
+                    onSelect = { state.selectTab(tab.id) },
+                    onCloseChart = { state.closeTab(tab.id) },
                 )
             }
         }
 
         Tab(
             selected = false,
-            onClick = tabsState::newTab,
+            onClick = state::newTab,
         ) {
 
             IconButton(
-                onClick = tabsState::newTab,
+                onClick = state::newTab,
                 content = {
                     Icon(Icons.Default.Add, contentDescription = "New Tab")
                 }
@@ -63,7 +63,7 @@ fun ChartTabRow(
 }
 
 @Composable
-fun ChartTab(
+private fun ChartTab(
     title: String,
     isSelected: Boolean,
     onSelect: () -> Unit,

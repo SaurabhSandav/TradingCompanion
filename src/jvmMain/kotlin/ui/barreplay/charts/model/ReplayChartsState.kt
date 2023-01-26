@@ -1,6 +1,7 @@
 package ui.barreplay.charts.model
 
 import androidx.compose.runtime.Immutable
+import trading.Timeframe
 import ui.common.chart.state.ChartPageState
 import ui.stockchart.StockChartTabsState
 
@@ -14,7 +15,7 @@ data class ReplayChartsState(
 @Immutable
 data class ReplayChartInfo(
     val symbol: String,
-    val timeframe: String,
+    val timeframe: Timeframe,
     val replayTime: String = "",
     val legendValues: LegendValues = LegendValues(),
 )
