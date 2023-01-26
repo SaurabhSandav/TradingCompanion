@@ -17,17 +17,13 @@ import ui.common.UIErrorMessage
 import ui.common.chart.ChartPage
 import ui.common.chart.state.ChartPageState
 import ui.fyerslogin.FyersLoginWindow
+import ui.stockchart.StockChartTabsState
 
 @Composable
 fun ChartsScreen(
-    tabsState: ChartsState.TabsState,
+    tabsState: StockChartTabsState,
     chartPageState: ChartPageState,
     chartInfo: ChartsState.ChartInfo,
-    onNewChart: () -> Unit,
-    onMoveTabBackward: () -> Unit,
-    onMoveTabForward: () -> Unit,
-    onSelectChart: (Int) -> Unit,
-    onCloseChart: (Int) -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
     fyersLoginWindowState: FyersLoginWindow,
@@ -40,17 +36,13 @@ fun ChartsScreen(
             chartInfo = chartInfo,
             onSymbolChange = onSymbolChange,
             onTimeframeChange = onTimeframeChange,
-            onMoveTabBackward = onMoveTabBackward,
-            onMoveTabForward = onMoveTabForward,
+            tabsState = tabsState,
         )
 
         Column {
 
             ChartTabRow(
                 tabsState = tabsState,
-                onNewChart = onNewChart,
-                onSelectChart = onSelectChart,
-                onCloseChart = onCloseChart,
             )
 
             Column(Modifier.weight(1F)) {

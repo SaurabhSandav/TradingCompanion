@@ -4,28 +4,16 @@ import androidx.compose.runtime.Immutable
 import ui.common.UIErrorMessage
 import ui.common.chart.state.ChartPageState
 import ui.fyerslogin.FyersLoginState
+import ui.stockchart.StockChartTabsState
 
 @Immutable
 data class ChartsState(
-    val tabsState: TabsState,
+    val tabsState: StockChartTabsState,
     val chartPageState: ChartPageState,
     val chartInfo: ChartInfo,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: List<UIErrorMessage>,
 ) {
-
-    @Immutable
-    data class TabsState(
-        val tabs: List<TabInfo>,
-        val selectedTabIndex: Int,
-    ) {
-
-        @Immutable
-        data class TabInfo(
-            val id: Int,
-            val title: String,
-        )
-    }
 
     @Immutable
     data class ChartInfo(

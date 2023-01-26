@@ -57,11 +57,11 @@ internal class ReplayChartManager(
     }
 
     fun withNewChart(
-        id: Int,
+        tabId: Int,
         actualChart: IChartApi,
         replaySession: BarReplaySession,
     ) = ReplayChartManager(
-        initialParams = params.copy(id = id, replaySession = replaySession),
+        initialParams = params.copy(tabId = tabId, replaySession = replaySession),
         actualChart = actualChart,
         appModule = appModule,
     )
@@ -135,7 +135,7 @@ internal class ReplayChartManager(
     }
 
     data class ChartParams(
-        val id: Int,
+        val tabId: Int,
         val symbol: String,
         val timeframe: Timeframe,
         val replaySession: BarReplaySession,

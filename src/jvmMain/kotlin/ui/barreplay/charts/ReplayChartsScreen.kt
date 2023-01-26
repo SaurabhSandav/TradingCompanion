@@ -9,11 +9,11 @@ import androidx.compose.ui.input.key.*
 import kotlinx.datetime.Instant
 import trading.Timeframe
 import ui.barreplay.charts.model.ReplayChartInfo
-import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.barreplay.charts.model.ReplayChartsEvent.*
 import ui.barreplay.charts.ui.ReplayChartPage
 import ui.barreplay.charts.ui.ReplayControls
 import ui.common.chart.state.ChartPageState
+import ui.stockchart.StockChartTabsState
 
 @Composable
 internal fun ReplayChartsScreen(
@@ -44,19 +44,12 @@ internal fun ReplayChartsScreen(
 
     ReplayCharts(
         onNewReplay = onNewReplay,
-        chartTabsState = state.chartTabsState,
+        tabsState = state.tabsState,
         chartPageState = state.chartPageState,
         chartInfo = state.chartInfo,
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
         onIsAutoNextEnabledChange = { presenter.event(ChangeIsAutoNextEnabled(it)) },
-        onNewChart = { presenter.event(NewChart) },
-        onMoveTabBackward = { presenter.event(MoveTabBackward) },
-        onMoveTabForward = { presenter.event(MoveTabForward) },
-        onCloseChart = { presenter.event(CloseChart(it)) },
-        onSelectChart = { presenter.event(SelectChart(it)) },
-        onPreviousTab = { presenter.event(PreviousChart) },
-        onNextTab = { presenter.event(NextChart) },
         onSymbolChange = { presenter.event(ChangeSymbol(it)) },
         onTimeframeChange = { presenter.event(ChangeTimeframe(it)) },
     )
@@ -65,19 +58,12 @@ internal fun ReplayChartsScreen(
 @Composable
 internal fun ReplayCharts(
     onNewReplay: () -> Unit,
-    chartTabsState: ReplayChartTabsState,
+    tabsState: StockChartTabsState,
     chartPageState: ChartPageState,
     chartInfo: ReplayChartInfo,
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
-    onNewChart: () -> Unit,
-    onMoveTabBackward: () -> Unit,
-    onMoveTabForward: () -> Unit,
-    onSelectChart: (Int) -> Unit,
-    onPreviousTab: () -> Unit,
-    onNextTab: () -> Unit,
-    onCloseChart: (Int) -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
 ) {
@@ -90,8 +76,8 @@ internal fun ReplayCharts(
                     keyEvent.type == KeyEventType.KeyDown -> {
 
                 when {
-                    keyEvent.isShiftPressed -> onPreviousTab()
-                    else -> onNextTab()
+                    keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
+                    else -> tabsState.selectNextTab()
                 }
 
                 true
@@ -107,18 +93,14 @@ internal fun ReplayCharts(
             onReset = onReset,
             onNext = onNext,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
-            onMoveTabBackward = onMoveTabBackward,
-            onMoveTabForward = onMoveTabForward,
+            tabsState = tabsState,
             onSymbolChange = onSymbolChange,
             onTimeframeChange = onTimeframeChange,
         )
 
         ReplayChartPage(
-            chartTabsState = chartTabsState,
+            tabsState = tabsState,
             chartPageState = chartPageState,
-            onNewChart = onNewChart,
-            onSelectChart = onSelectChart,
-            onCloseChart = onCloseChart,
         )
     }
 }

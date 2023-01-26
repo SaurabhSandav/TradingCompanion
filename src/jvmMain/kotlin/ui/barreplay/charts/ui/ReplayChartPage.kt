@@ -17,25 +17,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import ui.barreplay.charts.model.ReplayChartTabsState
 import ui.common.chart.ChartPage
 import ui.common.chart.state.ChartPageState
+import ui.stockchart.StockChartTabsState
 
 @Composable
 fun ReplayChartPage(
-    chartTabsState: ReplayChartTabsState,
+    tabsState: StockChartTabsState,
     chartPageState: ChartPageState,
-    onNewChart: () -> Unit,
-    onSelectChart: (Int) -> Unit,
-    onCloseChart: (Int) -> Unit,
 ) {
 
     Column {
 
         ScrollableTabRow(
-            selectedTabIndex = chartTabsState.selectedTabIndex,
+            selectedTabIndex = tabsState.selectedTabIndex,
             indicator = { tabPositions ->
-                val selectedTabIndex = chartTabsState.selectedTabIndex
+                val selectedTabIndex = tabsState.selectedTabIndex
                 if (selectedTabIndex < tabPositions.size) {
                     TabRowDefaults.Indicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
@@ -44,26 +41,26 @@ fun ReplayChartPage(
             }
         ) {
 
-            chartTabsState.tabs.forEachIndexed { index, chartTab ->
+            tabsState.tabs.forEachIndexed { index, chartTab ->
 
                 key(chartTab.id) {
 
                     ReplayTab(
                         title = chartTab.title,
-                        isSelected = index == chartTabsState.selectedTabIndex,
-                        onSelect = { onSelectChart(chartTab.id) },
-                        onCloseChart = { onCloseChart(chartTab.id) },
+                        isSelected = index == tabsState.selectedTabIndex,
+                        onSelect = { tabsState.selectTab(chartTab.id) },
+                        onCloseChart = { tabsState.selectTab(chartTab.id) },
                     )
                 }
             }
 
             Tab(
                 selected = false,
-                onClick = onNewChart,
+                onClick = tabsState::newTab,
             ) {
 
                 IconButton(
-                    onClick = onNewChart,
+                    onClick = tabsState::newTab,
                     content = {
                         Icon(Icons.Default.Add, contentDescription = "New Tab")
                     }

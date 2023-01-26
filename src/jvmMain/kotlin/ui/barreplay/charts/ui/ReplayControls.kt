@@ -16,6 +16,7 @@ import ui.barreplay.charts.model.ReplayChartInfo
 import ui.common.TimeframeLabels
 import ui.common.controls.ListSelectionField
 import ui.common.state
+import ui.stockchart.StockChartTabsState
 import utils.NIFTY50
 
 @Composable
@@ -25,8 +26,7 @@ internal fun ReplayControls(
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
-    onMoveTabBackward: () -> Unit,
-    onMoveTabForward: () -> Unit,
+    tabsState: StockChartTabsState,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
 ) {
@@ -82,14 +82,14 @@ internal fun ReplayControls(
         ) {
 
             Button(
-                onClick = onMoveTabBackward,
+                onClick = tabsState::moveTabBackward,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Move Tab Backward")
             }
 
             Button(
-                onClick = onMoveTabForward,
+                onClick = tabsState::moveTabForward,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Move Tab Forward")

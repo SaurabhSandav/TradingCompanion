@@ -72,11 +72,11 @@ internal class ChartManager(
     }
 
     fun withNewChart(
-        id: Int,
+        tabId: Int,
         actualChart: IChartApi,
     ) = ChartManager(
         appModule = appModule,
-        initialParams = params.copy(id = id),
+        initialParams = params.copy(tabId = tabId),
         actualChart = actualChart,
         onCandleDataLogin = onCandleDataLogin,
     )
@@ -195,7 +195,7 @@ internal class ChartManager(
     }
 
     data class ChartParams(
-        val id: Int,
+        val tabId: Int,
         val symbol: String,
         val timeframe: Timeframe,
     )

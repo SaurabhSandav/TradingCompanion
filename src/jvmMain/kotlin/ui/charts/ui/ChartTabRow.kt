@@ -15,14 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import ui.charts.model.ChartsState
+import ui.stockchart.StockChartTabsState
 
 @Composable
 fun ChartTabRow(
-    tabsState: ChartsState.TabsState,
-    onNewChart: () -> Unit,
-    onSelectChart: (Int) -> Unit,
-    onCloseChart: (Int) -> Unit,
+    tabsState: StockChartTabsState,
 ) {
 
     ScrollableTabRow(
@@ -44,19 +41,19 @@ fun ChartTabRow(
                 ChartTab(
                     title = chartTab.title,
                     isSelected = index == tabsState.selectedTabIndex,
-                    onSelect = { onSelectChart(chartTab.id) },
-                    onCloseChart = { onCloseChart(chartTab.id) },
+                    onSelect = { tabsState.selectTab(chartTab.id) },
+                    onCloseChart = { tabsState.closeTab(chartTab.id) },
                 )
             }
         }
 
         Tab(
             selected = false,
-            onClick = onNewChart,
+            onClick = tabsState::newTab,
         ) {
 
             IconButton(
-                onClick = onNewChart,
+                onClick = tabsState::newTab,
                 content = {
                     Icon(Icons.Default.Add, contentDescription = "New Tab")
                 }

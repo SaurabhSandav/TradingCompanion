@@ -11,15 +11,15 @@ import androidx.compose.ui.unit.dp
 import ui.charts.model.ChartsState
 import ui.common.TimeframeLabels
 import ui.common.controls.ListSelectionField
+import ui.stockchart.StockChartTabsState
 import utils.NIFTY50
 
 @Composable
 internal fun ChartControls(
     chartInfo: ChartsState.ChartInfo,
-    onMoveTabBackward: () -> Unit,
-    onMoveTabForward: () -> Unit,
     onSymbolChange: (String) -> Unit,
     onTimeframeChange: (String) -> Unit,
+    tabsState: StockChartTabsState,
 ) {
 
     Column(
@@ -63,14 +63,14 @@ internal fun ChartControls(
             Divider()
 
             Button(
-                onClick = onMoveTabBackward,
+                onClick = tabsState::moveTabBackward,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Move Tab Backward")
             }
 
             Button(
-                onClick = onMoveTabForward,
+                onClick = tabsState::moveTabForward,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Move Tab Forward")
