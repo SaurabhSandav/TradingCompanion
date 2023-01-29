@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import model.Account
 import trading.data.CandleDBCollection
 import utils.AppPaths
+import java.util.*
 import java.util.prefs.Preferences
 
 internal class AppModule {
@@ -23,7 +24,10 @@ internal class AppModule {
     )
 
     val appDB: AppDB = run {
-        val driver = JdbcSqliteDriver("jdbc:sqlite:${AppPaths.getAppDataPath()}/${AppPaths.appName}.db")
+        val driver = JdbcSqliteDriver(
+            url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/${AppPaths.appName}.db",
+            properties = Properties().apply { put("foreign_keys", "true") },
+        )
         AppDB.Schema.create(driver)
         AppDB(driver = driver)
     }
