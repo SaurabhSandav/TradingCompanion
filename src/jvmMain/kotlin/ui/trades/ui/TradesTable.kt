@@ -1,5 +1,7 @@
 package ui.trades.ui
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -18,6 +20,7 @@ import ui.trades.model.TradeListItem
 @Composable
 internal fun TradesTable(
     tradesItems: Map<TradeListItem.DayHeader, List<TradeListItem.Entry>>,
+    onOpenChart: (id: Long) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeListItem.Entry> {
@@ -67,11 +70,20 @@ internal fun TradesTable(
                 key = { it.id },
             ) { item ->
 
-                Column {
+                ContextMenuArea(
+                    items = {
+                        listOf(
+                            ContextMenuItem("Open Chart") { onOpenChart(item.id) },
+                        )
+                    },
+                ) {
 
-                    DefaultTableRow(item, schema)
+                    Column {
 
-                    Divider()
+                        DefaultTableRow(item, schema)
+
+                        Divider()
+                    }
                 }
             }
         }

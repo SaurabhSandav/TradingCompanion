@@ -1,11 +1,26 @@
 package ui.trades.model
 
 import androidx.compose.runtime.Immutable
+import ui.common.MultipleWindowManager
+import ui.fyerslogin.FyersLoginState
 
 @Immutable
 internal data class TradesState(
     val tradesItems: Map<TradeListItem.DayHeader, List<TradeListItem.Entry>>,
-)
+    val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
+    val fyersLoginWindowState: FyersLoginWindow,
+) {
+
+    @Immutable
+    internal sealed class FyersLoginWindow {
+
+        @Immutable
+        class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
+
+        @Immutable
+        object Closed : FyersLoginWindow()
+    }
+}
 
 @Immutable
 internal sealed class TradeListItem {
