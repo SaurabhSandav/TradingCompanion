@@ -46,5 +46,6 @@ internal class AppModule {
 
     init {
 //        TradeImporter(this).importTrades()
+//        TradeMigrator(this).migrateTrades()
     }
 }

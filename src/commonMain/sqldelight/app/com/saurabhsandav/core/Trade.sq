@@ -1,0 +1,54 @@
+
+CREATE TABLE IF NOT EXISTS Trade (
+id INTEGER AS Long NOT NULL PRIMARY KEY,
+broker TEXT NOT NULL,
+ticker TEXT NOT NULL,
+instrument TEXT NOT NULL,
+quantity TEXT NOT NULL,
+closedQuantity TEXT NOT NULL,
+lots INTEGER AS Int,
+side TEXT NOT NULL,
+averageEntry TEXT NOT NULL,
+entryTimestamp TEXT NOT NULL,
+averageExit TEXT,
+exitTimestamp TEXT,
+pnl TEXT NOT NULL,
+fees TEXT NOT NULL,
+netPnl TEXT NOT NULL,
+isClosed TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE
+INTO Trade(id, broker, ticker, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
+averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE Trade
+SET quantity = ?, closedQuantity = ?, lots = ?, averageEntry = ?, entryTimestamp = ?, averageExit = ?,
+exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
+WHERE id = ?;
+
+getAll:
+SELECT *
+FROM Trade
+ORDER BY datetime(entryTimestamp) DESC, datetime(exitTimestamp) DESC;
+
+getById:
+SELECT *
+FROM Trade
+WHERE id = ?;
+
+getOpenTrades:
+SELECT *
+FROM Trade
+WHERE isClosed = "false";
+
+anyOpenTrades:
+SELECT EXISTS (
+SELECT *
+FROM Trade
+WHERE isClosed = "false"
+);

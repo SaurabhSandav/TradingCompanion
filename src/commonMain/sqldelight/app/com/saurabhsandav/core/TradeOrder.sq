@@ -1,0 +1,30 @@
+
+CREATE TABLE IF NOT EXISTS TradeOrder (
+id INTEGER AS Long NOT NULL PRIMARY KEY,
+broker TEXT NOT NULL,
+ticker TEXT NOT NULL,
+quantity TEXT NOT NULL,
+lots INTEGER AS Int,
+type TEXT NOT NULL,
+price TEXT NOT NULL,
+timestamp TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE
+INTO TradeOrder(id, broker, ticker, quantity, lots, type, price, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+getAll:
+SELECT *
+FROM TradeOrder
+ORDER BY date(timestamp) DESC, time(timestamp) DESC;
+
+getById:
+SELECT *
+FROM TradeOrder
+WHERE id = ?;
+
+delete:
+DELETE FROM TradeOrder
+WHERE id = ?;

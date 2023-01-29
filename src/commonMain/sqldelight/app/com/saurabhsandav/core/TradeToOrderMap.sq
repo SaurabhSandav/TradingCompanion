@@ -1,0 +1,45 @@
+
+CREATE TABLE IF NOT EXISTS TradeToOrderMap (
+tradeId INTEGER AS Long NOT NULL,
+orderId INTEGER AS Long NOT NULL,
+overrideQuantity TEXT,
+allTradesClosed TEXT NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
+FOREIGN KEY(orderId) REFERENCES TradeOrder(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, orderId)
+);
+
+insert:
+INSERT OR IGNORE INTO TradeToOrderMap
+VALUES (?, ?, ?, ?);
+
+getOrdersByTrade:
+SELECT TradeOrder.*, IFNULL(overrideQuantity, TradeOrder.quantity) AS overrideQuantity FROM TradeToOrderMap
+INNER JOIN TradeOrder
+ON TradeToOrderMap.orderId = TradeOrder.id
+WHERE TradeToOrderMap.tradeId = ?
+ORDER BY TradeOrder.timestamp ASC;
+
+getOrdersAfterPreviousAllTradesClosed:
+SELECT *
+FROM TradeOrder
+WHERE datetime(timestamp) >
+    (SELECT datetime(TradeOrder.timestamp)
+     FROM TradeToOrderMap
+     INNER JOIN TradeOrder ON TradeToOrderMap.orderId = TradeOrder.id
+     WHERE datetime(TradeOrder.timestamp) <
+         (SELECT datetime(timestamp)
+          FROM TradeOrder
+          WHERE id = ?)
+       AND TradeToOrderMap.allTradesClosed == "true"
+     ORDER BY datetime(timestamp) DESC
+     LIMIT 1)
+ORDER BY datetime(timestamp) ASC;
+
+deleteTradesMadeFromOrders:
+DELETE FROM Trade
+WHERE id IN (
+    SELECT tradeId
+    FROM TradeToOrderMap
+    WHERE orderId IN ?
+);
