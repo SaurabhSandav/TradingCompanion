@@ -2,17 +2,13 @@ package ui.barreplay.launchform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import optionalContent
-import ui.common.OutlinedTextField
 import ui.common.TimeframeLabels
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
@@ -43,7 +39,7 @@ internal fun ReplayLaunchFormScreen(
                 label = { Text("Base Timeframe") },
                 placeholderText = "Select Timeframe...",
                 isError = model.baseTimeframe.isError,
-                errorText = optionalContent(model.baseTimeframe.errorMessage) { Text(it) },
+                supportingText = optionalContent(model.baseTimeframe.errorMessage) { Text(it) },
             )
 
             OutlinedTextField(
@@ -51,7 +47,7 @@ internal fun ReplayLaunchFormScreen(
                 onValueChange = { model.candlesBefore.value = it.trim() },
                 label = { Text("Candles Before") },
                 isError = model.candlesBefore.isError,
-                errorText = optionalContent(model.candlesBefore.errorMessage) { Text(it) },
+                supportingText = optionalContent(model.candlesBefore.errorMessage) { Text(it) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
@@ -61,7 +57,7 @@ internal fun ReplayLaunchFormScreen(
                 onValidValueChange = { model.replayFrom.value = it },
                 label = { Text("Replay From") },
                 isError = model.replayFrom.isError,
-                errorText = optionalContent(model.replayFrom.errorMessage) { Text(it) },
+                supportingText = optionalContent(model.replayFrom.errorMessage) { Text(it) },
             )
 
             DateTimeField(
@@ -69,7 +65,7 @@ internal fun ReplayLaunchFormScreen(
                 onValidValueChange = { model.dataTo.value = it },
                 label = { Text("Data To") },
                 isError = model.dataTo.isError,
-                errorText = optionalContent(model.dataTo.errorMessage) { Text(it) },
+                supportingText = optionalContent(model.dataTo.errorMessage) { Text(it) },
             )
 
             Row(
@@ -97,7 +93,7 @@ internal fun ReplayLaunchFormScreen(
                 label = { Text("Ticker") },
                 placeholderText = "Select Ticker...",
                 isError = model.initialSymbol.isError,
-                errorText = optionalContent(model.initialSymbol.errorMessage) { Text(it) },
+                supportingText = optionalContent(model.initialSymbol.errorMessage) { Text(it) },
             )
 
             Divider()

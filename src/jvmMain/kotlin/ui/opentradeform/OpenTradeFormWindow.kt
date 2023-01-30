@@ -3,17 +3,13 @@ package ui.opentradeform
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import optionalContent
-import ui.common.OutlinedTextField
 import ui.common.app.AppWindow
 import ui.common.controls.DateTimeField
 import ui.common.controls.ListSelectionField
@@ -59,7 +55,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             selection = model.ticker.value,
             label = { Text("Ticker") },
             isError = model.ticker.isError,
-            errorText = optionalContent(model.ticker.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.ticker.errorMessage) { Text(it) },
         )
 
         OutlinedTextField(
@@ -67,7 +63,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantity.isError,
-            errorText = optionalContent(model.quantity.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.quantity.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -92,7 +88,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             onValueChange = { model.entry.value = it.trim() },
             label = { Text("Entry") },
             isError = model.entry.isError,
-            errorText = optionalContent(model.entry.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.entry.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -101,7 +97,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             onValueChange = { model.stop.value = it.trim() },
             label = { Text("Stop") },
             isError = model.stop.isError,
-            errorText = optionalContent(model.stop.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.stop.errorMessage) { Text(it) },
             singleLine = true,
         )
 
@@ -110,7 +106,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             onValidValueChange = { model.entryDateTime.value = it },
             label = { Text("Entry DateTime") },
             isError = model.entryDateTime.isError,
-            errorText = optionalContent(model.entryDateTime.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.entryDateTime.errorMessage) { Text(it) },
         )
 
         OutlinedTextField(
@@ -118,7 +114,7 @@ private fun OpenTradeForm(state: OpenTradeFormWindowState) {
             onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
             isError = model.target.isError,
-            errorText = optionalContent(model.target.errorMessage) { Text(it) },
+            supportingText = optionalContent(model.target.errorMessage) { Text(it) },
             singleLine = true,
         )
 
