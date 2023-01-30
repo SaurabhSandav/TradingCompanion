@@ -318,6 +318,7 @@ private fun TagsBox(
             tags.forEach { tag ->
 
                 InputChip(
+                    selected = false,
                     onClick = {},
                     label = { Text(tag.name) },
                     trailingIcon = {
@@ -332,6 +333,7 @@ private fun TagsBox(
             }
 
             InputChip(
+                selected = false,
                 onClick = { showTextField = !showTextField },
                 label = { Text("Add Tag") },
                 leadingIcon = {

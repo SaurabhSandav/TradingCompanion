@@ -37,6 +37,7 @@ dependencyResolutionManagement {
 
         create("libs") {
             from("com.saurabhsandav:common-versions:0.73.0")
+            version("jetbrainsCompose", "1.3.0")
         }
     }
 }

@@ -2,6 +2,7 @@ package ui.common.controls
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
@@ -49,7 +51,11 @@ fun ListSelectionField(
 
     Box(modifier) {
 
-        val defaultColors = TextFieldDefaults.outlinedTextFieldColors()
+        val isFocused by interactionSource.collectIsFocusedAsState()
+        val surfaceColor = when {
+            isFocused -> MaterialTheme.colorScheme.surfaceTint
+            else -> MaterialTheme.colorScheme.onSurface
+        }
 
         OutlinedTextField(
             value = selection ?: placeholderText,
@@ -61,10 +67,10 @@ fun ListSelectionField(
             enabled = false,
             interactionSource = interactionSource,
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                disabledTextColor = defaultColors.textColor(enabled).value,
-                disabledBorderColor = defaultColors.indicatorColor(enabled, isError, interactionSource).value,
-                disabledLabelColor = defaultColors.labelColor(enabled, isError, interactionSource).value,
-                disabledPlaceholderColor = defaultColors.placeholderColor(enabled).value,
+                disabledTextColor = surfaceColor,
+                disabledBorderColor = surfaceColor,
+                disabledLabelColor = surfaceColor,
+                disabledPlaceholderColor = surfaceColor,
             ),
         )
     }
