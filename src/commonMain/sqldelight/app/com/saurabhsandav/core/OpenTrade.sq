@@ -21,7 +21,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);
 getAll:
 SELECT *
 FROM OpenTrade
-ORDER BY date(entryDate) DESC;
+ORDER BY datetime(entryDate) DESC;
 
 getById:
 SELECT *

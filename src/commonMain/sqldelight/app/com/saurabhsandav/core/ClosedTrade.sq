@@ -23,7 +23,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?);
 getAll:
 SELECT *
 FROM ClosedTrade
-ORDER BY date(entryDate) DESC, time(entryDate) DESC, date(exitDate) DESC, time(exitDate) DESC;
+ORDER BY datetime(entryDate) DESC, datetime(exitDate) DESC;
 
 getById:
 SELECT *
@@ -40,7 +40,7 @@ maxFavorableExcursion, maxAdverseExcursion, persisted, persistenceResult, notes
 FROM ClosedTrade
 LEFT JOIN ClosedTradeDetail
 ON ClosedTrade.id = ClosedTradeDetail.closedTradeId
-ORDER BY date(entryDate) DESC, time(entryDate) DESC, date(exitDate) DESC, time(exitDate) DESC;
+ORDER BY datetime(entryDate) DESC, datetime(exitDate) DESC;
 
 getClosedTradesDetailedById:
 SELECT id, broker, ticker, instrument, quantity, lots, side, entry, stop, entryDate, target, exit, exitDate,
