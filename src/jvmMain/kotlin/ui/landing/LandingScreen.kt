@@ -37,6 +37,8 @@ import ui.sizing.SizingPresenter
 import ui.sizing.SizingScreen
 import ui.studies.StudiesPresenter
 import ui.studies.StudiesScreen
+import ui.tradeorders.TradeOrdersPresenter
+import ui.tradeorders.TradeOrdersScreen
 import ui.trades.TradesPresenter
 import ui.trades.TradesScreen
 
@@ -148,6 +150,7 @@ private fun LandingScreen(
             val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
             val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
             val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
+            val tradeOrdersPresenter = remember { TradeOrdersPresenter(coroutineScope, appModule) }
             val tradesPresenter = remember { TradesPresenter(coroutineScope, appModule) }
             val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
 
@@ -158,6 +161,7 @@ private fun LandingScreen(
                     LandingScreen.TradeSizing -> SizingScreen(sizingPresenter)
                     LandingScreen.OpenTrades -> OpenTradesScreen(openTradesPresenter)
                     LandingScreen.ClosedTrades -> ClosedTradesScreen(closedTradesPresenter)
+                    LandingScreen.TradeOrders -> TradeOrdersScreen(tradeOrdersPresenter)
                     LandingScreen.Trades -> TradesScreen(tradesPresenter)
                     LandingScreen.Studies -> StudiesScreen(studiesPresenter)
                 }

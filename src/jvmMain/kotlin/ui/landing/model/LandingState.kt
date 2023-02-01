@@ -18,6 +18,7 @@ enum class LandingScreen(
     TradeSizing("Trade Sizing", Icons.Filled.Straighten),
     OpenTrades("Open Trades", Icons.Filled.FolderOpen),
     ClosedTrades("Closed Trades", Icons.Filled.Folder),
+    TradeOrders("Orders", Icons.Filled.FolderOpen),
     Trades("Trades", Icons.Filled.Folder),
     Studies("Studies", Icons.Filled.FactCheck);
 
@@ -28,6 +29,7 @@ enum class LandingScreen(
             TradeSizing,
             OpenTrades,
             ClosedTrades,
+            TradeOrders,
             Trades,
             Studies,
         )
