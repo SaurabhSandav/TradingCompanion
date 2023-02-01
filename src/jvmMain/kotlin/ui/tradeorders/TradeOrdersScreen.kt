@@ -1,12 +1,12 @@
 package ui.tradeorders
 
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import ui.common.ErrorSnackbar
 import ui.common.app.LocalAppWindowState
 import ui.tradeorders.model.TradeOrdersEvent.*
+import ui.tradeorders.orderform.OrderFormWindow
+import ui.tradeorders.orderform.rememberOrderFormWindowState
 import ui.tradeorders.ui.DeleteConfirmationDialog
 import ui.tradeorders.ui.TradeOrdersTable
 import ui.tradeorders.model.TradeOrdersState.DeleteConfirmationDialog as DeleteConfirmationDialogState
@@ -26,13 +26,30 @@ internal fun TradeOrdersScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(onClick = { presenter.event(NewOrder) }) {
+                Text(text = "New Order")
+            }
+        },
     ) {
 
         TradeOrdersTable(
             tradeOrderItems = state.tradeOrderItems,
+            onNewOrder = { presenter.event(NewOrderFromExisting(it)) },
+            onEditOrder = { presenter.event(EditOrder(it)) },
             onDeleteOrder = { presenter.event(DeleteOrder(it)) },
         )
 
+        // New Order windows
+        state.orderFormWindowParams.forEach { params ->
+
+            key(params) {
+
+                OrderFormWindow(rememberOrderFormWindowState(params))
+            }
+        }
+
+        // Delete order confirmation dialog
         val deleteConfirmationDialogState = state.deleteConfirmationDialogState
 
         if (deleteConfirmationDialogState is DeleteConfirmationDialogState.Open) {

@@ -20,6 +20,8 @@ import ui.tradeorders.model.TradeOrderListItem
 @Composable
 internal fun TradeOrdersTable(
     tradeOrderItems: Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>,
+    onNewOrder: (id: Long) -> Unit,
+    onEditOrder: (id: Long) -> Unit,
     onDeleteOrder: (id: Long) -> Unit,
 ) {
 
@@ -65,6 +67,8 @@ internal fun TradeOrdersTable(
                 ContextMenuArea(
                     items = {
                         listOf(
+                            ContextMenuItem("New") { onNewOrder(item.id) },
+                            ContextMenuItem("Edit") { onEditOrder(item.id) },
                             ContextMenuItem("Delete") { onDeleteOrder(item.id) },
                         )
                     },

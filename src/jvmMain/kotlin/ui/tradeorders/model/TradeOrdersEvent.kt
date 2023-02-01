@@ -2,6 +2,12 @@ package ui.tradeorders.model
 
 internal sealed class TradeOrdersEvent {
 
+    object NewOrder : TradeOrdersEvent()
+
+    data class NewOrderFromExisting(val id: Long) : TradeOrdersEvent()
+
+    data class EditOrder(val id: Long) : TradeOrdersEvent()
+
     data class DeleteOrder(val id: Long) : TradeOrdersEvent()
 
     sealed class DeleteConfirmationDialog : TradeOrdersEvent() {

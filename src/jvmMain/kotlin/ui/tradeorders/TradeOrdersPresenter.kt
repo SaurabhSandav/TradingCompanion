@@ -18,10 +18,12 @@ import ui.common.UIErrorMessage
 import ui.common.state
 import ui.tradeorders.model.TradeOrderListItem
 import ui.tradeorders.model.TradeOrdersEvent
-import ui.tradeorders.model.TradeOrdersEvent.DeleteOrder
+import ui.tradeorders.model.TradeOrdersEvent.*
 import ui.tradeorders.model.TradeOrdersState
+import ui.tradeorders.orderform.OrderFormWindowParams
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.*
 import ui.tradeorders.model.TradeOrdersEvent.DeleteConfirmationDialog as DeleteConfirmationDialogEvent
 import ui.tradeorders.model.TradeOrdersState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
@@ -33,10 +35,23 @@ internal class TradeOrdersPresenter(
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
+    private val orderFormWindowParams = mutableStateMapOf<UUID, OrderFormWindowParams>()
+
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+
+        CollectEffect(events) { event ->
+
+            when (event) {
+                NewOrder -> onNewOrder()
+                is NewOrderFromExisting -> onNewOrderFromExisting(event.id)
+                is EditOrder -> onEditOrder(event.id)
+                else -> Unit
+            }
+        }
 
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
+            orderFormWindowParams = orderFormWindowParams.values,
             deleteConfirmationDialogState = deleteConfirmationDialogState(events),
         )
     }
@@ -73,6 +88,51 @@ internal class TradeOrdersPresenter(
         timestamp = timestamp.time.toString(),
     )
 
+    private fun onNewOrder() {
+
+        val key = UUID.randomUUID()
+        val params = OrderFormWindowParams(
+            operationType = OrderFormWindowParams.OperationType.New,
+            onCloseRequest = { orderFormWindowParams.remove(key) }
+        )
+
+        orderFormWindowParams[key] = params
+    }
+
+    private fun onNewOrderFromExisting(id: Long) {
+
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = orderFormWindowParams.values.any {
+            it.operationType is OrderFormWindowParams.OperationType.NewFromExisting && it.operationType.id == id
+        }
+        if (isWindowAlreadyOpen) return
+
+        val key = UUID.randomUUID()
+        val params = OrderFormWindowParams(
+            operationType = OrderFormWindowParams.OperationType.NewFromExisting(id),
+            onCloseRequest = { orderFormWindowParams.remove(key) }
+        )
+
+        orderFormWindowParams[key] = params
+    }
+
+    private fun onEditOrder(id: Long) {
+
+        // Don't allow opening duplicate windows
+        val isWindowAlreadyOpen = orderFormWindowParams.values.any {
+            it.operationType is OrderFormWindowParams.OperationType.EditExisting && it.operationType.id == id
+        }
+        if (isWindowAlreadyOpen) return
+
+        val key = UUID.randomUUID()
+        val params = OrderFormWindowParams(
+            operationType = OrderFormWindowParams.OperationType.EditExisting(id),
+            onCloseRequest = { orderFormWindowParams.remove(key) }
+        )
+
+        orderFormWindowParams[key] = params
+    }
+
     @Composable
     private fun deleteConfirmationDialogState(events: Flow<TradeOrdersEvent>): DeleteConfirmationDialogState {
 
@@ -89,6 +149,7 @@ internal class TradeOrdersPresenter(
                 }
 
                 DeleteConfirmationDialogEvent.Dismiss -> DeleteConfirmationDialogState.Dismissed
+                else -> state
             }
         }
 

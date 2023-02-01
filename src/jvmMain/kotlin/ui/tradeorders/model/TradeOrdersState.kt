@@ -1,10 +1,12 @@
 package ui.tradeorders.model
 
 import androidx.compose.runtime.Immutable
+import ui.tradeorders.orderform.OrderFormWindowParams
 
 @Immutable
 internal data class TradeOrdersState(
     val tradeOrderItems: Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>,
+    val orderFormWindowParams: Collection<OrderFormWindowParams>,
     val deleteConfirmationDialogState: DeleteConfirmationDialog,
 ) {
 
