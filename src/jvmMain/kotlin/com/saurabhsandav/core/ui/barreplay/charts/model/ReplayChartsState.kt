@@ -1,0 +1,32 @@
+package com.saurabhsandav.core.ui.barreplay.charts.model
+
+import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
+import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
+
+@Immutable
+data class ReplayChartsState(
+    val tabsState: StockChartTabsState,
+    val chartPageState: ChartPageState,
+    val chartInfo: ReplayChartInfo,
+)
+
+@Immutable
+data class ReplayChartInfo(
+    val symbol: String,
+    val timeframe: Timeframe,
+    val replayTime: String = "",
+    val legendValues: LegendValues = LegendValues(),
+)
+
+@Immutable
+data class LegendValues(
+    val open: String = "",
+    val high: String = "",
+    val low: String = "",
+    val close: String = "",
+    val volume: String = "",
+    val ema9: String = "",
+    val vwap: String = "",
+)

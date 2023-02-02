@@ -1,0 +1,24 @@
+package com.saurabhsandav.core.trading.indicator
+
+import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
+import com.saurabhsandav.core.trading.indicator.base.Indicator
+import java.math.BigDecimal
+
+class NegativeMoneyFlowIndicator(
+    private val price: Indicator<BigDecimal>,
+    private val moneyFlow: MoneyFlowIndicator,
+) : CachedIndicator<BigDecimal>(
+    candleSeries = price.candleSeries,
+    description = "NegativeMoneyFlowIndicator(${price.description}, ${moneyFlow.description})",
+) {
+
+    override fun calculate(index: Int): BigDecimal {
+
+        if (index == 0) return BigDecimal.ZERO
+
+        return when {
+            price[index] < price[index - 1] -> moneyFlow[index]
+            else -> BigDecimal.ZERO
+        }
+    }
+}
