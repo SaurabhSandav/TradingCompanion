@@ -40,7 +40,7 @@ internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
+    private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)

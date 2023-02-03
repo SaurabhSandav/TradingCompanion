@@ -45,7 +45,7 @@ internal class TradesPresenter(
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val tradesRepo: TradesRepo = TradesRepo(appModule),
-    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
+    private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
     private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)

@@ -55,7 +55,7 @@ internal class ClosedTradesPresenter(
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val appDB: AppDB = appModule.appDB,
-    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
+    private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)

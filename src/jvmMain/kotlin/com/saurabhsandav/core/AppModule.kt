@@ -9,7 +9,6 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.serialization.json.Json
 import java.util.*
 import java.util.prefs.Preferences
 
@@ -33,15 +32,9 @@ internal class AppModule {
         AppDB(driver = driver)
     }
 
-    val json = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
-
     val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
-    val fyersApiFactory = { FyersApi() }
+    val fyersApi by lazy { FyersApi() }
 
     val candleDBCollection = CandleDBCollection()
 

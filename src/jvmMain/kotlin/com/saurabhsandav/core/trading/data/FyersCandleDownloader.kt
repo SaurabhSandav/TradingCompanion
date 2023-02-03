@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.days
 internal class FyersCandleDownloader(
     appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val fyersApi: FyersApi = appModule.fyersApiFactory(),
+    private val fyersApi: FyersApi = appModule.fyersApi,
 ) : CandleDownloader {
 
     private var accessToken: String? = null
