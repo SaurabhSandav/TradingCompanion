@@ -36,10 +36,10 @@ internal fun ClosedTradesTable(
             Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
         }
         addColumnText("Entry") { it.entry }
-        addColumnText("Stop") { it.stop }
-        addColumnText("Duration") { it.duration }
-        addColumnText("Target") { it.target }
         addColumnText("Exit") { it.exit }
+        addColumnText("Stop") { it.stop }
+        addColumnText("Target") { it.target }
+        addColumnText("Duration") { it.duration }
         addColumn(
             header = {
 
