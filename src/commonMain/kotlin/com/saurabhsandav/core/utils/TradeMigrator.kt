@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.launchUnit
-import com.saurabhsandav.core.subListInclusive
+import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeOrder
@@ -12,8 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
 
 internal class TradeMigrator(
-    private val appModule: AppModule,
-    private val tradeOrdersRepo: TradeOrdersRepo = TradeOrdersRepo(appModule),
+    private val tradeOrdersRepo: TradeOrdersRepo,
+    private val appDB: AppDB,
 ) {
 
     fun migrateTrades() = CoroutineScope(Dispatchers.IO).launchUnit {
@@ -35,7 +33,7 @@ internal class TradeMigrator(
 
     private fun getClosedTradesAsTradeOrders(): List<TradeOrder> {
 
-        val closedTrades = appModule.appDB.closedTradeQueries.getAll().executeAsList()
+        val closedTrades = appDB.closedTradeQueries.getAll().executeAsList()
 
         val orders = closedTrades.flatMap {
 

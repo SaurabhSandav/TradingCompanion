@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trades
 
 import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.model.Trade
 import com.saurabhsandav.core.trades.model.TradeOrder
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -13,9 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateTime
 
 internal class TradesRepo(
-    appModule: AppModule,
-    private val appDB: AppDB = appModule.appDB,
-    private val tradeOrdersRepo: TradeOrdersRepo = TradeOrdersRepo(appModule),
+    private val appDB: AppDB,
+    private val tradeOrdersRepo: TradeOrdersRepo,
 ) {
 
     val allTrades: Flow<List<Trade>>

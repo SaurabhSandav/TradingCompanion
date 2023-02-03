@@ -3,11 +3,11 @@ package com.saurabhsandav.core.ui.tradeorders.orderform
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.launchUnit
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams.OperationType.*
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -37,7 +37,7 @@ internal class OrderFormWindowState(
     val params: OrderFormWindowParams,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradeOrdersRepo: TradeOrdersRepo = TradeOrdersRepo(appModule),
+    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
 ) {
 
     private val formValidator = FormValidator()

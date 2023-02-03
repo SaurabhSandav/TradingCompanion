@@ -3,7 +3,10 @@ package com.saurabhsandav.core.ui.closetradeform
 import androidx.compose.runtime.*
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.saurabhsandav.core.*
+import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.TradeTag
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
@@ -11,6 +14,7 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.closetradeform.CloseTradeFormWindowParams.OperationType.CloseOpenTrade
 import com.saurabhsandav.core.ui.closetradeform.CloseTradeFormWindowParams.OperationType.EditExistingTrade
 import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.utils.launchUnit
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.CoroutineScope

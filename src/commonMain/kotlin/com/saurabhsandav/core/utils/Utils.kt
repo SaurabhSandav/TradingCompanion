@@ -1,4 +1,4 @@
-package com.saurabhsandav.core
+package com.saurabhsandav.core.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart

@@ -10,7 +10,6 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
-import com.saurabhsandav.core.launchUnit
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.Trade
@@ -29,6 +28,7 @@ import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.trades.model.*
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -44,7 +44,7 @@ internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradesRepo: TradesRepo = TradesRepo(appModule),
+    private val tradesRepo: TradesRepo = appModule.tradesRepo,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 

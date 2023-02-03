@@ -3,6 +3,8 @@ package com.saurabhsandav.core
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.utils.AppPaths
@@ -38,8 +40,12 @@ internal class AppModule {
 
     val candleDBCollection = CandleDBCollection()
 
+    val tradeOrdersRepo by lazy { TradeOrdersRepo(appDB) }
+
+    val tradesRepo by lazy { TradesRepo(appDB, tradeOrdersRepo) }
+
     init {
-//        TradeImporter(this).importTrades()
-//        TradeMigrator(this).migrateTrades()
+//        TradeImporter(appDB).importTrades()
+//        TradeMigrator(tradeOrdersRepo, appDB).migrateTrades()
     }
 }

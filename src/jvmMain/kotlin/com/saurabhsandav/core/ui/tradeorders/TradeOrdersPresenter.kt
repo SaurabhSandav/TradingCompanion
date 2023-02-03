@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.launchUnit
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.TradeOrder
 import com.saurabhsandav.core.ui.common.CollectEffect
@@ -15,6 +14,7 @@ import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState
 import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,7 +30,7 @@ import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.DeleteConfir
 internal class TradeOrdersPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradesOrdersRepo: TradeOrdersRepo = TradeOrdersRepo(appModule),
+    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
 ) {
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -65,7 +65,7 @@ internal class TradeOrdersPresenter(
     @Composable
     private fun getTradeListEntries(): State<Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>> {
         return remember {
-            tradesOrdersRepo.allOrders.map { orders ->
+            tradeOrdersRepo.allOrders.map { orders ->
                 orders.groupBy { it.timestamp.date }
                     .mapKeys { (date, _) -> date.toTradeOrderListDayHeader() }
                     .mapValues { (_, list) -> list.map { it.toTradeOrderListEntry() } }
@@ -157,6 +157,6 @@ internal class TradeOrdersPresenter(
     }
 
     private fun deleteOrder(id: Long) = coroutineScope.launchUnit {
-        tradesOrdersRepo.delete(id)
+        tradeOrdersRepo.delete(id)
     }
 }

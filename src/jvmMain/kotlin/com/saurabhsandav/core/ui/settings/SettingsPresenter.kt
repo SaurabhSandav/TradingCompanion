@@ -7,7 +7,6 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.launchUnit
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
@@ -15,6 +14,7 @@ import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.SettingsState
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map

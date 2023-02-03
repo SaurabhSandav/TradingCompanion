@@ -1,14 +1,14 @@
 package com.saurabhsandav.core.utils
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.AppDB
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.atTime
 import java.io.File
 
 internal class TradeImporter(
-    private val appModule: AppModule,
+    private val appDB: AppDB,
 ) {
 
     fun importTrades() {
@@ -43,7 +43,7 @@ internal class TradeImporter(
                 second = exitTimeValues[2].toInt(),
             )
 
-            appModule.appDB.closedTradeQueries.insert(
+            appDB.closedTradeQueries.insert(
                 id = null,
                 broker = row.getValue("Broker"),
                 ticker = row.getValue("Scrip"),
@@ -62,9 +62,9 @@ internal class TradeImporter(
 
         fun insertClosedTradeDetailed(row: Map<String, String>) {
 
-            val id = appModule.appDB.closedTradeQueries.getAll().executeAsList().maxOf { it.id }
+            val id = appDB.closedTradeQueries.getAll().executeAsList().maxOf { it.id }
 
-            appModule.appDB.closedTradeDetailQueries.insert(
+            appDB.closedTradeDetailQueries.insert(
                 closedTradeId = id,
                 maxFavorableExcursion = row.getValue("Maximum Favorable Excursion").ifBlank { null },
                 maxAdverseExcursion = row.getValue("Maximum Adverse Excursion").ifBlank { null },
@@ -77,7 +77,7 @@ internal class TradeImporter(
 
         rows.forEach { row ->
 
-            appModule.appDB.transaction {
+            appDB.transaction {
                 insertClosedTrade(row)
                 insertClosedTradeDetailed(row)
             }

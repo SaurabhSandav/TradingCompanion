@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trades
 
 import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.GetOrdersByTrade
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.Trade
@@ -20,8 +19,7 @@ import java.math.BigDecimal
 import kotlin.math.absoluteValue
 
 internal class TradeOrdersRepo(
-    appModule: AppModule,
-    private val appDB: AppDB = appModule.appDB,
+    private val appDB: AppDB,
 ) {
 
     val allOrders: Flow<List<TradeOrder>>
