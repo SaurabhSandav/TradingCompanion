@@ -1,8 +1,8 @@
 
 CREATE TABLE IF NOT EXISTS CheckedRange (
     id INTEGER PRIMARY KEY CHECK (id = 0),
-    fromEpochSeconds INTEGER AS Long NOT NULL,
-    toEpochSeconds INTEGER AS Long NOT NULL
+    fromEpochSeconds INTEGER NOT NULL,
+    toEpochSeconds INTEGER NOT NULL
 );
 
 insert:
