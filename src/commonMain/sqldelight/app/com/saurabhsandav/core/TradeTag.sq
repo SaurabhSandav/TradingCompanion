@@ -6,8 +6,9 @@ UNIQUE (name COLLATE NOCASE)
 );
 
 insert:
-INSERT OR IGNORE INTO TradeTag
-VALUES (?, ?);
+INSERT OR ROLLBACK
+INTO TradeTag(name)
+VALUES (?);
 
 get:
 SELECT * FROM TradeTag

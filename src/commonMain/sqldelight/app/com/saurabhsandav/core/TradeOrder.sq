@@ -11,9 +11,14 @@ timestamp TEXT NOT NULL
 );
 
 insert:
-INSERT OR REPLACE
-INTO TradeOrder(id, broker, ticker, quantity, lots, type, price, timestamp)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR ROLLBACK
+INTO TradeOrder(broker, ticker, quantity, lots, type, price, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE TradeOrder
+SET broker = ?, ticker = ?, quantity = ?, lots = ?, type = ?, price = ?, timestamp = ?
+WHERE id = ?;
 
 getAll:
 SELECT *

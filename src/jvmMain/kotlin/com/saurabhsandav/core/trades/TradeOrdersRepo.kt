@@ -44,7 +44,6 @@ internal class TradeOrdersRepo(
 
             // Insert Trade order
             appDB.tradeOrderQueries.insert(
-                id = null,
                 broker = broker,
                 ticker = ticker,
                 quantity = quantity.toString(),
@@ -76,7 +75,7 @@ internal class TradeOrdersRepo(
         appDB.transaction {
 
             // Update order
-            appDB.tradeOrderQueries.insert(
+            appDB.tradeOrderQueries.update(
                 id = id,
                 broker = broker,
                 ticker = ticker,
@@ -137,7 +136,6 @@ internal class TradeOrdersRepo(
 
             // Insert Trade
             appDB.tradeQueries.insert(
-                id = null,
                 broker = order.broker,
                 ticker = order.ticker,
                 instrument = "equity",
@@ -223,7 +221,6 @@ internal class TradeOrdersRepo(
 
                 // Insert Trade
                 appDB.tradeQueries.insert(
-                    id = null,
                     broker = order.broker,
                     ticker = order.ticker,
                     instrument = "equity",

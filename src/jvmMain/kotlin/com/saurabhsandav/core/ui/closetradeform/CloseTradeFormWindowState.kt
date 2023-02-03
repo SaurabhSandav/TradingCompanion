@@ -220,15 +220,17 @@ internal class CloseTradeFormWindowState(
     }
 
     fun onAddTag(tag: String) = coroutineScope.launchUnit(Dispatchers.IO) {
+        appDB.transaction {
 
-        appDB.tradeTagQueries.insert(null, tag)
+            appDB.tradeTagQueries.insert(tag)
 
-        val tagId = appDB.tradeTagQueries.getByName(tag).executeAsOne().id
+            val tagId = appDB.tradeTagQueries.getByName(tag).executeAsOne().id
 
-        appDB.closedTradeTagQueries.insert(
-            tradeId = (params.operationType as EditExistingTrade).id,
-            tagId = tagId,
-        )
+            appDB.closedTradeTagQueries.insert(
+                tradeId = (params.operationType as EditExistingTrade).id,
+                tagId = tagId,
+            )
+        }
     }
 
     fun onSelectTag(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
