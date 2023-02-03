@@ -8,11 +8,11 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.Trade
 import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.OrderType
-import com.saurabhsandav.core.trades.model.Trade
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries

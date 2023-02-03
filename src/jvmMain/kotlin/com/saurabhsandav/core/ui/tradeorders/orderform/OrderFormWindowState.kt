@@ -84,7 +84,7 @@ internal class OrderFormWindowState(
                     id = params.operationType.id,
                     broker = "Finvasia",
                     ticker = model.ticker.value!!,
-                    quantity = model.quantity.value.toInt(),
+                    quantity = model.quantity.value.toBigDecimal(),
                     lots = null,
                     type = if (model.isBuy.value) OrderType.Buy else OrderType.Sell,
                     price = model.price.value.toBigDecimal(),
@@ -96,7 +96,7 @@ internal class OrderFormWindowState(
                 tradeOrdersRepo.new(
                     broker = "Finvasia",
                     ticker = model.ticker.value!!,
-                    quantity = model.quantity.value.toInt(),
+                    quantity = model.quantity.value.toBigDecimal(),
                     lots = null,
                     type = if (model.isBuy.value) OrderType.Buy else OrderType.Sell,
                     price = model.price.value.toBigDecimal(),

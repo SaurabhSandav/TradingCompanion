@@ -6,8 +6,12 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.Account
+import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
+import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -31,7 +35,30 @@ internal class AppModule {
             properties = Properties().apply { put("foreign_keys", "true") },
         )
         AppDB.Schema.create(driver)
-        AppDB(driver = driver)
+        AppDB(
+            driver = driver,
+            TradeAdapter = Trade.Adapter(
+                quantityAdapter = BigDecimalColumnAdapter,
+                closedQuantityAdapter = BigDecimalColumnAdapter,
+                sideAdapter = TradeSide.ColumnAdapter,
+                averageEntryAdapter = BigDecimalColumnAdapter,
+                entryTimestampAdapter = LocalDateTimeColumnAdapter,
+                averageExitAdapter = BigDecimalColumnAdapter,
+                exitTimestampAdapter = LocalDateTimeColumnAdapter,
+                pnlAdapter = BigDecimalColumnAdapter,
+                feesAdapter = BigDecimalColumnAdapter,
+                netPnlAdapter = BigDecimalColumnAdapter,
+            ),
+            TradeOrderAdapter = TradeOrder.Adapter(
+                quantityAdapter = BigDecimalColumnAdapter,
+                typeAdapter = OrderType.OrderTypeColumnAdapter,
+                priceAdapter = BigDecimalColumnAdapter,
+                timestampAdapter = LocalDateTimeColumnAdapter,
+            ),
+            TradeToOrderMapAdapter = TradeToOrderMap.Adapter(
+                overrideQuantityAdapter = BigDecimalColumnAdapter,
+            ),
+        )
     }
 
     val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()

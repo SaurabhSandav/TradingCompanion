@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trades.model
 
-internal enum class TradeSide(val strValue: String) {
+enum class TradeSide(val strValue: String) {
     Long("long"),
     Short("short");
 
@@ -11,5 +11,11 @@ internal enum class TradeSide(val strValue: String) {
             "short" -> Short
             else -> error("Invalid side")
         }
+    }
+
+    object ColumnAdapter : com.squareup.sqldelight.ColumnAdapter<TradeSide, String> {
+        override fun decode(databaseValue: String): TradeSide = TradeSide.fromString(databaseValue)
+
+        override fun encode(value: TradeSide): String = value.strValue
     }
 }

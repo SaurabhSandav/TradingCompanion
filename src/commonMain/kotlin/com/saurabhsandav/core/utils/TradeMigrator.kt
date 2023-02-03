@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.utils
 
 import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.TradeOrder
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.OrderType
-import com.saurabhsandav.core.trades.model.TradeOrder
 import com.saurabhsandav.core.trades.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ internal class TradeMigrator(
                             id = 0,
                             broker = it.broker,
                             ticker = it.ticker,
-                            quantity = it.quantity.toInt(),
+                            quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
                             type = OrderType.Buy,
                             price = it.entry.toBigDecimal(),
@@ -54,7 +54,7 @@ internal class TradeMigrator(
                             id = 0,
                             broker = it.broker,
                             ticker = it.ticker,
-                            quantity = it.quantity.toInt(),
+                            quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
                             type = OrderType.Sell,
                             price = it.exit.toBigDecimal(),
@@ -69,7 +69,7 @@ internal class TradeMigrator(
                             id = 0,
                             broker = it.broker,
                             ticker = it.ticker,
-                            quantity = it.quantity.toInt(),
+                            quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
                             type = OrderType.Sell,
                             price = it.entry.toBigDecimal(),
@@ -79,7 +79,7 @@ internal class TradeMigrator(
                             id = 0,
                             broker = it.broker,
                             ticker = it.ticker,
-                            quantity = it.quantity.toInt(),
+                            quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
                             type = OrderType.Buy,
                             price = it.exit.toBigDecimal(),

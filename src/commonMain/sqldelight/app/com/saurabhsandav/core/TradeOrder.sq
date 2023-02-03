@@ -1,13 +1,16 @@
+import java.math.BigDecimal;
+import kotlinx.datetime.LocalDateTime;
+import com.saurabhsandav.core.trades.model.OrderType;
 
 CREATE TABLE IF NOT EXISTS TradeOrder (
 id INTEGER NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
 ticker TEXT NOT NULL,
-quantity TEXT NOT NULL,
+quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
-type TEXT NOT NULL,
-price TEXT NOT NULL,
-timestamp TEXT NOT NULL
+type TEXT AS OrderType NOT NULL,
+price TEXT AS BigDecimal NOT NULL,
+timestamp TEXT AS LocalDateTime NOT NULL
 );
 
 insert:

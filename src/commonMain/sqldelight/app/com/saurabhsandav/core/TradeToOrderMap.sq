@@ -1,9 +1,10 @@
+import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS TradeToOrderMap (
 tradeId INTEGER NOT NULL,
 orderId INTEGER NOT NULL,
-overrideQuantity TEXT,
-allTradesClosed TEXT NOT NULL,
+overrideQuantity TEXT AS BigDecimal,
+allTradesClosed INTEGER AS Boolean NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 FOREIGN KEY(orderId) REFERENCES TradeOrder(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, orderId)
@@ -31,7 +32,7 @@ WHERE datetime(timestamp) >
          (SELECT datetime(timestamp)
           FROM TradeOrder
           WHERE id = ?)
-       AND TradeToOrderMap.allTradesClosed == "true"
+       AND TradeToOrderMap.allTradesClosed == TRUE
      ORDER BY datetime(timestamp) DESC
      LIMIT 1)
 ORDER BY datetime(timestamp) ASC;

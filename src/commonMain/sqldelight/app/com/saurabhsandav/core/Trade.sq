@@ -1,21 +1,24 @@
+import java.math.BigDecimal;
+import kotlinx.datetime.LocalDateTime;
+import com.saurabhsandav.core.trades.model.TradeSide;
 
 CREATE TABLE IF NOT EXISTS Trade (
 id INTEGER NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
 ticker TEXT NOT NULL,
 instrument TEXT NOT NULL,
-quantity TEXT NOT NULL,
-closedQuantity TEXT NOT NULL,
+quantity TEXT AS BigDecimal NOT NULL,
+closedQuantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
-side TEXT NOT NULL,
-averageEntry TEXT NOT NULL,
-entryTimestamp TEXT NOT NULL,
-averageExit TEXT,
-exitTimestamp TEXT,
-pnl TEXT NOT NULL,
-fees TEXT NOT NULL,
-netPnl TEXT NOT NULL,
-isClosed TEXT NOT NULL
+side TEXT AS TradeSide NOT NULL,
+averageEntry TEXT AS BigDecimal NOT NULL,
+entryTimestamp TEXT AS LocalDateTime NOT NULL,
+averageExit TEXT AS BigDecimal,
+exitTimestamp TEXT AS LocalDateTime,
+pnl TEXT AS BigDecimal NOT NULL,
+fees TEXT AS BigDecimal NOT NULL,
+netPnl TEXT AS BigDecimal NOT NULL,
+isClosed INTEGER AS Boolean NOT NULL
 );
 
 insert:
@@ -44,11 +47,11 @@ WHERE id = ?;
 getOpenTrades:
 SELECT *
 FROM Trade
-WHERE isClosed = "false";
+WHERE isClosed = FALSE;
 
 anyOpenTrades:
 SELECT EXISTS (
 SELECT *
 FROM Trade
-WHERE isClosed = "false"
+WHERE isClosed = FALSE
 );
