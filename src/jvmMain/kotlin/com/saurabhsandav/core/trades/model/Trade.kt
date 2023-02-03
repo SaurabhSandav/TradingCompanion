@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.trades.model
 
-import com.saurabhsandav.core.model.Side
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 
@@ -12,7 +11,7 @@ internal data class Trade(
     val quantity: Int,
     val closedQuantity: Int,
     val lots: Int?,
-    val side: Side,
+    val side: TradeSide,
     val averageEntry: BigDecimal,
     val entryTimestamp: LocalDateTime,
     val averageExit: BigDecimal?,

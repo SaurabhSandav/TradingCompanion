@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.saurabhsandav.core.*
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -112,7 +112,7 @@ internal class CloseTradeFormWindowState(
                     instrument = "equity",
                     quantity = model.quantity.value,
                     lots = null,
-                    side = (if (model.isLong.value) Side.Long else Side.Short).strValue,
+                    side = (if (model.isLong.value) TradeSide.Long else TradeSide.Short).strValue,
                     entry = model.entry.value,
                     stop = model.stop.value.ifBlank { null },
                     entryDate = model.entryDateTime.value.toString(),
@@ -269,7 +269,7 @@ internal class CloseTradeFormWindowState(
 
         model.ticker.value = closedTrade.ticker
         model.quantity.value = closedTrade.quantity
-        model.isLong.value = Side.fromString(closedTrade.side) == Side.Long
+        model.isLong.value = TradeSide.fromString(closedTrade.side) == TradeSide.Long
         model.entry.value = closedTrade.entry
         model.stop.value = closedTrade.stop.orEmpty()
         model.entryDateTime.value = LocalDateTime.parse(closedTrade.entryDate)
@@ -294,7 +294,7 @@ internal class CloseTradeFormWindowState(
 
         model.ticker.value = openTrade.ticker
         model.quantity.value = openTrade.quantity
-        model.isLong.value = Side.fromString(openTrade.side) == Side.Long
+        model.isLong.value = TradeSide.fromString(openTrade.side) == TradeSide.Long
         model.entry.value = openTrade.entry
         model.stop.value = openTrade.stop.orEmpty()
         model.entryDateTime.value = LocalDateTime.parse(openTrade.entryDate)

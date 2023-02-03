@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.model
+package com.saurabhsandav.core.trades.model
 
 import java.math.BigDecimal
 

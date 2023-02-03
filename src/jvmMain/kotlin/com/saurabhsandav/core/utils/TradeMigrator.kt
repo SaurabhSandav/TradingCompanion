@@ -2,11 +2,11 @@ package com.saurabhsandav.core.utils
 
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.launchUnit
-import com.saurabhsandav.core.model.Side
 import com.saurabhsandav.core.subListInclusive
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeOrder
+import com.saurabhsandav.core.trades.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
@@ -39,8 +39,8 @@ internal class TradeMigrator(
 
         val orders = closedTrades.flatMap {
 
-            when (Side.fromString(it.side)) {
-                Side.Long -> {
+            when (TradeSide.fromString(it.side)) {
+                TradeSide.Long -> {
                     listOf(
                         TradeOrder(
                             id = 0,
@@ -65,7 +65,7 @@ internal class TradeMigrator(
                     )
                 }
 
-                Side.Short -> {
+                TradeSide.Short -> {
                     listOf(
                         TradeOrder(
                             id = 0,

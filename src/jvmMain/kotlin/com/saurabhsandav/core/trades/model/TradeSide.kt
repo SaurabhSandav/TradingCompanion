@@ -1,6 +1,6 @@
-package com.saurabhsandav.core.model
+package com.saurabhsandav.core.trades.model
 
-internal enum class Side(val strValue: String) {
+internal enum class TradeSide(val strValue: String) {
     Long("long"),
     Short("short");
 

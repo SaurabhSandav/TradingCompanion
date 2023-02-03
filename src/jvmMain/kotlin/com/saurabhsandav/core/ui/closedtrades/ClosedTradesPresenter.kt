@@ -15,7 +15,7 @@ import com.saurabhsandav.core.chart.options.PriceLineOptions
 import com.saurabhsandav.core.chart.options.common.LineStyle
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.launchUnit
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
@@ -124,7 +124,7 @@ internal class ClosedTradesPresenter(
         val stopBD = stop?.toBigDecimalOrNull()
         val exitBD = exit.toBigDecimal()
         val quantityBD = quantity.toBigDecimal()
-        val side = Side.fromString(side)
+        val side = TradeSide.fromString(side)
 
         val brokerage = brokerage(
             broker = broker,
@@ -141,8 +141,8 @@ internal class ClosedTradesPresenter(
         val rValue = when (stopBD) {
             null -> null
             else -> when (side) {
-                Side.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
-                Side.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
+                TradeSide.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
+                TradeSide.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
             }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
         }
 
@@ -293,45 +293,45 @@ internal class ClosedTradesPresenter(
                 exitIndex = index
         }
 
-        val side = Side.fromString(closedTrade.side)
+        val side = TradeSide.fromString(closedTrade.side)
 
         val markers = listOf(
             SeriesMarker(
                 time = Time.UTCTimestamp(candles[entryIndex].openInstant.epochSeconds + 19800),
                 position = when (side) {
-                    Side.Long -> SeriesMarkerPosition.BelowBar
-                    Side.Short -> SeriesMarkerPosition.AboveBar
+                    TradeSide.Long -> SeriesMarkerPosition.BelowBar
+                    TradeSide.Short -> SeriesMarkerPosition.AboveBar
                 },
                 shape = when (side) {
-                    Side.Long -> SeriesMarkerShape.ArrowUp
-                    Side.Short -> SeriesMarkerShape.ArrowDown
+                    TradeSide.Long -> SeriesMarkerShape.ArrowUp
+                    TradeSide.Short -> SeriesMarkerShape.ArrowDown
                 },
                 color = when (side) {
-                    Side.Long -> Color.Green
-                    Side.Short -> Color.Red
+                    TradeSide.Long -> Color.Green
+                    TradeSide.Short -> Color.Red
                 },
                 text = when (side) {
-                    Side.Long -> "Buy @ ${closedTrade.entry}"
-                    Side.Short -> "Sell @ ${closedTrade.entry}"
+                    TradeSide.Long -> "Buy @ ${closedTrade.entry}"
+                    TradeSide.Short -> "Sell @ ${closedTrade.entry}"
                 },
             ),
             SeriesMarker(
                 time = Time.UTCTimestamp(candles[exitIndex].openInstant.epochSeconds + 19800),
                 position = when (side) {
-                    Side.Long -> SeriesMarkerPosition.AboveBar
-                    Side.Short -> SeriesMarkerPosition.BelowBar
+                    TradeSide.Long -> SeriesMarkerPosition.AboveBar
+                    TradeSide.Short -> SeriesMarkerPosition.BelowBar
                 },
                 shape = when (side) {
-                    Side.Long -> SeriesMarkerShape.ArrowDown
-                    Side.Short -> SeriesMarkerShape.ArrowUp
+                    TradeSide.Long -> SeriesMarkerShape.ArrowDown
+                    TradeSide.Short -> SeriesMarkerShape.ArrowUp
                 },
                 color = when (side) {
-                    Side.Long -> Color.Red
-                    Side.Short -> Color.Green
+                    TradeSide.Long -> Color.Red
+                    TradeSide.Short -> Color.Green
                 },
                 text = when (side) {
-                    Side.Long -> "Sell @ ${closedTrade.exit}"
-                    Side.Short -> "Buy @ ${closedTrade.exit}"
+                    TradeSide.Long -> "Sell @ ${closedTrade.exit}"
+                    TradeSide.Short -> "Buy @ ${closedTrade.exit}"
                 },
             ),
         )

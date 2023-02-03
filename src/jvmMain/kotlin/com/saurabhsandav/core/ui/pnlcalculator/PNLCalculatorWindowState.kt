@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.pnlcalculator
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.*
 import com.saurabhsandav.core.utils.Brokerage
@@ -80,7 +80,7 @@ internal class PNLCalculatorWindowState(
             quantity = model.quantity.value.toBigDecimal(),
             entry = model.entry.value.toBigDecimal(),
             exit = model.exit.value.toBigDecimal(),
-            side = if (model.isLong.value) Side.Long else Side.Short,
+            side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
         )
 
         model.pnlEntries += PNLEntry(
@@ -110,7 +110,7 @@ internal class PNLCalculatorWindowState(
         }
 
         model.quantity.value = openTrade.quantity
-        model.isLong.value = Side.fromString(openTrade.side) == Side.Long
+        model.isLong.value = TradeSide.fromString(openTrade.side) == TradeSide.Long
         model.entry.value = openTrade.entry
         model.exit.value = openTrade.target ?: openTrade.stop ?: openTrade.entry
 
@@ -122,7 +122,7 @@ internal class PNLCalculatorWindowState(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) Side.Long else Side.Short,
+                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -146,7 +146,7 @@ internal class PNLCalculatorWindowState(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) Side.Long else Side.Short,
+                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -172,7 +172,7 @@ internal class PNLCalculatorWindowState(
         }
 
         model.quantity.value = closedTrade.quantity
-        model.isLong.value = Side.fromString(closedTrade.side) == Side.Long
+        model.isLong.value = TradeSide.fromString(closedTrade.side) == TradeSide.Long
         model.entry.value = closedTrade.entry
         model.exit.value = closedTrade.exit
 
@@ -184,7 +184,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) Side.Long else Side.Short,
+                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -208,7 +208,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) Side.Long else Side.Short,
+                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -232,7 +232,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) Side.Long else Side.Short,
+                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -255,7 +255,7 @@ internal class PNLCalculatorWindowState(
         quantity: BigDecimal,
         entry: BigDecimal,
         exit: BigDecimal,
-        side: Side,
+        side: TradeSide,
     ): Brokerage = brokerage(
         broker = "Finvasia",
         instrument = "equity",

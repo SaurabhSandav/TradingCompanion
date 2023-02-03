@@ -2,9 +2,9 @@ package com.saurabhsandav.core.trades
 
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.model.Side
 import com.saurabhsandav.core.trades.model.Trade
 import com.saurabhsandav.core.trades.model.TradeOrder
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
@@ -55,7 +55,7 @@ internal fun dbTradeToTradeMapper(
     quantity = quantity.toInt(),
     closedQuantity = closedQuantity.toInt(),
     lots = lots,
-    side = Side.fromString(side),
+    side = TradeSide.fromString(side),
     averageEntry = averageEntry.toBigDecimal(),
     entryTimestamp = LocalDateTime.parse(entryTimestamp),
     averageExit = averageExit?.toBigDecimal(),

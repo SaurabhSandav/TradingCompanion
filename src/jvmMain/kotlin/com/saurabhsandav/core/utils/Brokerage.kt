@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -18,7 +18,7 @@ internal fun brokerage(
     entry: BigDecimal,
     exit: BigDecimal,
     quantity: BigDecimal,
-    side: Side,
+    side: TradeSide,
 ): Brokerage {
 
     val (sttMultiplier, excTransChargeMultiplier) = when (instrument.lowercase()) {
@@ -29,8 +29,8 @@ internal fun brokerage(
     }
 
     val (buyPrice, sellPrice) = when (side) {
-        Side.Long -> entry to exit
-        Side.Short -> exit to entry
+        TradeSide.Long -> entry to exit
+        TradeSide.Short -> exit to entry
     }
 
     val buyTurnover = (buyPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
@@ -59,8 +59,8 @@ internal fun brokerage(
     val pointsToBreakeven = (totalCharges / quantity).setScale(2, RoundingMode.HALF_EVEN)
 
     val breakeven = when (side) {
-        Side.Long -> entry + pointsToBreakeven
-        Side.Short -> entry - pointsToBreakeven
+        TradeSide.Long -> entry + pointsToBreakeven
+        TradeSide.Short -> entry - pointsToBreakeven
     }
 
     val netProfit = (sellTurnover - buyTurnover - totalCharges).setScale(2, RoundingMode.HALF_EVEN)

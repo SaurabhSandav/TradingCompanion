@@ -5,7 +5,7 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.launchUnit
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindowParams.OperationType.*
 import kotlinx.coroutines.CoroutineScope
@@ -94,7 +94,7 @@ internal class OpenTradeFormWindowState(
                     instrument = "equity",
                     quantity = model.quantity.value,
                     lots = null,
-                    side = (if (model.isLong.value) Side.Long else Side.Short).strValue,
+                    side = (if (model.isLong.value) TradeSide.Long else TradeSide.Short).strValue,
                     entry = model.entry.value,
                     stop = model.stop.value.ifBlank { null },
                     entryDate = model.entryDateTime.value.toString(),
@@ -118,7 +118,7 @@ internal class OpenTradeFormWindowState(
 
         model.ticker.value = openTrade.ticker
         model.quantity.value = openTrade.quantity
-        model.isLong.value = Side.fromString(openTrade.side) == Side.Long
+        model.isLong.value = TradeSide.fromString(openTrade.side) == TradeSide.Long
         model.entry.value = openTrade.entry
         model.stop.value = openTrade.stop.orEmpty()
         model.entryDateTime.value = LocalDateTime.parse(openTrade.entryDate)

@@ -3,7 +3,7 @@ package com.saurabhsandav.core
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
-import com.saurabhsandav.core.model.Account
+import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.utils.AppPaths
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver

@@ -2,7 +2,7 @@ package com.saurabhsandav.core.studies
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
@@ -51,7 +51,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
             val stopBD = stop?.toBigDecimalOrNull()
             val exitBD = exit.toBigDecimal()
             val quantityBD = quantity.toBigDecimal()
-            val sideEnum = Side.fromString(side)
+            val sideEnum = TradeSide.fromString(side)
 
             val brokerage = brokerage(
                 broker = broker,
@@ -68,8 +68,8 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
             val rValue = when (stopBD) {
                 null -> null
                 else -> when (sideEnum) {
-                    Side.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
-                    Side.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
+                    TradeSide.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
+                    TradeSide.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
                 }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
             }
 

@@ -3,10 +3,10 @@ package com.saurabhsandav.core.trades
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.GetOrdersByTrade
-import com.saurabhsandav.core.model.Side
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.Trade
 import com.saurabhsandav.core.trades.model.TradeOrder
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
@@ -144,7 +144,7 @@ internal class TradeOrdersRepo(
                 quantity = order.quantity.toString(),
                 closedQuantity = 0.toString(),
                 lots = null,
-                side = (if (order.type == OrderType.Buy) Side.Long else Side.Short).toString(),
+                side = (if (order.type == OrderType.Buy) TradeSide.Long else TradeSide.Short).toString(),
                 averageEntry = order.price.toPlainString(),
                 entryTimestamp = order.timestamp.toString(),
                 averageExit = null,
@@ -170,7 +170,7 @@ internal class TradeOrdersRepo(
 
             // Quantity of instrument that is still open after consuming current order
             val currentOpenQuantity = openTrade.quantity - when {
-                (openTrade.side == Side.Long && order.type == OrderType.Sell) || (openTrade.side == Side.Short && order.type == OrderType.Buy) -> openTrade.closedQuantity + order.quantity
+                (openTrade.side == TradeSide.Long && order.type == OrderType.Sell) || (openTrade.side == TradeSide.Short && order.type == OrderType.Buy) -> openTrade.closedQuantity + order.quantity
 
                 else -> openTrade.closedQuantity
             }
@@ -230,7 +230,7 @@ internal class TradeOrdersRepo(
                     quantity = overrideQuantity.toString(),
                     closedQuantity = 0.toString(),
                     lots = null,
-                    side = (if (order.type == OrderType.Buy) Side.Long else Side.Short).toString(),
+                    side = (if (order.type == OrderType.Buy) TradeSide.Long else TradeSide.Short).toString(),
                     averageEntry = order.price.toPlainString(),
                     entryTimestamp = order.timestamp.toString(),
                     averageExit = null,
@@ -309,7 +309,7 @@ internal class TradeOrdersRepo(
 
         val firstOrder = first()
         val (entryOrders, exitOrders) = partition { it.type == firstOrder.type }
-        val side = if (firstOrder.type == OrderType.Buy) Side.Long else Side.Short
+        val side = if (firstOrder.type == OrderType.Buy) TradeSide.Long else TradeSide.Short
         val entryQuantity = entryOrders.sumOf { it.quantity }
         val exitQuantity = exitOrders.sumOf { it.quantity }
         val lots = entryOrders.mapNotNull { it.lots }.sum()

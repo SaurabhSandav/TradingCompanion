@@ -3,7 +3,7 @@ package com.saurabhsandav.core.studies
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.table.TableSchema
@@ -86,7 +86,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         val stopBD = stop?.toBigDecimalOrNull()
         val exitBD = exit.toBigDecimal()
         val quantityBD = quantity.toBigDecimal()
-        val sideEnum = Side.fromString(side)
+        val sideEnum = TradeSide.fromString(side)
 
         val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
             .format(entryDate.toLocalDateTime().toJavaLocalDateTime())
@@ -137,7 +137,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
 }
 
 private fun buildPNLString(
-    side: Side,
+    side: TradeSide,
     quantity: BigDecimal,
     entry: BigDecimal,
     stop: BigDecimal?,
@@ -145,15 +145,15 @@ private fun buildPNLString(
 ): String {
 
     val pnl = when (side) {
-        Side.Long -> (exit - entry) * quantity
-        Side.Short -> (entry - exit) * quantity
+        TradeSide.Long -> (exit - entry) * quantity
+        TradeSide.Short -> (entry - exit) * quantity
     }
 
     val rValue = when (stop) {
         null -> null
         else -> when (side) {
-            Side.Long -> pnl / ((entry - stop) * quantity)
-            Side.Short -> pnl / ((stop - entry) * quantity)
+            TradeSide.Long -> pnl / ((entry - stop) * quantity)
+            TradeSide.Short -> pnl / ((stop - entry) * quantity)
         }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
     }
 

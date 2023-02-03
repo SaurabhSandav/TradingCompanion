@@ -10,8 +10,8 @@ import com.saurabhsandav.core.SizingTrade
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.launchUnit
 import com.saurabhsandav.core.mapList
-import com.saurabhsandav.core.model.Account
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.Account
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindowParams
@@ -163,8 +163,8 @@ internal class SizingPresenter(
             entry = entry,
             stop = stop,
             side = when {
-                entryStopComparison > 0 -> Side.Long.strValue
-                entryStopComparison < 0 -> Side.Short.strValue
+                entryStopComparison > 0 -> TradeSide.Long.strValue
+                entryStopComparison < 0 -> TradeSide.Short.strValue
                 else -> ""
             }.uppercase(),
             spread = spread.toPlainString(),

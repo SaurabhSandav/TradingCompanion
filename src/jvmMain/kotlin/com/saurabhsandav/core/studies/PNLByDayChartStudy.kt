@@ -11,7 +11,7 @@ import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
-import com.saurabhsandav.core.model.Side
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
@@ -34,7 +34,7 @@ internal class PNLByDayChartStudy(
             val entryBD = entry.toBigDecimal()
             val exitBD = exit.toBigDecimal()
             val quantityBD = quantity.toBigDecimal()
-            val sideEnum = Side.fromString(side)
+            val sideEnum = TradeSide.fromString(side)
 
             entryDate.toLocalDateTime().date to brokerage(
                 broker = broker,
