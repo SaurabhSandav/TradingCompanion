@@ -27,6 +27,7 @@ internal class TradeMigrator(
                 type = it.type,
                 price = it.price,
                 timestamp = it.timestamp,
+                locked = it.locked,
             )
         }
     }
@@ -49,6 +50,7 @@ internal class TradeMigrator(
                             type = OrderType.Buy,
                             price = it.entry.toBigDecimal(),
                             timestamp = LocalDateTime.parse(it.entryDate),
+                            locked = true,
                         ),
                         TradeOrder(
                             id = 0,
@@ -59,6 +61,7 @@ internal class TradeMigrator(
                             type = OrderType.Sell,
                             price = it.exit.toBigDecimal(),
                             timestamp = LocalDateTime.parse(it.exitDate),
+                            locked = true,
                         )
                     )
                 }
@@ -74,6 +77,7 @@ internal class TradeMigrator(
                             type = OrderType.Sell,
                             price = it.entry.toBigDecimal(),
                             timestamp = LocalDateTime.parse(it.entryDate),
+                            locked = true,
                         ),
                         TradeOrder(
                             id = 0,
@@ -84,6 +88,7 @@ internal class TradeMigrator(
                             type = OrderType.Buy,
                             price = it.exit.toBigDecimal(),
                             timestamp = LocalDateTime.parse(it.exitDate),
+                            locked = true,
                         )
                     )
                 }

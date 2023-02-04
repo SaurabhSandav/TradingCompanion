@@ -36,6 +36,7 @@ internal fun TradeOrdersScreen(
         TradeOrdersTable(
             tradeOrderItems = state.tradeOrderItems,
             onNewOrder = { presenter.event(NewOrderFromExisting(it)) },
+            onLockOrder = { presenter.event(LockOrder(it)) },
             onEditOrder = { presenter.event(EditOrder(it)) },
             onDeleteOrder = { presenter.event(DeleteOrder(it)) },
         )

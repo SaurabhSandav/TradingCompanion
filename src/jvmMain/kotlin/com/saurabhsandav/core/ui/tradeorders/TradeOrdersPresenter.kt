@@ -44,6 +44,7 @@ internal class TradeOrdersPresenter(
             when (event) {
                 NewOrder -> onNewOrder()
                 is NewOrderFromExisting -> onNewOrderFromExisting(event.id)
+                is LockOrder -> onLockOrder(event.id)
                 is EditOrder -> onEditOrder(event.id)
                 else -> Unit
             }
@@ -86,6 +87,7 @@ internal class TradeOrdersPresenter(
         type = type.strValue.uppercase(),
         price = price.toPlainString(),
         timestamp = timestamp.time.toString(),
+        locked = locked,
     )
 
     private fun onNewOrder() {
@@ -114,6 +116,10 @@ internal class TradeOrdersPresenter(
         )
 
         orderFormWindowParams[key] = params
+    }
+
+    private fun onLockOrder(id: Long) = coroutineScope.launchUnit {
+        tradeOrdersRepo.lockOrder(id)
     }
 
     private fun onEditOrder(id: Long) {

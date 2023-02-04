@@ -22,6 +22,7 @@ internal fun TradeOrdersTable(
     tradeOrderItems: Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>,
     onNewOrder: (id: Long) -> Unit,
     onEditOrder: (id: Long) -> Unit,
+    onLockOrder: (id: Long) -> Unit,
     onDeleteOrder: (id: Long) -> Unit,
 ) {
 
@@ -66,11 +67,20 @@ internal fun TradeOrdersTable(
 
                 ContextMenuArea(
                     items = {
-                        listOf(
-                            ContextMenuItem("New") { onNewOrder(item.id) },
-                            ContextMenuItem("Edit") { onEditOrder(item.id) },
-                            ContextMenuItem("Delete") { onDeleteOrder(item.id) },
-                        )
+
+                        buildList {
+                            add(ContextMenuItem("New") { onNewOrder(item.id) })
+
+                            if (!item.locked) {
+                                addAll(
+                                    listOf(
+                                        ContextMenuItem("Lock") { onLockOrder(item.id) },
+                                        ContextMenuItem("Edit") { onEditOrder(item.id) },
+                                        ContextMenuItem("Delete") { onDeleteOrder(item.id) },
+                                    )
+                                )
+                            }
+                        }
                     },
                 ) {
 

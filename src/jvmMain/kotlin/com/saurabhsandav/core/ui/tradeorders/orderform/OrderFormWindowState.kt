@@ -101,6 +101,7 @@ internal class OrderFormWindowState(
                     type = if (model.isBuy.value) OrderType.Buy else OrderType.Sell,
                     price = model.price.value.toBigDecimal(),
                     timestamp = model.timestamp.value,
+                    locked = false,
                 )
             }
         }

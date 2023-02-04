@@ -8,6 +8,8 @@ internal sealed class TradeOrdersEvent {
 
     data class EditOrder(val id: Long) : TradeOrdersEvent()
 
+    data class LockOrder(val id: Long) : TradeOrdersEvent()
+
     data class DeleteOrder(val id: Long) : TradeOrdersEvent()
 
     sealed class DeleteConfirmationDialog : TradeOrdersEvent() {

@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trades
 
 import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.GetOrdersByTrade
 import com.saurabhsandav.core.Trade
 import com.saurabhsandav.core.TradeOrder
 import com.saurabhsandav.core.trades.model.OrderType
@@ -12,7 +11,6 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
@@ -36,6 +34,7 @@ internal class TradeOrdersRepo(
         type: OrderType,
         price: BigDecimal,
         timestamp: LocalDateTime,
+        locked: Boolean,
     ) = withContext(Dispatchers.IO) {
         appDB.transaction {
 
@@ -48,6 +47,7 @@ internal class TradeOrdersRepo(
                 type = type,
                 price = price,
                 timestamp = timestamp,
+                locked = locked,
             )
 
             // ID in database of just inserted order
@@ -69,6 +69,9 @@ internal class TradeOrdersRepo(
         price: BigDecimal,
         timestamp: LocalDateTime,
     ) = withContext(Dispatchers.IO) {
+
+        require(!isLocked(id)) { "Order is locked and cannot be edited" }
+
         appDB.transaction {
 
             // Update order
@@ -97,6 +100,9 @@ internal class TradeOrdersRepo(
     }
 
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
+
+        require(!isLocked(id)) { "Order is locked and cannot be deleted" }
+
         appDB.transaction {
 
             // Order to regenerate trades
@@ -115,10 +121,16 @@ internal class TradeOrdersRepo(
         }
     }
 
+    suspend fun lockOrder(id: Long) = withContext(Dispatchers.IO) {
+        appDB.tradeOrderQueries.lockOrder(id)
+    }
+
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
-        return appDB.tradeToOrderMapQueries.getOrdersByTrade(id).asFlow().mapToList(Dispatchers.IO).map { list ->
-            list.map(::toTradeOrder)
-        }
+        return appDB.tradeToOrderMapQueries.getOrdersByTrade(id, ::toTradeOrder).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    private suspend fun isLocked(id: Long): Boolean = withContext(Dispatchers.IO) {
+        appDB.tradeOrderQueries.isLocked(id).executeAsOne()
     }
 
     private fun consumeOrder(order: TradeOrder) {
@@ -171,19 +183,10 @@ internal class TradeOrdersRepo(
             }
 
             // Get pre-existing orders for open trade
-            val orders = appDB.tradeToOrderMapQueries.getOrdersByTrade(openTrade.id).executeAsList()
-            val currentOrder = TradeOrder(
-                id = -1,
-                broker = order.broker,
-                ticker = order.ticker,
-                quantity = order.quantity,
-                lots = order.lots,
-                type = order.type,
-                price = order.price,
-                timestamp = order.timestamp,
-            )
+            val orders = appDB.tradeToOrderMapQueries.getOrdersByTrade(openTrade.id, ::toTradeOrder).executeAsList()
+
             // Recalculate trade parameters after consuming current order
-            val trade = (orders.map(::toTradeOrder) + currentOrder).createTrade()
+            val trade = (orders + order).createTrade()
 
             // Update Trade with new parameters
             appDB.tradeQueries.update(
@@ -259,15 +262,27 @@ internal class TradeOrdersRepo(
         }
     }
 
-    private fun toTradeOrder(orderByTrade: GetOrdersByTrade) = TradeOrder(
-        id = orderByTrade.id,
-        broker = orderByTrade.broker,
-        ticker = orderByTrade.ticker,
-        quantity = orderByTrade.overrideQuantity.toBigDecimal(),
-        lots = orderByTrade.lots,
-        type = orderByTrade.type,
-        price = orderByTrade.price,
-        timestamp = orderByTrade.timestamp,
+    private fun toTradeOrder(
+        id: Long,
+        broker: String,
+        ticker: String,
+        @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
+        lots: Int?,
+        type: OrderType,
+        price: BigDecimal,
+        timestamp: LocalDateTime,
+        locked: Boolean,
+        overrideQuantity: String,
+    ) = TradeOrder(
+        id = id,
+        broker = broker,
+        ticker = ticker,
+        quantity = overrideQuantity.toBigDecimal(),
+        lots = lots,
+        type = type,
+        price = price,
+        timestamp = timestamp,
+        locked = locked,
     )
 
     private fun List<TradeOrder>.averagePrice(): BigDecimal {

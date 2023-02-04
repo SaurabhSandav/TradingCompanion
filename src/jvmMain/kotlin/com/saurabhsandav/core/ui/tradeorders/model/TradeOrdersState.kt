@@ -36,5 +36,6 @@ internal sealed class TradeOrderListItem {
         val type: String,
         val price: String,
         val timestamp: String,
+        val locked: Boolean,
     ) : TradeOrderListItem()
 }

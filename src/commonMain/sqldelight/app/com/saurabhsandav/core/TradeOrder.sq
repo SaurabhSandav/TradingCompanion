@@ -10,13 +10,14 @@ quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
 type TEXT AS OrderType NOT NULL,
 price TEXT AS BigDecimal NOT NULL,
-timestamp TEXT AS LocalDateTime NOT NULL
+timestamp TEXT AS LocalDateTime NOT NULL,
+locked INTEGER AS Boolean NOT NULL
 );
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeOrder(broker, ticker, quantity, lots, type, price, timestamp)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INTO TradeOrder(broker, ticker, quantity, lots, type, price, timestamp, locked)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TradeOrder
@@ -31,6 +32,16 @@ ORDER BY date(timestamp) DESC, time(timestamp) DESC;
 getById:
 SELECT *
 FROM TradeOrder
+WHERE id = ?;
+
+isLocked:
+SELECT locked
+FROM TradeOrder
+WHERE id = ?;
+
+lockOrder:
+UPDATE TradeOrder
+SET locked = TRUE
 WHERE id = ?;
 
 delete:
