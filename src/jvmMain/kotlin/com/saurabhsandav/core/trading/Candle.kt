@@ -11,3 +11,6 @@ data class Candle(
     val close: BigDecimal,
     val volume: BigDecimal,
 )
+
+val Candle.isLong: Boolean
+    get() = close > open

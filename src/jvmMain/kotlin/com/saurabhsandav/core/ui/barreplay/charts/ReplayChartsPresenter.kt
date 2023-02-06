@@ -27,12 +27,12 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.stockchart.CandleSource
+import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -59,13 +59,13 @@ internal class ReplayChartsPresenter(
         candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
     private val pagedChartArrangement = ChartArrangement.paged()
-    private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
     private var autoNextJob: Job? = null
     private var replayTimeJob: Job = Job()
-    private var selectedChartManager: ReplayChartManager? = null
-
     private val candleCache = mutableMapOf<String, CandleSeries>()
-    private val chartManagers = mutableListOf<ReplayChartManager>()
+
+    private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
+    private var selectedChartSession: ChartSession? = null
+    private val chartSessions = mutableListOf<ChartSession>()
     private val tabsState: StockChartTabsState = StockChartTabsState(
         onNew = ::newChart,
         onSelect = ::selectChart,
@@ -101,7 +101,7 @@ internal class ReplayChartsPresenter(
     private fun onReset() {
         onChangeIsAutoNextEnabled(false)
         barReplay.reset()
-        chartManagers.forEach { it.reset() }
+        chartSessions.forEach { it.stockChart.setCandleSource(it.buildCandleSource()) }
     }
 
     private fun onNext() {
@@ -132,137 +132,146 @@ internal class ReplayChartsPresenter(
             options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
         )
 
-        // Create new chart manager
-        val chartManager = when (selectedChartManager) {
-            // First chart, create chart manager with initial params
+        val stockChart = StockChart(
+            appModule = appModule,
+            actualChart = actualChart,
+            onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
+        )
+
+        // Create new chart session
+        val chartSession = when (selectedChartSession) {
+            // First chart, create chart session with initial params
             null -> {
 
                 // Set tab title
                 tabsState.setTitle(tabId, tabTitle(initialSymbol, baseTimeframe))
 
-                ReplayChartManager(
-                    initialParams = ReplayChartManager.ChartParams(
-                        tabId = tabId,
-                        symbol = initialSymbol,
-                        timeframe = baseTimeframe,
-                        // New replay session
-                        replaySession = createReplaySession(initialSymbol, baseTimeframe),
-                    ),
-                    actualChart = actualChart,
-                    appModule = appModule,
+                val replaySession = createReplaySession(initialSymbol, baseTimeframe)
+
+                ChartSession(
+                    tabId = tabId,
+                    ticker = initialSymbol,
+                    timeframe = baseTimeframe,
+                    // New replay session
+                    replaySession = replaySession,
+                    stockChart = stockChart,
                 )
             }
 
-            // Copy currently selected chart manager
             else -> {
 
-                // Currently selected chart manager
-                val chartManager = requireNotNull(selectedChartManager)
-
-                // Set tab title
-                tabsState.setTitle(tabId, tabTitle(chartManager.params.symbol, chartManager.params.timeframe))
+                // Currently selected chart session
+                val chartSession = requireNotNull(selectedChartSession)
 
                 // New replay session
                 val replaySession = createReplaySession(
-                    symbol = chartManager.params.symbol,
-                    timeframe = chartManager.params.timeframe,
+                    symbol = chartSession.ticker,
+                    timeframe = chartSession.timeframe,
                 )
 
-                // Create new chart manager with existing params
-                chartManager.withNewChart(
+                // Create new chart session with existing params
+                chartSession.copy(
                     tabId = tabId,
-                    actualChart = actualChart,
                     replaySession = replaySession,
-                )
+                    stockChart = stockChart,
+                ).also { setTabTitle(it) }
             }
         }
 
         // Connect chart to web page
         chartPageState.connect(
-            chart = chartManager.chart.actualChart,
+            chart = chartSession.stockChart.actualChart,
             syncConfig = ChartPageState.SyncConfig(
-                isChartFocused = { selectedChartManager == chartManager },
+                isChartFocused = { selectedChartSession == chartSession },
                 syncChartWith = { chart ->
-                    val filterChartManager = chartManagers.find { it.chart.actualChart == chart }!!
+                    val filterChartSession = chartSessions.find { it.stockChart.actualChart == chart }!!
                     // Sync charts with same timeframes
-                    filterChartManager.params.timeframe == chartManager.params.timeframe
+                    filterChartSession.timeframe == chartSession.timeframe
                 },
             )
         )
 
-        // Observe legend values
-        chartManager.chart.legendValues.onEach {
-            pagedChartArrangement.setLegend(chartManager.chart.actualChart, it)
-        }.launchIn(chartManager.coroutineScope)
+        // Cache newly created chart session
+        chartSessions += chartSession
 
-        // Cache newly created chart manager
-        chartManagers += chartManager
+        // Set candle source for chart
+        chartSession.stockChart.setCandleSource(chartSession.buildCandleSource())
 
-        // Switch to new tab/chart
+        // Switch to new chart
         selectChart(tabId)
     }
 
     private fun closeChart(tabId: Int) {
 
-        // Find chart manager associated with tab
-        val chartManager = findChartManager(tabId)
+        // Find chart session associated with tab
+        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
 
-        // Cancel chart manager coroutines
-        chartManager.coroutineScope.cancel()
-
-        // Remove chart manager from cache
-        chartManagers.remove(chartManager)
+        // Remove chart session from cache
+        chartSessions.remove(chartSession)
 
         // Remove chart page
-        pagedChartArrangement.removeChart(chartManager.chart.actualChart)
+        pagedChartArrangement.removeChart(chartSession.stockChart.actualChart)
 
         // Disconnect chart from web page
-        chartPageState.disconnect(chartManager.chart.actualChart)
+        chartPageState.disconnect(chartSession.stockChart.actualChart)
+
+        // Destroy chart
+        chartSession.stockChart.destroy()
     }
 
     private fun selectChart(tabId: Int) {
 
-        // Find chart manager associated with tab
-        val chartManager = findChartManager(tabId)
+        // Find chart session associated with tab
+        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
 
-        // Update selected chart manager
-        selectedChartManager = chartManager
+        // Update selected chart session
+        selectedChartSession = chartSession
 
         // Display newly selected chart info
         chartInfo = ReplayChartInfo(
-            symbol = chartManager.params.symbol,
-            timeframe = chartManager.params.timeframe,
+            symbol = chartSession.ticker,
+            timeframe = chartSession.timeframe,
         )
 
         // Show selected chart
-        pagedChartArrangement.showChart(chartManager.chart.actualChart)
+        pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
 
         // Show replay time using currently selected chart data
         replayTimeJob.cancel()
         replayTimeJob = coroutineScope.launch {
-            chartManager.params.replaySession.replayTime.collect(::updateTime)
+            chartSession.replaySession.replayTime.collect(::updateTime)
         }
     }
 
     private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
 
-        // Currently selected chart manager
-        val chartManager = requireNotNull(selectedChartManager)
+        // Currently selected chart session
+        val chartSession = requireNotNull(selectedChartSession)
+        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
         // Remove session from BarReplay
-        barReplay.removeSession(chartManager.params.replaySession)
+        barReplay.removeSession(chartSession.replaySession)
 
         // New replay session
-        val replaySession = createReplaySession(symbol, chartManager.params.timeframe)
+        val replaySession = createReplaySession(symbol, chartSession.timeframe)
 
-        // Update chart manager
-        chartManager.changeSymbol(symbol, replaySession)
+        // New chart session
+        val newChartSession = chartSession.copy(
+            ticker = symbol,
+            replaySession = replaySession,
+        )
+
+        // Update chart session
+        chartSessions[chartSessionIndex] = newChartSession
+
+        // Replace chart candle source
+        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
         chartInfo = chartInfo.copy(symbol = symbol)
 
-        // Update tab title
-        tabsState.setTitle(chartManager.params.tabId, tabTitle(symbol, chartManager.params.timeframe))
+        // Set Tab Title
+        setTabTitle(newChartSession)
 
         // Show replay time using new session
         replayTimeJob.cancel()
@@ -273,29 +282,46 @@ internal class ReplayChartsPresenter(
 
     private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
 
-        // Currently selected chart manager
-        val chartManager = requireNotNull(selectedChartManager)
+        // Currently selected chart session
+        val chartSession = requireNotNull(selectedChartSession)
+        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
         // Remove session from BarReplay
-        barReplay.removeSession(chartManager.params.replaySession)
+        barReplay.removeSession(chartSession.replaySession)
 
         // New replay session
-        val replaySession = createReplaySession(chartManager.params.symbol, timeframe)
+        val replaySession = createReplaySession(chartSession.ticker, timeframe)
 
-        // Update chart manager
-        chartManager.changeTimeframe(timeframe, replaySession)
+        // New chart session
+        val newChartSession = chartSession.copy(
+            timeframe = timeframe,
+            replaySession = replaySession,
+        )
+
+        // Update chart session
+        chartSessions[chartSessionIndex] = newChartSession
+
+        // Replace chart candle source
+        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe)
 
-        // Update tab title
-        tabsState.setTitle(chartManager.params.tabId, tabTitle(chartManager.params.symbol, timeframe))
+        // Set Tab Title
+        setTabTitle(newChartSession)
 
         // Show replay time using new session
         replayTimeJob.cancel()
         replayTimeJob = coroutineScope.launch {
             replaySession.replayTime.collect(::updateTime)
         }
+    }
+
+    private fun ChartSession.buildCandleSource(): CandleSource {
+        return CandleSource(
+            candleSeries = replaySession.replaySeries,
+            hasVolume = ticker != "NIFTY50",
+        )
     }
 
     private suspend fun createReplaySession(
@@ -366,8 +392,9 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun findChartManager(tabId: Int): ReplayChartManager {
-        return chartManagers.find { it.params.tabId == tabId }.let(::requireNotNull)
+    private fun updateTime(currentInstant: Instant) {
+        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+        replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
     }
 
     private fun tabTitle(
@@ -375,8 +402,15 @@ internal class ReplayChartsPresenter(
         timeframe: Timeframe,
     ): String = "$ticker (${timeframe.toLabel()})"
 
-    private fun updateTime(currentInstant: Instant) {
-        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
-        replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
+    private fun setTabTitle(chartSession: ChartSession) {
+        tabsState.setTitle(chartSession.tabId, tabTitle(chartSession.ticker, chartSession.timeframe))
     }
+
+    private data class ChartSession(
+        val tabId: Int,
+        val ticker: String,
+        val timeframe: Timeframe,
+        val replaySession: BarReplaySession,
+        val stockChart: StockChart,
+    )
 }

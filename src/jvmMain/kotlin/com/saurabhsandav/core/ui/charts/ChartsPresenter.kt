@@ -6,13 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.asCandleSeries
+import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeSymbol
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTimeframe
@@ -26,22 +31,25 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
+import com.saurabhsandav.core.ui.stockchart.CandleSource
+import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration.Companion.days
 
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
+    private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -50,8 +58,9 @@ internal class ChartsPresenter(
     private val initialTimeframe = Timeframe.M5
     private val pagedChartArrangement = ChartArrangement.paged()
     private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
-    private var selectedChartManager: ChartManager? = null
-    private val chartManagers = mutableListOf<ChartManager>()
+    private var selectedChartSession: ChartSession? = null
+    private val chartSessions = mutableListOf<ChartSession>()
+    private val downloadIntervalDays = 90.days
 
     private val tabsState: StockChartTabsState = StockChartTabsState(
         onNew = ::newChart,
@@ -92,62 +101,62 @@ internal class ChartsPresenter(
             options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
         )
 
-        // Create new chart manager
-        val chartManager = when (selectedChartManager) {
-            // First chart, create chart manager with initial params
+        val stockChart = StockChart(
+            appModule = appModule,
+            actualChart = actualChart,
+            onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
+        )
+
+        // Create new chart session
+        val chartSession = when (selectedChartSession) {
+            // First chart, create chart session with initial params
             null -> {
 
                 // Set tab title
                 tabsState.setTitle(tabId, tabTitle(initialSymbol, initialTimeframe))
 
-                ChartManager(
-                    initialParams = ChartManager.ChartParams(
-                        tabId = tabId,
-                        symbol = initialSymbol,
-                        timeframe = initialTimeframe,
-                    ),
-                    actualChart = actualChart,
-                    appModule = appModule,
-                    onCandleDataLogin = ::onCandleDataLogin,
+                ChartSession(
+                    tabId = tabId,
+                    ticker = initialSymbol,
+                    timeframe = initialTimeframe,
+                    stockChart = stockChart,
                 )
             }
-            // Copy currently selected chart manager
+            // Copy currently selected chart session
             else -> {
 
-                // Currently selected chart manager
-                val chartManager = requireNotNull(selectedChartManager)
+                // Currently selected chart session
+                val chartSession = requireNotNull(selectedChartSession)
 
                 // Set tab title
-                tabsState.setTitle(tabId, tabTitle(chartManager.params.symbol, chartManager.params.timeframe))
+                tabsState.setTitle(tabId, tabTitle(chartSession.ticker, chartSession.timeframe))
 
-                // Create new chart manager with existing params
-                chartManager.withNewChart(
+                // Create new chart session with existing params
+                chartSession.copy(
                     tabId = tabId,
-                    actualChart = actualChart,
+                    stockChart = stockChart,
                 )
             }
         }
 
         // Connect chart to web page
         chartPageState.connect(
-            chart = chartManager.chart.actualChart,
+            chart = chartSession.stockChart.actualChart,
             syncConfig = ChartPageState.SyncConfig(
-                isChartFocused = { selectedChartManager == chartManager },
+                isChartFocused = { selectedChartSession == chartSession },
                 syncChartWith = { chart ->
-                    val filterChartManager = chartManagers.find { it.chart.actualChart == chart }!!
+                    val filterChartInstance = chartSessions.find { it.stockChart.actualChart == chart }!!
                     // Sync charts with same timeframes
-                    filterChartManager.params.timeframe == chartManager.params.timeframe
+                    filterChartInstance.timeframe == chartSession.timeframe
                 },
             )
         )
 
-        // Observe legend values
-        chartManager.chart.legendValues.onEach {
-            pagedChartArrangement.setLegend(chartManager.chart.actualChart, it)
-        }.launchIn(chartManager.coroutineScope)
+        // Cache newly created chart session
+        chartSessions += chartSession
 
-        // Cache newly created chart manager
-        chartManagers += chartManager
+        // Set candle source for chart
+        chartSession.stockChart.setCandleSource(chartSession.buildCandleSource())
 
         // Switch to new tab/chart
         selectChart(tabId)
@@ -155,78 +164,151 @@ internal class ChartsPresenter(
 
     private fun closeChart(tabId: Int) {
 
-        // Find chart manager associated with tab
-        val chartManager = findChartManager(tabId)
+        // Find chart session associated with tab
+        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
 
-        // Remove chart manager from cache
-        chartManagers.remove(chartManager)
+        // Remove chart session from cache
+        chartSessions.remove(chartSession)
 
         // Remove chart page
-        pagedChartArrangement.removeChart(chartManager.chart.actualChart)
+        pagedChartArrangement.removeChart(chartSession.stockChart.actualChart)
 
         // Disconnect chart from web page
-        chartPageState.disconnect(chartManager.chart.actualChart)
+        chartPageState.disconnect(chartSession.stockChart.actualChart)
 
-        // Cancel ChartManager CoroutineScope
-        chartManager.coroutineScope.cancel()
+        // Destroy chart
+        chartSession.stockChart.destroy()
     }
 
     private fun selectChart(tabId: Int) {
 
-        // Find chart manager associated with tab
-        val chartManager = findChartManager(tabId)
+        // Find chart session associated with tab
+        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
 
-        // Update selected chart manager
-        selectedChartManager = chartManager
+        // Update current chart session
+        selectedChartSession = chartSession
 
         // Display newly selected chart info
         chartInfo = ChartInfo(
-            symbol = chartManager.params.symbol,
-            timeframe = chartManager.params.timeframe,
+            symbol = chartSession.ticker,
+            timeframe = chartSession.timeframe,
         )
 
         // Show selected chart
-        pagedChartArrangement.showChart(chartManager.chart.actualChart)
+        pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
     }
 
-    private fun onChangeSymbol(symbol: String) {
+    private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
 
-        // Currently selected chart manager
-        val chartManager = requireNotNull(selectedChartManager)
+        // Currently selected chart session
+        val chartSession = requireNotNull(selectedChartSession)
+        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
-        // Update chart manager
-        chartManager.changeSymbol(symbol)
+        // New chart session
+        val newChartSession = chartSession.copy(ticker = symbol)
+
+        // Update chart session
+        chartSessions[chartSessionIndex] = newChartSession
+
+        // Replace chart candle source
+        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
         chartInfo = chartInfo.copy(symbol = symbol)
 
         // Update tab title
-        tabsState.setTitle(chartManager.params.tabId, tabTitle(symbol, chartManager.params.timeframe))
+        tabsState.setTitle(chartSession.tabId, tabTitle(symbol, chartSession.timeframe))
     }
 
-    private fun onChangeTimeframe(timeframe: Timeframe) {
+    private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
 
-        // Currently selected chart manager
-        val chartManager = requireNotNull(selectedChartManager)
+        // Currently selected chart session
+        val chartSession = requireNotNull(selectedChartSession)
+        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
-        // Update chart manager
-        chartManager.changeTimeframe(timeframe)
+        // New chart session
+        val newChartSession = chartSession.copy(timeframe = timeframe)
+
+        // Update chart session
+        chartSessions[chartSessionIndex] = newChartSession
+
+        // Replace chart candle source
+        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe)
 
         // Update tab title
-        tabsState.setTitle(chartManager.params.tabId, tabTitle(chartManager.params.symbol, timeframe))
+        tabsState.setTitle(chartSession.tabId, tabTitle(chartSession.ticker, timeframe))
     }
 
-    private fun findChartManager(tabId: Int): ChartManager {
-        return chartManagers.find { it.params.tabId == tabId }.let(::requireNotNull)
+    private suspend fun ChartSession.buildCandleSource(): CandleSource {
+
+        val mutableCandleSeries = getCandleSeries(
+            symbol = ticker,
+            timeframe = timeframe,
+            // Range of 3 months before current time to current time
+            range = run {
+                val currentTime = Clock.System.now()
+                currentTime.minus(downloadIntervalDays)..currentTime
+            }
+        )
+
+        return CandleSource(
+            candleSeries = mutableCandleSeries.asCandleSeries(),
+            hasVolume = ticker != "NIFTY50",
+            onLoadBefore = {
+
+                val firstCandleInstant = mutableCandleSeries.first().openInstant
+
+                val oldCandles = getCandleSeries(
+                    symbol = ticker,
+                    timeframe = timeframe,
+                    range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+                )
+
+                val areCandlesAvailable = oldCandles.isNotEmpty()
+
+                if (oldCandles.isNotEmpty()) {
+                    mutableCandleSeries.prependCandles(oldCandles)
+                }
+
+                areCandlesAvailable
+            }
+        )
     }
 
-    private fun tabTitle(
-        ticker: String,
+    private suspend fun getCandleSeries(
+        symbol: String,
         timeframe: Timeframe,
-    ): String = "$ticker (${timeframe.toLabel()})"
+        range: ClosedRange<Instant>,
+        retryOnLogin: Boolean = true,
+    ): MutableCandleSeries {
+
+        val candlesResult = candleRepo.getCandles(
+            symbol = symbol,
+            timeframe = timeframe,
+            from = range.start,
+            to = range.endInclusive,
+        )
+
+        return when (candlesResult) {
+            is Ok -> MutableCandleSeries(candlesResult.value, timeframe)
+            is Err -> when (val error = candlesResult.error) {
+                is CandleRepository.Error.AuthError -> {
+
+                    if (retryOnLogin) {
+                        val loginSuccessful = onCandleDataLogin()
+                        if (loginSuccessful) return getCandleSeries(symbol, timeframe, range, false)
+                    }
+
+                    error("AuthError")
+                }
+
+                is CandleRepository.Error.UnknownError -> error(error.message)
+            }
+        }
+    }
 
     private suspend fun onCandleDataLogin(): Boolean = suspendCoroutine {
         errors += UIErrorMessage(
@@ -253,4 +335,16 @@ internal class ChartsPresenter(
             onNotified = { errors -= it },
         )
     }
+
+    private fun tabTitle(
+        ticker: String,
+        timeframe: Timeframe,
+    ): String = "$ticker (${timeframe.toLabel()})"
+
+    private data class ChartSession(
+        val tabId: Int,
+        val ticker: String,
+        val timeframe: Timeframe,
+        val stockChart: StockChart,
+    )
 }
