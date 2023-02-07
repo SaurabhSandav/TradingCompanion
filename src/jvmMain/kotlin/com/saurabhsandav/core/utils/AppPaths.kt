@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.utils
 
+import net.harawata.appdirs.AppDirsFactory
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
@@ -9,7 +10,9 @@ object AppPaths {
 
     fun getAppDataPath(): String {
 
-        val path = System.getProperty("user.home") + "/.local/share/$appName"
+        val appDirs = AppDirsFactory.getInstance()
+
+        val path = appDirs.getUserDataDir(appName, null, "SaurabhSandav")
 
         Path(path).createDirectories()
 

@@ -125,6 +125,9 @@ kotlin {
                 // kotlin-result
                 implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
                 implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:1.1.16")
+
+                // AppDirs
+                implementation("net.harawata:appdirs:1.2.1")
             }
         }
         val jvmTest by getting {
