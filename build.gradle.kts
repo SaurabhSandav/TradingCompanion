@@ -176,7 +176,7 @@ sqldelight {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "com.saurabhsandav.core.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TradingCompanion"
