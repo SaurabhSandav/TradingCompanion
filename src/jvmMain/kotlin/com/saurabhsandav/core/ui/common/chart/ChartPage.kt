@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +41,13 @@ fun ChartPage(
         // Set Material background as page background
         LaunchedEffect(backgroundColor) {
             state.webViewState.setBackgroundColor(backgroundColor)
+        }
+
+        val textColor = LocalContentColor.current
+
+        // Set Material text color on chart text
+        LaunchedEffect(textColor) {
+            state.setLegendTextColor(textColor)
         }
     }
 }

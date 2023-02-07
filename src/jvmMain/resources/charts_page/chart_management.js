@@ -96,3 +96,21 @@ function replacerSeriesByName(seriesMap) {
     }
   }
 }
+
+let styleSheet;
+
+function setLegendTextColor(color) {
+  // create stylesheet, if not already created
+  if (!styleSheet) {
+    const styleElement = document.createElement('style');
+    document.head.appendChild(styleElement);
+    styleSheet = styleElement.sheet;
+  }
+
+  // insert style rule at the end of the stylesheet,
+  // overriding existing rules on same selector
+  styleSheet.insertRule(
+    `.legendTextColor { color: ${color} }`,
+    styleSheet.cssRules.length
+  );
+}

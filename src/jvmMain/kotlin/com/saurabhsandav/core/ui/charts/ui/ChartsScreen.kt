@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.charts.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,22 +44,6 @@ fun ChartsScreen(
             tabsState = tabsState,
         ) {
 
-            LegendItem("Open", chartInfo.legendValues.open)
-
-            LegendItem("High", chartInfo.legendValues.high)
-
-            LegendItem("Low", chartInfo.legendValues.low)
-
-            LegendItem("Close", chartInfo.legendValues.close)
-
-            LegendItem("Volume", chartInfo.legendValues.volume)
-
-            LegendItem("EMA (9)", chartInfo.legendValues.ema9)
-
-            LegendItem("VWAP", chartInfo.legendValues.vwap)
-
-            Divider()
-
             ListSelectionField(
                 items = NIFTY50,
                 selection = chartInfo.symbol,
@@ -100,22 +81,5 @@ fun ChartsScreen(
     if (fyersLoginWindowState is FyersLoginWindow.Open) {
 
         FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
-    }
-}
-
-@Composable
-private fun LegendItem(
-    title: String,
-    value: String,
-) {
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-
-        Text(title)
-
-        Text(value)
     }
 }

@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.charts.ui
 
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.chart.*
-import com.saurabhsandav.core.chart.callbacks.MouseEventHandler
 import com.saurabhsandav.core.chart.callbacks.TimeRangeChangeEventHandler
 import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.data.HistogramData
@@ -16,9 +15,9 @@ import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.chart.options.common.LineWidth
 import com.saurabhsandav.core.chart.options.common.PriceFormat
 import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.ui.charts.model.ChartsState.LegendValues
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
+import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +25,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
@@ -189,36 +189,24 @@ internal class Chart(
         actualChart.timeScale.setVisibleRange(range.from, range.to)
     }
 
-    private fun legendValuesFlow(): Flow<LegendValues> = callbackFlow {
+    private fun legendValuesFlow(): Flow<List<String>> = actualChart.crosshairMove().map { params ->
 
-        val handler = MouseEventHandler { params ->
+        val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
+        val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
+        val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
+        val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
+        val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
+        val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
+        val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
+        val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
 
-            val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
-            val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
-            val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
-            val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
-            val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
-            val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
-            val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
-            val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
-
-            trySend(
-                LegendValues(
-                    open = open,
-                    high = high,
-                    low = low,
-                    close = close,
-                    volume = volume,
-                    ema9 = ema9,
-                    vwap = vwap,
-                )
-            )
-        }
-
-        actualChart.subscribeCrosshairMove(handler)
-
-        awaitClose { actualChart.unsubscribeCrosshairMove(handler) }
-    }.buffer(Channel.CONFLATED)
+        listOf(
+            "O $open H $high L $low C $close",
+            "Vol $volume",
+            "VWAP $vwap",
+            "EMA (9) $ema9",
+        )
+    }
 
     private fun visibleTimeRangeFlow(): Flow<TimeRange?> = callbackFlow {
 

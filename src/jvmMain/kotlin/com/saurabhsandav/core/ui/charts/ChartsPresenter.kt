@@ -17,7 +17,8 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeSymbol
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTimeframe
 import com.saurabhsandav.core.ui.charts.model.ChartsState
-import com.saurabhsandav.core.ui.charts.model.ChartsState.*
+import com.saurabhsandav.core.ui.charts.model.ChartsState.ChartInfo
+import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
@@ -58,7 +59,6 @@ internal class ChartsPresenter(
         onClose = ::closeChart,
     )
     private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe))
-    private var legendValues by mutableStateOf(LegendValues())
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
@@ -75,7 +75,7 @@ internal class ChartsPresenter(
         return@launchMolecule ChartsState(
             tabsState = tabsState,
             chartPageState = chartPageState,
-            chartInfo = chartInfo.copy(legendValues = legendValues),
+            chartInfo = chartInfo,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = errors,
         )
@@ -142,7 +142,9 @@ internal class ChartsPresenter(
         )
 
         // Observe legend values
-        chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
+        chartManager.chart.legendValues.onEach {
+            pagedChartArrangement.setLegend(chartManager.chart.actualChart, it)
+        }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
         chartManagers += chartManager

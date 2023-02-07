@@ -6,20 +6,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.baselineSeries
-import com.saurabhsandav.core.chart.createChart
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
+import com.saurabhsandav.core.ui.common.chart.arrangement.single
+import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.utils.brokerage
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
@@ -72,19 +76,28 @@ internal class PNLByDayChartStudy(
 
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
-
+        val arrangement = remember { ChartArrangement.single() }
+        val chartPageState = remember { ChartPageState(coroutineScope, arrangement) }
         val chart = remember {
-            createChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            arrangement.newChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
-
-        val chartPageState = remember { ChartPageState(coroutineScope, chart) }
 
         ChartPage(chartPageState)
 
         LaunchedEffect(chart) {
 
+            // Show chart
+            chartPageState.connect(chart)
+
             val baselineSeries by chart.baselineSeries()
 
+            // Update Legend
+            chart.crosshairMove().onEach { params ->
+                val value = params.getSeriesPrice(baselineSeries)?.value?.toPlainString().orEmpty()
+                arrangement.setLegend(listOf("PNL $value"))
+            }.launchIn(this)
+
+            // Set Data
             data.collect {
                 baselineSeries.setData(it)
                 chart.timeScale.fitContent()

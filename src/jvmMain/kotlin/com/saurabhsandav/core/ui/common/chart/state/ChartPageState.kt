@@ -2,10 +2,13 @@ package com.saurabhsandav.core.ui.common.chart.state
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.ui.common.WebViewState
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
+import com.saurabhsandav.core.ui.common.chart.arrangement.single
+import com.saurabhsandav.core.ui.common.toHexString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -16,12 +19,12 @@ import kotlinx.coroutines.launch
 fun ChartPageState(
     coroutineScope: CoroutineScope,
     chart: IChartApi,
-) = ChartPageState(coroutineScope).apply { connect(chart) }
+) = ChartPageState(coroutineScope, ChartArrangement.single()).apply { connect(chart) }
 
 @Stable
 class ChartPageState(
     val coroutineScope: CoroutineScope,
-    val arrangement: ChartArrangement? = null,
+    val arrangement: ChartArrangement,
 ) {
 
     val webViewState: WebViewState = WebViewState(
@@ -62,10 +65,8 @@ class ChartPageState(
         }
 
         // Send arrangement js scripts to web engine
-        if (arrangement != null) {
-            coroutineScope.launch {
-                arrangement.scripts.collect(scripts::trySend)
-            }
+        coroutineScope.launch {
+            arrangement.scripts.collect(scripts::trySend)
         }
     }
 
@@ -86,6 +87,10 @@ class ChartPageState(
 
         // Resize all charts
         charts.forEach { it.resize(width = size.width, height = size.height) }
+    }
+
+    fun setLegendTextColor(color: Color) {
+        scripts.trySend("setLegendTextColor('${color.toHexString()}');")
     }
 
     fun connect(

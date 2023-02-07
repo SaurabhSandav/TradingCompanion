@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.common.chart.arrangement
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.createChart
 import com.saurabhsandav.core.chart.options.ChartOptions
-import java.util.*
+import kotlin.random.Random
 
 fun ChartArrangement.Companion.paged(): PagedChartArrangement {
     return PagedChartArrangement()
@@ -11,38 +11,28 @@ fun ChartArrangement.Companion.paged(): PagedChartArrangement {
 
 class PagedChartArrangement internal constructor() : ChartArrangement() {
 
-    private val charts = mutableSetOf<IChartApi>()
+    private val charts = mutableMapOf<IChartApi, Int>()
 
     fun newChart(
         options: ChartOptions = ChartOptions(),
     ): IChartApi {
 
-        val name = UUID.randomUUID().toString()
+        val chartId = "chart_${Random.nextLong()}"
 
         // Error if chart name already exists
-        check(!charts.any { it.name == name })
+        check(!charts.keys.any { it.name == chartId })
 
-        // Create hidden div for new chart
-        executeJs(
-            """|
-            |(function() {
-            |  var iDiv = document.createElement('div');
-            |  iDiv.id = '$name';
-            |  iDiv.className = 'tabcontent';
-            |  iDiv.style.display = "none";
-            |  document.body.appendChild(iDiv);
-            |})()
-            """.trimMargin()
-        )
+        // Configure hidden chart container
+        executeJs("preparePagedChartContainer('$chartId');")
 
         val chart = createChart(
-            container = "document.getElementById('$name')",
+            container = "document.getElementById('$chartId')",
             options = options,
-            name = name,
+            name = chartId,
         )
 
         // Add to tabs
-        charts += chart
+        charts[chart] = 0
 
         return chart
     }
@@ -59,17 +49,13 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
     fun showChart(chart: IChartApi) {
 
         // Hide all chart divs, then show selected chart div
-        executeJs(
-            """|
-            |(function() {
-            |  var tabcontent = document.getElementsByClassName("tabcontent");
-            |  for (i = 0; i < tabcontent.length; i++) {
-            |    tabcontent[i].style.display = "none";
-            |  }
-            |  
-            |  document.getElementById('${chart.name}').style.display = "block";
-            |})()
-            """.trimMargin()
-        )
+        executeJs("showPagedChart('${chart.name}');")
+    }
+
+    fun setLegend(
+        chart: IChartApi,
+        legendHtmlItems: List<String>,
+    ) {
+        executeJs("setPagedLegendTexts('${chart.name}', [${legendHtmlItems.joinToString(", ") { "'$it'" }}]);")
     }
 }

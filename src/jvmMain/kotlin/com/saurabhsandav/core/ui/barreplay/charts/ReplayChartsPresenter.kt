@@ -18,7 +18,6 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.barreplay.*
 import com.saurabhsandav.core.trading.dailySessionStart
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.barreplay.charts.model.LegendValues
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartInfo
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
@@ -74,7 +73,6 @@ internal class ReplayChartsPresenter(
     )
     private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe))
     private var replayTime by mutableStateOf("")
-    private var legendValues by mutableStateOf(LegendValues())
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -92,10 +90,7 @@ internal class ReplayChartsPresenter(
         return@launchMolecule ReplayChartsState(
             tabsState = tabsState,
             chartPageState = chartPageState,
-            chartInfo = chartInfo.copy(
-                replayTime = replayTime,
-                legendValues = legendValues,
-            ),
+            chartInfo = chartInfo.copy(replayTime = replayTime),
         )
     }
 
@@ -196,7 +191,9 @@ internal class ReplayChartsPresenter(
         )
 
         // Observe legend values
-        chartManager.chart.legendValues.onEach { legendValues = it }.launchIn(chartManager.coroutineScope)
+        chartManager.chart.legendValues.onEach {
+            pagedChartArrangement.setLegend(chartManager.chart.actualChart, it)
+        }.launchIn(chartManager.coroutineScope)
 
         // Cache newly created chart manager
         chartManagers += chartManager

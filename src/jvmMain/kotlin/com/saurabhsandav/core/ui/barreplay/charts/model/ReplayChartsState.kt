@@ -17,16 +17,4 @@ data class ReplayChartInfo(
     val symbol: String,
     val timeframe: Timeframe,
     val replayTime: String = "",
-    val legendValues: LegendValues = LegendValues(),
-)
-
-@Immutable
-data class LegendValues(
-    val open: String = "",
-    val high: String = "",
-    val low: String = "",
-    val close: String = "",
-    val volume: String = "",
-    val ema9: String = "",
-    val vwap: String = "",
 )

@@ -1,17 +1,14 @@
 package com.saurabhsandav.core.ui.barreplay.charts.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
@@ -41,7 +38,17 @@ internal fun ReplayCharts(
         tabsState = tabsState,
     ) {
 
-        Legend(chartInfo)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+
+            Text("Time")
+
+            Text(chartInfo.replayTime, textAlign = TextAlign.End)
+        }
+
+        Divider()
 
         ListSelectionField(
             items = NIFTY50,
@@ -69,51 +76,5 @@ internal fun ReplayCharts(
             onNext = onNext,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
         )
-    }
-}
-
-@Composable
-private fun Legend(chartInfo: ReplayChartInfo) {
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-    ) {
-
-        LegendItem("Time", chartInfo.replayTime)
-
-        Divider()
-
-        LegendItem("Open", chartInfo.legendValues.open)
-
-        LegendItem("High", chartInfo.legendValues.high)
-
-        LegendItem("Low", chartInfo.legendValues.low)
-
-        LegendItem("Close", chartInfo.legendValues.close)
-
-        LegendItem("Volume", chartInfo.legendValues.volume)
-
-        LegendItem("EMA (9)", chartInfo.legendValues.ema9)
-
-        LegendItem("VWAP", chartInfo.legendValues.vwap)
-
-        Divider()
-    }
-}
-
-@Composable
-private fun LegendItem(
-    title: String,
-    value: String,
-) {
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-
-        Text(title)
-
-        Text(value, textAlign = TextAlign.End)
     }
 }
