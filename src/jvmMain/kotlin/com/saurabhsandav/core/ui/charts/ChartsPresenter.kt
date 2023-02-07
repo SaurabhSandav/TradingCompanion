@@ -89,7 +89,6 @@ internal class ChartsPresenter(
 
         // Add new chart
         val actualChart = pagedChartArrangement.newChart(
-            name = "Chart$tabId",
             options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
         )
 

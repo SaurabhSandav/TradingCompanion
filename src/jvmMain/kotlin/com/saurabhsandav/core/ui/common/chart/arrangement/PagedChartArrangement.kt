@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.chart.arrangement
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.createChart
 import com.saurabhsandav.core.chart.options.ChartOptions
+import java.util.*
 
 fun ChartArrangement.Companion.paged(): PagedChartArrangement {
     return PagedChartArrangement()
@@ -13,9 +14,10 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
     private val charts = mutableSetOf<IChartApi>()
 
     fun newChart(
-        name: String,
         options: ChartOptions = ChartOptions(),
     ): IChartApi {
+
+        val name = UUID.randomUUID().toString()
 
         // Error if chart name already exists
         check(!charts.any { it.name == name })
