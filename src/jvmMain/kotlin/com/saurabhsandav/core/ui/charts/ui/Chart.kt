@@ -192,13 +192,13 @@ internal class Chart(
     private fun legendValuesFlow(): Flow<List<String>> = actualChart.crosshairMove().map { params ->
 
         val candlestickSeriesPrices = params.getSeriesPrices(candlestickSeries)
-        val open = candlestickSeriesPrices?.open?.toPlainString().orEmpty()
-        val high = candlestickSeriesPrices?.high?.toPlainString().orEmpty()
-        val low = candlestickSeriesPrices?.low?.toPlainString().orEmpty()
-        val close = candlestickSeriesPrices?.close?.toPlainString().orEmpty()
-        val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
-        val ema9 = params.getSeriesPrice(ema9Series)?.value?.toPlainString().orEmpty()
-        val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toPlainString() }.orEmpty()
+        val open = candlestickSeriesPrices?.open?.toString().orEmpty()
+        val high = candlestickSeriesPrices?.high?.toString().orEmpty()
+        val low = candlestickSeriesPrices?.low?.toString().orEmpty()
+        val close = candlestickSeriesPrices?.close?.toString().orEmpty()
+        val volume = volumeSeries?.let { params.getSeriesPrice(it)?.value?.toString() }.orEmpty()
+        val ema9 = params.getSeriesPrice(ema9Series)?.value?.toString().orEmpty()
+        val vwap = vwapSeries?.let { params.getSeriesPrice(it)?.value?.toString() }.orEmpty()
 
         listOf(
             "O $open H $high L $low C $close",

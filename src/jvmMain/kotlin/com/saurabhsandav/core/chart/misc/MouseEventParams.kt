@@ -49,13 +49,13 @@ data class MouseEventParams(
 
                 val value = when (val data = it.jsonArray[1]) {
                     is JsonObject -> GeneralData.BarPrices(
-                        open = data["open"]!!.jsonPrimitive.content.toBigDecimal(),
-                        high = data["high"]!!.jsonPrimitive.content.toBigDecimal(),
-                        low = data["low"]!!.jsonPrimitive.content.toBigDecimal(),
-                        close = data["close"]!!.jsonPrimitive.content.toBigDecimal(),
+                        open = data["open"]!!.jsonPrimitive.content.toDouble(),
+                        high = data["high"]!!.jsonPrimitive.content.toDouble(),
+                        low = data["low"]!!.jsonPrimitive.content.toDouble(),
+                        close = data["close"]!!.jsonPrimitive.content.toDouble(),
                     )
 
-                    is JsonPrimitive -> GeneralData.BarPrice(data.content.toBigDecimal())
+                    is JsonPrimitive -> GeneralData.BarPrice(data.content.toDouble())
                     else -> error("MouseEventParams: Invalid GenericData")
                 }
 

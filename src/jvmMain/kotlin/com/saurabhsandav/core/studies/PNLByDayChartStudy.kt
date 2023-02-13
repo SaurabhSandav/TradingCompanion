@@ -93,7 +93,7 @@ internal class PNLByDayChartStudy(
 
             // Update Legend
             chart.crosshairMove().onEach { params ->
-                val value = params.getSeriesPrice(baselineSeries)?.value?.toPlainString().orEmpty()
+                val value = params.getSeriesPrice(baselineSeries)?.value?.toString().orEmpty()
                 arrangement.setLegend(listOf("PNL $value"))
             }.launchIn(this)
 
