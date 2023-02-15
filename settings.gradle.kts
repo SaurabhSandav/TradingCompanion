@@ -1,3 +1,4 @@
+
 pluginManagement {
 
     repositories {
@@ -32,12 +33,10 @@ dependencyResolutionManagement {
         }
     }
 
-    @Suppress("UnstableApiUsage")
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.73.0")
-            version("jetbrainsCompose", "1.3.0")
+            from("com.saurabhsandav:common-versions:0.74.0")
         }
     }
 }

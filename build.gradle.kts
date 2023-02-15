@@ -139,7 +139,7 @@ kotlin {
 }
 
 compose {
-    kotlinCompilerPlugin.set("androidx.compose.compiler:compiler:1.4.0")
+    kotlinCompilerPlugin.set(libs.jetpack.compose.compiler.map { it.toString() })
 }
 
 @Suppress("PropertyName")
