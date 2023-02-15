@@ -49,9 +49,6 @@ SELECT *
 FROM Trade
 WHERE isClosed = FALSE;
 
-anyOpenTrades:
-SELECT EXISTS (
-SELECT *
-FROM Trade
-WHERE isClosed = FALSE
-);
+delete:
+DELETE FROM Trade
+WHERE id = ?;

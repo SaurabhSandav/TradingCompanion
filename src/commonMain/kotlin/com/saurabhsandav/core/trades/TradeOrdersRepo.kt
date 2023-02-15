@@ -86,16 +86,20 @@ internal class TradeOrdersRepo(
                 timestamp = timestamp,
             )
 
-            // Order to regenerate trades
-            val regenerationOrders = appDB.tradeToOrderMapQueries
-                .getOrdersAfterPreviousAllTradesClosed(id)
+            // Trades to be regenerated
+            val regenerationTrades = appDB.tradeToOrderMapQueries
+                .getTradesByOrder(id)
                 .executeAsList()
 
-            // Delete pre-existing trades linked to regenerationOrders
-            appDB.tradeToOrderMapQueries.deleteTradesMadeFromOrders(regenerationOrders.map { it.id })
-
             // Regenerate Trades
-            regenerationOrders.forEach(::consumeOrder)
+            regenerationTrades.forEach { trade ->
+
+                // Get orders for Trade
+                val orders = appDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
+
+                // Update Trade
+                orders.createTrade().updateTradeInDB(trade.id)
+            }
         }
     }
 
@@ -105,19 +109,27 @@ internal class TradeOrdersRepo(
 
         appDB.transaction {
 
-            // Order to regenerate trades
-            val regenerationOrders = appDB.tradeToOrderMapQueries
-                .getOrdersAfterPreviousAllTradesClosed(id)
+            // Trades to be regenerated
+            val regenerationTrades = appDB.tradeToOrderMapQueries
+                .getTradesByOrder(id)
                 .executeAsList()
-
-            // Delete pre-existing trades linked to regenerationOrders
-            appDB.tradeToOrderMapQueries.deleteTradesMadeFromOrders(regenerationOrders.map { it.id })
 
             // Delete order
             appDB.tradeOrderQueries.delete(id)
 
             // Regenerate Trades
-            regenerationOrders.filter { it.id != id }.forEach(::consumeOrder)
+            regenerationTrades.forEach { trade ->
+
+                // Get orders for Trade
+                val orders = appDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
+
+                when {
+                    // Delete Trade
+                    orders.isEmpty() -> appDB.tradeQueries.delete(trade.id)
+                    // Update Trade
+                    else -> orders.createTrade().updateTradeInDB(trade.id)
+                }
+            }
         }
     }
 
@@ -170,7 +182,6 @@ internal class TradeOrdersRepo(
                 tradeId = tradeId,
                 orderId = order.id,
                 overrideQuantity = null,
-                allTradesClosed = false,
             )
 
         } else { // Open Trade exists. Update trade with new order
@@ -189,20 +200,7 @@ internal class TradeOrdersRepo(
             val trade = (orders + order).createTrade()
 
             // Update Trade with new parameters
-            appDB.tradeQueries.update(
-                id = openTrade.id,
-                quantity = trade.quantity,
-                closedQuantity = trade.closedQuantity,
-                lots = trade.lots,
-                averageEntry = trade.averageEntry,
-                entryTimestamp = trade.entryTimestamp,
-                averageExit = trade.averageExit,
-                exitTimestamp = trade.exitTimestamp,
-                pnl = trade.pnl,
-                fees = trade.fees,
-                netPnl = trade.netPnl,
-                isClosed = trade.isClosed,
-            )
+            trade.updateTradeInDB(openTrade.id)
 
             // If currentOpenQuantity is negative, that means a single order was used to exit a position and create
             // a new position. Create a new trade for this new position
@@ -213,7 +211,6 @@ internal class TradeOrdersRepo(
                     tradeId = openTrade.id,
                     orderId = order.id,
                     overrideQuantity = order.quantity + currentOpenQuantity,
-                    allTradesClosed = false,
                 )
 
                 // Quantity for new trade
@@ -247,7 +244,6 @@ internal class TradeOrdersRepo(
                     tradeId = tradeId,
                     orderId = order.id,
                     overrideQuantity = overrideQuantity,
-                    allTradesClosed = false,
                 )
             } else {
 
@@ -256,44 +252,14 @@ internal class TradeOrdersRepo(
                     tradeId = openTrade.id,
                     orderId = order.id,
                     overrideQuantity = null,
-                    allTradesClosed = trade.isClosed && !appDB.tradeQueries.anyOpenTrades().executeAsOne(),
                 )
             }
         }
     }
 
-    private fun toTradeOrder(
-        id: Long,
-        broker: String,
-        ticker: String,
-        @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
-        lots: Int?,
-        type: OrderType,
-        price: BigDecimal,
-        timestamp: LocalDateTime,
-        locked: Boolean,
-        overrideQuantity: String,
-    ) = TradeOrder(
-        id = id,
-        broker = broker,
-        ticker = ticker,
-        quantity = overrideQuantity.toBigDecimal(),
-        lots = lots,
-        type = type,
-        price = price,
-        timestamp = timestamp,
-        locked = locked,
-    )
-
-    private fun List<TradeOrder>.averagePrice(): BigDecimal {
-
-        val totalQuantity = sumOf { it.quantity }
-        val sum: BigDecimal = sumOf { it.price * it.quantity }
-
-        return if (totalQuantity == BigDecimal.ZERO) BigDecimal.ZERO else sum / totalQuantity
-    }
-
     private fun List<TradeOrder>.createTrade(): Trade {
+
+        check(isNotEmpty()) { error("Cannot create trade from empty order list") }
 
         val firstOrder = first()
         val (entryOrders, exitOrders) = partition { it.type == firstOrder.type }
@@ -347,4 +313,52 @@ internal class TradeOrdersRepo(
             isClosed = (exitQuantity - entryQuantity) >= BigDecimal.ZERO,
         )
     }
+
+    private fun Trade.updateTradeInDB(tradeId: Long) {
+        appDB.tradeQueries.update(
+            id = tradeId,
+            quantity = quantity,
+            closedQuantity = closedQuantity,
+            lots = lots,
+            averageEntry = averageEntry,
+            entryTimestamp = entryTimestamp,
+            averageExit = averageExit,
+            exitTimestamp = exitTimestamp,
+            pnl = pnl,
+            fees = fees,
+            netPnl = netPnl,
+            isClosed = isClosed,
+        )
+    }
+
+    private fun List<TradeOrder>.averagePrice(): BigDecimal {
+
+        val totalQuantity = sumOf { it.quantity }
+        val sum: BigDecimal = sumOf { it.price * it.quantity }
+
+        return if (totalQuantity == BigDecimal.ZERO) BigDecimal.ZERO else sum / totalQuantity
+    }
+
+    private fun toTradeOrder(
+        id: Long,
+        broker: String,
+        ticker: String,
+        @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
+        lots: Int?,
+        type: OrderType,
+        price: BigDecimal,
+        timestamp: LocalDateTime,
+        locked: Boolean,
+        overrideQuantity: String,
+    ) = TradeOrder(
+        id = id,
+        broker = broker,
+        ticker = ticker,
+        quantity = overrideQuantity.toBigDecimal(),
+        lots = lots,
+        type = type,
+        price = price,
+        timestamp = timestamp,
+        locked = locked,
+    )
 }
