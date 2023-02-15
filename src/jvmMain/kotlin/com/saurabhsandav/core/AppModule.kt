@@ -35,7 +35,16 @@ internal class AppModule {
             properties = Properties().apply { put("foreign_keys", "true") },
         )
         AppDB.Schema.create(driver)
-        AppDB(
+        AppDB(driver = driver)
+    }
+
+    val tradesDB: TradesDB = run {
+        val driver = JdbcSqliteDriver(
+            url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/Trades.db",
+            properties = Properties().apply { put("foreign_keys", "true") },
+        )
+        TradesDB.Schema.create(driver)
+        TradesDB(
             driver = driver,
             TradeAdapter = Trade.Adapter(
                 quantityAdapter = BigDecimalColumnAdapter,
@@ -67,9 +76,9 @@ internal class AppModule {
 
     val candleDBCollection = CandleDBCollection()
 
-    val tradeOrdersRepo by lazy { TradeOrdersRepo(appDB) }
+    val tradeOrdersRepo by lazy { TradeOrdersRepo(tradesDB) }
 
-    val tradesRepo by lazy { TradesRepo(appDB, tradeOrdersRepo) }
+    val tradesRepo by lazy { TradesRepo(tradesDB, tradeOrdersRepo) }
 
     init {
 //        TradeImporter(appDB).importTrades()

@@ -166,6 +166,13 @@ sqldelight {
         dialect = "sqlite:3.25"
     }
 
+    database("TradesDB") {
+        packageName = "com.saurabhsandav.core"
+        sourceFolders = listOf("sqldelight/trades")
+        schemaOutputDirectory = file("build/dbs")
+        dialect = "sqlite:3.25"
+    }
+
     database("CandleDB") {
         packageName = "com.saurabhsandav.core"
         sourceFolders = listOf("sqldelight/candles")
