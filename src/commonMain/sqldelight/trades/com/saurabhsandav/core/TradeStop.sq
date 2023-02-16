@@ -13,6 +13,11 @@ INSERT OR IGNORE
 INTO TradeStop(tradeId, price, risk)
 VALUES (?, ?, ?);
 
+getByTrade:
+SELECT *
+FROM TradeStop
+WHERE tradeId = ?;
+
 delete:
 DELETE FROM TradeStop
 WHERE tradeId = ? AND price = ?;

@@ -4,10 +4,12 @@ import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 
 @Immutable
 internal data class TradesState(
     val tradesItems: ImmutableList<TradeListItem>,
+    val showTradeDetailIds: ImmutableSet<Long>,
     val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
 ) {

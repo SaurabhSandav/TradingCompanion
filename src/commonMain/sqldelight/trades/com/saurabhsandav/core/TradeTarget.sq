@@ -13,6 +13,11 @@ INSERT OR IGNORE
 INTO TradeTarget(tradeId, price, profit)
 VALUES (?, ?, ?);
 
+getByTrade:
+SELECT *
+FROM TradeTarget
+WHERE tradeId = ?;
+
 delete:
 DELETE FROM TradeTarget
 WHERE tradeId = ? AND price = ?;

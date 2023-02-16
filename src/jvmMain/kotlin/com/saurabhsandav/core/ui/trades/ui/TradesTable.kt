@@ -22,6 +22,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradesTable(
     tradesItems: ImmutableList<TradeListItem>,
+    onOpenDetails: (id: Long) -> Unit,
     onOpenChart: (id: Long) -> Unit,
 ) {
 
@@ -54,6 +55,7 @@ internal fun TradesTable(
                 is TradeListItem.DayHeader -> dayHeader(tradeItem)
                 is TradeListItem.Entries -> tradeItems(
                     tradeItem = tradeItem,
+                    onOpenDetails = onOpenDetails,
                     onOpenChart = onOpenChart,
                 )
             }
@@ -83,6 +85,7 @@ private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader)
 
 private fun TableScope<TradeEntry>.tradeItems(
     tradeItem: TradeListItem.Entries,
+    onOpenDetails: (id: Long) -> Unit,
     onOpenChart: (id: Long) -> Unit,
 ) {
 
@@ -91,13 +94,14 @@ private fun TableScope<TradeEntry>.tradeItems(
         key = { it.id },
     ) { item ->
 
-        ContextMenuArea(
-            items = {
-                listOf(
-                    ContextMenuItem("Open Chart") { onOpenChart(item.id) },
-                )
-            },
-        ) {
+                ContextMenuArea(
+                    items = {
+                        listOf(
+                            ContextMenuItem("Open Details") { onOpenDetails(item.id) },
+                            ContextMenuItem("Open Chart") { onOpenChart(item.id) },
+                        )
+                    },
+                ) {
 
             Column {
 

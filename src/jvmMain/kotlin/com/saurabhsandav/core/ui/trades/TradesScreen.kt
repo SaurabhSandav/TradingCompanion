@@ -7,7 +7,8 @@ import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
+import com.saurabhsandav.core.ui.trades.detail.TradeDetailWindow
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
@@ -31,8 +32,18 @@ internal fun TradesScreen(
 
         TradesTable(
             tradesItems = state.tradesItems,
+            onOpenDetails = { presenter.event(OpenDetails(it)) },
             onOpenChart = { presenter.event(OpenChart(it)) },
         )
+
+        // Detail Windows
+        state.showTradeDetailIds.forEach { tradeId ->
+
+            TradeDetailWindow(
+                tradeId = tradeId,
+                onCloseRequest = { presenter.event(CloseDetails(tradeId)) },
+            )
+        }
 
         // Chart windows
         state.chartWindowsManager.windows.forEach { windowEntry ->

@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.trades
 
-import com.saurabhsandav.core.Trade
-import com.saurabhsandav.core.TradeOrder
-import com.saurabhsandav.core.TradesDB
+import com.saurabhsandav.core.*
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
@@ -28,6 +26,10 @@ internal class TradesRepo(
         return tradeOrdersRepo.getOrdersForTrade(id)
     }
 
+    fun getStopsForTrade(id: Long): Flow<List<TradeStop>> {
+        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
     suspend fun addStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
 
         // Get trade
@@ -47,6 +49,14 @@ internal class TradesRepo(
         )
     }
 
+    suspend fun deleteStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+        tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
+    }
+
+    fun getTargetsForTrade(id: Long): Flow<List<TradeTarget>> {
+        return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
     suspend fun addTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
 
         // Get trade
@@ -64,5 +74,9 @@ internal class TradesRepo(
             price = price,
             profit = profit,
         )
+    }
+
+    suspend fun deleteTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+        tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
     }
 }

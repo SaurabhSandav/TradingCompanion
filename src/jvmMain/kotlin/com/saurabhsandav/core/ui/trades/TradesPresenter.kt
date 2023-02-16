@@ -31,10 +31,15 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
+import com.saurabhsandav.core.ui.trades.model.*
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
+import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -56,6 +61,7 @@ internal class TradesPresenter(
 
     private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
+    private var showTradeDetailIds by mutableStateOf<PersistentSet<Long>>(persistentSetOf())
     private val chartWindowsManager = MultipleWindowManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
@@ -64,12 +70,15 @@ internal class TradesPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
+                is OpenDetails -> onOpenDetails(event.id)
+                is CloseDetails -> onCloseDetails(event.id)
                 is OpenChart -> onOpenChart(event.id)
             }
         }
 
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
+            showTradeDetailIds = showTradeDetailIds,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
         )
@@ -130,6 +139,14 @@ internal class TradesPresenter(
             isNetProfitable = netPnl > BigDecimal.ZERO,
             fees = fees.toPlainString(),
         )
+    }
+
+    private fun onOpenDetails(id: Long) {
+        showTradeDetailIds = showTradeDetailIds.add(id)
+    }
+
+    private fun onCloseDetails(id: Long) {
+        showTradeDetailIds = showTradeDetailIds.remove(id)
     }
 
     private fun onOpenChart(id: Long): Unit = coroutineScope.launchUnit {
