@@ -93,6 +93,9 @@ kotlin {
                 // KotlinX DateTime
                 implementation(libs.kotlinx.datetime)
 
+                // KotlinX Immutable Collections Library
+                implementation(libs.kotlinx.collections.immutable)
+
                 // Ktor
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.okhttp)
