@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.TradeOrder
+import com.saurabhsandav.core.*
 import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
@@ -10,14 +10,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
 
 internal class TradeMigrator(
+    private val tradesRepo: TradesRepo,
     private val tradeOrdersRepo: TradeOrdersRepo,
     private val appDB: AppDB,
+    private val tradesDB: TradesDB,
 ) {
 
     fun migrateTrades() = CoroutineScope(Dispatchers.IO).launchUnit {
 
+        println("Synthesizing orders")
+
+        // Synthesize orders from ClosedTrades
         val migratedTradeOrders = getClosedTradesAsTradeOrders()
 
+        println("Generating trades")
+
+        // Save orders and generate trades
         migratedTradeOrders.forEach {
             tradeOrdersRepo.new(
                 broker = it.broker,
@@ -30,6 +38,22 @@ internal class TradeMigrator(
                 locked = it.locked,
             )
         }
+
+        println("Associating new Trades with ClosedTrades")
+
+        val tradesWithClosedTrades = associateTradesWithClosedTrades()
+
+        println("Migrating Stops")
+
+        // Migrate Stops
+        tradesWithClosedTrades.migrateStops()
+
+        println("Migrating Targets")
+
+        // Migrate Targets
+        tradesWithClosedTrades.migrateTargets()
+
+        println("Done")
     }
 
     private fun getClosedTradesAsTradeOrders(): List<TradeOrder> {
@@ -96,6 +120,35 @@ internal class TradeMigrator(
         }.mergeSameOrders().sortedBy { it.timestamp }
 
         return orders
+    }
+
+    private fun associateTradesWithClosedTrades(): Map<Trade, List<ClosedTrade>> {
+
+        val closedTrades = appDB.closedTradeQueries.getAll().executeAsList()
+        val trades = tradesDB.tradeQueries.getAll().executeAsList()
+
+        return trades.sortedBy { it.entryTimestamp }.associateWith { trade ->
+            closedTrades.filter {
+                trade.ticker == it.ticker && LocalDateTime.parse(it.entryDate) >= trade.entryTimestamp
+                        && LocalDateTime.parse(it.exitDate) <= trade.exitTimestamp!!
+            }
+        }
+    }
+
+    private suspend fun Map<Trade, List<ClosedTrade>>.migrateStops() {
+        forEach { (trade, closedTrades) ->
+            closedTrades
+                .mapNotNull { if (it.stop.isNullOrBlank()) null else it.stop }
+                .forEach { tradesRepo.addStop(trade.id, it.toBigDecimal()) }
+        }
+    }
+
+    private suspend fun Map<Trade, List<ClosedTrade>>.migrateTargets() {
+        forEach { (trade, closedTrades) ->
+            closedTrades
+                .mapNotNull { if (it.target.isNullOrBlank()) null else it.target }
+                .forEach { tradesRepo.addTarget(trade.id, it.toBigDecimal()) }
+        }
     }
 
     private fun List<TradeOrder>.mergeSameOrders(): List<TradeOrder> {

@@ -67,6 +67,14 @@ internal class AppModule {
             TradeToOrderMapAdapter = TradeToOrderMap.Adapter(
                 overrideQuantityAdapter = BigDecimalColumnAdapter,
             ),
+            TradeStopAdapter = TradeStop.Adapter(
+                priceAdapter = BigDecimalColumnAdapter,
+                riskAdapter = BigDecimalColumnAdapter,
+            ),
+            TradeTargetAdapter = TradeTarget.Adapter(
+                priceAdapter = BigDecimalColumnAdapter,
+                profitAdapter = BigDecimalColumnAdapter,
+            ),
         )
     }
 
@@ -82,6 +90,6 @@ internal class AppModule {
 
     init {
 //        TradeImporter(appDB).importTrades()
-//        TradeMigrator(tradeOrdersRepo, appDB).migrateTrades()
+//        TradeMigrator(tradesRepo, tradeOrdersRepo, appDB, tradesDB).migrateTrades()
     }
 }

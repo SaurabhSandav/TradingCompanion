@@ -1,0 +1,18 @@
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS TradeTarget (
+tradeId INTEGER NOT NULL,
+price TEXT AS BigDecimal NOT NULL,
+profit TEXT AS BigDecimal NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, price)
+);
+
+insert:
+INSERT OR IGNORE
+INTO TradeTarget(tradeId, price, profit)
+VALUES (?, ?, ?);
+
+delete:
+DELETE FROM TradeTarget
+WHERE tradeId = ? AND price = ?;

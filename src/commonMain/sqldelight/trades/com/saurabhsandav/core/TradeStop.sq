@@ -1,0 +1,18 @@
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS TradeStop (
+tradeId INTEGER NOT NULL,
+price TEXT AS BigDecimal NOT NULL,
+risk TEXT AS BigDecimal NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, price)
+);
+
+insert:
+INSERT OR IGNORE
+INTO TradeStop(tradeId, price, risk)
+VALUES (?, ?, ?);
+
+delete:
+DELETE FROM TradeStop
+WHERE tradeId = ? AND price = ?;
