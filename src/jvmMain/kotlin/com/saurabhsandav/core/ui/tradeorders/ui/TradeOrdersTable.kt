@@ -18,18 +18,20 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrderListItem
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderEntry
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderListItem
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeOrdersTable(
-    tradeOrderItems: Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>,
+    tradeOrderItems: ImmutableList<TradeOrderListItem>,
     onNewOrder: (id: Long) -> Unit,
     onEditOrder: (id: Long) -> Unit,
     onLockOrder: (id: Long) -> Unit,
     onDeleteOrder: (id: Long) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeOrderListItem.Entry> {
+    val schema = rememberTableSchema<TradeOrderEntry> {
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
@@ -44,66 +46,89 @@ internal fun TradeOrdersTable(
         schema = schema,
     ) {
 
-        tradeOrderItems.forEach { (dayHeader, entries) ->
+        tradeOrderItems.forEach { tradeOrderListItem ->
 
-            stickyHeader {
+            when (tradeOrderListItem) {
+                is TradeOrderListItem.DayHeader -> dayHeader(tradeOrderListItem)
+                is TradeOrderListItem.Entries -> tradeOrderItems(
+                    tradeOrderListItem = tradeOrderListItem,
+                    onNewOrder = onNewOrder,
+                    onEditOrder = onEditOrder,
+                    onLockOrder = onLockOrder,
+                    onDeleteOrder = onDeleteOrder,
+                )
+            }
+        }
+    }
+}
 
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                ) {
+private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrderListItem.DayHeader) {
 
-                    Box(
-                        modifier = Modifier.fillParentMaxWidth().padding(8.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(dayHeader.header)
+    stickyHeader {
+
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer,
+        ) {
+
+            Box(
+                modifier = Modifier.fillParentMaxWidth().padding(8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(tradeOrderListItem.header)
+            }
+        }
+
+        Divider()
+    }
+}
+
+private fun TableScope<TradeOrderEntry>.tradeOrderItems(
+    tradeOrderListItem: TradeOrderListItem.Entries,
+    onNewOrder: (id: Long) -> Unit,
+    onEditOrder: (id: Long) -> Unit,
+    onLockOrder: (id: Long) -> Unit,
+    onDeleteOrder: (id: Long) -> Unit,
+) {
+
+    rows(
+        items = tradeOrderListItem.entries,
+        key = { it.id },
+    ) { item ->
+
+        var showDeleteConfirmationDialog by state { false }
+
+        ContextMenuArea(
+            items = {
+
+                buildList {
+                    add(ContextMenuItem("New") { onNewOrder(item.id) })
+
+                    if (!item.locked) {
+                        addAll(
+                            listOf(
+                                ContextMenuItem("Lock") { onLockOrder(item.id) },
+                                ContextMenuItem("Edit") { onEditOrder(item.id) },
+                                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                            )
+                        )
                     }
                 }
+            },
+        ) {
+
+            Column {
+
+                DefaultTableRow(item, schema)
 
                 Divider()
             }
 
-            rows(
-                items = entries,
-                key = { it.id },
-            ) { item ->
+            if (showDeleteConfirmationDialog) {
 
-                var showDeleteConfirmationDialog by state { false }
-
-                ContextMenuArea(
-                    items = {
-
-                        buildList {
-                            add(ContextMenuItem("New") { onNewOrder(item.id) })
-
-                            if (!item.locked) {
-                                addAll(
-                                    listOf(
-                                        ContextMenuItem("Lock") { onLockOrder(item.id) },
-                                        ContextMenuItem("Edit") { onEditOrder(item.id) },
-                                        ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                                    )
-                                )
-                            }
-                        }
-                    },
-                ) {
-
-                    Column {
-
-                        DefaultTableRow(item, schema)
-
-                        Divider()
-                    }
-
-                    if (showDeleteConfirmationDialog) {
-
-                        DeleteConfirmationDialog(
-                            onDismiss = { showDeleteConfirmationDialog = false },
-                            onConfirm = { onDeleteOrder(item.id) },
-                        )
-                    }
-                }
+                DeleteConfirmationDialog(
+                    onDismiss = { showDeleteConfirmationDialog = false },
+                    onConfirm = { onDeleteOrder(item.id) },
+                )
             }
         }
     }

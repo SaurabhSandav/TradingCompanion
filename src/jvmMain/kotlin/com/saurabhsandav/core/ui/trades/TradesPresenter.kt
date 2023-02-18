@@ -25,10 +25,16 @@ import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
-import com.saurabhsandav.core.ui.trades.model.*
+import com.saurabhsandav.core.ui.trades.model.TradeChartData
+import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
+import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
-import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
+import com.saurabhsandav.core.ui.trades.model.TradesState
+import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.utils.launchUnit
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -76,15 +82,19 @@ internal class TradesPresenter(
     }
 
     @Composable
-    private fun getTradeListEntries(): State<Map<TradeListItem.DayHeader, List<TradeListItem.Entry>>> {
+    private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
             tradesRepo.allTrades.map { trades ->
                 trades
                     .groupBy { it.entryTimestamp.date }
-                    .mapKeys { (date, _) -> date.toTradeListDayHeader() }
-                    .mapValues { (_, list) -> list.map { it.toTradeListEntry() } }
+                    .map { (date, list) ->
+                        listOf(
+                            date.toTradeListDayHeader(),
+                            TradeListItem.Entries(list.map { it.toTradeListEntry() }.toImmutableList()),
+                        )
+                    }.flatten().toImmutableList()
             }
-        }.collectAsState(emptyMap())
+        }.collectAsState(persistentListOf())
     }
 
     private fun LocalDate.toTradeListDayHeader(): TradeListItem.DayHeader {
@@ -92,7 +102,7 @@ internal class TradesPresenter(
         return TradeListItem.DayHeader(formatted)
     }
 
-    private fun Trade.toTradeListEntry(): TradeListItem.Entry {
+    private fun Trade.toTradeListEntry(): TradeEntry {
 
         val instrumentCapitalized = instrument
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -104,7 +114,7 @@ internal class TradesPresenter(
 
         val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
 
-        return TradeListItem.Entry(
+        return TradeEntry(
             id = id,
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,

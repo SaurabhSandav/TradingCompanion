@@ -3,10 +3,11 @@ package com.saurabhsandav.core.ui.trades.model
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
+import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TradesState(
-    val tradesItems: Map<TradeListItem.DayHeader, List<TradeListItem.Entry>>,
+    val tradesItems: ImmutableList<TradeListItem>,
     val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
 ) {
@@ -20,16 +21,9 @@ internal data class TradesState(
         @Immutable
         object Closed : FyersLoginWindow()
     }
-}
-
-@Immutable
-internal sealed class TradeListItem {
 
     @Immutable
-    internal data class DayHeader(val header: String) : TradeListItem()
-
-    @Immutable
-    internal data class Entry(
+    internal data class TradeEntry(
         val id: Long,
         val broker: String,
         val ticker: String,
@@ -43,5 +37,15 @@ internal sealed class TradeListItem {
         val netPnl: String,
         val isNetProfitable: Boolean,
         val fees: String,
-    ) : TradeListItem()
+    )
+
+    @Immutable
+    internal sealed class TradeListItem {
+
+        @Immutable
+        internal data class DayHeader(val header: String) : TradeListItem()
+
+        @Immutable
+        internal data class Entries(val entries: ImmutableList<TradeEntry>) : TradeListItem()
+    }
 }

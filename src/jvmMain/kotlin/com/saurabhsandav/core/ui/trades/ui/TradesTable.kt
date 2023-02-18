@@ -15,15 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.trades.model.TradeListItem
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeListItem
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    tradesItems: Map<TradeListItem.DayHeader, List<TradeListItem.Entry>>,
+    tradesItems: ImmutableList<TradeListItem>,
     onOpenChart: (id: Long) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeListItem.Entry> {
+    val schema = rememberTableSchema<TradeEntry> {
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumn("Side") {
@@ -46,45 +48,62 @@ internal fun TradesTable(
         schema = schema,
     ) {
 
-        tradesItems.forEach { (dayHeader, entries) ->
+        tradesItems.forEach { tradeItem ->
 
-            stickyHeader {
+            when (tradeItem) {
+                is TradeListItem.DayHeader -> dayHeader(tradeItem)
+                is TradeListItem.Entries -> tradeItems(
+                    tradeItem = tradeItem,
+                    onOpenChart = onOpenChart,
+                )
+            }
+        }
+    }
+}
 
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                ) {
+private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader) {
 
-                    Box(
-                        modifier = Modifier.fillParentMaxWidth().padding(8.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(dayHeader.header)
-                    }
-                }
+    stickyHeader {
+
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer,
+        ) {
+
+            Box(
+                modifier = Modifier.fillParentMaxWidth().padding(8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(tradeItem.header)
+            }
+        }
+
+        Divider()
+    }
+}
+
+private fun TableScope<TradeEntry>.tradeItems(
+    tradeItem: TradeListItem.Entries,
+    onOpenChart: (id: Long) -> Unit,
+) {
+
+    rows(
+        items = tradeItem.entries,
+        key = { it.id },
+    ) { item ->
+
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open Chart") { onOpenChart(item.id) },
+                )
+            },
+        ) {
+
+            Column {
+
+                DefaultTableRow(item, schema)
 
                 Divider()
-            }
-
-            rows(
-                items = entries,
-                key = { it.id },
-            ) { item ->
-
-                ContextMenuArea(
-                    items = {
-                        listOf(
-                            ContextMenuItem("Open Chart") { onOpenChart(item.id) },
-                        )
-                    },
-                ) {
-
-                    Column {
-
-                        DefaultTableRow(item, schema)
-
-                        Divider()
-                    }
-                }
             }
         }
     }

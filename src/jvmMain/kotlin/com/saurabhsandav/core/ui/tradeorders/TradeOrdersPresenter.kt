@@ -8,12 +8,16 @@ import com.saurabhsandav.core.TradeOrder
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrderListItem
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderEntry
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderListItem
 import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams
 import com.saurabhsandav.core.utils.launchUnit
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
@@ -59,14 +63,18 @@ internal class TradeOrdersPresenter(
     }
 
     @Composable
-    private fun getTradeListEntries(): State<Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>> {
+    private fun getTradeListEntries(): State<ImmutableList<TradeOrderListItem>> {
         return remember {
             tradeOrdersRepo.allOrders.map { orders ->
                 orders.groupBy { it.timestamp.date }
-                    .mapKeys { (date, _) -> date.toTradeOrderListDayHeader() }
-                    .mapValues { (_, list) -> list.map { it.toTradeOrderListEntry() } }
+                    .map { (date, list) ->
+                        listOf(
+                            date.toTradeOrderListDayHeader(),
+                            TradeOrderListItem.Entries(list.map { it.toTradeOrderListEntry() }.toImmutableList()),
+                        )
+                    }.flatten().toImmutableList()
             }
-        }.collectAsState(emptyMap())
+        }.collectAsState(persistentListOf())
     }
 
     private fun LocalDate.toTradeOrderListDayHeader(): TradeOrderListItem.DayHeader {
@@ -74,7 +82,7 @@ internal class TradeOrdersPresenter(
         return TradeOrderListItem.DayHeader(formatted)
     }
 
-    private fun TradeOrder.toTradeOrderListEntry() = TradeOrderListItem.Entry(
+    private fun TradeOrder.toTradeOrderListEntry() = TradeOrderEntry(
         id = id,
         broker = broker,
         ticker = ticker,
