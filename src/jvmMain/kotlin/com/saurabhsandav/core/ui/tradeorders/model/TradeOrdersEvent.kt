@@ -11,11 +11,4 @@ internal sealed class TradeOrdersEvent {
     data class LockOrder(val id: Long) : TradeOrdersEvent()
 
     data class DeleteOrder(val id: Long) : TradeOrdersEvent()
-
-    sealed class DeleteConfirmationDialog : TradeOrdersEvent() {
-
-        data class Confirm(val id: Long) : DeleteConfirmationDialog()
-
-        object Dismiss : DeleteConfirmationDialog()
-    }
 }

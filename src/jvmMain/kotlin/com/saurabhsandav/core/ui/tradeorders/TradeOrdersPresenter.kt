@@ -8,7 +8,6 @@ import com.saurabhsandav.core.TradeOrder
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrderListItem
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
@@ -16,7 +15,6 @@ import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState
 import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
@@ -24,8 +22,6 @@ import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.DeleteConfirmationDialog as DeleteConfirmationDialogEvent
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
 internal class TradeOrdersPresenter(
     private val coroutineScope: CoroutineScope,
@@ -46,14 +42,13 @@ internal class TradeOrdersPresenter(
                 is NewOrderFromExisting -> onNewOrderFromExisting(event.id)
                 is LockOrder -> onLockOrder(event.id)
                 is EditOrder -> onEditOrder(event.id)
-                else -> Unit
+                is DeleteOrder -> onDeleteOrder(event.id)
             }
         }
 
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
             orderFormWindowParams = orderFormWindowParams.values,
-            deleteConfirmationDialogState = deleteConfirmationDialogState(events),
         )
     }
 
@@ -139,30 +134,7 @@ internal class TradeOrdersPresenter(
         orderFormWindowParams[key] = params
     }
 
-    @Composable
-    private fun deleteConfirmationDialogState(events: Flow<TradeOrdersEvent>): DeleteConfirmationDialogState {
-
-        var state by state<DeleteConfirmationDialogState> { DeleteConfirmationDialogState.Dismissed }
-
-        CollectEffect(events) { event ->
-
-            state = when (event) {
-                is DeleteOrder -> DeleteConfirmationDialogState.Open(event.id)
-
-                is DeleteConfirmationDialogEvent.Confirm -> {
-                    deleteOrder(event.id)
-                    DeleteConfirmationDialogState.Dismissed
-                }
-
-                DeleteConfirmationDialogEvent.Dismiss -> DeleteConfirmationDialogState.Dismissed
-                else -> state
-            }
-        }
-
-        return state
-    }
-
-    private fun deleteOrder(id: Long) = coroutineScope.launchUnit {
+    private fun onDeleteOrder(id: Long) = coroutineScope.launchUnit {
         tradeOrdersRepo.delete(id)
     }
 }

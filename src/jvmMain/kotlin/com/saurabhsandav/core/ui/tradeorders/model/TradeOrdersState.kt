@@ -7,19 +7,7 @@ import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams
 internal data class TradeOrdersState(
     val tradeOrderItems: Map<TradeOrderListItem.DayHeader, List<TradeOrderListItem.Entry>>,
     val orderFormWindowParams: Collection<OrderFormWindowParams>,
-    val deleteConfirmationDialogState: DeleteConfirmationDialog,
-) {
-
-    @Immutable
-    internal sealed class DeleteConfirmationDialog {
-
-        @Immutable
-        data class Open(val id: Long) : DeleteConfirmationDialog()
-
-        @Immutable
-        object Dismissed : DeleteConfirmationDialog()
-    }
-}
+)
 
 @Immutable
 internal sealed class TradeOrderListItem {
