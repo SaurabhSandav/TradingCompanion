@@ -320,6 +320,7 @@ internal class TradeOrdersRepo(
             quantity = quantity,
             closedQuantity = closedQuantity,
             lots = lots,
+            side = side,
             averageEntry = averageEntry,
             entryTimestamp = entryTimestamp,
             averageExit = averageExit,

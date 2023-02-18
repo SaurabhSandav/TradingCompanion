@@ -30,7 +30,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
 
 update:
 UPDATE Trade
-SET quantity = ?, closedQuantity = ?, lots = ?, averageEntry = ?, entryTimestamp = ?, averageExit = ?,
+SET quantity = ?, closedQuantity = ?, lots = ?, side = ?, averageEntry = ?, entryTimestamp = ?, averageExit = ?,
 exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
 WHERE id = ?;
 
