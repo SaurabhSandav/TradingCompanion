@@ -1,12 +1,11 @@
 package com.saurabhsandav.core.ui.tradeorders.orderform
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
@@ -22,12 +21,13 @@ internal fun OrderFormWindow(
     state: OrderFormWindowState,
 ) {
 
-    val windowState = rememberWindowState()
+    val windowState = rememberWindowState(size = DpSize(300.dp, 400.dp))
 
     AppWindow(
         onCloseRequest = state.params.onCloseRequest,
         state = windowState,
         title = state.windowTitle,
+        resizable = false,
     ) {
 
         Box(Modifier.wrapContentSize()) {
@@ -44,7 +44,7 @@ internal fun OrderFormWindow(
 private fun OrderForm(state: OrderFormWindowState) {
 
     Column(
-        modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min).verticalScroll(rememberScrollState()),
+        modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
@@ -103,7 +103,7 @@ private fun OrderForm(state: OrderFormWindowState) {
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = state::onSaveTrade,
+            onClick = state::onSaveOrder,
         ) {
 
             Text("Add")

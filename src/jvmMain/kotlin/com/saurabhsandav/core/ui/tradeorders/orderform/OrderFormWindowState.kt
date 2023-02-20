@@ -65,16 +65,16 @@ internal class OrderFormWindowState(
         coroutineScope.launch {
 
             when (params.operationType) {
-                New -> windowTitle = "New Trade"
+                New -> windowTitle = "New Order"
                 is NewFromExisting -> newFromExisting(params.operationType.id)
-                is EditExisting -> editExistingTrade(params.operationType.id)
+                is EditExisting -> editExistingOrder(params.operationType.id)
             }
 
             isReady = true
         }
     }
 
-    fun onSaveTrade() = coroutineScope.launchUnit {
+    fun onSaveOrder() = coroutineScope.launchUnit {
 
         if (!formValidator.isValid()) return@launchUnit
 
@@ -111,7 +111,7 @@ internal class OrderFormWindowState(
 
     private suspend fun newFromExisting(id: Long) {
 
-        windowTitle = "New Trade"
+        windowTitle = "New Order"
 
         val order = tradeOrdersRepo.getById(id).first()
 
@@ -126,9 +126,9 @@ internal class OrderFormWindowState(
         }
     }
 
-    private suspend fun editExistingTrade(id: Long) {
+    private suspend fun editExistingOrder(id: Long) {
 
-        windowTitle = "Edit Trade"
+        windowTitle = "Edit Order"
 
         val order = tradeOrdersRepo.getById(id).first()
 
