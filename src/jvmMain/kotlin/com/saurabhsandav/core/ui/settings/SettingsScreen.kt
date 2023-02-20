@@ -1,10 +1,9 @@
 package com.saurabhsandav.core.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,29 +60,39 @@ internal fun SettingsScreen(
     onDensityFractionChange: (Float) -> Unit,
 ) {
 
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+    Box {
 
-        DarkModePreference(
-            darkModeEnabled = darkModeEnabled,
-            onDarkThemeEnabledChange = onDarkThemeEnabledChange,
-        )
+        val scrollState = rememberScrollState()
 
-        Divider()
+        Column(
+            modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
 
-        LandingScreenPreference(
-            items = remember { LandingScreen.items.map { it.title } },
-            selectedItem = landingScreen,
-            onLandingScreenChange = onLandingScreenChange,
-        )
+            DarkModePreference(
+                darkModeEnabled = darkModeEnabled,
+                onDarkThemeEnabledChange = onDarkThemeEnabledChange,
+            )
 
-        Divider()
+            Divider()
 
-        DensityPreference(
-            densityFraction = densityFraction,
-            onDensityFractionChange = onDensityFractionChange,
+            LandingScreenPreference(
+                items = remember { LandingScreen.items.map { it.title } },
+                selectedItem = landingScreen,
+                onLandingScreenChange = onLandingScreenChange,
+            )
+
+            Divider()
+
+            DensityPreference(
+                densityFraction = densityFraction,
+                onDensityFractionChange = onDensityFractionChange,
+            )
+        }
+
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(scrollState)
         )
     }
 }

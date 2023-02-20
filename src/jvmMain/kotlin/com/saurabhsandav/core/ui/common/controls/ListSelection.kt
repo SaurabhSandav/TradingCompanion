@@ -1,13 +1,17 @@
 package com.saurabhsandav.core.ui.common.controls
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -115,42 +119,52 @@ fun ListSelectionDialog(
 
             SideEffect { focusRequester.requestFocus() }
 
-            LazyColumn {
+            Box {
 
-                items(
-                    items = filteredItems,
-                    key = { it },
-                ) { itemText ->
+                val lazyListState = rememberLazyListState()
 
-                    ListItem(
-                        modifier = Modifier.clickable { onSelection(itemText) },
-                        headlineText = {
+                LazyColumn(state = lazyListState) {
 
-                            val filterHighlightedText by remember(itemText) {
-                                derivedStateOf {
-                                    buildAnnotatedString {
+                    items(
+                        items = filteredItems,
+                        key = { it },
+                    ) { itemText ->
 
-                                        val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
-                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                        val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+                        ListItem(
+                            modifier = Modifier.clickable { onSelection(itemText) },
+                            headlineText = {
 
-                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                            append(itemText.substring(filterQueryIndices))
+                                val filterHighlightedText by remember(itemText) {
+                                    derivedStateOf {
+                                        buildAnnotatedString {
+
+                                            val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
+                                            val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
+                                            val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+
+                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                append(itemText.substring(filterQueryIndices))
+                                            }
+
+                                            append(itemText.removeRange(filterQueryIndices))
                                         }
-
-                                        append(itemText.removeRange(filterQueryIndices))
                                     }
                                 }
-                            }
 
-                            Text(
-                                text = filterHighlightedText,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    )
+                                Text(
+                                    text = filterHighlightedText,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        )
+                    }
                 }
+
+                VerticalScrollbar(
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                    adapter = rememberScrollbarAdapter(lazyListState)
+                )
             }
 
             Text(filterQuery, Modifier.align(Alignment.BottomStart))

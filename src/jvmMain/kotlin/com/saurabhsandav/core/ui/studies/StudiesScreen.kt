@@ -1,12 +1,18 @@
 package com.saurabhsandav.core.ui.studies
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
@@ -27,16 +33,28 @@ internal fun StudiesScreen(
     // Set window title
     LaunchedEffect(appWindowState) { appWindowState.title = "Studies" }
 
+    Box {
 
-    LazyColumn(Modifier.fillMaxSize()) {
+        val lazyListState = rememberLazyListState()
 
-        items(items = state.studyFactories) { studyFactory ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = lazyListState,
+        ) {
 
-            ListItem(
-                modifier = Modifier.clickable { studyWindowsManager.openNewWindow(studyFactory) },
-                headlineText = { Text(studyFactory.name) },
-            )
+            items(items = state.studyFactories) { studyFactory ->
+
+                ListItem(
+                    modifier = Modifier.clickable { studyWindowsManager.openNewWindow(studyFactory) },
+                    headlineText = { Text(studyFactory.name) },
+                )
+            }
         }
+
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(lazyListState)
+        )
     }
 
     studyWindowsManager.windows.forEach { windowEntry ->
