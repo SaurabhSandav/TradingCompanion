@@ -65,7 +65,7 @@ internal class ReplayChartsPresenter(
     private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
     private var selectedChartSession: ChartSession? = null
     private val chartSessions = mutableListOf<ChartSession>()
-    private val tabsState: StockChartTabsState = StockChartTabsState(
+    private val tabsState = StockChartTabsState(
         onNew = ::newChart,
         onSelect = ::selectChart,
         onClose = ::closeChart,
@@ -124,7 +124,10 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun newChart(tabId: Int) = coroutineScope.launchUnit {
+    private fun newChart(
+        tabId: Int,
+        updateTitle: (String) -> Unit,
+    ) = coroutineScope.launchUnit {
 
         // Add new chart
         val actualChart = pagedChartArrangement.newChart(
@@ -135,7 +138,7 @@ internal class ReplayChartsPresenter(
             appModule = appModule,
             actualChart = actualChart,
             onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
-            onTitleUpdate = { tabsState.setTitle(tabId, it) },
+            onTitleUpdate = updateTitle,
         )
 
         // Create new chart session

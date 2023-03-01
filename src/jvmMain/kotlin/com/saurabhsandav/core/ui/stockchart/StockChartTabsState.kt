@@ -3,9 +3,12 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.runtime.*
 
 class StockChartTabsState(
-    private val onNew: (Int) -> Unit,
-    private val onSelect: (Int) -> Unit,
-    private val onClose: (Int) -> Unit,
+    private val onNew: (
+        tabId: Int,
+        updateTitle: (String) -> Unit,
+    ) -> Unit,
+    private val onSelect: (tabId: Int) -> Unit,
+    private val onClose: (tabId: Int) -> Unit,
 ) {
 
     private var nextId = 0
@@ -26,7 +29,7 @@ class StockChartTabsState(
 
         selectedTabIndex = tabs.lastIndex
 
-        onNew(id)
+        onNew(id) { setTitle(id, it) }
     }
 
     fun selectTab(id: Int) {
@@ -101,7 +104,7 @@ class StockChartTabsState(
         tabs.add(++selectedTabIndex, tab)
     }
 
-    fun setTitle(id: Int, title: String) {
+    private fun setTitle(id: Int, title: String) {
 
         val index = tabs.indexOfFirst { it.id == id }
 
