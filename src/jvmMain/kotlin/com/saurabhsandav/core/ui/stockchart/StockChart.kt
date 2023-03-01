@@ -17,6 +17,7 @@ import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
@@ -37,6 +38,7 @@ internal class StockChart(
     val actualChart: IChartApi,
     appPrefs: FlowSettings = appModule.appPrefs,
     onLegendUpdate: (List<String>) -> Unit,
+    private val onTitleUpdate: (String) -> Unit,
 ) {
 
     private val coroutineScope = MainScope()
@@ -62,6 +64,8 @@ internal class StockChart(
     }
 
     fun setCandleSource(source: CandleSource) {
+
+        onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
 
         plotters.forEach { it.remove() }
         plotters.clear()

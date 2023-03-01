@@ -29,7 +29,6 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
-import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
@@ -105,31 +104,23 @@ internal class ChartsPresenter(
             appModule = appModule,
             actualChart = actualChart,
             onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
+            onTitleUpdate = { tabsState.setTitle(tabId, it) },
         )
 
         // Create new chart session
         val chartSession = when (selectedChartSession) {
             // First chart, create chart session with initial params
-            null -> {
-
-                // Set tab title
-                tabsState.setTitle(tabId, tabTitle(initialTicker, initialTimeframe))
-
-                ChartSession(
-                    tabId = tabId,
-                    ticker = initialTicker,
-                    timeframe = initialTimeframe,
-                    stockChart = stockChart,
-                )
-            }
+            null -> ChartSession(
+                tabId = tabId,
+                ticker = initialTicker,
+                timeframe = initialTimeframe,
+                stockChart = stockChart,
+            )
             // Copy currently selected chart session
             else -> {
 
                 // Currently selected chart session
                 val chartSession = requireNotNull(selectedChartSession)
-
-                // Set tab title
-                tabsState.setTitle(tabId, tabTitle(chartSession.ticker, chartSession.timeframe))
 
                 // Create new chart session with existing params
                 chartSession.copy(
@@ -215,9 +206,6 @@ internal class ChartsPresenter(
 
         // Update chart info
         chartInfo = chartInfo.copy(ticker = ticker)
-
-        // Update tab title
-        tabsState.setTitle(chartSession.tabId, tabTitle(ticker, chartSession.timeframe))
     }
 
     private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
@@ -237,9 +225,6 @@ internal class ChartsPresenter(
 
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe)
-
-        // Update tab title
-        tabsState.setTitle(chartSession.tabId, tabTitle(chartSession.ticker, timeframe))
     }
 
     private suspend fun ChartSession.buildCandleSource(): CandleSource {
@@ -255,6 +240,8 @@ internal class ChartsPresenter(
         )
 
         return CandleSource(
+            ticker = ticker,
+            timeframe = timeframe,
             candleSeries = mutableCandleSeries.asCandleSeries(),
             hasVolume = ticker != "NIFTY50",
             onLoadBefore = {
@@ -335,11 +322,6 @@ internal class ChartsPresenter(
             onNotified = { errors -= it },
         )
     }
-
-    private fun tabTitle(
-        ticker: String,
-        timeframe: Timeframe,
-    ): String = "$ticker (${timeframe.toLabel()})"
 
     private data class ChartSession(
         val tabId: Int,

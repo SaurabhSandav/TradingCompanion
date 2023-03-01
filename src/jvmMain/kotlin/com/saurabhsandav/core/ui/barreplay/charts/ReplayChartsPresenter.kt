@@ -26,7 +26,6 @@ import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
-import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
@@ -136,15 +135,13 @@ internal class ReplayChartsPresenter(
             appModule = appModule,
             actualChart = actualChart,
             onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
+            onTitleUpdate = { tabsState.setTitle(tabId, it) },
         )
 
         // Create new chart session
         val chartSession = when (selectedChartSession) {
             // First chart, create chart session with initial params
             null -> {
-
-                // Set tab title
-                tabsState.setTitle(tabId, tabTitle(initialTicker, baseTimeframe))
 
                 val replaySession = createReplaySession(initialTicker, baseTimeframe)
 
@@ -174,7 +171,7 @@ internal class ReplayChartsPresenter(
                     tabId = tabId,
                     replaySession = replaySession,
                     stockChart = stockChart,
-                ).also { setTabTitle(it) }
+                )
             }
         }
 
@@ -270,9 +267,6 @@ internal class ReplayChartsPresenter(
         // Update chart info
         chartInfo = chartInfo.copy(ticker = ticker)
 
-        // Set Tab Title
-        setTabTitle(newChartSession)
-
         // Show replay time using new session
         replayTimeJob.cancel()
         replayTimeJob = coroutineScope.launch {
@@ -307,9 +301,6 @@ internal class ReplayChartsPresenter(
         // Update chart info
         chartInfo = chartInfo.copy(timeframe = timeframe)
 
-        // Set Tab Title
-        setTabTitle(newChartSession)
-
         // Show replay time using new session
         replayTimeJob.cancel()
         replayTimeJob = coroutineScope.launch {
@@ -319,6 +310,8 @@ internal class ReplayChartsPresenter(
 
     private fun ChartSession.buildCandleSource(): CandleSource {
         return CandleSource(
+            ticker = ticker,
+            timeframe = timeframe,
             candleSeries = replaySession.replaySeries,
             hasVolume = ticker != "NIFTY50",
         )
@@ -395,15 +388,6 @@ internal class ReplayChartsPresenter(
     private fun updateTime(currentInstant: Instant) {
         val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
         replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
-    }
-
-    private fun tabTitle(
-        ticker: String,
-        timeframe: Timeframe,
-    ): String = "$ticker (${timeframe.toLabel()})"
-
-    private fun setTabTitle(chartSession: ChartSession) {
-        tabsState.setTitle(chartSession.tabId, tabTitle(chartSession.ticker, chartSession.timeframe))
     }
 
     private data class ChartSession(

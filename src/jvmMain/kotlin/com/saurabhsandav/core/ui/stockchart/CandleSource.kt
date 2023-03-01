@@ -4,12 +4,15 @@ import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class CandleSource(
+    val ticker: String,
+    val timeframe: Timeframe,
     val candleSeries: CandleSeries,
     val hasVolume: Boolean,
     private val onLoadBefore: (suspend () -> Boolean)? = null,
