@@ -134,9 +134,6 @@ internal class ChartsPresenter(
             ticker = selectedChartSession?.stockChart?.currentParams?.ticker ?: initialTicker,
             timeframe = selectedChartSession?.stockChart?.currentParams?.timeframe ?: initialTimeframe,
         )
-
-        // Switch to new tab/chart
-        selectChart(tabId)
     }
 
     private fun closeChart(tabId: Int) {

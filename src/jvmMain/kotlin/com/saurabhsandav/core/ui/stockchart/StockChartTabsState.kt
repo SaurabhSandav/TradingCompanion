@@ -27,9 +27,9 @@ class StockChartTabsState(
 
         tabs.add(TabInfo(id, ""))
 
-        selectedTabIndex = tabs.lastIndex
-
         onNew(id) { setTitle(id, it) }
+
+        selectTab(id)
     }
 
     fun selectTab(id: Int) {

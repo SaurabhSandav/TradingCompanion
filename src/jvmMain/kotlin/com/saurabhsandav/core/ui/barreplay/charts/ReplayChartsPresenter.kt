@@ -174,9 +174,6 @@ internal class ReplayChartsPresenter(
             ticker = selectedChartSession?.stockChart?.currentParams?.ticker ?: initialTicker,
             timeframe = selectedChartSession?.stockChart?.currentParams?.timeframe ?: baseTimeframe,
         )
-
-        // Switch to new chart
-        selectChart(tabId)
     }
 
     private fun closeChart(tabId: Int) {
