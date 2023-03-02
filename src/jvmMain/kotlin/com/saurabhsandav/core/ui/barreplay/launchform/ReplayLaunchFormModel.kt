@@ -21,7 +21,7 @@ class ReplayLaunchFormModel(
     replayFrom: LocalDateTime,
     dataTo: LocalDateTime,
     replayFullBar: Boolean,
-    initialSymbol: String?,
+    initialTicker: String?,
 ) {
 
     val baseTimeframe = validator.listSelectionField(baseTimeframe)
@@ -60,5 +60,5 @@ class ReplayLaunchFormModel(
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialSymbol = validator.listSelectionField(initialSymbol)
+    val initialTicker = validator.listSelectionField(initialTicker)
 }

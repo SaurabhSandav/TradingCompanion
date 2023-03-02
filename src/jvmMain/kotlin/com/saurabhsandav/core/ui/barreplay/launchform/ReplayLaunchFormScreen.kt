@@ -88,12 +88,12 @@ internal fun ReplayLaunchFormScreen(
 
             ListSelectionField(
                 items = NIFTY50,
-                onSelection = { model.initialSymbol.value = it },
-                selection = model.initialSymbol.value,
+                onSelection = { model.initialTicker.value = it },
+                selection = model.initialTicker.value,
                 label = { Text("Ticker") },
                 placeholderText = "Select Ticker...",
-                isError = model.initialSymbol.isError,
-                supportingText = optionalContent(model.initialSymbol.errorMessage) { Text(it) },
+                isError = model.initialTicker.isError,
+                supportingText = optionalContent(model.initialTicker.errorMessage) { Text(it) },
             )
 
             Divider()

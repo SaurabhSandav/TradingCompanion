@@ -316,7 +316,7 @@ internal class CloseTradeFormWindowState(
         val entryInstant = model.entryDateTime.value.toInstant(TimeZone.currentSystemDefault())
 
         val candlesResult = candleRepo.getCandles(
-            symbol = model.ticker.value!!,
+            ticker = model.ticker.value!!,
             timeframe = timeframe,
             from = entryInstant - timeframe.seconds.seconds,
             // Up to start of next day. Assume session only lasts the same day

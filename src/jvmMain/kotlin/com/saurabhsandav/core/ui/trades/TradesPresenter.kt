@@ -28,18 +28,11 @@ import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
-import com.saurabhsandav.core.ui.trades.model.*
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
-import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -165,7 +158,7 @@ internal class TradesPresenter(
 
         // Get candles
         val candlesResult = CandleRepository(appModule).getCandles(
-            symbol = trade.ticker,
+            ticker = trade.ticker,
             timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),

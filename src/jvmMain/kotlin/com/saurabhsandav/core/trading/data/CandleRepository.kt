@@ -20,22 +20,22 @@ internal class CandleRepository(
 ) {
 
     suspend fun getCandles(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): Result<List<Candle>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
-        val fillResult = checkAndFillRange(symbol, timeframe, from, to)
+        val fillResult = checkAndFillRange(ticker, timeframe, from, to)
         if (fillResult is Err) return fillResult
 
         // Fetch and return candles
-        return Ok(candleCache.fetchRange(symbol, timeframe, from, to))
+        return Ok(candleCache.fetchRange(ticker, timeframe, from, to))
     }
 
     suspend fun getCandles(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
         before: Int,
@@ -43,21 +43,21 @@ internal class CandleRepository(
     ): Result<List<Candle>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
-        val fillResult = checkAndFillRangeByCount(symbol, timeframe, at, before, after)
+        val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, before, after)
         if (fillResult is Err) return fillResult
 
         // Fetch and return candles
-        return Ok(candleCache.fetchByCount(symbol, timeframe, at, before, after))
+        return Ok(candleCache.fetchByCount(ticker, timeframe, at, before, after))
     }
 
     private suspend fun checkAndFillRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): Result<Unit, Error> {
 
-        val availableRange = candleCache.getCachedRange(symbol, timeframe)
+        val availableRange = candleCache.getCachedRange(ticker, timeframe)
 
         fun ClosedRange<Instant>.prevCandleInstant() = start.minus(timeframe.seconds, DateTimeUnit.SECOND)
         fun ClosedRange<Instant>.nextCandleInstant() = endInclusive.plus(timeframe.seconds, DateTimeUnit.SECOND)
@@ -98,8 +98,8 @@ internal class CandleRepository(
         }
 
         downloadRanges.filterNot { range -> range.start > range.endInclusive }.forEach { range ->
-            when (val result = download(symbol, timeframe, range)) {
-                is Ok -> candleCache.save(symbol, timeframe, result.value)
+            when (val result = download(ticker, timeframe, range)) {
+                is Ok -> candleCache.save(ticker, timeframe, result.value)
                 is Err -> return when (val error = result.error) {
                     is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
                     is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
@@ -111,7 +111,7 @@ internal class CandleRepository(
     }
 
     private suspend fun checkAndFillRangeByCount(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
         before: Int,
@@ -122,10 +122,10 @@ internal class CandleRepository(
 
         // Check and fill range around $at by default
         // If $at is outside an already cached range, this will fill the gaps between $at and the range.
-        val fillResult = checkAndFillRange(symbol, timeframe, at - downloadInterval, at + downloadInterval)
+        val fillResult = checkAndFillRange(ticker, timeframe, at - downloadInterval, at + downloadInterval)
         if (fillResult is Err) return fillResult
 
-        val initialCountRange = candleCache.getCountAt(symbol, timeframe, at)!!
+        val initialCountRange = candleCache.getCountAt(ticker, timeframe, at)!!
 
         // Not enough candles available before $at
         if (initialCountRange.beforeCount < before) {
@@ -138,11 +138,11 @@ internal class CandleRepository(
                 val firstCandleInstant = currentCountRange.firstCandleInstant
 
                 // Download given interval's worth before the first available candle
-                val beforeFillResult = checkAndFillRange(symbol, timeframe, firstCandleInstant - downloadInterval, at)
+                val beforeFillResult = checkAndFillRange(ticker, timeframe, firstCandleInstant - downloadInterval, at)
                 if (beforeFillResult is Err) return beforeFillResult
 
                 // Count range after download
-                val newCountRange = candleCache.getCountAt(symbol, timeframe, at)!!
+                val newCountRange = candleCache.getCountAt(ticker, timeframe, at)!!
 
                 // If no new candles downloaded, no new candles are available. Stop trying to download more.
                 if (newCountRange.firstCandleInstant == firstCandleInstant) break
@@ -163,11 +163,11 @@ internal class CandleRepository(
                 val lastCandleInstant = currentCountRange.lastCandleInstant
 
                 // Download given interval's worth after the last available candle
-                val afterFillResult = checkAndFillRange(symbol, timeframe, at, lastCandleInstant + downloadInterval)
+                val afterFillResult = checkAndFillRange(ticker, timeframe, at, lastCandleInstant + downloadInterval)
                 if (afterFillResult is Err) return afterFillResult
 
                 // Count range after download
-                val newCountRange = candleCache.getCountAt(symbol, timeframe, at)!!
+                val newCountRange = candleCache.getCountAt(ticker, timeframe, at)!!
 
                 // If no new candles downloaded, no new candles are available. Stop trying to download more.
                 if (newCountRange.lastCandleInstant == lastCandleInstant) break
@@ -181,7 +181,7 @@ internal class CandleRepository(
     }
 
     private suspend fun download(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         range: ClosedRange<Instant>,
     ): Result<List<Candle>, CandleDownloader.Error> {
@@ -195,14 +195,14 @@ internal class CandleRepository(
         if (from == correctedTo || from > currentTime) return Ok(emptyList())
 
         // Download candles
-        val candles = when (val result = candleDownloader.download(symbol, timeframe, from, correctedTo)) {
+        val candles = when (val result = candleDownloader.download(ticker, timeframe, from, correctedTo)) {
             is Err -> return result
             is Ok -> result.value
         }
 
         // Save checked range to avoid re-attempt at downloading already checked range
         candleCache.saveCheckedRange(
-            symbol = symbol,
+            ticker = ticker,
             timeframe = timeframe,
             from = from,
             // Next time re-fetch last candle just in case it wasn't finished this time.

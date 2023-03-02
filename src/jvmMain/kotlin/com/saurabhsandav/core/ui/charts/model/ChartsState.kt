@@ -18,7 +18,7 @@ data class ChartsState(
 
     @Immutable
     data class ChartInfo(
-        val symbol: String,
+        val ticker: String,
         val timeframe: Timeframe,
     )
 

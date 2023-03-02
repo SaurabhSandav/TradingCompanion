@@ -7,32 +7,32 @@ import kotlinx.datetime.Instant
 interface CandleCache {
 
     suspend fun saveCheckedRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     )
 
     suspend fun getCachedRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
 
     suspend fun fetchRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): List<Candle>
 
     suspend fun getCountAt(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
     ): CountRange?
 
     suspend fun fetchByCount(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
         before: Int,
@@ -40,7 +40,7 @@ interface CandleCache {
     ): List<Candle>
 
     suspend fun save(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         candles: List<Candle>,
     )

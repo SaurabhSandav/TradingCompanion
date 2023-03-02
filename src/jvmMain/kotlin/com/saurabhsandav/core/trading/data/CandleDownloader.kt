@@ -8,7 +8,7 @@ import kotlinx.datetime.Instant
 interface CandleDownloader {
 
     suspend fun download(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,

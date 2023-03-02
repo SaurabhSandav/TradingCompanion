@@ -29,7 +29,7 @@ internal fun ReplayCharts(
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
-    onSymbolChange: (String) -> Unit,
+    onTickerChange: (String) -> Unit,
     onTimeframeChange: (Timeframe) -> Unit,
 ) {
 
@@ -52,8 +52,8 @@ internal fun ReplayCharts(
 
         ListSelectionField(
             items = NIFTY50,
-            selection = chartInfo.symbol,
-            onSelection = onSymbolChange,
+            selection = chartInfo.ticker,
+            onSelection = onTickerChange,
             label = { Text("Ticker") },
         )
 

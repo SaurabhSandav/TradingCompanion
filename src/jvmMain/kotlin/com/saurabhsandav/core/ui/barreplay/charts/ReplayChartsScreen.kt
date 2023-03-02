@@ -15,7 +15,7 @@ internal fun ReplayChartsScreen(
     replayFrom: Instant,
     dataTo: Instant,
     replayFullBar: Boolean,
-    initialSymbol: String,
+    initialTicker: String,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -28,7 +28,7 @@ internal fun ReplayChartsScreen(
             replayFrom = replayFrom,
             dataTo = dataTo,
             replayFullBar = replayFullBar,
-            initialSymbol = initialSymbol,
+            initialTicker = initialTicker,
             appModule = appModule
         )
     }
@@ -42,7 +42,7 @@ internal fun ReplayChartsScreen(
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
         onIsAutoNextEnabledChange = { presenter.event(ChangeIsAutoNextEnabled(it)) },
-        onSymbolChange = { presenter.event(ChangeSymbol(it)) },
+        onTickerChange = { presenter.event(ChangeTicker(it)) },
         onTimeframeChange = { presenter.event(ChangeTimeframe(it)) },
     )
 }

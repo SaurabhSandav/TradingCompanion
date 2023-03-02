@@ -19,7 +19,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeSymbol
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTicker
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTimeframe
 import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.ChartInfo
@@ -54,7 +54,7 @@ internal class ChartsPresenter(
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val initialSymbol = NIFTY50.first()
+    private val initialTicker = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
     private val pagedChartArrangement = ChartArrangement.paged()
     private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
@@ -67,7 +67,7 @@ internal class ChartsPresenter(
         onSelect = ::selectChart,
         onClose = ::closeChart,
     )
-    private var chartInfo by mutableStateOf(ChartInfo(initialSymbol, initialTimeframe))
+    private var chartInfo by mutableStateOf(ChartInfo(initialTicker, initialTimeframe))
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
@@ -76,7 +76,7 @@ internal class ChartsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is ChangeSymbol -> onChangeSymbol(event.newSymbol)
+                is ChangeTicker -> onChangeTicker(event.newTicker)
                 is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
         }
@@ -113,11 +113,11 @@ internal class ChartsPresenter(
             null -> {
 
                 // Set tab title
-                tabsState.setTitle(tabId, tabTitle(initialSymbol, initialTimeframe))
+                tabsState.setTitle(tabId, tabTitle(initialTicker, initialTimeframe))
 
                 ChartSession(
                     tabId = tabId,
-                    ticker = initialSymbol,
+                    ticker = initialTicker,
                     timeframe = initialTimeframe,
                     stockChart = stockChart,
                 )
@@ -190,7 +190,7 @@ internal class ChartsPresenter(
 
         // Display newly selected chart info
         chartInfo = ChartInfo(
-            symbol = chartSession.ticker,
+            ticker = chartSession.ticker,
             timeframe = chartSession.timeframe,
         )
 
@@ -198,14 +198,14 @@ internal class ChartsPresenter(
         pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
     }
 
-    private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
+    private fun onChangeTicker(ticker: String) = coroutineScope.launchUnit {
 
         // Currently selected chart session
         val chartSession = requireNotNull(selectedChartSession)
         val chartSessionIndex = chartSessions.indexOf(chartSession)
 
         // New chart session
-        val newChartSession = chartSession.copy(ticker = symbol)
+        val newChartSession = chartSession.copy(ticker = ticker)
 
         // Update chart session
         chartSessions[chartSessionIndex] = newChartSession
@@ -214,10 +214,10 @@ internal class ChartsPresenter(
         newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
-        chartInfo = chartInfo.copy(symbol = symbol)
+        chartInfo = chartInfo.copy(ticker = ticker)
 
         // Update tab title
-        tabsState.setTitle(chartSession.tabId, tabTitle(symbol, chartSession.timeframe))
+        tabsState.setTitle(chartSession.tabId, tabTitle(ticker, chartSession.timeframe))
     }
 
     private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
@@ -245,7 +245,7 @@ internal class ChartsPresenter(
     private suspend fun ChartSession.buildCandleSource(): CandleSource {
 
         val mutableCandleSeries = getCandleSeries(
-            symbol = ticker,
+            ticker = ticker,
             timeframe = timeframe,
             // Range of 3 months before current time to current time
             range = run {
@@ -262,7 +262,7 @@ internal class ChartsPresenter(
                 val firstCandleInstant = mutableCandleSeries.first().openInstant
 
                 val oldCandles = getCandleSeries(
-                    symbol = ticker,
+                    ticker = ticker,
                     timeframe = timeframe,
                     range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
                 )
@@ -279,14 +279,14 @@ internal class ChartsPresenter(
     }
 
     private suspend fun getCandleSeries(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         range: ClosedRange<Instant>,
         retryOnLogin: Boolean = true,
     ): MutableCandleSeries {
 
         val candlesResult = candleRepo.getCandles(
-            symbol = symbol,
+            ticker = ticker,
             timeframe = timeframe,
             from = range.start,
             to = range.endInclusive,
@@ -299,7 +299,7 @@ internal class ChartsPresenter(
 
                     if (retryOnLogin) {
                         val loginSuccessful = onCandleDataLogin()
-                        if (loginSuccessful) return getCandleSeries(symbol, timeframe, range, false)
+                        if (loginSuccessful) return getCandleSeries(ticker, timeframe, range, false)
                     }
 
                     error("AuthError")

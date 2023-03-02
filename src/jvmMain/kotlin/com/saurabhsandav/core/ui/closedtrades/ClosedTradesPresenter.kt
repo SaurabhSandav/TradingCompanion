@@ -197,7 +197,7 @@ internal class ClosedTradesPresenter(
 
         // Get candles
         val candlesResult = CandleRepository(appModule).getCandles(
-            symbol = closedTrade.ticker,
+            ticker = closedTrade.ticker,
             timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),

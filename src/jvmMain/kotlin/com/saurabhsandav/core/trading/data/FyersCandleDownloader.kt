@@ -26,7 +26,7 @@ internal class FyersCandleDownloader(
     private var accessToken: String? = null
 
     override suspend fun download(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
@@ -38,9 +38,9 @@ internal class FyersCandleDownloader(
         }
 
         // Fyers symbol notation
-        val symbolFull = when (symbol) {
-            "NIFTY50" -> "NSE:$symbol-INDEX"
-            else -> "NSE:$symbol-EQ"
+        val symbolFull = when (ticker) {
+            "NIFTY50" -> "NSE:$ticker-INDEX"
+            else -> "NSE:$ticker-EQ"
         }
 
         val candles = mutableListOf<Candle>()

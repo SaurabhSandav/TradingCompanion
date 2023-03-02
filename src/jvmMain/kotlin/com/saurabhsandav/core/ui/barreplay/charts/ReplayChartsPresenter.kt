@@ -47,7 +47,7 @@ internal class ReplayChartsPresenter(
     private val replayFrom: Instant,
     private val dataTo: Instant,
     replayFullBar: Boolean,
-    private val initialSymbol: String,
+    private val initialTicker: String,
     private val appModule: AppModule,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
 ) {
@@ -71,7 +71,7 @@ internal class ReplayChartsPresenter(
         onSelect = ::selectChart,
         onClose = ::closeChart,
     )
-    private var chartInfo by mutableStateOf(ReplayChartInfo(initialSymbol, baseTimeframe))
+    private var chartInfo by mutableStateOf(ReplayChartInfo(initialTicker, baseTimeframe))
     private var replayTime by mutableStateOf("")
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -82,7 +82,7 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
-                is ChangeSymbol -> onChangeSymbol(event.newSymbol)
+                is ChangeTicker -> onChangeTicker(event.newTicker)
                 is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
         }
@@ -144,13 +144,13 @@ internal class ReplayChartsPresenter(
             null -> {
 
                 // Set tab title
-                tabsState.setTitle(tabId, tabTitle(initialSymbol, baseTimeframe))
+                tabsState.setTitle(tabId, tabTitle(initialTicker, baseTimeframe))
 
-                val replaySession = createReplaySession(initialSymbol, baseTimeframe)
+                val replaySession = createReplaySession(initialTicker, baseTimeframe)
 
                 ChartSession(
                     tabId = tabId,
-                    ticker = initialSymbol,
+                    ticker = initialTicker,
                     timeframe = baseTimeframe,
                     // New replay session
                     replaySession = replaySession,
@@ -165,7 +165,7 @@ internal class ReplayChartsPresenter(
 
                 // New replay session
                 val replaySession = createReplaySession(
-                    symbol = chartSession.ticker,
+                    ticker = chartSession.ticker,
                     timeframe = chartSession.timeframe,
                 )
 
@@ -229,7 +229,7 @@ internal class ReplayChartsPresenter(
 
         // Display newly selected chart info
         chartInfo = ReplayChartInfo(
-            symbol = chartSession.ticker,
+            ticker = chartSession.ticker,
             timeframe = chartSession.timeframe,
         )
 
@@ -243,7 +243,7 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun onChangeSymbol(symbol: String) = coroutineScope.launchUnit {
+    private fun onChangeTicker(ticker: String) = coroutineScope.launchUnit {
 
         // Currently selected chart session
         val chartSession = requireNotNull(selectedChartSession)
@@ -253,11 +253,11 @@ internal class ReplayChartsPresenter(
         barReplay.removeSession(chartSession.replaySession)
 
         // New replay session
-        val replaySession = createReplaySession(symbol, chartSession.timeframe)
+        val replaySession = createReplaySession(ticker, chartSession.timeframe)
 
         // New chart session
         val newChartSession = chartSession.copy(
-            ticker = symbol,
+            ticker = ticker,
             replaySession = replaySession,
         )
 
@@ -268,7 +268,7 @@ internal class ReplayChartsPresenter(
         newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
-        chartInfo = chartInfo.copy(symbol = symbol)
+        chartInfo = chartInfo.copy(ticker = ticker)
 
         // Set Tab Title
         setTabTitle(newChartSession)
@@ -325,12 +325,12 @@ internal class ReplayChartsPresenter(
     }
 
     private suspend fun createReplaySession(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
     ): BarReplaySession {
 
-        val candleSeries = getCandleSeries(symbol, baseTimeframe)
-        val timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(symbol, timeframe)
+        val candleSeries = getCandleSeries(ticker, baseTimeframe)
+        val timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe)
 
         return barReplay.newSession { currentOffset, currentCandleState ->
 
@@ -355,15 +355,15 @@ internal class ReplayChartsPresenter(
     }
 
     private suspend fun getCandleSeries(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
-    ): CandleSeries = candleCache.getOrPut("${symbol}_${timeframe.seconds}") {
+    ): CandleSeries = candleCache.getOrPut("${ticker}_${timeframe.seconds}") {
 
         val allCandlesResult = binding {
 
             val candlesBefore = async {
                 candleRepo.getCandles(
-                    symbol = symbol,
+                    ticker = ticker,
                     timeframe = timeframe,
                     at = replayFrom,
                     before = candlesBefore,
@@ -373,7 +373,7 @@ internal class ReplayChartsPresenter(
 
             val candlesAfter = async {
                 candleRepo.getCandles(
-                    symbol = symbol,
+                    ticker = ticker,
                     timeframe = timeframe,
                     from = replayFrom,
                     to = dataTo,

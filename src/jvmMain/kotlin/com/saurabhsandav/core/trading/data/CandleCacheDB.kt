@@ -20,14 +20,14 @@ class CandleDBCollection {
 
     private val dbMap = mutableMapOf<String, CandleDB>()
 
-    fun get(symbol: String, timeframe: Timeframe): CandleDB {
+    fun get(ticker: String, timeframe: Timeframe): CandleDB {
 
         val candlesFolderPath = Path("${AppPaths.getAppDataPath()}/Candles")
 
         // Create if not exists
         if (!Files.exists(candlesFolderPath)) Files.createDirectory(candlesFolderPath)
 
-        val dbName = "${symbol}_${timeframe.seconds}"
+        val dbName = "${ticker}_${timeframe.seconds}"
 
         return dbMap.getOrPut(dbName) {
             val driver = JdbcSqliteDriver("jdbc:sqlite:$candlesFolderPath/${dbName}.db")
@@ -43,7 +43,7 @@ internal class CandleCacheDB(
 ) : CandleCache {
 
     override suspend fun saveCheckedRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
@@ -51,8 +51,8 @@ internal class CandleCacheDB(
 
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
-        val checkedRangeQueries = candleDBCollection.get(symbol, timeframe).checkedRangeQueries
-        val currentRange = getCachedRange(symbol, timeframe)
+        val checkedRangeQueries = candleDBCollection.get(ticker, timeframe).checkedRangeQueries
+        val currentRange = getCachedRange(ticker, timeframe)
 
         // Expand range on either side
         val minFrom = minOf(from, currentRange?.start ?: from)
@@ -62,11 +62,11 @@ internal class CandleCacheDB(
     }
 
     override suspend fun getCachedRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>? {
 
-        val checkedRangeQueries = candleDBCollection.get(symbol, timeframe).checkedRangeQueries
+        val checkedRangeQueries = candleDBCollection.get(ticker, timeframe).checkedRangeQueries
 
         return checkedRangeQueries
             .get { _, start, end -> Instant.fromEpochSeconds(start)..Instant.fromEpochSeconds(end) }
@@ -76,13 +76,13 @@ internal class CandleCacheDB(
     }
 
     override suspend fun fetchRange(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): List<Candle> {
 
-        val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
+        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
 
         return candlesQueries.getInRange(
             from = from.epochSeconds,
@@ -100,12 +100,12 @@ internal class CandleCacheDB(
     }
 
     override suspend fun getCountAt(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
     ): CandleCache.CountRange? {
 
-        val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
+        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
         val result =
             candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds).asFlow().mapToList(Dispatchers.IO).first()
 
@@ -121,7 +121,7 @@ internal class CandleCacheDB(
     }
 
     override suspend fun fetchByCount(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         at: Instant,
         before: Int,
@@ -130,7 +130,7 @@ internal class CandleCacheDB(
 
         require(before > 0 || after > 0) { "CandleCacheDB: Both before and after cannot be 0 or less than 0" }
 
-        val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
+        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
 
         return candlesQueries.getAtByCount(
             at = at.epochSeconds,
@@ -149,12 +149,12 @@ internal class CandleCacheDB(
     }
 
     override suspend fun save(
-        symbol: String,
+        ticker: String,
         timeframe: Timeframe,
         candles: List<Candle>,
     ) = withContext(Dispatchers.IO) {
 
-        val candlesQueries = candleDBCollection.get(symbol, timeframe).candlesQueries
+        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
 
         candlesQueries.transaction {
             candles.forEach { candle ->

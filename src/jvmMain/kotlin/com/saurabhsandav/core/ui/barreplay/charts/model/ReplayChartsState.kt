@@ -14,7 +14,7 @@ data class ReplayChartsState(
 
 @Immutable
 data class ReplayChartInfo(
-    val symbol: String,
+    val ticker: String,
     val timeframe: Timeframe,
     val replayTime: String = "",
 )

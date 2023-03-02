@@ -30,7 +30,7 @@ fun ChartsScreen(
     tabsState: StockChartTabsState,
     chartPageState: ChartPageState,
     chartInfo: ChartsState.ChartInfo,
-    onSymbolChange: (String) -> Unit,
+    onTickerChange: (String) -> Unit,
     onTimeframeChange: (Timeframe) -> Unit,
     fyersLoginWindowState: FyersLoginWindow,
     errors: List<UIErrorMessage>,
@@ -46,8 +46,8 @@ fun ChartsScreen(
 
             ListSelectionField(
                 items = NIFTY50,
-                selection = chartInfo.symbol,
-                onSelection = onSymbolChange,
+                selection = chartInfo.ticker,
+                onSelection = onTickerChange,
                 label = { Text("Ticker") },
             )
 
