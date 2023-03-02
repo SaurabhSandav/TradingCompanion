@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -45,7 +47,9 @@ internal fun ReplayCharts(
 
             Text("Time")
 
-            Text(chartInfo.replayTime, textAlign = TextAlign.End)
+            val replayTime by chartInfo.replayTime.collectAsState("")
+
+            Text(replayTime, textAlign = TextAlign.End)
         }
 
         Divider()

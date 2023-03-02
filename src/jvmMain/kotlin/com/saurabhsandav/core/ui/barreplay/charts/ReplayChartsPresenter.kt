@@ -32,6 +32,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -59,7 +60,6 @@ internal class ReplayChartsPresenter(
     )
     private val pagedChartArrangement = ChartArrangement.paged()
     private var autoNextJob: Job? = null
-    private var replayTimeJob: Job = Job()
     private val candleCache = mutableMapOf<String, CandleSeries>()
 
     private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
@@ -71,7 +71,6 @@ internal class ReplayChartsPresenter(
         onClose = ::closeChart,
     )
     private var chartInfo by mutableStateOf(ReplayChartInfo(initialTicker, baseTimeframe))
-    private var replayTime by mutableStateOf("")
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -89,7 +88,7 @@ internal class ReplayChartsPresenter(
         return@launchMolecule ReplayChartsState(
             tabsState = tabsState,
             chartPageState = chartPageState,
-            chartInfo = chartInfo.copy(replayTime = replayTime),
+            chartInfo = chartInfo,
         )
     }
 
@@ -231,16 +230,11 @@ internal class ReplayChartsPresenter(
         chartInfo = ReplayChartInfo(
             ticker = chartSession.ticker,
             timeframe = chartSession.timeframe,
+            replayTime = chartSession.replaySession.replayTime.map(::formattedReplayTime)
         )
 
         // Show selected chart
         pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
-
-        // Show replay time using currently selected chart data
-        replayTimeJob.cancel()
-        replayTimeJob = coroutineScope.launch {
-            chartSession.replaySession.replayTime.collect(::updateTime)
-        }
     }
 
     private fun onChangeTicker(ticker: String) = coroutineScope.launchUnit {
@@ -268,13 +262,10 @@ internal class ReplayChartsPresenter(
         newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
-        chartInfo = chartInfo.copy(ticker = ticker)
-
-        // Show replay time using new session
-        replayTimeJob.cancel()
-        replayTimeJob = coroutineScope.launch {
-            replaySession.replayTime.collect(::updateTime)
-        }
+        chartInfo = chartInfo.copy(
+            ticker = ticker,
+            replayTime = chartSession.replaySession.replayTime.map(::formattedReplayTime),
+        )
     }
 
     private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
@@ -302,13 +293,10 @@ internal class ReplayChartsPresenter(
         newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
 
         // Update chart info
-        chartInfo = chartInfo.copy(timeframe = timeframe)
-
-        // Show replay time using new session
-        replayTimeJob.cancel()
-        replayTimeJob = coroutineScope.launch {
-            replaySession.replayTime.collect(::updateTime)
-        }
+        chartInfo = chartInfo.copy(
+            timeframe = timeframe,
+            replayTime = chartSession.replaySession.replayTime.map(::formattedReplayTime),
+        )
     }
 
     private fun ChartSession.buildCandleSource(): CandleSource {
@@ -388,9 +376,9 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun updateTime(currentInstant: Instant) {
+    private fun formattedReplayTime(currentInstant: Instant): String {
         val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
-        replayTime = DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
+        return DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
     }
 
     private data class ChartSession(
