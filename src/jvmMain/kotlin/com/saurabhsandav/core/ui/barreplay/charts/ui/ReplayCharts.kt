@@ -56,14 +56,14 @@ internal fun ReplayCharts(
 
         ListSelectionField(
             items = NIFTY50,
-            selection = chartInfo.ticker,
+            selection = chartInfo.stockChart?.currentParams?.ticker,
             onSelection = onTickerChange,
             label = { Text("Ticker") },
         )
 
         ListSelectionField(
             items = remember { Timeframe.values().map { it.toLabel() } },
-            selection = chartInfo.timeframe.toLabel(),
+            selection = chartInfo.stockChart?.currentParams?.timeframe?.toLabel(),
             onSelection = { onTimeframeChange(timeframeFromLabel(it)) },
             label = { Text("Timeframe") },
         )

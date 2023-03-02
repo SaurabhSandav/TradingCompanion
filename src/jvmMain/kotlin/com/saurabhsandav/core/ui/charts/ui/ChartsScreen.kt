@@ -26,7 +26,7 @@ import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabControls
 import com.saurabhsandav.core.utils.NIFTY50
 
 @Composable
-fun ChartsScreen(
+internal fun ChartsScreen(
     tabsState: StockChartTabsState,
     chartPageState: ChartPageState,
     chartInfo: ChartsState.ChartInfo,
@@ -46,14 +46,14 @@ fun ChartsScreen(
 
             ListSelectionField(
                 items = NIFTY50,
-                selection = chartInfo.ticker,
+                selection = chartInfo.stockChart?.currentParams?.ticker,
                 onSelection = onTickerChange,
                 label = { Text("Ticker") },
             )
 
             ListSelectionField(
                 items = remember { Timeframe.values().map { it.toLabel() } },
-                selection = chartInfo.timeframe.toLabel(),
+                selection = chartInfo.stockChart?.currentParams?.timeframe?.toLabel(),
                 onSelection = { onTimeframeChange(timeframeFromLabel(it)) },
                 label = { Text("Timeframe") },
             )

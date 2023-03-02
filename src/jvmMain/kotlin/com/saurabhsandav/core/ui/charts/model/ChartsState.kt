@@ -1,14 +1,14 @@
 package com.saurabhsandav.core.ui.charts.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
+import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Immutable
-data class ChartsState(
+internal data class ChartsState(
     val tabsState: StockChartTabsState,
     val chartPageState: ChartPageState,
     val chartInfo: ChartInfo,
@@ -17,9 +17,8 @@ data class ChartsState(
 ) {
 
     @Immutable
-    data class ChartInfo(
-        val ticker: String,
-        val timeframe: Timeframe,
+    internal data class ChartInfo(
+        val stockChart: StockChart? = null,
     )
 
     @Immutable

@@ -1,5 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
@@ -9,6 +12,7 @@ import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.dailySessionStart
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
@@ -46,6 +50,8 @@ internal class StockChart(
     private val plotters = mutableSetOf<SeriesPlotter<*>>()
     private var source: CandleSource? = null
 
+    var currentParams: Params? by mutableStateOf(null)
+
     init {
 
         actualChart.timeScale.applyOptions(
@@ -66,6 +72,7 @@ internal class StockChart(
 
     fun setCandleSource(source: CandleSource) = coroutineScope.launchUnit {
 
+        currentParams = Params(source.ticker, source.timeframe)
         onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
 
         plotters.forEach { it.remove() }
@@ -134,6 +141,11 @@ internal class StockChart(
         plotters.forEach { it.remove() }
         actualChart.remove()
     }
+
+    data class Params(
+        val ticker: String,
+        val timeframe: Timeframe,
+    )
 }
 
 fun Instant.offsetTimeForChart(): Long {

@@ -15,9 +15,7 @@ import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTicker
@@ -31,18 +29,14 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
-import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 import com.saurabhsandav.core.utils.NIFTY50
-import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.time.Duration.Companion.days
 
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
@@ -60,14 +54,12 @@ internal class ChartsPresenter(
     private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
     private var selectedChartSession: ChartSession? = null
     private val chartSessions = mutableListOf<ChartSession>()
-    private val downloadIntervalDays = 90.days
-
+    private var chartInfo by mutableStateOf(ChartInfo())
     private val tabsState = StockChartTabsState(
         onNew = ::newChart,
         onSelect = ::selectChart,
         onClose = ::closeChart,
     )
-    private var chartInfo by mutableStateOf(ChartInfo(initialTicker, initialTimeframe))
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
@@ -97,7 +89,7 @@ internal class ChartsPresenter(
     private fun newChart(
         tabId: Int,
         updateTitle: (String) -> Unit,
-    ) = coroutineScope.launchUnit {
+    ) {
 
         // Add new chart
         val actualChart = pagedChartArrangement.newChart(
@@ -112,27 +104,11 @@ internal class ChartsPresenter(
         )
 
         // Create new chart session
-        val chartSession = when (selectedChartSession) {
-            // First chart, create chart session with initial params
-            null -> ChartSession(
-                tabId = tabId,
-                ticker = initialTicker,
-                timeframe = initialTimeframe,
-                stockChart = stockChart,
-            )
-            // Copy currently selected chart session
-            else -> {
-
-                // Currently selected chart session
-                val chartSession = requireNotNull(selectedChartSession)
-
-                // Create new chart session with existing params
-                chartSession.copy(
-                    tabId = tabId,
-                    stockChart = stockChart,
-                )
-            }
-        }
+        val chartSession = ChartSession(
+            tabId = tabId,
+            stockChart = stockChart,
+            getCandles = ::getCandles,
+        )
 
         // Connect chart to web page
         chartPageState.connect(
@@ -140,9 +116,11 @@ internal class ChartsPresenter(
             syncConfig = ChartPageState.SyncConfig(
                 isChartFocused = { selectedChartSession == chartSession },
                 syncChartWith = { chart ->
-                    val filterChartInstance = chartSessions.find { it.stockChart.actualChart == chart }!!
+                    val filterChartSession = chartSessions.find { it.stockChart.actualChart == chart }!!
+                    val filterChartParams = filterChartSession.stockChart.currentParams ?: return@SyncConfig false
+                    val chartParams = chartSession.stockChart.currentParams ?: return@SyncConfig false
                     // Sync charts with same timeframes
-                    filterChartInstance.timeframe == chartSession.timeframe
+                    filterChartParams.timeframe == chartParams.timeframe
                 },
             )
         )
@@ -150,8 +128,12 @@ internal class ChartsPresenter(
         // Cache newly created chart session
         chartSessions += chartSession
 
-        // Set candle source for chart
-        chartSession.stockChart.setCandleSource(chartSession.buildCandleSource())
+        // Set chart params
+        // If selected chartParams is null, this is the first chart. Initialize it with initial params.
+        chartSession.newParams(
+            ticker = selectedChartSession?.stockChart?.currentParams?.ticker ?: initialTicker,
+            timeframe = selectedChartSession?.stockChart?.currentParams?.timeframe ?: initialTimeframe,
+        )
 
         // Switch to new tab/chart
         selectChart(tabId)
@@ -184,91 +166,28 @@ internal class ChartsPresenter(
         selectedChartSession = chartSession
 
         // Display newly selected chart info
-        chartInfo = ChartInfo(
-            ticker = chartSession.ticker,
-            timeframe = chartSession.timeframe,
-        )
+        chartInfo = ChartInfo(chartSession.stockChart)
 
         // Show selected chart
         pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
     }
 
-    private fun onChangeTicker(ticker: String) = coroutineScope.launchUnit {
+    private fun onChangeTicker(ticker: String) {
 
         // Currently selected chart session
         val chartSession = requireNotNull(selectedChartSession)
-        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
-        // New chart session
-        val newChartSession = chartSession.copy(ticker = ticker)
-
-        // Update chart session
-        chartSessions[chartSessionIndex] = newChartSession
-
-        // Replace chart candle source
-        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
-
-        // Update chart info
-        chartInfo = chartInfo.copy(ticker = ticker)
+        // New chart params
+        chartSession.newParams(ticker = ticker)
     }
 
-    private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
+    private fun onChangeTimeframe(timeframe: Timeframe) {
 
         // Currently selected chart session
         val chartSession = requireNotNull(selectedChartSession)
-        val chartSessionIndex = chartSessions.indexOf(chartSession)
 
-        // New chart session
-        val newChartSession = chartSession.copy(timeframe = timeframe)
-
-        // Update chart session
-        chartSessions[chartSessionIndex] = newChartSession
-
-        // Replace chart candle source
-        newChartSession.stockChart.setCandleSource(newChartSession.buildCandleSource())
-
-        // Update chart info
-        chartInfo = chartInfo.copy(timeframe = timeframe)
-    }
-
-    private suspend fun ChartSession.buildCandleSource(): CandleSource {
-
-        val initialCandles = getCandles(
-            ticker = ticker,
-            timeframe = timeframe,
-            // Range of 3 months before current time to current time
-            range = run {
-                val currentTime = Clock.System.now()
-                currentTime.minus(downloadIntervalDays)..currentTime
-            }
-        )
-
-        val mutableCandleSeries = MutableCandleSeries(initialCandles, timeframe)
-
-        return CandleSource(
-            ticker = ticker,
-            timeframe = timeframe,
-            hasVolume = ticker != "NIFTY50",
-            onLoad = { mutableCandleSeries.asCandleSeries() },
-            onLoadBefore = {
-
-                val firstCandleInstant = mutableCandleSeries.first().openInstant
-
-                val oldCandles = getCandles(
-                    ticker = ticker,
-                    timeframe = timeframe,
-                    range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
-                )
-
-                val areCandlesAvailable = oldCandles.isNotEmpty()
-
-                if (oldCandles.isNotEmpty()) {
-                    mutableCandleSeries.prependCandles(oldCandles)
-                }
-
-                areCandlesAvailable
-            }
-        )
+        // New chart params
+        chartSession.newParams(timeframe = timeframe)
     }
 
     private suspend fun getCandles(
@@ -328,11 +247,4 @@ internal class ChartsPresenter(
             onNotified = { errors -= it },
         )
     }
-
-    private data class ChartSession(
-        val tabId: Int,
-        val ticker: String,
-        val timeframe: Timeframe,
-        val stockChart: StockChart,
-    )
 }
