@@ -13,16 +13,20 @@ import kotlinx.coroutines.launch
 class CandleSource(
     val ticker: String,
     val timeframe: Timeframe,
-    val candleSeries: CandleSeries,
     val hasVolume: Boolean,
+    private val onLoad: suspend () -> CandleSeries,
     private val onLoadBefore: (suspend () -> Boolean)? = null,
     private val onLoadAfter: (suspend () -> Boolean)? = null,
 ) {
 
     internal val coroutineScope = MainScope()
+    lateinit var candleSeries: CandleSeries
+
     private var moreCandlesJob: Job? = null
 
-    internal fun init(chart: IChartApi): CandlestickPlotter {
+    internal suspend fun init(chart: IChartApi): CandlestickPlotter {
+
+        candleSeries = onLoad()
 
         val candlestickPlotter = CandlestickPlotter(chart) { index ->
 

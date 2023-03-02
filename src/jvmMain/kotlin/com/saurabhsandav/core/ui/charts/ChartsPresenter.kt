@@ -14,6 +14,7 @@ import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
@@ -232,7 +233,7 @@ internal class ChartsPresenter(
 
     private suspend fun ChartSession.buildCandleSource(): CandleSource {
 
-        val mutableCandleSeries = getCandleSeries(
+        val initialCandles = getCandles(
             ticker = ticker,
             timeframe = timeframe,
             // Range of 3 months before current time to current time
@@ -242,16 +243,18 @@ internal class ChartsPresenter(
             }
         )
 
+        val mutableCandleSeries = MutableCandleSeries(initialCandles, timeframe)
+
         return CandleSource(
             ticker = ticker,
             timeframe = timeframe,
-            candleSeries = mutableCandleSeries.asCandleSeries(),
             hasVolume = ticker != "NIFTY50",
+            onLoad = { mutableCandleSeries.asCandleSeries() },
             onLoadBefore = {
 
                 val firstCandleInstant = mutableCandleSeries.first().openInstant
 
-                val oldCandles = getCandleSeries(
+                val oldCandles = getCandles(
                     ticker = ticker,
                     timeframe = timeframe,
                     range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
@@ -268,12 +271,12 @@ internal class ChartsPresenter(
         )
     }
 
-    private suspend fun getCandleSeries(
+    private suspend fun getCandles(
         ticker: String,
         timeframe: Timeframe,
         range: ClosedRange<Instant>,
         retryOnLogin: Boolean = true,
-    ): MutableCandleSeries {
+    ): List<Candle> {
 
         val candlesResult = candleRepo.getCandles(
             ticker = ticker,
@@ -283,13 +286,13 @@ internal class ChartsPresenter(
         )
 
         return when (candlesResult) {
-            is Ok -> MutableCandleSeries(candlesResult.value, timeframe)
+            is Ok -> candlesResult.value
             is Err -> when (val error = candlesResult.error) {
                 is CandleRepository.Error.AuthError -> {
 
                     if (retryOnLogin) {
                         val loginSuccessful = onCandleDataLogin()
-                        if (loginSuccessful) return getCandleSeries(ticker, timeframe, range, false)
+                        if (loginSuccessful) return getCandles(ticker, timeframe, range, false)
                     }
 
                     error("AuthError")

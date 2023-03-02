@@ -299,14 +299,12 @@ internal class ReplayChartsPresenter(
         )
     }
 
-    private fun ChartSession.buildCandleSource(): CandleSource {
-        return CandleSource(
-            ticker = ticker,
-            timeframe = timeframe,
-            candleSeries = replaySession.replaySeries,
-            hasVolume = ticker != "NIFTY50",
-        )
-    }
+    private fun ChartSession.buildCandleSource() = CandleSource(
+        ticker = ticker,
+        timeframe = timeframe,
+        hasVolume = ticker != "NIFTY50",
+        onLoad = { replaySession.replaySeries },
+    )
 
     private suspend fun createReplaySession(
         ticker: String,

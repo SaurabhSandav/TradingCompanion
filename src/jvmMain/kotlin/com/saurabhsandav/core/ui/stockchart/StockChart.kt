@@ -23,6 +23,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
@@ -63,14 +64,14 @@ internal class StockChart(
         }.launchIn(coroutineScope)
     }
 
-    fun setCandleSource(source: CandleSource) {
+    fun setCandleSource(source: CandleSource) = coroutineScope.launchUnit {
 
         onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
 
         plotters.forEach { it.remove() }
         plotters.clear()
-        this.source?.coroutineScope?.cancel()
-        this.source = source
+        this@StockChart.source?.coroutineScope?.cancel()
+        this@StockChart.source = source
 
         val candlestickPlotter = source.init(actualChart)
 
