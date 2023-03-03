@@ -11,7 +11,6 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.ChartPage
-import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.controls.ListSelectionField
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
@@ -21,17 +20,13 @@ import com.saurabhsandav.core.utils.NIFTY50
 
 @Composable
 internal fun StockCharts(
-    pageState: ChartPageState,
-    stockChart: StockChart?,
-    onTickerChange: (String) -> Unit,
-    onTimeframeChange: (Timeframe) -> Unit,
+    state: StockChartsState,
     modifier: Modifier = Modifier,
-    tabsState: StockChartTabsState? = null,
-    controls: (@Composable ColumnScope.() -> Unit)? = null,
+    controls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
     Row(
-        modifier = modifier.fillMaxSize().chartKeyboardShortcuts(tabsState)
+        modifier = modifier.fillMaxSize().chartKeyboardShortcuts(state.tabsState)
     ) {
 
         // Controls
@@ -40,9 +35,11 @@ internal fun StockCharts(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
 
-            controls?.let {
+            val stockChart = state.currentStockChart
 
-                it()
+            if (controls != null && stockChart != null) {
+
+                controls(stockChart)
 
                 Divider()
             }
@@ -50,36 +47,32 @@ internal fun StockCharts(
             ListSelectionField(
                 items = NIFTY50,
                 selection = stockChart?.currentParams?.ticker,
-                onSelection = onTickerChange,
+                onSelection = { state.changeTicker(it) },
                 label = { Text("Ticker") },
+                enabled = stockChart != null,
             )
 
             ListSelectionField(
                 items = remember { Timeframe.values().map { it.toLabel() } },
                 selection = stockChart?.currentParams?.timeframe?.toLabel(),
-                onSelection = { onTimeframeChange(timeframeFromLabel(it)) },
+                onSelection = { state.changeTimeframe(timeframeFromLabel(it)) },
                 label = { Text("Timeframe") },
+                enabled = stockChart != null,
             )
 
-            tabsState?.let {
+            Divider()
 
-                Divider()
-
-                StockChartsTabControls(it)
-            }
+            StockChartsTabControls(state.tabsState)
         }
 
         Column {
 
             // Tabs
-            tabsState?.let {
-
-                StockChartsTabRow(it)
-            }
+            StockChartsTabRow(state.tabsState)
 
             // Chart page
             ChartPage(
-                state = pageState,
+                state = state.pageState,
                 modifier = Modifier.weight(1F),
             )
         }

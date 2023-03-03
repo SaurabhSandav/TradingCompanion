@@ -11,7 +11,6 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 internal class ChartSession(
-    val tabId: Int,
     val stockChart: StockChart,
     private val getCandles: suspend (String, Timeframe, ClosedRange<Instant>) -> List<Candle>,
 ) {

@@ -4,8 +4,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTicker
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.ChangeTimeframe
 import com.saurabhsandav.core.ui.charts.ui.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindow
 
@@ -30,11 +28,7 @@ internal fun ChartsWindow(
     ) {
 
         ChartsScreen(
-            tabsState = state.tabsState,
-            chartPageState = state.chartPageState,
-            chartInfo = state.chartInfo,
-            onTickerChange = { presenter.event(ChangeTicker(it)) },
-            onTimeframeChange = { presenter.event(ChangeTimeframe(it)) },
+            chartsState = state.chartsState,
             fyersLoginWindowState = state.fyersLoginWindowState,
             errors = state.errors,
         )

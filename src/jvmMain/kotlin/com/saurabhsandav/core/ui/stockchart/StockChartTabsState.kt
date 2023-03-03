@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 class StockChartTabsState(
     private val onNew: (
         tabId: Int,
+        prevTabId: Int,
         updateTitle: (String) -> Unit,
     ) -> Unit,
     private val onSelect: (tabId: Int) -> Unit,
@@ -27,7 +28,9 @@ class StockChartTabsState(
 
         tabs.add(TabInfo(id, ""))
 
-        onNew(id) { setTitle(id, it) }
+        val prevTabId = selectedTabIndex
+
+        onNew(id, prevTabId) { setTitle(id, it) }
 
         selectTab(id)
     }

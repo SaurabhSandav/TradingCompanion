@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.data.HistogramData
@@ -25,8 +24,6 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
-import com.saurabhsandav.core.utils.PrefDefaults
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -41,7 +38,6 @@ import java.math.RoundingMode
 internal class StockChart(
     val appModule: AppModule,
     val actualChart: IChartApi,
-    appPrefs: FlowSettings = appModule.appPrefs,
     onLegendUpdate: (List<String>) -> Unit,
     private val onTitleUpdate: (String) -> Unit,
 ) {
@@ -57,13 +53,6 @@ internal class StockChart(
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
         )
-
-        // Setting dark mode according to settings
-        coroutineScope.launch {
-            appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled).collect { isDark ->
-                actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
-            }
-        }
 
         actualChart.crosshairMove().onEach { params ->
             onLegendUpdate(plotters.map { it.legendText(params) })
@@ -98,6 +87,10 @@ internal class StockChart(
 
             setData()
         }
+    }
+
+    fun setDarkMode(isDark: Boolean) {
+        actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
     }
 
     private fun setData() {

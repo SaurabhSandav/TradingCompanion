@@ -1,17 +1,11 @@
 package com.saurabhsandav.core.ui.barreplay.charts
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.chart.options.ChartOptions
-import com.saurabhsandav.core.chart.options.CrosshairMode
-import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -23,16 +17,13 @@ import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.paged
-import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
+import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -59,18 +50,15 @@ internal class ReplayChartsPresenter(
         timeframe = baseTimeframe,
         candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
-    private val pagedChartArrangement = ChartArrangement.paged()
     private var autoNextJob: Job? = null
     private val candleCache = mutableMapOf<String, CandleSeries>()
-
-    private val chartPageState = ChartPageState(coroutineScope, pagedChartArrangement)
-    private var selectedChartSession: ReplayChartSession? = null
     private val chartSessions = mutableListOf<ReplayChartSession>()
-    private var chartInfo by mutableStateOf(ReplayChartInfo())
-    private val tabsState = StockChartTabsState(
-        onNew = ::newChart,
-        onSelect = ::selectChart,
-        onClose = ::closeChart,
+    private val chartsState: StockChartsState = StockChartsState(
+        onNewChart = ::onNewChart,
+        onCloseChart = ::onCloseChart,
+        onChangeTicker = ::onChangeTicker,
+        onChangeTimeframe = ::onChangeTimeframe,
+        appModule = appModule,
     )
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
@@ -81,15 +69,12 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
-                is ChangeTicker -> onChangeTicker(event.newTicker)
-                is ChangeTimeframe -> onChangeTimeframe(event.newTimeframe)
             }
         }
 
         return@launchMolecule ReplayChartsState(
-            tabsState = tabsState,
-            chartPageState = chartPageState,
-            chartInfo = chartInfo,
+            chartsState = chartsState,
+            chartInfo = ::getChartInfo,
         )
     }
 
@@ -126,43 +111,15 @@ internal class ReplayChartsPresenter(
         }
     }
 
-    private fun newChart(
-        tabId: Int,
-        updateTitle: (String) -> Unit,
+    private fun onNewChart(
+        newStockChart: StockChart,
+        prevStockChart: StockChart?,
     ) {
-
-        // Add new chart
-        val actualChart = pagedChartArrangement.newChart(
-            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
-        )
-
-        val stockChart = StockChart(
-            appModule = appModule,
-            actualChart = actualChart,
-            onLegendUpdate = { pagedChartArrangement.setLegend(actualChart, it) },
-            onTitleUpdate = updateTitle,
-        )
 
         // Create new chart session
         val chartSession = ReplayChartSession(
-            tabId = tabId,
-            stockChart = stockChart,
+            stockChart = newStockChart,
             replaySessionBuilder = ::createReplaySession,
-        )
-
-        // Connect chart to web page
-        chartPageState.connect(
-            chart = chartSession.stockChart.actualChart,
-            syncConfig = ChartPageState.SyncConfig(
-                isChartFocused = { selectedChartSession == chartSession },
-                syncChartWith = { chart ->
-                    val filterChartSession = chartSessions.find { it.stockChart.actualChart == chart }!!
-                    val filterChartParams = filterChartSession.stockChart.currentParams ?: return@SyncConfig false
-                    val chartParams = chartSession.stockChart.currentParams ?: return@SyncConfig false
-                    // Sync charts with same timeframes
-                    filterChartParams.timeframe == chartParams.timeframe
-                },
-            )
         )
 
         // Cache newly created chart session
@@ -171,80 +128,60 @@ internal class ReplayChartsPresenter(
         // Set chart params
         // If selected chartParams is null, this is the first chart. Initialize it with initial params.
         chartSession.newParams(
-            ticker = selectedChartSession?.stockChart?.currentParams?.ticker ?: initialTicker,
-            timeframe = selectedChartSession?.stockChart?.currentParams?.timeframe ?: baseTimeframe,
+            ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
+            timeframe = prevStockChart?.currentParams?.timeframe ?: baseTimeframe,
         )
     }
 
-    private fun closeChart(tabId: Int) {
+    private fun onCloseChart(stockChart: StockChart) {
 
-        // Find chart session associated with tab
-        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
+        // Find chart session associated with StockChart
+        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
 
         // Remove chart session from cache
         chartSessions.remove(chartSession)
-
-        // Remove chart page
-        pagedChartArrangement.removeChart(chartSession.stockChart.actualChart)
-
-        // Disconnect chart from web page
-        chartPageState.disconnect(chartSession.stockChart.actualChart)
 
         // Destroy chart
         chartSession.stockChart.destroy()
     }
 
-    private fun selectChart(tabId: Int) {
+    private fun onChangeTicker(
+        stockChart: StockChart,
+        ticker: String,
+    ) = coroutineScope.launchUnit {
 
-        // Find chart session associated with tab
-        val chartSession = chartSessions.find { it.tabId == tabId }.let(::requireNotNull)
-
-        // Update selected chart session
-        selectedChartSession = chartSession
-
-        // Display newly selected chart info
-        chartInfo = ReplayChartInfo(
-            stockChart = chartSession.stockChart,
-            replayTime = flow {
-                emitAll(chartSession.getReplaySession().replayTime.map(::formattedReplayTime))
-            }
-        )
-
-        // Show selected chart
-        pagedChartArrangement.showChart(chartSession.stockChart.actualChart)
-    }
-
-    private fun onChangeTicker(ticker: String) = coroutineScope.launchUnit {
-
-        // Currently selected chart session
-        val chartSession = requireNotNull(selectedChartSession)
+        // Find chart session associated with StockChart
+        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
 
         // Remove previous replay session from BarReplay
-        barReplay.removeSession(chartSession.getReplaySession())
+        barReplay.removeSession(chartSession.replaySession.first())
 
         // New chart params
         chartSession.newParams(ticker = ticker)
-
-        // Update chart info
-        chartInfo = chartInfo.copy(
-            replayTime = chartSession.getReplaySession().replayTime.map(::formattedReplayTime),
-        )
     }
 
-    private fun onChangeTimeframe(timeframe: Timeframe) = coroutineScope.launchUnit {
+    private fun onChangeTimeframe(
+        stockChart: StockChart,
+        timeframe: Timeframe,
+    ) = coroutineScope.launchUnit {
 
-        // Currently selected chart session
-        val chartSession = requireNotNull(selectedChartSession)
+        // Find chart session associated with StockChart
+        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
 
         // Remove previous replay session from BarReplay
-        barReplay.removeSession(chartSession.getReplaySession())
+        barReplay.removeSession(chartSession.replaySession.first())
 
         // New chart params
         chartSession.newParams(timeframe = timeframe)
+    }
 
-        // Update chart info
-        chartInfo = chartInfo.copy(
-            replayTime = chartSession.getReplaySession().replayTime.map(::formattedReplayTime)
+    private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {
+
+        // Find chart session associated with StockChart
+        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
+
+        return ReplayChartInfo(
+            replayTime = chartSession.replaySession.flatMapLatest { it.replayTime.map(::formattedReplayTime) }
         )
     }
 

@@ -36,13 +36,10 @@ internal fun ReplayChartsScreen(
 
     ReplayCharts(
         onNewReplay = onNewReplay,
-        tabsState = state.tabsState,
-        chartPageState = state.chartPageState,
+        chartsState = state.chartsState,
         chartInfo = state.chartInfo,
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
         onIsAutoNextEnabledChange = { presenter.event(ChangeIsAutoNextEnabled(it)) },
-        onTickerChange = { presenter.event(ChangeTicker(it)) },
-        onTimeframeChange = { presenter.event(ChangeTimeframe(it)) },
     )
 }
