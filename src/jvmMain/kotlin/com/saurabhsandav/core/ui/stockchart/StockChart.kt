@@ -70,7 +70,7 @@ internal class StockChart(
         }.launchIn(coroutineScope)
     }
 
-    fun setCandleSource(source: CandleSource) = coroutineScope.launchUnit {
+    fun setCandleSource(source: CandleSource) {
 
         currentParams = Params(source.ticker, source.timeframe)
         onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
@@ -80,20 +80,24 @@ internal class StockChart(
         this@StockChart.source?.coroutineScope?.cancel()
         this@StockChart.source = source
 
-        val candlestickPlotter = source.init(actualChart)
+        coroutineScope.launchUnit {
 
-        source.coroutineScope.launch {
-            source.candleSeries.live.collect { candle ->
-                plotters.forEach {
-                    it.update(source.candleSeries.indexOf(candle))
+            val candlestickPlotter = source.init(actualChart)
+
+            source.coroutineScope.launch {
+                source.candleSeries.live.collect { candle ->
+                    plotters.forEach {
+                        it.update(source.candleSeries.indexOf(candle))
+                    }
                 }
             }
+
+            plotters.add(candlestickPlotter)
+
+            setupDefaultIndicators(source.candleSeries, source.hasVolume)
+
+            plotters.forEach { it.setData(source.candleSeries.indices) }
         }
-
-        plotters.add(candlestickPlotter)
-        setupDefaultIndicators(source.candleSeries, source.hasVolume)
-
-        plotters.forEach { it.setData(source.candleSeries.indices) }
     }
 
     private fun setupDefaultIndicators(
