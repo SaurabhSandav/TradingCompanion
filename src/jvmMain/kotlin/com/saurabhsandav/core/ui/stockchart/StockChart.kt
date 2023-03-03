@@ -82,7 +82,7 @@ internal class StockChart(
 
         coroutineScope.launchUnit {
 
-            val candlestickPlotter = source.init(actualChart)
+            val candlestickPlotter = source.init(actualChart, onResetData = ::setData)
 
             source.coroutineScope.launch {
                 source.candleSeries.live.collect { candle ->
@@ -96,8 +96,12 @@ internal class StockChart(
 
             setupDefaultIndicators(source.candleSeries, source.hasVolume)
 
-            plotters.forEach { it.setData(source.candleSeries.indices) }
+            setData()
         }
+    }
+
+    private fun setData() {
+        plotters.forEach { it.setData(source!!.candleSeries.indices) }
     }
 
     private fun setupDefaultIndicators(

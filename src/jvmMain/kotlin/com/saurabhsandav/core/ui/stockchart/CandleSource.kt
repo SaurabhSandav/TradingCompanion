@@ -24,7 +24,10 @@ class CandleSource(
 
     private var moreCandlesJob: Job? = null
 
-    internal suspend fun init(chart: IChartApi): CandlestickPlotter {
+    internal suspend fun init(
+        chart: IChartApi,
+        onResetData: () -> Unit,
+    ): CandlestickPlotter {
 
         candleSeries = onLoad()
 
@@ -53,7 +56,7 @@ class CandleSource(
 
                     // Load more historical data if there are less than 100 bars to the left of the visible area
                     if (barsInfo != null && barsInfo.barsBefore < 100) {
-                        if (onLoadBefore()) candlestickPlotter.setData(candleSeries.indices)
+                        if (onLoadBefore()) onResetData()
                     }
 
                     moreCandlesJob = null
@@ -73,7 +76,7 @@ class CandleSource(
 
                     // Load more new data if there are less than 100 bars to the right of the visible area
                     if (barsInfo != null && barsInfo.barsAfter < 100) {
-                        if (onLoadAfter()) candlestickPlotter.setData(candleSeries.indices)
+                        if (onLoadAfter()) onResetData()
                     }
 
                     moreCandlesJob = null
