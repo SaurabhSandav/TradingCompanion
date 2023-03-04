@@ -22,35 +22,24 @@ internal fun BarReplayWindow(
         placement = WindowPlacement.Maximized,
     )
 
-    AppWindow(
-        state = windowState,
-        title = "Bar Replay",
-        onCloseRequest = onCloseRequest,
-    ) {
+    when (val currentScreen = state.currentScreen) {
+        is BarReplayScreen.LaunchForm -> {
 
-        BarReplayScreen(
-            currentScreen = state.currentScreen,
-            onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay) },
-            onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
-        )
-    }
-}
+            AppWindow(
+                state = windowState,
+                title = "Bar Replay",
+                onCloseRequest = onCloseRequest,
+            ) {
 
-@Composable
-private fun BarReplayScreen(
-    currentScreen: BarReplayScreen,
-    onLaunchReplay: () -> Unit,
-    onNewReplay: () -> Unit,
-) {
-
-    when (currentScreen) {
-        is BarReplayScreen.LaunchForm -> ReplayLaunchFormScreen(
-            model = currentScreen.model,
-            onLaunchReplay = onLaunchReplay,
-        )
+                ReplayLaunchFormScreen(
+                    model = currentScreen.model,
+                    onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay) },
+                )
+            }
+        }
 
         is BarReplayScreen.Chart -> ReplayChartsScreen(
-            onNewReplay = onNewReplay,
+            onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
             baseTimeframe = currentScreen.baseTimeframe,
             candlesBefore = currentScreen.candlesBefore,
             replayFrom = currentScreen.replayFrom,

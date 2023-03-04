@@ -21,7 +21,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.account.AccountPresenter
 import com.saurabhsandav.core.ui.account.AccountScreen
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
-import com.saurabhsandav.core.ui.charts.ChartsWindow
+import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.closedtrades.ClosedTradesPresenter
 import com.saurabhsandav.core.ui.closedtrades.ClosedTradesScreen
 import com.saurabhsandav.core.ui.common.Tooltip
@@ -171,7 +171,7 @@ private fun LandingScreen(
 
         if (showChartsWindow) {
 
-            ChartsWindow(
+            ChartsScreen(
                 onCloseRequest = { showChartsWindow = false },
             )
         }

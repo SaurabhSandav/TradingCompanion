@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.ui
+package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
@@ -9,61 +9,61 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
+import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppDialog
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.stockchart.StockCharts
-import com.saurabhsandav.core.ui.stockchart.StockChartsState
 
 @Composable
 internal fun ChartsScreen(
-    chartsState: StockChartsState,
-    fyersLoginWindowState: FyersLoginWindow,
-    onCancelCandleFetchLogin: () -> Unit,
-    errors: List<UIErrorMessage>,
+    onCloseRequest: () -> Unit,
 ) {
 
-    Column {
+    val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
+    val presenter = remember { ChartsPresenter(scope, appModule) }
+    val state by presenter.state.collectAsState()
 
-        StockCharts(
-            modifier = Modifier.weight(1F),
-            state = chartsState,
-        )
+    StockCharts(
+        state = state.chartsState,
+        windowTitle = "Charts",
+        onCloseRequest = onCloseRequest,
+        snackbarHost = {
 
-        val snackbarHostState = remember { SnackbarHostState() }
+            val snackbarHostState = remember { SnackbarHostState() }
 
-        // Errors
-        errors.forEach { errorMessage ->
+            // Errors
+            state.errors.forEach { errorMessage ->
 
-            ErrorSnackbar(snackbarHostState, errorMessage)
-        }
+                ErrorSnackbar(snackbarHostState, errorMessage)
+            }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
-        )
-    }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
+            )
+        },
+    )
 
     // Fyers login window
+    val fyersLoginWindowState = state.fyersLoginWindowState
+
     if (fyersLoginWindowState is FyersLoginWindow.Open) {
 
-        var openLoginWindow by state { false }
+        var openLoginWindow by com.saurabhsandav.core.ui.common.state { false }
 
         FetchCandleDataLoginConfirmationDialog(
             onConfirm = { openLoginWindow = true },
-            onDismissRequest = onCancelCandleFetchLogin,
+            onDismissRequest = { presenter.event(CandleFetchLoginCancelled) },
         )
 
         if (openLoginWindow) {

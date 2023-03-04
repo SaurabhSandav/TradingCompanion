@@ -28,6 +28,8 @@ internal fun ReplayCharts(
 
     StockCharts(
         state = chartsState,
+        windowTitle = "Bar Replay",
+        onCloseRequest = onNewReplay,
     ) { stockChart ->
 
         val currentChartInfo = remember(chartInfo) { chartInfo(stockChart) }
