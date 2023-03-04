@@ -6,10 +6,7 @@ import com.github.michaelbull.result.runCatching
 import com.saurabhsandav.core.fyers_api.model.CandleResolution
 import com.saurabhsandav.core.fyers_api.model.DateFormat
 import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
-import com.saurabhsandav.core.fyers_api.model.response.AuthValidationResult
-import com.saurabhsandav.core.fyers_api.model.response.FyersResponse
-import com.saurabhsandav.core.fyers_api.model.response.HistoricalCandlesResult
-import com.saurabhsandav.core.fyers_api.model.response.Quotes
+import com.saurabhsandav.core.fyers_api.model.response.*
 import com.soywiz.krypto.sha256
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -66,6 +63,20 @@ class FyersApi {
         val response = client.post("https://api.fyers.in/api/v2/validate-authcode") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
+        }
+
+        return response.decodeToFyersResponse()
+    }
+
+    suspend fun getProfile(
+        accessToken: String,
+    ): FyersResponse<ProfileResult> {
+
+        // Rate-limit
+        rateLimiter.limit()
+
+        val response = client.get("https://api.fyers.in/api/v2/profile") {
+            header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
         }
 
         return response.decodeToFyersResponse()

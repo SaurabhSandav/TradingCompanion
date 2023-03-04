@@ -3,6 +3,7 @@ package com.saurabhsandav.core.trading.data
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -14,6 +15,8 @@ import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.utils.PrefKeys
 import io.ktor.http.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
@@ -25,17 +28,22 @@ internal class FyersCandleDownloader(
 
     private var accessToken: String? = null
 
+    override suspend fun isLoggedIn(): Flow<Boolean> {
+        return appPrefs.getStringOrNullFlow(PrefKeys.FyersAccessToken).map {
+            if (it == null) return@map false
+
+            // Check if access token expired
+            val profileResult = fyersApi.getProfile(it)
+            profileResult.statusCode != HttpStatusCode.Unauthorized
+        }
+    }
+
     override suspend fun download(
         ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ): Result<List<Candle>, CandleDownloader.Error> {
-
-        if (accessToken == null) {
-            accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken)
-                ?: return Err(CandleDownloader.Error.AuthError("Fyers not logged in"))
-        }
+    ): Result<List<Candle>, CandleDownloader.Error> = binding {
 
         // Fyers symbol notation
         val symbolFull = when (ticker) {
@@ -59,7 +67,7 @@ internal class FyersCandleDownloader(
 
             // Download and convert to result
             val result = fyersApi.getHistoricalCandles(
-                accessToken = accessToken!!,
+                accessToken = getAccessToken().bind(),
                 symbol = symbolFull,
                 resolution = when (timeframe) {
                     Timeframe.M1 -> CandleResolution.M1
@@ -74,13 +82,10 @@ internal class FyersCandleDownloader(
                 dateFormat = DateFormat.EPOCH,
                 rangeFrom = currentFrom.epochSeconds.toString(),
                 rangeTo = currentTo.epochSeconds.toString(),
-            ).toResult()
+            ).toResult().bind()
 
-            // Unwrap result
-            when (result) {
-                is Err -> return result
-                is Ok -> candles.addAll(result.value)
-            }
+            // Add candles to result
+            candles.addAll(result)
 
             // Go to next interval
             currentFrom = currentTo
@@ -88,7 +93,17 @@ internal class FyersCandleDownloader(
             currentTo = if (newCurrentTo > to) to else newCurrentTo
         }
 
-        return Ok(candles)
+        return@binding candles
+    }
+
+    private suspend fun getAccessToken(): Result<String, CandleDownloader.Error> {
+
+        if (accessToken == null) {
+            accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken)
+                ?: return Err(CandleDownloader.Error.AuthError("Fyers not logged in"))
+        }
+
+        return Ok(accessToken!!)
     }
 
     private fun FyersResponse<HistoricalCandlesResult>.toResult(): Result<List<Candle>, CandleDownloader.Error> {

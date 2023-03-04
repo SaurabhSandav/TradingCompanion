@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
 import com.saurabhsandav.core.ui.charts.ui.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindow
 
@@ -30,6 +31,7 @@ internal fun ChartsWindow(
         ChartsScreen(
             chartsState = state.chartsState,
             fyersLoginWindowState = state.fyersLoginWindowState,
+            onCancelCandleFetchLogin = { presenter.event(CandleFetchLoginCancelled) },
             errors = state.errors,
         )
     }

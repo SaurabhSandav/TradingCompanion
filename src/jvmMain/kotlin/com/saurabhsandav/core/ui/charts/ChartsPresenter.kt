@@ -15,18 +15,20 @@ import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
 import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
+import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Instant
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 internal class ChartsPresenter(
     coroutineScope: CoroutineScope,
@@ -52,6 +54,13 @@ internal class ChartsPresenter(
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+
+        CollectEffect(events) { event ->
+
+            when (event) {
+                CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
+            }
+        }
 
         return@launchMolecule ChartsState(
             chartsState = chartsState,
@@ -116,43 +125,21 @@ internal class ChartsPresenter(
         chartSession.newParams(timeframe = timeframe)
     }
 
+    private fun onCandleFetchLoginCancelled() {
+        fyersLoginWindowState = FyersLoginWindow.Closed
+    }
+
     private suspend fun getCandles(
         ticker: String,
         timeframe: Timeframe,
         range: ClosedRange<Instant>,
-        retryOnLogin: Boolean = true,
     ): List<Candle> {
 
-        val candlesResult = candleRepo.getCandles(
-            ticker = ticker,
-            timeframe = timeframe,
-            from = range.start,
-            to = range.endInclusive,
-        )
+        // Suspend until logged in
+        candleRepo.isLoggedIn().first { isLoggedIn ->
 
-        return when (candlesResult) {
-            is Ok -> candlesResult.value
-            is Err -> when (val error = candlesResult.error) {
-                is CandleRepository.Error.AuthError -> {
+            if (!isLoggedIn && fyersLoginWindowState !is FyersLoginWindow.Open) {
 
-                    if (retryOnLogin) {
-                        val loginSuccessful = onCandleDataLogin()
-                        if (loginSuccessful) return getCandles(ticker, timeframe, range, false)
-                    }
-
-                    error("AuthError")
-                }
-
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
-        }
-    }
-
-    private suspend fun onCandleDataLogin(): Boolean = suspendCoroutine {
-        errors += UIErrorMessage(
-            message = "Please login",
-            actionLabel = "Login",
-            onActionClick = {
                 fyersLoginWindowState = FyersLoginWindow.Open(
                     FyersLoginState(
                         fyersApi = fyersApi,
@@ -160,17 +147,37 @@ internal class ChartsPresenter(
                         onCloseRequest = {
                             fyersLoginWindowState = FyersLoginWindow.Closed
                         },
-                        onLoginSuccess = { it.resume(true) },
+                        onLoginSuccess = { },
                         onLoginFailure = { message ->
                             errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
-                            it.resume(false)
                         },
                     )
                 )
-            },
-            withDismissAction = true,
-            duration = UIErrorMessage.Duration.Indefinite,
-            onNotified = { errors -= it },
-        )
+            }
+
+            isLoggedIn
+        }
+
+        // Retry until request successful
+        val candlesResult = retryIOResult(
+            initialDelay = 1000,
+            maxDelay = 10000,
+        ) {
+
+            candleRepo.getCandles(
+                ticker = ticker,
+                timeframe = timeframe,
+                from = range.start,
+                to = range.endInclusive,
+            )
+        }
+
+        return when (candlesResult) {
+            is Ok -> candlesResult.value
+            is Err -> when (val error = candlesResult.error) {
+                is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
+                is CandleRepository.Error.UnknownError -> error(error.message)
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.*
 import io.ktor.http.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.*
 import kotlinx.serialization.json.*
 import kotlin.io.path.*
@@ -18,6 +19,8 @@ internal class CandleRepository(
     private val candleDownloader: CandleDownloader = FyersCandleDownloader(appModule),
     private val candleCache: CandleCache = CandleCacheDB(appModule),
 ) {
+
+    suspend fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()
 
     suspend fun getCandles(
         ticker: String,

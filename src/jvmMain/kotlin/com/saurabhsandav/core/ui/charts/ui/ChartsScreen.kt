@@ -1,16 +1,28 @@
 package com.saurabhsandav.core.ui.charts.ui
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -19,6 +31,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsState
 internal fun ChartsScreen(
     chartsState: StockChartsState,
     fyersLoginWindowState: FyersLoginWindow,
+    onCancelCandleFetchLogin: () -> Unit,
     errors: List<UIErrorMessage>,
 ) {
 
@@ -46,6 +59,59 @@ internal fun ChartsScreen(
     // Fyers login window
     if (fyersLoginWindowState is FyersLoginWindow.Open) {
 
-        FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
+        var openLoginWindow by state { false }
+
+        FetchCandleDataLoginConfirmationDialog(
+            onConfirm = { openLoginWindow = true },
+            onDismissRequest = onCancelCandleFetchLogin,
+        )
+
+        if (openLoginWindow) {
+            FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
+        }
+    }
+}
+
+@Composable
+private fun FetchCandleDataLoginConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+
+    // Ideally, AlertDialog would be used here instead. But currently, Compose cannot draw on top of Swing components.
+    // AlertDialog is drawn in the same window on top of existing content. As the chart composable is a swing
+    // composable, the AlertDialog will be invisible.
+    AppDialog(
+        onCloseRequest = onDismissRequest,
+        title = "Do you want to login to fetch candles?",
+        state = rememberDialogState(
+            size = DpSize(
+                width = 400.dp,
+                height = 150.dp,
+            )
+        ),
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+
+            Text("Fetching candle data needs login. Do you want to proceed?")
+
+            Row(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+                Button(onClick = onConfirm) {
+                    Text("OK")
+                }
+
+                Button(onClick = onDismissRequest) {
+                    Text("CANCEL")
+                }
+            }
+        }
     }
 }
