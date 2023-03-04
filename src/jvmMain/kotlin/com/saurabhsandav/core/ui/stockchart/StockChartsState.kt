@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
@@ -32,18 +32,45 @@ internal class StockChartsState(
 ) {
 
     private val coroutineScope = MainScope()
-    private val pagedArrangement = ChartArrangement.paged()
-    private val charts = mutableMapOf<Int, StockChart>()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
 
-    val tabsState: StockChartTabsState
-    val pageState: ChartPageState = ChartPageState(coroutineScope, pagedArrangement)
-    var currentStockChart: StockChart? by mutableStateOf(null)
+    val windows = mutableStateListOf<ChartWindow>()
 
     init {
 
-        tabsState = StockChartTabsState(
+        newWindow(null)
+
+        // Setting dark mode according to settings
+        coroutineScope.launch {
+            isDark.collect { isDark ->
+                windows.flatMap { it.charts.values }.forEach { it.setDarkMode(isDark) }
+            }
+        }
+    }
+
+    fun changeTicker(chartWindow: ChartWindow, ticker: String) {
+
+        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
+
+        onChangeTicker(stockChart, ticker)
+    }
+
+    fun changeTimeframe(chartWindow: ChartWindow, timeframe: Timeframe) {
+
+        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
+
+        onChangeTimeframe(stockChart, timeframe)
+    }
+
+    fun newWindow(fromWindow: ChartWindow?) {
+
+        val pagedArrangement = ChartArrangement.paged()
+        val charts = mutableMapOf<Int, StockChart>()
+        val pageState = ChartPageState(coroutineScope, pagedArrangement)
+        val currentStockChart = mutableStateOf<StockChart?>(null)
+
+        val tabsState = StockChartTabsState(
             onNew = { tabId, prevTabId, updateTitle ->
 
                 // New chart
@@ -60,7 +87,7 @@ internal class StockChartsState(
                 )
 
                 // Notify observer
-                onNewChart(stockChart, charts[prevTabId])
+                onNewChart(stockChart, charts[prevTabId] ?: fromWindow?.currentStockChart?.value)
 
                 // Initial theme
                 stockChart.setDarkMode(isDark.value)
@@ -76,7 +103,7 @@ internal class StockChartsState(
                 val stockChart = charts.getValue(tabId)
 
                 // Update current chart
-                currentStockChart = stockChart
+                currentStockChart.value = stockChart
 
                 // Show selected chart
                 pagedArrangement.showChart(stockChart.actualChart)
@@ -102,25 +129,27 @@ internal class StockChartsState(
             },
         )
 
-        // Setting dark mode according to settings
-        coroutineScope.launch {
-            isDark.collect { isDark ->
-                charts.values.forEach { it.setDarkMode(isDark) }
-            }
-        }
+        windows += ChartWindow(
+            charts = charts,
+            tabsState = tabsState,
+            pageState = pageState,
+            currentStockChart = currentStockChart,
+        )
     }
 
-    fun changeTicker(ticker: String) {
+    fun closeWindow(chartWindow: ChartWindow): Boolean {
 
-        val stockChart = charts.getValue(tabsState.selectedTabIndex)
+        if (windows.size == 1) return false
 
-        onChangeTicker(stockChart, ticker)
+        windows.remove(chartWindow)
+
+        return true
     }
 
-    fun changeTimeframe(timeframe: Timeframe) {
-
-        val stockChart = charts.getValue(tabsState.selectedTabIndex)
-
-        onChangeTimeframe(stockChart, timeframe)
-    }
+    data class ChartWindow(
+        val charts: Map<Int, StockChart>,
+        val tabsState: StockChartTabsState,
+        val pageState: ChartPageState,
+        var currentStockChart: MutableState<StockChart?>,
+    )
 }
