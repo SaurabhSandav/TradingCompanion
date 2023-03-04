@@ -42,10 +42,10 @@ internal class StockChart(
     private val onTitleUpdate: (String) -> Unit,
 ) {
 
-    private val coroutineScope = MainScope()
     private val plotters = mutableSetOf<SeriesPlotter<*>>()
     private var source: CandleSource? = null
 
+    val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
 
     init {

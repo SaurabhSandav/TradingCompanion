@@ -93,10 +93,7 @@ class ChartPageState(
         scripts.trySend("setLegendTextColor('${color.toHexString()}');")
     }
 
-    fun connect(
-        chart: IChartApi,
-        syncConfig: SyncConfig? = null,
-    ) {
+    fun connect(chart: IChartApi) {
 
         // Cache chart
         charts.add(chart)
@@ -108,30 +105,9 @@ class ChartPageState(
         coroutineScope.launch {
             chart.scripts.collect(scripts::trySend)
         }
-
-        // Sync visible range across charts
-        if (syncConfig != null) {
-            coroutineScope.launch {
-                chart.timeScale.subscribeVisibleTimeRangeChange { range ->
-
-                    // Watch only the current chart
-                    if (range == null || !syncConfig.isChartFocused()) return@subscribeVisibleTimeRangeChange
-
-                    // Update all other charts matching syncFilter
-                    charts.filter { syncConfig.syncChartWith(it) && it != chart }.forEach {
-                        it.timeScale.setVisibleRange(range.from, range.to)
-                    }
-                }
-            }
-        }
     }
 
     fun disconnect(chart: IChartApi) {
         charts.remove(chart)
     }
-
-    class SyncConfig(
-        val isChartFocused: () -> Boolean = { false },
-        val syncChartWith: (IChartApi) -> Boolean = { true },
-    )
 }

@@ -18,6 +18,9 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.milliseconds
 
 internal class StockChartsState(
     val onNewChart: (
@@ -34,6 +37,7 @@ internal class StockChartsState(
     private val coroutineScope = MainScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
+    private var ignoreChartSyncUntil: Instant? = null
 
     val windows = mutableStateListOf<ChartWindow>()
 
@@ -97,6 +101,36 @@ internal class StockChartsState(
 
                 // Connect chart to web page
                 pageState.connect(chart = actualChart)
+
+                // Sync visible range across charts
+                stockChart.coroutineScope.launch {
+                    actualChart.timeScale.subscribeVisibleTimeRangeChange { range ->
+
+                        if (range == null) return@subscribeVisibleTimeRangeChange
+
+                        // Prevent infinite loop of current chart setting range of other charts which triggers
+                        // the range change callbacks for those charts and so on
+                        val ignoreChartSyncInstant = ignoreChartSyncUntil
+                        if (ignoreChartSyncInstant != null && ignoreChartSyncInstant > Clock.System.now()) {
+                            return@subscribeVisibleTimeRangeChange
+                        }
+
+                        ignoreChartSyncUntil = Clock.System.now() + 500.milliseconds
+
+                        // Update all other charts with same timeframe
+                        windows.flatMap { it.charts.values }
+                            .filter { filterStockChart ->
+                                // Ignore chart if params not initialized
+                                val currentChartTimeframe = stockChart.currentParams?.timeframe ?: return@filter false
+                                // Select charts with same timeframe, ignore current chart
+                                currentChartTimeframe == filterStockChart.currentParams?.timeframe &&
+                                        filterStockChart != stockChart
+                            }
+                            .forEach {
+                                it.actualChart.timeScale.setVisibleRange(range.from, range.to)
+                            }
+                    }
+                }
             },
             onSelect = { tabId ->
 
