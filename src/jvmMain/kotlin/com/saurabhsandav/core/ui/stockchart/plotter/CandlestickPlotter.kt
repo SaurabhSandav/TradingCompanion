@@ -8,8 +8,7 @@ import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
 
 class CandlestickPlotter(
     private val chart: IChartApi,
-    mapper: (index: Int) -> CandlestickData,
-) : SeriesPlotter<CandlestickData>(chart, mapper) {
+) : SeriesPlotter<CandlestickData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {
         val series = series ?: return ""

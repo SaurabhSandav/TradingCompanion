@@ -14,8 +14,7 @@ class VolumePlotter(
     private val chart: IChartApi,
     override val isEnabled: () -> Boolean = { true },
     private val name: String = "Vol",
-    mapper: (index: Int) -> HistogramData,
-) : SeriesPlotter<HistogramData>(chart, mapper) {
+) : SeriesPlotter<HistogramData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {
         val volume = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()

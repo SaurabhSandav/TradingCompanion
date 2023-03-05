@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.IChartApi
+import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.data.HistogramData
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
@@ -21,6 +22,7 @@ import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
@@ -45,6 +47,11 @@ internal class StockChart(
     private val plotters = mutableSetOf<SeriesPlotter<*>>()
     private var source: CandleSource? = null
 
+    private val candlestickPlotter = CandlestickPlotter(actualChart).also(plotters::add)
+    private val ema9Plotter = LinePlotter(actualChart, "EMA (9)").also(plotters::add)
+    private val volumePlotter = VolumePlotter(actualChart).also(plotters::add)
+    private val vwapPlotter = LinePlotter(actualChart, "VWAP").also(plotters::add)
+
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
 
@@ -54,6 +61,7 @@ internal class StockChart(
             TimeScaleOptions(timeVisible = true)
         )
 
+        // Legend updates
         actualChart.crosshairMove().onEach { params ->
             onLegendUpdate(plotters.map { it.legendText(params) })
         }.launchIn(coroutineScope)
@@ -61,18 +69,26 @@ internal class StockChart(
 
     fun setCandleSource(source: CandleSource) {
 
+        // Update chart params
         currentParams = Params(source.ticker, source.timeframe)
+
+        // Update chart title
         onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
 
-        plotters.forEach { it.remove() }
-        plotters.clear()
+        // Cancel CoroutineScope for the previous CandleSource
         this@StockChart.source?.coroutineScope?.cancel()
+
+        // Update cached CandleSource
         this@StockChart.source = source
 
         coroutineScope.launchUnit {
 
-            val candlestickPlotter = source.init(actualChart, onResetData = ::setData)
+            fun setData() = plotters.forEach { it.setData(source.candleSeries.indices) }
 
+            // Get the candles ready
+            source.init(actualChart, candlestickPlotter, onResetData = ::setData)
+
+            // Update chart with live candles
             source.coroutineScope.launch {
                 source.candleSeries.live.collect { candle ->
                     plotters.forEach {
@@ -81,20 +97,16 @@ internal class StockChart(
                 }
             }
 
-            plotters.add(candlestickPlotter)
-
+            // Setup Indicators
             setupDefaultIndicators(source.candleSeries, source.hasVolume)
 
+            // Set initial data on chart
             setData()
         }
     }
 
     fun setDarkMode(isDark: Boolean) {
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
-    }
-
-    private fun setData() {
-        plotters.forEach { it.setData(source!!.candleSeries.indices) }
     }
 
     private fun setupDefaultIndicators(
@@ -105,35 +117,52 @@ internal class StockChart(
         val ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
         val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
 
-        LinePlotter(actualChart, "EMA (9)") { index ->
+        candlestickPlotter.setDataSource { index ->
+
+            val candle = candleSeries[index]
+
+            CandlestickData(
+                time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
+                open = candle.open,
+                high = candle.high,
+                low = candle.low,
+                close = candle.close,
+            )
+        }
+
+        ema9Plotter.setDataSource { index ->
             LineData(
                 time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                 value = ema9Indicator[index].setScale(2, RoundingMode.DOWN),
             )
-        }.also(plotters::add)
+        }
 
-        if (!hasVolume) return
+        if (!hasVolume) {
+            volumePlotter.setDataSource(null)
+            vwapPlotter.setDataSource(null)
+        } else {
 
-        VolumePlotter(actualChart) { index ->
+            volumePlotter.setDataSource { index ->
 
-            val candle = candleSeries[index]
+                val candle = candleSeries[index]
 
-            HistogramData(
-                time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                value = candle.volume,
-                color = when {
-                    candle.isLong -> Color(255, 82, 82)
-                    else -> Color(0, 150, 136)
-                },
-            )
-        }.also(plotters::add)
+                HistogramData(
+                    time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
+                    value = candle.volume,
+                    color = when {
+                        candle.isLong -> Color(255, 82, 82)
+                        else -> Color(0, 150, 136)
+                    },
+                )
+            }
 
-        LinePlotter(actualChart, "VWAP") { index ->
-            LineData(
-                time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
-            )
-        }.also(plotters::add)
+            vwapPlotter.setDataSource { index ->
+                LineData(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            }
+        }
     }
 
     fun destroy() {

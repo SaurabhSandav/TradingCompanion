@@ -7,8 +7,9 @@ import com.saurabhsandav.core.chart.misc.MouseEventParams
 
 abstract class SeriesPlotter<T : SeriesData>(
     private val chart: IChartApi,
-    private val mapper: (index: Int) -> T,
 ) {
+
+    private var dataSource: DataSource<T>? = null
 
     var series: ISeriesApi<T>? = null
         private set
@@ -29,6 +30,10 @@ abstract class SeriesPlotter<T : SeriesData>(
         }
     }
 
+    fun setDataSource(source: DataSource<T>?) {
+        dataSource = source
+    }
+
     fun setData(range: IntRange) {
 
         if (!isEnabled()) return
@@ -36,15 +41,25 @@ abstract class SeriesPlotter<T : SeriesData>(
         if (series == null)
             series = createSeries()
 
-        val seriesData = range.map { index -> mapper(index) }
+        val seriesData = when (val dataSource = dataSource) {
+            null -> emptyList()
+            else -> range.map(dataSource::getValue)
+        }
 
-        checkNotNull(series).setData(seriesData)
+        series!!.setData(seriesData)
     }
 
     fun update(index: Int) {
 
         val series = checkNotNull(series)
 
-        series.update(mapper(index))
+        dataSource?.let { dataSource ->
+            series.update(dataSource.getValue(index))
+        }
+    }
+
+    fun interface DataSource<T> {
+
+        fun getValue(index: Int): T
     }
 }

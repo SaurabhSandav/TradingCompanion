@@ -14,8 +14,7 @@ class LinePlotter(
     private val name: String,
     private val color: Color? = null,
     override val isEnabled: () -> Boolean = { true },
-    mapper: (index: Int) -> LineData,
-) : SeriesPlotter<LineData>(chart, mapper) {
+) : SeriesPlotter<LineData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {
         val value = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()

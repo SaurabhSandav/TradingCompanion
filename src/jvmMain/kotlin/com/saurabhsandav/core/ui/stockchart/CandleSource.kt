@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.chart.IChartApi
-import com.saurabhsandav.core.chart.data.CandlestickData
-import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
@@ -26,23 +24,11 @@ class CandleSource(
 
     internal suspend fun init(
         chart: IChartApi,
+        candlestickPlotter: CandlestickPlotter,
         onResetData: () -> Unit,
-    ): CandlestickPlotter {
+    ) {
 
         candleSeries = onLoad()
-
-        val candlestickPlotter = CandlestickPlotter(chart) { index ->
-
-            val candle = candleSeries[index]
-
-            CandlestickData(
-                time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                open = candle.open,
-                high = candle.high,
-                low = candle.low,
-                close = candle.close,
-            )
-        }
 
         onLoadBefore?.let { onLoadBefore ->
 
@@ -83,7 +69,5 @@ class CandleSource(
                 }
             }
         }
-
-        return candlestickPlotter
     }
 }
