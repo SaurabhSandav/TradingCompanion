@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
+import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -44,18 +46,27 @@ internal class StockChart(
     private val onTitleUpdate: (String) -> Unit,
 ) {
 
-    private val plotters = mutableSetOf<SeriesPlotter<*>>()
     private var source: CandleSource? = null
 
-    private val candlestickPlotter = CandlestickPlotter(actualChart).also(plotters::add)
-    private val ema9Plotter = LinePlotter(actualChart, "EMA (9)").also(plotters::add)
-    private val volumePlotter = VolumePlotter(actualChart).also(plotters::add)
-    private val vwapPlotter = LinePlotter(actualChart, "VWAP").also(plotters::add)
+    private val candlestickPlotter = CandlestickPlotter(actualChart)
+    private val volumePlotter = VolumePlotter(actualChart)
+    private val vwapPlotter = LinePlotter(actualChart, "VWAP", Color(0xFFA500))
+    private val ema9Plotter = LinePlotter(actualChart, "EMA (9)")
 
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
+    val plotters = mutableStateListOf<SeriesPlotter<*>>()
 
     init {
+
+        plotters.addAll(
+            listOf(
+                candlestickPlotter,
+                volumePlotter,
+                vwapPlotter,
+                ema9Plotter,
+            )
+        )
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
@@ -65,6 +76,11 @@ internal class StockChart(
         actualChart.crosshairMove().onEach { params ->
             onLegendUpdate(plotters.map { it.legendText(params) })
         }.launchIn(coroutineScope)
+
+        observerPlotterIsEnabled(PrefKeys.PlotterCandlesEnabled, candlestickPlotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterVolumeEnabled, volumePlotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterVWAPEnabled, vwapPlotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterEMA9Enabled, ema9Plotter)
     }
 
     fun setCandleSource(source: CandleSource) {
@@ -73,7 +89,11 @@ internal class StockChart(
         currentParams = Params(source.ticker, source.timeframe)
 
         // Update chart title
-        onTitleUpdate("${source.ticker} (${source.timeframe.toLabel()})")
+        val chartTitle = "${source.ticker} (${source.timeframe.toLabel()})"
+        onTitleUpdate(chartTitle)
+
+        // Update legend title for candles
+        candlestickPlotter.name = chartTitle
 
         // Cancel CoroutineScope for the previous CandleSource
         this@StockChart.source?.coroutineScope?.cancel()
@@ -107,6 +127,19 @@ internal class StockChart(
 
     fun setDarkMode(isDark: Boolean) {
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
+    }
+
+    fun setPlotterIsEnabled(plotter: SeriesPlotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
+
+        val prefKey = when (plotter) {
+            candlestickPlotter -> PrefKeys.PlotterCandlesEnabled
+            volumePlotter -> PrefKeys.PlotterVolumeEnabled
+            vwapPlotter -> PrefKeys.PlotterVWAPEnabled
+            ema9Plotter -> PrefKeys.PlotterEMA9Enabled
+            else -> error("Unknown plotter ${plotter.name}")
+        }
+
+        appModule.appPrefs.putBoolean(prefKey, isEnabled)
     }
 
     private fun setupDefaultIndicators(
@@ -163,6 +196,16 @@ internal class StockChart(
                 )
             }
         }
+    }
+
+    private fun observerPlotterIsEnabled(
+        prefKey: String,
+        plotter: SeriesPlotter<*>,
+    ) {
+        appModule.appPrefs
+            .getBooleanFlow(prefKey, true)
+            .onEach(plotter::setIsEnabled)
+            .launchIn(coroutineScope)
     }
 
     fun destroy() {

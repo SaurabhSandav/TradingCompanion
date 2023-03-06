@@ -10,6 +10,8 @@ class CandlestickPlotter(
     private val chart: IChartApi,
 ) : SeriesPlotter<CandlestickData>(chart) {
 
+    override var name: String = ""
+
     override fun legendText(params: MouseEventParams): String {
         val series = series ?: return ""
         val candlestickSeriesPrices = params.seriesData[series] as? CandlestickData?
@@ -17,7 +19,7 @@ class CandlestickPlotter(
         val high = candlestickSeriesPrices?.high?.toString().orEmpty()
         val low = candlestickSeriesPrices?.low?.toString().orEmpty()
         val close = candlestickSeriesPrices?.close?.toString().orEmpty()
-        return "O $open H $high L $low C $close"
+        return "$name O $open H $high L $low C $close"
     }
 
     override fun createSeries(): ISeriesApi<CandlestickData> {

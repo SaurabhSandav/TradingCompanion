@@ -1,9 +1,13 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
 import com.saurabhsandav.core.chart.misc.MouseEventParams
+import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
 
 abstract class SeriesPlotter<T : SeriesData>(
     private val chart: IChartApi,
@@ -14,11 +18,14 @@ abstract class SeriesPlotter<T : SeriesData>(
     var series: ISeriesApi<T>? = null
         private set
 
+    var isEnabled by mutableStateOf(true)
+        private set
+
+    abstract val name: String
+
     abstract fun legendText(params: MouseEventParams): String
 
     protected abstract fun createSeries(): ISeriesApi<T>
-
-    protected open val isEnabled: () -> Boolean = { true }
 
     fun remove() {
 
@@ -36,10 +43,10 @@ abstract class SeriesPlotter<T : SeriesData>(
 
     fun setData(range: IntRange) {
 
-        if (!isEnabled()) return
-
-        if (series == null)
+        if (series == null) {
             series = createSeries()
+            setIsEnabled(isEnabled)
+        }
 
         val seriesData = when (val dataSource = dataSource) {
             null -> emptyList()
@@ -56,6 +63,13 @@ abstract class SeriesPlotter<T : SeriesData>(
         dataSource?.let { dataSource ->
             series.update(dataSource.getValue(index))
         }
+    }
+
+    fun setIsEnabled(enabled: Boolean) {
+
+        isEnabled = enabled
+
+        series?.applyOptions(CandlestickStyleOptions(visible = enabled))
     }
 
     fun interface DataSource<T> {

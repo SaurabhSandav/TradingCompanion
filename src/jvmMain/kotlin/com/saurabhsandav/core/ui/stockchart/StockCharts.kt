@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -64,6 +65,31 @@ internal fun StockCharts(
 
                                 Divider()
                             }
+
+                            Column {
+
+                                stockChart?.plotters?.forEach { plotter ->
+
+                                    key(plotter) {
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+
+                                            Text(plotter.name)
+
+                                            Switch(
+                                                checked = plotter.isEnabled,
+                                                onCheckedChange = { stockChart.setPlotterIsEnabled(plotter, it) },
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Divider()
 
                             ListSelectionField(
                                 items = NIFTY50,

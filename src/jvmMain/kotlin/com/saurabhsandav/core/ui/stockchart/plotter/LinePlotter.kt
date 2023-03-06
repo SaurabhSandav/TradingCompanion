@@ -11,9 +11,8 @@ import com.saurabhsandav.core.chart.options.common.LineWidth
 
 class LinePlotter(
     private val chart: IChartApi,
-    private val name: String,
+    override val name: String,
     private val color: Color? = null,
-    override val isEnabled: () -> Boolean = { true },
 ) : SeriesPlotter<LineData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {

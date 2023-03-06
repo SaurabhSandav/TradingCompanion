@@ -12,8 +12,7 @@ import com.saurabhsandav.core.chart.options.common.PriceFormat
 
 class VolumePlotter(
     private val chart: IChartApi,
-    override val isEnabled: () -> Boolean = { true },
-    private val name: String = "Vol",
+    override val name: String = "Vol",
 ) : SeriesPlotter<HistogramData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {

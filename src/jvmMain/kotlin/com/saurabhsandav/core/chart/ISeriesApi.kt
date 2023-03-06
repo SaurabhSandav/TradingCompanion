@@ -5,6 +5,7 @@ import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.chart.misc.BarsInfo
 import com.saurabhsandav.core.chart.misc.LogicalRange
 import com.saurabhsandav.core.chart.options.PriceLineOptions
+import com.saurabhsandav.core.chart.options.SeriesOptions
 import kotlinx.serialization.json.JsonArray
 
 class ISeriesApi<T : SeriesData>(
@@ -26,6 +27,13 @@ class ISeriesApi<T : SeriesData>(
         val result = executeJsWithResult("$reference.barsInLogicalRange(${range.toJsonElement()})")
 
         return BarsInfo.fromJson(result)
+    }
+
+    fun applyOptions(options: SeriesOptions) {
+
+        val optionsJson = options.toJsonElement()
+
+        executeJs("$reference.applyOptions(${optionsJson})")
     }
 
     fun setData(list: List<T>) {
