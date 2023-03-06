@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Switch
@@ -54,7 +56,8 @@ internal fun StockCharts(
 
                         // Controls
                         Column(
-                            modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp),
+                            modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp)
+                                .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                         ) {
 
