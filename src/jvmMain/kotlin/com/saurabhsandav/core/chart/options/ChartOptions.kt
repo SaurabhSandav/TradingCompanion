@@ -14,6 +14,7 @@ data class ChartOptions(
     val width: Number? = null,
     val height: Number? = null,
     val layout: LayoutOptions? = null,
+    val leftPriceScale: PriceScaleOptions? = null,
     val rightPriceScale: PriceScaleOptions? = null,
     val timeScale: TimeScaleOptions? = null,
     val crosshair: CrosshairOptions? = null,
@@ -24,6 +25,7 @@ data class ChartOptions(
         width?.let { put("width", it) }
         height?.let { put("height", it) }
         layout?.let { put("layout", it.toJsonElement()) }
+        leftPriceScale?.let { put("leftPriceScale", it.toJsonElement()) }
         rightPriceScale?.let { put("rightPriceScale", it.toJsonElement()) }
         timeScale?.let { put("timeScale", it.toJsonElement()) }
         crosshair?.let { put("crosshair", it.toJsonElement()) }

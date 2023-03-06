@@ -5,6 +5,7 @@ import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.PriceScaleMargins
 import com.saurabhsandav.core.chart.PriceScaleOptions
 import com.saurabhsandav.core.chart.data.HistogramData
+import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.HistogramStyleOptions
 import com.saurabhsandav.core.chart.options.common.PriceFormat
@@ -17,7 +18,7 @@ class VolumePlotter(
 ) : SeriesPlotter<HistogramData>(chart, mapper) {
 
     override fun legendText(params: MouseEventParams): String {
-        val volume = series?.let { params.getSeriesPrice(it)?.value?.toString() }.orEmpty()
+        val volume = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
         return "$name $volume"
     }
 

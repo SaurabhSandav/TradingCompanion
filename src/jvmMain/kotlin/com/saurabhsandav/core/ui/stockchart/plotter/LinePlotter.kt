@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.LineData
+import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.LineStyleOptions
 import com.saurabhsandav.core.chart.options.common.LineWidth
@@ -17,7 +18,7 @@ class LinePlotter(
 ) : SeriesPlotter<LineData>(chart, mapper) {
 
     override fun legendText(params: MouseEventParams): String {
-        val value = series?.let { params.getSeriesPrice(it)?.value?.toString() }.orEmpty()
+        val value = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
         return "$name $value"
     }
 

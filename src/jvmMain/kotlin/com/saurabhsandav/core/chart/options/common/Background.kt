@@ -14,7 +14,7 @@ sealed class Background : IsJsonElement {
     ) : Background() {
 
         override fun toJsonElement(): JsonElement = buildJsonObject {
-            put("type", "Solid")
+            put("type", "ColorType.Solid")
             put("color", color.toHexString())
         }
     }
@@ -25,7 +25,7 @@ sealed class Background : IsJsonElement {
     ) : Background() {
 
         override fun toJsonElement() = buildJsonObject {
-            put("type", "Solid")
+            put("type", "ColorType.VerticalGradient")
             topColor?.let { put("topColor", it.toHexString()) }
             bottomColor?.let { put("bottomColor", it.toHexString()) }
         }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.baselineSeries
+import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.CrosshairMode
@@ -63,7 +64,7 @@ internal class PNLByMonthChartStudy(
                     operation = { _, accumulator, element -> accumulator + element.second },
                 )
                 .map { (localDate, bigDecimal) ->
-                    SingleValueData(
+                    LineData(
                         time = Time.BusinessDay(
                             year = localDate.year,
                             month = localDate.monthNumber,
@@ -96,7 +97,7 @@ internal class PNLByMonthChartStudy(
 
             // Update Legend
             chart.crosshairMove().onEach { params ->
-                val value = params.getSeriesPrice(baselineSeries)?.value?.toString().orEmpty()
+                val value = (params.seriesData[baselineSeries] as? SingleValueData?)?.value?.toString().orEmpty()
                 arrangement.setLegend(listOf("PNL $value"))
             }.launchIn(this)
 

@@ -13,7 +13,7 @@ class CandlestickPlotter(
 
     override fun legendText(params: MouseEventParams): String {
         val series = series ?: return ""
-        val candlestickSeriesPrices = params.getSeriesPrices(series)
+        val candlestickSeriesPrices = params.seriesData[series] as? CandlestickData?
         val open = candlestickSeriesPrices?.open?.toString().orEmpty()
         val high = candlestickSeriesPrices?.high?.toString().orEmpty()
         val low = candlestickSeriesPrices?.low?.toString().orEmpty()

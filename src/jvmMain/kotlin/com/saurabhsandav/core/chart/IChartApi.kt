@@ -38,7 +38,6 @@ class IChartApi internal constructor(
         executeJs = ::executeJs,
         executeJsWithResult = ::executeJsWithResult,
     )
-    val priceScale = IPriceScaleApi(reference, ::executeJs)
 
     init {
 
@@ -144,6 +143,10 @@ class IChartApi internal constructor(
 
         if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty())
             executeJs("$reference.unsubscribeCrosshairMove($subscribeCrosshairMoveCallbackReference);")
+    }
+
+    fun priceScale(priceScaleId: String): IPriceScaleApi {
+        return IPriceScaleApi(reference, ::executeJs, priceScaleId)
     }
 
     fun applyOptions(options: ChartOptions) {

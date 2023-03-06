@@ -5,15 +5,21 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 class IPriceScaleApi(
-    private val receiver: String,
+    receiver: String,
     private val executeJs: (String) -> Unit,
+    priceScaleId: String? = null,
 ) {
+
+    private val reference = run {
+        val id = if (priceScaleId == null) "" else "'$priceScaleId'"
+        "$receiver.priceScale($id)"
+    }
 
     fun applyOptions(options: PriceScaleOptions) {
 
         val optionsJson = options.toJsonElement()
 
-        executeJs("$receiver.priceScale().applyOptions($optionsJson);")
+        executeJs("$reference.applyOptions($optionsJson);")
     }
 }
 

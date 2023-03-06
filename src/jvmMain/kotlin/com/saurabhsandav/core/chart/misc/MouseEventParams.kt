@@ -3,23 +3,17 @@ package com.saurabhsandav.core.chart.misc
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.callbacks.timeFromCallbackJson
 import com.saurabhsandav.core.chart.data.CandlestickData
-import com.saurabhsandav.core.chart.data.GeneralData
+import com.saurabhsandav.core.chart.data.SeriesData
+import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import kotlinx.serialization.json.*
 
 data class MouseEventParams(
     val time: Time?,
+    val logical: Float?,
     val point: Point?,
-    val seriesPrices: Map<ISeriesApi<*>, GeneralData>,
+    val seriesData: Map<ISeriesApi<*>, SeriesData>,
 ) {
-
-    fun getSeriesPrices(key: ISeriesApi<CandlestickData>): GeneralData.BarPrices? {
-        return seriesPrices[key] as GeneralData.BarPrices?
-    }
-
-    fun getSeriesPrice(key: ISeriesApi<*>): GeneralData.BarPrice? {
-        return seriesPrices[key] as GeneralData.BarPrice?
-    }
 
     companion object {
 
@@ -32,13 +26,15 @@ data class MouseEventParams(
 
             val time = timeFromCallbackJson(paramsElement.jsonObject["time"])
 
+            val logical = paramsElement.jsonObject["logical"]?.jsonPrimitive?.float
+
             val point = paramsElement.jsonObject["point"]?.let {
                 val x = it.jsonObject["x"]!!.jsonPrimitive.float
                 val y = it.jsonObject["y"]!!.jsonPrimitive.float
                 Point(x = x, y = y)
             }
 
-            val seriesPrices = paramsElement.jsonObject["seriesPrices"]?.jsonArray?.mapNotNull {
+            val seriesData = paramsElement.jsonObject["seriesData"]?.jsonArray?.mapNotNull {
 
                 val name = it.jsonArray[0].jsonPrimitive.content
 
@@ -47,16 +43,23 @@ data class MouseEventParams(
                 // for the old data. It's a rare occurrence. The best way to deal with it is to pass empty prices.
                 val series = seriesList.find { series -> series.name == name } ?: return@mapNotNull null
 
-                val value = when (val data = it.jsonArray[1]) {
-                    is JsonObject -> GeneralData.BarPrices(
-                        open = data["open"]!!.jsonPrimitive.content.toDouble(),
-                        high = data["high"]!!.jsonPrimitive.content.toDouble(),
-                        low = data["low"]!!.jsonPrimitive.content.toDouble(),
-                        close = data["close"]!!.jsonPrimitive.content.toDouble(),
+                val data = it.jsonArray[1].jsonObject
+
+                val value = when {
+                    data.containsKey("open") -> CandlestickData(
+                        time = timeFromCallbackJson(data["time"])!!,
+                        open = data["open"]!!.jsonPrimitive.double,
+                        high = data["high"]!!.jsonPrimitive.double,
+                        low = data["low"]!!.jsonPrimitive.double,
+                        close = data["close"]!!.jsonPrimitive.double,
                     )
 
-                    is JsonPrimitive -> GeneralData.BarPrice(data.content.toDouble())
-                    else -> error("MouseEventParams: Invalid GenericData")
+                    data.containsKey("value") -> SingleValueData(
+                        time = timeFromCallbackJson(data["time"])!!,
+                        value = data["value"]!!.jsonPrimitive.double,
+                    )
+
+                    else -> error("MouseEventParams: Invalid Data")
                 }
 
                 series to value
@@ -64,8 +67,9 @@ data class MouseEventParams(
 
             return MouseEventParams(
                 time = time,
+                logical = logical,
                 point = point,
-                seriesPrices = seriesPrices,
+                seriesData = seriesData,
             )
         }
     }

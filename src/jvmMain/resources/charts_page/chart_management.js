@@ -82,7 +82,9 @@ function getByValue(map, searchValue) {
 function replacerSeriesByName(seriesMap) {
 
   return function (key, value) {
-    if (key == 'seriesPrices' && value instanceof Map) {
+    if (key == 'sourceEvent' || key == 'hoveredSeries') {
+      return undefined
+    } else if (key == 'seriesData' && value instanceof Map) {
 
       var namedMap = new Map();
 
