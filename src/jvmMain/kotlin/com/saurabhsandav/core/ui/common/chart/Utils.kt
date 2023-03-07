@@ -1,7 +1,10 @@
 package com.saurabhsandav.core.ui.common.chart
 
 import com.saurabhsandav.core.chart.IChartApi
+import com.saurabhsandav.core.chart.ITimeScaleApi
+import com.saurabhsandav.core.chart.callbacks.LogicalRangeChangeEventHandler
 import com.saurabhsandav.core.chart.callbacks.MouseEventHandler
+import com.saurabhsandav.core.chart.misc.LogicalRange
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
@@ -17,5 +20,16 @@ fun IChartApi.crosshairMove(): Flow<MouseEventParams> {
         subscribeCrosshairMove(handler)
 
         awaitClose { unsubscribeCrosshairMove(handler) }
+    }.buffer(Channel.CONFLATED)
+}
+
+fun ITimeScaleApi.visibleLogicalRangeChange(): Flow<LogicalRange?> {
+    return callbackFlow {
+
+        val handler = LogicalRangeChangeEventHandler(::trySend)
+
+        subscribeVisibleLogicalRangeChange(handler)
+
+        awaitClose { unsubscribeVisibleLogicalRangeChange(handler) }
     }.buffer(Channel.CONFLATED)
 }

@@ -3,10 +3,13 @@ package com.saurabhsandav.core.ui.stockchart
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class CandleSource(
     val ticker: String,
@@ -20,8 +23,6 @@ class CandleSource(
     internal val coroutineScope = MainScope()
     lateinit var candleSeries: CandleSeries
 
-    private var moreCandlesJob: Job? = null
-
     internal suspend fun init(
         chart: IChartApi,
         candlestickPlotter: CandlestickPlotter,
@@ -30,44 +31,25 @@ class CandleSource(
 
         candleSeries = onLoad()
 
-        onLoadBefore?.let { onLoadBefore ->
+        if (onLoadBefore != null || onLoadAfter != null) {
 
-            chart.timeScale.subscribeVisibleLogicalRangeChange { logicalRange ->
+            chart.timeScale
+                .visibleLogicalRangeChange()
+                .conflate()
+                .filterNotNull()
+                .onEach { logicalRange ->
 
-                if (moreCandlesJob != null || logicalRange == null) return@subscribeVisibleLogicalRangeChange
+                    val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange) ?: return@onEach
 
-                moreCandlesJob = coroutineScope.launch {
+                    when {
+                        // Load more historical data if there are less than 100 bars to the left of the visible area
+                        barsInfo.barsBefore < 100 && onLoadBefore?.invoke() == true -> onResetData()
 
-                    val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange)
-
-                    // Load more historical data if there are less than 100 bars to the left of the visible area
-                    if (barsInfo != null && barsInfo.barsBefore < 100) {
-                        if (onLoadBefore()) onResetData()
+                        // Load more new data if there are less than 100 bars to the right of the visible area
+                        barsInfo.barsAfter < 100 && onLoadAfter?.invoke() == true -> onResetData()
                     }
-
-                    moreCandlesJob = null
                 }
-            }
-        }
-
-        onLoadAfter?.let { onLoadAfter ->
-
-            chart.timeScale.subscribeVisibleLogicalRangeChange { logicalRange ->
-
-                if (moreCandlesJob != null || logicalRange == null) return@subscribeVisibleLogicalRangeChange
-
-                moreCandlesJob = coroutineScope.launch {
-
-                    val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange)
-
-                    // Load more new data if there are less than 100 bars to the right of the visible area
-                    if (barsInfo != null && barsInfo.barsAfter < 100) {
-                        if (onLoadAfter()) onResetData()
-                    }
-
-                    moreCandlesJob = null
-                }
-            }
+                .launchIn(coroutineScope)
         }
     }
 }
