@@ -13,6 +13,7 @@ internal data class OpenTradesState(
     val closeTradeFormWindowParams: Collection<CloseTradeFormWindowParams>,
 )
 
+@Immutable
 internal data class OpenTradeListEntry(
     val id: Long,
     val broker: String,

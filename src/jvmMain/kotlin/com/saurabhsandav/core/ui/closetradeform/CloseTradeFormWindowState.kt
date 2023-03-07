@@ -44,6 +44,7 @@ internal fun rememberCloseTradeFormWindowState(
     }
 }
 
+@Stable
 internal class CloseTradeFormWindowState(
     val params: CloseTradeFormWindowParams,
     private val coroutineScope: CoroutineScope,

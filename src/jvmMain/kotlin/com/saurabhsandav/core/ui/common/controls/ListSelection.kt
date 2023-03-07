@@ -27,10 +27,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.state
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun ListSelectionField(
-    items: List<String>,
+    items: ImmutableList<String>,
     onSelection: (String) -> Unit,
     selection: String? = null,
     placeholderText: String = "Select...",
@@ -91,7 +92,7 @@ fun ListSelectionField(
 
 @Composable
 fun ListSelectionDialog(
-    items: List<String>,
+    items: ImmutableList<String>,
     onSelection: (ticker: String) -> Unit,
     selectionDialogTitle: String,
     onCloseRequest: () -> Unit,

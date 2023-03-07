@@ -31,6 +31,7 @@ internal fun rememberPNLCalculatorWindowState(
     }
 }
 
+@Stable
 internal class PNLCalculatorWindowState(
     val params: PNLCalculatorWindowParams,
     coroutineScope: CoroutineScope,

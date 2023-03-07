@@ -18,6 +18,8 @@ import com.saurabhsandav.core.ui.common.controls.ListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun SettingsWindow(
@@ -77,7 +79,7 @@ internal fun SettingsScreen(
             Divider()
 
             LandingScreenPreference(
-                items = remember { LandingScreen.items.map { it.title } },
+                items = remember { LandingScreen.items.map { it.title }.toImmutableList() },
                 selectedItem = landingScreen,
                 onLandingScreenChange = onLandingScreenChange,
             )
@@ -117,7 +119,7 @@ private fun DarkModePreference(
 
 @Composable
 private fun LandingScreenPreference(
-    items: List<String>,
+    items: ImmutableList<String>,
     selectedItem: String,
     onLandingScreenChange: (String) -> Unit,
 ) {

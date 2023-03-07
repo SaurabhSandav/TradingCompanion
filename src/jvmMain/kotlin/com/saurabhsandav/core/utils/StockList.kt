@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.utils
 
-val NIFTY50 = listOf(
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+
+val NIFTY50: ImmutableList<String> = persistentListOf(
     "NIFTY50",
     "ADANIPORTS",
     "APOLLOHOSP",

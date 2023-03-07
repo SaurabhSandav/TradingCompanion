@@ -28,12 +28,14 @@ internal data class TradeDetailState(
         val fees: String,
     )
 
+    @Immutable
     internal data class TradeStop(
         val price: BigDecimal,
         val priceText: String,
         val risk: String,
     )
 
+    @Immutable
     internal data class TradeTarget(
         val price: BigDecimal,
         val priceText: String,

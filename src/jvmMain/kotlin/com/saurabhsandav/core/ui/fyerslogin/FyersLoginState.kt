@@ -1,9 +1,11 @@
 package com.saurabhsandav.core.ui.fyerslogin
 
+import androidx.compose.runtime.Stable
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.utils.PrefKeys
 
+@Stable
 internal class FyersLoginState(
     private val fyersApi: FyersApi,
     private val appPrefs: FlowSettings,

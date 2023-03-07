@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -22,6 +23,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.milliseconds
 
+@Stable
 internal class StockChartsState(
     val onNewChart: (
         newStockChart: StockChart,

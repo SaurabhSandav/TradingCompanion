@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
 
+@Stable
 class StockChartTabsState(
     private val onNew: (
         tabId: Int,

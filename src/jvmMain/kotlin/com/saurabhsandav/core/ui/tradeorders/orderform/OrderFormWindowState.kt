@@ -33,6 +33,7 @@ internal fun rememberOrderFormWindowState(
     }
 }
 
+@Stable
 internal class OrderFormWindowState(
     val params: OrderFormWindowParams,
     private val coroutineScope: CoroutineScope,

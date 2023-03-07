@@ -23,6 +23,7 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabRow
 import com.saurabhsandav.core.utils.NIFTY50
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun StockCharts(
@@ -100,7 +101,7 @@ internal fun StockCharts(
                             )
 
                             ListSelectionField(
-                                items = remember { Timeframe.values().map { it.toLabel() } },
+                                items = remember { Timeframe.values().map { it.toLabel() }.toImmutableList() },
                                 selection = stockChart?.currentParams?.timeframe?.toLabel(),
                                 onSelection = { state.changeTimeframe(chartWindow, timeframeFromLabel(it)) },
                                 label = { Text("Timeframe") },

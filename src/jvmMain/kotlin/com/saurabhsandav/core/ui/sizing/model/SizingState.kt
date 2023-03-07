@@ -3,10 +3,11 @@ package com.saurabhsandav.core.ui.sizing.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindowParams
+import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class SizingState(
-    val sizedTrades: List<SizedTrade>,
+    val sizedTrades: ImmutableList<SizedTrade>,
     val openTradeFormWindowParams: Collection<OpenTradeFormWindowParams>,
 )
 

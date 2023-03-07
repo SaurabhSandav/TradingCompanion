@@ -282,12 +282,12 @@ internal class TradesPresenter(
         val params = TradeChartWindowParams(
             tradeId = trade.id,
             chartData = TradeChartData(
-                candleData = candleData,
-                volumeData = volumeData,
-                ema9Data = ema9Data,
-                vwapData = vwapData,
+                candleData = candleData.toImmutableList(),
+                volumeData = volumeData.toImmutableList(),
+                ema9Data = ema9Data.toImmutableList(),
+                vwapData = vwapData.toImmutableList(),
                 visibilityIndexRange = (entryIndex - 30)..(exitIndex + 30),
-                markers = markers,
+                markers = markers.toImmutableList(),
             ),
         )
 

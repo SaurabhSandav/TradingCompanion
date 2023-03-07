@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.common
 
 import com.saurabhsandav.core.trading.Timeframe
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
-val TimeframeLabels = listOf(
+val TimeframeLabels: ImmutableList<String> = persistentListOf(
     "1M",
     "3M",
     "5M",

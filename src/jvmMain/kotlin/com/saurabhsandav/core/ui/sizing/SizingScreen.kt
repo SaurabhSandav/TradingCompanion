@@ -19,6 +19,7 @@ import com.saurabhsandav.core.ui.opentradeform.rememberOpenTradeFormWindowState
 import com.saurabhsandav.core.ui.sizing.model.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.utils.NIFTY50
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun SizingScreen(
@@ -52,7 +53,7 @@ internal fun SizingScreen(
 
 @Composable
 private fun SizingTradesGrid(
-    sizedTrades: List<SizedTrade>,
+    sizedTrades: ImmutableList<SizedTrade>,
     onUpdateEntry: (id: Long, entry: String) -> Unit,
     onUpdateStop: (id: Long, stop: String) -> Unit,
     onOpenTrade: (Long) -> Unit,

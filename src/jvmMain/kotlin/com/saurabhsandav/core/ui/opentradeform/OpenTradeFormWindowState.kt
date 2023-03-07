@@ -38,6 +38,7 @@ internal fun rememberOpenTradeFormWindowState(
     }
 }
 
+@Stable
 internal class OpenTradeFormWindowState(
     val params: OpenTradeFormWindowParams,
     private val coroutineScope: CoroutineScope,

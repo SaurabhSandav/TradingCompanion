@@ -22,9 +22,13 @@ import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -128,14 +132,15 @@ internal class SizingPresenter(
     }
 
     @Composable
-    private fun getSizedTrades(account: Account): List<SizedTrade> {
+    private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
         return remember(account) {
             appModule.appDB.sizingTradeQueries
                 .getAll()
                 .asFlow()
                 .mapToList(Dispatchers.IO)
                 .mapList { sizingTrade -> sizingTrade.size(account) }
-        }.collectAsState(emptyList()).value
+                .map { it.toImmutableList() }
+        }.collectAsState(persistentListOf()).value
     }
 
     private fun SizingTrade.size(account: Account): SizedTrade {
