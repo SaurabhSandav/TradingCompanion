@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.charts
 
+import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.barreplay.BarReplaySession
 import com.saurabhsandav.core.ui.stockchart.CandleSource
@@ -22,16 +23,21 @@ internal class ReplayChartSession(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val candleSource = CandleSource(
-            ticker = ticker,
-            timeframe = timeframe,
-            hasVolume = ticker != "NIFTY50",
-            onLoad = {
+        val candleSource = object : CandleSource {
+            override val ticker: String = ticker
+            override val timeframe: Timeframe = timeframe
+            override val hasVolume: Boolean = ticker != "NIFTY50"
+
+            private var _candleSeries: CandleSeries? = null
+            override val candleSeries: CandleSeries
+                get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }
+
+            override suspend fun onLoad() {
                 val newReplaySession = replaySessionBuilder(ticker, timeframe)
                 replaySession.tryEmit(newReplaySession)
-                newReplaySession.replaySeries
-            },
-        )
+                _candleSeries = newReplaySession.replaySeries
+            }
+        }
 
         stockChart.setCandleSource(candleSource)
     }

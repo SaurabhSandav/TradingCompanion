@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.asCandleSeries
+import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import kotlinx.datetime.Clock
@@ -26,42 +23,46 @@ internal class ChartSession(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
+        val candleSource = object : CandleSource {
+            override val ticker: String = ticker
+            override val timeframe: Timeframe = timeframe
+            override val hasVolume: Boolean = ticker != "NIFTY50"
 
-        val candleSource = CandleSource(
-            ticker = ticker,
-            timeframe = timeframe,
-            hasVolume = ticker != "NIFTY50",
-            onLoad = {
+            val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
+            override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
+
+            override suspend fun onLoad() {
 
                 // Range of 3 months before current time to current time
                 val candles = getCandles(
-                    ticker, timeframe, run {
+                    ticker,
+                    timeframe,
+                    run {
                         val currentTime = Clock.System.now()
                         currentTime.minus(downloadIntervalDays)..currentTime
                     }
                 )
 
-                candles.forEach { mutableCandleSeries.addCandle(it) }
-                mutableCandleSeries.asCandleSeries()
-            },
-            onLoadBefore = {
+                candles.forEach(mutableCandleSeries::addCandle)
+            }
+
+            override suspend fun onLoadBefore(): Boolean {
 
                 val firstCandleInstant = mutableCandleSeries.first().openInstant
 
                 val oldCandles = getCandles(
-                    ticker, timeframe, firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+                    ticker,
+                    timeframe,
+                    firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant,
                 )
 
                 val areCandlesAvailable = oldCandles.isNotEmpty()
 
-                if (oldCandles.isNotEmpty()) {
-                    mutableCandleSeries.prependCandles(oldCandles)
-                }
+                if (areCandlesAvailable) mutableCandleSeries.prependCandles(oldCandles)
 
-                areCandlesAvailable
+                return areCandlesAvailable
             }
-        )
+        }
 
         stockChart.setCandleSource(candleSource)
     }

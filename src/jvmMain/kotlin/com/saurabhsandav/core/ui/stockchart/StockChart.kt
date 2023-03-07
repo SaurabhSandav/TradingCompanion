@@ -22,6 +22,7 @@ import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
@@ -31,9 +32,10 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
@@ -47,6 +49,7 @@ internal class StockChart(
 ) {
 
     private var source: CandleSource? = null
+    private var sourceCoroutineScope = MainScope()
 
     private val candlestickPlotter = CandlestickPlotter(actualChart)
     private val volumePlotter = VolumePlotter(actualChart)
@@ -96,26 +99,47 @@ internal class StockChart(
         candlestickPlotter.name = chartTitle
 
         // Cancel CoroutineScope for the previous CandleSource
-        this@StockChart.source?.coroutineScope?.cancel()
+        sourceCoroutineScope.cancel()
 
         // Update cached CandleSource
         this@StockChart.source = source
+        sourceCoroutineScope = MainScope()
 
         coroutineScope.launchUnit {
 
             fun setData() = plotters.forEach { it.setData(source.candleSeries.indices) }
 
             // Get the candles ready
-            source.init(actualChart, candlestickPlotter, onResetData = ::setData)
+            source.onLoad()
+
+            // Load before/after candles if needed
+            actualChart.timeScale
+                .visibleLogicalRangeChange()
+                .conflate()
+                .filterNotNull()
+                .onEach { logicalRange ->
+
+                    val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange) ?: return@onEach
+
+                    when {
+                        // Load more historical data if there are less than 100 bars to the left of the visible area
+                        barsInfo.barsBefore < 100 && source.onLoadBefore() -> setData()
+
+                        // Load more new data if there are less than 100 bars to the right of the visible area
+                        barsInfo.barsAfter < 100 && source.onLoadAfter() -> setData()
+                    }
+                }
+                .launchIn(sourceCoroutineScope)
 
             // Update chart with live candles
-            source.coroutineScope.launch {
-                source.candleSeries.live.collect { candle ->
+            source.candleSeries
+                .live
+                .onEach { candle ->
                     plotters.forEach {
                         it.update(source.candleSeries.indexOf(candle))
                     }
                 }
-            }
+                .launchIn(sourceCoroutineScope)
 
             // Setup Indicators
             setupDefaultIndicators(source.candleSeries, source.hasVolume)
@@ -210,7 +234,7 @@ internal class StockChart(
 
     fun destroy() {
         coroutineScope.cancel()
-        source?.coroutineScope?.cancel()
+        sourceCoroutineScope.cancel()
         plotters.forEach { it.remove() }
         actualChart.remove()
     }
