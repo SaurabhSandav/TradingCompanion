@@ -7,9 +7,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
@@ -19,13 +17,18 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.common.controls.DateTimeField
 import com.saurabhsandav.core.ui.common.controls.ListSelectionField
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabRow
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @Composable
 internal fun StockCharts(
@@ -130,6 +133,32 @@ internal fun StockCharts(
 
                             Divider()
 
+                            var goToDate by state {
+                                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                            }
+
+                            DateTimeField(
+                                value = goToDate,
+                                onValidValueChange = { goToDate = it },
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                            ) {
+
+                                Button(onClick = { state.goToDateTime(chartWindow, null) }) {
+                                    Text("Now")
+                                }
+
+                                Button(onClick = { state.goToDateTime(chartWindow, goToDate) }) {
+                                    Text("Go")
+                                }
+                            }
+
+                            Divider()
+
                             Button(
                                 onClick = { state.newWindow(chartWindow) },
                                 modifier = Modifier.fillMaxWidth(),
@@ -158,7 +187,6 @@ internal fun StockCharts(
             }
         }
     }
-
 }
 
 private fun chartKeyboardShortcuts(

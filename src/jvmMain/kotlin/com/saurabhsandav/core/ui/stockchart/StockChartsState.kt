@@ -15,12 +15,15 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
@@ -67,6 +70,21 @@ internal class StockChartsState(
         val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
 
         onChangeTimeframe(stockChart, timeframe)
+    }
+
+    fun goToDateTime(chartWindow: ChartWindow, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
+
+        // Load data if date specified
+        if (dateTime != null) {
+            windows.flatMap { it.charts.values }
+                .map { it.loadDateTime(dateTime) }
+                .joinAll()
+        }
+
+        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
+
+        // Navigate to datetime, other charts should be synced to same datetime
+        stockChart.goToDateTime(dateTime)
     }
 
     fun newWindow(fromWindow: ChartWindow?) {

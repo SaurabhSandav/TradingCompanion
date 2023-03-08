@@ -5,8 +5,7 @@ import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlinx.datetime.*
 import kotlin.time.Duration.Companion.days
 
 internal class ChartSession(
@@ -66,6 +65,33 @@ internal class ChartSession(
                 }
 
                 return areCandlesAvailable
+            }
+
+            override suspend fun onLoadDateTime(dateTime: LocalDateTime): Boolean {
+
+                val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
+
+                val firstCandleLDT = candleSeries.firstOrNull()?.openInstant
+                    ?.toLocalDateTime(TimeZone.currentSystemDefault())
+                val isBefore = firstCandleLDT != null && dateTime < firstCandleLDT
+
+                if (isBefore) {
+
+                    // New range starts 3 months before given date
+                    val rangeStart = instant.minus(downloadIntervalDays)
+                    val rangeEnd = mutableCandleSeries.first().openInstant
+                    val range = rangeStart..rangeEnd
+
+                    val oldCandles = getCandles(ticker, timeframe, range)
+
+                    if (oldCandles.isNotEmpty()) {
+                        mutableCandleSeries.prependCandles(oldCandles)
+                        candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
+                        return true
+                    }
+                }
+
+                return false
             }
         }
 

@@ -30,9 +30,8 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.offsetIn
+import kotlinx.coroutines.launch
+import kotlinx.datetime.*
 import java.math.RoundingMode
 
 internal class StockChart(
@@ -170,6 +169,37 @@ internal class StockChart(
         }
 
         appModule.appPrefs.putBoolean(prefKey, isEnabled)
+    }
+
+    fun loadDateTime(dateTime: LocalDateTime) = sourceCoroutineScope.launch {
+
+        val source = checkNotNull(source) { "Source not set on chart" }
+
+        // Load candles
+        if (source.onLoadDateTime(dateTime)) plotters.forEach { it.setData(source.candleSeries.indices) }
+    }
+
+    fun goToDateTime(dateTime: LocalDateTime?) {
+
+        val source = checkNotNull(source) { "Source not set on chart" }
+
+        val candleIndex = when (dateTime) {
+            // If datetime is not provided, go to latest candle
+            null -> source.candleSeries.lastIndex
+            // Find candle index
+            else -> {
+                val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
+                val candleIndex = source.candleSeries.indexOfFirst { it.openInstant > instant }
+                // If datetime is not in current candle range, navigate to the latest candles
+                if (candleIndex != -1) candleIndex else source.candleSeries.lastIndex
+            }
+        }
+
+        // Navigate chart candle at index
+        actualChart.timeScale.setVisibleLogicalRange(
+            from = candleIndex - 100F,
+            to = candleIndex + 100F,
+        )
     }
 
     private fun setupDefaultIndicators(
