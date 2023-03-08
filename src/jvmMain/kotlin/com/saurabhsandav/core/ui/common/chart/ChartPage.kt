@@ -41,6 +41,7 @@ fun ChartPage(
         // Set Material background as page background
         LaunchedEffect(backgroundColor) {
             state.webViewState.setBackgroundColor(backgroundColor)
+            state.setPageBackgroundColor(backgroundColor)
         }
 
         val textColor = LocalContentColor.current

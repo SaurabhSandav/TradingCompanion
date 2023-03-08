@@ -89,6 +89,10 @@ class ChartPageState(
         charts.forEach { it.resize(width = size.width, height = size.height) }
     }
 
+    fun setPageBackgroundColor(color: Color) {
+        scripts.trySend("setPageBackgroundColor('${color.toHexString()}');")
+    }
+
     fun setLegendTextColor(color: Color) {
         scripts.trySend("setLegendTextColor('${color.toHexString()}');")
     }
