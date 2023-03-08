@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
+import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
 
@@ -63,6 +64,10 @@ abstract class SeriesPlotter<T : SeriesData>(
         dataSource?.let { dataSource ->
             series.update(dataSource.getValue(index))
         }
+    }
+
+    fun setMarkers(markers: List<SeriesMarker>) {
+        series?.setMarkers(markers)
     }
 
     fun setIsEnabled(enabled: Boolean) {

@@ -4,13 +4,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.chart.data.SeriesMarker
+import com.saurabhsandav.core.chart.data.SeriesMarkerPosition
+import com.saurabhsandav.core.chart.data.SeriesMarkerShape
+import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -24,11 +31,16 @@ import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 internal class ChartsPresenter(
     coroutineScope: CoroutineScope,
@@ -36,6 +48,7 @@ internal class ChartsPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
+    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -82,6 +95,7 @@ internal class ChartsPresenter(
         val chartSession = ChartSession(
             stockChart = newStockChart,
             getCandles = ::getCandles,
+            getMarkers = ::getMarkers,
         )
 
         // Cache newly created chart session
@@ -178,6 +192,42 @@ internal class ChartsPresenter(
                 is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
+        }
+    }
+
+    private fun getMarkers(
+        ticker: String,
+        range: ClosedRange<Instant>,
+    ): Flow<List<SeriesMarker>> {
+
+        return tradeOrdersRepo.getOrdersByTickerInInterval(
+            ticker = ticker,
+            range = range.start.toLocalDateTime(TimeZone.currentSystemDefault())..range.endInclusive.toLocalDateTime(
+                TimeZone.currentSystemDefault()
+            ),
+        ).mapList { order ->
+
+            val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
+
+            SeriesMarker(
+                time = Time.UTCTimestamp(orderInstant.epochSeconds + 19800),
+                position = when (order.type) {
+                    OrderType.Buy -> SeriesMarkerPosition.BelowBar
+                    OrderType.Sell -> SeriesMarkerPosition.AboveBar
+                },
+                shape = when (order.type) {
+                    OrderType.Buy -> SeriesMarkerShape.ArrowUp
+                    OrderType.Sell -> SeriesMarkerShape.ArrowDown
+                },
+                color = when (order.type) {
+                    OrderType.Buy -> Color.Green
+                    OrderType.Sell -> Color.Red
+                },
+                text = when (order.type) {
+                    OrderType.Buy -> order.price.toPlainString()
+                    OrderType.Sell -> order.price.toPlainString()
+                },
+            )
         }
     }
 }

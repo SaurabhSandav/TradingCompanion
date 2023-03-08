@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.charts
 
+import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -10,6 +12,7 @@ import kotlin.time.Duration.Companion.days
 internal class ChartSession(
     val stockChart: StockChart,
     private val getCandles: suspend (String, Timeframe, ClosedRange<Instant>) -> List<Candle>,
+    private val getMarkers: suspend (String, ClosedRange<Instant>) -> Flow<List<SeriesMarker>>,
 ) {
 
     private val downloadIntervalDays = 90.days
@@ -28,37 +31,39 @@ internal class ChartSession(
             override val timeframe: Timeframe = timeframe
             override val hasVolume: Boolean = ticker != "NIFTY50"
 
-            val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
+            private val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
             override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
+
+            private val candleRange = MutableStateFlow<ClosedRange<Instant>?>(null)
+            override val candleMarkers: Flow<List<SeriesMarker>> = candleRange.filterNotNull()
+                .flatMapLatest { getMarkers(ticker, it) }
 
             override suspend fun onLoad() {
 
+                val currentTime = Clock.System.now()
+                val range = currentTime.minus(downloadIntervalDays)..currentTime
+
                 // Range of 3 months before current time to current time
-                val candles = getCandles(
-                    ticker,
-                    timeframe,
-                    run {
-                        val currentTime = Clock.System.now()
-                        currentTime.minus(downloadIntervalDays)..currentTime
-                    }
-                )
+                val candles = getCandles(ticker, timeframe, range)
 
                 candles.forEach(mutableCandleSeries::addCandle)
+
+                candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
             }
 
             override suspend fun onLoadBefore(): Boolean {
 
                 val firstCandleInstant = mutableCandleSeries.first().openInstant
+                val range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
 
-                val oldCandles = getCandles(
-                    ticker,
-                    timeframe,
-                    firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant,
-                )
+                val oldCandles = getCandles(ticker, timeframe, range)
 
                 val areCandlesAvailable = oldCandles.isNotEmpty()
 
-                if (areCandlesAvailable) mutableCandleSeries.prependCandles(oldCandles)
+                if (areCandlesAvailable) {
+                    mutableCandleSeries.prependCandles(oldCandles)
+                    candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
+                }
 
                 return areCandlesAvailable
             }

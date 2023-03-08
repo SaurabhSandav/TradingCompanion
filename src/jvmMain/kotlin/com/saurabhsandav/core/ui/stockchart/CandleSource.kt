@@ -1,7 +1,10 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 interface CandleSource {
 
@@ -12,6 +15,9 @@ interface CandleSource {
     val hasVolume: Boolean
 
     val candleSeries: CandleSeries
+
+    val candleMarkers: Flow<List<SeriesMarker>>
+        get() = emptyFlow()
 
     suspend fun onLoad()
 

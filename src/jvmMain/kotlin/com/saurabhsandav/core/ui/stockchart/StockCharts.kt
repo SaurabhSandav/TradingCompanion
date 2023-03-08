@@ -91,6 +91,23 @@ internal fun StockCharts(
                                         }
                                     }
                                 }
+
+                                if (stockChart != null) {
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+
+                                        Text("Markers")
+
+                                        Switch(
+                                            checked = stockChart.markersAreEnabled,
+                                            onCheckedChange = { stockChart.markersAreEnabled = it },
+                                        )
+                                    }
+                                }
                             }
 
                             Divider()

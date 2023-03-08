@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.IChartApi
@@ -32,10 +29,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
@@ -59,6 +53,7 @@ internal class StockChart(
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
+    var markersAreEnabled by mutableStateOf(false)
 
     init {
 
@@ -146,6 +141,17 @@ internal class StockChart(
 
             // Set initial data on chart
             setData()
+
+            // Set markers
+            snapshotFlow { markersAreEnabled }
+                .flatMapLatest { markersAreEnabled ->
+                    when {
+                        markersAreEnabled -> source.candleMarkers
+                        else -> flowOf(emptyList())
+                    }
+                }
+                .onEach(candlestickPlotter::setMarkers)
+                .launchIn(sourceCoroutineScope)
         }
     }
 
