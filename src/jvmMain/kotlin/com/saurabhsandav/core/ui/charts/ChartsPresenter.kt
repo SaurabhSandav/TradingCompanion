@@ -17,6 +17,7 @@ import com.saurabhsandav.core.chart.data.SeriesMarkerShape
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
@@ -34,9 +35,7 @@ import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -48,6 +47,7 @@ internal class ChartsPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
     private val candleRepo: CandleRepository = CandleRepository(appModule),
+    private val tradesRepo: TradesRepo = appModule.tradesRepo,
     private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
 ) {
 
@@ -200,12 +200,10 @@ internal class ChartsPresenter(
         range: ClosedRange<Instant>,
     ): Flow<List<SeriesMarker>> {
 
-        return tradeOrdersRepo.getOrdersByTickerInInterval(
-            ticker = ticker,
-            range = range.start.toLocalDateTime(TimeZone.currentSystemDefault())..range.endInclusive.toLocalDateTime(
-                TimeZone.currentSystemDefault()
-            ),
-        ).mapList { order ->
+        val rangeLDT = range.start.toLocalDateTime(TimeZone.currentSystemDefault())..
+                range.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val orderMarkers = tradeOrdersRepo.getOrdersByTickerInInterval(ticker, rangeLDT).mapList { order ->
 
             val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
 
@@ -228,6 +226,43 @@ internal class ChartsPresenter(
                     OrderType.Sell -> order.price.toPlainString()
                 },
             )
+        }
+
+        val tradeMarkers = tradesRepo.getByTickerInInterval(ticker, rangeLDT).map { trades ->
+            trades.flatMap { trade ->
+
+                val openInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
+
+                buildList {
+
+                    add(
+                        SeriesMarker(
+                            time = Time.UTCTimestamp(openInstant.epochSeconds + 19800),
+                            position = SeriesMarkerPosition.AboveBar,
+                            shape = SeriesMarkerShape.Circle,
+                            color = Color.Green,
+                        )
+                    )
+
+                    if (trade.isClosed) {
+
+                        val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
+
+                        add(
+                            SeriesMarker(
+                                time = Time.UTCTimestamp(exitInstant.epochSeconds + 19800),
+                                position = SeriesMarkerPosition.AboveBar,
+                                shape = SeriesMarkerShape.Circle,
+                                color = Color.Red,
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs ->
+            (orderMkrs + tradeMkrs).sortedBy { (it.time as Time.UTCTimestamp).value }
         }
     }
 }

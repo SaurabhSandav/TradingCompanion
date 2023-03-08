@@ -8,6 +8,7 @@ import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 
 internal class TradesRepo(
@@ -20,6 +21,17 @@ internal class TradesRepo(
 
     fun getById(id: Long): Flow<Trade> {
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getByTickerInInterval(ticker: String, range: ClosedRange<LocalDateTime>): Flow<List<Trade>> {
+        return tradesDB.tradeQueries
+            .getByTickerInInterval(
+                ticker = ticker,
+                from = range.start.toString(),
+                to = range.endInclusive.toString(),
+            )
+            .asFlow()
+            .mapToList(Dispatchers.IO)
     }
 
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
