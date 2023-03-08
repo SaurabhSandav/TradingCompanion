@@ -13,12 +13,12 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
+import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -123,16 +123,16 @@ internal class StockChartsState(
                 pageState.connect(chart = actualChart)
 
                 // Sync visible range across charts
-                stockChart.coroutineScope.launch {
-                    actualChart.timeScale.subscribeVisibleTimeRangeChange { range ->
-
-                        if (range == null) return@subscribeVisibleTimeRangeChange
+                actualChart.timeScale
+                    .visibleLogicalRangeChange()
+                    .filterNotNull()
+                    .onEach { range ->
 
                         // Prevent infinite loop of current chart setting range of other charts which triggers
                         // the range change callbacks for those charts and so on
                         val ignoreChartSyncInstant = ignoreChartSyncUntil
                         if (ignoreChartSyncInstant != null && ignoreChartSyncInstant > Clock.System.now()) {
-                            return@subscribeVisibleTimeRangeChange
+                            return@onEach
                         }
 
                         ignoreChartSyncUntil = Clock.System.now() + 500.milliseconds
@@ -147,10 +147,10 @@ internal class StockChartsState(
                                         filterStockChart != stockChart
                             }
                             .forEach {
-                                it.actualChart.timeScale.setVisibleRange(range.from, range.to)
+                                it.actualChart.timeScale.setVisibleLogicalRange(range.from, range.to)
                             }
                     }
-                }
+                    .launchIn(coroutineScope)
             },
             onSelect = { tabId ->
 
