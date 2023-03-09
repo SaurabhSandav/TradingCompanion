@@ -60,16 +60,12 @@ internal class StockChartsState(
 
     fun changeTicker(chartWindow: ChartWindow, ticker: String) {
 
-        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
-
-        onChangeTicker(stockChart, ticker)
+        onChangeTicker(chartWindow.selectedStockChart, ticker)
     }
 
     fun changeTimeframe(chartWindow: ChartWindow, timeframe: Timeframe) {
 
-        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
-
-        onChangeTimeframe(stockChart, timeframe)
+        onChangeTimeframe(chartWindow.selectedStockChart, timeframe)
     }
 
     fun goToDateTime(chartWindow: ChartWindow, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
@@ -81,10 +77,8 @@ internal class StockChartsState(
                 .joinAll()
         }
 
-        val stockChart = chartWindow.charts.getValue(chartWindow.tabsState.selectedTabIndex)
-
         // Navigate to datetime, other charts should be synced to same datetime
-        stockChart.goToDateTime(dateTime)
+        chartWindow.selectedStockChart.goToDateTime(dateTime)
     }
 
     fun newWindow(fromWindow: ChartWindow?) {
@@ -205,5 +199,9 @@ internal class StockChartsState(
         val tabsState: StockChartTabsState,
         val pageState: ChartPageState,
         var currentStockChart: MutableState<StockChart?>,
-    )
+    ) {
+
+        val selectedStockChart: StockChart
+            get() = charts.getValue(tabsState.selectedTabId)
+    }
 }
