@@ -11,6 +11,7 @@ import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
+import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.flow.Flow
@@ -74,6 +75,10 @@ internal class AppModule {
             TradeTargetAdapter = TradeTarget.Adapter(
                 priceAdapter = BigDecimalColumnAdapter,
                 profitAdapter = BigDecimalColumnAdapter,
+            ),
+            TradeNoteAdapter = TradeNote.Adapter(
+                addedAdapter = InstantColumnAdapter,
+                lastEditedAdapter = InstantColumnAdapter,
             ),
         )
     }

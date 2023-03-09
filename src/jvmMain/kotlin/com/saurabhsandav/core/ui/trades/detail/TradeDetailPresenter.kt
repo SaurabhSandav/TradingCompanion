@@ -12,6 +12,7 @@ import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.*
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -20,7 +21,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 internal class TradeDetailPresenter(
@@ -41,6 +45,9 @@ internal class TradeDetailPresenter(
                 is DeleteStop -> onDeleteStop(event.price)
                 is AddTarget -> onAddTarget(event.price)
                 is DeleteTarget -> onDeleteTarget(event.price)
+                is AddNote -> onAddNote(event.note)
+                is UpdateNote -> onUpdateNote(event.id, event.note)
+                is DeleteNote -> onDeleteNote(event.id)
             }
         }
 
@@ -48,6 +55,7 @@ internal class TradeDetailPresenter(
             tradeDetail = getTradeDetail().value,
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
+            notes = getTradeNotes().value,
         )
     }
 
@@ -124,6 +132,34 @@ internal class TradeDetailPresenter(
         }.collectAsState(persistentListOf())
     }
 
+    @Composable
+    private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
+        return remember {
+            tradesRepo.getNotesForTrade(tradeId)
+                .mapList { note ->
+
+                    val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss")
+
+                    val added = note.added
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                        .toJavaLocalDateTime()
+                        .let(formatter::format)
+
+                    val lastEdited = note.lastEdited
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                        .toJavaLocalDateTime()
+                        .let(formatter::format)
+
+                    TradeNote(
+                        id = note.id,
+                        note = note.note,
+                        dateText = "Added $added (Last Edited $lastEdited)",
+                    )
+                }
+                .map { it.toImmutableList() }
+        }.collectAsState(persistentListOf())
+    }
+
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {
         tradesRepo.addStop(tradeId, price)
     }
@@ -138,5 +174,17 @@ internal class TradeDetailPresenter(
 
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
         tradesRepo.deleteTarget(tradeId, price)
+    }
+
+    private fun onAddNote(note: String) = coroutineScope.launchUnit {
+        tradesRepo.addNote(tradeId, note)
+    }
+
+    private fun onUpdateNote(id: Long, note: String) = coroutineScope.launchUnit {
+        tradesRepo.updateNote(id, note)
+    }
+
+    private fun onDeleteNote(id: Long) = coroutineScope.launchUnit {
+        tradesRepo.deleteNote(id)
     }
 }

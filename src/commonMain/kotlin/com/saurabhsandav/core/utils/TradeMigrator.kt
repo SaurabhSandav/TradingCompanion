@@ -53,6 +53,11 @@ internal class TradeMigrator(
         // Migrate Targets
         tradesWithClosedTrades.migrateTargets()
 
+        println("Migrating Notes")
+
+        // Migrate Notes
+        tradesWithClosedTrades.migrateNotes()
+
         println("Done")
     }
 
@@ -148,6 +153,14 @@ internal class TradeMigrator(
             closedTrades
                 .mapNotNull { if (it.target.isNullOrBlank()) null else it.target }
                 .forEach { tradesRepo.addTarget(trade.id, it.toBigDecimal()) }
+        }
+    }
+
+    private suspend fun Map<Trade, List<ClosedTrade>>.migrateNotes() {
+        forEach { (trade, closedTrades) ->
+            closedTrades
+                .mapNotNull { appDB.closedTradeQueries.getClosedTradesDetailedById(it.id).executeAsOne().notes }
+                .forEach { note -> tradesRepo.addNote(trade.id, note) }
         }
     }
 

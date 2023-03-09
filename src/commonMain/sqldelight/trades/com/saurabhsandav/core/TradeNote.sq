@@ -1,0 +1,29 @@
+import kotlinx.datetime.Instant;
+
+CREATE TABLE IF NOT EXISTS TradeNote (
+id INTEGER NOT NULL PRIMARY KEY,
+tradeId INTEGER NOT NULL,
+note TEXT NOT NULL,
+added INTEGER AS Instant NOT NULL,
+lastEdited INTEGER AS Instant NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
+);
+
+insert:
+INSERT
+INTO TradeNote(tradeId, note, added, lastEdited)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE TradeNote
+SET note = ?, lastEdited = ?
+WHERE id = ?;
+
+getByTrade:
+SELECT *
+FROM TradeNote
+WHERE tradeId = ?;
+
+delete:
+DELETE FROM TradeNote
+WHERE id = ?;

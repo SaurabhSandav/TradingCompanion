@@ -8,6 +8,7 @@ import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 
@@ -90,5 +91,34 @@ internal class TradesRepo(
 
     suspend fun deleteTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
+    }
+
+    fun getNotesForTrade(id: Long): Flow<List<TradeNote>> {
+        return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    suspend fun addNote(tradeId: Long, note: String) = withContext(Dispatchers.IO) {
+
+        val now = Clock.System.now()
+
+        tradesDB.tradeNoteQueries.insert(
+            tradeId = tradeId,
+            note = note,
+            added = now,
+            lastEdited = now,
+        )
+    }
+
+    suspend fun updateNote(id: Long, note: String) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeNoteQueries.update(
+            id = id,
+            note = note,
+            lastEdited = Clock.System.now(),
+        )
+    }
+
+    suspend fun deleteNote(id: Long) = withContext(Dispatchers.IO) {
+        tradesDB.tradeNoteQueries.delete(id)
     }
 }

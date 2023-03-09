@@ -9,6 +9,7 @@ internal data class TradeDetailState(
     val tradeDetail: TradeDetail?,
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
+    val notes: ImmutableList<TradeNote>,
 ) {
 
     @Immutable
@@ -40,5 +41,12 @@ internal data class TradeDetailState(
         val price: BigDecimal,
         val priceText: String,
         val profit: String,
+    )
+
+    @Immutable
+    internal data class TradeNote(
+        val id: Long,
+        val note: String,
+        val dateText: String,
     )
 }

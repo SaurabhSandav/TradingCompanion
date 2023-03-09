@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.trades.detail
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
+import com.saurabhsandav.core.ui.trades.detail.ui.Notes
 import com.saurabhsandav.core.ui.trades.detail.ui.StopsAndTargets
 import com.saurabhsandav.core.ui.trades.detail.ui.TradeDetailItem
 
@@ -54,7 +57,7 @@ internal fun TradeDetailScreen(
             else -> {
 
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
 
@@ -67,6 +70,13 @@ internal fun TradeDetailScreen(
                         targets = state.targets,
                         onAddTarget = { presenter.event(AddTarget(it)) },
                         onDeleteTarget = { presenter.event(DeleteTarget(it)) },
+                    )
+
+                    Notes(
+                        notes = state.notes,
+                        onAddNote = { presenter.event(AddNote(it)) },
+                        onUpdateNote = { id, note -> presenter.event(UpdateNote(id, note)) },
+                        onDeleteNote = { presenter.event(DeleteNote(it)) },
                     )
                 }
             }

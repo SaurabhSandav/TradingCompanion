@@ -11,4 +11,10 @@ internal sealed class TradeDetailEvent {
     data class AddTarget(val price: BigDecimal) : TradeDetailEvent()
 
     data class DeleteTarget(val price: BigDecimal) : TradeDetailEvent()
+
+    data class AddNote(val note: String) : TradeDetailEvent()
+
+    data class UpdateNote(val id: Long, val note: String) : TradeDetailEvent()
+
+    data class DeleteNote(val id: Long) : TradeDetailEvent()
 }
