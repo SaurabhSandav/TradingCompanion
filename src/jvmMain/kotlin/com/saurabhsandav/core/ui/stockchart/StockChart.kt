@@ -14,6 +14,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.dailySessionStart
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
+import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
@@ -48,6 +49,9 @@ internal class StockChart(
     private val volumePlotter = VolumePlotter(actualChart)
     private val vwapPlotter = LinePlotter(actualChart, "VWAP", Color(0xFFA500))
     private val ema9Plotter = LinePlotter(actualChart, "EMA (9)")
+    private val sma50Plotter = LinePlotter(actualChart, "SMA (50)", Color(0x0AB210))
+    private val sma100Plotter = LinePlotter(actualChart, "SMA (100)", Color(0xB05F10))
+    private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
 
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
@@ -62,6 +66,9 @@ internal class StockChart(
                 volumePlotter,
                 vwapPlotter,
                 ema9Plotter,
+                sma50Plotter,
+                sma100Plotter,
+                sma200Plotter,
             )
         )
 
@@ -78,6 +85,9 @@ internal class StockChart(
         observerPlotterIsEnabled(PrefKeys.PlotterVolumeEnabled, volumePlotter)
         observerPlotterIsEnabled(PrefKeys.PlotterVWAPEnabled, vwapPlotter)
         observerPlotterIsEnabled(PrefKeys.PlotterEMA9Enabled, ema9Plotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterSMA50Enabled, sma50Plotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterSMA100Enabled, sma100Plotter)
+        observerPlotterIsEnabled(PrefKeys.PlotterSMA200Enabled, sma200Plotter)
     }
 
     fun setCandleSource(source: CandleSource) {
@@ -165,6 +175,9 @@ internal class StockChart(
             volumePlotter -> PrefKeys.PlotterVolumeEnabled
             vwapPlotter -> PrefKeys.PlotterVWAPEnabled
             ema9Plotter -> PrefKeys.PlotterEMA9Enabled
+            sma50Plotter -> PrefKeys.PlotterSMA50Enabled
+            sma100Plotter -> PrefKeys.PlotterSMA100Enabled
+            sma200Plotter -> PrefKeys.PlotterSMA200Enabled
             else -> error("Unknown plotter ${plotter.name}")
         }
 
@@ -207,7 +220,8 @@ internal class StockChart(
         hasVolume: Boolean,
     ) {
 
-        val ema9Indicator = EMAIndicator(ClosePriceIndicator(candleSeries), length = 9)
+        val closePriceIndicator = ClosePriceIndicator(candleSeries)
+        val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
         val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
 
         candlestickPlotter.setDataSource { index ->
@@ -253,6 +267,38 @@ internal class StockChart(
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                     value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            }
+        }
+
+        if (candleSeries.timeframe != Timeframe.D1) {
+            sma50Plotter.setDataSource(null)
+            sma100Plotter.setDataSource(null)
+            sma200Plotter.setDataSource(null)
+        } else {
+
+            val sma50Indicator = SMAIndicator(closePriceIndicator, length = 50)
+            val sma100Indicator = SMAIndicator(closePriceIndicator, length = 100)
+            val sma200Indicator = SMAIndicator(closePriceIndicator, length = 200)
+
+            sma50Plotter.setDataSource { index ->
+                LineData(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            }
+
+            sma100Plotter.setDataSource { index ->
+                LineData(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            }
+
+            sma200Plotter.setDataSource { index ->
+                LineData(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
             }
         }
