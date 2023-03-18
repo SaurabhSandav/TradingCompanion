@@ -2,55 +2,124 @@ package com.saurabhsandav.core.ui.stockchart.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
 fun StockChartTabRow(
     state: StockChartTabsState,
+    onNewWindow: () -> Unit,
 ) {
 
-    ScrollableTabRow(
-        selectedTabIndex = state.selectedTabIndex,
-    ) {
+    Row(Modifier.fillMaxWidth()) {
 
-        state.tabs.forEachIndexed { index, tab ->
+        ScrollableTabRow(
+            modifier = Modifier.weight(1F),
+            selectedTabIndex = state.selectedTabIndex,
+            indicator = { tabPositions ->
 
-            key(tab.id) {
+                var prevSelectedTabIndex by state { 0 }
 
-                ChartTab(
-                    title = tab.title,
-                    isSelected = index == state.selectedTabIndex,
-                    isCloseable = state.tabs.size != 1,
-                    onSelect = { state.selectTab(tab.id) },
-                    onCloseChart = { state.closeTab(tab.id) },
+                val selectedTabIndex = state.selectedTabIndex
+
+                val index = when {
+                    selectedTabIndex < tabPositions.size -> {
+                        prevSelectedTabIndex = selectedTabIndex
+                        selectedTabIndex
+                    }
+
+                    else -> prevSelectedTabIndex
+                }
+
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[index])
                 )
+            }
+        ) {
+
+            state.tabs.forEachIndexed { index, tab ->
+
+                key(tab.id) {
+
+                    ChartTab(
+                        title = tab.title,
+                        isSelected = index == state.selectedTabIndex,
+                        isCloseable = state.tabs.size != 1,
+                        onSelect = { state.selectTab(tab.id) },
+                        onCloseChart = { state.closeTab(tab.id) },
+                    )
+                }
             }
         }
 
-        Tab(
-            selected = false,
-            onClick = state::newTab,
-        ) {
-
-            IconButton(
-                onClick = state::newTab,
-                content = {
-                    Icon(Icons.Default.Add, contentDescription = "New Tab")
-                }
-            )
-        }
+        StockChartTabControlsRow(
+            state = state,
+            onNewWindow = onNewWindow,
+        )
     }
+}
+
+@Composable
+private fun StockChartTabControlsRow(
+    state: StockChartTabsState,
+    onNewWindow: () -> Unit,
+) {
+
+    IconButton(
+        onClick = state::newTab,
+        content = {
+            Icon(Icons.Default.Add, contentDescription = "New Tab")
+        }
+    )
+
+    IconButton(
+        onClick = state::selectPreviousTab,
+        content = {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Previous tab")
+        }
+    )
+
+    IconButton(
+        onClick = state::selectNextTab,
+        content = {
+            Icon(Icons.Default.ArrowForward, contentDescription = "Next tab")
+        }
+    )
+
+    IconButton(
+        onClick = state::moveTabBackward,
+        content = {
+            Icon(Icons.Default.FastRewind, contentDescription = "Move tab backward")
+        }
+    )
+
+    IconButton(
+        onClick = state::moveTabForward,
+        content = {
+            Icon(Icons.Default.FastForward, contentDescription = "Move tab forward")
+        }
+    )
+
+    IconButton(
+        onClick = onNewWindow,
+        content = {
+            Icon(Icons.Default.OpenInBrowser, contentDescription = "New window")
+        }
+    )
 }
 
 @Composable

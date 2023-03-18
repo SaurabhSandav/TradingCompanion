@@ -45,18 +45,19 @@ internal fun StockCharts(
                         // Controls
                         StockChartControls(
                             stockChart = stockChart,
-                            tabsState = chartWindow.tabsState,
                             onChangeTicker = { ticker -> state.onChangeTicker(stockChart, ticker) },
                             onChangeTimeframe = { timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
                             onGoToDateTime = { dateTime -> state.goToDateTime(stockChart, dateTime) },
-                            onNewWindow = { state.newWindow(stockChart) },
                             customControls = customControls,
                         )
 
                         Column {
 
                             // Tabs
-                            StockChartTabRow(chartWindow.tabsState)
+                            StockChartTabRow(
+                                state = chartWindow.tabsState,
+                                onNewWindow = { state.newWindow(stockChart) },
+                            )
 
                             // Chart page
                             ChartPage(

@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Clock
@@ -29,11 +28,9 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
-    tabsState: StockChartTabsState,
     onChangeTicker: (String) -> Unit,
     onChangeTimeframe: (Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
-    onNewWindow: () -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
@@ -128,17 +125,5 @@ internal fun StockChartControls(
                 Text("Go")
             }
         }
-
-        Divider()
-
-        Button(
-            onClick = onNewWindow,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("New window")
-        }
-
-        StockChartTabControls(tabsState)
     }
-
 }
