@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
-internal fun StockChartsTabControls(
+internal fun StockChartTabControls(
     state: StockChartTabsState,
 ) {
 

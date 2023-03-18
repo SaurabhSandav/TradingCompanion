@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
-fun StockChartsTabRow(
+fun StockChartTabRow(
     state: StockChartTabsState,
 ) {
 

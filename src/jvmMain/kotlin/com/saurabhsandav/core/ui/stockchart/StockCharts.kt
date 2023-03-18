@@ -11,8 +11,8 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.chart.ChartPage
-import com.saurabhsandav.core.ui.stockchart.ui.StockChartsControls
-import com.saurabhsandav.core.ui.stockchart.ui.StockChartsTabRow
+import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
+import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 
 @Composable
 internal fun StockCharts(
@@ -43,7 +43,7 @@ internal fun StockCharts(
                         val stockChart = chartWindow.selectedStockChart
 
                         // Controls
-                        StockChartsControls(
+                        StockChartControls(
                             stockChart = stockChart,
                             tabsState = chartWindow.tabsState,
                             onChangeTicker = { ticker -> state.onChangeTicker(stockChart, ticker) },
@@ -56,7 +56,7 @@ internal fun StockCharts(
                         Column {
 
                             // Tabs
-                            StockChartsTabRow(chartWindow.tabsState)
+                            StockChartTabRow(chartWindow.tabsState)
 
                             // Chart page
                             ChartPage(

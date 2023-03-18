@@ -27,7 +27,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-internal fun StockChartsControls(
+internal fun StockChartControls(
     stockChart: StockChart,
     tabsState: StockChartTabsState,
     onChangeTicker: (String) -> Unit,
@@ -36,6 +36,7 @@ internal fun StockChartsControls(
     onNewWindow: () -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
+
     Column(
         modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp)
             .verticalScroll(rememberScrollState()),
@@ -137,7 +138,7 @@ internal fun StockChartsControls(
             Text("New window")
         }
 
-        StockChartsTabControls(tabsState)
+        StockChartTabControls(tabsState)
     }
 
 }
