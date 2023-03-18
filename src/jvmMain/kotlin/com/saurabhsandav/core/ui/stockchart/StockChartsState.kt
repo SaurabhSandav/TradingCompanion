@@ -55,17 +55,7 @@ internal class StockChartsState(
         }
     }
 
-    fun changeTicker(chartWindow: ChartWindow, ticker: String) {
-
-        onChangeTicker(chartWindow.selectedStockChart, ticker)
-    }
-
-    fun changeTimeframe(chartWindow: ChartWindow, timeframe: Timeframe) {
-
-        onChangeTimeframe(chartWindow.selectedStockChart, timeframe)
-    }
-
-    fun goToDateTime(chartWindow: ChartWindow, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
+    fun goToDateTime(stockChart: StockChart, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
 
         // Load data if date specified
         if (dateTime != null) {
@@ -75,10 +65,10 @@ internal class StockChartsState(
         }
 
         // Navigate to datetime, other charts should be synced to same datetime
-        chartWindow.selectedStockChart.goToDateTime(dateTime)
+        stockChart.goToDateTime(dateTime)
     }
 
-    fun newWindow(fromWindow: ChartWindow?) {
+    fun newWindow(fromStockChart: StockChart?) {
 
         val pagedArrangement = ChartArrangement.paged()
         val charts = mutableMapOf<Int, StockChart>()
@@ -102,7 +92,7 @@ internal class StockChartsState(
                 )
 
                 // Notify observer
-                onNewChart(stockChart, charts[prevTabId] ?: fromWindow?.selectedStockChart)
+                onNewChart(stockChart, charts[prevTabId] ?: fromStockChart)
 
                 // Initial theme
                 stockChart.setDarkMode(isDark.value)
