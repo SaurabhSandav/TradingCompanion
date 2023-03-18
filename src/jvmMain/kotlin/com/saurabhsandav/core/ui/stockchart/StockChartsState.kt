@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
@@ -105,7 +102,7 @@ internal class StockChartsState(
                 )
 
                 // Notify observer
-                onNewChart(stockChart, charts[prevTabId] ?: fromWindow?.currentStockChart?.value)
+                onNewChart(stockChart, charts[prevTabId] ?: fromWindow?.selectedStockChart)
 
                 // Initial theme
                 stockChart.setDarkMode(isDark.value)
@@ -181,7 +178,6 @@ internal class StockChartsState(
             charts = charts,
             tabsState = tabsState,
             pageState = pageState,
-            currentStockChart = currentStockChart,
         )
     }
 
@@ -194,14 +190,12 @@ internal class StockChartsState(
         return true
     }
 
-    data class ChartWindow(
+    class ChartWindow(
         val charts: Map<Int, StockChart>,
         val tabsState: StockChartTabsState,
         val pageState: ChartPageState,
-        var currentStockChart: MutableState<StockChart?>,
     ) {
 
-        val selectedStockChart: StockChart
-            get() = charts.getValue(tabsState.selectedTabId)
+        val selectedStockChart by derivedStateOf { charts.getValue(tabsState.tabs[tabsState.selectedTabIndex].id) }
     }
 }

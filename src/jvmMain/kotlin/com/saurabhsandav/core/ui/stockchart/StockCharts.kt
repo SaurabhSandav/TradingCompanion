@@ -35,7 +35,6 @@ internal fun StockCharts(
     state: StockChartsState,
     windowTitle: String,
     onCloseRequest: () -> Unit,
-    modifier: Modifier = Modifier,
     snackbarHost: @Composable ColumnScope.() -> Unit = {},
     controls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
@@ -54,7 +53,7 @@ internal fun StockCharts(
                 Column {
 
                     Row(
-                        modifier = modifier.weight(1F)
+                        modifier = Modifier.weight(1F)
                     ) {
 
                         // Controls
@@ -64,9 +63,9 @@ internal fun StockCharts(
                             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                         ) {
 
-                            val stockChart = chartWindow.currentStockChart.value
+                            val stockChart = chartWindow.selectedStockChart
 
-                            if (controls != null && stockChart != null) {
+                            if (controls != null) {
 
                                 controls(stockChart)
 
@@ -75,7 +74,7 @@ internal fun StockCharts(
 
                             Column {
 
-                                stockChart?.plotters?.forEach { plotter ->
+                                stockChart.plotters.forEach { plotter ->
 
                                     key(plotter) {
 
@@ -95,21 +94,18 @@ internal fun StockCharts(
                                     }
                                 }
 
-                                if (stockChart != null) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                    ) {
+                                    Text("Markers")
 
-                                        Text("Markers")
-
-                                        Switch(
-                                            checked = stockChart.markersAreEnabled,
-                                            onCheckedChange = { stockChart.markersAreEnabled = it },
-                                        )
-                                    }
+                                    Switch(
+                                        checked = stockChart.markersAreEnabled,
+                                        onCheckedChange = { stockChart.markersAreEnabled = it },
+                                    )
                                 }
                             }
 
@@ -117,18 +113,16 @@ internal fun StockCharts(
 
                             ListSelectionField(
                                 items = NIFTY50,
-                                selection = stockChart?.currentParams?.ticker,
+                                selection = stockChart.currentParams?.ticker,
                                 onSelection = { state.changeTicker(chartWindow, it) },
                                 label = { Text("Ticker") },
-                                enabled = stockChart != null,
                             )
 
                             ListSelectionField(
                                 items = remember { Timeframe.values().map { it.toLabel() }.toImmutableList() },
-                                selection = stockChart?.currentParams?.timeframe?.toLabel(),
+                                selection = stockChart.currentParams?.timeframe?.toLabel(),
                                 onSelection = { state.changeTimeframe(chartWindow, timeframeFromLabel(it)) },
                                 label = { Text("Timeframe") },
-                                enabled = stockChart != null,
                             )
 
                             Divider()

@@ -20,9 +20,6 @@ class StockChartTabsState(
     var selectedTabIndex by mutableStateOf(0)
         private set
 
-    val selectedTabId: Int
-        get() = tabs[selectedTabIndex].id
-
     init {
         newTab()
     }
@@ -116,8 +113,7 @@ class StockChartTabsState(
 
         val index = tabs.indexOfFirst { it.id == id }
 
-        tabs.removeAt(index)
-        tabs.add(index, TabInfo(id, title))
+        tabs[index] = TabInfo(id, title)
     }
 
     @Immutable
