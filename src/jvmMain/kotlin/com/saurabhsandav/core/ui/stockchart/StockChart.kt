@@ -42,7 +42,8 @@ internal class StockChart(
     private val onTitleUpdate: (String) -> Unit,
 ) {
 
-    private var source: CandleSource? = null
+    var source: CandleSource? = null
+        private set
     private var sourceCoroutineScope = MainScope()
 
     private val candlestickPlotter = CandlestickPlotter(actualChart)

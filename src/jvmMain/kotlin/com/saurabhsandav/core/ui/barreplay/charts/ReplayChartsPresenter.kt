@@ -22,8 +22,8 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -51,9 +51,9 @@ internal class ReplayChartsPresenter(
         candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
     private var autoNextJob: Job? = null
-    private val candleCache = mutableMapOf<String, CandleSeries>()
-    private val chartSessions = mutableListOf<ReplayChartSession>()
-    private val chartsState: StockChartsState = StockChartsState(
+    private val stockCharts = mutableListOf<StockChart>()
+    private val candleSources = mutableMapOf<Pair<String, Timeframe>, ReplayCandleSource>()
+    private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
         onCloseChart = ::onCloseChart,
         onChangeTicker = ::onChangeTicker,
@@ -86,7 +86,7 @@ internal class ReplayChartsPresenter(
         onChangeIsAutoNextEnabled(false)
         barReplay.reset()
         coroutineScope.launch {
-            chartSessions.forEach { chartSession -> chartSession.newParams() }
+            stockCharts.forEach { stockChart -> stockChart.newParams() }
         }
     }
 
@@ -116,18 +116,12 @@ internal class ReplayChartsPresenter(
         prevStockChart: StockChart?,
     ) {
 
-        // Create new chart session
-        val chartSession = ReplayChartSession(
-            stockChart = newStockChart,
-            replaySessionBuilder = ::createReplaySession,
-        )
-
-        // Cache newly created chart session
-        chartSessions += chartSession
+        // Cache StockChart
+        stockCharts += newStockChart
 
         // Set chart params
         // If selected chartParams is null, this is the first chart. Initialize it with initial params.
-        chartSession.newParams(
+        newStockChart.newParams(
             ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
             timeframe = prevStockChart?.currentParams?.timeframe ?: baseTimeframe,
         )
@@ -135,54 +129,74 @@ internal class ReplayChartsPresenter(
 
     private fun onCloseChart(stockChart: StockChart) {
 
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
         // Remove chart session from cache
-        chartSessions.remove(chartSession)
+        stockCharts.remove(stockChart)
 
         // Destroy chart
-        chartSession.stockChart.destroy()
+        stockChart.destroy()
+
+        // Remove unused ReplayCandleSources from cache
+        releaseUnusedCandleSources()
     }
 
-    private fun onChangeTicker(
-        stockChart: StockChart,
-        ticker: String,
-    ) = coroutineScope.launchUnit {
-
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
-        // Remove previous replay session from BarReplay
-        barReplay.removeSession(chartSession.replaySession.first())
+    private fun onChangeTicker(stockChart: StockChart, ticker: String) {
 
         // New chart params
-        chartSession.newParams(ticker = ticker)
+        stockChart.newParams(ticker = ticker)
     }
 
-    private fun onChangeTimeframe(
-        stockChart: StockChart,
-        timeframe: Timeframe,
-    ) = coroutineScope.launchUnit {
-
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
-        // Remove previous replay session from BarReplay
-        barReplay.removeSession(chartSession.replaySession.first())
+    private fun onChangeTimeframe(stockChart: StockChart, timeframe: Timeframe) {
 
         // New chart params
-        chartSession.newParams(timeframe = timeframe)
+        stockChart.newParams(timeframe = timeframe)
     }
 
     private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {
 
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
+        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
 
         return ReplayChartInfo(
-            replayTime = chartSession.replaySession.flatMapLatest { it.replayTime.map(::formattedReplayTime) }
+            replayTime = flow { emitAll(replaySession.await().replayTime.map(::formattedReplayTime)) }
         )
+    }
+
+    private fun StockChart.newParams(
+        ticker: String? = currentParams?.ticker,
+        timeframe: Timeframe? = currentParams?.timeframe,
+    ) {
+
+        check(ticker != null && timeframe != null) {
+            "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
+        }
+
+        val candleSource = candleSources.getOrPut(ticker to timeframe) {
+            ReplayCandleSource(ticker, timeframe, ::createReplaySession)
+        }
+
+        // Set ReplayCandleSource on StockChart
+        setCandleSource(candleSource)
+
+        // Remove unused ReplayCandleSources from cache
+        releaseUnusedCandleSources()
+    }
+
+    private fun releaseUnusedCandleSources() = coroutineScope.launchUnit {
+
+        // CandleSources currently in use
+        val usedCandleSources = stockCharts.mapNotNull { stockChart -> stockChart.source }
+
+        // CandleSources not in use
+        val unusedCandleSources = candleSources.filter { it.value !in usedCandleSources }
+
+        // Remove unused CandleSource from cache
+        unusedCandleSources.forEach {
+
+            // Remove from cache
+            candleSources.remove(it.key)
+
+            // Remove ReplaySession from BarReplay
+            barReplay.removeSession(it.value.replaySession.await())
+        }
     }
 
     private suspend fun createReplaySession(
@@ -218,7 +232,7 @@ internal class ReplayChartsPresenter(
     private suspend fun getCandleSeries(
         ticker: String,
         timeframe: Timeframe,
-    ): CandleSeries = candleCache.getOrPut("${ticker}_${timeframe.seconds}") {
+    ): CandleSeries {
 
         val allCandlesResult = binding {
 
@@ -244,7 +258,7 @@ internal class ReplayChartsPresenter(
             candlesBefore.await() + candlesAfter.await()
         }
 
-        when (allCandlesResult) {
+        return when (allCandlesResult) {
             is Ok -> MutableCandleSeries(allCandlesResult.value, timeframe)
             is Err -> when (val error = allCandlesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")

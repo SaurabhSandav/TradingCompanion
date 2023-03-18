@@ -55,7 +55,8 @@ internal class ChartsPresenter(
 
     private val initialTicker = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
-    private val chartSessions = mutableListOf<ChartSession>()
+    private val stockCharts = mutableListOf<StockChart>()
+    private val candleSources = mutableMapOf<Pair<String, Timeframe>, ChartCandleSource>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
         onCloseChart = ::onCloseChart,
@@ -91,19 +92,12 @@ internal class ChartsPresenter(
         prevStockChart: StockChart?,
     ) {
 
-        // Create new chart session
-        val chartSession = ChartSession(
-            stockChart = newStockChart,
-            getCandles = ::getCandles,
-            getMarkers = ::getMarkers,
-        )
-
-        // Cache newly created chart session
-        chartSessions += chartSession
+        // Cache StockChart
+        stockCharts += newStockChart
 
         // Set chart params
         // If selected chartParams is null, this is the first chart. Initialize it with initial params.
-        chartSession.newParams(
+        newStockChart.newParams(
             ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
             timeframe = prevStockChart?.currentParams?.timeframe ?: initialTimeframe,
         )
@@ -111,36 +105,62 @@ internal class ChartsPresenter(
 
     private fun onCloseChart(stockChart: StockChart) {
 
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
         // Remove chart session from cache
-        chartSessions.remove(chartSession)
+        stockCharts.remove(stockChart)
 
         // Destroy chart
-        chartSession.stockChart.destroy()
+        stockChart.destroy()
+
+        // Remove unused ChartCandleSources from cache
+        releaseUnusedCandleSources()
     }
 
     private fun onChangeTicker(stockChart: StockChart, ticker: String) {
 
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
         // New chart params
-        chartSession.newParams(ticker = ticker)
+        stockChart.newParams(ticker = ticker)
     }
 
     private fun onChangeTimeframe(stockChart: StockChart, timeframe: Timeframe) {
 
-        // Find chart session associated with StockChart
-        val chartSession = chartSessions.find { it.stockChart == stockChart }.let(::requireNotNull)
-
         // New chart params
-        chartSession.newParams(timeframe = timeframe)
+        stockChart.newParams(timeframe = timeframe)
     }
 
     private fun onCandleFetchLoginCancelled() {
         fyersLoginWindowState = FyersLoginWindow.Closed
+    }
+
+    private fun StockChart.newParams(
+        ticker: String? = currentParams?.ticker,
+        timeframe: Timeframe? = currentParams?.timeframe,
+    ) {
+
+        check(ticker != null && timeframe != null) {
+            "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
+        }
+
+        val candleSource = candleSources.getOrPut(ticker to timeframe) {
+            ChartCandleSource(ticker, timeframe, ::getCandles, ::getMarkers)
+        }
+
+        // Set ChartCandleSource on StockChart
+        setCandleSource(candleSource)
+
+        // Remove unused ChartCandleSources from cache
+        releaseUnusedCandleSources()
+    }
+
+    private fun releaseUnusedCandleSources() {
+
+        // CandleSources currently in use
+        val usedCandleSources = stockCharts.mapNotNull { stockChart -> stockChart.source }
+
+        // CandleSources not in use
+        val unusedCandleSources = candleSources.filter { it.value !in usedCandleSources }
+
+        // Remove unused CandleSource from cache
+        unusedCandleSources.forEach { candleSources.remove(it.key) }
     }
 
     private suspend fun getCandles(
