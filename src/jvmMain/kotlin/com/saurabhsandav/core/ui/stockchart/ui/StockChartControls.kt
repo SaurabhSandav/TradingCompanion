@@ -1,12 +1,13 @@
 package com.saurabhsandav.core.ui.stockchart.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,96 +35,134 @@ internal fun StockChartControls(
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
-    Column(
-        modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    var isCollapsed by state { false }
+
+    CollapsiblePane(
+        isCollapsed = isCollapsed,
+        onExpandRequest = { isCollapsed = false },
     ) {
 
-        if (customControls != null) {
+        Column(
+            modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        ) {
 
-            customControls(stockChart)
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { isCollapsed = true },
+                content = { Text("Hide Pane") },
+            )
 
-            Divider()
-        }
+            if (customControls != null) {
 
-        Column {
+                customControls(stockChart)
 
-            stockChart.plotters.forEach { plotter ->
+                Divider()
+            }
 
-                key(plotter) {
+            Column {
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
+                stockChart.plotters.forEach { plotter ->
 
-                        Text(plotter.name)
+                    key(plotter) {
 
-                        Switch(
-                            checked = plotter.isEnabled,
-                            onCheckedChange = { stockChart.setPlotterIsEnabled(plotter, it) },
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+
+                            Text(plotter.name)
+
+                            Switch(
+                                checked = plotter.isEnabled,
+                                onCheckedChange = { stockChart.setPlotterIsEnabled(plotter, it) },
+                            )
+                        }
                     }
                 }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+
+                    Text("Markers")
+
+                    Switch(
+                        checked = stockChart.markersAreEnabled,
+                        onCheckedChange = { stockChart.markersAreEnabled = it },
+                    )
+                }
             }
+
+            Divider()
+
+            ListSelectionField(
+                items = NIFTY50,
+                selection = stockChart.currentParams?.ticker,
+                onSelection = onChangeTicker,
+                label = { Text("Ticker") },
+            )
+
+            ListSelectionField(
+                items = remember { Timeframe.values().map { it.toLabel() }.toImmutableList() },
+                selection = stockChart.currentParams?.timeframe?.toLabel(),
+                onSelection = { onChangeTimeframe(timeframeFromLabel(it)) },
+                label = { Text("Timeframe") },
+            )
+
+            Divider()
+
+            var goToDate by state {
+                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            }
+
+            DateTimeField(
+                value = goToDate,
+                onValidValueChange = { goToDate = it },
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
 
-                Text("Markers")
+                Button(onClick = { onGoToDateTime(null) }) {
+                    Text("Now")
+                }
 
-                Switch(
-                    checked = stockChart.markersAreEnabled,
-                    onCheckedChange = { stockChart.markersAreEnabled = it },
-                )
+                Button(onClick = { onGoToDateTime(goToDate) }) {
+                    Text("Go")
+                }
             }
         }
+    }
+}
 
-        Divider()
+@Composable
+private fun CollapsiblePane(
+    isCollapsed: Boolean,
+    onExpandRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
 
-        ListSelectionField(
-            items = NIFTY50,
-            selection = stockChart.currentParams?.ticker,
-            onSelection = onChangeTicker,
-            label = { Text("Ticker") },
-        )
+    AnimatedContent(
+        targetState = isCollapsed,
+    ) { isCollapsedAC ->
 
-        ListSelectionField(
-            items = remember { Timeframe.values().map { it.toLabel() }.toImmutableList() },
-            selection = stockChart.currentParams?.timeframe?.toLabel(),
-            onSelection = { onChangeTimeframe(timeframeFromLabel(it)) },
-            label = { Text("Timeframe") },
-        )
+        when {
+            isCollapsedAC -> IconButton(
+                modifier = Modifier.width(56.dp).fillMaxHeight().clickable(onClick = onExpandRequest),
+                onClick = onExpandRequest,
+                content = {
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Open controls")
+                }
+            )
 
-        Divider()
-
-        var goToDate by state {
-            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        }
-
-        DateTimeField(
-            value = goToDate,
-            onValidValueChange = { goToDate = it },
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-
-            Button(onClick = { onGoToDateTime(null) }) {
-                Text("Now")
-            }
-
-            Button(onClick = { onGoToDateTime(goToDate) }) {
-                Text("Go")
-            }
+            else -> content()
         }
     }
 }
