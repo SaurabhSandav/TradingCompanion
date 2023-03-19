@@ -40,7 +40,7 @@ class ChartCandleSource(
 
         candles.forEach(mutableCandleSeries::addCandle)
 
-        candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
+        candleRange.update { candleSeries.instantRange }
 
         loaded = true
     }
@@ -56,7 +56,7 @@ class ChartCandleSource(
 
         if (areCandlesAvailable) {
             mutableCandleSeries.prependCandles(oldCandles)
-            candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
+            candleRange.update { candleSeries.instantRange }
         }
 
         return areCandlesAvailable
@@ -81,7 +81,7 @@ class ChartCandleSource(
 
             if (oldCandles.isNotEmpty()) {
                 mutableCandleSeries.prependCandles(oldCandles)
-                candleRange.update { candleSeries.first().openInstant..candleSeries.last().openInstant }
+                candleRange.update { candleSeries.instantRange }
                 return true
             }
         }
