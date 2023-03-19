@@ -121,6 +121,13 @@ internal class StockChartsState(
                         // Nothing to sync if chart does not have a candle source or sync key
                         val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
 
+                        // Previously sync was not accurate if no. of candles across charts was not the same.
+                        // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
+                        // Note: This method does not work if the last candle of all (to-sync) charts is not at the
+                        // same Instant. Should be fixed once live candles are implemented.
+                        val startOffset = stockChart.source!!.candleSeries.size - range.from
+                        val endOffset = stockChart.source!!.candleSeries.size - range.to
+
                         // Update all other charts with same timeframe
                         windows.flatMap { it.charts.values }
                             .filter { filterStockChart ->
@@ -129,7 +136,10 @@ internal class StockChartsState(
                                         filterStockChart != stockChart
                             }
                             .forEach {
-                                it.actualChart.timeScale.setVisibleLogicalRange(range.from, range.to)
+                                it.actualChart.timeScale.setVisibleLogicalRange(
+                                    from = it.source!!.candleSeries.size - startOffset,
+                                    to = it.source!!.candleSeries.size - endOffset,
+                                )
                             }
                     }
                     .launchIn(coroutineScope)
