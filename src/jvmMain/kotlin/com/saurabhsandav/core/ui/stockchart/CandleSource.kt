@@ -17,6 +17,9 @@ interface CandleSource {
 
     val candleSeries: CandleSeries
 
+    val syncKey: Any?
+        get() = null
+
     val candleMarkers: Flow<List<SeriesMarker>>
         get() = emptyFlow()
 

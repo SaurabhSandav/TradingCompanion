@@ -118,13 +118,14 @@ internal class StockChartsState(
 
                         ignoreChartSyncUntil = Clock.System.now() + 500.milliseconds
 
+                        // Nothing to sync if chart does not have a candle source or sync key
+                        val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
+
                         // Update all other charts with same timeframe
                         windows.flatMap { it.charts.values }
                             .filter { filterStockChart ->
-                                // Ignore chart if params not initialized
-                                val currentChartTimeframe = stockChart.currentParams?.timeframe ?: return@filter false
-                                // Select charts with same timeframe, ignore current chart
-                                currentChartTimeframe == filterStockChart.currentParams?.timeframe &&
+                                // Select charts with same sync key, ignore current chart
+                                currentChartSyncKey == filterStockChart.source?.syncKey &&
                                         filterStockChart != stockChart
                             }
                             .forEach {

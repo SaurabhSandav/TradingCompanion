@@ -20,6 +20,8 @@ class ReplayCandleSource(
     override val candleSeries: CandleSeries
         get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }
 
+    override val syncKey = timeframe
+
     override suspend fun onLoad() {
 
         if (!replaySession.isCompleted) {

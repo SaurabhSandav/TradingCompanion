@@ -26,6 +26,8 @@ class ChartCandleSource(
     override val candleMarkers: Flow<List<SeriesMarker>> = candleRange.filterNotNull()
         .flatMapLatest { getMarkers(ticker, it) }
 
+    override val syncKey = timeframe
+
     override suspend fun onLoad() {
 
         if (loaded) return
