@@ -152,6 +152,12 @@ internal class StockChart(
             // Set initial data on chart
             setData()
 
+            // Show latest 100 candles initially
+            actualChart.timeScale.setVisibleLogicalRange(
+                from = source.candleSeries.size - 100F,
+                to = source.candleSeries.size.toFloat(),
+            )
+
             // Set markers
             snapshotFlow { markersAreEnabled }
                 .flatMapLatest { markersAreEnabled ->
