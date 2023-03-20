@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -18,8 +15,11 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
+import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.app.AppWindowOwner
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 
@@ -32,6 +32,9 @@ internal fun ChartsScreen(
     val appModule = LocalAppModule.current
     val presenter = remember { ChartsPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
+
+    var showTradeReviewWindow by state { false }
+    val tradeReviewWindowOwner = remember { AppWindowOwner() }
 
     StockCharts(
         state = state.chartsState,
@@ -52,21 +55,43 @@ internal fun ChartsScreen(
                 modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
             )
         },
+        customControls = {
+
+            Button(
+                modifier = Modifier.fillMaxSize(),
+                onClick = {
+                    showTradeReviewWindow = true
+                    tradeReviewWindowOwner.childrenToFront()
+                },
+                content = { Text("Trade Review") },
+            )
+        },
     )
+
+    // Trade review window
+    if (showTradeReviewWindow) {
+
+        AppWindowOwner(tradeReviewWindowOwner) {
+
+            TradeReviewWindow(
+                onCloseRequest = { showTradeReviewWindow = false },
+            )
+        }
+    }
 
     // Fyers login window
     val fyersLoginWindowState = state.fyersLoginWindowState
 
     if (fyersLoginWindowState is FyersLoginWindow.Open) {
 
-        var openLoginWindow by com.saurabhsandav.core.ui.common.state { false }
+        var showLoginWindow by state { false }
 
         FetchCandleDataLoginConfirmationDialog(
-            onConfirm = { openLoginWindow = true },
+            onConfirm = { showLoginWindow = true },
             onDismissRequest = { presenter.event(CandleFetchLoginCancelled) },
         )
 
-        if (openLoginWindow) {
+        if (showLoginWindow) {
             FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
         }
     }
