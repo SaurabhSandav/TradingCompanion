@@ -6,7 +6,8 @@ import com.saurabhsandav.core.ui.stockchart.CandleSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 class ChartCandleSource(
@@ -48,6 +49,30 @@ class ChartCandleSource(
         loaded = true
     }
 
+    override suspend fun onLoad(start: Instant, end: Instant?): Boolean {
+
+        val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
+        val isBefore = firstCandleInstant != null && start < firstCandleInstant
+
+        if (isBefore) {
+
+            // New range starts 1 month before given date
+            val rangeStart = start.minus(30.days)
+            val rangeEnd = mutableCandleSeries.first().openInstant
+            val range = rangeStart..rangeEnd
+
+            val oldCandles = getCandles(ticker, timeframe, range)
+
+            if (oldCandles.isNotEmpty()) {
+                mutableCandleSeries.prependCandles(oldCandles)
+                onLoadSignal.tryEmit(Unit)
+                return true
+            }
+        }
+
+        return false
+    }
+
     override suspend fun onLoadBefore(): Boolean {
 
         val firstCandleInstant = mutableCandleSeries.first().openInstant
@@ -63,32 +88,5 @@ class ChartCandleSource(
         }
 
         return areCandlesAvailable
-    }
-
-    override suspend fun onLoadDateTime(dateTime: LocalDateTime): Boolean {
-
-        val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
-
-        val firstCandleLDT = candleSeries.firstOrNull()?.openInstant
-            ?.toLocalDateTime(TimeZone.currentSystemDefault())
-        val isBefore = firstCandleLDT != null && dateTime < firstCandleLDT
-
-        if (isBefore) {
-
-            // New range starts 3 months before given date
-            val rangeStart = instant.minus(downloadIntervalDays)
-            val rangeEnd = mutableCandleSeries.first().openInstant
-            val range = rangeStart..rangeEnd
-
-            val oldCandles = getCandles(ticker, timeframe, range)
-
-            if (oldCandles.isNotEmpty()) {
-                mutableCandleSeries.prependCandles(oldCandles)
-                onLoadSignal.tryEmit(Unit)
-                return true
-            }
-        }
-
-        return false
     }
 }

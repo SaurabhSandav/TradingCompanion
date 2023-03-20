@@ -5,7 +5,7 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 
 interface CandleSource {
 
@@ -25,9 +25,9 @@ interface CandleSource {
 
     suspend fun onLoad()
 
+    suspend fun onLoad(start: Instant, end: Instant? = null): Boolean = false
+
     suspend fun onLoadBefore(): Boolean = false
 
     suspend fun onLoadAfter(): Boolean = false
-
-    suspend fun onLoadDateTime(dateTime: LocalDateTime): Boolean = false
 }

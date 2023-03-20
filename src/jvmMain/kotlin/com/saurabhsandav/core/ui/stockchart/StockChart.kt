@@ -194,8 +194,9 @@ internal class StockChart(
 
         val source = checkNotNull(source) { "Source not set on chart" }
 
-        // Load candles
-        if (source.onLoadDateTime(dateTime)) plotters.forEach { it.setData(source.candleSeries.indices) }
+        // Load candles at dateTime
+        val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
+        if (source.onLoad(instant)) plotters.forEach { it.setData(source.candleSeries.indices) }
     }
 
     fun goToDateTime(dateTime: LocalDateTime?) {
