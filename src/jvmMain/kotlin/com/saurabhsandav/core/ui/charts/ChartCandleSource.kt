@@ -3,7 +3,9 @@ package com.saurabhsandav.core.ui.charts
 import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.ui.stockchart.CandleSource
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.datetime.*
 import kotlin.time.Duration.Companion.days
 
@@ -11,20 +13,21 @@ class ChartCandleSource(
     override val ticker: String,
     override val timeframe: Timeframe,
     private val getCandles: suspend (String, Timeframe, ClosedRange<Instant>) -> List<Candle>,
-    private val getMarkers: suspend (String, ClosedRange<Instant>) -> Flow<List<SeriesMarker>>,
+    private val getMarkers: suspend (String, CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
     private val downloadIntervalDays = 90.days
     private var loaded = false
+    private val onLoadSignal = MutableSharedFlow<Unit>(replay = 1)
 
     override val hasVolume: Boolean = ticker != "NIFTY50"
 
     private val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
     override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
 
-    private val candleRange = MutableStateFlow<ClosedRange<Instant>?>(null)
-    override val candleMarkers: Flow<List<SeriesMarker>> = candleRange.filterNotNull()
-        .flatMapLatest { getMarkers(ticker, it) }
+    override val candleMarkers: Flow<List<SeriesMarker>> = onLoadSignal.flatMapLatest {
+        getMarkers(ticker, candleSeries)
+    }
 
     override val syncKey = timeframe
 
@@ -40,7 +43,7 @@ class ChartCandleSource(
 
         candles.forEach(mutableCandleSeries::addCandle)
 
-        candleRange.update { candleSeries.instantRange }
+        onLoadSignal.tryEmit(Unit)
 
         loaded = true
     }
@@ -56,7 +59,7 @@ class ChartCandleSource(
 
         if (areCandlesAvailable) {
             mutableCandleSeries.prependCandles(oldCandles)
-            candleRange.update { candleSeries.instantRange }
+            onLoadSignal.tryEmit(Unit)
         }
 
         return areCandlesAvailable
@@ -81,7 +84,7 @@ class ChartCandleSource(
 
             if (oldCandles.isNotEmpty()) {
                 mutableCandleSeries.prependCandles(oldCandles)
-                candleRange.update { candleSeries.instantRange }
+                onLoadSignal.tryEmit(Unit)
                 return true
             }
         }
