@@ -28,6 +28,7 @@ import com.saurabhsandav.core.ui.closedtrades.model.ClosedTradesEvent.DeleteTrad
 import com.saurabhsandav.core.ui.closedtrades.model.ClosedTradesState.FyersLoginWindow
 import com.saurabhsandav.core.ui.closetradeform.CloseTradeFormWindowParams
 import com.saurabhsandav.core.ui.common.*
+import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.utils.brokerage
@@ -252,13 +253,10 @@ internal class ClosedTradesPresenter(
         // Populate data
         candles.forEachIndexed { index, candle ->
 
-            // Chart messes with timezone, work around it
-            // Subtract IST Timezone difference
-            val epochTime = candle.openInstant.epochSeconds
-            val workaroundEpochTime = epochTime + 19800
+            val candleTime = candle.openInstant.offsetTimeForChart()
 
             candleData += CandlestickData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 open = candle.open,
                 high = candle.high,
                 low = candle.low,
@@ -266,7 +264,7 @@ internal class ClosedTradesPresenter(
             )
 
             volumeData += HistogramData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = candle.volume,
                 color = when {
                     candle.close < candle.open -> Color(255, 82, 82)
@@ -275,12 +273,12 @@ internal class ClosedTradesPresenter(
             )
 
             ema9Data += LineData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = ema9Indicator[index],
             )
 
             vwapData += LineData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = vwapIndicator[index],
             )
 
@@ -297,7 +295,7 @@ internal class ClosedTradesPresenter(
 
         val markers = listOf(
             SeriesMarker(
-                time = Time.UTCTimestamp(candles[entryIndex].openInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(candles[entryIndex].openInstant.offsetTimeForChart()),
                 position = when (side) {
                     TradeSide.Long -> SeriesMarkerPosition.BelowBar
                     TradeSide.Short -> SeriesMarkerPosition.AboveBar
@@ -316,7 +314,7 @@ internal class ClosedTradesPresenter(
                 },
             ),
             SeriesMarker(
-                time = Time.UTCTimestamp(candles[exitIndex].openInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(candles[exitIndex].openInstant.offsetTimeForChart()),
                 position = when (side) {
                     TradeSide.Long -> SeriesMarkerPosition.AboveBar
                     TradeSide.Short -> SeriesMarkerPosition.BelowBar

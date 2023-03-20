@@ -17,10 +17,7 @@ import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.trading.isLong
-import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
-import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
-import com.saurabhsandav.core.ui.common.chart.crosshairMove
-import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
+import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
@@ -32,7 +29,9 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import java.math.RoundingMode
 
 internal class StockChart(
@@ -332,9 +331,4 @@ internal class StockChart(
         val ticker: String,
         val timeframe: Timeframe,
     )
-}
-
-fun Instant.offsetTimeForChart(): Long {
-    val timeZoneOffset = offsetIn(TimeZone.currentSystemDefault()).totalSeconds
-    return epochSeconds + timeZoneOffset
 }

@@ -24,6 +24,7 @@ import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
@@ -213,13 +214,10 @@ internal class TradesPresenter(
         // Populate data
         candles.forEachIndexed { index, candle ->
 
-            // Chart messes with timezone, work around it
-            // Subtract IST Timezone difference
-            val epochTime = candle.openInstant.epochSeconds
-            val workaroundEpochTime = epochTime + 19800
+            val candleTime = candle.openInstant.offsetTimeForChart()
 
             candleData += CandlestickData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 open = candle.open,
                 high = candle.high,
                 low = candle.low,
@@ -227,7 +225,7 @@ internal class TradesPresenter(
             )
 
             volumeData += HistogramData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = candle.volume,
                 color = when {
                     candle.close < candle.open -> Color(255, 82, 82)
@@ -236,12 +234,12 @@ internal class TradesPresenter(
             )
 
             ema9Data += LineData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = ema9Indicator[index],
             )
 
             vwapData += LineData(
-                time = Time.UTCTimestamp(workaroundEpochTime),
+                time = Time.UTCTimestamp(candleTime),
                 value = vwapIndicator[index],
             )
 
@@ -259,7 +257,7 @@ internal class TradesPresenter(
             val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
 
             SeriesMarker(
-                time = Time.UTCTimestamp(orderInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(orderInstant.offsetTimeForChart()),
                 position = when (order.type) {
                     OrderType.Buy -> SeriesMarkerPosition.BelowBar
                     OrderType.Sell -> SeriesMarkerPosition.AboveBar

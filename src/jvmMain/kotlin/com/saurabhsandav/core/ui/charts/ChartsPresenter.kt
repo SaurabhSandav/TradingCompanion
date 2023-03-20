@@ -28,6 +28,7 @@ import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -228,7 +229,7 @@ internal class ChartsPresenter(
             val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
 
             SeriesMarker(
-                time = Time.UTCTimestamp(orderInstant.epochSeconds + 19800),
+                time = Time.UTCTimestamp(orderInstant.offsetTimeForChart()),
                 position = when (order.type) {
                     OrderType.Buy -> SeriesMarkerPosition.BelowBar
                     OrderType.Sell -> SeriesMarkerPosition.AboveBar
@@ -257,7 +258,7 @@ internal class ChartsPresenter(
 
                     add(
                         SeriesMarker(
-                            time = Time.UTCTimestamp(openInstant.epochSeconds + 19800),
+                            time = Time.UTCTimestamp(openInstant.offsetTimeForChart()),
                             position = SeriesMarkerPosition.AboveBar,
                             shape = SeriesMarkerShape.Circle,
                             color = Color.Green,
@@ -270,7 +271,7 @@ internal class ChartsPresenter(
 
                         add(
                             SeriesMarker(
-                                time = Time.UTCTimestamp(exitInstant.epochSeconds + 19800),
+                                time = Time.UTCTimestamp(exitInstant.offsetTimeForChart()),
                                 position = SeriesMarkerPosition.AboveBar,
                                 shape = SeriesMarkerShape.Circle,
                                 color = Color.Red,

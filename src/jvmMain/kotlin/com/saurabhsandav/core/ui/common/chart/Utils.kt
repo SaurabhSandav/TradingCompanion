@@ -11,6 +11,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetIn
 
 fun IChartApi.crosshairMove(): Flow<MouseEventParams> {
     return callbackFlow {
@@ -32,4 +35,12 @@ fun ITimeScaleApi.visibleLogicalRangeChange(): Flow<LogicalRange?> {
 
         awaitClose { unsubscribeVisibleLogicalRangeChange(handler) }
     }.buffer(Channel.CONFLATED)
+}
+
+/**
+ * Chart messes with timezone. Workaround it by subtracting current timezone difference.
+ */
+fun Instant.offsetTimeForChart(): Long {
+    val timeZoneOffset = offsetIn(TimeZone.currentSystemDefault()).totalSeconds
+    return epochSeconds + timeZoneOffset
 }
