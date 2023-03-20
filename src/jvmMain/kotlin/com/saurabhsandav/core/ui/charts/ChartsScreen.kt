@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
@@ -75,6 +76,7 @@ internal fun ChartsScreen(
 
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
+                onOpenChart = { ticker, start, end -> presenter.event(OpenChart(ticker, start, end)) },
             )
         }
     }

@@ -13,15 +13,15 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
 import com.saurabhsandav.core.ui.common.CollectEffect
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.datetime.LocalDate
+import kotlinx.coroutines.flow.first
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaLocalDate
 import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -29,8 +29,13 @@ import java.util.*
 
 @Stable
 internal class TradeReviewPresenter(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val onOpenChart: (
+        ticker: String,
+        start: Instant,
+        end: Instant?,
+    ) -> Unit,
     private val tradesRepo: TradesRepo = appModule.tradesRepo,
 ) {
 
@@ -115,6 +120,16 @@ internal class TradeReviewPresenter(
         markedTradeIds.value = if (isMarked) markedTradeIds.value.add(id) else markedTradeIds.value.remove(id)
     }
 
-    private fun onSelectTrade(id: Long) {
+    private fun onSelectTrade(id: Long) = coroutineScope.launchUnit {
+
+        // Mark selected trade
+        markedTradeIds.value = markedTradeIds.value.add(id)
+
+        val trade = tradesRepo.getById(id).first()
+        val start = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
+        val end = trade.exitTimestamp?.toInstant(TimeZone.currentSystemDefault())
+
+        // Show trade on chart
+        onOpenChart(trade.ticker, start, end)
     }
 }

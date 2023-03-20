@@ -22,6 +22,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.CollectEffect
@@ -73,6 +74,7 @@ internal class ChartsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
+                is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
                 CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
             }
         }
@@ -126,6 +128,14 @@ internal class ChartsPresenter(
 
         // New chart params
         stockChart.newParams(timeframe = timeframe)
+    }
+
+    private fun onOpenChart(
+        ticker: String,
+        start: Instant,
+        end: Instant?,
+    ) {
+
     }
 
     private fun onCandleFetchLoginCancelled() {

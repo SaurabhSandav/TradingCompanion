@@ -8,15 +8,21 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.Trade
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.datetime.Instant
 
 @Composable
 internal fun TradeReviewWindow(
     onCloseRequest: () -> Unit,
+    onOpenChart: (
+        ticker: String,
+        start: Instant,
+        end: Instant?,
+    ) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradeReviewPresenter(scope, appModule) }
+    val presenter = remember { TradeReviewPresenter(scope, appModule, onOpenChart) }
     val state by presenter.state.collectAsState()
 
 
