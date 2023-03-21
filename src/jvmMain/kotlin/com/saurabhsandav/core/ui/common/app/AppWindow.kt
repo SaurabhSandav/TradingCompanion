@@ -2,9 +2,7 @@ package com.saurabhsandav.core.ui.common.app
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -69,3 +67,11 @@ fun AppWindow(
         }
     }
 }
+
+@Stable
+class AppWindowState {
+
+    var title by mutableStateOf("Untitled")
+}
+
+val LocalAppWindowState = compositionLocalOf { AppWindowState() }
