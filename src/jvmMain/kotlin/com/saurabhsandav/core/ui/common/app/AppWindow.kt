@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
@@ -50,6 +51,8 @@ fun AppWindow(
         onKeyEvent = onKeyEvent,
     ) {
 
+        SideEffect { appWindowState.setWindow(window) }
+
         val density = LocalDensity.current
         val densityFraction = LocalDensityFraction.current
 
@@ -94,6 +97,7 @@ class AppWindowState(
     private val defaultTitle: String = "Untitled",
 ) : WindowState by windowState {
 
+    private lateinit var window: ComposeWindow
     private val titles = ArrayDeque<Pair<String, String>>()
 
     var title by mutableStateOf(defaultTitle)
@@ -118,6 +122,18 @@ class AppWindowState(
         }
 
         title = titles.lastOrNull()?.second ?: defaultTitle
+    }
+
+    internal fun setWindow(window: ComposeWindow) {
+        this.window = window
+    }
+
+    fun toFront() {
+        window.toFront()
+    }
+
+    fun toBack() {
+        window.toBack()
     }
 }
 
