@@ -94,18 +94,22 @@ private fun TableScope<TradeEntry>.tradeItems(
         key = { it.id },
     ) { item ->
 
-                ContextMenuArea(
-                    items = {
-                        listOf(
-                            ContextMenuItem("Open Details") { onOpenDetails(item.id) },
-                            ContextMenuItem("Open Chart") { onOpenChart(item.id) },
-                        )
-                    },
-                ) {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open Details") { onOpenDetails(item.id) },
+                    ContextMenuItem("Open Chart") { onOpenChart(item.id) },
+                )
+            },
+        ) {
 
             Column {
 
-                DefaultTableRow(item, schema)
+                DefaultTableRow(
+                    item = item,
+                    schema = schema,
+                    onClick = { onOpenDetails(item.id) },
+                )
 
                 Divider()
             }
