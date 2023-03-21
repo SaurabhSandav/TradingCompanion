@@ -14,14 +14,9 @@ import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
-import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
 internal class StockChartsState(
@@ -39,7 +34,7 @@ internal class StockChartsState(
     private val coroutineScope = MainScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
-    private var ignoreChartSyncUntil: Instant? = null
+    private val lastActiveChart = MutableStateFlow<StockChart?>(null)
 
     val windows = mutableStateListOf<ChartWindow>()
 
@@ -103,20 +98,17 @@ internal class StockChartsState(
                 // Connect chart to web page
                 pageState.connect(chart = actualChart)
 
+                // Set initial lastActiveChart
+                lastActiveChart.value = stockChart
+
                 // Sync visible range across charts
                 actualChart.timeScale
                     .visibleLogicalRangeChange()
                     .filterNotNull()
                     .onEach { range ->
 
-                        // Prevent infinite loop of current chart setting range of other charts which triggers
-                        // the range change callbacks for those charts and so on
-                        val ignoreChartSyncInstant = ignoreChartSyncUntil
-                        if (ignoreChartSyncInstant != null && ignoreChartSyncInstant > Clock.System.now()) {
-                            return@onEach
-                        }
-
-                        ignoreChartSyncUntil = Clock.System.now() + 500.milliseconds
+                        // If chart is not active (user hasn't interacted), skip sync
+                        if (lastActiveChart.value != stockChart) return@onEach
 
                         // Nothing to sync if chart does not have a candle source or sync key
                         val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
@@ -153,6 +145,9 @@ internal class StockChartsState(
 
                 // Show selected chart
                 pagedArrangement.showChart(stockChart.actualChart)
+
+                // Set selected chart as lastActiveChart
+                lastActiveChart.value = stockChart
             },
             onClose = { tabId ->
 
@@ -175,11 +170,19 @@ internal class StockChartsState(
             },
         )
 
+        val coroutineScope = MainScope()
+
         windows += ChartWindow(
+            coroutineScope = coroutineScope,
             charts = charts,
             tabsState = tabsState,
             pageState = pageState,
         )
+
+        // Update last active chart
+        pagedArrangement.lastActiveChart
+            .onEach { actualChart -> lastActiveChart.value = charts.values.first { it.actualChart == actualChart } }
+            .launchIn(coroutineScope)
     }
 
     fun closeWindow(chartWindow: ChartWindow): Boolean {
@@ -188,10 +191,13 @@ internal class StockChartsState(
 
         windows.remove(chartWindow)
 
+        chartWindow.coroutineScope.cancel()
+
         return true
     }
 
     class ChartWindow(
+        val coroutineScope: CoroutineScope,
         val charts: Map<Int, StockChart>,
         val tabsState: StockChartTabsState,
         val pageState: ChartPageState,

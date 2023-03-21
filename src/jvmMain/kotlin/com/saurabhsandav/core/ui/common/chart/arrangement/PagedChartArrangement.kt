@@ -1,8 +1,14 @@
 package com.saurabhsandav.core.ui.common.chart.arrangement
 
 import com.saurabhsandav.core.chart.IChartApi
+import com.saurabhsandav.core.chart.callbacks.ChartCallback
 import com.saurabhsandav.core.chart.createChart
 import com.saurabhsandav.core.chart.options.ChartOptions
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.random.Random
 
 fun ChartArrangement.Companion.paged(): PagedChartArrangement {
@@ -11,7 +17,41 @@ fun ChartArrangement.Companion.paged(): PagedChartArrangement {
 
 class PagedChartArrangement internal constructor() : ChartArrangement() {
 
-    private val charts = mutableMapOf<IChartApi, Int>()
+    private val charts = mutableListOf<IChartApi>()
+    private val _lastActiveChart = MutableSharedFlow<IChartApi>(replay = 1)
+
+    val lastActiveChart = _lastActiveChart.asSharedFlow()
+
+    override fun onCallback(message: String): Boolean {
+
+        val callbackElement = Json.parseToJsonElement(message)
+
+        val chartCallback = ChartCallback(
+            chartName = callbackElement.jsonObject["chartName"]!!.jsonPrimitive.content,
+            callbackType = callbackElement.jsonObject["callbackType"]!!.jsonPrimitive.content,
+            message = callbackElement.jsonObject["message"]!!.toString(),
+        )
+
+        val chart = charts.find { it.name == chartCallback.chartName }
+
+        return when {
+            chartCallback.callbackType == "ChartInteraction" && chart != null -> {
+
+                val messageElement = Json.parseToJsonElement(chartCallback.message)
+
+                when (messageElement.jsonPrimitive.content) {
+                    "mouseenter" -> {
+                        _lastActiveChart.tryEmit(chart)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+
+            else -> false
+        }
+    }
 
     fun newChart(
         options: ChartOptions = ChartOptions(),
@@ -20,7 +60,7 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
         val chartId = "chart_${Random.nextLong()}"
 
         // Error if chart name already exists
-        check(!charts.keys.any { it.name == chartId })
+        check(!charts.any { it.name == chartId })
 
         // Configure hidden chart container
         executeJs("preparePagedChartContainer('$chartId');")
@@ -32,7 +72,7 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
         )
 
         // Add to tabs
-        charts[chart] = 0
+        charts.add(chart)
 
         return chart
     }

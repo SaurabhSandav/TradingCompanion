@@ -5,6 +5,15 @@ function prepareSingleChartContainer(chartId) {
   chartDiv.id = chartId;
   document.body.appendChild(chartDiv);
   chartDiv.style.position = 'absolute';
+  chartDiv.addEventListener("mouseenter", (e) => {
+    chartCallback(
+      JSON.stringify(new ChartCallback(
+        chartId,
+        "ChartInteraction",
+        "mouseenter",
+      ))
+    );
+  });
 
   // Legend
   let legendDiv = document.createElement('div');

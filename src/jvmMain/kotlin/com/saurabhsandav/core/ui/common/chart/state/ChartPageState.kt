@@ -74,7 +74,9 @@ class ChartPageState(
     fun onCallback(message: String) {
         // Launch in coroutine to prevent exceptions being swallowed by JS
         coroutineScope.launch {
-            charts.forEach { it.onCallback(message) }
+            // If arrangement does not consume callback, forward it to the charts
+            if (!arrangement.onCallback(message))
+                charts.forEach { it.onCallback(message) }
         }
     }
 
