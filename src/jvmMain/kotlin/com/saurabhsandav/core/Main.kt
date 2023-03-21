@@ -7,7 +7,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.landing.LandingScreen
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.PrefDefaults
@@ -48,10 +48,7 @@ fun main() = application {
             state = windowState,
         ) {
 
-            val appWindowState = LocalAppWindowState.current
-
-            // Set window title inside window scope, so it can be overridden in child composables
-            LaunchedEffect(appWindowState) { appWindowState.title = "Trading Companion" }
+            WindowTitle("Trading Companion")
 
             App()
         }

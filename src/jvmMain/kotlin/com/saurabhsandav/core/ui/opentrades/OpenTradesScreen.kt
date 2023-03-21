@@ -1,9 +1,12 @@
 package com.saurabhsandav.core.ui.opentrades
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import com.saurabhsandav.core.ui.closetradeform.CloseTradeFormWindow
 import com.saurabhsandav.core.ui.closetradeform.rememberCloseTradeFormWindowState
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindow
 import com.saurabhsandav.core.ui.opentradeform.rememberOpenTradeFormWindowState
 import com.saurabhsandav.core.ui.opentrades.model.OpenTradesEvent
@@ -18,10 +21,9 @@ internal fun OpenTradesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val appWindowState = LocalAppWindowState.current
 
     // Set window title
-    LaunchedEffect(appWindowState) { appWindowState.title = "Open Trades" }
+    WindowTitle("Open Trades")
 
     OpenTradesTable(
         openTrades = state.openTrades,

@@ -13,7 +13,7 @@ import com.saurabhsandav.core.ui.closedtrades.ui.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.closetradeform.CloseTradeFormWindow
 import com.saurabhsandav.core.ui.closetradeform.rememberCloseTradeFormWindowState
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
@@ -25,10 +25,9 @@ internal fun ClosedTradesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val appWindowState = LocalAppWindowState.current
 
     // Set window title
-    LaunchedEffect(appWindowState) { appWindowState.title = "Closed Trades" }
+    WindowTitle("Closed Trades")
 
     val snackbarHostState = remember { SnackbarHostState() }
 

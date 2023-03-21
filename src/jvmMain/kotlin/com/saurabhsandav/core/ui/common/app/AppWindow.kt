@@ -68,10 +68,50 @@ fun AppWindow(
     }
 }
 
-@Stable
-class AppWindowState {
+@Composable
+fun WindowTitle(title: String) {
 
-    var title by mutableStateOf("Untitled")
+    val appWindowState = LocalAppWindowState.current
+    // Copied from rememberSaveable implementation
+    val id = currentCompositeKeyHash.toString(36)
+
+    // Set window title
+    DisposableEffect(appWindowState) {
+        appWindowState.setCompositionTitle(id, title)
+        onDispose { appWindowState.removeCompositionTitle(id) }
+    }
+}
+
+@Stable
+class AppWindowState(
+    private val defaultTitle: String = "Untitled",
+) {
+
+    private val titles = ArrayDeque<Pair<String, String>>()
+
+    var title by mutableStateOf(defaultTitle)
+        private set
+
+    internal fun setCompositionTitle(id: String, titleText: String) {
+
+        titles.addLast(id to titleText)
+
+        title = titles.lastOrNull()?.second ?: defaultTitle
+    }
+
+    internal fun removeCompositionTitle(id: String) {
+
+        val iterator = titles.listIterator()
+
+        while (iterator.hasPrevious()) {
+            if (iterator.previous().first == id) {
+                iterator.remove()
+                break
+            }
+        }
+
+        title = titles.lastOrNull()?.second ?: defaultTitle
+    }
 }
 
 val LocalAppWindowState = compositionLocalOf { AppWindowState() }

@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.detail.TradeDetailWindow
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
@@ -19,10 +19,9 @@ internal fun TradesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val appWindowState = LocalAppWindowState.current
 
     // Set window title
-    LaunchedEffect(appWindowState) { appWindowState.title = "Trades" }
+    WindowTitle("Trades")
 
     val snackbarHostState = remember { SnackbarHostState() }
 

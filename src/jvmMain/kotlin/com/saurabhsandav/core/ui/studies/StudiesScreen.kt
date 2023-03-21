@@ -19,7 +19,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.studies.Study
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 
 @Composable
 internal fun StudiesScreen(
@@ -27,11 +27,10 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val appWindowState = LocalAppWindowState.current
     val studyWindowsManager = remember { MultipleWindowManager<Study.Factory<*>>() }
 
     // Set window title
-    LaunchedEffect(appWindowState) { appWindowState.title = "Studies" }
+    WindowTitle("Studies")
 
     Box {
 

@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.tradeorders
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindow
 import com.saurabhsandav.core.ui.tradeorders.orderform.rememberOrderFormWindowState
@@ -15,10 +15,9 @@ internal fun TradeOrdersScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val appWindowState = LocalAppWindowState.current
 
     // Set window title
-    LaunchedEffect(appWindowState) { appWindowState.title = "Closed Trades" }
+    WindowTitle("Trade Orders")
 
     val snackbarHostState = remember { SnackbarHostState() }
 
