@@ -7,7 +7,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.WindowTitle
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.landing.LandingScreen
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.PrefDefaults
@@ -32,7 +32,10 @@ internal fun App() {
 
 fun main() = application {
 
-    val windowState = rememberWindowState(placement = WindowPlacement.Maximized)
+    val windowState = rememberAppWindowState(
+        windowState = rememberWindowState(placement = WindowPlacement.Maximized),
+        defaultTitle = "Trading Companion",
+    )
     val appModule = remember { AppModule() }
 
     val densityFraction by appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
@@ -47,8 +50,6 @@ fun main() = application {
             onCloseRequest = ::exitApplication,
             state = windowState,
         ) {
-
-            WindowTitle("Trading Companion")
 
             App()
         }

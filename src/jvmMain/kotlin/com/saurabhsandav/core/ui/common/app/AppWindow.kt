@@ -32,7 +32,7 @@ fun AppWindow(
     content: @Composable FrameWindowScope.() -> Unit,
 ) {
 
-    val appWindowState = remember { AppWindowState() }
+    val appWindowState = remember(state) { (state as? AppWindowState) ?: AppWindowState(state) }
 
     Window(
         onCloseRequest = onCloseRequest,
@@ -69,6 +69,12 @@ fun AppWindow(
 }
 
 @Composable
+fun rememberAppWindowState(
+    windowState: WindowState = rememberWindowState(),
+    defaultTitle: String = "Untitled",
+): AppWindowState = remember { AppWindowState(windowState, defaultTitle) }
+
+@Composable
 fun WindowTitle(title: String) {
 
     val appWindowState = LocalAppWindowState.current
@@ -84,8 +90,9 @@ fun WindowTitle(title: String) {
 
 @Stable
 class AppWindowState(
+    windowState: WindowState,
     private val defaultTitle: String = "Untitled",
-) {
+) : WindowState by windowState {
 
     private val titles = ArrayDeque<Pair<String, String>>()
 
@@ -114,4 +121,4 @@ class AppWindowState(
     }
 }
 
-val LocalAppWindowState = compositionLocalOf { AppWindowState() }
+val LocalAppWindowState = staticCompositionLocalOf<AppWindowState> { error("AppWindowState not set") }
