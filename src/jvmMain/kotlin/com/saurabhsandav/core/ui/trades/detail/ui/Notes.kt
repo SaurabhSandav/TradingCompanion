@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.TradeNote
 import kotlinx.collections.immutable.ImmutableList
@@ -87,19 +85,26 @@ internal fun Notes(
             Divider()
         }
 
-        var showAddDialog by state { false }
+        var showAddWindow by state { false }
+        val addWindowOwner = remember { AppWindowOwner() }
 
         Button(
-            onClick = { showAddDialog = true },
+            onClick = {
+                showAddWindow = true
+                addWindowOwner.childrenToFront()
+            },
             content = { Text("Add note") },
         )
 
-        if (showAddDialog) {
+        if (showAddWindow) {
 
-            NoteEditorWindow(
-                onCloseRequest = { showAddDialog = false },
-                onSaveNote = onAddNote,
-            )
+            AppWindowOwner(addWindowOwner) {
+
+                NoteEditorWindow(
+                    onCloseRequest = { showAddWindow = false },
+                    onSaveNote = onAddNote,
+                )
+            }
         }
     }
 }

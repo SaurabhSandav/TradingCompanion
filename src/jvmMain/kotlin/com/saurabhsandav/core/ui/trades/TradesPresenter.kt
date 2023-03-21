@@ -57,6 +57,7 @@ internal class TradesPresenter(
     private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private var showTradeDetailIds by mutableStateOf<PersistentSet<Long>>(persistentSetOf())
+    private var bringDetailsToFrontId by mutableStateOf<Long?>(null)
     private val chartWindowsManager = MultipleWindowManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
@@ -67,6 +68,7 @@ internal class TradesPresenter(
             when (event) {
                 is OpenDetails -> onOpenDetails(event.id)
                 is CloseDetails -> onCloseDetails(event.id)
+                DetailsBroughtToFront -> onDetailsBroughtToFront()
                 is OpenChart -> onOpenChart(event.id)
             }
         }
@@ -74,6 +76,7 @@ internal class TradesPresenter(
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
             showTradeDetailIds = showTradeDetailIds,
+            bringDetailsToFrontId = bringDetailsToFrontId,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
         )
@@ -138,10 +141,15 @@ internal class TradesPresenter(
 
     private fun onOpenDetails(id: Long) {
         showTradeDetailIds = showTradeDetailIds.add(id)
+        bringDetailsToFrontId = id
     }
 
     private fun onCloseDetails(id: Long) {
         showTradeDetailIds = showTradeDetailIds.remove(id)
+    }
+
+    private fun onDetailsBroughtToFront() {
+        bringDetailsToFrontId = null
     }
 
     private fun onOpenChart(id: Long): Unit = coroutineScope.launchUnit {

@@ -6,5 +6,7 @@ internal sealed class TradesEvent {
 
     data class CloseDetails(val id: Long) : TradesEvent()
 
+    object DetailsBroughtToFront : TradesEvent()
+
     data class OpenChart(val id: Long) : TradesEvent()
 }

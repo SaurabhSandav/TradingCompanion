@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
+import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.detail.TradeDetailWindow
@@ -38,10 +39,26 @@ internal fun TradesScreen(
         // Detail Windows
         state.showTradeDetailIds.forEach { tradeId ->
 
-            TradeDetailWindow(
-                tradeId = tradeId,
-                onCloseRequest = { presenter.event(CloseDetails(tradeId)) },
-            )
+            key(tradeId) {
+
+                val windowOwner = remember { AppWindowOwner() }
+
+                LaunchedEffect(state.bringDetailsToFrontId) {
+
+                    if (state.bringDetailsToFrontId == tradeId) {
+                        windowOwner.childrenToFront()
+                        presenter.event(DetailsBroughtToFront)
+                    }
+                }
+
+                AppWindowOwner(windowOwner) {
+
+                    TradeDetailWindow(
+                        tradeId = tradeId,
+                        onCloseRequest = { presenter.event(CloseDetails(tradeId)) },
+                    )
+                }
+            }
         }
 
         // Chart windows

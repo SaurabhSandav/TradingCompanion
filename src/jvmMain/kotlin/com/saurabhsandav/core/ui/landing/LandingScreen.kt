@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.closedtrades.ClosedTradesPresenter
 import com.saurabhsandav.core.ui.closedtrades.ClosedTradesScreen
 import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
@@ -71,9 +72,16 @@ private fun LandingScreen(
 ) {
 
     var showChartsWindow by state { false }
+    val chartsWindowOwner = remember { AppWindowOwner() }
+
     var showPNLCalculatorWindow by state { false }
+    val pnlCalculatorWindowOwner = remember { AppWindowOwner() }
+
     var showBarReplayWindow by state { false }
+    val barReplayWindowOwner = remember { AppWindowOwner() }
+
     var showSettingsWindow by state { false }
+    val settingsWindowOwner = remember { AppWindowOwner() }
 
     Row {
 
@@ -104,7 +112,10 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
                     selected = false,
-                    onClick = { showChartsWindow = true }
+                    onClick = {
+                        showChartsWindow = true
+                        chartsWindowOwner.childrenToFront()
+                    }
                 )
             }
 
@@ -115,7 +126,10 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Calculate, contentDescription = "PNL Calculator") },
                     selected = false,
-                    onClick = { showPNLCalculatorWindow = true }
+                    onClick = {
+                        showPNLCalculatorWindow = true
+                        pnlCalculatorWindowOwner.childrenToFront()
+                    }
                 )
             }
 
@@ -126,8 +140,10 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
                     selected = false,
-                    onClick = { showBarReplayWindow = true }
-
+                    onClick = {
+                        showBarReplayWindow = true
+                        barReplayWindowOwner.childrenToFront()
+                    }
                 )
             }
 
@@ -138,7 +154,10 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
                     selected = false,
-                    onClick = { showSettingsWindow = true }
+                    onClick = {
+                        showSettingsWindow = true
+                        settingsWindowOwner.childrenToFront()
+                    }
                 )
             }
         }
@@ -171,35 +190,47 @@ private fun LandingScreen(
 
         if (showChartsWindow) {
 
-            ChartsScreen(
-                onCloseRequest = { showChartsWindow = false },
-            )
+            AppWindowOwner(chartsWindowOwner) {
+
+                ChartsScreen(
+                    onCloseRequest = { showChartsWindow = false },
+                )
+            }
         }
 
         if (showPNLCalculatorWindow) {
 
-            PNLCalculatorWindow(
-                state = rememberPNLCalculatorWindowState(
-                    params = PNLCalculatorWindowParams(
-                        operationType = PNLCalculatorWindowParams.OperationType.New,
-                        onCloseRequest = { showPNLCalculatorWindow = false },
+            AppWindowOwner(pnlCalculatorWindowOwner) {
+
+                PNLCalculatorWindow(
+                    state = rememberPNLCalculatorWindowState(
+                        params = PNLCalculatorWindowParams(
+                            operationType = PNLCalculatorWindowParams.OperationType.New,
+                            onCloseRequest = { showPNLCalculatorWindow = false },
+                        )
                     )
                 )
-            )
+            }
         }
 
         if (showBarReplayWindow) {
 
-            BarReplayWindow(
-                onCloseRequest = { showBarReplayWindow = false },
-            )
+            AppWindowOwner(barReplayWindowOwner) {
+
+                BarReplayWindow(
+                    onCloseRequest = { showBarReplayWindow = false },
+                )
+            }
         }
 
         if (showSettingsWindow) {
 
-            SettingsWindow(
-                onCloseRequest = { showSettingsWindow = false },
-            )
+            AppWindowOwner(settingsWindowOwner) {
+
+                SettingsWindow(
+                    onCloseRequest = { showSettingsWindow = false },
+                )
+            }
         }
     }
 }

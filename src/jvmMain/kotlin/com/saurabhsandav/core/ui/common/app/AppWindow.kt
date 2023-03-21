@@ -34,6 +34,15 @@ fun AppWindow(
 ) {
 
     val appWindowState = remember(state) { (state as? AppWindowState) ?: AppWindowState(state) }
+    val appWindowOwner = LocalAppWindowOwner.current
+
+    if (appWindowOwner != null) {
+
+        DisposableEffect(Unit) {
+            appWindowOwner.registerChild(appWindowState)
+            onDispose { appWindowOwner.unRegisterChild(appWindowState) }
+        }
+    }
 
     Window(
         onCloseRequest = onCloseRequest,
@@ -61,6 +70,8 @@ fun AppWindow(
         CompositionLocalProvider(
             LocalDensity provides newDensity,
             LocalAppWindowState provides appWindowState,
+            // AppWindowOwner of this window should not operate on child windows
+            LocalAppWindowOwner provides null,
         ) {
 
             Surface(
@@ -138,3 +149,39 @@ class AppWindowState(
 }
 
 val LocalAppWindowState = staticCompositionLocalOf<AppWindowState> { error("AppWindowState not set") }
+
+@Composable
+fun AppWindowOwner(
+    state: AppWindowOwner,
+    content: @Composable () -> Unit,
+) {
+
+    CompositionLocalProvider(
+        LocalAppWindowOwner provides state,
+        content = content,
+    )
+}
+
+@Stable
+class AppWindowOwner {
+
+    private val children = mutableListOf<AppWindowState>()
+
+    fun childrenToFront() {
+        children.forEach { it.toFront() }
+    }
+
+    fun toBack() {
+        children.forEach { it.toBack() }
+    }
+
+    internal fun registerChild(appWindowState: AppWindowState) {
+        children.add(appWindowState)
+    }
+
+    internal fun unRegisterChild(appWindowState: AppWindowState) {
+        children.remove(appWindowState)
+    }
+}
+
+val LocalAppWindowOwner = staticCompositionLocalOf<AppWindowOwner?> { null }

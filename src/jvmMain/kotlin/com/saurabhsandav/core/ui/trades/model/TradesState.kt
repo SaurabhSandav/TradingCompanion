@@ -12,6 +12,7 @@ internal data class TradesState(
     val showTradeDetailIds: ImmutableSet<Long>,
     val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
+    val bringDetailsToFrontId: Long? = null,
 ) {
 
     @Immutable
