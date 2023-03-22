@@ -227,6 +227,13 @@ internal class StockChart(
         return deferred
     }
 
+    fun destroy() {
+        coroutineScope.cancel()
+        sourceCoroutineScope.cancel()
+        plotters.forEach { it.remove() }
+        actualChart.remove()
+    }
+
     private fun setupDefaultIndicators(
         candleSeries: CandleSeries,
         hasVolume: Boolean,
@@ -367,13 +374,6 @@ internal class StockChart(
             from = candleRange.first - offset,
             to = candleRange.last + offset,
         )
-    }
-
-    fun destroy() {
-        coroutineScope.cancel()
-        sourceCoroutineScope.cancel()
-        plotters.forEach { it.remove() }
-        actualChart.remove()
     }
 
     data class Params(
