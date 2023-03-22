@@ -51,6 +51,7 @@ import java.util.*
 import com.saurabhsandav.core.ui.closedtrades.model.ClosedTradesEvent.DeleteConfirmationDialog as DeleteConfirmationDialogEvent
 import com.saurabhsandav.core.ui.closedtrades.model.ClosedTradesState.DeleteConfirmationDialog as DeleteConfirmationDialogState
 
+@Stable
 internal class ClosedTradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,

@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.studies
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
@@ -7,6 +8,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.studies.*
 import kotlinx.coroutines.CoroutineScope
 
+@Stable
 internal class StudiesPresenter(
     coroutineScope: CoroutineScope,
     private val appModule: AppModule,

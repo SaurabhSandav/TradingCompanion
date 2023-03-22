@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
@@ -44,6 +41,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
+@Stable
 internal class ChartsPresenter(
     coroutineScope: CoroutineScope,
     private val appModule: AppModule,

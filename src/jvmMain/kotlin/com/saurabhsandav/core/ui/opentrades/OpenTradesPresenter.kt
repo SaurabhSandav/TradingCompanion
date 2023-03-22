@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.opentrades
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
@@ -26,6 +23,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import java.util.*
 
+@Stable
 internal class OpenTradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,

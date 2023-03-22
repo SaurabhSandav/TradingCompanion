@@ -45,6 +45,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
+@Stable
 internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,

@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.landing
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@Stable
 internal class LandingPresenter(
     private val coroutineScope: CoroutineScope,
     appModule: AppModule,

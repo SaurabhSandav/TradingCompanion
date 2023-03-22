@@ -34,6 +34,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
+@Stable
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,

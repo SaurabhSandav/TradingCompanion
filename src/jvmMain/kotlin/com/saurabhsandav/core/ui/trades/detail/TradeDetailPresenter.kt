@@ -27,6 +27,7 @@ import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+@Stable
 internal class TradeDetailPresenter(
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,

@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.charts
 
+import androidx.compose.runtime.Stable
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
@@ -32,6 +33,7 @@ import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.seconds
 
+@Stable
 internal class ReplayChartsPresenter(
     private val coroutineScope: CoroutineScope,
     private val baseTimeframe: Timeframe,
