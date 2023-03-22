@@ -200,25 +200,13 @@ internal class StockChart(
 
     fun goToDateTime(dateTime: LocalDateTime?) {
 
-        val source = checkNotNull(source) { "Source not set on chart" }
+        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
 
-        val candleIndex = when (dateTime) {
-            // If datetime is not provided, go to latest candle
-            null -> source.candleSeries.lastIndex
-            // Find candle index
-            else -> {
-                val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
-                val candleIndex = source.candleSeries.indexOfFirst { it.openInstant > instant }
-                // If datetime is not in current candle range, navigate to the latest candles
-                if (candleIndex != -1) candleIndex else source.candleSeries.lastIndex
-            }
-        }
+        navigateToInterval(instant?.let { it..it })
+    }
 
-        // Navigate chart candle at index
-        actualChart.timeScale.setVisibleLogicalRange(
-            from = candleIndex - 100F,
-            to = candleIndex + 100F,
-        )
+    fun navigateToInterval(start: Instant, end: Instant?) {
+        navigateToInterval(if (end == null) start..start else start..end)
     }
 
     fun loadInterval(start: Instant, end: Instant? = null): CompletableDeferred<Unit> {
@@ -336,6 +324,49 @@ internal class StockChart(
             .getBooleanFlow(prefKey, true)
             .onEach(plotter::setIsEnabled)
             .launchIn(coroutineScope)
+    }
+
+    private fun navigateToInterval(range: ClosedRange<Instant>?) {
+
+        val source = checkNotNull(source) { "Source not set on chart" }
+
+        val lastCandleIndex = source.candleSeries.lastIndex
+
+        val candleRange = when (range) {
+
+            // If range is not provided, go to the latest candles
+            null -> lastCandleIndex..lastCandleIndex
+
+            // Find candle indices
+            else -> {
+
+                val startCandleIndex = source.candleSeries.indexOfFirst { it.openInstant > range.start }
+
+                // If start instant is not in current candle range, navigate to the latest candles
+                if (startCandleIndex == -1) lastCandleIndex..lastCandleIndex else {
+
+                    val endCandleIndex = source.candleSeries.indexOfFirst { it.openInstant > range.endInclusive }
+
+                    when {
+                        endCandleIndex != -1 -> startCandleIndex..endCandleIndex
+                        // If end instant is not in current candle range, navigate to the start candle
+                        else -> startCandleIndex..startCandleIndex
+                    }
+                }
+            }
+        }
+
+        val diff = candleRange.last - candleRange.first
+        val offset = if (diff >= 100) 10F else {
+            val customOffset = (100 - diff) / 2F
+            if (customOffset < 10) 10F else customOffset
+        }
+
+        // Navigate chart candle at index
+        actualChart.timeScale.setVisibleLogicalRange(
+            from = candleRange.first - offset,
+            to = candleRange.last + offset,
+        )
     }
 
     fun destroy() {
