@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.molecule)
     alias(libs.plugins.sqldelight)
-    id("com.codingfeline.buildkonfig") version "0.13.3"
+    alias(libs.plugins.buildKonfig)
 }
 
 group = "com.saurabhsandav.apps"
@@ -80,7 +80,6 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.materialIconsExtended)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.material3)
 
                 // KotlinX Coroutines
@@ -116,22 +115,22 @@ kotlin {
                 implementation(libs.kotlinCsvJvm)
 
                 // JavaFx
-                implementation("org.openjfx:javafx-base:19:linux")
-                implementation("org.openjfx:javafx-controls:19:linux")
-                implementation("org.openjfx:javafx-graphics:19:linux")
-                implementation("org.openjfx:javafx-media:19:linux")
-                implementation("org.openjfx:javafx-swing:19:linux")
-                implementation("org.openjfx:javafx-web:19:linux")
+                implementation("org.openjfx:javafx-base:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-controls:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-graphics:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-media:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-swing:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-web:19.0.2.1:linux")
 
                 // Krypto
                 implementation("com.soywiz.korlibs.krypto:krypto:3.4.0")
 
                 // kotlin-result
-                implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.16")
-                implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:1.1.16")
+                implementation(libs.kotlinResult)
+                implementation(libs.kotlinResult.coroutines)
 
                 // AppDirs
-                implementation("net.harawata:appdirs:1.2.1")
+                implementation(libs.appdirs)
             }
         }
         val jvmTest by getting {
