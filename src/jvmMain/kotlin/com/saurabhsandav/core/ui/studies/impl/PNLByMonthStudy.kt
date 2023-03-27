@@ -17,7 +17,7 @@ import java.math.RoundingMode
 
 internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStudy.Model>() {
 
-    private val tradesRepo = appModule.tradesRepo
+    private val tradesRepo = appModule.tradingRecord.trades
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Month") { it.month }

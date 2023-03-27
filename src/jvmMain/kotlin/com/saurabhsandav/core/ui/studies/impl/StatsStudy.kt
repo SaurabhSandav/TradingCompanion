@@ -26,7 +26,7 @@ internal class StatsStudy(
     @Composable
     override fun render() {
 
-        val generalStats = remember { appModule.tradesRepo.allTrades.map(::calculateGeneralStats) }
+        val generalStats = remember { appModule.tradingRecord.trades.allTrades.map(::calculateGeneralStats) }
             .collectAsState(null).value
 
         Box {

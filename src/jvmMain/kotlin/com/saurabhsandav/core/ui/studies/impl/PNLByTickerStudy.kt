@@ -17,7 +17,7 @@ import java.math.RoundingMode
 
 internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerStudy.Model>() {
 
-    private val tradesRepo = appModule.tradesRepo
+    private val tradesRepo = appModule.tradingRecord.trades
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }

@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent
@@ -32,7 +32,7 @@ internal class TradeDetailPresenter(
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradesRepo: TradesRepo = appModule.tradesRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
 ) {
 
     private val events = MutableSharedFlow<TradeDetailEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -70,7 +70,7 @@ internal class TradeDetailPresenter(
     @Composable
     private fun getTradeDetail(): State<TradeDetail?> {
         return remember {
-            tradesRepo.getById(tradeId).map { trade ->
+            tradingRecord.trades.getById(tradeId).map { trade ->
 
                 val instrumentCapitalized = trade.instrument
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -105,7 +105,7 @@ internal class TradeDetailPresenter(
     @Composable
     private fun getMfeAndMae(): State<MfeAndMae?> {
         return remember {
-            tradesRepo.getMfeAndMae(tradeId).map { mfeAndMae ->
+            tradingRecord.trades.getMfeAndMae(tradeId).map { mfeAndMae ->
 
                 mfeAndMae ?: return@map null
 
@@ -120,7 +120,7 @@ internal class TradeDetailPresenter(
     @Composable
     private fun getTradeStops(): State<ImmutableList<TradeStop>> {
         return remember {
-            tradesRepo.getStopsForTrade(tradeId).map { stops ->
+            tradingRecord.trades.getStopsForTrade(tradeId).map { stops ->
 
                 stops.map { stop ->
                     TradeStop(
@@ -136,7 +136,7 @@ internal class TradeDetailPresenter(
     @Composable
     private fun getTradeTargets(): State<ImmutableList<TradeTarget>> {
         return remember {
-            tradesRepo.getTargetsForTrade(tradeId).map { targets ->
+            tradingRecord.trades.getTargetsForTrade(tradeId).map { targets ->
 
                 targets.map { target ->
                     TradeTarget(
@@ -152,7 +152,7 @@ internal class TradeDetailPresenter(
     @Composable
     private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
         return remember {
-            tradesRepo.getNotesForTrade(tradeId)
+            tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
                     val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss")
@@ -178,30 +178,30 @@ internal class TradeDetailPresenter(
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {
-        tradesRepo.addStop(tradeId, price)
+        tradingRecord.trades.addStop(tradeId, price)
     }
 
     private fun onDeleteStop(price: BigDecimal) = coroutineScope.launchUnit {
-        tradesRepo.deleteStop(tradeId, price)
+        tradingRecord.trades.deleteStop(tradeId, price)
     }
 
     private fun onAddTarget(price: BigDecimal) = coroutineScope.launchUnit {
-        tradesRepo.addTarget(tradeId, price)
+        tradingRecord.trades.addTarget(tradeId, price)
     }
 
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
-        tradesRepo.deleteTarget(tradeId, price)
+        tradingRecord.trades.deleteTarget(tradeId, price)
     }
 
     private fun onAddNote(note: String) = coroutineScope.launchUnit {
-        tradesRepo.addNote(tradeId, note)
+        tradingRecord.trades.addNote(tradeId, note)
     }
 
     private fun onUpdateNote(id: Long, note: String) = coroutineScope.launchUnit {
-        tradesRepo.updateNote(id, note)
+        tradingRecord.trades.updateNote(id, note)
     }
 
     private fun onDeleteNote(id: Long) = coroutineScope.launchUnit {
-        tradesRepo.deleteNote(id)
+        tradingRecord.trades.deleteNote(id)
     }
 }

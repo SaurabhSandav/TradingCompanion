@@ -11,7 +11,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -51,7 +51,7 @@ internal class TradesPresenter(
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradesRepo: TradesRepo = appModule.tradesRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
@@ -92,7 +92,7 @@ internal class TradesPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
-            tradesRepo.allTrades.map { trades ->
+            tradingRecord.trades.allTrades.map { trades ->
                 trades
                     .groupBy { it.entryTimestamp.date }
                     .map { (date, list) ->
@@ -158,7 +158,8 @@ internal class TradesPresenter(
         // Chart window already open
         if (chartWindowsManager.windows.any { it.params.tradeId == id }) return@launchUnit
 
-        val (trade, tradeOrders) = tradesRepo.getById(id).first() to tradesRepo.getOrdersForTrade(id).first()
+        val trade = tradingRecord.trades.getById(id).first()
+        val tradeOrders = tradingRecord.trades.getOrdersForTrade(id).first()
 
         val exitDateTime = trade.exitTimestamp ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 

@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
@@ -27,7 +27,7 @@ internal class OrderFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val formType: OrderFormType,
     private val appModule: AppModule,
-    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
     private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
 ) {
 
@@ -62,7 +62,7 @@ internal class OrderFormPresenter(
         val formModel = requireNotNull(formModel)
 
         val orderId = when (formType) {
-            is Edit -> tradeOrdersRepo.edit(
+            is Edit -> tradingRecord.orders.edit(
                 id = formType.id,
                 broker = "Finvasia",
                 ticker = formModel.ticker.value!!,
@@ -73,7 +73,7 @@ internal class OrderFormPresenter(
                 timestamp = formModel.timestamp.value,
             )
 
-            else -> tradeOrdersRepo.new(
+            else -> tradingRecord.orders.new(
                 broker = "Finvasia",
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
@@ -107,7 +107,7 @@ internal class OrderFormPresenter(
 
     private fun newFromExisting(id: Long) = coroutineScope.launchUnit {
 
-        val order = tradeOrdersRepo.getById(id).first()
+        val order = tradingRecord.orders.getById(id).first()
 
         formModel = OrderFormModel(
             validator = formValidator,
@@ -125,7 +125,7 @@ internal class OrderFormPresenter(
 
     private fun editOrder(id: Long) = coroutineScope.launchUnit {
 
-        val order = tradeOrdersRepo.getById(id).first()
+        val order = tradingRecord.orders.getById(id).first()
 
         formModel = OrderFormModel(
             validator = formValidator,

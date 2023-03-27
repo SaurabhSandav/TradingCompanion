@@ -5,8 +5,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradeOrdersRepo
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
@@ -42,8 +41,7 @@ internal class TradeReviewPresenter(
         end: Instant?,
     ) -> Unit,
     setMarkersProvider: (ChartMarkersProvider) -> Unit,
-    private val tradesRepo: TradesRepo = appModule.tradesRepo,
-    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
 ) {
 
     private val events = MutableSharedFlow<TradeReviewEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -76,7 +74,7 @@ internal class TradeReviewPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
-            tradesRepo.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
+            tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
                 trades
                     .groupBy { it.entryTimestamp.date }
                     .map { (date, list) ->
@@ -136,7 +134,7 @@ internal class TradeReviewPresenter(
         // Mark selected trade
         markedTradeIds.value = markedTradeIds.value.add(id)
 
-        val trade = tradesRepo.getById(id).first()
+        val trade = tradingRecord.trades.getById(id).first()
         val start = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
         val end = trade.exitTimestamp?.toInstant(TimeZone.currentSystemDefault())
 
@@ -156,7 +154,9 @@ internal class TradeReviewPresenter(
                 candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
         val orderMarkers = markedTradeIds
-            .flatMapLatest { tradeOrdersRepo.getOrdersByTickerAndTradeIdsInInterval(ticker, it.toList(), ldtRange) }
+            .flatMapLatest {
+                tradingRecord.orders.getOrdersByTickerAndTradeIdsInInterval(ticker, it.toList(), ldtRange)
+            }
             .mapList { order ->
 
                 val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
@@ -169,7 +169,7 @@ internal class TradeReviewPresenter(
             }
 
         val tradeMarkers = markedTradeIds
-            .flatMapLatest { tradesRepo.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange) }
+            .flatMapLatest { tradingRecord.trades.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange) }
             .map { trades ->
                 trades.flatMap { trade ->
 

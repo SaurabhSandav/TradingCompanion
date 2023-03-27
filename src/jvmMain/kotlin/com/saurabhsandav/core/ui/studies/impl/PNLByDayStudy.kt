@@ -20,7 +20,7 @@ import java.time.format.FormatStyle
 
 internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
 
-    private val tradesRepo = appModule.tradesRepo
+    private val tradesRepo = appModule.tradingRecord.trades
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Day") { it.day }

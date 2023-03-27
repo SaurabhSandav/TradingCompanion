@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeOrder
-import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
@@ -30,7 +30,7 @@ import java.util.*
 internal class TradeOrdersPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
 ) {
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -66,7 +66,7 @@ internal class TradeOrdersPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeOrderListItem>> {
         return remember {
-            tradeOrdersRepo.allOrders.map { orders ->
+            tradingRecord.orders.allOrders.map { orders ->
                 orders.groupBy { it.timestamp.date }
                     .map { (date, list) ->
                         listOf(
@@ -144,10 +144,10 @@ internal class TradeOrdersPresenter(
     }
 
     private fun onLockOrder(id: Long) = coroutineScope.launchUnit {
-        tradeOrdersRepo.lockOrder(id)
+        tradingRecord.orders.lockOrder(id)
     }
 
     private fun onDeleteOrder(id: Long) = coroutineScope.launchUnit {
-        tradeOrdersRepo.delete(id)
+        tradingRecord.orders.delete(id)
     }
 }

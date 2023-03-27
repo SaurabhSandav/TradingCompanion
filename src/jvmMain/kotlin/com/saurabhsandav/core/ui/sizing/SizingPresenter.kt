@@ -6,8 +6,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
-import com.saurabhsandav.core.trades.SizingTradesRepo
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
@@ -41,8 +40,7 @@ import kotlin.time.Duration.Companion.nanoseconds
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val sizingTradesRepo: SizingTradesRepo = appModule.sizingTradesRepo,
-    private val tradesRepo: TradesRepo = appModule.tradesRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
 ) {
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -84,7 +82,7 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        sizingTradesRepo.new(
+        tradingRecord.sizingTrades.new(
             ticker = ticker,
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),
@@ -95,7 +93,7 @@ internal class SizingPresenter(
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        sizingTradesRepo.updateEntry(
+        tradingRecord.sizingTrades.updateEntry(
             id = id,
             entry = entryBD,
         )
@@ -105,19 +103,19 @@ internal class SizingPresenter(
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        sizingTradesRepo.updateStop(
+        tradingRecord.sizingTrades.updateStop(
             id = id,
             stop = stopBD,
         )
     }
 
     private fun removeTrade(id: Long) = coroutineScope.launchUnit {
-        sizingTradesRepo.delete(id)
+        tradingRecord.sizingTrades.delete(id)
     }
 
     private fun openLiveTrade(id: Long) = coroutineScope.launchUnit {
 
-        val sizingTrade = sizingTradesRepo.getById(id).first()
+        val sizingTrade = tradingRecord.sizingTrades.getById(id).first()
 
         val entryStopComparison = sizingTrade.entry.compareTo(sizingTrade.stop)
 
@@ -162,10 +160,10 @@ internal class SizingPresenter(
 
                     // Single order can close a trade and open a new one.
                     // Make sure to choose the open trade
-                    val trade = tradesRepo.getTradesForOrder(orderId).first().single { !it.isClosed }
+                    val trade = tradingRecord.trades.getTradesForOrder(orderId).first().single { !it.isClosed }
 
                     // Add stop
-                    tradesRepo.addStop(trade.id, sizingTrade.stop)
+                    tradingRecord.trades.addStop(trade.id, sizingTrade.stop)
 
                     val target = when (trade.side) {
                         TradeSide.Long -> sizingTrade.entry + spread
@@ -173,7 +171,7 @@ internal class SizingPresenter(
                     }
 
                     // Add target
-                    tradesRepo.addTarget(trade.id, target)
+                    tradingRecord.trades.addTarget(trade.id, target)
                 }
             },
         )
@@ -191,7 +189,8 @@ internal class SizingPresenter(
     @Composable
     private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
         return remember(account) {
-            sizingTradesRepo.allTrades
+            tradingRecord.sizingTrades
+                .allTrades
                 .mapList { sizingTrade -> sizingTrade.size(account) }
                 .map { it.toImmutableList() }
         }.collectAsState(persistentListOf()).value

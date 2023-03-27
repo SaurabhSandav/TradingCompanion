@@ -10,8 +10,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradeOrdersRepo
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -53,8 +52,7 @@ internal class ReplayChartsPresenter(
     private val initialTicker: String,
     private val appModule: AppModule,
     private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradesRepo: TradesRepo = appModule.tradesRepo,
-    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
+    private val tradingRecord: TradingRecord = appModule.tradingRecord,
 ) {
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -353,10 +351,7 @@ internal class ReplayChartsPresenter(
             val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
                     instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
-            tradeOrdersRepo.getOrdersByTickerInInterval(
-                ticker,
-                ldtRange,
-            )
+            tradingRecord.orders.getOrdersByTickerInInterval(ticker, ldtRange)
         }.mapList { order ->
 
             val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
@@ -375,7 +370,7 @@ internal class ReplayChartsPresenter(
             val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
                     instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
-            tradesRepo.getByTickerInInterval(ticker, ldtRange)
+            tradingRecord.trades.getByTickerInInterval(ticker, ldtRange)
         }.map { trades ->
             trades.flatMap { trade ->
 

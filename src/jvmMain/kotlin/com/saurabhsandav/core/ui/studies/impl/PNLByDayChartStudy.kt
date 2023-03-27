@@ -27,7 +27,8 @@ internal class PNLByDayChartStudy(
     appModule: AppModule,
 ) : Study {
 
-    private val data = appModule.tradesRepo
+    private val data = appModule.tradingRecord
+        .trades
         .allTrades
         .map { trades ->
             trades.filter { it.isClosed }.map { trade ->
