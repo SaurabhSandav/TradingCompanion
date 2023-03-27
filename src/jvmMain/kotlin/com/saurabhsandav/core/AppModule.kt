@@ -4,6 +4,7 @@ import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeManagementJob
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trading.data.CandleCacheDB
@@ -52,6 +53,13 @@ internal class AppModule {
 
     val tradingRecord = TradingRecord(
         recordPath = AppPaths.getAppDataPath(),
+        candleRepo = candleRepo,
+    )
+
+    val tradingProfiles = TradingProfiles(
+        appFilesPath = AppPaths.getAppDataPath(),
+        appDB = appDB,
+        appPrefs = appPrefs,
         candleRepo = candleRepo,
     )
 

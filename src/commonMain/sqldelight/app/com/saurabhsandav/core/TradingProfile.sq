@@ -1,0 +1,32 @@
+
+CREATE TABLE IF NOT EXISTS TradingProfile (
+id INTEGER NOT NULL PRIMARY KEY,
+name TEXT NOT NULL,
+description TEXT NOT NULL,
+path TEXT NOT NULL UNIQUE,
+isTraining INTEGER AS Boolean NOT NULL
+);
+
+-- Insert default profile. Row will not be duplicated because path is unique
+INSERT OR IGNORE INTO TradingProfile(name, description, path, isTraining)
+VALUES ("Default", "", "DEFAULT", 0);
+
+insert:
+INSERT INTO TradingProfile(name, description, path, isTraining)
+VALUES (?, ?, ?, ?);
+
+get:
+SELECT * FROM TradingProfile
+WHERE id = ?;
+
+getAll:
+SELECT * FROM TradingProfile;
+
+update:
+UPDATE TradingProfile
+SET name = ?, description = ?, isTraining = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM TradingProfile
+WHERE id = ?;

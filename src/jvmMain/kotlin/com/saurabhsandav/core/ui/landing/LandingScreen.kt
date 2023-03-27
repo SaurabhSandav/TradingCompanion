@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.CandlestickChart
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,6 +31,7 @@ import com.saurabhsandav.core.ui.opentrades.OpenTradesScreen
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
+import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingPresenter
 import com.saurabhsandav.core.ui.sizing.SizingScreen
@@ -71,6 +69,9 @@ private fun LandingScreen(
     onCurrentScreenChange: (LandingScreen) -> Unit,
 ) {
 
+    var showProfilesWindow by state { false }
+    val profilesWindowOwner = remember { AppWindowOwner() }
+
     var showChartsWindow by state { false }
     val chartsWindowOwner = remember { AppWindowOwner() }
 
@@ -88,6 +89,17 @@ private fun LandingScreen(
         NavigationRail(
             containerColor = MaterialTheme.colorScheme.inverseOnSurface
         ) {
+
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.AccountBox, contentDescription = "Profiles") },
+                selected = false,
+                onClick = {
+                    showProfilesWindow = true
+                    profilesWindowOwner.childrenToFront()
+                }
+            )
+
+            Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
             val landingItems = remember {
                 enumValues<LandingScreen>().filter {
@@ -191,6 +203,16 @@ private fun LandingScreen(
                     LandingScreen.Trades -> TradesScreen(tradesPresenter)
                     LandingScreen.Studies -> StudiesScreen(studiesPresenter)
                 }
+            }
+        }
+
+        if (showProfilesWindow) {
+
+            AppWindowOwner(profilesWindowOwner) {
+
+                ProfilesWindow(
+                    onCloseRequest = { showProfilesWindow = false },
+                )
             }
         }
 
