@@ -14,4 +14,5 @@ object PrefKeys {
     const val PlotterSMA50Enabled = "plotter_sma50_enabled"
     const val PlotterSMA100Enabled = "plotter_sma100_enabled"
     const val PlotterSMA200Enabled = "plotter_sma200_enabled"
+    const val MarkersEnabled = "markers_enabled"
 }

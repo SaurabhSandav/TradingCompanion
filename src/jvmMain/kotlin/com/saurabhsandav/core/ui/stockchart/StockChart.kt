@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.IChartApi
@@ -58,7 +61,7 @@ internal class StockChart(
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
-    var markersAreEnabled by mutableStateOf(false)
+    val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
 
     init {
 
@@ -160,13 +163,12 @@ internal class StockChart(
             )
 
             // Set markers
-            snapshotFlow { markersAreEnabled }
-                .flatMapLatest { markersAreEnabled ->
-                    when {
-                        markersAreEnabled -> source.candleMarkers
-                        else -> flowOf(emptyList())
-                    }
+            markersAreEnabled.flatMapLatest { markersAreEnabled ->
+                when {
+                    markersAreEnabled -> source.candleMarkers
+                    else -> flowOf(emptyList())
                 }
+            }
                 .onEach(candlestickPlotter::setMarkers)
                 .launchIn(sourceCoroutineScope)
         }
@@ -190,6 +192,10 @@ internal class StockChart(
         }
 
         appModule.appPrefs.putBoolean(prefKey, isEnabled)
+    }
+
+    fun setMarkersAreEnabled(isEnabled: Boolean) = coroutineScope.launchUnit {
+        appModule.appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
     }
 
     fun goToDateTime(dateTime: LocalDateTime?) {

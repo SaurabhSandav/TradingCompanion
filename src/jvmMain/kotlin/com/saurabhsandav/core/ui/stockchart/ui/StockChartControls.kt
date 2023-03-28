@@ -91,8 +91,8 @@ internal fun StockChartControls(
                     Text("Markers")
 
                     Switch(
-                        checked = stockChart.markersAreEnabled,
-                        onCheckedChange = { stockChart.markersAreEnabled = it },
+                        checked = stockChart.markersAreEnabled.collectAsState(false).value,
+                        onCheckedChange = { stockChart.setMarkersAreEnabled(it) },
                     )
                 }
             }
