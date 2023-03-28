@@ -155,8 +155,8 @@ internal class StockChart(
 
             // Show latest 100 candles initially
             actualChart.timeScale.setVisibleLogicalRange(
-                from = source.candleSeries.size - 100F,
-                to = source.candleSeries.size.toFloat(),
+                from = source.candleSeries.size - 90F,
+                to = source.candleSeries.size.toFloat() + 10,
             )
 
             // Set markers
