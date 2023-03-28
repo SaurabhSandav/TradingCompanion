@@ -95,7 +95,9 @@ internal class StockChart(
         observerPlotterIsEnabled(PrefKeys.PlotterSMA200Enabled, sma200Plotter)
     }
 
-    fun setCandleSource(source: CandleSource) {
+    fun setCandleSource(source: CandleSource): CompletableDeferred<Unit> {
+
+        val deferred = CompletableDeferred<Unit>()
 
         // Update chart params
         currentParams = Params(source.ticker, source.timeframe)
@@ -114,12 +116,21 @@ internal class StockChart(
         this@StockChart.source = source
         sourceCoroutineScope = MainScope()
 
-        coroutineScope.launchUnit {
+        sourceCoroutineScope.launch {
 
             fun setData() = plotters.forEach { it.setData(source.candleSeries.indices) }
 
             // Get the candles ready
             source.onLoad()
+
+            // Setup Indicators
+            setupDefaultIndicators(source.candleSeries, source.hasVolume)
+
+            // Set initial data on chart
+            setData()
+
+            // Notify load complete
+            deferred.complete(Unit)
 
             // Load before/after candles if needed
             actualChart.timeScale
@@ -150,12 +161,6 @@ internal class StockChart(
                 }
                 .launchIn(sourceCoroutineScope)
 
-            // Setup Indicators
-            setupDefaultIndicators(source.candleSeries, source.hasVolume)
-
-            // Set initial data on chart
-            setData()
-
             // Show latest 100 candles initially
             actualChart.timeScale.setVisibleLogicalRange(
                 from = source.candleSeries.size - 90F,
@@ -172,6 +177,8 @@ internal class StockChart(
                 .onEach(candlestickPlotter::setMarkers)
                 .launchIn(sourceCoroutineScope)
         }
+
+        return deferred
     }
 
     fun setDarkMode(isDark: Boolean) {

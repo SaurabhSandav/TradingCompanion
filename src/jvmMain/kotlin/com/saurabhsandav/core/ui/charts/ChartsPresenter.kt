@@ -34,9 +34,11 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.core.utils.retryIOResult
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -44,7 +46,7 @@ import kotlinx.datetime.toLocalDateTime
 
 @Stable
 internal class ChartsPresenter(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
@@ -59,6 +61,7 @@ internal class ChartsPresenter(
     private val initialTimeframe = Timeframe.M5
     private val stockCharts = mutableListOf<StockChart>()
     private val candleSources = mutableMapOf<Pair<String, Timeframe>, ChartCandleSource>()
+    private val queuedChartInitializers = mutableListOf<StockChart.() -> Unit>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
         onCloseChart = ::onCloseChart,
@@ -98,12 +101,16 @@ internal class ChartsPresenter(
         // Cache StockChart
         stockCharts += newStockChart
 
-        // Set chart params
-        // If selected chartParams is null, this is the first chart. Initialize it with initial params.
-        newStockChart.newParams(
-            ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
-            timeframe = prevStockChart?.currentParams?.timeframe ?: initialTimeframe,
-        )
+        // Set Data
+        val queuedChartInitializer = queuedChartInitializers.removeFirstOrNull()
+
+        when {
+            queuedChartInitializer != null -> queuedChartInitializer.invoke(newStockChart)
+            else -> newStockChart.newParams(
+                ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
+                timeframe = prevStockChart?.currentParams?.timeframe ?: initialTimeframe,
+            )
+        }
     }
 
     private fun onCloseChart(stockChart: StockChart) {
@@ -136,6 +143,66 @@ internal class ChartsPresenter(
         end: Instant?,
     ) {
 
+        // Default timeframe (Currently hardcoded to M5) chart for ticker
+        val tickerDTParams = StockChart.Params(ticker, Timeframe.M5)
+
+        val chartParams = listOf(
+            // Daily chart for index.
+            StockChart.Params(NIFTY50.first(), Timeframe.D1),
+            // Default timeframe (Currently hardcoded to M5) chart for index.
+            StockChart.Params(NIFTY50.first(), Timeframe.M5),
+            // Daily chart for ticker.
+            StockChart.Params(ticker, Timeframe.D1),
+            // Default timeframe (Currently hardcoded to M5) chart for ticker. Also bring to front.
+            tickerDTParams,
+        )
+
+        chartParams.forEach { params ->
+
+            val stockChart = stockCharts.firstOrNull { it.currentParams == params }
+
+            if (stockChart == null) {
+
+                queuedChartInitializers.add {
+
+                    // Bring default timeframe chart for ticker to front
+                    if (params == tickerDTParams) chartsState.bringToFront(this)
+
+                    // Set Data. setCandleSource() needs to be called synchronously when ticker matches index chart.
+                    // In such a case, an instance the index chart may open twice.
+                    val loadFinish = newParams(params.ticker, params.timeframe)
+
+                    coroutineScope.launch {
+
+                        // Wait for data to be loaded
+                        loadFinish.await()
+
+                        // Load data for specified interval
+                        loadInterval(start, end).await()
+
+                        // Navigate default timeframe chart to specified interval
+                        if (params == tickerDTParams) navigateToInterval(start, end)
+                    }
+                }
+
+                // Open new tab
+                chartsState.openNewTab()
+
+            } else {
+
+                // Bring default timeframe chart for ticker to front
+                if (params == tickerDTParams) chartsState.bringToFront(stockChart)
+
+                coroutineScope.launch {
+
+                    // Load data for specified interval
+                    stockChart.loadInterval(start, end).await()
+
+                    // Navigate default timeframe chart to specified interval
+                    if (params == tickerDTParams) stockChart.navigateToInterval(start, end)
+                }
+            }
+        }
     }
 
     private fun onCandleFetchLoginCancelled() {
@@ -145,7 +212,7 @@ internal class ChartsPresenter(
     private fun StockChart.newParams(
         ticker: String? = currentParams?.ticker,
         timeframe: Timeframe? = currentParams?.timeframe,
-    ) {
+    ): CompletableDeferred<Unit> {
 
         check(ticker != null && timeframe != null) {
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
@@ -156,10 +223,12 @@ internal class ChartsPresenter(
         }
 
         // Set ChartCandleSource on StockChart
-        setCandleSource(candleSource)
+        val deferred = setCandleSource(candleSource)
 
         // Remove unused ChartCandleSources from cache
         releaseUnusedCandleSources()
+
+        return deferred
     }
 
     private fun releaseUnusedCandleSources() {

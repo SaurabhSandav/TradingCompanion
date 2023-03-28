@@ -7,6 +7,7 @@ import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.app.AppWindowState
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
@@ -200,12 +201,39 @@ internal class StockChartsState(
         return true
     }
 
+    fun bringToFront(stockChart: StockChart) {
+
+        val chartWindow = windows.first { window -> stockChart in window.charts.values }
+
+        // Bring window to front
+        chartWindow.appWindowState.toFront()
+
+        // Select tab
+        chartWindow.charts.forEach { (key, value) ->
+
+            if (stockChart == value) {
+                chartWindow.tabsState.selectTab(key)
+                return@forEach
+            }
+        }
+    }
+
+    fun openNewTab() {
+
+        val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
+
+        // Find window with the last active chart, and open a new tab.
+        windows.first { lastActiveChart in it.charts.values }.tabsState.newTab()
+    }
+
     class ChartWindow(
         val coroutineScope: CoroutineScope,
         val charts: Map<Int, StockChart>,
         val tabsState: StockChartTabsState,
         val pageState: ChartPageState,
     ) {
+
+        internal lateinit var appWindowState: AppWindowState
 
         val selectedStockChart by derivedStateOf { charts.getValue(tabsState.tabs[tabsState.selectedTabIndex].id) }
     }
