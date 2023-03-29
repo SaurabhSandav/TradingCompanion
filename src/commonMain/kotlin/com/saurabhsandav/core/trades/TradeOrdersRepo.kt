@@ -141,12 +141,18 @@ internal class TradeOrdersRepo(
         return tradesDB.tradeToOrderMapQueries.getOrdersByTrade(id, ::toTradeOrder).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getOrdersByTickerInInterval(ticker: String, range: ClosedRange<LocalDateTime>): Flow<List<TradeOrder>> {
-        return tradesDB.tradeOrderQueries
-            .getByTickerInInterval(
+    fun getOrdersByTickerAndTradeIdsInInterval(
+        ticker: String,
+        ids: List<Long>,
+        range: ClosedRange<LocalDateTime>,
+    ): Flow<List<TradeOrder>> {
+        return tradesDB.tradeToOrderMapQueries
+            .getOrdersByTickerAndTradeIdsInInterval(
                 ticker = ticker,
+                ids = ids,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
+                mapper = ::toTradeOrder,
             )
             .asFlow()
             .mapToList(Dispatchers.IO)

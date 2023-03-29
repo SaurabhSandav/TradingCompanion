@@ -77,6 +77,7 @@ internal fun ChartsScreen(
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
                 onOpenChart = { ticker, start, end -> presenter.event(OpenChart(ticker, start, end)) },
+                setMarkersProvider = { provider -> presenter.setMarkersProvider(provider) },
             )
         }
     }

@@ -20,6 +20,16 @@ ON TradeToOrderMap.orderId = TradeOrder.id
 WHERE TradeToOrderMap.tradeId = ?
 ORDER BY TradeOrder.timestamp ASC;
 
+getOrdersByTickerAndTradeIdsInInterval:
+SELECT TradeOrder.*, IFNULL(overrideQuantity, TradeOrder.quantity) AS overrideQuantity FROM TradeToOrderMap
+INNER JOIN TradeOrder
+ON TradeToOrderMap.orderId = TradeOrder.id
+WHERE TradeOrder.ticker = :ticker
+AND TradeToOrderMap.tradeId IN :ids
+AND datetime(:from) < datetime(TradeOrder.timestamp)
+AND datetime(TradeOrder.timestamp) < datetime(:to)
+ORDER BY TradeOrder.timestamp ASC;
+
 getTradesByOrder:
 SELECT Trade.* FROM TradeToOrderMap
 INNER JOIN Trade

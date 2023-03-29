@@ -90,3 +90,8 @@ class ChartCandleSource(
         return areCandlesAvailable
     }
 }
+
+fun interface ChartMarkersProvider {
+
+    fun provideMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>>
+}

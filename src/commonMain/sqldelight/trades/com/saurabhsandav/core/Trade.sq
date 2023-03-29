@@ -44,10 +44,11 @@ SELECT *
 FROM Trade
 WHERE id = ?;
 
-getByTickerInInterval:
+getByTickerAndIdsInInterval:
 SELECT *
 FROM Trade
 WHERE ticker = :ticker
+AND id IN :ids
 AND datetime(:from) < datetime(entryTimestamp)
 AND datetime(entryTimestamp) < datetime(:to);
 

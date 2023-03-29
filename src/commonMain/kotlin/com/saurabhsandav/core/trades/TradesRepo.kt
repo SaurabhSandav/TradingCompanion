@@ -24,10 +24,15 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
-    fun getByTickerInInterval(ticker: String, range: ClosedRange<LocalDateTime>): Flow<List<Trade>> {
+    fun getByTickerAndIdsInInterval(
+        ticker: String,
+        ids: List<Long>,
+        range: ClosedRange<LocalDateTime>
+    ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
-            .getByTickerInInterval(
+            .getByTickerAndIdsInInterval(
                 ticker = ticker,
+                ids = ids,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
             )
