@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.orderform
+package com.saurabhsandav.core.ui.tradeorderform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

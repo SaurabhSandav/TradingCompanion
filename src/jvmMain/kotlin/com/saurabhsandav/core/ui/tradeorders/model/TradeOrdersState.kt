@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tradeorders.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams
+import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindowParams
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable

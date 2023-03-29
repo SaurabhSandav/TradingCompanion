@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.orderform
+package com.saurabhsandav.core.ui.tradeorderform
 
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.AppModule
@@ -6,7 +6,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.tradeorders.orderform.OrderFormWindowParams.OperationType.*
+import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindowParams.OperationType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first

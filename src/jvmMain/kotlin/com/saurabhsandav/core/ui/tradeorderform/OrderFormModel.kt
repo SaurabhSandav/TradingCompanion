@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.orderform
+package com.saurabhsandav.core.ui.tradeorderform
 
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.ui.common.form.FormValidator
