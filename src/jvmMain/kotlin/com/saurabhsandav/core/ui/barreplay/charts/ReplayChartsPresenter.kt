@@ -71,6 +71,8 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
+                is Buy -> onBuy(event.stockChart)
+                is Sell -> onSell(event.stockChart)
             }
         }
 
@@ -151,6 +153,16 @@ internal class ReplayChartsPresenter(
 
         // New chart params
         stockChart.newParams(timeframe = timeframe)
+    }
+
+    private fun onBuy(stockChart: StockChart) {
+
+        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
+    }
+
+    private fun onSell(stockChart: StockChart) {
+
+        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
     }
 
     private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {

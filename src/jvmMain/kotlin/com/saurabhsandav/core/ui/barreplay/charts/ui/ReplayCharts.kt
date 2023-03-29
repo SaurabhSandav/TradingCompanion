@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.barreplay.charts.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,7 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartInfo
+import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -24,6 +28,8 @@ internal fun ReplayCharts(
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
+    onBuy: (StockChart) -> Unit,
+    onSell: (StockChart) -> Unit,
 ) {
 
     StockCharts(
@@ -54,5 +60,27 @@ internal fun ReplayCharts(
             onNext = onNext,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
         )
+
+        Divider()
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+
+            Button(
+                modifier = Modifier.weight(1F),
+                onClick = { onBuy(stockChart) },
+                colors = ButtonDefaults.buttonColors(containerColor = AppColor.ProfitGreen),
+                content = { Text("BUY") },
+            )
+
+            Button(
+                modifier = Modifier.weight(1F),
+                onClick = { onSell(stockChart) },
+                colors = ButtonDefaults.buttonColors(containerColor = AppColor.LossRed),
+                content = { Text("SELL") },
+            )
+        }
     }
 }
