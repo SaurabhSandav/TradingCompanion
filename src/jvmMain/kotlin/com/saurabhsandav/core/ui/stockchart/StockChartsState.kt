@@ -60,7 +60,7 @@ internal class StockChartsState(
         if (instant != null) {
             windows.flatMap { it.charts.values }
                 .map { it.loadInterval(instant) }
-                .joinAll()
+                .awaitAll()
         }
 
         // Navigate to datetime, other charts should be synced to same datetime

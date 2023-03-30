@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
@@ -214,12 +215,22 @@ internal class StockChart(
         )
     }
 
-    fun loadInterval(start: Instant, end: Instant? = null) = sourceCoroutineScope.launch {
+    fun loadInterval(start: Instant, end: Instant? = null): CompletableDeferred<Unit> {
 
-        val source = checkNotNull(source) { "Source not set on chart" }
+        val deferred = CompletableDeferred<Unit>()
 
-        // Load candles in range
-        if (source.onLoad(start, end)) plotters.forEach { it.setData(source.candleSeries.indices) }
+        sourceCoroutineScope.launch {
+
+            val source = checkNotNull(source) { "Source not set on chart" }
+
+            // Load candles in range
+            if (source.onLoad(start, end)) plotters.forEach { it.setData(source.candleSeries.indices) }
+
+            // Notify load complete
+            deferred.complete(Unit)
+        }
+
+        return deferred
     }
 
     private fun setupDefaultIndicators(
