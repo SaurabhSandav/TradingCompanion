@@ -29,6 +29,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -190,15 +191,6 @@ internal class StockChart(
         appModule.appPrefs.putBoolean(prefKey, isEnabled)
     }
 
-    fun loadDateTime(dateTime: LocalDateTime) = sourceCoroutineScope.launch {
-
-        val source = checkNotNull(source) { "Source not set on chart" }
-
-        // Load candles at dateTime
-        val instant = dateTime.toInstant(TimeZone.currentSystemDefault())
-        if (source.onLoad(instant)) plotters.forEach { it.setData(source.candleSeries.indices) }
-    }
-
     fun goToDateTime(dateTime: LocalDateTime?) {
 
         val source = checkNotNull(source) { "Source not set on chart" }
@@ -220,6 +212,14 @@ internal class StockChart(
             from = candleIndex - 100F,
             to = candleIndex + 100F,
         )
+    }
+
+    fun loadInterval(start: Instant, end: Instant? = null) = sourceCoroutineScope.launch {
+
+        val source = checkNotNull(source) { "Source not set on chart" }
+
+        // Load candles in range
+        if (source.onLoad(start, end)) plotters.forEach { it.setData(source.candleSeries.indices) }
     }
 
     private fun setupDefaultIndicators(

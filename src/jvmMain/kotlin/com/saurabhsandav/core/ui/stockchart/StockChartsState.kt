@@ -17,6 +17,8 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 @Stable
 internal class StockChartsState(
@@ -52,10 +54,12 @@ internal class StockChartsState(
 
     fun goToDateTime(stockChart: StockChart, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
 
+        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
+
         // Load data if date specified
-        if (dateTime != null) {
+        if (instant != null) {
             windows.flatMap { it.charts.values }
-                .map { it.loadDateTime(dateTime) }
+                .map { it.loadInterval(instant) }
                 .joinAll()
         }
 
