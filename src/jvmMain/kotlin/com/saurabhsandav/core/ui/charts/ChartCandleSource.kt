@@ -6,6 +6,8 @@ import com.saurabhsandav.core.ui.stockchart.CandleSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -20,6 +22,7 @@ class ChartCandleSource(
     private val downloadIntervalDays = 90.days
     private var loaded = false
     private val onLoadSignal = MutableSharedFlow<Unit>(replay = 1)
+    private val mutex = Mutex()
 
     override val hasVolume: Boolean = ticker != "NIFTY50"
 
@@ -32,7 +35,7 @@ class ChartCandleSource(
 
     override val syncKey = timeframe
 
-    override suspend fun onLoad() {
+    override suspend fun onLoad() = mutex.withLock {
 
         if (loaded) return
 
@@ -49,7 +52,7 @@ class ChartCandleSource(
         loaded = true
     }
 
-    override suspend fun onLoad(start: Instant, end: Instant?): Boolean {
+    override suspend fun onLoad(start: Instant, end: Instant?): Boolean = mutex.withLock {
 
         val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
         val isBefore = firstCandleInstant != null && start < firstCandleInstant
@@ -75,19 +78,25 @@ class ChartCandleSource(
 
     override suspend fun onLoadBefore(): Boolean {
 
-        val firstCandleInstant = mutableCandleSeries.first().openInstant
-        val range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+        // If locked, loading before may be unnecessary.
+        if (mutex.isLocked) return false
 
-        val oldCandles = getCandles(ticker, timeframe, range)
+        mutex.withLock {
 
-        val areCandlesAvailable = oldCandles.isNotEmpty()
+            val firstCandleInstant = mutableCandleSeries.first().openInstant
+            val range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
 
-        if (areCandlesAvailable) {
-            mutableCandleSeries.prependCandles(oldCandles)
-            onLoadSignal.tryEmit(Unit)
+            val oldCandles = getCandles(ticker, timeframe, range)
+
+            val areCandlesAvailable = oldCandles.isNotEmpty()
+
+            if (areCandlesAvailable) {
+                mutableCandleSeries.prependCandles(oldCandles)
+                onLoadSignal.tryEmit(Unit)
+            }
+
+            return areCandlesAvailable
         }
-
-        return areCandlesAvailable
     }
 }
 
