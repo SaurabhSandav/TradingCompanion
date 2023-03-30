@@ -90,9 +90,6 @@ internal class StockChartsState(
                     onTitleUpdate = updateTitle,
                 )
 
-                // Notify observer
-                onNewChart(stockChart, charts[prevTabId] ?: fromStockChart)
-
                 // Initial theme
                 stockChart.setDarkMode(isDark.value)
 
@@ -104,6 +101,9 @@ internal class StockChartsState(
 
                 // Set initial lastActiveChart
                 lastActiveChart.value = stockChart
+
+                // Notify observer
+                onNewChart(stockChart, charts[prevTabId] ?: fromStockChart)
 
                 // Sync visible range across charts
                 actualChart.timeScale
