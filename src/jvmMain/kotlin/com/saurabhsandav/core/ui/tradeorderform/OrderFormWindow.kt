@@ -2,38 +2,56 @@ package com.saurabhsandav.core.ui.tradeorderform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
 import com.saurabhsandav.core.ui.common.controls.ListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.NIFTY50
 
 @Composable
 internal fun OrderFormWindow(
-    state: OrderFormWindowState,
+    formType: OrderFormType,
+    onCloseRequest: () -> Unit,
 ) {
+
+    val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
+    val presenter = remember { OrderFormPresenter(scope, formType, appModule) }
+    val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(size = DpSize(300.dp, 400.dp))
 
     AppWindow(
-        onCloseRequest = state.params.onCloseRequest,
+        onCloseRequest = onCloseRequest,
         state = windowState,
-        title = state.windowTitle,
+        title = state.title,
         resizable = false,
     ) {
 
         Box(Modifier.wrapContentSize()) {
 
+            val formModel = state.formModel
+
             when {
-                state.isReady -> OrderForm(state)
+                formModel != null -> OrderForm(
+                    model = formModel,
+                    onSaveOrder = {
+                        state.onSaveOrder()
+                        onCloseRequest()
+                    }
+                )
+
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
         }
@@ -41,14 +59,15 @@ internal fun OrderFormWindow(
 }
 
 @Composable
-private fun OrderForm(state: OrderFormWindowState) {
+private fun OrderForm(
+    model: OrderFormModel,
+    onSaveOrder: () -> Unit,
+) {
 
     Column(
         modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-
-        val model = state.model
 
         ListSelectionField(
             items = NIFTY50,
@@ -103,7 +122,7 @@ private fun OrderForm(state: OrderFormWindowState) {
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = state::onSaveOrder,
+            onClick = onSaveOrder,
         ) {
 
             Text("Add")

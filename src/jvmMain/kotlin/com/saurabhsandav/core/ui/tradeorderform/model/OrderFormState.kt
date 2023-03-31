@@ -1,5 +1,6 @@
-package com.saurabhsandav.core.ui.tradeorderform
+package com.saurabhsandav.core.ui.tradeorderform.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.IsBigDecimal
@@ -13,6 +14,13 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+
+@Immutable
+internal data class OrderFormState(
+    val title: String,
+    val formModel: OrderFormModel?,
+    val onSaveOrder: () -> Unit,
+)
 
 @Stable
 internal class OrderFormModel(

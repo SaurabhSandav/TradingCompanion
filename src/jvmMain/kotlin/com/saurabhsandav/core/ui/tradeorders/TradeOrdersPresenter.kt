@@ -8,12 +8,11 @@ import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindowParams
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderEntry
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderListItem
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -36,7 +35,7 @@ internal class TradeOrdersPresenter(
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private val orderFormWindowParams = mutableStateMapOf<UUID, OrderFormWindowParams>()
+    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -45,15 +44,16 @@ internal class TradeOrdersPresenter(
             when (event) {
                 NewOrder -> onNewOrder()
                 is NewOrderFromExisting -> onNewOrderFromExisting(event.id)
-                is LockOrder -> onLockOrder(event.id)
                 is EditOrder -> onEditOrder(event.id)
+                is CloseOrderForm -> onCloseOrderForm(event.id)
+                is LockOrder -> onLockOrder(event.id)
                 is DeleteOrder -> onDeleteOrder(event.id)
             }
         }
 
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
-            orderFormWindowParams = orderFormWindowParams.values,
+            orderFormParams = orderFormParams,
         )
     }
 
@@ -96,51 +96,55 @@ internal class TradeOrdersPresenter(
 
     private fun onNewOrder() {
 
-        val key = UUID.randomUUID()
-        val params = OrderFormWindowParams(
-            operationType = OrderFormWindowParams.OperationType.New,
-            onCloseRequest = { orderFormWindowParams.remove(key) }
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.New,
         )
 
-        orderFormWindowParams[key] = params
+        orderFormParams = orderFormParams.add(params)
     }
 
     private fun onNewOrderFromExisting(id: Long) {
 
         // Don't allow opening duplicate windows
-        val isWindowAlreadyOpen = orderFormWindowParams.values.any {
-            it.operationType is OrderFormWindowParams.OperationType.NewFromExisting && it.operationType.id == id
+        val isWindowAlreadyOpen = orderFormParams.any {
+            it.formType is OrderFormType.NewFromExisting && it.formType.id == id
         }
         if (isWindowAlreadyOpen) return
 
-        val key = UUID.randomUUID()
-        val params = OrderFormWindowParams(
-            operationType = OrderFormWindowParams.OperationType.NewFromExisting(id),
-            onCloseRequest = { orderFormWindowParams.remove(key) }
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.NewFromExisting(id),
         )
 
-        orderFormWindowParams[key] = params
-    }
-
-    private fun onLockOrder(id: Long) = coroutineScope.launchUnit {
-        tradeOrdersRepo.lockOrder(id)
+        orderFormParams = orderFormParams.add(params)
     }
 
     private fun onEditOrder(id: Long) {
 
         // Don't allow opening duplicate windows
-        val isWindowAlreadyOpen = orderFormWindowParams.values.any {
-            it.operationType is OrderFormWindowParams.OperationType.EditExisting && it.operationType.id == id
+        val isWindowAlreadyOpen = orderFormParams.any {
+            it.formType is OrderFormType.Edit && it.formType.id == id
         }
         if (isWindowAlreadyOpen) return
 
-        val key = UUID.randomUUID()
-        val params = OrderFormWindowParams(
-            operationType = OrderFormWindowParams.OperationType.EditExisting(id),
-            onCloseRequest = { orderFormWindowParams.remove(key) }
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.Edit(id),
         )
 
-        orderFormWindowParams[key] = params
+        orderFormParams = orderFormParams.add(params)
+    }
+
+    private fun onCloseOrderForm(id: UUID) {
+
+        val params = orderFormParams.first { it.id == id }
+
+        orderFormParams = orderFormParams.remove(params)
+    }
+
+    private fun onLockOrder(id: Long) = coroutineScope.launchUnit {
+        tradeOrdersRepo.lockOrder(id)
     }
 
     private fun onDeleteOrder(id: Long) = coroutineScope.launchUnit {

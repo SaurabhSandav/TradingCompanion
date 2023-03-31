@@ -1,13 +1,14 @@
 package com.saurabhsandav.core.ui.tradeorders.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindowParams
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import kotlinx.collections.immutable.ImmutableList
+import java.util.*
 
 @Immutable
 internal data class TradeOrdersState(
     val tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    val orderFormWindowParams: Collection<OrderFormWindowParams>,
+    val orderFormParams: ImmutableList<OrderFormParams>,
 ) {
 
     @Immutable
@@ -31,4 +32,10 @@ internal data class TradeOrdersState(
         @Immutable
         internal data class Entries(val entries: ImmutableList<TradeOrderEntry>) : TradeOrderListItem()
     }
+
+    @Immutable
+    internal data class OrderFormParams(
+        val id: UUID,
+        val formType: OrderFormType,
+    )
 }

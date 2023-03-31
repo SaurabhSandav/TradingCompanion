@@ -5,7 +5,6 @@ import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
-import com.saurabhsandav.core.ui.tradeorderform.rememberOrderFormWindowState
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersTable
 
@@ -38,12 +37,15 @@ internal fun TradeOrdersScreen(
             onDeleteOrder = { presenter.event(DeleteOrder(it)) },
         )
 
-        // New Order windows
-        state.orderFormWindowParams.forEach { params ->
+        // Order form windows
+        state.orderFormParams.forEach { params ->
 
-            key(params) {
+            key(params.id) {
 
-                OrderFormWindow(rememberOrderFormWindowState(params))
+                OrderFormWindow(
+                    formType = params.formType,
+                    onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
+                )
             }
         }
 
