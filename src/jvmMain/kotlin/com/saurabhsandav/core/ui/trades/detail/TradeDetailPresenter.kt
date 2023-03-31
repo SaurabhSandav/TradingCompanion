@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent
@@ -29,10 +29,11 @@ import java.util.*
 
 @Stable
 internal class TradeDetailPresenter(
+    private val profileId: Long,
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private val events = MutableSharedFlow<TradeDetailEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -69,8 +70,11 @@ internal class TradeDetailPresenter(
 
     @Composable
     private fun getTradeDetail(): State<TradeDetail?> {
-        return remember {
-            tradingRecord.trades.getById(tradeId).map { trade ->
+        return produceState<TradeDetail?>(null) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades.getById(tradeId).collect { trade ->
 
                 val instrumentCapitalized = trade.instrument
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -82,7 +86,7 @@ internal class TradeDetailPresenter(
 
                 val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
 
-                TradeDetail(
+                value = TradeDetail(
                     id = trade.id,
                     broker = "${trade.broker} ($instrumentCapitalized)",
                     ticker = trade.ticker,
@@ -99,12 +103,15 @@ internal class TradeDetailPresenter(
                     fees = trade.fees.toPlainString(),
                 )
             }
-        }.collectAsState(null)
+        }
     }
 
     @Composable
     private fun getMfeAndMae(): State<MfeAndMae?> {
-        return remember {
+        return produceState<MfeAndMae?>(null) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
             tradingRecord.trades.getMfeAndMae(tradeId).map { mfeAndMae ->
 
                 mfeAndMae ?: return@map null
@@ -114,15 +121,18 @@ internal class TradeDetailPresenter(
                     maePrice = mfeAndMae.maePrice.toPlainString(),
                 )
             }
-        }.collectAsState(null)
+        }
     }
 
     @Composable
     private fun getTradeStops(): State<ImmutableList<TradeStop>> {
-        return remember {
-            tradingRecord.trades.getStopsForTrade(tradeId).map { stops ->
+        return produceState<ImmutableList<TradeStop>>(persistentListOf()) {
 
-                stops.map { stop ->
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades.getStopsForTrade(tradeId).collect { stops ->
+
+                value = stops.map { stop ->
                     TradeStop(
                         price = stop.price,
                         priceText = stop.price.toPlainString(),
@@ -130,15 +140,18 @@ internal class TradeDetailPresenter(
                     )
                 }.toImmutableList()
             }
-        }.collectAsState(persistentListOf())
+        }
     }
 
     @Composable
     private fun getTradeTargets(): State<ImmutableList<TradeTarget>> {
-        return remember {
-            tradingRecord.trades.getTargetsForTrade(tradeId).map { targets ->
+        return produceState<ImmutableList<TradeTarget>>(persistentListOf()) {
 
-                targets.map { target ->
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades.getTargetsForTrade(tradeId).collect { targets ->
+
+                value = targets.map { target ->
                     TradeTarget(
                         price = target.price,
                         priceText = target.price.toPlainString(),
@@ -146,12 +159,15 @@ internal class TradeDetailPresenter(
                     )
                 }.toImmutableList()
             }
-        }.collectAsState(persistentListOf())
+        }
     }
 
     @Composable
     private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
-        return remember {
+        return produceState<ImmutableList<TradeNote>>(persistentListOf()) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
             tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
@@ -173,35 +189,42 @@ internal class TradeDetailPresenter(
                         dateText = "Added $added (Last Edited $lastEdited)",
                     )
                 }
-                .map { it.toImmutableList() }
-        }.collectAsState(persistentListOf())
+                .collect { value = it.toImmutableList() }
+        }
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {
-        tradingRecord.trades.addStop(tradeId, price)
+
+        tradingProfiles.getRecord(profileId).trades.addStop(tradeId, price)
     }
 
     private fun onDeleteStop(price: BigDecimal) = coroutineScope.launchUnit {
-        tradingRecord.trades.deleteStop(tradeId, price)
+
+        tradingProfiles.getRecord(profileId).trades.deleteStop(tradeId, price)
     }
 
     private fun onAddTarget(price: BigDecimal) = coroutineScope.launchUnit {
-        tradingRecord.trades.addTarget(tradeId, price)
+
+        tradingProfiles.getRecord(profileId).trades.addTarget(tradeId, price)
     }
 
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
-        tradingRecord.trades.deleteTarget(tradeId, price)
+
+        tradingProfiles.getRecord(profileId).trades.deleteTarget(tradeId, price)
     }
 
     private fun onAddNote(note: String) = coroutineScope.launchUnit {
-        tradingRecord.trades.addNote(tradeId, note)
+
+        tradingProfiles.getRecord(profileId).trades.addNote(tradeId, note)
     }
 
     private fun onUpdateNote(id: Long, note: String) = coroutineScope.launchUnit {
-        tradingRecord.trades.updateNote(id, note)
+
+        tradingProfiles.getRecord(profileId).trades.updateNote(id, note)
     }
 
     private fun onDeleteNote(id: Long) = coroutineScope.launchUnit {
-        tradingRecord.trades.deleteNote(id)
+
+        tradingProfiles.getRecord(profileId).trades.deleteNote(id)
     }
 }

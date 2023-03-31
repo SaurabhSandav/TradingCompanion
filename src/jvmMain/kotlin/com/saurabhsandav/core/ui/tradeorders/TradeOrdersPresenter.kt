@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeOrder
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
@@ -19,6 +19,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
@@ -30,7 +32,7 @@ import java.util.*
 internal class TradeOrdersPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -43,11 +45,11 @@ internal class TradeOrdersPresenter(
 
             when (event) {
                 NewOrder -> onNewOrder()
-                is NewOrderFromExisting -> onNewOrderFromExisting(event.id)
-                is EditOrder -> onEditOrder(event.id)
+                is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
+                is EditOrder -> onEditOrder(event.profileOrderId)
                 is CloseOrderForm -> onCloseOrderForm(event.id)
-                is LockOrder -> onLockOrder(event.id)
-                is DeleteOrder -> onDeleteOrder(event.id)
+                is LockOrder -> onLockOrder(event.profileOrderId)
+                is DeleteOrder -> onDeleteOrder(event.profileOrderId)
             }
         }
 
@@ -66,14 +68,23 @@ internal class TradeOrdersPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeOrderListItem>> {
         return remember {
-            tradingRecord.orders.allOrders.map { orders ->
-                orders.groupBy { it.timestamp.date }
-                    .map { (date, list) ->
-                        listOf(
-                            date.toTradeOrderListDayHeader(),
-                            TradeOrderListItem.Entries(list.map { it.toTradeOrderListEntry() }.toImmutableList()),
-                        )
-                    }.flatten().toImmutableList()
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                // Close all child windows
+                orderFormParams = orderFormParams.clear()
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.orders.allOrders.map { orders ->
+                    orders.groupBy { it.timestamp.date }
+                        .map { (date, list) ->
+                            listOf(
+                                date.toTradeOrderListDayHeader(),
+                                TradeOrderListItem.Entries(list.map { it.toTradeOrderListEntry(profile.id) }
+                                    .toImmutableList()),
+                            )
+                        }.flatten().toImmutableList()
+                }
             }
         }.collectAsState(persistentListOf())
     }
@@ -83,8 +94,8 @@ internal class TradeOrdersPresenter(
         return TradeOrderListItem.DayHeader(formatted)
     }
 
-    private fun TradeOrder.toTradeOrderListEntry() = TradeOrderEntry(
-        id = id,
+    private fun TradeOrder.toTradeOrderListEntry(profileId: Long) = TradeOrderEntry(
+        profileOrderId = ProfileOrderId(profileId = profileId, orderId = id),
         broker = broker,
         ticker = ticker,
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
@@ -94,43 +105,48 @@ internal class TradeOrdersPresenter(
         locked = locked,
     )
 
-    private fun onNewOrder() {
+    private fun onNewOrder() = coroutineScope.launchUnit {
+
+        val currentProfile = tradingProfiles.currentProfile.first()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
+            profileId = currentProfile.id,
             formType = OrderFormType.New(),
         )
 
         orderFormParams = orderFormParams.add(params)
     }
 
-    private fun onNewOrderFromExisting(id: Long) {
+    private fun onNewOrderFromExisting(profileOrderId: ProfileOrderId) {
 
         // Don't allow opening duplicate windows
         val isWindowAlreadyOpen = orderFormParams.any {
-            it.formType is OrderFormType.NewFromExisting && it.formType.id == id
+            it.formType is OrderFormType.NewFromExisting && it.formType.id == profileOrderId.orderId
         }
         if (isWindowAlreadyOpen) return
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            formType = OrderFormType.NewFromExisting(id),
+            profileId = profileOrderId.profileId,
+            formType = OrderFormType.NewFromExisting(profileOrderId.orderId),
         )
 
         orderFormParams = orderFormParams.add(params)
     }
 
-    private fun onEditOrder(id: Long) {
+    private fun onEditOrder(profileOrderId: ProfileOrderId) {
 
         // Don't allow opening duplicate windows
         val isWindowAlreadyOpen = orderFormParams.any {
-            it.formType is OrderFormType.Edit && it.formType.id == id
+            it.formType is OrderFormType.Edit && it.formType.id == profileOrderId.orderId
         }
         if (isWindowAlreadyOpen) return
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            formType = OrderFormType.Edit(id),
+            profileId = profileOrderId.profileId,
+            formType = OrderFormType.Edit(profileOrderId.orderId),
         )
 
         orderFormParams = orderFormParams.add(params)
@@ -143,11 +159,17 @@ internal class TradeOrdersPresenter(
         orderFormParams = orderFormParams.remove(params)
     }
 
-    private fun onLockOrder(id: Long) = coroutineScope.launchUnit {
-        tradingRecord.orders.lockOrder(id)
+    private fun onLockOrder(profileOrderId: ProfileOrderId) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileOrderId.profileId)
+
+        tradingRecord.orders.lockOrder(profileOrderId.orderId)
     }
 
-    private fun onDeleteOrder(id: Long) = coroutineScope.launchUnit {
-        tradingRecord.orders.delete(id)
+    private fun onDeleteOrder(profileOrderId: ProfileOrderId) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileOrderId.profileId)
+
+        tradingRecord.orders.delete(profileOrderId.orderId)
     }
 }

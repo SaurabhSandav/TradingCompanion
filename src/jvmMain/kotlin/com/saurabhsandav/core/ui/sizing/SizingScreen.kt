@@ -45,6 +45,7 @@ internal fun SizingScreen(
         key(params.id) {
 
             OrderFormWindow(
+                profileId = params.profileId,
                 formType = params.formType,
                 onOrderSaved = params.onOrderSaved,
                 onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },

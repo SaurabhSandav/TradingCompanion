@@ -9,10 +9,10 @@ import kotlinx.collections.immutable.ImmutableSet
 @Immutable
 internal data class TradesState(
     val tradesItems: ImmutableList<TradeListItem>,
-    val showTradeDetailIds: ImmutableSet<Long>,
+    val showTradeDetailIds: ImmutableSet<ProfileTradeId>,
     val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
-    val bringDetailsToFrontId: Long? = null,
+    val bringDetailsToFrontId: ProfileTradeId? = null,
 ) {
 
     @Immutable
@@ -27,7 +27,7 @@ internal data class TradesState(
 
     @Immutable
     internal data class TradeEntry(
-        val id: Long,
+        val profileTradeId: ProfileTradeId,
         val broker: String,
         val ticker: String,
         val side: String,
@@ -51,4 +51,10 @@ internal data class TradesState(
         @Immutable
         internal data class Entries(val entries: ImmutableList<TradeEntry>) : TradeListItem()
     }
+
+    @Immutable
+    data class ProfileTradeId(
+        val profileId: Long,
+        val tradeId: Long,
+    )
 }

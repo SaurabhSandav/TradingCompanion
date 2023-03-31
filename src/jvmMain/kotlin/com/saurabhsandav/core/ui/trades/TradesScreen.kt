@@ -37,15 +37,15 @@ internal fun TradesScreen(
         )
 
         // Detail Windows
-        state.showTradeDetailIds.forEach { tradeId ->
+        state.showTradeDetailIds.forEach { profileTradeId ->
 
-            key(tradeId) {
+            key(profileTradeId) {
 
                 val windowOwner = remember { AppWindowOwner() }
 
                 LaunchedEffect(state.bringDetailsToFrontId) {
 
-                    if (state.bringDetailsToFrontId == tradeId) {
+                    if (state.bringDetailsToFrontId == profileTradeId) {
                         windowOwner.childrenToFront()
                         presenter.event(DetailsBroughtToFront)
                     }
@@ -54,8 +54,9 @@ internal fun TradesScreen(
                 AppWindowOwner(windowOwner) {
 
                     TradeDetailWindow(
-                        tradeId = tradeId,
-                        onCloseRequest = { presenter.event(CloseDetails(tradeId)) },
+                        profileId = profileTradeId.profileId,
+                        tradeId = profileTradeId.tradeId,
+                        onCloseRequest = { presenter.event(CloseDetails(profileTradeId)) },
                     )
                 }
             }

@@ -5,7 +5,6 @@ import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trading.data.CandleCacheDB
 import com.saurabhsandav.core.trading.data.CandleDBCollection
@@ -51,11 +50,6 @@ internal class AppModule {
         candleCache = CandleCacheDB(this),
     )
 
-    val tradingRecord = TradingRecord(
-        recordPath = AppPaths.getAppDataPath(),
-        candleRepo = candleRepo,
-    )
-
     val tradingProfiles = TradingProfiles(
         appFilesPath = AppPaths.getAppDataPath(),
         appDB = appDB,
@@ -76,7 +70,7 @@ internal class AppModule {
         val startupScope = MainScope()
 
         val startupJobs = listOf(
-            TradeManagementJob(tradingRecord),
+            TradeManagementJob(tradingProfiles),
         )
 
         startupJobs.forEach { job ->

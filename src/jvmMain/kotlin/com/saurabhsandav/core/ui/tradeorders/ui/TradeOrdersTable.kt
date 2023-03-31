@@ -18,17 +18,16 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderEntry
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderListItem
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeOrdersTable(
     tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    onNewOrder: (id: Long) -> Unit,
-    onEditOrder: (id: Long) -> Unit,
-    onLockOrder: (id: Long) -> Unit,
-    onDeleteOrder: (id: Long) -> Unit,
+    onNewOrder: (ProfileOrderId) -> Unit,
+    onEditOrder: (ProfileOrderId) -> Unit,
+    onLockOrder: (ProfileOrderId) -> Unit,
+    onDeleteOrder: (ProfileOrderId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeOrderEntry> {
@@ -84,15 +83,15 @@ private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrder
 
 private fun TableScope<TradeOrderEntry>.tradeOrderItems(
     tradeOrderListItem: TradeOrderListItem.Entries,
-    onNewOrder: (id: Long) -> Unit,
-    onEditOrder: (id: Long) -> Unit,
-    onLockOrder: (id: Long) -> Unit,
-    onDeleteOrder: (id: Long) -> Unit,
+    onNewOrder: (ProfileOrderId) -> Unit,
+    onEditOrder: (ProfileOrderId) -> Unit,
+    onLockOrder: (ProfileOrderId) -> Unit,
+    onDeleteOrder: (ProfileOrderId) -> Unit,
 ) {
 
     rows(
         items = tradeOrderListItem.entries,
-        key = { it.id },
+        key = { it.profileOrderId },
     ) { item ->
 
         var showDeleteConfirmationDialog by state { false }
@@ -101,13 +100,13 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
             items = {
 
                 buildList {
-                    add(ContextMenuItem("New") { onNewOrder(item.id) })
+                    add(ContextMenuItem("New") { onNewOrder(item.profileOrderId) })
 
                     if (!item.locked) {
                         addAll(
                             listOf(
-                                ContextMenuItem("Lock") { onLockOrder(item.id) },
-                                ContextMenuItem("Edit") { onEditOrder(item.id) },
+                                ContextMenuItem("Lock") { onLockOrder(item.profileOrderId) },
+                                ContextMenuItem("Edit") { onEditOrder(item.profileOrderId) },
                                 ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                             )
                         )
@@ -127,7 +126,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
 
                 DeleteConfirmationDialog(
                     onDismiss = { showDeleteConfirmationDialog = false },
-                    onConfirm = { onDeleteOrder(item.id) },
+                    onConfirm = { onDeleteOrder(item.profileOrderId) },
                 )
             }
         }

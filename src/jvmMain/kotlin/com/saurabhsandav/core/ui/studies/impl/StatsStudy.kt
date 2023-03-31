@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -26,8 +27,14 @@ internal class StatsStudy(
     @Composable
     override fun render() {
 
-        val generalStats = remember { appModule.tradingRecord.trades.allTrades.map(::calculateGeneralStats) }
-            .collectAsState(null).value
+        val generalStats = remember {
+            appModule.tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                val tradingRecord = appModule.tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.allTrades.map(::calculateGeneralStats)
+            }
+        }.collectAsState(null).value
 
         Box {
 

@@ -11,6 +11,7 @@ import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toJavaLocalDateTime
 import java.math.BigDecimal
@@ -20,7 +21,9 @@ import java.time.format.FormatStyle
 
 internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
 
-    private val tradesRepo = appModule.tradingRecord.trades
+    private val tradesRepo = appModule.tradingProfiles.currentProfile.map { profile ->
+        appModule.tradingProfiles.getRecord(profile.id).trades
+    }
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }
@@ -43,9 +46,9 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
         addColumnText("R") { it.rValue }
     }
 
-    override val data: Flow<List<Model>> = tradesRepo
-        .allTrades
-        .map { trades ->
+    override val data: Flow<List<Model>> = tradesRepo.flatMapLatest { tradesRepo ->
+
+        tradesRepo.allTrades.map { trades ->
 
             trades.filter { it.isClosed }.map { trade ->
 
@@ -98,6 +101,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                 )
             }
         }
+    }
 
     data class Model(
         val ticker: String,

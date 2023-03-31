@@ -10,7 +10,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -52,7 +52,7 @@ internal class ReplayChartsPresenter(
     private val initialTicker: String,
     private val appModule: AppModule,
     private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -169,11 +169,14 @@ internal class ReplayChartsPresenter(
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
+        val currentProfile = tradingProfiles.currentProfile.first()
+
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySession = replayCandleSource.replaySession.await()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
+            profileId = currentProfile.id,
             formType = OrderFormType.New { formValidator ->
                 OrderFormModel(
                     validator = formValidator,
@@ -191,11 +194,14 @@ internal class ReplayChartsPresenter(
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
+        val currentProfile = tradingProfiles.currentProfile.first()
+
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySession = replayCandleSource.replaySession.await()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
+            profileId = currentProfile.id,
             formType = OrderFormType.New { formValidator ->
                 OrderFormModel(
                     validator = formValidator,
@@ -344,61 +350,76 @@ internal class ReplayChartsPresenter(
             return candleSeries[markerCandleIndex].openInstant
         }
 
-        val orderMarkers = candleSeries.instantRange.flatMapLatest { instantRange ->
+        val orderMarkers = tradingProfiles.currentProfile.flatMapLatest { profile ->
 
-            instantRange ?: return@flatMapLatest emptyFlow()
+            val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-            val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                    instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+            candleSeries.instantRange.flatMapLatest test@{ instantRange ->
 
-            tradingRecord.orders.getOrdersByTickerInInterval(ticker, ldtRange)
-        }.mapList { order ->
+                instantRange ?: return@test emptyFlow()
 
-            val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
+                val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
+                        instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
-            TradeOrderMarker(
-                instant = orderInstant.markerTime(),
-                orderType = order.type,
-                price = order.price,
-            )
+                tradingRecord.orders.getOrdersByTickerInInterval(
+                    ticker,
+                    ldtRange,
+                )
+            }
         }
+            .mapList { order ->
 
-        val tradeMarkers = candleSeries.instantRange.flatMapLatest { instantRange ->
+                val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
 
-            instantRange ?: return@flatMapLatest emptyFlow()
+                TradeOrderMarker(
+                    instant = orderInstant.markerTime(),
+                    orderType = order.type,
+                    price = order.price,
+                )
+            }
 
-            val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                    instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+        val tradeMarkers = tradingProfiles.currentProfile.flatMapLatest { profile ->
 
-            tradingRecord.trades.getByTickerInInterval(ticker, ldtRange)
-        }.map { trades ->
-            trades.flatMap { trade ->
+            val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
+            candleSeries.instantRange.flatMapLatest test@{ instantRange ->
 
-                buildList {
+                instantRange ?: return@test emptyFlow()
 
-                    add(
-                        TradeMarker(
-                            instant = entryInstant.markerTime(),
-                            isEntry = true,
-                        )
-                    )
+                val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
+                        instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
-                    if (trade.isClosed) {
+                tradingRecord.trades.getByTickerInInterval(ticker, ldtRange)
+            }
+        }
+            .map { trades ->
+                trades.flatMap { trade ->
 
-                        val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
+                    val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
+
+                    buildList {
 
                         add(
                             TradeMarker(
-                                instant = exitInstant.markerTime(),
-                                isEntry = false,
+                                instant = entryInstant.markerTime(),
+                                isEntry = true,
                             )
                         )
+
+                        if (trade.isClosed) {
+
+                            val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
+
+                            add(
+                                TradeMarker(
+                                    instant = exitInstant.markerTime(),
+                                    isEntry = false,
+                                )
+                            )
+                        }
                     }
                 }
             }
-        }
 
         return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs -> orderMkrs + tradeMkrs }
             .flowOn(Dispatchers.IO)

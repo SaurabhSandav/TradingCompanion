@@ -15,15 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradeListItem
+import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
     tradesItems: ImmutableList<TradeListItem>,
-    onOpenDetails: (id: Long) -> Unit,
-    onOpenChart: (id: Long) -> Unit,
+    onOpenDetails: (ProfileTradeId) -> Unit,
+    onOpenChart: (ProfileTradeId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
@@ -85,20 +84,20 @@ private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader)
 
 private fun TableScope<TradeEntry>.tradeItems(
     tradeItem: TradeListItem.Entries,
-    onOpenDetails: (id: Long) -> Unit,
-    onOpenChart: (id: Long) -> Unit,
+    onOpenDetails: (ProfileTradeId) -> Unit,
+    onOpenChart: (ProfileTradeId) -> Unit,
 ) {
 
     rows(
         items = tradeItem.entries,
-        key = { it.id },
+        key = { it.profileTradeId },
     ) { item ->
 
         ContextMenuArea(
             items = {
                 listOf(
-                    ContextMenuItem("Open Details") { onOpenDetails(item.id) },
-                    ContextMenuItem("Open Chart") { onOpenChart(item.id) },
+                    ContextMenuItem("Open Details") { onOpenDetails(item.profileTradeId) },
+                    ContextMenuItem("Open Chart") { onOpenChart(item.profileTradeId) },
                 )
             },
         ) {
@@ -108,7 +107,7 @@ private fun TableScope<TradeEntry>.tradeItems(
                 DefaultTableRow(
                     item = item,
                     schema = schema,
-                    onClick = { onOpenDetails(item.id) },
+                    onClick = { onOpenDetails(item.profileTradeId) },
                 )
 
                 Divider()

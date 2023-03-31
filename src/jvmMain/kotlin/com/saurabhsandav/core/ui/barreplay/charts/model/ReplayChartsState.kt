@@ -19,6 +19,7 @@ internal data class ReplayChartsState(
     @Immutable
     internal data class OrderFormParams(
         val id: UUID,
+        val profileId: Long,
         val formType: OrderFormType,
     )
 

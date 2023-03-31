@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
@@ -25,9 +25,10 @@ import kotlin.time.Duration.Companion.nanoseconds
 @Stable
 internal class OrderFormPresenter(
     private val coroutineScope: CoroutineScope,
+    private val profileId: Long,
     private val formType: OrderFormType,
     private val appModule: AppModule,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
 ) {
 
@@ -60,6 +61,8 @@ internal class OrderFormPresenter(
         if (!formValidator.isValid()) return@launchUnit
 
         val formModel = requireNotNull(formModel)
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val orderId = when (formType) {
             is Edit -> tradingRecord.orders.edit(
@@ -107,6 +110,8 @@ internal class OrderFormPresenter(
 
     private fun newFromExisting(id: Long) = coroutineScope.launchUnit {
 
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
         val order = tradingRecord.orders.getById(id).first()
 
         formModel = OrderFormModel(
@@ -124,6 +129,8 @@ internal class OrderFormPresenter(
     }
 
     private fun editOrder(id: Long) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val order = tradingRecord.orders.getById(id).first()
 

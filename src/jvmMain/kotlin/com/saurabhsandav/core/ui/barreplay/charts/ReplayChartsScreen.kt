@@ -52,6 +52,7 @@ internal fun ReplayChartsScreen(
         key(params.id) {
 
             OrderFormWindow(
+                profileId = params.profileId,
                 formType = params.formType,
                 onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
             )

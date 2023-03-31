@@ -11,6 +11,7 @@ import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toJavaLocalDate
 import java.math.BigDecimal
@@ -20,7 +21,9 @@ import java.time.format.FormatStyle
 
 internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
 
-    private val tradesRepo = appModule.tradingRecord.trades
+    private val tradesRepo = appModule.tradingProfiles.currentProfile.map { profile ->
+        appModule.tradingProfiles.getRecord(profile.id).trades
+    }
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Day") { it.day }
@@ -37,9 +40,9 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
         }
     }
 
-    override val data: Flow<List<Model>> = tradesRepo
-        .allTrades
-        .map { trades ->
+    override val data: Flow<List<Model>> = tradesRepo.flatMapLatest { tradesRepo ->
+
+        tradesRepo.allTrades.map { trades ->
 
             trades
                 .groupBy { it.entryTimestamp.date }
@@ -94,6 +97,7 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
                     )
                 }
         }
+    }
 
     data class Model(
         val day: String,
@@ -106,7 +110,7 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule): Study.Factory<PNLByDayStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<PNLByDayStudy> {
 
         override val name: String = "PNL By Day"
 

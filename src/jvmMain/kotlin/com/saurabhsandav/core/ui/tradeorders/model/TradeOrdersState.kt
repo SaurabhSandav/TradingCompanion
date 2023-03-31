@@ -13,7 +13,7 @@ internal data class TradeOrdersState(
 
     @Immutable
     internal data class TradeOrderEntry(
-        val id: Long,
+        val profileOrderId: ProfileOrderId,
         val broker: String,
         val ticker: String,
         val quantity: String,
@@ -36,6 +36,13 @@ internal data class TradeOrdersState(
     @Immutable
     internal data class OrderFormParams(
         val id: UUID,
+        val profileId: Long,
         val formType: OrderFormType,
+    )
+
+    @Immutable
+    data class ProfileOrderId(
+        val profileId: Long,
+        val orderId: Long,
     )
 }

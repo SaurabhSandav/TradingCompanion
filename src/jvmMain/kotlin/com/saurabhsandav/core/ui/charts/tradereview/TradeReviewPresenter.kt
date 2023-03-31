@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
@@ -41,7 +41,7 @@ internal class TradeReviewPresenter(
         end: Instant?,
     ) -> Unit,
     setMarkersProvider: (ChartMarkersProvider) -> Unit,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private val events = MutableSharedFlow<TradeReviewEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -74,18 +74,23 @@ internal class TradeReviewPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
-            tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
-                trades
-                    .groupBy { it.entryTimestamp.date }
-                    .map { (date, list) ->
-                        listOf(
-                            date.toTradeListDayHeader(),
-                            TradeListItem.Entries(
-                                list.map { it.toTradeListEntry(it.id in markedTradeIds) }
-                                    .toImmutableList()
-                            ),
-                        )
-                    }.flatten().toImmutableList()
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
+                    trades
+                        .groupBy { it.entryTimestamp.date }
+                        .map { (date, list) ->
+                            listOf(
+                                date.toTradeListDayHeader(),
+                                TradeListItem.Entries(
+                                    list.map { it.toTradeListEntry(it.id in markedTradeIds) }
+                                        .toImmutableList()
+                                ),
+                            )
+                        }.flatten().toImmutableList()
+                }
             }
         }.collectAsState(persistentListOf())
     }
@@ -134,6 +139,8 @@ internal class TradeReviewPresenter(
         // Mark selected trade
         markedTradeIds.value = markedTradeIds.value.add(id)
 
+        val tradingRecord = tradingProfiles.currentRecord.first()
+
         val trade = tradingRecord.trades.getById(id).first()
         val start = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
         val end = trade.exitTimestamp?.toInstant(TimeZone.currentSystemDefault())
@@ -155,6 +162,9 @@ internal class TradeReviewPresenter(
 
         val orderMarkers = markedTradeIds
             .flatMapLatest {
+
+                val tradingRecord = tradingProfiles.currentRecord.first()
+
                 tradingRecord.orders.getOrdersByTickerAndTradeIdsInInterval(ticker, it.toList(), ldtRange)
             }
             .mapList { order ->
@@ -169,7 +179,12 @@ internal class TradeReviewPresenter(
             }
 
         val tradeMarkers = markedTradeIds
-            .flatMapLatest { tradingRecord.trades.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange) }
+            .flatMapLatest {
+
+                val tradingRecord = tradingProfiles.currentRecord.first()
+
+                tradingRecord.trades.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange)
+            }
             .map { trades ->
                 trades.flatMap { trade ->
 

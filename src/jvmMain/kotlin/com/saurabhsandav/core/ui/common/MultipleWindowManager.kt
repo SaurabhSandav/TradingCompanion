@@ -16,6 +16,10 @@ internal class MultipleWindowManager<T> {
         )
     }
 
+    fun closeAll() {
+        _windows.clear()
+    }
+
     class WindowEntry<T>(
         val onCloseRequest: (WindowEntry<T>) -> Unit,
         val params: T,

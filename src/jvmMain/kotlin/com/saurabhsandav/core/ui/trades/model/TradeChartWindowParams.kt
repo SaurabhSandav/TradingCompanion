@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal class TradeChartWindowParams(
-    val tradeId: Long,
+    val profileTradeId: TradesState.ProfileTradeId,
     val chartData: TradeChartData,
 )
 

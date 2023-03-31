@@ -22,13 +22,14 @@ import com.saurabhsandav.core.ui.trades.detail.ui.TradeDetailItem
 
 @Composable
 internal fun TradeDetailWindow(
+    profileId: Long,
     tradeId: Long,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradeDetailPresenter(tradeId, scope, appModule) }
+    val presenter = remember { TradeDetailPresenter(profileId, tradeId, scope, appModule) }
 
     val windowState = rememberWindowState(
         placement = WindowPlacement.Maximized,

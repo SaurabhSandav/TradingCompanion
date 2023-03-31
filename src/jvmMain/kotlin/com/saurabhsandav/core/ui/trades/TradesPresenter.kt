@@ -11,7 +11,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -33,10 +33,14 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
@@ -51,14 +55,14 @@ internal class TradesPresenter(
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradingRecord: TradingRecord = appModule.tradingRecord,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
     private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private var showTradeDetailIds by mutableStateOf<PersistentSet<Long>>(persistentSetOf())
-    private var bringDetailsToFrontId by mutableStateOf<Long?>(null)
+    private var showTradeDetailIds by mutableStateOf(persistentSetOf<ProfileTradeId>())
+    private var bringDetailsToFrontId by mutableStateOf<ProfileTradeId?>(null)
     private val chartWindowsManager = MultipleWindowManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
@@ -67,10 +71,10 @@ internal class TradesPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                is OpenDetails -> onOpenDetails(event.id)
-                is CloseDetails -> onCloseDetails(event.id)
+                is OpenDetails -> onOpenDetails(event.profileTradeId)
+                is CloseDetails -> onCloseDetails(event.profileTradeId)
                 DetailsBroughtToFront -> onDetailsBroughtToFront()
-                is OpenChart -> onOpenChart(event.id)
+                is OpenChart -> onOpenChart(event.profileTradeId)
             }
         }
 
@@ -92,15 +96,24 @@ internal class TradesPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
-            tradingRecord.trades.allTrades.map { trades ->
-                trades
-                    .groupBy { it.entryTimestamp.date }
-                    .map { (date, list) ->
-                        listOf(
-                            date.toTradeListDayHeader(),
-                            TradeListItem.Entries(list.map { it.toTradeListEntry() }.toImmutableList()),
-                        )
-                    }.flatten().toImmutableList()
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                // Close all child windows
+                showTradeDetailIds = showTradeDetailIds.clear()
+                chartWindowsManager.closeAll()
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.allTrades.map { trades ->
+                    trades
+                        .groupBy { it.entryTimestamp.date }
+                        .map { (date, list) ->
+                            listOf(
+                                date.toTradeListDayHeader(),
+                                TradeListItem.Entries(list.map { it.toTradeListEntry(profile.id) }.toImmutableList()),
+                            )
+                        }.flatten().toImmutableList()
+                }
             }
         }.collectAsState(persistentListOf())
     }
@@ -110,7 +123,7 @@ internal class TradesPresenter(
         return TradeListItem.DayHeader(formatted)
     }
 
-    private fun Trade.toTradeListEntry(): TradeEntry {
+    private fun Trade.toTradeListEntry(profileId: Long): TradeEntry {
 
         val instrumentCapitalized = instrument
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -123,7 +136,7 @@ internal class TradesPresenter(
         val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
 
         return TradeEntry(
-            id = id,
+            profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
@@ -140,26 +153,27 @@ internal class TradesPresenter(
         )
     }
 
-    private fun onOpenDetails(id: Long) {
-        showTradeDetailIds = showTradeDetailIds.add(id)
-        bringDetailsToFrontId = id
+    private fun onOpenDetails(profileTradeId: ProfileTradeId) {
+        showTradeDetailIds = showTradeDetailIds.add(profileTradeId)
+        bringDetailsToFrontId = profileTradeId
     }
 
-    private fun onCloseDetails(id: Long) {
-        showTradeDetailIds = showTradeDetailIds.remove(id)
+    private fun onCloseDetails(profileTradeId: ProfileTradeId) {
+        showTradeDetailIds = showTradeDetailIds.remove(profileTradeId)
     }
 
     private fun onDetailsBroughtToFront() {
         bringDetailsToFrontId = null
     }
 
-    private fun onOpenChart(id: Long): Unit = coroutineScope.launchUnit {
+    private fun onOpenChart(profileTradeId: ProfileTradeId): Unit = coroutineScope.launchUnit {
 
         // Chart window already open
-        if (chartWindowsManager.windows.any { it.params.tradeId == id }) return@launchUnit
+        if (chartWindowsManager.windows.any { it.params.profileTradeId == profileTradeId }) return@launchUnit
 
-        val trade = tradingRecord.trades.getById(id).first()
-        val tradeOrders = tradingRecord.trades.getOrdersForTrade(id).first()
+        val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
+        val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
+        val tradeOrders = tradingRecord.trades.getOrdersForTrade(profileTradeId.tradeId).first()
 
         val exitDateTime = trade.exitTimestamp ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -194,7 +208,7 @@ internal class TradesPresenter(
                                     fyersApi = fyersApi,
                                     appPrefs = appPrefs,
                                     onCloseRequest = { fyersLoginWindowState = FyersLoginWindow.Closed },
-                                    onLoginSuccess = { onOpenChart(id) },
+                                    onLoginSuccess = { onOpenChart(profileTradeId) },
                                     onLoginFailure = { message ->
                                         errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
                                     },
@@ -289,7 +303,7 @@ internal class TradesPresenter(
         }
 
         val params = TradeChartWindowParams(
-            tradeId = trade.id,
+            profileTradeId = profileTradeId,
             chartData = TradeChartData(
                 candleData = candleData.toImmutableList(),
                 volumeData = volumeData.toImmutableList(),
