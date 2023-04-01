@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartInfo
+import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockCharts

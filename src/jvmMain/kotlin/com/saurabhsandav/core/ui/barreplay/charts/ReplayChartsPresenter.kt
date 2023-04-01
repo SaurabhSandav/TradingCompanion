@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.barreplay.charts
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
@@ -13,14 +16,18 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.barreplay.*
 import com.saurabhsandav.core.trading.dailySessionStart
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartInfo
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState
+import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.OrderFormParams
+import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
@@ -31,6 +38,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 @Stable
@@ -62,6 +70,7 @@ internal class ReplayChartsPresenter(
         onChangeTimeframe = ::onChangeTimeframe,
         appModule = appModule,
     )
+    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -73,11 +82,13 @@ internal class ReplayChartsPresenter(
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
                 is Buy -> onBuy(event.stockChart)
                 is Sell -> onSell(event.stockChart)
+                is CloseOrderForm -> onCloseOrderForm(event.id)
             }
         }
 
         return@launchMolecule ReplayChartsState(
             chartsState = chartsState,
+            orderFormParams = orderFormParams,
             chartInfo = ::getChartInfo,
         )
     }
@@ -155,14 +166,55 @@ internal class ReplayChartsPresenter(
         stockChart.newParams(timeframe = timeframe)
     }
 
-    private fun onBuy(stockChart: StockChart) {
+    private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
+        val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
+        val replaySession = replayCandleSource.replaySession.await()
+
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.New { formValidator ->
+                OrderFormModel(
+                    validator = formValidator,
+                    ticker = replayCandleSource.ticker,
+                    quantity = "",
+                    isBuy = true,
+                    price = replaySession.replaySeries.last().close.toPlainString(),
+                    timestamp = replaySession.replayTime.value.toLocalDateTime(TimeZone.currentSystemDefault()),
+                )
+            },
+        )
+
+        orderFormParams = orderFormParams.add(params)
     }
 
-    private fun onSell(stockChart: StockChart) {
+    private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
+        val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
+        val replaySession = replayCandleSource.replaySession.await()
+
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.New { formValidator ->
+                OrderFormModel(
+                    validator = formValidator,
+                    ticker = replayCandleSource.ticker,
+                    quantity = "",
+                    isBuy = false,
+                    price = replaySession.replaySeries.last().close.toPlainString(),
+                    timestamp = replaySession.replayTime.value.toLocalDateTime(TimeZone.currentSystemDefault()),
+                )
+            },
+        )
+
+        orderFormParams = orderFormParams.add(params)
+    }
+
+    private fun onCloseOrderForm(id: UUID) {
+
+        val params = orderFormParams.first { it.id == id }
+
+        orderFormParams = orderFormParams.remove(params)
     }
 
     private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {

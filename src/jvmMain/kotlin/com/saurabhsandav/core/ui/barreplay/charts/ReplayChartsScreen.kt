@@ -5,6 +5,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
 import com.saurabhsandav.core.ui.barreplay.charts.ui.ReplayCharts
+import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import kotlinx.datetime.Instant
 
 @Composable
@@ -44,4 +45,16 @@ internal fun ReplayChartsScreen(
         onBuy = { stockChart -> presenter.event(Buy(stockChart)) },
         onSell = { stockChart -> presenter.event(Sell(stockChart)) },
     )
+
+    // Order form windows
+    state.orderFormParams.forEach { params ->
+
+        key(params.id) {
+
+            OrderFormWindow(
+                formType = params.formType,
+                onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
+            )
+        }
+    }
 }
