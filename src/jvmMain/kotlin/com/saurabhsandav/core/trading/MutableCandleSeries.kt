@@ -1,17 +1,19 @@
 package com.saurabhsandav.core.trading
 
 import com.saurabhsandav.core.trading.indicator.base.IndicatorCache
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import java.math.MathContext
 import java.math.RoundingMode
 
 interface MutableCandleSeries : CandleSeries {
 
-    fun addCandle(candle: Candle)
+    fun addLiveCandle(candle: Candle)
+
+    fun appendCandles(candles: List<Candle>)
 
     fun prependCandles(candles: List<Candle>)
+
+    fun removeFirst(n: Int = 1)
 
     fun removeLast(n: Int = 1)
 
@@ -48,46 +50,61 @@ private class MutableCandleSeriesImpl(
     override val live: Flow<Candle> = _live.asSharedFlow()
 
     init {
-        initial.forEach(::addCandle)
+        appendCandles(initial)
     }
 
-    override fun addCandle(candle: Candle) {
+    override fun addLiveCandle(candle: Candle) {
+
+        appendCandle(candle)
+
+        // Update live flow
+        _live.tryEmit(candle)
+    }
+
+    override fun appendCandles(candles: List<Candle>) {
+
+        candles.forEach(::appendCandle)
+    }
+
+    private fun appendCandle(candle: Candle) {
 
         val lastCandle = list.lastOrNull()
 
-        if (lastCandle != null && lastCandle.openInstant > candle.openInstant)
+        if (lastCandle != null && lastCandle.openInstant > candle.openInstant) {
             error(
                 """
-                    |Candle cannot be older than the last candle in the series: 
-                    |New Candle: $candle
-                    |Last Candle: $lastCandle
-                """.trimMargin()
+                |Candle cannot be older than the last candle in the series: 
+                |New Candle: $candle
+                |Last Candle: $lastCandle
+                |""".trimMargin()
             )
+        }
 
         val isCandleUpdate = lastCandle?.openInstant == candle.openInstant
 
-        if (isCandleUpdate) {
+        when {
+            isCandleUpdate -> {
 
-            val updateIndex = list.lastIndex
+                // Replace candle
+                list[list.lastIndex] = candle
 
-            list.removeLast()
-            list.add(candle)
+                // Reset indicator value
+                indicatorCaches.forEach { it[list.lastIndex] = null }
+            }
 
-            // Drop cached indicators values at index
-            indicatorCaches.forEach { it[updateIndex] = null }
-        } else {
+            else -> {
 
-            list.add(candle)
+                // Append candle
+                list.add(candle)
 
-            // If series size is greater than max candle count,
-            // drop first candle and first indicator cache values
-            if (list.size > maxCandleCount) {
-                list.removeFirst()
-                indicatorCaches.forEach(IndicatorCache<*>::shrink)
+                // If series size is greater than max candle count,
+                // drop first candle and first indicator cache values
+                if (list.size > maxCandleCount) {
+                    list.removeFirst()
+                    indicatorCaches.forEach { it.removeAt(0) }
+                }
             }
         }
-
-        _live.tryEmit(candle)
     }
 
     override fun prependCandles(candles: List<Candle>) {
@@ -95,7 +112,7 @@ private class MutableCandleSeriesImpl(
         candles.asReversed().forEach(::prependCandle)
 
         // Recalculate all indicator values
-        indicatorCaches.forEach { it.clear() }
+        indicatorCaches.forEach(IndicatorCache<*>::clear)
     }
 
     private fun prependCandle(candle: Candle) {
@@ -107,36 +124,48 @@ private class MutableCandleSeriesImpl(
                 """
                 |Candle cannot be newer than the oldest candle in the series: 
                 |New Candle: $candle
-                |Current oldest Candle: $firstCandle
-                """.trimMargin()
+                |Oldest Candle: $firstCandle
+                |""".trimMargin()
             )
-        }
-
-        // If series size is greater than max candle count,
-        // drop first candle and first indicator cache values
-        if (list.size > maxCandleCount) {
-            error("maxCandleCount exceeded, cannot add candle.")
         }
 
         val isCandleUpdate = firstCandle?.openInstant == candle.openInstant
 
-        if (isCandleUpdate) {
-            list.removeAt(0)
-        }
+        when {
+            // Replace Candle
+            isCandleUpdate -> list[0] = candle
+            else -> {
 
-        list.add(0, candle)
+                // Prepend candle
+                list.add(0, candle)
+
+                // If series size is greater than max candle count, drop last candle
+                if (list.size > maxCandleCount) list.removeLast()
+            }
+        }
+    }
+
+    override fun removeFirst(n: Int) {
+
+        repeat(n) {
+
+            // Drop cached indicators values
+            indicatorCaches.forEach { it.removeAt(0) }
+
+            // Remove first candle
+            list.removeFirst()
+        }
     }
 
     override fun removeLast(n: Int) {
 
         repeat(n) {
 
-            val removeIndex = list.lastIndex
-
-            list.removeLast()
-
             // Drop cached indicators values at index
-            indicatorCaches.forEach { it[removeIndex] = null }
+            indicatorCaches.forEach { it.removeAt(list.lastIndex) }
+
+            // Remove last candle
+            list.removeLast()
         }
     }
 

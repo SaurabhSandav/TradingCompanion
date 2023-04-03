@@ -59,7 +59,7 @@ class ResampledBarReplaySession(
 
                 // Replace previous finished candle with timeframe candle
                 _replaySeries.removeLast()
-                _replaySeries.addCandle(timeframeSeries[currentTimeframeCandleIndex])
+                _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
 
                 // Increment current timeframe candle
                 currentTimeframeCandleIndex++
@@ -73,7 +73,7 @@ class ResampledBarReplaySession(
         }
 
         // Add to replay series
-        _replaySeries.addCandle(candle)
+        _replaySeries.addLiveCandle(candle)
 
         // Update time
         _replayTime.update { inputSeries[currentIndex].openInstant }
@@ -89,7 +89,7 @@ class ResampledBarReplaySession(
 
                 // Replace previous finished candle with timeframe candle
                 _replaySeries.removeLast()
-                _replaySeries.addCandle(timeframeSeries[currentTimeframeCandleIndex])
+                _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
 
                 // Increment current timeframe candle
                 currentTimeframeCandleIndex++
@@ -104,7 +104,7 @@ class ResampledBarReplaySession(
         }
 
         // Add to replay series
-        _replaySeries.addCandle(candle)
+        _replaySeries.addLiveCandle(candle)
 
         // Update time
         _replayTime.update { inputSeries[currentIndex].openInstant }
@@ -126,7 +126,7 @@ class ResampledBarReplaySession(
         val resampledCandle = resampleCandleAt(offset = 0)
 
         // Add resampled candle
-        _replaySeries.addCandle(resampledCandle)
+        _replaySeries.addLiveCandle(resampledCandle)
 
         // Update time
         _replayTime.update { resampledCandle.openInstant }

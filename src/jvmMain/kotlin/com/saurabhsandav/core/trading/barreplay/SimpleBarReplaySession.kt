@@ -40,7 +40,7 @@ class SimpleBarReplaySession(
         val inputCandle = inputSeries[initialIndex + offset]
 
         // Add candle to replay series
-        _replaySeries.addCandle(inputCandle)
+        _replaySeries.addLiveCandle(inputCandle)
 
         // Update time
         _replayTime.update { inputCandle.openInstant }
@@ -55,7 +55,7 @@ class SimpleBarReplaySession(
         val candle = fullCandle.atState(candleState)
 
         // Add candle to replay series
-        _replaySeries.addCandle(candle)
+        _replaySeries.addLiveCandle(candle)
 
         // Update time
         _replayTime.update { candle.openInstant }

@@ -10,7 +10,7 @@ class IndicatorCache<T> internal constructor(val key: String?) {
 
     internal operator fun set(index: Int, value: T?) {
 
-        if (cache.lastIndex < index) {
+        if (index !in cache.indices) {
             val incrementSize = index - cache.lastIndex
             repeat(incrementSize) { cache.add(null) }
         }
@@ -18,8 +18,8 @@ class IndicatorCache<T> internal constructor(val key: String?) {
         cache[index] = value
     }
 
-    internal fun shrink() {
-        cache.removeFirst()
+    internal fun removeAt(index: Int) {
+        if (index in cache.indices) cache.removeAt(index)
     }
 
     internal fun clear() {

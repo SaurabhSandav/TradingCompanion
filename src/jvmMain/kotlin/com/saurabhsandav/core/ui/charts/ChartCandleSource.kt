@@ -45,7 +45,8 @@ class ChartCandleSource(
         // Range of 3 months before current time to current time
         val candles = getCandles(ticker, timeframe, range)
 
-        candles.forEach(mutableCandleSeries::addCandle)
+        // Append candles
+        mutableCandleSeries.appendCandles(candles)
 
         onLoadSignal.tryEmit(Unit)
 
