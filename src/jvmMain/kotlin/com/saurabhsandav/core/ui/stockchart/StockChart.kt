@@ -22,10 +22,7 @@ import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.toLabel
-import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
-import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
-import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
+import com.saurabhsandav.core.ui.stockchart.plotter.*
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CompletableDeferred
@@ -173,7 +170,7 @@ internal class StockChart(
                     markersAreEnabled -> source.candleMarkers
                     else -> flowOf(emptyList())
                 }
-            }
+            }.map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
                 .onEach(candlestickPlotter::setMarkers)
                 .launchIn(sourceCoroutineScope)
         }

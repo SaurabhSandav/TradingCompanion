@@ -1,18 +1,12 @@
 package com.saurabhsandav.core.ui.charts.tradereview
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.Trade
-import com.saurabhsandav.core.chart.data.SeriesMarker
-import com.saurabhsandav.core.chart.data.SeriesMarkerPosition
-import com.saurabhsandav.core.chart.data.SeriesMarkerShape
-import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.TradesRepo
-import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.instantRange
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
@@ -23,7 +17,9 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
+import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.*
@@ -151,13 +147,9 @@ internal class TradeReviewPresenter(
 
     private fun getMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
 
-        fun Instant.markerTime(): Time {
-
+        fun Instant.markerTime(): Instant {
             val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
-            val candleOpenInstant = candleSeries[markerCandleIndex].openInstant
-            val offsetTime = candleOpenInstant.offsetTimeForChart()
-
-            return Time.UTCTimestamp(offsetTime)
+            return candleSeries[markerCandleIndex].openInstant
         }
 
         val candlesInstantRange = candleSeries.instantRange ?: return emptyFlow()
@@ -170,26 +162,12 @@ internal class TradeReviewPresenter(
 
                 val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
 
-                SeriesMarker(
-                    time = orderInstant.markerTime(),
-                    position = when (order.type) {
-                        OrderType.Buy -> SeriesMarkerPosition.BelowBar
-                        OrderType.Sell -> SeriesMarkerPosition.AboveBar
-                    },
-                    shape = when (order.type) {
-                        OrderType.Buy -> SeriesMarkerShape.ArrowUp
-                        OrderType.Sell -> SeriesMarkerShape.ArrowDown
-                    },
-                    color = when (order.type) {
-                        OrderType.Buy -> Color.Green
-                        OrderType.Sell -> Color.Red
-                    },
-                    text = when (order.type) {
-                        OrderType.Buy -> order.price.toPlainString()
-                        OrderType.Sell -> order.price.toPlainString()
-                    },
+                TradeOrderMarker(
+                    instant = orderInstant.markerTime(),
+                    orderType = order.type,
+                    price = order.price,
                 )
-            }.flowOn(Dispatchers.IO)
+            }
 
         val tradeMarkers = markedTradeIds
             .flatMapLatest { tradesRepo.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange) }
@@ -201,11 +179,9 @@ internal class TradeReviewPresenter(
                     buildList {
 
                         add(
-                            SeriesMarker(
-                                time = entryInstant.markerTime(),
-                                position = SeriesMarkerPosition.AboveBar,
-                                shape = SeriesMarkerShape.Circle,
-                                color = Color.Green,
+                            TradeMarker(
+                                instant = entryInstant.markerTime(),
+                                isEntry = true,
                             )
                         )
 
@@ -214,18 +190,17 @@ internal class TradeReviewPresenter(
                             val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
 
                             add(
-                                SeriesMarker(
-                                    time = exitInstant.markerTime(),
-                                    position = SeriesMarkerPosition.AboveBar,
-                                    shape = SeriesMarkerShape.Circle,
-                                    color = Color.Red,
+                                TradeMarker(
+                                    instant = exitInstant.markerTime(),
+                                    isEntry = false,
                                 )
                             )
                         }
                     }
                 }
-            }.flowOn(Dispatchers.IO)
+            }
 
         return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs -> orderMkrs + tradeMkrs }
+            .flowOn(Dispatchers.IO)
     }
 }

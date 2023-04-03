@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.ui.stockchart.CandleSource
+import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
