@@ -164,13 +164,20 @@ internal class StockChart(
                 to = source.candleSeries.size.toFloat() + 10,
             )
 
+            // Send an initial value through candleMarkers to start collecting the session markers flow
+            val candleMarkers = source.candleMarkers.onStart { emit(emptyList()) }
+
             // Set markers
             markersAreEnabled.flatMapLatest { markersAreEnabled ->
                 when {
-                    markersAreEnabled -> source.candleMarkers
+                    markersAreEnabled -> generateSessionMarkers(source.candleSeries)
                     else -> flowOf(emptyList())
                 }
-            }.map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
+            }
+                .combine(candleMarkers) { sessionMarkers, sourceMarkers ->
+                    sessionMarkers + sourceMarkers
+                }
+                .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
                 .onEach(candlestickPlotter::setMarkers)
                 .launchIn(sourceCoroutineScope)
         }
@@ -382,6 +389,17 @@ internal class StockChart(
             from = candleRange.first - offset,
             to = candleRange.last + offset,
         )
+    }
+
+    private fun generateSessionMarkers(candleSeries: CandleSeries): Flow<List<TradingSessionMarker>> {
+        return candleSeries.instantRange.map {
+            candleSeries.mapIndexedNotNull { index, candle ->
+                when {
+                    !dailySessionStart(candleSeries, index) -> null
+                    else -> TradingSessionMarker(candle.openInstant)
+                }
+            }
+        }
     }
 
     data class Params(

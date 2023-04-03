@@ -17,6 +17,18 @@ interface SeriesMarker {
     fun toActualMarker(): ActualSeriesMarker
 }
 
+class TradingSessionMarker(
+    override val instant: Instant,
+) : SeriesMarker {
+
+    override fun toActualMarker() = ActualSeriesMarker(
+        time = Time.UTCTimestamp(instant.offsetTimeForChart()),
+        position = SeriesMarkerPosition.AboveBar,
+        shape = SeriesMarkerShape.Square,
+        color = Color(0x6C00FF),
+    )
+}
+
 class TradeOrderMarker(
     override val instant: Instant,
     private val orderType: OrderType,
