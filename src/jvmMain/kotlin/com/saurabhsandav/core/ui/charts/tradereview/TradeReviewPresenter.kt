@@ -8,7 +8,6 @@ import com.saurabhsandav.core.Trade
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.instantRange
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.MarkTrade
@@ -152,7 +151,7 @@ internal class TradeReviewPresenter(
             return candleSeries[markerCandleIndex].openInstant
         }
 
-        val candlesInstantRange = candleSeries.instantRange ?: return emptyFlow()
+        val candlesInstantRange = candleSeries.instantRange.value ?: return emptyFlow()
         val ldtRange = candlesInstantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
                 candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 

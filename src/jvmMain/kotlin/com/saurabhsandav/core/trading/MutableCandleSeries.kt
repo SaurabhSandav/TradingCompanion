@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading
 
 import com.saurabhsandav.core.trading.indicator.base.IndicatorCache
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.Instant
 import java.math.MathContext
 import java.math.RoundingMode
 
@@ -49,6 +50,9 @@ private class MutableCandleSeriesImpl(
     private val _live = MutableSharedFlow<Candle>(extraBufferCapacity = Int.MAX_VALUE)
     override val live: Flow<Candle> = _live.asSharedFlow()
 
+    private val _instantRange = MutableStateFlow<ClosedRange<Instant>?>(null)
+    override val instantRange: StateFlow<ClosedRange<Instant>?> = _instantRange.asStateFlow()
+
     init {
         appendCandles(initial)
     }
@@ -59,11 +63,23 @@ private class MutableCandleSeriesImpl(
 
         // Update live flow
         _live.tryEmit(candle)
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
+        }
     }
 
     override fun appendCandles(candles: List<Candle>) {
 
         candles.forEach(::appendCandle)
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
+        }
     }
 
     private fun appendCandle(candle: Candle) {
@@ -113,6 +129,12 @@ private class MutableCandleSeriesImpl(
 
         // Recalculate all indicator values
         indicatorCaches.forEach(IndicatorCache<*>::clear)
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
+        }
     }
 
     private fun prependCandle(candle: Candle) {
