@@ -283,8 +283,8 @@ internal class StockChart(
                     time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
                     value = candle.volume,
                     color = when {
-                        candle.isLong -> Color(255, 82, 82)
-                        else -> Color(0, 150, 136)
+                        candle.isLong -> Color(0, 150, 136)
+                        else -> Color(255, 82, 82)
                     },
                 )
             }
