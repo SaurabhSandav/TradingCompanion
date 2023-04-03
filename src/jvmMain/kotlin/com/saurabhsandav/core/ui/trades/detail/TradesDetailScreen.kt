@@ -35,7 +35,7 @@ internal fun TradeDetailWindow(
 
     AppWindow(
         state = windowState,
-        title = "Trade ($tradeId)",
+        title = "Trade Detail ($tradeId)",
         onCloseRequest = onCloseRequest,
     ) {
 
