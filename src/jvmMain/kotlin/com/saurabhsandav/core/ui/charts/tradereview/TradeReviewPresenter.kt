@@ -153,7 +153,7 @@ internal class TradeReviewPresenter(
 
         fun Instant.markerTime(): Time {
 
-            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant < this }
+            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
             val candleOpenInstant = candleSeries[markerCandleIndex].openInstant
             val offsetTime = candleOpenInstant.offsetTimeForChart()
 
