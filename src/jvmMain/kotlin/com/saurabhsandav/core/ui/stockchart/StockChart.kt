@@ -250,6 +250,10 @@ internal class StockChart(
         val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
         val vwapIndicator = VWAPIndicator(candleSeries, ::dailySessionStart)
 
+        // Don't show time in daily chart
+        val timeScaleOptions = TimeScaleOptions(timeVisible = candleSeries.timeframe != Timeframe.D1)
+        actualChart.timeScale.applyOptions(timeScaleOptions)
+
         candlestickPlotter.setDataSource { index ->
 
             val candle = candleSeries[index]
