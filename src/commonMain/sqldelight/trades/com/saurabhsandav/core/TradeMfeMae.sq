@@ -17,6 +17,9 @@ SELECT *
 FROM TradeMfeMae
 WHERE tradeId = ?;
 
-delete:
-DELETE FROM TradeMfeMae
-WHERE tradeId = ?;
+getIfMfeAndMaeNotGenerated:
+SELECT Trade.*
+FROM Trade
+LEFT JOIN TradeMfeMae
+ON Trade.id = TradeMfeMae.tradeId
+WHERE TradeMfeMae.tradeId IS NULL;

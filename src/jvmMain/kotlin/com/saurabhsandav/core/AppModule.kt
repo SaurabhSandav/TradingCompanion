@@ -3,6 +3,7 @@ package com.saurabhsandav.core
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.Account
@@ -17,8 +18,10 @@ import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.prefs.Preferences
 
@@ -103,10 +106,26 @@ internal class AppModule {
 
     val tradeOrdersRepo by lazy { TradeOrdersRepo(tradesDB) }
 
-    val tradesRepo by lazy { TradesRepo(tradesDB, tradeOrdersRepo) }
+    val tradesRepo by lazy { TradesRepo(tradesDB, tradeOrdersRepo, candleRepo) }
 
     init {
+
+        runStartupJobs()
+
 //        TradeImporter(appDB).importTrades()
 //        TradeMigrator(tradesRepo, tradeOrdersRepo, appDB, tradesDB).migrateTrades()
+    }
+
+    private fun runStartupJobs() {
+
+        val startupScope = MainScope()
+
+        val startupJobs = listOf(
+            TradeManagementJob(tradesRepo),
+        )
+
+        startupJobs.forEach { job ->
+            startupScope.launch { job.run() }
+        }
     }
 }
