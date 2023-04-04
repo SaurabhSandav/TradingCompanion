@@ -18,7 +18,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -105,7 +104,17 @@ internal class TradeDetailPresenter(
 
     @Composable
     private fun getMfeAndMae(): State<MfeAndMae?> {
-        return remember { flowOf(null) }.collectAsState(null)
+        return remember {
+            tradesRepo.getMfeAndMae(tradeId).map { mfeAndMae ->
+
+                mfeAndMae ?: return@map null
+
+                MfeAndMae(
+                    mfePrice = mfeAndMae.mfePrice.toPlainString(),
+                    maePrice = mfeAndMae.maePrice.toPlainString(),
+                )
+            }
+        }.collectAsState(null)
     }
 
     @Composable

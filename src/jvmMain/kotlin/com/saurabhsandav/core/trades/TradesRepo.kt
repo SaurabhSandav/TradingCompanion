@@ -5,6 +5,7 @@ import com.saurabhsandav.core.trades.model.TradeSide
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -42,6 +43,10 @@ internal class TradesRepo(
 
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
         return tradeOrdersRepo.getOrdersForTrade(id)
+    }
+
+    fun getMfeAndMae(id: Long): Flow<TradeMfeMae?> {
+        return tradesDB.tradeMfeMaeQueries.getByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     fun getStopsForTrade(id: Long): Flow<List<TradeStop>> {

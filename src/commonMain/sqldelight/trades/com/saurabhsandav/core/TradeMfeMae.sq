@@ -1,0 +1,22 @@
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS TradeMfeMae (
+tradeId INTEGER NOT NULL,
+mfePrice TEXT AS BigDecimal NOT NULL,
+maePrice TEXT AS BigDecimal NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR REPLACE
+INTO TradeMfeMae(tradeId, mfePrice, maePrice)
+VALUES (?, ?, ?);
+
+getByTrade:
+SELECT *
+FROM TradeMfeMae
+WHERE tradeId = ?;
+
+delete:
+DELETE FROM TradeMfeMae
+WHERE tradeId = ?;

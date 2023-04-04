@@ -62,6 +62,10 @@ internal class AppModule {
                 feesAdapter = BigDecimalColumnAdapter,
                 netPnlAdapter = BigDecimalColumnAdapter,
             ),
+            TradeMfeMaeAdapter = TradeMfeMae.Adapter(
+                mfePriceAdapter = BigDecimalColumnAdapter,
+                maePriceAdapter = BigDecimalColumnAdapter,
+            ),
             TradeOrderAdapter = TradeOrder.Adapter(
                 quantityAdapter = BigDecimalColumnAdapter,
                 typeAdapter = OrderType.OrderTypeColumnAdapter,
