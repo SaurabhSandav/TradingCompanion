@@ -15,6 +15,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
+import com.saurabhsandav.core.ui.trades.detail.ui.MfeAndMae
 import com.saurabhsandav.core.ui.trades.detail.ui.Notes
 import com.saurabhsandav.core.ui.trades.detail.ui.StopsAndTargets
 import com.saurabhsandav.core.ui.trades.detail.ui.TradeDetailItem
@@ -62,6 +63,12 @@ internal fun TradeDetailScreen(
                 ) {
 
                     TradeDetailItem(detail)
+
+                    val mfeAndMae = state.mfeAndMae
+
+                    if (mfeAndMae != null) {
+                        MfeAndMae(mfeAndMae)
+                    }
 
                     StopsAndTargets(
                         stops = state.stops,

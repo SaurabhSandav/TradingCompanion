@@ -7,6 +7,7 @@ import java.math.BigDecimal
 @Immutable
 internal data class TradeDetailState(
     val tradeDetail: TradeDetail?,
+    val mfeAndMae: MfeAndMae?,
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
     val notes: ImmutableList<TradeNote>,
@@ -27,6 +28,12 @@ internal data class TradeDetailState(
         val netPnl: String,
         val isNetProfitable: Boolean,
         val fees: String,
+    )
+
+    @Immutable
+    internal data class MfeAndMae(
+        val mfePrice: String,
+        val maePrice: String,
     )
 
     @Immutable

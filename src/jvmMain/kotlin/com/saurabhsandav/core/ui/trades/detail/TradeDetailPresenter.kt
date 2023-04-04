@@ -18,6 +18,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -54,6 +55,7 @@ internal class TradeDetailPresenter(
 
         return@launchMolecule TradeDetailState(
             tradeDetail = getTradeDetail().value,
+            mfeAndMae = getMfeAndMae().value,
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
             notes = getTradeNotes().value,
@@ -99,6 +101,11 @@ internal class TradeDetailPresenter(
                 )
             }
         }.collectAsState(null)
+    }
+
+    @Composable
+    private fun getMfeAndMae(): State<MfeAndMae?> {
+        return remember { flowOf(null) }.collectAsState(null)
     }
 
     @Composable
