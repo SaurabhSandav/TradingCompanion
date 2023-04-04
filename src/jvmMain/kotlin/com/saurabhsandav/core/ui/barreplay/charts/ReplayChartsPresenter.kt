@@ -43,7 +43,7 @@ internal class ReplayChartsPresenter(
     replayFullBar: Boolean,
     private val initialTicker: String,
     private val appModule: AppModule,
-    private val candleRepo: CandleRepository = CandleRepository(appModule),
+    private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)

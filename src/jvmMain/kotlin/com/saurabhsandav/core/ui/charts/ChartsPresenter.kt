@@ -38,7 +38,7 @@ internal class ChartsPresenter(
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
-    private val candleRepo: CandleRepository = CandleRepository(appModule),
+    private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
     private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)

@@ -50,6 +50,7 @@ internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val candleRepo: CandleRepository = appModule.candleRepo,
     private val tradesRepo: TradesRepo = appModule.tradesRepo,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
@@ -167,7 +168,7 @@ internal class TradesPresenter(
         val timeframe = Timeframe.M5
 
         // Get candles
-        val candlesResult = CandleRepository(appModule).getCandles(
+        val candlesResult = candleRepo.getCandles(
             ticker = trade.ticker,
             timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),

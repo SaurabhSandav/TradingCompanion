@@ -50,7 +50,7 @@ internal class CloseTradeFormWindowState(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val appDB: AppDB = appModule.appDB,
-    private val candleRepo: CandleRepository = CandleRepository(appModule),
+    private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
     private val formValidator = FormValidator()

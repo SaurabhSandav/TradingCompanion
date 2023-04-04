@@ -3,21 +3,16 @@ package com.saurabhsandav.core.trading.data
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trading.*
-import io.ktor.http.*
-import kotlinx.coroutines.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.*
-import kotlinx.serialization.json.*
-import kotlin.io.path.*
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 internal class CandleRepository(
-    appModule: AppModule,
-    private val candleDownloader: CandleDownloader = FyersCandleDownloader(appModule),
-    private val candleCache: CandleCache = CandleCacheDB(appModule),
+    private val candleDownloader: CandleDownloader,
+    private val candleCache: CandleCache,
 ) {
 
     suspend fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()

@@ -8,7 +8,10 @@ import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trading.data.CandleCacheDB
 import com.saurabhsandav.core.trading.data.CandleDBCollection
+import com.saurabhsandav.core.trading.data.CandleRepository
+import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
@@ -88,6 +91,11 @@ internal class AppModule {
     val fyersApi by lazy { FyersApi() }
 
     val candleDBCollection = CandleDBCollection()
+
+    val candleRepo = CandleRepository(
+        candleDownloader = FyersCandleDownloader(this),
+        candleCache = CandleCacheDB(this),
+    )
 
     val tradeOrdersRepo by lazy { TradeOrdersRepo(tradesDB) }
 

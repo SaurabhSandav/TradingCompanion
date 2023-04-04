@@ -58,6 +58,7 @@ internal class ClosedTradesPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val appDB: AppDB = appModule.appDB,
     private val fyersApi: FyersApi = appModule.fyersApi,
+    private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
     private val events = MutableSharedFlow<ClosedTradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -198,7 +199,7 @@ internal class ClosedTradesPresenter(
         val timeframe = Timeframe.M5
 
         // Get candles
-        val candlesResult = CandleRepository(appModule).getCandles(
+        val candlesResult = candleRepo.getCandles(
             ticker = closedTrade.ticker,
             timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
