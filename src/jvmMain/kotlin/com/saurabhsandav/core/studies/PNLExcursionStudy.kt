@@ -10,18 +10,18 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursionStudy.Model>() {
+
+    private val tradesRepo = appModule.tradesRepo
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }
@@ -77,40 +77,64 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         )
     }
 
-    override val data: Flow<List<Model>> = appModule.appDB.closedTradeQueries.getAllClosedTradesDetailed {
-            _, _, ticker, _, quantity, _, side, entry, stop, entryDate, target,
-            exit, exitDate, maxFavorableExcursion, maxAdverseExcursion, _, _, _,
-        ->
+    override val data: Flow<List<Model>> = tradesRepo
+        .allTrades
+        .map { trades ->
 
-        val entryBD = entry.toBigDecimal()
-        val stopBD = stop?.toBigDecimalOrNull()
-        val exitBD = exit.toBigDecimal()
-        val quantityBD = quantity.toBigDecimal()
-        val sideEnum = TradeSide.fromString(side)
+            trades.filter { it.isClosed }.map { trade ->
 
-        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
-            .format(entryDate.toLocalDateTime().toJavaLocalDateTime())
+                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+                    .format(trade.entryTimestamp.toJavaLocalDateTime())
 
-        Model(
-            ticker = ticker,
-            quantity = quantity,
-            side = side.uppercase(),
-            entry = entry,
-            stop = stop ?: "NA",
-            duration = "$day\n${entryDate.toLocalDateTime().time} ->\n${exitDate.toLocalDateTime().time}",
-            target = target ?: "NA",
-            exit = exit,
-            pnl = buildPNLString(sideEnum, quantityBD, entryBD, stopBD, exitBD),
-            maxFavorableExcursion = maxFavorableExcursion.orEmpty(),
-            mfePNL = maxFavorableExcursion?.let {
-                buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
-            }.orEmpty(),
-            maxAdverseExcursion = maxAdverseExcursion.orEmpty(),
-            maePNL = maxAdverseExcursion?.let {
-                buildPNLString(sideEnum, quantityBD, entryBD, stopBD, it.toBigDecimal())
-            }.orEmpty(),
-        )
-    }.asFlow().mapToList(Dispatchers.IO)
+                val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
+                    tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+                }.first()?.price
+
+                val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
+                    tradeTargets.maxByOrNull { tradeTarget -> tradeTarget.profit }
+                }.first()?.price
+
+                val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()
+
+                Model(
+                    ticker = trade.ticker,
+                    quantity = trade.quantity.toPlainString(),
+                    side = trade.side.strValue.uppercase(),
+                    entry = trade.averageEntry.toPlainString(),
+                    stop = stop?.toPlainString() ?: "NA",
+                    duration = "$day\n${trade.entryTimestamp.time} ->\n${trade.exitTimestamp?.time}",
+                    target = target?.toPlainString() ?: "NA",
+                    exit = trade.averageExit!!.toPlainString(),
+                    pnl = buildPNLString(
+                        side = trade.side,
+                        quantity = trade.quantity,
+                        entry = trade.averageEntry,
+                        stop = stop,
+                        exit = trade.averageExit,
+                    ),
+                    maxFavorableExcursion = mfeAndMae?.mfePrice?.toPlainString() ?: "NA",
+                    mfePNL = mfeAndMae?.mfePrice?.let { mfePrice ->
+                        buildPNLString(
+                            side = trade.side,
+                            quantity = trade.quantity,
+                            entry = trade.averageEntry,
+                            stop = stop,
+                            exit = mfePrice,
+                        )
+                    }.orEmpty(),
+                    maxAdverseExcursion = mfeAndMae?.maePrice?.toPlainString() ?: "NA",
+                    maePNL = mfeAndMae?.maePrice?.let { maePrice ->
+                        buildPNLString(
+                            side = trade.side,
+                            quantity = trade.quantity,
+                            entry = trade.averageEntry,
+                            stop = stop,
+                            exit = maePrice,
+                        )
+                    }.orEmpty(),
+                )
+            }
+        }
 
     data class Model(
         val ticker: String,

@@ -9,16 +9,15 @@ import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.brokerage
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStudy.Model>() {
+
+    private val tradesRepo = appModule.tradesRepo
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Month") { it.month }
@@ -35,54 +34,46 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         }
     }
 
-    override val data: Flow<List<Model>> = appModule.appDB
-        .closedTradeQueries
-        .getAll()
-        .asFlow()
-        .mapToList(Dispatchers.IO)
-        .map { closedTrades ->
+    override val data: Flow<List<Model>> = tradesRepo
+        .allTrades
+        .map { trades ->
 
-            closedTrades
-                .groupBy {
-                    val date = LocalDateTime.parse(it.entryDate)
-                    "${date.month} ${date.year}"
-                }
+            trades
+                .groupBy { trade -> "${trade.entryTimestamp.month} ${trade.entryTimestamp.year}" }
                 .map { entries ->
 
-                    val stuff = entries.value.map {
-
-                        val entryBD = it.entry.toBigDecimal()
-                        val stopBD = it.stop?.toBigDecimalOrNull()
-                        val exitBD = it.exit.toBigDecimal()
-                        val quantityBD = it.quantity.toBigDecimal()
-                        val sideEnum = TradeSide.fromString(it.side)
+                    val monthlyStats = entries.value.filter { it.isClosed }.map { trade ->
 
                         val brokerage = brokerage(
-                            broker = it.broker,
-                            instrument = it.instrument,
-                            entry = entryBD,
-                            exit = exitBD,
-                            quantity = quantityBD,
-                            side = sideEnum,
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = trade.averageExit!!,
+                            quantity = trade.quantity,
+                            side = trade.side,
                         )
 
                         val pnlBD = brokerage.pnl
                         val netPnlBD = brokerage.netPNL
 
-                        val rValue = when (stopBD) {
+                        val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
+                            tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+                        }.first()?.price
+
+                        val rValue = when (stop) {
                             null -> null
-                            else -> when (sideEnum) {
-                                TradeSide.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
-                                TradeSide.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
+                            else -> when (trade.side) {
+                                TradeSide.Long -> pnlBD / ((trade.averageEntry - stop) * trade.quantity)
+                                TradeSide.Short -> pnlBD / ((stop - trade.averageEntry) * trade.quantity)
                             }.setScale(1, RoundingMode.HALF_EVEN)
                         }
 
                         Triple(pnlBD, netPnlBD, rValue)
                     }
 
-                    val pnl = stuff.sumOf { it.first }
-                    val netPnl = stuff.sumOf { it.second }
-                    val rValue = stuff.mapNotNull { it.third }.sumOf { it }
+                    val pnl = monthlyStats.sumOf { it.first }
+                    val netPnl = monthlyStats.sumOf { it.second }
+                    val rValue = monthlyStats.mapNotNull { it.third }.sumOf { it }
 
                     val noOfTrades = entries.value.size
 
@@ -110,7 +101,7 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule): Study.Factory<PNLByMonthStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<PNLByMonthStudy> {
 
         override val name: String = "PNL By Month"
 

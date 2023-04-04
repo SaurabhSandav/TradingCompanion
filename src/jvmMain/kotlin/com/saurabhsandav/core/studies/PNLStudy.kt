@@ -9,18 +9,18 @@ import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.brokerage
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
+
+    private val tradesRepo = appModule.tradesRepo
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Ticker") { it.ticker }
@@ -43,58 +43,61 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
         addColumnText("R") { it.rValue }
     }
 
-    override val data: Flow<List<Model>> = appModule.appDB
-        .closedTradeQueries
-        .getAll { _, broker, ticker, instrument, quantity, _, side, entry, stop, entryDate, target, exit, exitDate ->
+    override val data: Flow<List<Model>> = tradesRepo
+        .allTrades
+        .map { trades ->
 
-            val entryBD = entry.toBigDecimal()
-            val stopBD = stop?.toBigDecimalOrNull()
-            val exitBD = exit.toBigDecimal()
-            val quantityBD = quantity.toBigDecimal()
-            val sideEnum = TradeSide.fromString(side)
+            trades.filter { it.isClosed }.map { trade ->
 
-            val brokerage = brokerage(
-                broker = broker,
-                instrument = instrument,
-                entry = entryBD,
-                exit = exitBD,
-                quantity = quantityBD,
-                side = sideEnum,
-            )
+                val brokerage = brokerage(
+                    broker = trade.broker,
+                    instrument = trade.instrument,
+                    entry = trade.averageEntry,
+                    exit = trade.averageExit!!,
+                    quantity = trade.quantity,
+                    side = trade.side,
+                )
 
-            val pnlBD = brokerage.pnl
-            val netPnlBD = brokerage.netPNL
+                val pnlBD = brokerage.pnl
+                val netPnlBD = brokerage.netPNL
 
-            val rValue = when (stopBD) {
-                null -> null
-                else -> when (sideEnum) {
-                    TradeSide.Long -> pnlBD / ((entryBD - stopBD) * quantityBD)
-                    TradeSide.Short -> pnlBD / ((stopBD - entryBD) * quantityBD)
-                }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
+                val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
+                    tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+                }.first()?.price
+
+                val rValue = when (stop) {
+                    null -> null
+                    else -> when (trade.side) {
+                        TradeSide.Long -> pnlBD / ((trade.averageEntry - stop) * trade.quantity)
+                        TradeSide.Short -> pnlBD / ((stop - trade.averageEntry) * trade.quantity)
+                    }.setScale(1, RoundingMode.HALF_EVEN)
+                }
+
+                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+                    .format(trade.entryTimestamp.toJavaLocalDateTime())
+
+                val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
+                    tradeTargets.maxByOrNull { tradeTarget -> tradeTarget.profit }
+                }.first()?.price
+
+                Model(
+                    ticker = trade.ticker,
+                    quantity = trade.quantity.toPlainString(),
+                    side = trade.side.strValue.uppercase(),
+                    entry = trade.averageEntry.toPlainString(),
+                    stop = stop?.toPlainString() ?: "NA",
+                    duration = "$day\n${trade.entryTimestamp.time} ->\n${trade.exitTimestamp?.time}",
+                    target = target?.toPlainString() ?: "NA",
+                    exit = trade.averageExit.toPlainString(),
+                    pnl = pnlBD.toPlainString(),
+                    isProfitable = pnlBD > BigDecimal.ZERO,
+                    netPnl = netPnlBD.toPlainString(),
+                    isNetProfitable = netPnlBD > BigDecimal.ZERO,
+                    fees = (pnlBD - netPnlBD).toPlainString(),
+                    rValue = rValue?.let { "${it}R" }.orEmpty(),
+                )
             }
-
-            val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
-                .format(entryDate.toLocalDateTime().toJavaLocalDateTime())
-
-            Model(
-                ticker = ticker,
-                quantity = quantity,
-                side = side.uppercase(),
-                entry = entry,
-                stop = stop ?: "NA",
-                duration = "$day\n${entryDate.toLocalDateTime().time} ->\n${exitDate.toLocalDateTime().time}",
-                target = target ?: "NA",
-                exit = exit,
-                pnl = pnlBD.toPlainString(),
-                isProfitable = pnlBD > BigDecimal.ZERO,
-                netPnl = netPnlBD.toPlainString(),
-                isNetProfitable = netPnlBD > BigDecimal.ZERO,
-                fees = (pnlBD - netPnlBD).toPlainString(),
-                rValue = rValue?.let { "${it}R" }.orEmpty(),
-            )
         }
-        .asFlow()
-        .mapToList(Dispatchers.IO)
 
     data class Model(
         val ticker: String,
@@ -113,7 +116,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule): Study.Factory<PNLStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<PNLStudy> {
 
         override val name: String = "PNL"
 

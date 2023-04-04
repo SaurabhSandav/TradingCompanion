@@ -11,7 +11,6 @@ import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
-import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
@@ -19,40 +18,31 @@ import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.utils.brokerage
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
 internal class PNLByMonthChartStudy(
     appModule: AppModule,
 ) : Study {
 
-    private val data = appModule.appDB
-        .closedTradeQueries
-        .getAll { _, broker, _, instrument, quantity, _, side, entry, _, entryDate, _, exit, _ ->
+    private val data = appModule.tradesRepo
+        .allTrades
+        .map { trades ->
+            trades.filter { it.isClosed }.map { trade ->
 
-            val entryBD = entry.toBigDecimal()
-            val exitBD = exit.toBigDecimal()
-            val quantityBD = quantity.toBigDecimal()
-            val sideEnum = TradeSide.fromString(side)
-
-            entryDate.toLocalDateTime().date to brokerage(
-                broker = broker,
-                instrument = instrument,
-                entry = entryBD,
-                exit = exitBD,
-                quantity = quantityBD,
-                side = sideEnum,
-            ).netPNL
+                trade.entryTimestamp.date to brokerage(
+                    broker = trade.broker,
+                    instrument = trade.instrument,
+                    entry = trade.averageEntry,
+                    exit = trade.averageExit!!,
+                    quantity = trade.quantity,
+                    side = trade.side,
+                ).netPNL
+            }
         }
-        .asFlow()
-        .mapToList(Dispatchers.IO)
         .map { listOfPairs ->
             listOfPairs
                 .asReversed()
