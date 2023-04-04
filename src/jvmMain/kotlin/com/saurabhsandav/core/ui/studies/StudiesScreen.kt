@@ -44,7 +44,11 @@ internal fun StudiesScreen(
             items(items = state.studyFactories) { studyFactory ->
 
                 ListItem(
-                    modifier = Modifier.clickable { studyWindowsManager.openNewWindow(studyFactory) },
+                    modifier = Modifier.clickable {
+                        if (!studyWindowsManager.windows.any { it.params == studyFactory }) {
+                            studyWindowsManager.openNewWindow(studyFactory)
+                        }
+                    },
                     headlineText = { Text(studyFactory.name) },
                 )
             }
