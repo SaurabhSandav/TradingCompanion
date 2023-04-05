@@ -36,7 +36,7 @@ internal class OrderFormPresenter(
     init {
 
         when (formType) {
-            New -> new()
+            is New -> new(formType.formModel)
             is NewFromExisting -> newFromExisting(formType.id)
             is Edit -> editOrder(formType.id)
         }
@@ -46,7 +46,7 @@ internal class OrderFormPresenter(
 
         return@launchMolecule OrderFormState(
             title = when (formType) {
-                New, is NewFromExisting -> "New Order"
+                is New, is NewFromExisting -> "New Order"
                 is Edit -> "Edit Order"
             },
             formModel = formModel,
@@ -85,9 +85,9 @@ internal class OrderFormPresenter(
         }
     }
 
-    private fun new() {
+    private fun new(formModel: ((FormValidator) -> OrderFormModel)? = null) {
 
-        formModel = OrderFormModel(
+        this.formModel = formModel?.invoke(formValidator) ?: OrderFormModel(
             validator = formValidator,
             ticker = null,
             quantity = "",

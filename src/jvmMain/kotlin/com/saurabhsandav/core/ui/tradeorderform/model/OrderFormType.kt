@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.tradeorderform.model
 
-sealed class OrderFormType {
+import com.saurabhsandav.core.ui.common.form.FormValidator
 
-    object New : OrderFormType()
+internal sealed class OrderFormType {
+
+    data class New(val formModel: ((FormValidator) -> OrderFormModel)? = null) : OrderFormType()
 
     data class NewFromExisting(val id: Long) : OrderFormType()
 

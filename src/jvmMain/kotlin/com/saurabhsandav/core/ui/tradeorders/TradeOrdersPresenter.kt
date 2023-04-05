@@ -98,7 +98,7 @@ internal class TradeOrdersPresenter(
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            formType = OrderFormType.New,
+            formType = OrderFormType.New(),
         )
 
         orderFormParams = orderFormParams.add(params)
