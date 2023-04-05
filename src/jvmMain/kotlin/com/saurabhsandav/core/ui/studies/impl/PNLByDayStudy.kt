@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.studies
+package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.AppModule
@@ -12,15 +12,18 @@ import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.toJavaLocalDate
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
-internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStudy.Model>() {
+internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
 
     private val tradesRepo = appModule.tradesRepo
 
     override val schema: TableSchema<Model> = tableSchema {
-        addColumnText("Month") { it.month }
+        addColumnText("Day") { it.day }
         addColumnText("Trades") { it.noOfTrades }
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
@@ -39,10 +42,10 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         .map { trades ->
 
             trades
-                .groupBy { trade -> "${trade.entryTimestamp.month} ${trade.entryTimestamp.year}" }
+                .groupBy { it.entryTimestamp.date }
                 .map { entries ->
 
-                    val monthlyStats = entries.value.filter { it.isClosed }.map { trade ->
+                    val dailyStats = entries.value.filter { it.isClosed }.map { trade ->
 
                         val brokerage = brokerage(
                             broker = trade.broker,
@@ -71,14 +74,16 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
                         Triple(pnlBD, netPnlBD, rValue)
                     }
 
-                    val pnl = monthlyStats.sumOf { it.first }
-                    val netPnl = monthlyStats.sumOf { it.second }
-                    val rValue = monthlyStats.mapNotNull { it.third }.sumOf { it }
+                    val pnl = dailyStats.sumOf { it.first }
+                    val netPnl = dailyStats.sumOf { it.second }
+                    val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
+
+                    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entries.key.toJavaLocalDate())
 
                     val noOfTrades = entries.value.size
 
                     Model(
-                        month = entries.key,
+                        day = day,
                         noOfTrades = noOfTrades.toString(),
                         pnl = pnl.toPlainString(),
                         isProfitable = pnl > BigDecimal.ZERO,
@@ -91,7 +96,7 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         }
 
     data class Model(
-        val month: String,
+        val day: String,
         val noOfTrades: String,
         val pnl: String,
         val isProfitable: Boolean,
@@ -101,10 +106,10 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLByMonthStudy> {
+    class Factory(private val appModule: AppModule): Study.Factory<PNLByDayStudy> {
 
-        override val name: String = "PNL By Month"
+        override val name: String = "PNL By Day"
 
-        override fun create() = PNLByMonthStudy(appModule)
+        override fun create() = PNLByDayStudy(appModule)
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.studies.*
+import com.saurabhsandav.core.ui.studies.impl.*
 import kotlinx.coroutines.CoroutineScope
 
 @Stable

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.studies
+package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
@@ -151,6 +151,30 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
             }
         }
 
+    private fun buildPNLString(
+        side: TradeSide,
+        quantity: BigDecimal,
+        entry: BigDecimal,
+        stop: BigDecimal?,
+        exit: BigDecimal,
+    ): String {
+
+        val pnl = when (side) {
+            TradeSide.Long -> (exit - entry) * quantity
+            TradeSide.Short -> (entry - exit) * quantity
+        }
+
+        val rValue = when (stop) {
+            null -> null
+            else -> when (side) {
+                TradeSide.Long -> pnl / ((entry - stop) * quantity)
+                TradeSide.Short -> pnl / ((stop - entry) * quantity)
+            }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
+        }
+
+        return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()
+    }
+
     data class Model(
         val ticker: String,
         val quantity: String,
@@ -176,28 +200,4 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
 
         override fun create() = PNLExcursionStudy(appModule)
     }
-}
-
-private fun buildPNLString(
-    side: TradeSide,
-    quantity: BigDecimal,
-    entry: BigDecimal,
-    stop: BigDecimal?,
-    exit: BigDecimal,
-): String {
-
-    val pnl = when (side) {
-        TradeSide.Long -> (exit - entry) * quantity
-        TradeSide.Short -> (entry - exit) * quantity
-    }
-
-    val rValue = when (stop) {
-        null -> null
-        else -> when (side) {
-            TradeSide.Long -> pnl / ((entry - stop) * quantity)
-            TradeSide.Short -> pnl / ((stop - entry) * quantity)
-        }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
-    }
-
-    return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()
 }

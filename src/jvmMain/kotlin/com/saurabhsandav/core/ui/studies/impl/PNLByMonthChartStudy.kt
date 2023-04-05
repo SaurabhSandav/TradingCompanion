@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.studies
+package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

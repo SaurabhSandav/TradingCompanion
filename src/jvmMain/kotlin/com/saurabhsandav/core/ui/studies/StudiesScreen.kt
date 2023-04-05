@@ -16,10 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
-import com.saurabhsandav.core.studies.Study
 import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.WindowTitle
+import com.saurabhsandav.core.ui.studies.impl.Study
 
 @Composable
 internal fun StudiesScreen(
