@@ -32,8 +32,8 @@ internal class TradeOrdersRepo(
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
-    ) = withContext(Dispatchers.IO) {
-        tradesDB.transaction {
+    ): Long = withContext(Dispatchers.IO) {
+        tradesDB.transactionWithResult {
 
             // Insert Trade order
             tradesDB.tradeOrderQueries.insert(
@@ -53,6 +53,8 @@ internal class TradeOrdersRepo(
             // Generate Trade
             val order = tradesDB.tradeOrderQueries.getById(orderId).executeAsOne()
             consumeOrder(order)
+
+            return@transactionWithResult orderId
         }
     }
 
@@ -65,7 +67,7 @@ internal class TradeOrdersRepo(
         type: OrderType,
         price: BigDecimal,
         timestamp: LocalDateTime,
-    ) = withContext(Dispatchers.IO) {
+    ): Long = withContext(Dispatchers.IO) {
 
         require(!isLocked(id)) { "Order is locked and cannot be edited" }
 
@@ -98,6 +100,8 @@ internal class TradeOrdersRepo(
                 orders.createTrade().updateTradeInDB(trade.id)
             }
         }
+
+        return@withContext id
     }
 
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {

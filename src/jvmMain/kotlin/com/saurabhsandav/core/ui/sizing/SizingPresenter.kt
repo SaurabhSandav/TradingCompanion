@@ -7,6 +7,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.SizingTradesRepo
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
@@ -27,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -40,6 +42,7 @@ internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val sizingTradesRepo: SizingTradesRepo = appModule.sizingTradesRepo,
+    private val tradesRepo: TradesRepo = appModule.tradesRepo,
 ) {
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -152,6 +155,26 @@ internal class SizingPresenter(
                     price = sizingTrade.entry.toPlainString(),
                     timestamp = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
                 )
+            },
+            onOrderSaved = { orderId ->
+
+                coroutineScope.launch {
+
+                    // Single order can close a trade and open a new one.
+                    // Make sure to choose the open trade
+                    val trade = tradesRepo.getTradesForOrder(orderId).first().single { !it.isClosed }
+
+                    // Add stop
+                    tradesRepo.addStop(trade.id, sizingTrade.stop)
+
+                    val target = when (trade.side) {
+                        TradeSide.Long -> sizingTrade.entry + spread
+                        TradeSide.Short -> sizingTrade.entry - spread
+                    }
+
+                    // Add target
+                    tradesRepo.addTarget(trade.id, target)
+                }
             },
         )
 

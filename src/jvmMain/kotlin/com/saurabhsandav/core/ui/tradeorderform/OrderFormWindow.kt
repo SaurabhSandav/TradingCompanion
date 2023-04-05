@@ -22,12 +22,13 @@ import com.saurabhsandav.core.utils.NIFTY50
 @Composable
 internal fun OrderFormWindow(
     formType: OrderFormType,
+    onOrderSaved: ((orderId: Long) -> Unit)? = null,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { OrderFormPresenter(scope, formType, appModule) }
+    val presenter = remember { OrderFormPresenter(scope, formType, appModule, onOrderSaved = onOrderSaved) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(size = DpSize(300.dp, 400.dp))

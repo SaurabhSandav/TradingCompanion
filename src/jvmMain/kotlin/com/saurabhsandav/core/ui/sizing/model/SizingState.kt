@@ -30,5 +30,6 @@ internal data class SizingState(
     internal data class OrderFormParams(
         val id: UUID,
         val formType: OrderFormType,
+        val onOrderSaved: (orderId: Long) -> Unit,
     )
 }

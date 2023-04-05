@@ -28,6 +28,7 @@ internal class OrderFormPresenter(
     private val formType: OrderFormType,
     private val appModule: AppModule,
     private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
+    private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
 ) {
 
     private val formValidator = FormValidator()
@@ -60,7 +61,7 @@ internal class OrderFormPresenter(
 
         val formModel = requireNotNull(formModel)
 
-        when (formType) {
+        val orderId = when (formType) {
             is Edit -> tradeOrdersRepo.edit(
                 id = formType.id,
                 broker = "Finvasia",
@@ -83,6 +84,9 @@ internal class OrderFormPresenter(
                 locked = false,
             )
         }
+
+        // Notify order saved
+        onOrderSaved?.invoke(orderId)
     }
 
     private fun new(formModel: ((FormValidator) -> OrderFormModel)? = null) {

@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trades
 
 import com.github.michaelbull.result.get
-import com.saurabhsandav.core.*
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -51,6 +50,13 @@ internal class TradesRepo(
 
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
         return tradeOrdersRepo.getOrdersForTrade(id)
+    }
+
+    fun getTradesForOrder(orderId: Long): Flow<List<Trade>> {
+        return tradesDB.tradeToOrderMapQueries
+            .getTradesByOrder(orderId)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
     }
 
     suspend fun generateMfeAndMaeForAllTrades() = withContext(Dispatchers.IO) {
