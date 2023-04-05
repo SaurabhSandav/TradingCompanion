@@ -89,7 +89,13 @@ private fun LandingScreen(
             containerColor = MaterialTheme.colorScheme.inverseOnSurface
         ) {
 
-            LandingScreen.items.forEach { screen ->
+            val landingItems = remember {
+                enumValues<LandingScreen>().filter {
+                    it != LandingScreen.OpenTrades && it != LandingScreen.ClosedTrades
+                }
+            }
+
+            landingItems.forEach { screen ->
 
                 TooltipArea(
                     tooltip = { Tooltip(screen.title) },

@@ -79,7 +79,12 @@ internal fun SettingsScreen(
             Divider()
 
             LandingScreenPreference(
-                items = remember { LandingScreen.items.map { it.title }.toImmutableList() },
+                items = remember {
+                    enumValues<LandingScreen>()
+                        .filter { it != LandingScreen.OpenTrades && it != LandingScreen.ClosedTrades }
+                        .map { it.title }
+                        .toImmutableList()
+                },
                 selectedItem = landingScreen,
                 onLandingScreenChange = onLandingScreenChange,
             )
