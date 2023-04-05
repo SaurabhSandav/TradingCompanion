@@ -98,6 +98,9 @@ internal class TradeOrdersRepo(
 
                 // Update Trade
                 orders.createTrade().updateTradeInDB(trade.id)
+
+                // Regenerate supplemental data
+                regenerateSupplementalTradeData(trade.id)
             }
         }
 
@@ -125,10 +128,16 @@ internal class TradeOrdersRepo(
                 val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
 
                 when {
-                    // Delete Trade
+                    // Delete Trade.
                     orders.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
-                    // Update Trade
-                    else -> orders.createTrade().updateTradeInDB(trade.id)
+                    else -> {
+
+                        // Update Trade
+                        orders.createTrade().updateTradeInDB(trade.id)
+
+                        // Regenerate supplemental data
+                        regenerateSupplementalTradeData(trade.id)
+                    }
                 }
             }
         }
@@ -380,4 +389,51 @@ internal class TradeOrdersRepo(
         timestamp = timestamp,
         locked = locked,
     )
+
+    private fun regenerateSupplementalTradeData(tradeId: Long) {
+
+        // Get newly regenerated trade
+        val trade = tradesDB.tradeQueries.getById(tradeId).executeAsOne()
+
+        // Get current stops
+        val stops = tradesDB.tradeStopQueries.getByTrade(trade.id).executeAsList()
+
+        // Remove stops from DB
+        tradesDB.tradeStopQueries.deleteByTrade(trade.id)
+
+        // Save regenerated stops
+        stops.forEach { stop ->
+
+            tradesDB.tradeStopQueries.insert(
+                tradeId = trade.id,
+                price = stop.price,
+                risk = when (trade.side) {
+                    TradeSide.Long -> trade.averageEntry - stop.price
+                    TradeSide.Short -> stop.price - trade.averageEntry
+                } * trade.quantity,
+            )
+        }
+
+        // Get current targets
+        val targets = tradesDB.tradeTargetQueries.getByTrade(trade.id).executeAsList()
+
+        // Remove targets from DB
+        tradesDB.tradeTargetQueries.deleteByTrade(trade.id)
+
+        // Save regenerated targets
+        targets.forEach { target ->
+
+            tradesDB.tradeTargetQueries.insert(
+                tradeId = trade.id,
+                price = target.price,
+                profit = when (trade.side) {
+                    TradeSide.Long -> target.price - trade.averageEntry
+                    TradeSide.Short -> trade.averageEntry - target.price
+                } * trade.quantity
+            )
+        }
+
+        // Remove MFE and MAE from DB
+        tradesDB.tradeMfeMaeQueries.delete(trade.id)
+    }
 }

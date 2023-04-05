@@ -21,3 +21,7 @@ WHERE tradeId = ?;
 delete:
 DELETE FROM TradeStop
 WHERE tradeId = ? AND price = ?;
+
+deleteByTrade:
+DELETE FROM TradeStop
+WHERE tradeId = ?;

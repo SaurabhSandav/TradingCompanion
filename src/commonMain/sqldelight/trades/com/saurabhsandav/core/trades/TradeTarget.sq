@@ -21,3 +21,7 @@ WHERE tradeId = ?;
 delete:
 DELETE FROM TradeTarget
 WHERE tradeId = ? AND price = ?;
+
+deleteByTrade:
+DELETE FROM TradeTarget
+WHERE tradeId = ?;

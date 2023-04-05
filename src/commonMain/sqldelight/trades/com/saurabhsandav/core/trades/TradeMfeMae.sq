@@ -23,3 +23,7 @@ FROM Trade
 LEFT JOIN TradeMfeMae
 ON Trade.id = TradeMfeMae.tradeId
 WHERE TradeMfeMae.tradeId IS NULL;
+
+delete:
+DELETE FROM TradeMfeMae
+WHERE tradeId = ?;
