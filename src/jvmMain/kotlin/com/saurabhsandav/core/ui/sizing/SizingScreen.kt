@@ -14,8 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindow
-import com.saurabhsandav.core.ui.opentradeform.rememberOpenTradeFormWindowState
 import com.saurabhsandav.core.ui.sizing.model.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.utils.NIFTY50
@@ -39,15 +37,6 @@ internal fun SizingScreen(
         onDeleteTrade = { presenter.event(SizingEvent.RemoveTrade(it)) },
         onAddTrade = { presenter.event(SizingEvent.AddTrade(it)) },
     )
-
-    // Add open trade windows
-    state.openTradeFormWindowParams.forEach { params ->
-
-        key(params) {
-
-            OpenTradeFormWindow(rememberOpenTradeFormWindowState(params))
-        }
-    }
 }
 
 @Composable

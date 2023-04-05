@@ -4,47 +4,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.SizingTrade
-import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.SizingTrade
+import com.saurabhsandav.core.trades.SizingTradesRepo
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.opentradeform.OpenTradeFormWindowParams
 import com.saurabhsandav.core.ui.sizing.model.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
 import com.saurabhsandav.core.ui.sizing.model.SizingState
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
 
 @Stable
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val fyersApi: FyersApi = appModule.fyersApi,
+    private val sizingTradesRepo: SizingTradesRepo = appModule.sizingTradesRepo,
 ) {
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
-    private val openTradeFormWindowParams = mutableStateMapOf<UUID, OpenTradeFormWindowParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -70,7 +59,6 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
-            openTradeFormWindowParams = openTradeFormWindowParams.values,
         )
     }
 
@@ -78,67 +66,46 @@ internal class SizingPresenter(
         events.tryEmit(event)
     }
 
-    private fun addTrade(ticker: String) = coroutineScope.launchUnit(Dispatchers.IO) {
+    private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        val accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken)
-        val currentPrice = accessToken?.let {
-            val response = fyersApi.getQuotes(accessToken, listOf("NSE:$ticker-EQ"))
-            response.result?.quote?.first()?.quoteData?.cmd?.close?.toString()
-        } ?: "0"
-
-        appModule.appDB.sizingTradeQueries.insert(
-            id = null,
+        sizingTradesRepo.new(
             ticker = ticker,
-            entry = currentPrice,
-            stop = currentPrice,
+            entry = 100.toBigDecimal(),
+            stop = 90.toBigDecimal(),
         )
     }
 
-    private fun updateTradeEntry(id: Long, entry: String) {
+    private fun updateTradeEntry(id: Long, entry: String) = coroutineScope.launchUnit {
 
-        if (entry.toBigDecimalOrNull() == null) return
+        val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.updateEntry(entry = entry, id = id)
-        }
+        sizingTradesRepo.updateEntry(
+            id = id,
+            entry = entryBD,
+        )
     }
 
-    private fun updateTradeStop(id: Long, stop: String) {
+    private fun updateTradeStop(id: Long, stop: String) = coroutineScope.launchUnit {
 
-        if (stop.toBigDecimalOrNull() == null) return
+        val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        coroutineScope.launch(Dispatchers.IO) {
-            appModule.appDB.sizingTradeQueries.updateStop(stop = stop, id = id)
-        }
+        sizingTradesRepo.updateStop(
+            id = id,
+            stop = stopBD,
+        )
     }
 
     private fun openTrade(id: Long) {
-
-        // Don't allow opening duplicate windows
-        val isWindowAlreadyOpen = openTradeFormWindowParams.values.any {
-            (it.operationType as OpenTradeFormWindowParams.OperationType.OpenFromSizingTrade).sizingTradeId == id
-        }
-        if (isWindowAlreadyOpen) return
-
-        val key = UUID.randomUUID()
-
-        openTradeFormWindowParams[key] = OpenTradeFormWindowParams(
-            operationType = OpenTradeFormWindowParams.OperationType.OpenFromSizingTrade(id),
-            onCloseRequest = { openTradeFormWindowParams.remove(key) }
-        )
     }
 
-    private fun removeTrade(id: Long) = coroutineScope.launchUnit(Dispatchers.IO) {
-        appModule.appDB.sizingTradeQueries.delete(id)
+    private fun removeTrade(id: Long) = coroutineScope.launchUnit {
+        sizingTradesRepo.delete(id)
     }
 
     @Composable
     private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
         return remember(account) {
-            appModule.appDB.sizingTradeQueries
-                .getAll()
-                .asFlow()
-                .mapToList(Dispatchers.IO)
+            sizingTradesRepo.allTrades
                 .mapList { sizingTrade -> sizingTrade.size(account) }
                 .map { it.toImmutableList() }
         }.collectAsState(persistentListOf()).value
@@ -146,12 +113,9 @@ internal class SizingPresenter(
 
     private fun SizingTrade.size(account: Account): SizedTrade {
 
-        val entryBD = entry.toBigDecimal()
-        val stopBD = stop.toBigDecimal()
+        val entryStopComparison = entry.compareTo(stop)
 
-        val entryStopComparison = entryBD.compareTo(stopBD)
-
-        val spread = (entryBD - stopBD).abs()
+        val spread = (entry - stop).abs()
 
         val calculatedQuantity = when {
             spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
@@ -159,15 +123,15 @@ internal class SizingPresenter(
         }
 
         val maxAffordableQuantity = when {
-            entryBD.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.balancePerTrade * account.leverage) / entryBD
+            entry.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            else -> (account.balancePerTrade * account.leverage) / entry
         }
 
         return SizedTrade(
             id = id,
             ticker = ticker,
-            entry = entry,
-            stop = stop,
+            entry = entry.toPlainString(),
+            stop = stop.toPlainString(),
             side = when {
                 entryStopComparison > 0 -> TradeSide.Long.strValue
                 entryStopComparison < 0 -> TradeSide.Short.strValue
@@ -177,8 +141,8 @@ internal class SizingPresenter(
             calculatedQuantity = calculatedQuantity.toPlainString(),
             maxAffordableQuantity = maxAffordableQuantity.toPlainString(),
             target = when {
-                entryBD > stopBD -> entryBD + spread // Long
-                else -> entryBD - spread // Short
+                entry > stop -> entry + spread // Long
+                else -> entry - spread // Short
             }.toPlainString(),
             color = when {
                 entryStopComparison > 0 -> AppColor.ProfitGreen

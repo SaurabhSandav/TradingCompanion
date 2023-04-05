@@ -4,6 +4,7 @@ import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.*
+import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -51,6 +52,10 @@ internal class AppModule {
         TradesDB.Schema.create(driver)
         TradesDB(
             driver = driver,
+            SizingTradeAdapter = SizingTrade.Adapter(
+                entryAdapter = BigDecimalColumnAdapter,
+                stopAdapter = BigDecimalColumnAdapter,
+            ),
             TradeAdapter = Trade.Adapter(
                 quantityAdapter = BigDecimalColumnAdapter,
                 closedQuantityAdapter = BigDecimalColumnAdapter,
@@ -105,6 +110,8 @@ internal class AppModule {
     val tradeOrdersRepo by lazy { TradeOrdersRepo(tradesDB) }
 
     val tradesRepo by lazy { TradesRepo(tradesDB, tradeOrdersRepo, candleRepo) }
+
+    val sizingTradesRepo by lazy { SizingTradesRepo(tradesDB) }
 
     init {
 
