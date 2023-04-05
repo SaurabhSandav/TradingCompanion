@@ -10,6 +10,7 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
+import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -34,7 +35,12 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         addColumnText("Duration") { it.duration }
         addColumnText("Target") { it.target }
         addColumnText("Exit") { it.exit }
-        addColumnText("PNL") { it.pnl }
+        addColumn("PNL") {
+            Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+        }
+        addColumn("Net PNL") {
+            Text(it.netPnl, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+        }
         addColumn(
             header = {
 
@@ -83,6 +89,18 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
 
             trades.filter { it.isClosed }.map { trade ->
 
+                val brokerage = brokerage(
+                    broker = trade.broker,
+                    instrument = trade.instrument,
+                    entry = trade.averageEntry,
+                    exit = trade.averageExit!!,
+                    quantity = trade.quantity,
+                    side = trade.side,
+                )
+
+                val pnlBD = brokerage.pnl
+                val netPnlBD = brokerage.netPNL
+
                 val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
                     .format(trade.entryTimestamp.toJavaLocalDateTime())
 
@@ -104,14 +122,11 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
                     stop = stop?.toPlainString() ?: "NA",
                     duration = "$day\n${trade.entryTimestamp.time} ->\n${trade.exitTimestamp?.time}",
                     target = target?.toPlainString() ?: "NA",
-                    exit = trade.averageExit!!.toPlainString(),
-                    pnl = buildPNLString(
-                        side = trade.side,
-                        quantity = trade.quantity,
-                        entry = trade.averageEntry,
-                        stop = stop,
-                        exit = trade.averageExit,
-                    ),
+                    exit = trade.averageExit.toPlainString(),
+                    pnl = pnlBD.toPlainString(),
+                    isProfitable = pnlBD > BigDecimal.ZERO,
+                    netPnl = netPnlBD.toPlainString(),
+                    isNetProfitable = netPnlBD > BigDecimal.ZERO,
                     maxFavorableExcursion = mfeAndMae?.mfePrice?.toPlainString() ?: "NA",
                     mfePNL = mfeAndMae?.mfePrice?.let { mfePrice ->
                         buildPNLString(
@@ -146,6 +161,9 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         val target: String,
         val exit: String,
         val pnl: String,
+        val isProfitable: Boolean,
+        val netPnl: String,
+        val isNetProfitable: Boolean,
         val maxFavorableExcursion: String,
         val mfePNL: String,
         val maxAdverseExcursion: String,
