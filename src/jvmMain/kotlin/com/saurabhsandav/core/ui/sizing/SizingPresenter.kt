@@ -11,10 +11,13 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.sizing.model.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
 import com.saurabhsandav.core.ui.sizing.model.SizingState
+import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
+import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -22,9 +25,15 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
+import kotlin.time.Duration.Companion.nanoseconds
 
 @Stable
 internal class SizingPresenter(
@@ -35,6 +44,8 @@ internal class SizingPresenter(
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
+    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
+
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
@@ -43,8 +54,9 @@ internal class SizingPresenter(
                 is AddTrade -> addTrade(event.ticker)
                 is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
                 is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
-                is OpenTrade -> openTrade(event.id)
+                is OpenLiveTrade -> openLiveTrade(event.id)
                 is RemoveTrade -> removeTrade(event.id)
+                is CloseOrderForm -> onCloseOrderForm(event.id)
             }
         }
 
@@ -59,6 +71,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
+            orderFormParams = orderFormParams,
         )
     }
 
@@ -95,11 +108,61 @@ internal class SizingPresenter(
         )
     }
 
-    private fun openTrade(id: Long) {
-    }
-
     private fun removeTrade(id: Long) = coroutineScope.launchUnit {
         sizingTradesRepo.delete(id)
+    }
+
+    private fun openLiveTrade(id: Long) = coroutineScope.launchUnit {
+
+        val sizingTrade = sizingTradesRepo.getById(id).first()
+
+        val entryStopComparison = sizingTrade.entry.compareTo(sizingTrade.stop)
+
+        val isBuy = when {
+            // Short
+            entryStopComparison < 0 -> false
+            // Long (even if entry and stop are the same). Form should validate before saving.
+            else -> true
+        }
+
+        val spread = (sizingTrade.entry - sizingTrade.stop).abs()
+        val account = appModule.account.first()
+
+        val calculatedQuantity = when {
+            spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+        }
+
+        val maxAffordableQuantity = when {
+            sizingTrade.entry.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            else -> (account.balancePerTrade * account.leverage) / sizingTrade.entry
+        }
+
+        val currentTime = Clock.System.now()
+        val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+
+        val params = OrderFormParams(
+            id = UUID.randomUUID(),
+            formType = OrderFormType.New { formValidator ->
+                OrderFormModel(
+                    validator = formValidator,
+                    ticker = sizingTrade.ticker,
+                    quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
+                    isBuy = isBuy,
+                    price = sizingTrade.entry.toPlainString(),
+                    timestamp = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
+                )
+            },
+        )
+
+        orderFormParams = orderFormParams.add(params)
+    }
+
+    private fun onCloseOrderForm(id: UUID) {
+
+        val params = orderFormParams.first { it.id == id }
+
+        orderFormParams = orderFormParams.remove(params)
     }
 
     @Composable

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trades
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -13,6 +14,10 @@ internal class SizingTradesRepo(
 
     val allTrades: Flow<List<SizingTrade>>
         get() = tradesDB.sizingTradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+
+    fun getById(id: Long): Flow<SizingTrade> {
+        return tradesDB.sizingTradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
 
     suspend fun new(
         ticker: String,

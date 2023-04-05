@@ -14,8 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.sizing.model.SizedTrade
-import com.saurabhsandav.core.ui.sizing.model.SizingEvent
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
+import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
+import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.ImmutableList
 
@@ -31,12 +32,24 @@ internal fun SizingScreen(
 
     SizingTradesGrid(
         sizedTrades = state.sizedTrades,
-        onUpdateEntry = { id, entry -> presenter.event(SizingEvent.UpdateTradeEntry(id, entry)) },
-        onUpdateStop = { id, stop -> presenter.event(SizingEvent.UpdateTradeStop(id, stop)) },
-        onOpenTrade = { presenter.event(SizingEvent.OpenTrade(it)) },
-        onDeleteTrade = { presenter.event(SizingEvent.RemoveTrade(it)) },
-        onAddTrade = { presenter.event(SizingEvent.AddTrade(it)) },
+        onUpdateEntry = { id, entry -> presenter.event(UpdateTradeEntry(id, entry)) },
+        onUpdateStop = { id, stop -> presenter.event(UpdateTradeStop(id, stop)) },
+        onOpenLiveTrade = { id -> presenter.event(OpenLiveTrade(id)) },
+        onDeleteTrade = { id -> presenter.event(RemoveTrade(id)) },
+        onAddTrade = { ticker -> presenter.event(AddTrade(ticker)) },
     )
+
+    // Order form windows
+    state.orderFormParams.forEach { params ->
+
+        key(params.id) {
+
+            OrderFormWindow(
+                formType = params.formType,
+                onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
+            )
+        }
+    }
 }
 
 @Composable
@@ -44,7 +57,7 @@ private fun SizingTradesGrid(
     sizedTrades: ImmutableList<SizedTrade>,
     onUpdateEntry: (id: Long, entry: String) -> Unit,
     onUpdateStop: (id: Long, stop: String) -> Unit,
-    onOpenTrade: (Long) -> Unit,
+    onOpenLiveTrade: (Long) -> Unit,
     onDeleteTrade: (Long) -> Unit,
     onAddTrade: (ticker: String) -> Unit,
 ) {
@@ -65,7 +78,7 @@ private fun SizingTradesGrid(
                 sizedTrade = sizedTrade,
                 onUpdateEntry = { entry -> onUpdateEntry(sizedTrade.id, entry) },
                 onUpdateStop = { stop -> onUpdateStop(sizedTrade.id, stop) },
-                onOpenTrade = { onOpenTrade(sizedTrade.id) },
+                onOpenLiveTrade = { onOpenLiveTrade(sizedTrade.id) },
                 onDeleteTrade = { onDeleteTrade(sizedTrade.id) },
             )
         }
@@ -81,7 +94,7 @@ private fun SizingTradeCard(
     sizedTrade: SizedTrade,
     onUpdateEntry: (String) -> Unit,
     onUpdateStop: (String) -> Unit,
-    onOpenTrade: () -> Unit,
+    onOpenLiveTrade: () -> Unit,
     onDeleteTrade: () -> Unit,
 ) {
 
@@ -162,18 +175,17 @@ private fun SizingTradeCard(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
 
             TextButton(
-                onClick = { onOpenTrade() },
-                modifier = Modifier.weight(1F),
+                onClick = onOpenLiveTrade,
             ) {
-                Text("Open Trade")
+                Text("Open Live Trade")
             }
 
             TextButton(
-                onClick = { onDeleteTrade() },
-                modifier = Modifier.weight(1F),
+                onClick = onDeleteTrade,
             ) {
                 Text("Delete")
             }

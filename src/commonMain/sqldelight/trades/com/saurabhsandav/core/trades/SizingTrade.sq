@@ -11,7 +11,7 @@ insert:
 INSERT INTO SizingTrade (ticker, entry, stop)
 VALUES (?, ?, ?);
 
-get:
+getById:
 SELECT * FROM SizingTrade
 WHERE id = ?;
 
