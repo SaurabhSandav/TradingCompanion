@@ -3,9 +3,7 @@ package com.saurabhsandav.core
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
-import com.saurabhsandav.core.trades.TradeManagementJob
-import com.saurabhsandav.core.trades.TradeOrdersRepo
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -45,7 +43,7 @@ internal class AppModule {
         AppDB(driver = driver)
     }
 
-    val tradesDB: TradesDB = run {
+    private val tradesDB: TradesDB = run {
         val driver = JdbcSqliteDriver(
             url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/Trades.db",
             properties = Properties().apply { put("foreign_keys", "true") },

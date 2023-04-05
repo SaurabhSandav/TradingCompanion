@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.Trade
+import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trading.CandleSeries

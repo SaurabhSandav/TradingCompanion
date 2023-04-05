@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trading.data
 
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.CandleDB
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.utils.AppPaths

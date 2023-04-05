@@ -1,8 +1,5 @@
 package com.saurabhsandav.core.trades
 
-import com.saurabhsandav.core.Trade
-import com.saurabhsandav.core.TradeOrder
-import com.saurabhsandav.core.TradesDB
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage

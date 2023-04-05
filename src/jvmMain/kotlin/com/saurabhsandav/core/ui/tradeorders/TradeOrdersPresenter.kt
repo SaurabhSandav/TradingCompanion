@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.TradeOrder
+import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradeOrdersRepo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage

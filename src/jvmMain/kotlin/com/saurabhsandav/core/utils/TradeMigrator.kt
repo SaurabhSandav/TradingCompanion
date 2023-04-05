@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.*
-import com.saurabhsandav.core.trades.TradeOrdersRepo
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.ClosedTrade
+import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import kotlinx.coroutines.CoroutineScope

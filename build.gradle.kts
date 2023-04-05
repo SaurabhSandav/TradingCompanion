@@ -170,14 +170,14 @@ sqldelight {
     }
 
     database("TradesDB") {
-        packageName = "com.saurabhsandav.core"
+        packageName = "com.saurabhsandav.core.trades"
         sourceFolders = listOf("sqldelight/trades")
         schemaOutputDirectory = file("build/dbs")
         dialect = "sqlite:3.25"
     }
 
     database("CandleDB") {
-        packageName = "com.saurabhsandav.core"
+        packageName = "com.saurabhsandav.core.trading.data"
         sourceFolders = listOf("sqldelight/candles")
         schemaOutputDirectory = file("build/dbs")
         dialect = "sqlite:3.25"
