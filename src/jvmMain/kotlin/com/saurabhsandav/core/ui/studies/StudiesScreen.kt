@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
-import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.studies.impl.Study
 
@@ -27,7 +27,8 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val studyWindowsManager = remember { MultipleWindowManager<Study.Factory<*>>() }
+    val studyFactories = remember { mutableStateListOf<Study.Factory<*>>() }
+    var bringToFrontStudyFactory by remember { mutableStateOf<Study.Factory<*>?>(null) }
 
     // Set window title
     WindowTitle("Studies")
@@ -45,9 +46,10 @@ internal fun StudiesScreen(
 
                 ListItem(
                     modifier = Modifier.clickable {
-                        if (!studyWindowsManager.windows.any { it.params == studyFactory }) {
-                            studyWindowsManager.openNewWindow(studyFactory)
-                        }
+                        if (studyFactory !in studyFactories)
+                            studyFactories.add(studyFactory)
+
+                        bringToFrontStudyFactory = studyFactory
                     },
                     headlineText = { Text(studyFactory.name) },
                 )
@@ -60,22 +62,44 @@ internal fun StudiesScreen(
         )
     }
 
-    studyWindowsManager.windows.forEach { windowEntry ->
+    studyFactories.forEach { studyFactory ->
 
-        key(windowEntry) {
+        key(studyFactory) {
 
-            val studyFactory = windowEntry.params
+            val appWindowOwner = remember { AppWindowOwner() }
 
-            AppWindow(
-                onCloseRequest = { windowEntry.close() },
-                state = rememberWindowState(placement = WindowPlacement.Maximized),
-                title = studyFactory.name,
-            ) {
+            AppWindowOwner(appWindowOwner) {
 
-                val study = remember(studyFactory) { studyFactory.create() }
+                StudyWindow(
+                    studyFactory = studyFactory,
+                    onCloseRequest = { studyFactories.remove(studyFactory) },
+                )
+            }
 
-                study.render()
+            LaunchedEffect(bringToFrontStudyFactory) {
+                if (bringToFrontStudyFactory == studyFactory) {
+                    appWindowOwner.childrenToFront()
+                    bringToFrontStudyFactory = null
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun StudyWindow(
+    studyFactory: Study.Factory<*>,
+    onCloseRequest: () -> Unit,
+) {
+
+    AppWindow(
+        onCloseRequest = onCloseRequest,
+        state = rememberWindowState(placement = WindowPlacement.Maximized),
+        title = studyFactory.name,
+    ) {
+
+        val study = remember(studyFactory) { studyFactory.create() }
+
+        study.render()
     }
 }

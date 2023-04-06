@@ -6,6 +6,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.studies.impl.*
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 
 @Stable
@@ -17,7 +18,7 @@ internal class StudiesPresenter(
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         val studies = remember {
-            listOf(
+            persistentListOf(
                 PNLStudy.Factory(appModule),
                 PNLByDayStudy.Factory(appModule),
                 PNLByDayChartStudy.Factory(appModule),
