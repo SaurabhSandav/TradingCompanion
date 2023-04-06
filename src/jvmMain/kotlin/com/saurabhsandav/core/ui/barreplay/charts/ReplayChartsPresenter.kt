@@ -10,6 +10,8 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.trades.TradeOrdersRepo
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -24,19 +26,18 @@ import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.Replay
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Instant
+import kotlinx.coroutines.flow.*
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
@@ -52,6 +53,8 @@ internal class ReplayChartsPresenter(
     private val initialTicker: String,
     private val appModule: AppModule,
     private val candleRepo: CandleRepository = appModule.candleRepo,
+    private val tradesRepo: TradesRepo = appModule.tradesRepo,
+    private val tradeOrdersRepo: TradeOrdersRepo = appModule.tradeOrdersRepo,
 ) {
 
     private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -236,7 +239,7 @@ internal class ReplayChartsPresenter(
         }
 
         val candleSource = candleSources.getOrPut(ticker to timeframe) {
-            ReplayCandleSource(ticker, timeframe, ::createReplaySession)
+            ReplayCandleSource(ticker, timeframe, ::createReplaySession, ::getMarkers)
         }
 
         // Set ReplayCandleSource on StockChart
@@ -331,6 +334,79 @@ internal class ReplayChartsPresenter(
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
         }
+    }
+
+    private fun getMarkers(
+        ticker: String,
+        candleSeries: CandleSeries,
+    ): Flow<List<SeriesMarker>> {
+
+        fun Instant.markerTime(): Instant {
+            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
+            return candleSeries[markerCandleIndex].openInstant
+        }
+
+        val orderMarkers = candleSeries.instantRange.flatMapLatest { instantRange ->
+
+            instantRange ?: return@flatMapLatest emptyFlow()
+
+            val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
+                    instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+
+            tradeOrdersRepo.getOrdersByTickerInInterval(
+                ticker,
+                ldtRange,
+            )
+        }.mapList { order ->
+
+            val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
+
+            TradeOrderMarker(
+                instant = orderInstant.markerTime(),
+                orderType = order.type,
+                price = order.price,
+            )
+        }
+
+        val tradeMarkers = candleSeries.instantRange.flatMapLatest { instantRange ->
+
+            instantRange ?: return@flatMapLatest emptyFlow()
+
+            val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
+                    instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+
+            tradesRepo.getByTickerInInterval(ticker, ldtRange)
+        }.map { trades ->
+            trades.flatMap { trade ->
+
+                val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
+
+                buildList {
+
+                    add(
+                        TradeMarker(
+                            instant = entryInstant.markerTime(),
+                            isEntry = true,
+                        )
+                    )
+
+                    if (trade.isClosed) {
+
+                        val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
+
+                        add(
+                            TradeMarker(
+                                instant = exitInstant.markerTime(),
+                                isEntry = false,
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs -> orderMkrs + tradeMkrs }
+            .flowOn(Dispatchers.IO)
     }
 
     private fun formattedReplayTime(currentInstant: Instant): String {

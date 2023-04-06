@@ -34,6 +34,13 @@ SELECT *
 FROM TradeOrder
 WHERE id = ?;
 
+getByTickerInInterval:
+SELECT *
+FROM TradeOrder
+WHERE ticker = :ticker
+AND datetime(:from) < datetime(timestamp)
+AND datetime(timestamp) < datetime(:to);
+
 isLocked:
 SELECT locked
 FROM TradeOrder
