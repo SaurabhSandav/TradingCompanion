@@ -31,25 +31,21 @@ internal class PNLByDayChartStudy(
         .trades
         .allTrades
         .map { trades ->
-            trades.filter { it.isClosed }.map { trade ->
-
-                trade.entryTimestamp.date to brokerage(
-                    broker = trade.broker,
-                    instrument = trade.instrument,
-                    entry = trade.averageEntry,
-                    exit = trade.averageExit!!,
-                    quantity = trade.quantity,
-                    side = trade.side,
-                ).netPNL
-            }
-        }
-        .map { listOfPairs ->
-            listOfPairs
+            trades.filter { it.isClosed }
                 .asReversed()
-                .groupingBy { it.first }
+                .groupingBy { trade -> trade.entryTimestamp.date }
                 .fold(
                     initialValueSelector = { _, _ -> BigDecimal.ZERO },
-                    operation = { _, accumulator, element -> accumulator + element.second },
+                    operation = { _, accumulator, trade ->
+                        accumulator + brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = trade.averageExit!!,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        ).netPNL
+                    },
                 )
                 .map { (localDate, bigDecimal) ->
                     LineData(
