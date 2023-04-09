@@ -5,6 +5,7 @@ import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
+import com.saurabhsandav.core.chart.options.common.PriceFormat
 
 class CandlestickPlotter(
     private val chart: IChartApi,
@@ -27,6 +28,10 @@ class CandlestickPlotter(
             name = "candlestickSeries",
             options = CandlestickStyleOptions(
                 lastValueVisible = false,
+                priceFormat = PriceFormat.BuiltIn(
+                    type = PriceFormat.Type.Price,
+                    minMove = 0.05,
+                ),
             ),
         )
     }
