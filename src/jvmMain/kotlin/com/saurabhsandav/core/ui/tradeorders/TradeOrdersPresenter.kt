@@ -96,7 +96,11 @@ internal class TradeOrdersPresenter(
 
     private fun TradeOrder.toTradeOrderListEntry(profileId: Long) = TradeOrderEntry(
         profileOrderId = ProfileOrderId(profileId = profileId, orderId = id),
-        broker = broker,
+        broker = run {
+            val instrumentCapitalized = instrument.strValue
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            "$broker ($instrumentCapitalized)"
+        },
         ticker = ticker,
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
         type = type.strValue.uppercase(),
