@@ -26,6 +26,7 @@ internal class TradeOrdersRepo(
 
     suspend fun new(
         broker: String,
+        instrument: Instrument,
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
@@ -39,6 +40,7 @@ internal class TradeOrdersRepo(
             // Insert Trade order
             tradesDB.tradeOrderQueries.insert(
                 broker = broker,
+                instrument = instrument,
                 ticker = ticker,
                 quantity = quantity,
                 lots = lots,
@@ -62,6 +64,7 @@ internal class TradeOrdersRepo(
     suspend fun edit(
         id: Long,
         broker: String,
+        instrument: Instrument,
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
@@ -78,6 +81,7 @@ internal class TradeOrdersRepo(
             tradesDB.tradeOrderQueries.update(
                 id = id,
                 broker = broker,
+                instrument = instrument,
                 ticker = ticker,
                 quantity = quantity,
                 lots = lots,
@@ -192,7 +196,9 @@ internal class TradeOrdersRepo(
         // Currently open trades
         val openTrades = tradesDB.tradeQueries.getOpenTrades().executeAsList()
         // Trade that will consume this order
-        val openTrade = openTrades.find { it.broker == order.broker && it.ticker == order.ticker }
+        val openTrade = openTrades.find {
+            it.broker == order.broker && it.instrument == order.instrument && it.ticker == order.ticker
+        }
 
         // No open trade exists to consume order. Create new trade.
         if (openTrade == null) {
@@ -201,7 +207,7 @@ internal class TradeOrdersRepo(
             tradesDB.tradeQueries.insert(
                 broker = order.broker,
                 ticker = order.ticker,
-                instrument = Instrument.Equity,
+                instrument = order.instrument,
                 quantity = order.quantity,
                 closedQuantity = BigDecimal.ZERO,
                 lots = null,
@@ -230,7 +236,9 @@ internal class TradeOrdersRepo(
 
             // Quantity of instrument that is still open after consuming current order
             val currentOpenQuantity = openTrade.quantity - when {
-                (openTrade.side == TradeSide.Long && order.type == OrderType.Sell) || (openTrade.side == TradeSide.Short && order.type == OrderType.Buy) -> openTrade.closedQuantity + order.quantity
+                (openTrade.side == TradeSide.Long && order.type == OrderType.Sell) ||
+                        (openTrade.side == TradeSide.Short && order.type == OrderType.Buy) ->
+                    openTrade.closedQuantity + order.quantity
 
                 else -> openTrade.closedQuantity
             }
@@ -262,7 +270,7 @@ internal class TradeOrdersRepo(
                 tradesDB.tradeQueries.insert(
                     broker = order.broker,
                     ticker = order.ticker,
-                    instrument = Instrument.Equity,
+                    instrument = order.instrument,
                     quantity = overrideQuantity,
                     closedQuantity = BigDecimal.ZERO,
                     lots = null,
@@ -328,7 +336,7 @@ internal class TradeOrdersRepo(
         val brokerage = averageExit?.let {
             brokerage(
                 broker = firstOrder.broker,
-                instrument = Instrument.Equity,
+                instrument = firstOrder.instrument,
                 entry = averageEntry,
                 exit = averageExit,
                 quantity = closedQuantity,
@@ -340,7 +348,7 @@ internal class TradeOrdersRepo(
             id = -1,
             broker = firstOrder.broker,
             ticker = firstOrder.ticker,
-            instrument = Instrument.Equity,
+            instrument = firstOrder.instrument,
             quantity = entryQuantity,
             closedQuantity = closedQuantity,
             lots = if (lots == 0) null else lots,
@@ -385,6 +393,7 @@ internal class TradeOrdersRepo(
     private fun toTradeOrder(
         id: Long,
         broker: String,
+        instrument: Instrument,
         ticker: String,
         @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
         lots: Int?,
@@ -396,6 +405,7 @@ internal class TradeOrdersRepo(
     ) = TradeOrder(
         id = id,
         broker = broker,
+        instrument = instrument,
         ticker = ticker,
         quantity = overrideQuantity.toBigDecimal(),
         lots = lots,

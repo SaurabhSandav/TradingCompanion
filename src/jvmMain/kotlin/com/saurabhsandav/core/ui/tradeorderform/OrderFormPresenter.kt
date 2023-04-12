@@ -69,6 +69,7 @@ internal class OrderFormPresenter(
             is Edit -> tradingRecord.orders.edit(
                 id = formType.id,
                 broker = "Finvasia",
+                instrument = Instrument.fromString(formModel.instrument.value!!),
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = null,
@@ -79,6 +80,7 @@ internal class OrderFormPresenter(
 
             else -> tradingRecord.orders.new(
                 broker = "Finvasia",
+                instrument = Instrument.fromString(formModel.instrument.value!!),
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = null,
@@ -118,7 +120,7 @@ internal class OrderFormPresenter(
 
         formModel = OrderFormModel(
             validator = formValidator,
-            instrument = Instrument.Equity.strValue,
+            instrument = order.instrument.strValue,
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             isBuy = order.type == OrderType.Buy,
@@ -139,7 +141,7 @@ internal class OrderFormPresenter(
 
         formModel = OrderFormModel(
             validator = formValidator,
-            instrument = Instrument.Equity.strValue,
+            instrument = order.instrument.strValue,
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             isBuy = order.type == OrderType.Buy,

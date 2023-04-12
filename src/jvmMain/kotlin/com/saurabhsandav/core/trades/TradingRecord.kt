@@ -45,6 +45,7 @@ internal class TradingRecord(
                 maePriceAdapter = BigDecimalColumnAdapter,
             ),
             TradeOrderAdapter = TradeOrder.Adapter(
+                instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 typeAdapter = OrderType.OrderTypeColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,

@@ -1,10 +1,12 @@
+import com.saurabhsandav.core.trades.model.Instrument;
+import com.saurabhsandav.core.trades.model.OrderType;
 import java.math.BigDecimal;
 import kotlinx.datetime.LocalDateTime;
-import com.saurabhsandav.core.trades.model.OrderType;
 
 CREATE TABLE IF NOT EXISTS TradeOrder (
 id INTEGER NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
@@ -16,12 +18,12 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeOrder(broker, ticker, quantity, lots, type, price, timestamp, locked)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INTO TradeOrder(broker, instrument, ticker, quantity, lots, type, price, timestamp, locked)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TradeOrder
-SET broker = ?, ticker = ?, quantity = ?, lots = ?, type = ?, price = ?, timestamp = ?
+SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, type = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
 getAll:

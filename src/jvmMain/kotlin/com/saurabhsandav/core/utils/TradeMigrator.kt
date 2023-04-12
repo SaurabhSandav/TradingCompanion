@@ -3,6 +3,7 @@ package com.saurabhsandav.core.utils
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.ClosedTrade
 import com.saurabhsandav.core.trades.*
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,7 @@ internal class TradeMigrator(
         migratedTradeOrders.forEach {
             tradeOrdersRepo.new(
                 broker = it.broker,
+                instrument = it.instrument,
                 ticker = it.ticker,
                 quantity = it.quantity,
                 lots = it.lots,
@@ -73,6 +75,7 @@ internal class TradeMigrator(
                         TradeOrder(
                             id = 0,
                             broker = it.broker,
+                            instrument = Instrument.fromString(it.instrument),
                             ticker = it.ticker,
                             quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
@@ -84,6 +87,7 @@ internal class TradeMigrator(
                         TradeOrder(
                             id = 0,
                             broker = it.broker,
+                            instrument = Instrument.fromString(it.instrument),
                             ticker = it.ticker,
                             quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
@@ -100,6 +104,7 @@ internal class TradeMigrator(
                         TradeOrder(
                             id = 0,
                             broker = it.broker,
+                            instrument = Instrument.fromString(it.instrument),
                             ticker = it.ticker,
                             quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
@@ -111,6 +116,7 @@ internal class TradeMigrator(
                         TradeOrder(
                             id = 0,
                             broker = it.broker,
+                            instrument = Instrument.fromString(it.instrument),
                             ticker = it.ticker,
                             quantity = it.quantity.toBigDecimal(),
                             lots = it.lots,
