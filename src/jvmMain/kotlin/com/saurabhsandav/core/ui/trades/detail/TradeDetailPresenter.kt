@@ -76,7 +76,7 @@ internal class TradeDetailPresenter(
 
             tradingRecord.trades.getById(tradeId).collect { trade ->
 
-                val instrumentCapitalized = trade.instrument
+                val instrumentCapitalized = trade.instrument.strValue
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
                 val timeZone = TimeZone.of("Asia/Kolkata")

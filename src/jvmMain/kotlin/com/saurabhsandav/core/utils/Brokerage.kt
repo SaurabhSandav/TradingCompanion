@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.utils
 
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -14,18 +15,17 @@ data class Brokerage(
 
 internal fun brokerage(
     broker: String,
-    instrument: String,
+    instrument: Instrument,
     entry: BigDecimal,
     exit: BigDecimal,
     quantity: BigDecimal,
     side: TradeSide,
 ): Brokerage {
 
-    val (sttMultiplier, excTransChargeMultiplier) = when (instrument.lowercase()) {
-        "equity" -> "0.00025".toBigDecimal() to "0.0000345".toBigDecimal()
-        "futures" -> "0.0001".toBigDecimal() to "0.00002".toBigDecimal()
-        "options" -> "0.0005".toBigDecimal() to "0.00053".toBigDecimal()
-        else -> error("Invalid instrument: $instrument")
+    val (sttMultiplier, excTransChargeMultiplier) = when (instrument) {
+        Instrument.Equity -> "0.00025".toBigDecimal() to "0.0000345".toBigDecimal()
+        Instrument.Futures -> "0.0001".toBigDecimal() to "0.00002".toBigDecimal()
+        Instrument.Options -> "0.0005".toBigDecimal() to "0.00053".toBigDecimal()
     }
 
     val (buyPrice, sellPrice) = when (side) {

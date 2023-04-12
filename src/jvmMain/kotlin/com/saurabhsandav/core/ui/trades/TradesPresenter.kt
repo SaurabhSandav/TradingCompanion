@@ -125,7 +125,7 @@ internal class TradesPresenter(
 
     private fun Trade.toTradeListEntry(profileId: Long): TradeEntry {
 
-        val instrumentCapitalized = instrument
+        val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         val timeZone = TimeZone.of("Asia/Kolkata")

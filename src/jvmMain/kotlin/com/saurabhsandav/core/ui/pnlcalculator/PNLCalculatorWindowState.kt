@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.pnlcalculator
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.*
@@ -259,7 +260,7 @@ internal class PNLCalculatorWindowState(
         side: TradeSide,
     ): Brokerage = brokerage(
         broker = "Finvasia",
-        instrument = "equity",
+        instrument = Instrument.Equity,
         entry = entry,
         exit = exit,
         quantity = quantity,

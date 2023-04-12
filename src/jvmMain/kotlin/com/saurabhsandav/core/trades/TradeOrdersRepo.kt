@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.trades
 
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage
@@ -200,7 +201,7 @@ internal class TradeOrdersRepo(
             tradesDB.tradeQueries.insert(
                 broker = order.broker,
                 ticker = order.ticker,
-                instrument = "equity",
+                instrument = Instrument.Equity,
                 quantity = order.quantity,
                 closedQuantity = BigDecimal.ZERO,
                 lots = null,
@@ -261,7 +262,7 @@ internal class TradeOrdersRepo(
                 tradesDB.tradeQueries.insert(
                     broker = order.broker,
                     ticker = order.ticker,
-                    instrument = "equity",
+                    instrument = Instrument.Equity,
                     quantity = overrideQuantity,
                     closedQuantity = BigDecimal.ZERO,
                     lots = null,
@@ -327,7 +328,7 @@ internal class TradeOrdersRepo(
         val brokerage = averageExit?.let {
             brokerage(
                 broker = firstOrder.broker,
-                instrument = "equity",
+                instrument = Instrument.Equity,
                 entry = averageEntry,
                 exit = averageExit,
                 quantity = closedQuantity,
@@ -339,7 +340,7 @@ internal class TradeOrdersRepo(
             id = -1,
             broker = firstOrder.broker,
             ticker = firstOrder.ticker,
-            instrument = "equity",
+            instrument = Instrument.Equity,
             quantity = entryQuantity,
             closedQuantity = closedQuantity,
             lots = if (lots == 0) null else lots,

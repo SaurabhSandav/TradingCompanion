@@ -14,6 +14,7 @@ import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.chart.options.PriceLineOptions
 import com.saurabhsandav.core.chart.options.common.LineStyle
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -131,7 +132,7 @@ internal class ClosedTradesPresenter(
 
         val brokerage = brokerage(
             broker = broker,
-            instrument = instrument,
+            instrument = Instrument.fromString(instrument),
             entry = entryBD,
             exit = exitBD,
             quantity = quantityBD,

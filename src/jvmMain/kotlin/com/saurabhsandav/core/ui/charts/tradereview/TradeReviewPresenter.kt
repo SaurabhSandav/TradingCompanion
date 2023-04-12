@@ -115,7 +115,7 @@ internal class TradeReviewPresenter(
 
     private fun Trade.toTradeListEntry(isMarked: Boolean): TradeEntry {
 
-        val instrumentCapitalized = instrument
+        val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         val timeZone = TimeZone.of("Asia/Kolkata")

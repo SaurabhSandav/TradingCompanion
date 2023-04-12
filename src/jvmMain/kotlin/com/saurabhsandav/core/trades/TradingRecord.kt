@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.trades
 
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -27,6 +28,7 @@ internal class TradingRecord(
                 stopAdapter = BigDecimalColumnAdapter,
             ),
             TradeAdapter = Trade.Adapter(
+                instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 closedQuantityAdapter = BigDecimalColumnAdapter,
                 sideAdapter = TradeSide.ColumnAdapter,

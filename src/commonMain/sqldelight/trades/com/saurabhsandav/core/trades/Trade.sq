@@ -1,12 +1,13 @@
+import com.saurabhsandav.core.trades.model.Instrument;
+import com.saurabhsandav.core.trades.model.TradeSide;
 import java.math.BigDecimal;
 import kotlinx.datetime.LocalDateTime;
-import com.saurabhsandav.core.trades.model.TradeSide;
 
 CREATE TABLE IF NOT EXISTS Trade (
 id INTEGER NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
 ticker TEXT NOT NULL,
-instrument TEXT NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 closedQuantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
