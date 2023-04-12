@@ -8,6 +8,7 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
@@ -96,6 +97,7 @@ internal class OrderFormPresenter(
 
         this.formModel = formModel?.invoke(formValidator) ?: OrderFormModel(
             validator = formValidator,
+            instrument = null,
             ticker = null,
             quantity = "",
             isBuy = true,
@@ -116,6 +118,7 @@ internal class OrderFormPresenter(
 
         formModel = OrderFormModel(
             validator = formValidator,
+            instrument = Instrument.Equity.strValue,
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             isBuy = order.type == OrderType.Buy,
@@ -136,6 +139,7 @@ internal class OrderFormPresenter(
 
         formModel = OrderFormModel(
             validator = formValidator,
+            instrument = Instrument.Equity.strValue,
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             isBuy = order.type == OrderType.Buy,

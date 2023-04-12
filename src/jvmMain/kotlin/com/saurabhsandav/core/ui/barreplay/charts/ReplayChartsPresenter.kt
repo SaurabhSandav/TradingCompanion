@@ -9,6 +9,7 @@ import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -193,6 +194,7 @@ internal class ReplayChartsPresenter(
             formType = OrderFormType.New { formValidator ->
                 OrderFormModel(
                     validator = formValidator,
+                    instrument = Instrument.Equity.strValue,
                     ticker = replayCandleSource.ticker,
                     quantity = "",
                     isBuy = true,
@@ -219,6 +221,7 @@ internal class ReplayChartsPresenter(
             formType = OrderFormType.New { formValidator ->
                 OrderFormModel(
                     validator = formValidator,
+                    instrument = Instrument.Equity.strValue,
                     ticker = replayCandleSource.ticker,
                     quantity = "",
                     isBuy = false,

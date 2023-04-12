@@ -8,6 +8,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.CollectEffect
@@ -160,6 +161,7 @@ internal class SizingPresenter(
             formType = OrderFormType.New { formValidator ->
                 OrderFormModel(
                     validator = formValidator,
+                    instrument = Instrument.Equity.strValue,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
                     isBuy = isBuy,

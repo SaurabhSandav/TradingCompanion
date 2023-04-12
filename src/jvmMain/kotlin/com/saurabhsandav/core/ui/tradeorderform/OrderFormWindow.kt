@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
@@ -18,6 +19,8 @@ import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.NIFTY50
+import kotlinx.collections.immutable.toImmutableList
+import java.util.*
 
 @Composable
 internal fun OrderFormWindow(
@@ -32,7 +35,7 @@ internal fun OrderFormWindow(
     val presenter = remember { OrderFormPresenter(scope, profileId, formType, appModule, onOrderSaved = onOrderSaved) }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(size = DpSize(300.dp, 400.dp))
+    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 450.dp))
 
     AppWindow(
         onCloseRequest = onCloseRequest,
@@ -70,6 +73,21 @@ private fun OrderForm(
         modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+
+        ListSelectionField(
+            items = remember {
+                enumValues<Instrument>().map { instrument ->
+                    instrument.strValue.replaceFirstChar { char ->
+                        if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                    }
+                }.toImmutableList()
+            },
+            onSelection = { model.instrument.value = it },
+            selection = model.instrument.value,
+            label = { Text("Instrument") },
+            isError = model.instrument.isError,
+            supportingText = optionalContent(model.instrument.errorMessage) { Text(it) },
+        )
 
         ListSelectionField(
             items = NIFTY50,

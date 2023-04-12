@@ -25,12 +25,15 @@ internal data class OrderFormState(
 @Stable
 internal class OrderFormModel(
     validator: FormValidator,
+    instrument: String?,
     ticker: String?,
     quantity: String,
     isBuy: Boolean,
     price: String,
     timestamp: LocalDateTime,
 ) {
+
+    val instrument = validator.listSelectionField(instrument)
 
     val ticker = validator.listSelectionField(ticker)
 

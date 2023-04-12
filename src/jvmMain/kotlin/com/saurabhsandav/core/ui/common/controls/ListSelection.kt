@@ -58,8 +58,10 @@ fun ListSelectionField(
             else -> MaterialTheme.colorScheme.onSurface
         }
 
+        val selectedItem = remember(items, selection) { items.firstOrNull { it.lowercase() == selection?.lowercase() } }
+
         OutlinedTextField(
-            value = selection ?: placeholderText,
+            value = selectedItem ?: placeholderText,
             onValueChange = {},
             label = label,
             supportingText = supportingText,
