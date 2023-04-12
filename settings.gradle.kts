@@ -36,7 +36,8 @@ dependencyResolutionManagement {
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.77.0")
+            from("com.saurabhsandav:common-versions:0.78.0")
+            version("molecule", "0.9.0")
         }
     }
 }
