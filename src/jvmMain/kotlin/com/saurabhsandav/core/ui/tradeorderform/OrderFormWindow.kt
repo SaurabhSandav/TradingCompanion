@@ -32,10 +32,15 @@ internal fun OrderFormWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { OrderFormPresenter(scope, profileId, formType, appModule, onOrderSaved = onOrderSaved) }
+    val presenter = remember {
+        OrderFormPresenter(scope, profileId, formType, appModule) { id ->
+            onOrderSaved?.invoke(id)
+            onCloseRequest()
+        }
+    }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 500.dp))
+    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 550.dp))
 
     AppWindow(
         onCloseRequest = onCloseRequest,
@@ -51,10 +56,7 @@ internal fun OrderFormWindow(
             when {
                 formModel != null -> OrderForm(
                     model = formModel,
-                    onSaveOrder = {
-                        state.onSaveOrder()
-                        onCloseRequest()
-                    }
+                    onSaveOrder = { state.onSaveOrder() },
                 )
 
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -70,8 +72,8 @@ private fun OrderForm(
 ) {
 
     Column(
-        modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxHeight().padding(16.dp).width(IntrinsicSize.Min),
+        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
         ListSelectionField(
