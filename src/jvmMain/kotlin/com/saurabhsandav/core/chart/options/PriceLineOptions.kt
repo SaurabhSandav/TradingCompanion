@@ -17,6 +17,8 @@ data class PriceLineOptions(
     val lineVisible: Boolean? = null,
     val axisLabelVisible: Boolean? = null,
     val title: String? = null,
+    val axisLabelColor: Color? = null,
+    val axisLabelTextColor: Color? = null,
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
@@ -27,5 +29,7 @@ data class PriceLineOptions(
         lineVisible?.let { put("lineVisible", it) }
         axisLabelVisible?.let { put("axisLabelVisible", it) }
         title?.let { put("title", it) }
+        axisLabelColor?.let { put("axisLabelColor", it.toHexString()) }
+        axisLabelTextColor?.let { put("axisLabelTextColor", it.toHexString()) }
     }
 }
