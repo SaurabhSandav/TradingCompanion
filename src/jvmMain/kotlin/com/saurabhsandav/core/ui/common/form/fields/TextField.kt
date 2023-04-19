@@ -18,7 +18,10 @@ private class TextField(
                 errorMessage = "Required"
             }
 
-            !isRequired && value.isBlank() -> Unit
+            !isRequired && value.isBlank() -> {
+                isValid = true
+                errorMessage = null
+            }
 
             else -> super.validate()
         }
