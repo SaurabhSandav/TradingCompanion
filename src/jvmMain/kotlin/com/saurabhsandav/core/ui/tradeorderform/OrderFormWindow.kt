@@ -35,7 +35,7 @@ internal fun OrderFormWindow(
     val presenter = remember { OrderFormPresenter(scope, profileId, formType, appModule, onOrderSaved = onOrderSaved) }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 450.dp))
+    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 500.dp))
 
     AppWindow(
         onCloseRequest = onCloseRequest,
@@ -104,6 +104,15 @@ private fun OrderForm(
             label = { Text("Quantity") },
             isError = model.quantity.isError,
             supportingText = optionalContent(model.quantity.errorMessage) { Text(it) },
+            singleLine = true,
+        )
+
+        OutlinedTextField(
+            value = model.lots.value,
+            onValueChange = { model.lots.value = it.trim() },
+            label = { Text("Lots") },
+            isError = model.lots.isError,
+            supportingText = optionalContent(model.lots.errorMessage) { Text(it) },
             singleLine = true,
         )
 

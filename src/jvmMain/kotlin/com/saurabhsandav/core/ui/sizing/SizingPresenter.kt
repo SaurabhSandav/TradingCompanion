@@ -164,6 +164,7 @@ internal class SizingPresenter(
                     instrument = Instrument.Equity.strValue,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
+                    lots = "",
                     isBuy = isBuy,
                     price = sizingTrade.entry.toPlainString(),
                     timestamp = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),

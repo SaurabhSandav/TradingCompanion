@@ -28,6 +28,7 @@ internal class OrderFormModel(
     instrument: String?,
     ticker: String?,
     quantity: String,
+    lots: String,
     isBuy: Boolean,
     price: String,
     timestamp: LocalDateTime,
@@ -43,6 +44,15 @@ internal class OrderFormModel(
             IsInt,
             Validation("Cannot be 0 or negative") { it.toInt() > 0 },
         ),
+    )
+
+    val lots = validator.textField(
+        initial = lots,
+        validations = setOf(
+            IsInt,
+            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
+        ),
+        isRequired = false,
     )
 
     val isBuy = validator.switch(isBuy)
