@@ -32,6 +32,7 @@ internal fun ProfileListItem(
     onDelete: () -> Unit,
     onUpdateProfile: (ProfileModel) -> Unit,
     onCopyProfile: () -> Unit,
+    trainingOnly: Boolean,
 ) {
 
     var showEditProfileDialog by state { false }
@@ -100,6 +101,7 @@ internal fun ProfileListItem(
             },
             onSaveProfile = onUpdateProfile,
             onCloseRequest = { showEditProfileDialog = false },
+            trainingOnly = trainingOnly,
         )
     }
 

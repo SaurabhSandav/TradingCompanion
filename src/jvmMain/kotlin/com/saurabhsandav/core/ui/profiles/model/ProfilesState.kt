@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Immutable
 data class ProfilesState(
     val profiles: ImmutableList<Profile>,
+    val currentProfile: Profile?,
 ) {
 
     @Immutable
@@ -18,7 +19,6 @@ data class ProfilesState(
         val name: String,
         val description: String,
         val isTraining: Boolean,
-        val isCurrent: Boolean,
     )
 }
 

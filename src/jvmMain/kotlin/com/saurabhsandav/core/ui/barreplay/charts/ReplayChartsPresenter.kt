@@ -1,14 +1,12 @@
 package com.saurabhsandav.core.ui.barreplay.charts
 
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
@@ -30,6 +28,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
+import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.persistentListOf
@@ -51,6 +50,7 @@ internal class ReplayChartsPresenter(
     replayFullBar: Boolean,
     private val initialTicker: String,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
@@ -81,6 +81,7 @@ internal class ReplayChartsPresenter(
                 Reset -> onReset()
                 Next -> onNext()
                 is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
+                is SelectProfile -> onSelectProfile(event.id)
                 is Buy -> onBuy(event.stockChart)
                 is Sell -> onSell(event.stockChart)
                 is CloseOrderForm -> onCloseOrderForm(event.id)
@@ -89,6 +90,8 @@ internal class ReplayChartsPresenter(
 
         return@launchMolecule ReplayChartsState(
             chartsState = chartsState,
+            selectedProfileId = remember { appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile) }
+                .collectAsState(null).value,
             orderFormParams = orderFormParams,
             chartInfo = ::getChartInfo,
         )
@@ -167,9 +170,19 @@ internal class ReplayChartsPresenter(
         stockChart.newParams(timeframe = timeframe)
     }
 
+    private fun onSelectProfile(id: Long) = coroutineScope.launchUnit {
+
+        // Save selected profile
+        appPrefs.putLong(PrefKeys.ReplayTradingProfile, id)
+
+        // Close all child windows
+        orderFormParams = orderFormParams.clear()
+    }
+
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val currentProfile = tradingProfiles.currentProfile.first()
+        val id = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).first() ?: return@launchUnit
+        val currentProfile = tradingProfiles.getProfile(id).first()
 
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySession = replayCandleSource.replaySession.await()
@@ -194,7 +207,8 @@ internal class ReplayChartsPresenter(
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val currentProfile = tradingProfiles.currentProfile.first()
+        val id = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).first() ?: return@launchUnit
+        val currentProfile = tradingProfiles.getProfile(id).first()
 
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySession = replayCandleSource.replaySession.await()

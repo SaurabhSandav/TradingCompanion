@@ -23,6 +23,7 @@ internal fun ProfileEditorDialog(
     profileModel: ((FormValidator) -> ProfileModel)?,
     onSaveProfile: (ProfileModel) -> Unit,
     onCloseRequest: () -> Unit,
+    trainingOnly: Boolean,
 ) {
 
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
@@ -74,8 +75,9 @@ internal fun ProfileEditorDialog(
                 Text("Training", Modifier.weight(1F))
 
                 Checkbox(
-                    checked = formModel.isTraining.value,
+                    checked = trainingOnly || formModel.isTraining.value,
                     onCheckedChange = { formModel.isTraining.value = it },
+                    enabled = !trainingOnly,
                 )
             }
 

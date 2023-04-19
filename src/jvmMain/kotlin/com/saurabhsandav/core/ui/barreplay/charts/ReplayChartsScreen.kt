@@ -42,6 +42,8 @@ internal fun ReplayChartsScreen(
         onReset = { presenter.event(Reset) },
         onNext = { presenter.event(Next) },
         onIsAutoNextEnabledChange = { presenter.event(ChangeIsAutoNextEnabled(it)) },
+        selectedProfileId = state.selectedProfileId,
+        onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
         onBuy = { stockChart -> presenter.event(Buy(stockChart)) },
         onSell = { stockChart -> presenter.event(Sell(stockChart)) },
     )

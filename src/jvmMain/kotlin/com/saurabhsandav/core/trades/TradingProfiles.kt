@@ -45,6 +45,10 @@ internal class TradingProfiles(
 
     val currentRecord = currentProfile.map { getRecord(it.id) }
 
+    fun getProfile(id: Long): Flow<TradingProfile> {
+        return allProfiles.map { profiles -> profiles.find { it.id == id } ?: error("Profile($id) not found") }
+    }
+
     suspend fun newProfile(
         name: String,
         description: String,

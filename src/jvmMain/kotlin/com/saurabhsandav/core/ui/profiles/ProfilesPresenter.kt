@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.profiles.model.ProfileModel
@@ -16,17 +17,19 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.*
 
 @Stable
 internal class ProfilesPresenter(
     private val coroutineScope: CoroutineScope,
     appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val customSelectionMode: Boolean = false,
+    private val trainingOnly: Boolean = false,
 ) {
 
     private val events = MutableSharedFlow<ProfilesEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private val currentProfileId = MutableStateFlow<Long?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
@@ -43,6 +46,7 @@ internal class ProfilesPresenter(
 
         return@launchMolecule ProfilesState(
             profiles = getProfiles().value,
+            currentProfile = getCurrentProfile().value,
         )
     }
 
@@ -53,18 +57,28 @@ internal class ProfilesPresenter(
     @Composable
     private fun getProfiles(): State<ImmutableList<Profile>> {
         return remember {
-            tradingProfiles.allProfiles.combine(tradingProfiles.currentProfile) { list, current ->
-                list.map {
-                    Profile(
-                        id = it.id,
-                        name = it.name,
-                        description = it.description,
-                        isTraining = it.isTraining,
-                        isCurrent = it.id == current.id,
-                    )
-                }.toImmutableList()
+            tradingProfiles.allProfiles.map { profiles ->
+                profiles.filter { if (trainingOnly) it.isTraining else true }
+                    .map(::toProfileState)
+                    .toImmutableList()
             }
         }.collectAsState(persistentListOf())
+    }
+
+    @Composable
+    private fun getCurrentProfile(): State<Profile?> {
+        return remember {
+            when {
+                customSelectionMode -> currentProfileId.flatMapLatest { currentProfileId ->
+                    when (currentProfileId) {
+                        null -> flowOf(null)
+                        else -> tradingProfiles.getProfile(currentProfileId)
+                    }
+                }
+
+                else -> tradingProfiles.currentProfile
+            }.filterNotNull().map(::toProfileState)
+        }.collectAsState(null)
     }
 
     private fun onCreateNewProfile(profileModel: ProfileModel) = coroutineScope.launchUnit {
@@ -77,7 +91,10 @@ internal class ProfilesPresenter(
     }
 
     private fun onSetCurrentProfile(id: Long) = coroutineScope.launchUnit {
-        tradingProfiles.setCurrentProfile(id)
+        when {
+            customSelectionMode -> currentProfileId.value = id
+            else -> tradingProfiles.setCurrentProfile(id)
+        }
     }
 
     private fun onDeleteProfile(id: Long) = coroutineScope.launchUnit {
@@ -104,4 +121,11 @@ internal class ProfilesPresenter(
             name = { "Copy of $it" },
         )
     }
+
+    private fun toProfileState(profile: TradingProfile) = Profile(
+        id = profile.id,
+        name = profile.name,
+        description = profile.description,
+        isTraining = profile.isTraining,
+    )
 }

@@ -5,6 +5,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TradeReviewState(
+    val selectedProfileId: Long?,
     val tradesItems: ImmutableList<TradeListItem>,
 ) {
 

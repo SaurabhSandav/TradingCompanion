@@ -12,6 +12,7 @@ import java.util.*
 @Immutable
 internal data class ReplayChartsState(
     val chartsState: StockChartsState,
+    val selectedProfileId: Long?,
     val orderFormParams: ImmutableList<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo = { ReplayChartInfo() },
 ) {

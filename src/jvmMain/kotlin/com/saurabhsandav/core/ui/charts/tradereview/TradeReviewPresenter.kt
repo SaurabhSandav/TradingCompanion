@@ -3,14 +3,14 @@ package com.saurabhsandav.core.ui.charts.tradereview
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.MarkTrade
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.SelectTrade
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
+import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.*
@@ -42,6 +43,7 @@ internal class TradeReviewPresenter(
     ) -> Unit,
     setMarkersProvider: (ChartMarkersProvider) -> Unit,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
     private val events = MutableSharedFlow<TradeReviewEvent>(extraBufferCapacity = Int.MAX_VALUE)
@@ -53,12 +55,15 @@ internal class TradeReviewPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
+                is SelectProfile -> onSelectProfile(event.id)
                 is MarkTrade -> onMarkTrade(event.id, event.isMarked)
                 is SelectTrade -> onSelectTrade(event.id)
             }
         }
 
         return@launchMolecule TradeReviewState(
+            selectedProfileId = remember { appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile) }
+                .collectAsState(null).value,
             tradesItems = getTradeListEntries().value,
         )
     }
@@ -74,24 +79,32 @@ internal class TradeReviewPresenter(
     @Composable
     private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
+            val selectedProfileIdFlow = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
 
-                tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
-                    trades
-                        .groupBy { it.entryTimestamp.date }
-                        .map { (date, list) ->
-                            listOf(
-                                date.toTradeListDayHeader(),
-                                TradeListItem.Entries(
-                                    list.map { it.toTradeListEntry(it.id in markedTradeIds) }
-                                        .toImmutableList()
-                                ),
-                            )
-                        }.flatten().toImmutableList()
+            selectedProfileIdFlow
+                .flatMapLatest { id ->
+                    if (id != null) tradingProfiles.getProfile(id) else flowOf(null)
                 }
-            }
+                .filterNotNull()
+                .flatMapLatest { profile ->
+
+                    val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                    tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
+                        trades
+                            .groupBy { it.entryTimestamp.date }
+                            .map { (date, list) ->
+                                listOf(
+                                    date.toTradeListDayHeader(),
+                                    TradeListItem.Entries(
+                                        list.map { it.toTradeListEntry(it.id in markedTradeIds) }
+                                            .toImmutableList()
+                                    ),
+                                )
+                            }.flatten().toImmutableList()
+                    }
+                }
         }.collectAsState(persistentListOf())
     }
 
@@ -128,6 +141,15 @@ internal class TradeReviewPresenter(
             netPnl = netPnl.toPlainString(),
             isNetProfitable = netPnl > BigDecimal.ZERO,
         )
+    }
+
+    private fun onSelectProfile(id: Long) = coroutineScope.launchUnit {
+
+        // Save selected profile
+        appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id)
+
+        // Clear marked trades
+        markedTradeIds.value = markedTradeIds.value.clear()
     }
 
     private fun onMarkTrade(id: Long, isMarked: Boolean) {

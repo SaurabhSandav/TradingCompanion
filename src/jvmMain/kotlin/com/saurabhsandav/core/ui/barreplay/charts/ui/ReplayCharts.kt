@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -28,6 +29,8 @@ internal fun ReplayCharts(
     onReset: () -> Unit,
     onNext: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
+    selectedProfileId: Long?,
+    onSelectProfile: (Long) -> Unit,
     onBuy: (StockChart) -> Unit,
     onSell: (StockChart) -> Unit,
 ) {
@@ -63,6 +66,13 @@ internal fun ReplayCharts(
 
         Divider()
 
+        ProfileSwitcher(
+            modifier = Modifier.fillMaxWidth(),
+            selectedProfileId = selectedProfileId,
+            onSelectProfile = onSelectProfile,
+            trainingOnly = true,
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -73,6 +83,7 @@ internal fun ReplayCharts(
                 onClick = { onBuy(stockChart) },
                 colors = ButtonDefaults.buttonColors(containerColor = AppColor.ProfitGreen),
                 content = { Text("BUY") },
+                enabled = selectedProfileId != null,
             )
 
             Button(
@@ -80,6 +91,7 @@ internal fun ReplayCharts(
                 onClick = { onSell(stockChart) },
                 colors = ButtonDefaults.buttonColors(containerColor = AppColor.LossRed),
                 content = { Text("SELL") },
+                enabled = selectedProfileId != null,
             )
         }
     }

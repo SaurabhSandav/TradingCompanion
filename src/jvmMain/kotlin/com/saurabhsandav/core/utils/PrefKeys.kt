@@ -7,6 +7,8 @@ object PrefKeys {
     const val DensityFraction = "density_fraction"
     const val FyersAccessToken = "fyers_access_token"
     const val CurrentTradingProfile = "current_trading_profile"
+    const val TradeReviewTradingProfile = "trade_review_trading_profile"
+    const val ReplayTradingProfile = "replay_trading_profile"
 
     const val PlotterCandlesEnabled = "plotter_candles_enabled"
     const val PlotterVolumeEnabled = "plotter_volume_enabled"

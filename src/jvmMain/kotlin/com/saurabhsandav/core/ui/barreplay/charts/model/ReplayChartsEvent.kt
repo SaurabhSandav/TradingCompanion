@@ -11,6 +11,8 @@ internal sealed class ReplayChartsEvent {
 
     data class ChangeIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplayChartsEvent()
 
+    data class SelectProfile(val id: Long) : ReplayChartsEvent()
+
     data class Buy(val stockChart: StockChart) : ReplayChartsEvent()
 
     data class Sell(val stockChart: StockChart) : ReplayChartsEvent()
