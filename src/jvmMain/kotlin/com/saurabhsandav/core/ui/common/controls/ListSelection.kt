@@ -53,27 +53,39 @@ fun ListSelectionField(
     Box(modifier) {
 
         val isFocused by interactionSource.collectIsFocusedAsState()
-        val surfaceColor = when {
-            isFocused -> MaterialTheme.colorScheme.surfaceTint
-            else -> MaterialTheme.colorScheme.onSurface
-        }
 
         val selectedItem = remember(items, selection) { items.firstOrNull { it.lowercase() == selection?.lowercase() } }
 
         OutlinedTextField(
-            value = selectedItem ?: placeholderText,
+            value = selectedItem ?: "",
             onValueChange = {},
             label = label,
             supportingText = supportingText,
+            placeholder = { Text(placeholderText) },
             readOnly = true,
             isError = isError,
             enabled = false,
             interactionSource = interactionSource,
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                disabledTextColor = surfaceColor,
-                disabledBorderColor = surfaceColor,
-                disabledLabelColor = surfaceColor,
-                disabledPlaceholderColor = surfaceColor,
+                disabledTextColor = when {
+                    isError -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
+                disabledBorderColor = when {
+                    isError -> MaterialTheme.colorScheme.error
+                    isFocused -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.outline
+                },
+                disabledLabelColor = when {
+                    isError -> MaterialTheme.colorScheme.error
+                    isFocused -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledSupportingTextColor = when {
+                    isError -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
             ),
         )
     }
