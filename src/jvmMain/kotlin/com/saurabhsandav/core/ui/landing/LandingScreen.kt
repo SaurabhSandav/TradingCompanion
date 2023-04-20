@@ -19,15 +19,11 @@ import com.saurabhsandav.core.ui.account.AccountPresenter
 import com.saurabhsandav.core.ui.account.AccountScreen
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
-import com.saurabhsandav.core.ui.closedtrades.ClosedTradesPresenter
-import com.saurabhsandav.core.ui.closedtrades.ClosedTradesScreen
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
-import com.saurabhsandav.core.ui.opentrades.OpenTradesPresenter
-import com.saurabhsandav.core.ui.opentrades.OpenTradesScreen
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
@@ -101,11 +97,7 @@ private fun LandingScreen(
 
             Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
-            val landingItems = remember {
-                enumValues<LandingScreen>().filter {
-                    it != LandingScreen.OpenTrades && it != LandingScreen.ClosedTrades
-                }
-            }
+            val landingItems = remember { enumValues<LandingScreen>() }
 
             landingItems.forEach { screen ->
 
@@ -186,8 +178,6 @@ private fun LandingScreen(
 
             val accountPresenter = remember { AccountPresenter(coroutineScope, appModule) }
             val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
-            val openTradesPresenter = remember { OpenTradesPresenter(coroutineScope, appModule) }
-            val closedTradesPresenter = remember { ClosedTradesPresenter(coroutineScope, appModule) }
             val tradeOrdersPresenter = remember { TradeOrdersPresenter(coroutineScope, appModule) }
             val tradesPresenter = remember { TradesPresenter(coroutineScope, appModule) }
             val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
@@ -197,8 +187,6 @@ private fun LandingScreen(
                 when (targetState) {
                     LandingScreen.Account -> AccountScreen(accountPresenter)
                     LandingScreen.TradeSizing -> SizingScreen(sizingPresenter)
-                    LandingScreen.OpenTrades -> OpenTradesScreen(openTradesPresenter)
-                    LandingScreen.ClosedTrades -> ClosedTradesScreen(closedTradesPresenter)
                     LandingScreen.TradeOrders -> TradeOrdersScreen(tradeOrdersPresenter)
                     LandingScreen.Trades -> TradesScreen(tradesPresenter)
                     LandingScreen.Studies -> StudiesScreen(studiesPresenter)

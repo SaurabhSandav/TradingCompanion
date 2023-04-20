@@ -16,8 +16,6 @@ enum class LandingScreen(
 ) {
     Account("Account", Icons.Filled.AccountBalance),
     TradeSizing("Trade Sizing", Icons.Filled.Straighten),
-    OpenTrades("Open Trades", Icons.Filled.FolderOpen),
-    ClosedTrades("Closed Trades", Icons.Filled.Folder),
     TradeOrders("Orders", Icons.Filled.FolderOpen),
     Trades("Trades", Icons.Filled.Folder),
     Studies("Studies", Icons.Filled.FactCheck);
@@ -27,8 +25,6 @@ enum class LandingScreen(
         val items = listOf(
             Account,
             TradeSizing,
-            OpenTrades,
-            ClosedTrades,
             TradeOrders,
             Trades,
             Studies,
