@@ -16,6 +16,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
+import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
@@ -74,10 +75,19 @@ internal fun ChartsScreen(
 
         AppWindowOwner(tradeReviewWindowOwner) {
 
+            val markersProvider = remember {
+                TradeReviewMarkersProvider(appModule)
+            }
+
+            DisposableEffect(presenter, markersProvider) {
+                presenter.addMarkersProvider(markersProvider)
+                onDispose { presenter.removeMarkersProvider(markersProvider) }
+            }
+
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
                 onOpenChart = { ticker, start, end -> presenter.event(OpenChart(ticker, start, end)) },
-                setMarkersProvider = { provider -> presenter.setMarkersProvider(provider) },
+                markersProvider = markersProvider,
             )
         }
     }

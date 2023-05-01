@@ -80,9 +80,14 @@ internal class ChartsPresenter(
         events.tryEmit(event)
     }
 
-    fun setMarkersProvider(provider: ChartMarkersProvider) {
+    fun addMarkersProvider(provider: ChartMarkersProvider) {
 
         chartMarkersProviders.value = chartMarkersProviders.value.add(provider)
+    }
+
+    fun removeMarkersProvider(provider: ChartMarkersProvider) {
+
+        chartMarkersProviders.value = chartMarkersProviders.value.remove(provider)
     }
 
     private fun onNewChart(

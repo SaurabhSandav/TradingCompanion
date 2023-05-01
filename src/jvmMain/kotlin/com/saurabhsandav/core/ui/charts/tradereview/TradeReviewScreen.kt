@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
@@ -22,12 +21,12 @@ internal fun TradeReviewWindow(
         start: Instant,
         end: Instant?,
     ) -> Unit,
-    setMarkersProvider: (ChartMarkersProvider) -> Unit,
+    markersProvider: TradeReviewMarkersProvider,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradeReviewPresenter(scope, appModule, onOpenChart, setMarkersProvider) }
+    val presenter = remember { TradeReviewPresenter(scope, appModule, onOpenChart, markersProvider) }
     val state by presenter.state.collectAsState()
 
     AppWindow(

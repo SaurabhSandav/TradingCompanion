@@ -369,7 +369,11 @@ internal class ReplayChartsPresenter(
             return candleSeries[markerCandleIndex].openInstant
         }
 
-        val orderMarkers = tradingProfiles.currentProfile.flatMapLatest { profile ->
+        val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfile(id) else flowOf(null) }
+            .filterNotNull()
+
+        val orderMarkers = replayProfile.flatMapLatest { profile ->
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -397,7 +401,7 @@ internal class ReplayChartsPresenter(
                 )
             }
 
-        val tradeMarkers = tradingProfiles.currentProfile.flatMapLatest { profile ->
+        val tradeMarkers = replayProfile.flatMapLatest { profile ->
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 

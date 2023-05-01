@@ -7,24 +7,18 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
-import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
-import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import java.math.BigDecimal
@@ -41,7 +35,7 @@ internal class TradeReviewPresenter(
         start: Instant,
         end: Instant?,
     ) -> Unit,
-    setMarkersProvider: (ChartMarkersProvider) -> Unit,
+    private val markersProvider: TradeReviewMarkersProvider,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
@@ -69,7 +63,9 @@ internal class TradeReviewPresenter(
     }
 
     init {
-        setMarkersProvider(::getMarkers)
+        coroutineScope.launch {
+            markedTradeIds.collect(markersProvider::setMarkedTradeIds)
+        }
     }
 
     fun event(event: TradeReviewEvent) {
@@ -169,74 +165,5 @@ internal class TradeReviewPresenter(
 
         // Show trade on chart
         onOpenChart(trade.ticker, start, end)
-    }
-
-    private fun getMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
-
-        fun Instant.markerTime(): Instant {
-            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
-            return candleSeries[markerCandleIndex].openInstant
-        }
-
-        val candlesInstantRange = candleSeries.instantRange.value ?: return emptyFlow()
-        val ldtRange = candlesInstantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
-
-        val orderMarkers = markedTradeIds
-            .flatMapLatest {
-
-                val tradingRecord = tradingProfiles.currentRecord.first()
-
-                tradingRecord.orders.getOrdersByTickerAndTradeIdsInInterval(ticker, it.toList(), ldtRange)
-            }
-            .mapList { order ->
-
-                val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
-
-                TradeOrderMarker(
-                    instant = orderInstant.markerTime(),
-                    orderType = order.type,
-                    price = order.price,
-                )
-            }
-
-        val tradeMarkers = markedTradeIds
-            .flatMapLatest {
-
-                val tradingRecord = tradingProfiles.currentRecord.first()
-
-                tradingRecord.trades.getByTickerAndIdsInInterval(ticker, it.toList(), ldtRange)
-            }
-            .map { trades ->
-                trades.flatMap { trade ->
-
-                    val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-
-                    buildList {
-
-                        add(
-                            TradeMarker(
-                                instant = entryInstant.markerTime(),
-                                isEntry = true,
-                            )
-                        )
-
-                        if (trade.isClosed) {
-
-                            val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
-                            add(
-                                TradeMarker(
-                                    instant = exitInstant.markerTime(),
-                                    isEntry = false,
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-        return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs -> orderMkrs + tradeMkrs }
-            .flowOn(Dispatchers.IO)
     }
 }

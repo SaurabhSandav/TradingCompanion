@@ -170,13 +170,16 @@ internal class StockChart(
             // Set markers
             markersAreEnabled.flatMapLatest { markersAreEnabled ->
                 when {
-                    markersAreEnabled -> generateSessionMarkers(source.candleSeries)
+                    markersAreEnabled -> {
+                        combine(
+                            flows = arrayOf(generateSessionMarkers(source.candleSeries), candleMarkers),
+                            transform = { it.toList().flatten() },
+                        )
+                    }
+
                     else -> flowOf(emptyList())
                 }
             }
-                .combine(candleMarkers) { sessionMarkers, sourceMarkers ->
-                    sessionMarkers + sourceMarkers
-                }
                 .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
                 .onEach(candlestickPlotter::setMarkers)
                 .launchIn(sourceCoroutineScope)
