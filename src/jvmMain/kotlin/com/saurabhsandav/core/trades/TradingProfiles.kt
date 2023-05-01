@@ -49,6 +49,10 @@ internal class TradingProfiles(
         return allProfiles.map { profiles -> profiles.find { it.id == id } ?: error("Profile($id) not found") }
     }
 
+    fun getProfileOrNull(id: Long): Flow<TradingProfile?> {
+        return allProfiles.map { profiles -> profiles.find { it.id == id } }
+    }
+
     suspend fun newProfile(
         name: String,
         description: String,

@@ -84,7 +84,7 @@ internal class TradeReviewPresenter(
 
             selectedProfileIdFlow
                 .flatMapLatest { id ->
-                    if (id != null) tradingProfiles.getProfile(id) else flowOf(null)
+                    if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null)
                 }
                 .filterNotNull()
                 .flatMapLatest { profile ->

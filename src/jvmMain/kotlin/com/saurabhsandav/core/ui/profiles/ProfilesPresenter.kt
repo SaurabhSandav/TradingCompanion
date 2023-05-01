@@ -72,7 +72,7 @@ internal class ProfilesPresenter(
                 customSelectionMode -> currentProfileId.flatMapLatest { currentProfileId ->
                     when (currentProfileId) {
                         null -> flowOf(null)
-                        else -> tradingProfiles.getProfile(currentProfileId)
+                        else -> tradingProfiles.getProfileOrNull(currentProfileId)
                     }
                 }
 
