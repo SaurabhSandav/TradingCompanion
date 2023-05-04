@@ -21,6 +21,7 @@ internal fun FyersLoginWindow(
 ) {
 
     AppWindow(
+        title = "Login to Fyers",
         onCloseRequest = loginState.onCloseRequest,
     ) {
 
