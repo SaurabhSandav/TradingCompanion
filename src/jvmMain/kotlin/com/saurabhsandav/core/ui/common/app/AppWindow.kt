@@ -20,7 +20,7 @@ fun AppWindow(
     onCloseRequest: () -> Unit,
     state: WindowState = rememberWindowState(),
     visible: Boolean = true,
-    title: String? = null,
+    title: String = "Untitled",
     icon: Painter? = null,
     undecorated: Boolean = false,
     transparent: Boolean = false,
@@ -48,7 +48,7 @@ fun AppWindow(
         onCloseRequest = onCloseRequest,
         state = state,
         visible = visible,
-        title = title ?: appWindowState.title,
+        title = title,
         icon = icon,
         undecorated = undecorated,
         transparent = transparent,
@@ -60,7 +60,7 @@ fun AppWindow(
         onKeyEvent = onKeyEvent,
     ) {
 
-        SideEffect { appWindowState.setWindow(window) }
+        appWindowState.setWindow(window)
 
         val density = LocalDensity.current
         val densityFraction = LocalDensityFraction.current
@@ -85,7 +85,7 @@ fun AppWindow(
 @Composable
 fun rememberAppWindowState(
     windowState: WindowState = rememberWindowState(),
-    defaultTitle: String = "Untitled",
+    defaultTitle: String? = null,
 ): AppWindowState = remember { AppWindowState(windowState, defaultTitle) }
 
 @Composable
@@ -105,20 +105,17 @@ fun WindowTitle(title: String) {
 @Stable
 class AppWindowState(
     windowState: WindowState,
-    private val defaultTitle: String = "Untitled",
+    private val defaultTitle: String? = null,
 ) : WindowState by windowState {
 
-    private lateinit var window: ComposeWindow
+    private var window: ComposeWindow? = null
     private val titles = ArrayDeque<Pair<String, String>>()
-
-    var title by mutableStateOf(defaultTitle)
-        private set
 
     internal fun setCompositionTitle(id: String, titleText: String) {
 
         titles.addLast(id to titleText)
 
-        title = titles.lastOrNull()?.second ?: defaultTitle
+        updateTitle()
     }
 
     internal fun removeCompositionTitle(id: String) {
@@ -132,19 +129,31 @@ class AppWindowState(
             }
         }
 
-        title = titles.lastOrNull()?.second ?: defaultTitle
+        updateTitle()
     }
 
     internal fun setWindow(window: ComposeWindow) {
+
+        // Window already cached
+        if (this.window != null) return
+
+        // Cache window
         this.window = window
+
+        updateTitle()
+    }
+
+    private fun updateTitle() {
+        val newTitle = titles.lastOrNull()?.second ?: defaultTitle
+        if (newTitle != null) window?.title = newTitle
     }
 
     fun toFront() {
-        window.toFront()
+        window?.toFront()
     }
 
     fun toBack() {
-        window.toBack()
+        window?.toBack()
     }
 }
 
