@@ -7,21 +7,30 @@ import kotlinx.datetime.Instant
 
 @Immutable
 internal data class BarReplayState(
-    val currentScreen: BarReplayScreen,
-)
+    val replayState: ReplayState,
+) {
 
-internal sealed class BarReplayScreen {
+    @Immutable
+    internal sealed class ReplayState {
 
-    data class LaunchForm(
-        val model: NewReplayFormModel,
-    ) : BarReplayScreen()
+        @Immutable
+        data class NewReplay(
+            val model: NewReplayFormModel,
+        ) : ReplayState()
 
-    data class Chart(
+        @Immutable
+        data class ReplayStarted(
+            val replayParams: ReplayParams,
+        ) : ReplayState()
+    }
+
+    @Immutable
+    data class ReplayParams(
         val baseTimeframe: Timeframe,
         val candlesBefore: Int,
         val replayFrom: Instant,
         val dataTo: Instant,
         val replayFullBar: Boolean,
         val initialTicker: String,
-    ) : BarReplayScreen()
+    )
 }

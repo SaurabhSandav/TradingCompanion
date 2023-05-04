@@ -1,22 +1,20 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.ReplayOrderFormWindow
 import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayCharts
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
-import kotlinx.datetime.Instant
+import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayConfigRow
+import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayOrdersTable
 
 @Composable
 internal fun ReplaySessionScreen(
     onNewReplay: () -> Unit,
-    baseTimeframe: Timeframe,
-    candlesBefore: Int,
-    replayFrom: Instant,
-    dataTo: Instant,
-    replayFullBar: Boolean,
-    initialTicker: String,
+    replayParams: ReplayParams,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -24,26 +22,37 @@ internal fun ReplaySessionScreen(
     val presenter = remember {
         ReplaySessionPresenter(
             coroutineScope = scope,
-            baseTimeframe = baseTimeframe,
-            candlesBefore = candlesBefore,
-            replayFrom = replayFrom,
-            dataTo = dataTo,
-            replayFullBar = replayFullBar,
-            initialTicker = initialTicker,
+            replayParams = replayParams,
             appModule = appModule
         )
     }
     val state by presenter.state.collectAsState()
 
+    Column {
+
+        ReplayConfigRow(
+            onNewReplay = onNewReplay,
+            selectedProfileId = state.selectedProfileId,
+            onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
+            onResetReplay = { presenter.event(ResetReplay) },
+            onAdvanceReplay = { presenter.event(AdvanceReplay) },
+        )
+
+        Divider()
+
+        ReplayOrdersTable(
+            replayOrderItems = state.replayOrderItems,
+            onCancelOrder = { id -> presenter.event(CancelOrder(id)) },
+        )
+    }
+
     ReplayCharts(
-        onNewReplay = onNewReplay,
+        onCloseRequest = onNewReplay,
         chartsState = state.chartsState,
         chartInfo = state.chartInfo,
-        onResetReplay = { presenter.event(ResetReplay) },
         onAdvanceReplay = { presenter.event(AdvanceReplay) },
         onIsAutoNextEnabledChange = { presenter.event(SetIsAutoNextEnabled(it)) },
-        selectedProfileId = state.selectedProfileId,
-        onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
+        isTradingEnabled = state.selectedProfileId != null,
         onBuy = { stockChart -> presenter.event(Buy(stockChart)) },
         onSell = { stockChart -> presenter.event(Sell(stockChart)) },
     )
@@ -53,9 +62,9 @@ internal fun ReplaySessionScreen(
 
         key(params.id) {
 
-            OrderFormWindow(
-                profileId = params.profileId,
-                formType = params.formType,
+            ReplayOrderFormWindow(
+                replayOrdersManager = presenter.replayOrdersManager,
+                initialFormModel = params.initialFormModel,
                 onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
             )
         }

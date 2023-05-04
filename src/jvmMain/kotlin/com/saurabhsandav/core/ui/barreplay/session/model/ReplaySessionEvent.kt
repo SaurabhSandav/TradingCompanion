@@ -17,5 +17,7 @@ internal sealed class ReplaySessionEvent {
 
     data class Sell(val stockChart: StockChart) : ReplaySessionEvent()
 
+    data class CancelOrder(val id: Long) : ReplaySessionEvent()
+
     data class CloseOrderForm(val id: UUID) : ReplaySessionEvent()
 }

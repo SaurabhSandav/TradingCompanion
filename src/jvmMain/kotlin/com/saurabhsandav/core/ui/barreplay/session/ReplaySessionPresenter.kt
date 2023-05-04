@@ -13,27 +13,29 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.backtest.OrderExecution.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
-import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.OrderFormParams
-import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayChartInfo
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.*
@@ -45,12 +47,7 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
-    private val baseTimeframe: Timeframe,
-    private val candlesBefore: Int,
-    private val replayFrom: Instant,
-    private val dataTo: Instant,
-    replayFullBar: Boolean,
-    private val initialTicker: String,
+    private val replayParams: ReplayParams,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
@@ -60,8 +57,8 @@ internal class ReplaySessionPresenter(
     private val events = MutableSharedFlow<ReplaySessionEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val barReplay = BarReplay(
-        timeframe = baseTimeframe,
-        candleUpdateType = if (replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
+        timeframe = replayParams.baseTimeframe,
+        candleUpdateType = if (replayParams.replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
     private var autoNextJob: Job? = null
     private val stockCharts = mutableListOf<StockChart>()
@@ -75,6 +72,8 @@ internal class ReplaySessionPresenter(
     )
     private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
 
+    val replayOrdersManager = ReplayOrdersManager(coroutineScope, replayParams, barReplay, appModule)
+
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
@@ -86,6 +85,7 @@ internal class ReplaySessionPresenter(
                 is SelectProfile -> onSelectProfile(event.id)
                 is Buy -> onBuy(event.stockChart)
                 is Sell -> onSell(event.stockChart)
+                is CancelOrder -> onCancelOrder(event.id)
                 is CloseOrderForm -> onCloseOrderForm(event.id)
             }
         }
@@ -93,6 +93,7 @@ internal class ReplaySessionPresenter(
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
+            replayOrderItems = getReplayOrderItems().value,
             orderFormParams = orderFormParams,
             chartInfo = ::getChartInfo,
         )
@@ -109,6 +110,47 @@ internal class ReplaySessionPresenter(
                 .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
                 .map { it?.id }
         }.collectAsState(null).value
+    }
+
+    @Composable
+    private fun getReplayOrderItems(): State<ImmutableList<ReplayOrderListItem>> {
+        return remember {
+            replayOrdersManager.openOrders.map { openOrders ->
+                openOrders.map { openOrder ->
+
+                    val params = openOrder.params
+                    val quantity = params.quantity
+
+                    ReplayOrderListItem(
+                        id = openOrder.id,
+                        execution = when (openOrder.execution) {
+                            is Limit -> "Limit"
+                            is Market -> "Market"
+                            is StopLimit -> "Stop Limit"
+                            is StopMarket -> "Stop Market"
+                            is TrailingStop -> "Trailing Stop"
+                        },
+                        broker = run {
+                            val instrumentCapitalized = params.instrument.strValue
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                            "${params.broker} ($instrumentCapitalized)"
+                        },
+                        ticker = params.ticker,
+                        quantity = params.lots
+                            ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
+                        type = params.type.strValue.uppercase(),
+                        price = when (openOrder.execution) {
+                            is Limit -> openOrder.execution.price.toPlainString()
+                            is Market -> ""
+                            is StopLimit -> openOrder.execution.limitPrice.toPlainString()
+                            is StopMarket -> openOrder.execution.trigger.toPlainString()
+                            is TrailingStop -> openOrder.execution.trailingStop.toPlainString()
+                        },
+                        timestamp = openOrder.createdAt.time.toString(),
+                    )
+                }.toImmutableList()
+            }
+        }.collectAsState(persistentListOf())
     }
 
     private fun onResetReplay() {
@@ -151,8 +193,8 @@ internal class ReplaySessionPresenter(
         // Set chart params
         // If selected chartParams is null, this is the first chart. Initialize it with initial params.
         newStockChart.newParams(
-            ticker = prevStockChart?.currentParams?.ticker ?: initialTicker,
-            timeframe = prevStockChart?.currentParams?.timeframe ?: baseTimeframe,
+            ticker = prevStockChart?.currentParams?.ticker ?: replayParams.initialTicker,
+            timeframe = prevStockChart?.currentParams?.timeframe ?: replayParams.baseTimeframe,
         )
     }
 
@@ -191,18 +233,13 @@ internal class ReplaySessionPresenter(
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val id = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).first() ?: return@launchUnit
-        val currentProfile = tradingProfiles.getProfile(id).first()
-
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySeries = replayCandleSource.replaySeries.await()
-        val replayTime = replaySeries.replayTime.first()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            profileId = currentProfile.id,
-            formType = OrderFormType.New { formValidator ->
-                OrderFormModel(
+            initialFormModel = { formValidator ->
+                ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
                     ticker = replayCandleSource.ticker,
@@ -210,7 +247,8 @@ internal class ReplaySessionPresenter(
                     lots = "",
                     isBuy = true,
                     price = replaySeries.last().close.toPlainString(),
-                    timestamp = replayTime.toLocalDateTime(TimeZone.currentSystemDefault()),
+                    stop = "",
+                    target = "",
                 )
             },
         )
@@ -220,18 +258,13 @@ internal class ReplaySessionPresenter(
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val id = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).first() ?: return@launchUnit
-        val currentProfile = tradingProfiles.getProfile(id).first()
-
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySeries = replayCandleSource.replaySeries.await()
-        val replayTime = replaySeries.replayTime.first()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            profileId = currentProfile.id,
-            formType = OrderFormType.New { formValidator ->
-                OrderFormModel(
+            initialFormModel = { formValidator ->
+                ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
                     ticker = replayCandleSource.ticker,
@@ -239,12 +272,17 @@ internal class ReplaySessionPresenter(
                     lots = "",
                     isBuy = false,
                     price = replaySeries.last().close.toPlainString(),
-                    timestamp = replayTime.toLocalDateTime(TimeZone.currentSystemDefault()),
+                    stop = "",
+                    target = "",
                 )
             },
         )
 
         orderFormParams = orderFormParams.add(params)
+    }
+
+    private fun onCancelOrder(id: Long) {
+        replayOrdersManager.cancelOrder(id)
     }
 
     private fun onCloseOrderForm(id: UUID) {
@@ -312,12 +350,12 @@ internal class ReplaySessionPresenter(
         timeframe: Timeframe,
     ): ReplaySeries {
 
-        val candleSeries = getCandleSeries(ticker, baseTimeframe)
+        val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
 
         return barReplay.newSeries(
             inputSeries = candleSeries,
-            initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
-            timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe),
+            initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayParams.replayFrom },
+            timeframeSeries = if (replayParams.baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe),
         )
     }
 
@@ -332,8 +370,8 @@ internal class ReplaySessionPresenter(
                 candleRepo.getCandles(
                     ticker = ticker,
                     timeframe = timeframe,
-                    at = replayFrom,
-                    before = candlesBefore,
+                    at = replayParams.replayFrom,
+                    before = replayParams.candlesBefore,
                     after = 0,
                 ).bind()
             }
@@ -342,8 +380,8 @@ internal class ReplaySessionPresenter(
                 candleRepo.getCandles(
                     ticker = ticker,
                     timeframe = timeframe,
-                    from = replayFrom,
-                    to = dataTo,
+                    from = replayParams.replayFrom,
+                    to = replayParams.dataTo,
                 ).bind()
             }
 

@@ -8,8 +8,10 @@ import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayScreen
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.form.FormValidator
@@ -33,20 +35,20 @@ internal class BarReplayPresenter(
     private val formModel = initialLaunchFormModel()
 
     private val events = MutableSharedFlow<BarReplayEvent>(extraBufferCapacity = Int.MAX_VALUE)
-    private var screen by mutableStateOf<BarReplayScreen>(BarReplayScreen.LaunchForm(model = formModel))
+    private var replayState by mutableStateOf<ReplayState>(NewReplay(model = formModel))
 
     val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
 
         CollectEffect(events) { event ->
 
             when (event) {
-                BarReplayEvent.LaunchReplay -> onLaunchReplay()
                 BarReplayEvent.NewReplay -> onNewReplay()
+                BarReplayEvent.LaunchReplay -> onLaunchReplay()
             }
         }
 
         return@launchMolecule BarReplayState(
-            currentScreen = screen,
+            replayState = replayState,
         )
     }
 
@@ -58,21 +60,25 @@ internal class BarReplayPresenter(
 
         if (!formValidator.isValid()) return
 
-        screen = BarReplayScreen.Chart(
-            baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe.value) {
-                null -> Timeframe.M5
-                else -> timeframeFromLabel(timeframeLabel)
-            },
+        val baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe.value) {
+            null -> Timeframe.M5
+            else -> timeframeFromLabel(timeframeLabel)
+        }
+
+        val replayParams = ReplayParams(
+            baseTimeframe = baseTimeframe,
             candlesBefore = formModel.candlesBefore.value.toInt(),
             replayFrom = formModel.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
             dataTo = formModel.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
             replayFullBar = formModel.replayFullBar,
             initialTicker = formModel.initialTicker.value!!,
         )
+
+        replayState = ReplayState.ReplayStarted(replayParams = replayParams)
     }
 
     private fun onNewReplay() {
-        screen = BarReplayScreen.LaunchForm(model = formModel)
+        replayState = NewReplay(model = formModel)
     }
 
     private fun initialLaunchFormModel(): NewReplayFormModel {
