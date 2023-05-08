@@ -5,11 +5,11 @@ import java.util.*
 
 internal sealed class ReplayChartsEvent {
 
-    object Reset : ReplayChartsEvent()
+    object ResetReplay : ReplayChartsEvent()
 
-    object Next : ReplayChartsEvent()
+    object AdvanceReplay : ReplayChartsEvent()
 
-    data class ChangeIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplayChartsEvent()
+    data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplayChartsEvent()
 
     data class SelectProfile(val id: Long) : ReplayChartsEvent()
 

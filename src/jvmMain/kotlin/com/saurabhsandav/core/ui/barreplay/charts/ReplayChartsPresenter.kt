@@ -80,9 +80,9 @@ internal class ReplayChartsPresenter(
         CollectEffect(events) { event ->
 
             when (event) {
-                Reset -> onReset()
-                Next -> onNext()
-                is ChangeIsAutoNextEnabled -> onChangeIsAutoNextEnabled(event.isAutoNextEnabled)
+                ResetReplay -> onResetReplay()
+                AdvanceReplay -> onAdvanceReplay()
+                is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
                 is SelectProfile -> onSelectProfile(event.id)
                 is Buy -> onBuy(event.stockChart)
                 is Sell -> onSell(event.stockChart)
@@ -103,19 +103,19 @@ internal class ReplayChartsPresenter(
         events.tryEmit(event)
     }
 
-    private fun onReset() {
-        onChangeIsAutoNextEnabled(false)
+    private fun onResetReplay() {
+        onSetIsAutoNextEnabled(false)
         barReplay.reset()
         coroutineScope.launch {
             stockCharts.forEach { stockChart -> stockChart.newParams() }
         }
     }
 
-    private fun onNext() {
+    private fun onAdvanceReplay() {
         barReplay.advance()
     }
 
-    private fun onChangeIsAutoNextEnabled(isAutoNextEnabled: Boolean) {
+    private fun onSetIsAutoNextEnabled(isAutoNextEnabled: Boolean) {
 
         autoNextJob = when {
             isAutoNextEnabled -> coroutineScope.launch {

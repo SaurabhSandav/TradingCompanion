@@ -26,8 +26,8 @@ internal fun ReplayCharts(
     onNewReplay: () -> Unit,
     chartsState: StockChartsState,
     chartInfo: (StockChart) -> ReplayChartInfo,
-    onReset: () -> Unit,
-    onNext: () -> Unit,
+    onResetReplay: () -> Unit,
+    onAdvanceReplay: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     selectedProfileId: Long?,
     onSelectProfile: (Long) -> Unit,
@@ -59,8 +59,8 @@ internal fun ReplayCharts(
 
         ReplayControls(
             onNewReplay = onNewReplay,
-            onReset = onReset,
-            onNext = onNext,
+            onResetReplay = onResetReplay,
+            onAdvanceReplay = onAdvanceReplay,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
         )
 

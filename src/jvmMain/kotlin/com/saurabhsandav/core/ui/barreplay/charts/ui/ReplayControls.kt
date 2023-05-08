@@ -18,8 +18,8 @@ import com.saurabhsandav.core.ui.common.state
 @Composable
 internal fun ReplayControls(
     onNewReplay: () -> Unit,
-    onReset: () -> Unit,
-    onNext: () -> Unit,
+    onResetReplay: () -> Unit,
+    onAdvanceReplay: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
 ) {
 
@@ -35,17 +35,17 @@ internal fun ReplayControls(
         }
 
         Button(
-            onClick = onReset,
+            onClick = onResetReplay,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Reset Replay")
         }
 
         Button(
-            onClick = onNext,
+            onClick = onAdvanceReplay,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Next")
+            Text("Advance Replay")
         }
 
         Row(
