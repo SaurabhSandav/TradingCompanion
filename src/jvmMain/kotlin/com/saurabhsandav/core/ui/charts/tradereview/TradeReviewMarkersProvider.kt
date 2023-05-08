@@ -38,7 +38,7 @@ internal class TradeReviewMarkersProvider(
                 candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
         val reviewProfile = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
-            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfile(id) else flowOf(null) }
+            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 
         val orderMarkers = reviewProfile

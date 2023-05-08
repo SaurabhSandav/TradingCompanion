@@ -362,7 +362,7 @@ internal class ReplayChartsPresenter(
         }
 
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfile(id) else flowOf(null) }
+            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 
         val orderMarkers = replayProfile.flatMapLatest { profile ->
