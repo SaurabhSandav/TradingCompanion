@@ -1,22 +1,24 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.utils.subList
 import com.saurabhsandav.core.utils.subListInclusive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Instant
 
-class ResampledBarReplaySession(
-    override val inputSeries: CandleSeries,
+internal class ResampledReplaySeriesBuilder(
+    private val inputSeries: CandleSeries,
     private val initialIndex: Int,
     currentOffset: Int,
     currentCandleState: BarReplay.CandleState,
     private val timeframeSeries: CandleSeries,
     private val isSessionStart: (CandleSeries, Int) -> Boolean,
-) : BarReplaySession {
+) : ReplaySeriesBuilder {
 
     private val _replaySeries: MutableCandleSeries
     private var currentTimeframeCandleIndex: Int
@@ -46,9 +48,7 @@ class ResampledBarReplaySession(
         _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
     }
 
-    override val replaySeries: CandleSeries = _replaySeries.asCandleSeries()
-
-    override val replayTime: StateFlow<Instant> = _replayTime.asStateFlow()
+    override val replaySeries: ReplaySeries = ReplaySeries(_replaySeries, _replayTime.asStateFlow())
 
     override fun addCandle(offset: Int) {
 
@@ -190,10 +190,7 @@ class ResampledBarReplaySession(
         // candle is start of resample candle.
         val currentCandleEpochSeconds = candleSeries[index].openInstant.epochSeconds
         val secondsSinceSessionStart = sessionStartCandle.openInstant.epochSeconds - currentCandleEpochSeconds
-        if (secondsSinceSessionStart.rem(timeframe.seconds) == 0L) return true
-
-        // Not candle start
-        return false
+        return secondsSinceSessionStart.rem(timeframe.seconds) == 0L
     }
 
     private fun Candle.resample(newCandle: Candle): Candle = copy(

@@ -13,8 +13,9 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.barreplay.*
-import com.saurabhsandav.core.trading.dailySessionStart
+import com.saurabhsandav.core.trading.barreplay.BarReplay
+import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
+import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent
 import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
@@ -111,7 +112,7 @@ internal class ReplayChartsPresenter(
     }
 
     private fun onNext() {
-        barReplay.next()
+        barReplay.advance()
     }
 
     private fun onChangeIsAutoNextEnabled(isAutoNextEnabled: Boolean) {
@@ -120,7 +121,7 @@ internal class ReplayChartsPresenter(
             isAutoNextEnabled -> coroutineScope.launch {
                 while (isActive) {
                     delay(1.seconds)
-                    barReplay.next()
+                    barReplay.advance()
                 }
             }
 
@@ -186,7 +187,8 @@ internal class ReplayChartsPresenter(
         val currentProfile = tradingProfiles.getProfile(id).first()
 
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
-        val replaySession = replayCandleSource.replaySession.await()
+        val replaySeries = replayCandleSource.replaySeries.await()
+        val replayTime = replaySeries.replayTime.first()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
@@ -199,8 +201,8 @@ internal class ReplayChartsPresenter(
                     quantity = "",
                     lots = "",
                     isBuy = true,
-                    price = replaySession.replaySeries.last().close.toPlainString(),
-                    timestamp = replaySession.replayTime.value.toLocalDateTime(TimeZone.currentSystemDefault()),
+                    price = replaySeries.last().close.toPlainString(),
+                    timestamp = replayTime.toLocalDateTime(TimeZone.currentSystemDefault()),
                 )
             },
         )
@@ -214,7 +216,8 @@ internal class ReplayChartsPresenter(
         val currentProfile = tradingProfiles.getProfile(id).first()
 
         val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
-        val replaySession = replayCandleSource.replaySession.await()
+        val replaySeries = replayCandleSource.replaySeries.await()
+        val replayTime = replaySeries.replayTime.first()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
@@ -227,8 +230,8 @@ internal class ReplayChartsPresenter(
                     quantity = "",
                     lots = "",
                     isBuy = false,
-                    price = replaySession.replaySeries.last().close.toPlainString(),
-                    timestamp = replaySession.replayTime.value.toLocalDateTime(TimeZone.currentSystemDefault()),
+                    price = replaySeries.last().close.toPlainString(),
+                    timestamp = replayTime.toLocalDateTime(TimeZone.currentSystemDefault()),
                 )
             },
         )
@@ -245,10 +248,10 @@ internal class ReplayChartsPresenter(
 
     private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {
 
-        val replaySession = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySession
+        val replaySeries = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySeries
 
         return ReplayChartInfo(
-            replayTime = flow { emitAll(replaySession.await().replayTime.map(::formattedReplayTime)) }
+            replayTime = flow { emitAll(replaySeries.await().replayTime.map(::formattedReplayTime)) }
         )
     }
 
@@ -262,7 +265,12 @@ internal class ReplayChartsPresenter(
         }
 
         val candleSource = candleSources.getOrPut(ticker to timeframe) {
-            ReplayCandleSource(ticker, timeframe, ::createReplaySession, ::getMarkers)
+            ReplayCandleSource(
+                ticker = ticker,
+                timeframe = timeframe,
+                replaySeriesFactory = { buildReplaySeries(ticker, timeframe) },
+                getMarkers = { candleSeries -> getMarkers(ticker, candleSeries) },
+            )
         }
 
         // Set ReplayCandleSource on StockChart
@@ -278,47 +286,31 @@ internal class ReplayChartsPresenter(
         val usedCandleSources = stockCharts.mapNotNull { stockChart -> stockChart.source }
 
         // CandleSources not in use
-        val unusedCandleSources = candleSources.filter { it.value !in usedCandleSources }
+        val unusedCandleSources = candleSources.filter { (_, candleSource) -> candleSource !in usedCandleSources }
 
         // Remove unused CandleSource from cache
-        unusedCandleSources.forEach {
+        unusedCandleSources.forEach { (params, candleSource) ->
 
             // Remove from cache
-            candleSources.remove(it.key)
+            candleSources.remove(params)
 
-            // Remove ReplaySession from BarReplay
-            barReplay.removeSession(it.value.replaySession.await())
+            // Remove ReplaySeries from BarReplay
+            barReplay.removeSeries(candleSource.replaySeries.await())
         }
     }
 
-    private suspend fun createReplaySession(
+    private suspend fun buildReplaySeries(
         ticker: String,
         timeframe: Timeframe,
-    ): BarReplaySession {
+    ): ReplaySeries {
 
         val candleSeries = getCandleSeries(ticker, baseTimeframe)
-        val timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe)
 
-        return barReplay.newSession { currentOffset, currentCandleState ->
-
-            when (baseTimeframe) {
-                timeframe -> SimpleBarReplaySession(
-                    inputSeries = candleSeries,
-                    initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
-                    currentOffset = currentOffset,
-                    currentCandleState = currentCandleState,
-                )
-
-                else -> ResampledBarReplaySession(
-                    inputSeries = candleSeries,
-                    initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
-                    currentOffset = currentOffset,
-                    currentCandleState = currentCandleState,
-                    timeframeSeries = timeframeSeries!!,
-                    isSessionStart = ::dailySessionStart,
-                )
-            }
-        }
+        return barReplay.newSeries(
+            inputSeries = candleSeries,
+            initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayFrom },
+            timeframeSeries = if (baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe),
+        )
     }
 
     private suspend fun getCandleSeries(

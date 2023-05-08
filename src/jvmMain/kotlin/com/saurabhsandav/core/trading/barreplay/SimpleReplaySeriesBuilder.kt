@@ -2,20 +2,17 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.utils.subList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.datetime.Instant
 
-class SimpleBarReplaySession(
-    override val inputSeries: CandleSeries,
+internal class SimpleReplaySeriesBuilder(
+    private val inputSeries: CandleSeries,
     private val initialIndex: Int,
     currentOffset: Int,
     currentCandleState: BarReplay.CandleState,
-) : BarReplaySession {
+) : ReplaySeriesBuilder {
 
     private val _replaySeries = MutableCandleSeries(
         initial = inputSeries.subList(0, toIndexExclusive = initialIndex + currentOffset),
@@ -30,9 +27,7 @@ class SimpleBarReplaySession(
             addCandle(currentOffset, currentCandleState)
     }
 
-    override val replaySeries: CandleSeries = _replaySeries.asCandleSeries()
-
-    override val replayTime: StateFlow<Instant> = _replayTime.asStateFlow()
+    override val replaySeries: ReplaySeries = ReplaySeries(_replaySeries, _replayTime.asStateFlow())
 
     override fun addCandle(offset: Int) {
 

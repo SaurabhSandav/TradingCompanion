@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.barreplay.charts
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.barreplay.BarReplaySession
+import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import kotlinx.coroutines.CompletableDeferred
@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.flow
 class ReplayCandleSource(
     override val ticker: String,
     override val timeframe: Timeframe,
-    private val replaySessionBuilder: suspend (String, Timeframe) -> BarReplaySession,
-    getMarkers: (String, CandleSeries) -> Flow<List<SeriesMarker>>,
+    private val replaySeriesFactory: suspend () -> ReplaySeries,
+    getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
-    val replaySession = CompletableDeferred<BarReplaySession>()
+    val replaySeries = CompletableDeferred<ReplaySeries>()
 
     override val hasVolume: Boolean = ticker != "NIFTY50"
 
@@ -28,17 +28,16 @@ class ReplayCandleSource(
     override val syncKey = timeframe
 
     override val candleMarkers: Flow<List<SeriesMarker>> = flow {
-        val candleSeries = replaySession.await().replaySeries
-        emitAll(getMarkers(ticker, candleSeries))
+        val candleSeries = replaySeries.await()
+        emitAll(getMarkers(candleSeries))
     }
 
     override suspend fun onLoad() {
 
-        if (!replaySession.isCompleted) {
-            val newReplaySession = replaySessionBuilder(ticker, timeframe)
-            replaySession.complete(newReplaySession)
+        if (!replaySeries.isCompleted) {
+            replaySeries.complete(replaySeriesFactory())
         }
 
-        _candleSeries = replaySession.await().replaySeries
+        _candleSeries = replaySeries.await()
     }
 }

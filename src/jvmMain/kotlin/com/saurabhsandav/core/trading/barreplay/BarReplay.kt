@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.barreplay
 
+import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import com.saurabhsandav.core.trading.dailySessionStart
 
 class BarReplay(
     private val timeframe: Timeframe,
@@ -12,29 +12,48 @@ class BarReplay(
     private var offset = 0
     private var candleState = CandleState.Close
 
-    private val sessionList = mutableListOf<BarReplaySession>()
+    private val replaySeriesBuilders = mutableListOf<ReplaySeriesBuilder>()
 
-    fun newSession(
-        session: (currentOffset: Int, currentCandleState: CandleState) -> BarReplaySession,
-    ): BarReplaySession {
+    fun newSeries(
+        inputSeries: CandleSeries,
+        initialIndex: Int,
+        timeframeSeries: CandleSeries? = null,
+    ): ReplaySeries {
 
-        contract { callsInPlace(session, InvocationKind.EXACTLY_ONCE) }
+        check(timeframe == inputSeries.timeframe) { "BarReplay: Input series timeframe is invalid" }
 
-        return session(offset, candleState).also {
-            check(it.inputSeries.timeframe == timeframe) { "BarReplay: Session timeframe is invalid" }
-            sessionList.add(it)
+        val replaySeriesBuilder = when (timeframeSeries) {
+            null -> SimpleReplaySeriesBuilder(
+                inputSeries = inputSeries,
+                initialIndex = initialIndex,
+                currentOffset = offset,
+                currentCandleState = candleState,
+            )
+
+            else -> ResampledReplaySeriesBuilder(
+                inputSeries = inputSeries,
+                initialIndex = initialIndex,
+                currentOffset = offset,
+                currentCandleState = candleState,
+                timeframeSeries = timeframeSeries,
+                isSessionStart = ::dailySessionStart,
+            )
         }
+
+        replaySeriesBuilders.add(replaySeriesBuilder)
+
+        return replaySeriesBuilder.replaySeries
     }
 
-    fun removeSession(session: BarReplaySession) {
-        sessionList.remove(session)
+    fun removeSeries(series: ReplaySeries) {
+        replaySeriesBuilders.find { builder -> builder.replaySeries == series }?.let(replaySeriesBuilders::remove)
     }
 
-    fun next() {
+    fun advance() {
 
         when (candleUpdateType) {
             CandleUpdateType.FullBar -> {
-                sessionList.forEach { it.addCandle(offset) }
+                replaySeriesBuilders.forEach { builder -> builder.addCandle(offset) }
                 offset++
             }
 
@@ -44,7 +63,7 @@ class BarReplay(
                 candleState = candleState.next()
 
                 // Add/Update bar
-                sessionList.forEach { it.addCandle(offset, candleState) }
+                replaySeriesBuilders.forEach { builder -> builder.addCandle(offset, candleState) }
 
                 // If candle has closed, increment offset
                 if (candleState == CandleState.Close) offset++
@@ -53,7 +72,7 @@ class BarReplay(
     }
 
     fun reset() {
-        sessionList.forEach { it.reset() }
+        replaySeriesBuilders.forEach { builder -> builder.reset() }
         offset = 0
         candleState = CandleState.Close
     }

@@ -4,13 +4,14 @@ import com.saurabhsandav.core.trading.CandleSeries
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant
 
-interface BarReplaySession {
+class ReplaySeries(
+    replaySeries: CandleSeries,
+    val replayTime: StateFlow<Instant>,
+) : CandleSeries by replaySeries
 
-    val inputSeries: CandleSeries
+internal interface ReplaySeriesBuilder {
 
-    val replaySeries: CandleSeries
-
-    val replayTime: StateFlow<Instant>
+    val replaySeries: ReplaySeries
 
     fun addCandle(offset: Int)
 
