@@ -177,6 +177,12 @@ private class MutableCandleSeriesImpl(
             // Remove first candle
             list.removeFirst()
         }
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
+        }
     }
 
     override fun removeLast(n: Int) {
@@ -188,6 +194,12 @@ private class MutableCandleSeriesImpl(
 
             // Remove last candle
             list.removeLast()
+        }
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
         }
     }
 
