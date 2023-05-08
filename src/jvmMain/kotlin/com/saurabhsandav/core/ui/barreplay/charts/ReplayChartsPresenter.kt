@@ -92,8 +92,7 @@ internal class ReplayChartsPresenter(
 
         return@launchMolecule ReplayChartsState(
             chartsState = chartsState,
-            selectedProfileId = remember { appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile) }
-                .collectAsState(null).value,
+            selectedProfileId = getSelectedProfileId(),
             orderFormParams = orderFormParams,
             chartInfo = ::getChartInfo,
         )
@@ -101,6 +100,15 @@ internal class ReplayChartsPresenter(
 
     fun event(event: ReplayChartsEvent) {
         events.tryEmit(event)
+    }
+
+    @Composable
+    private fun getSelectedProfileId(): Long? {
+        return remember {
+            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+                .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
+                .map { it?.id }
+        }.collectAsState(null).value
     }
 
     private fun onResetReplay() {
