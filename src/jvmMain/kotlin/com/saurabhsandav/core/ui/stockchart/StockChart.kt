@@ -40,7 +40,6 @@ internal class StockChart(
     val appModule: AppModule,
     val actualChart: IChartApi,
     onLegendUpdate: (List<String>) -> Unit,
-    private val onTitleUpdate: (String) -> Unit,
 ) {
 
     var source: CandleSource? = null
@@ -57,6 +56,7 @@ internal class StockChart(
 
     val coroutineScope = MainScope()
     var currentParams: Params? by mutableStateOf(null)
+    var title by mutableStateOf("")
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
     val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
 
@@ -101,7 +101,7 @@ internal class StockChart(
 
         // Update chart title
         val chartTitle = "${source.ticker} (${source.timeframe.toLabel()})"
-        onTitleUpdate(chartTitle)
+        title = chartTitle
 
         // Update legend title for candles
         candlestickPlotter.name = chartTitle

@@ -162,14 +162,20 @@ internal class ChartsPresenter(
 
                 queuedChartInitializers.add {
 
-                    // Bring default timeframe chart for ticker to front
-                    if (params == tickerDTParams) chartsState.bringToFront(this)
-
-                    // Set Data. setCandleSource() needs to be called synchronously when ticker matches index chart.
-                    // In such a case, an instance the index chart may open twice.
-                    val loadFinish = newParams(params.ticker, params.timeframe)
-
                     coroutineScope.launch {
+
+                        // Previously this line and the next line (val loadFinish...) came before the launch scope.
+                        // After StockChart refactor, an error occurs because new chart callback is received
+                        // before chart is added to window. Moving this line inside launch causes this line to be
+                        // executed once all other non suspend code (including adding chart to page) on this thread
+                        // has finished executing. This is temporary solution (TODO).
+                        //
+                        // Bring default timeframe chart for ticker to front
+                        if (params == tickerDTParams) chartsState.bringToFront(this@add)
+
+                        // Set Data. setCandleSource() needs to be called synchronously when ticker matches index chart.
+                        // In such a case, an instance the index chart may open twice.
+                        val loadFinish = newParams(params.ticker, params.timeframe)
 
                         // Wait for data to be loaded
                         loadFinish.await()

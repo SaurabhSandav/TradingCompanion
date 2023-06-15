@@ -1,22 +1,23 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateListOf
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.CrosshairMode
 import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.app.AppWindowState
-import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.paged
-import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
+import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.coroutines.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -39,7 +40,9 @@ internal class StockChartsState(
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChart = MutableStateFlow<StockChart?>(null)
 
-    val windows = mutableStateListOf<ChartWindow>()
+    val windows = mutableStateListOf<StockChartWindow>()
+    val charts
+        get() = windows.flatMap { it.charts }
 
     init {
 
@@ -48,124 +51,23 @@ internal class StockChartsState(
         // Setting dark mode according to settings
         coroutineScope.launch {
             isDark.collect { isDark ->
-                windows.flatMap { it.charts.values }.forEach { it.setDarkMode(isDark) }
+                charts.forEach { it.setDarkMode(isDark) }
             }
         }
     }
 
-    fun goToDateTime(stockChart: StockChart, dateTime: LocalDateTime?) = coroutineScope.launchUnit {
-
-        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
-
-        // Load data if date specified
-        if (instant != null) {
-            windows.flatMap { it.charts.values }
-                .map { it.loadInterval(instant) }
-                .awaitAll()
-        }
-
-        // Navigate to datetime, other charts should be synced to same datetime
-        stockChart.goToDateTime(dateTime)
-    }
-
     fun newWindow(fromStockChart: StockChart?) {
 
-        val pagedArrangement = ChartArrangement.paged()
-        val charts = mutableMapOf<Int, StockChart>()
-        val pageState = ChartPageState(coroutineScope, pagedArrangement)
-        val currentStockChart = mutableStateOf<StockChart?>(null)
-
-        val tabsState = StockChartTabsState(
-            onNew = { tabId, prevTabId, updateTitle ->
-
-                // New chart
-                val actualChart = pagedArrangement.newChart(
-                    options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
-                )
-
-                // New StockChart
-                val stockChart = StockChart(
-                    appModule = appModule,
-                    actualChart = actualChart,
-                    onLegendUpdate = { pagedArrangement.setLegend(actualChart, it) },
-                    onTitleUpdate = updateTitle,
-                )
-
-                // Initial theme
-                stockChart.setDarkMode(isDark.value)
-
-                // Cache chart
-                charts[tabId] = stockChart
-
-                // Connect chart to web page
-                pageState.connect(chart = actualChart)
-
-                // Set initial lastActiveChart
-                lastActiveChart.value = stockChart
-
-                // Notify observer
-                onNewChart(stockChart, charts[prevTabId] ?: fromStockChart)
-
-                // Sync visible range across charts
-                actualChart.timeScale
-                    .visibleLogicalRangeChange()
-                    .filterNotNull()
-                    .onEach { range ->
-
-                        // If chart is not active (user hasn't interacted), skip sync
-                        if (lastActiveChart.value != stockChart) return@onEach
-
-                        // Nothing to sync if chart does not have a candle source or sync key
-                        val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
-
-                        // Previously sync was not accurate if no. of candles across charts was not the same.
-                        // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
-                        // Note: This method does not work if the last candle of all (to-sync) charts is not at the
-                        // same Instant. Should be fixed once live candles are implemented.
-                        val startOffset = stockChart.source!!.candleSeries.size - range.from
-                        val endOffset = stockChart.source!!.candleSeries.size - range.to
-
-                        // Update all other charts with same timeframe
-                        windows.flatMap { it.charts.values }
-                            .filter { filterStockChart ->
-                                // Select charts with same sync key, ignore current chart
-                                currentChartSyncKey == filterStockChart.source?.syncKey &&
-                                        filterStockChart != stockChart
-                            }
-                            .forEach {
-                                it.actualChart.timeScale.setVisibleLogicalRange(
-                                    from = it.source!!.candleSeries.size - startOffset,
-                                    to = it.source!!.candleSeries.size - endOffset,
-                                )
-                            }
-                    }
-                    .launchIn(coroutineScope)
+        val window = StockChartWindow(
+            onNewChart = { arrangement, currentStockChart ->
+                newStockChart(arrangement, currentStockChart ?: fromStockChart)
             },
-            onSelect = { tabId ->
-
-                val stockChart = charts.getValue(tabId)
-
-                // Update current chart
-                currentStockChart.value = stockChart
-
-                // Show selected chart
-                pagedArrangement.showChart(stockChart.actualChart)
+            onSelectChart = { stockChart ->
 
                 // Set selected chart as lastActiveChart
                 lastActiveChart.value = stockChart
             },
-            onClose = { tabId ->
-
-                val stockChart = charts.getValue(tabId)
-
-                // Remove chart from cache
-                charts.remove(tabId)
-
-                // Remove chart page
-                pagedArrangement.removeChart(stockChart.actualChart)
-
-                // Disconnect chart from web page
-                pageState.disconnect(stockChart.actualChart)
+            onCloseChart = { stockChart ->
 
                 // Destroy chart
                 stockChart.destroy()
@@ -175,47 +77,23 @@ internal class StockChartsState(
             },
         )
 
-        val coroutineScope = MainScope()
-
-        windows += ChartWindow(
-            coroutineScope = coroutineScope,
-            charts = charts,
-            tabsState = tabsState,
-            pageState = pageState,
-        )
+        windows += window
 
         // Update last active chart
-        pagedArrangement.lastActiveChart
-            .onEach { actualChart -> lastActiveChart.value = charts.values.first { it.actualChart == actualChart } }
-            .launchIn(coroutineScope)
+        window.pagedArrangement.lastActiveChart
+            .onEach { actualChart -> lastActiveChart.value = window.charts.first { it.actualChart == actualChart } }
+            .launchIn(window.coroutineScope)
     }
 
-    fun closeWindow(chartWindow: ChartWindow): Boolean {
+    fun closeWindow(window: StockChartWindow): Boolean {
 
         if (windows.size == 1) return false
 
-        windows.remove(chartWindow)
+        windows.remove(window)
 
-        chartWindow.coroutineScope.cancel()
+        window.coroutineScope.cancel()
 
         return true
-    }
-
-    fun bringToFront(stockChart: StockChart) {
-
-        val chartWindow = windows.first { window -> stockChart in window.charts.values }
-
-        // Bring window to front
-        chartWindow.appWindowState.toFront()
-
-        // Select tab
-        chartWindow.charts.forEach { (key, value) ->
-
-            if (stockChart == value) {
-                chartWindow.tabsState.selectTab(key)
-                return@forEach
-            }
-        }
     }
 
     fun openNewTab() {
@@ -223,18 +101,99 @@ internal class StockChartsState(
         val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
 
         // Find window with the last active chart, and open a new tab.
-        windows.first { lastActiveChart in it.charts.values }.tabsState.newTab()
+        windows.first { lastActiveChart in it.charts }.tabsState.newTab()
     }
 
-    class ChartWindow(
-        val coroutineScope: CoroutineScope,
-        val charts: Map<Int, StockChart>,
-        val tabsState: StockChartTabsState,
-        val pageState: ChartPageState,
-    ) {
+    fun bringToFront(stockChart: StockChart) {
 
-        internal lateinit var appWindowState: AppWindowState
+        val window = windows.first { stockChart in it.charts }
 
-        val selectedStockChart by derivedStateOf { charts.getValue(tabsState.tabs[tabsState.selectedTabIndex].id) }
+        // Bring window to front
+        window.appWindowState.toFront()
+
+        // Select tab
+        window.tabCharts.forEach { (tabId, chart) ->
+
+            if (stockChart == chart) {
+                window.tabsState.selectTab(tabId)
+                return@forEach
+            }
+        }
+    }
+
+    fun goToDateTime(
+        stockChart: StockChart,
+        dateTime: LocalDateTime?,
+    ) = coroutineScope.launchUnit {
+
+        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
+
+        // Load data if date specified
+        if (instant != null)
+            charts.map { it.loadInterval(instant) }.awaitAll()
+
+        // Navigate to datetime, other charts should be synced to same datetime.
+        stockChart.goToDateTime(dateTime)
+    }
+
+    private fun newStockChart(
+        arrangement: PagedChartArrangement,
+        fromStockChart: StockChart?,
+    ): StockChart {
+
+        // New chart
+        val actualChart = arrangement.newChart(
+            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+        )
+
+        // New StockChart
+        val stockChart = StockChart(
+            appModule = appModule,
+            actualChart = actualChart,
+            onLegendUpdate = { arrangement.setLegend(actualChart, it) },
+        )
+
+        // Initial theme
+        stockChart.setDarkMode(isDark.value)
+
+        // Sync visible range across charts
+        actualChart.timeScale
+            .visibleLogicalRangeChange()
+            .filterNotNull()
+            .onEach { range ->
+
+                // If chart is not active (user hasn't interacted), skip sync
+                if (lastActiveChart.value != stockChart) return@onEach
+
+                // Nothing to sync if chart does not have a candle source or sync key
+                val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
+
+                // Previously sync was not accurate if no. of candles across charts was not the same.
+                // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
+                // Note: This method does not work if the last candle of all (to-sync) charts is not at the
+                // same Instant. Should be fixed once live candles are implemented.
+                val startOffset = stockChart.source!!.candleSeries.size - range.from
+                val endOffset = stockChart.source!!.candleSeries.size - range.to
+
+                // Update all other charts with same timeframe
+                charts
+                    .filter { filterStockChart ->
+                        // Select charts with same sync key, ignore current chart
+                        currentChartSyncKey == filterStockChart.source?.syncKey &&
+                                filterStockChart != stockChart
+                    }
+                    .forEach {
+                        it.actualChart.timeScale.setVisibleLogicalRange(
+                            from = it.source!!.candleSeries.size - startOffset,
+                            to = it.source!!.candleSeries.size - endOffset,
+                        )
+                    }
+            }
+            .launchIn(coroutineScope)
+
+        // Notify observer
+        onNewChart(stockChart, fromStockChart)
+
+        return stockChart
     }
 }

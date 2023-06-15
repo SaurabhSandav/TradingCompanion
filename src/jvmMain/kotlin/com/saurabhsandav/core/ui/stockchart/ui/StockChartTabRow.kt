@@ -51,16 +51,16 @@ fun StockChartTabRow(
             }
         ) {
 
-            state.tabs.forEachIndexed { index, tab ->
+            state.tabIds.forEachIndexed { index, tabId ->
 
-                key(tab.id) {
+                key(tabId) {
 
                     ChartTab(
-                        title = tab.title,
+                        title = state.title(tabId),
                         isSelected = index == state.selectedTabIndex,
-                        isCloseable = state.tabs.size != 1,
-                        onSelect = { state.selectTab(tab.id) },
-                        onCloseChart = { state.closeTab(tab.id) },
+                        isCloseable = state.tabIds.size != 1,
+                        onSelect = { state.selectTab(tabId) },
+                        onCloseChart = { state.closeTab(tabId) },
                     )
                 }
             }

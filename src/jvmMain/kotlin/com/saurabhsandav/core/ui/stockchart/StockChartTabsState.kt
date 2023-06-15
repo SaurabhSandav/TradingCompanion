@@ -4,18 +4,15 @@ import androidx.compose.runtime.*
 
 @Stable
 class StockChartTabsState(
-    private val onNew: (
-        tabId: Int,
-        prevTabId: Int?,
-        updateTitle: (String) -> Unit,
-    ) -> Unit,
+    private val onNew: (tabId: Int) -> Unit,
     private val onSelect: (tabId: Int) -> Unit,
     private val onClose: (tabId: Int) -> Unit,
+    val title: (tabId: Int) -> String,
 ) {
 
     private var nextId = 0
 
-    val tabs = mutableStateListOf<TabInfo>()
+    val tabIds = mutableStateListOf<Int>()
 
     var selectedTabIndex by mutableStateOf(0)
         private set
@@ -28,97 +25,82 @@ class StockChartTabsState(
 
         val id = nextId++
 
-        tabs.add(TabInfo(id, ""))
+        tabIds.add(id)
 
-        val prevTabId = tabs.getOrNull(selectedTabIndex)?.id
-
-        onNew(id, prevTabId) { title -> setTitle(id, title) }
+        onNew(id)
 
         selectTab(id)
     }
 
     fun selectTab(id: Int) {
 
-        selectedTabIndex = tabs.indexOfFirst { it.id == id }
+        selectedTabIndex = tabIds.indexOf(id)
 
         onSelect(id)
     }
 
     fun closeTab(id: Int) {
 
-        if (tabs.size <= 1) return
+        if (tabIds.size <= 1) return
 
-        val tabIndex = tabs.indexOfFirst { it.id == id }
+        val tabIndex = tabIds.indexOf(id)
 
         if (tabIndex == selectedTabIndex) {
 
             // Try selecting next tab, or if current tab is last, select previous tab
-            val nextSelectedTab = when {
-                tabIndex != tabs.lastIndex -> tabs[tabIndex + 1]
-                else -> tabs[tabIndex - 1]
+            val nextSelectedTabId = when {
+                tabIndex != tabIds.lastIndex -> tabIds[tabIndex + 1]
+                else -> tabIds[tabIndex - 1]
             }
 
             // Close tab
-            tabs.removeAt(tabIndex)
+            tabIds.remove(id)
 
             // Select another tab
-            selectTab(nextSelectedTab.id)
+            selectTab(nextSelectedTabId)
         } else {
 
-            val currentTab = tabs[selectedTabIndex]
+            val currentTabId = tabIds[selectedTabIndex]
 
             // Close tab
-            tabs.remove(tabs.first { it.id == id })
+            tabIds.remove(id)
 
             // Update selection to reflect list index changes
-            selectedTabIndex = tabs.indexOf(currentTab)
+            selectedTabIndex = tabIds.indexOf(currentTabId)
         }
 
         onClose(id)
     }
 
     fun closeCurrentTab() {
-        closeTab(tabs[selectedTabIndex].id)
+        closeTab(tabIds[selectedTabIndex])
     }
 
     fun selectNextTab() {
-        val nextSelectionIndex = if (selectedTabIndex == tabs.lastIndex) 0 else selectedTabIndex + 1
-        selectTab(tabs[nextSelectionIndex].id)
+        val nextSelectionIndex = if (selectedTabIndex == tabIds.lastIndex) 0 else selectedTabIndex + 1
+        selectTab(tabIds[nextSelectionIndex])
     }
 
     fun selectPreviousTab() {
-        val previousSelectionIndex = if (selectedTabIndex == 0) tabs.lastIndex else selectedTabIndex - 1
-        selectTab(tabs[previousSelectionIndex].id)
+        val previousSelectionIndex = if (selectedTabIndex == 0) tabIds.lastIndex else selectedTabIndex - 1
+        selectTab(tabIds[previousSelectionIndex])
     }
 
     fun moveTabBackward() {
 
         if (selectedTabIndex == 0) return
 
-        val tab = tabs.removeAt(selectedTabIndex)
+        val tabId = tabIds.removeAt(selectedTabIndex)
 
-        tabs.add(--selectedTabIndex, tab)
+        tabIds.add(--selectedTabIndex, tabId)
     }
 
     fun moveTabForward() {
 
-        if (selectedTabIndex == tabs.lastIndex) return
+        if (selectedTabIndex == tabIds.lastIndex) return
 
-        val tab = tabs.removeAt(selectedTabIndex)
+        val tabId = tabIds.removeAt(selectedTabIndex)
 
-        tabs.add(++selectedTabIndex, tab)
+        tabIds.add(++selectedTabIndex, tabId)
     }
-
-    private fun setTitle(id: Int, title: String) {
-
-        val index = tabs.indexOfFirst { it.id == id }
-
-        tabs[index] = TabInfo(id, title)
-    }
-
-    @Immutable
-    class TabInfo(
-        val id: Int,
-        val title: String,
-    )
 }
