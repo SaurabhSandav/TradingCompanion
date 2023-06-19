@@ -1,0 +1,21 @@
+package com.saurabhsandav.core.ui.barreplay.session.model
+
+import com.saurabhsandav.core.ui.stockchart.StockChart
+import java.util.*
+
+internal sealed class ReplaySessionEvent {
+
+    object ResetReplay : ReplaySessionEvent()
+
+    object AdvanceReplay : ReplaySessionEvent()
+
+    data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
+
+    data class SelectProfile(val id: Long) : ReplaySessionEvent()
+
+    data class Buy(val stockChart: StockChart) : ReplaySessionEvent()
+
+    data class Sell(val stockChart: StockChart) : ReplaySessionEvent()
+
+    data class CloseOrderForm(val id: UUID) : ReplaySessionEvent()
+}

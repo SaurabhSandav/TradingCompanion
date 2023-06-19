@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.charts
+package com.saurabhsandav.core.ui.barreplay.session
 
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionClock
@@ -17,11 +17,11 @@ import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.OrderFormParams
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.ReplayChartInfo
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.OrderFormParams
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -43,7 +43,7 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 @Stable
-internal class ReplayChartsPresenter(
+internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
     private val baseTimeframe: Timeframe,
     private val candlesBefore: Int,
@@ -57,7 +57,7 @@ internal class ReplayChartsPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val events = MutableSharedFlow<ReplayChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private val events = MutableSharedFlow<ReplaySessionEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val barReplay = BarReplay(
         timeframe = baseTimeframe,
@@ -90,7 +90,7 @@ internal class ReplayChartsPresenter(
             }
         }
 
-        return@launchMolecule ReplayChartsState(
+        return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
             orderFormParams = orderFormParams,
@@ -98,7 +98,7 @@ internal class ReplayChartsPresenter(
         )
     }
 
-    fun event(event: ReplayChartsEvent) {
+    fun event(event: ReplaySessionEvent) {
         events.tryEmit(event)
     }
 

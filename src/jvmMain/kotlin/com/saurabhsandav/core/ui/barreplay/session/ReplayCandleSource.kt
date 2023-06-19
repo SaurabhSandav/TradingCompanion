@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.charts
+package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe

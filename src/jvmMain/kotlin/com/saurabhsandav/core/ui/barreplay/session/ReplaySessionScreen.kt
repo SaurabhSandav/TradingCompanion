@@ -1,15 +1,15 @@
-package com.saurabhsandav.core.ui.barreplay.charts
+package com.saurabhsandav.core.ui.barreplay.session
 
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsEvent.*
-import com.saurabhsandav.core.ui.barreplay.charts.ui.ReplayCharts
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
+import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayCharts
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import kotlinx.datetime.Instant
 
 @Composable
-internal fun ReplayChartsScreen(
+internal fun ReplaySessionScreen(
     onNewReplay: () -> Unit,
     baseTimeframe: Timeframe,
     candlesBefore: Int,
@@ -22,7 +22,7 @@ internal fun ReplayChartsScreen(
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        ReplayChartsPresenter(
+        ReplaySessionPresenter(
             coroutineScope = scope,
             baseTimeframe = baseTimeframe,
             candlesBefore = candlesBefore,

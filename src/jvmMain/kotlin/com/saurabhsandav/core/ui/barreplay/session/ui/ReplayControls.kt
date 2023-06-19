@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.charts.ui
+package com.saurabhsandav.core.ui.barreplay.session.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

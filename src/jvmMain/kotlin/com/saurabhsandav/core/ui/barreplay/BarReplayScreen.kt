@@ -3,10 +3,10 @@ package com.saurabhsandav.core.ui.barreplay
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
-import com.saurabhsandav.core.ui.barreplay.charts.ReplayChartsScreen
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayScreen
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayForm
+import com.saurabhsandav.core.ui.barreplay.session.ReplaySessionScreen
 import com.saurabhsandav.core.ui.common.app.AppWindow
 
 @Composable
@@ -38,7 +38,7 @@ internal fun BarReplayWindow(
             }
         }
 
-        is BarReplayScreen.Chart -> ReplayChartsScreen(
+        is BarReplayScreen.Chart -> ReplaySessionScreen(
             onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
             baseTimeframe = currentScreen.baseTimeframe,
             candlesBefore = currentScreen.candlesBefore,

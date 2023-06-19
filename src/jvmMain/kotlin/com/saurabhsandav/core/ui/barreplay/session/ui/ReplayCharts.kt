@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.charts.ui
+package com.saurabhsandav.core.ui.barreplay.session.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.barreplay.charts.model.ReplayChartsState.ReplayChartInfo
+import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayChartInfo
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
 import com.saurabhsandav.core.ui.stockchart.StockChart

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.charts.model
+package com.saurabhsandav.core.ui.barreplay.session.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.stockchart.StockChart
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import java.util.*
 
 @Immutable
-internal data class ReplayChartsState(
+internal data class ReplaySessionState(
     val chartsState: StockChartsState,
     val selectedProfileId: Long?,
     val orderFormParams: ImmutableList<OrderFormParams>,
