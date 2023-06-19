@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.launchform
+package com.saurabhsandav.core.ui.barreplay.newreplayform
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +14,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class ReplayLaunchFormModel(
+class NewReplayFormModel(
     validator: FormValidator,
     baseTimeframe: String?,
     candlesBefore: String,

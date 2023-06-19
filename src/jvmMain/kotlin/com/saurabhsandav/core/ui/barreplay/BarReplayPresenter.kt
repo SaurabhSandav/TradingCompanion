@@ -7,10 +7,10 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.barreplay.launchform.ReplayLaunchFormModel
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayScreen
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
+import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
@@ -75,7 +75,7 @@ internal class BarReplayPresenter(
         screen = BarReplayScreen.LaunchForm(model = formModel)
     }
 
-    private fun initialLaunchFormModel(): ReplayLaunchFormModel {
+    private fun initialLaunchFormModel(): NewReplayFormModel {
 
         val currentTime = Clock.System.now()
         val days30 = 30.days
@@ -84,7 +84,7 @@ internal class BarReplayPresenter(
         val dataTo = currentTime.toLocalDateTime(TimeZone.currentSystemDefault())
         val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
 
-        return ReplayLaunchFormModel(
+        return NewReplayFormModel(
             validator = formValidator,
             baseTimeframe = Timeframe.M5.toLabel(),
             candlesBefore = candlesBefore.toString(),

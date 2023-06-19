@@ -4,9 +4,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.barreplay.charts.ReplayChartsScreen
-import com.saurabhsandav.core.ui.barreplay.launchform.ReplayLaunchFormScreen
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayScreen
+import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayForm
 import com.saurabhsandav.core.ui.common.app.AppWindow
 
 @Composable
@@ -31,7 +31,7 @@ internal fun BarReplayWindow(
                 onCloseRequest = onCloseRequest,
             ) {
 
-                ReplayLaunchFormScreen(
+                NewReplayForm(
                     model = currentScreen.model,
                     onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay) },
                 )

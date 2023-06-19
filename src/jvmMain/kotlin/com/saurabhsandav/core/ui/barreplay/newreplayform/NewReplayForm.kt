@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.barreplay.launchform
+package com.saurabhsandav.core.ui.barreplay.newreplayform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,8 +16,8 @@ import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.utils.NIFTY50
 
 @Composable
-internal fun ReplayLaunchFormScreen(
-    model: ReplayLaunchFormModel,
+internal fun NewReplayForm(
+    model: NewReplayFormModel,
     onLaunchReplay: () -> Unit,
 ) {
 
