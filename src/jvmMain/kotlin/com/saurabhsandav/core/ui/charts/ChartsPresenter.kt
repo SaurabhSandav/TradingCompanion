@@ -46,7 +46,7 @@ internal class ChartsPresenter(
     private val initialTicker = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
     private val stockCharts = mutableListOf<StockChart>()
-    private val candleSources = mutableMapOf<Pair<String, Timeframe>, ChartCandleSource>()
+    private val candleSources = mutableMapOf<StockChart.Params, ChartsCandleSource>()
     private val queuedChartInitializers = mutableListOf<StockChart.() -> Unit>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
@@ -221,8 +221,14 @@ internal class ChartsPresenter(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val candleSource = candleSources.getOrPut(ticker to timeframe) {
-            ChartCandleSource(ticker, timeframe, ::getCandles, ::getMarkers)
+        val params = StockChart.Params(ticker, timeframe)
+
+        val candleSource = candleSources.getOrPut(params) {
+            ChartsCandleSource(
+                params = params,
+                getCandles = { range -> getCandles(params, range) },
+                getMarkers = { candleSeries -> getMarkers(ticker, candleSeries) },
+            )
         }
 
         // Set ChartCandleSource on StockChart
@@ -247,8 +253,7 @@ internal class ChartsPresenter(
     }
 
     private suspend fun getCandles(
-        ticker: String,
-        timeframe: Timeframe,
+        params: StockChart.Params,
         range: ClosedRange<Instant>,
     ): List<Candle> {
 
@@ -282,8 +287,8 @@ internal class ChartsPresenter(
         ) {
 
             candleRepo.getCandles(
-                ticker = ticker,
-                timeframe = timeframe,
+                ticker = params.ticker,
+                timeframe = params.timeframe,
                 from = range.start,
                 to = range.endInclusive,
             )

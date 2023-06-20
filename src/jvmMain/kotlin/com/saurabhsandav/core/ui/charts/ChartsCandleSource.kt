@@ -1,7 +1,11 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.trading.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.ui.stockchart.CandleSource
+import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,11 +16,10 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
-class ChartCandleSource(
-    override val ticker: String,
-    override val timeframe: Timeframe,
-    private val getCandles: suspend (String, Timeframe, ClosedRange<Instant>) -> List<Candle>,
-    private val getMarkers: suspend (String, CandleSeries) -> Flow<List<SeriesMarker>>,
+internal class ChartsCandleSource(
+    override val params: StockChart.Params,
+    private val getCandles: suspend (ClosedRange<Instant>) -> List<Candle>,
+    private val getMarkers: suspend (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
     private val downloadIntervalDays = 90.days
@@ -24,16 +27,14 @@ class ChartCandleSource(
     private val onLoadSignal = MutableSharedFlow<Unit>(replay = 1)
     private val mutex = Mutex()
 
-    override val hasVolume: Boolean = ticker != "NIFTY50"
+    override val hasVolume: Boolean = params.ticker != "NIFTY50"
 
-    private val mutableCandleSeries = MutableCandleSeries(timeframe = timeframe)
+    private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
     override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
 
-    override val candleMarkers: Flow<List<SeriesMarker>> = onLoadSignal.flatMapLatest {
-        getMarkers(ticker, candleSeries)
-    }
+    override val candleMarkers: Flow<List<SeriesMarker>> = onLoadSignal.flatMapLatest { getMarkers(candleSeries) }
 
-    override val syncKey = timeframe
+    override val syncKey = params.timeframe
 
     override suspend fun onLoad() = mutex.withLock {
 
@@ -43,7 +44,7 @@ class ChartCandleSource(
         val range = currentTime.minus(downloadIntervalDays)..currentTime
 
         // Range of 3 months before current time to current time
-        val candles = getCandles(ticker, timeframe, range)
+        val candles = getCandles(range)
 
         // Append candles
         mutableCandleSeries.appendCandles(candles)
@@ -65,7 +66,7 @@ class ChartCandleSource(
             val rangeEnd = mutableCandleSeries.first().openInstant
             val range = rangeStart..rangeEnd
 
-            val oldCandles = getCandles(ticker, timeframe, range)
+            val oldCandles = getCandles(range)
 
             if (oldCandles.isNotEmpty()) {
                 mutableCandleSeries.prependCandles(oldCandles)
@@ -87,7 +88,7 @@ class ChartCandleSource(
             val firstCandleInstant = mutableCandleSeries.first().openInstant
             val range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
 
-            val oldCandles = getCandles(ticker, timeframe, range)
+            val oldCandles = getCandles(range)
 
             val areCandlesAvailable = oldCandles.isNotEmpty()
 

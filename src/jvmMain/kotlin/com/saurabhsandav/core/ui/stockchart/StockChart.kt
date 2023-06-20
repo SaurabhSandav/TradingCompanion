@@ -97,10 +97,10 @@ internal class StockChart(
         val deferred = CompletableDeferred<Unit>()
 
         // Update chart params
-        currentParams = Params(source.ticker, source.timeframe)
+        currentParams = source.params
 
         // Update chart title
-        val chartTitle = "${source.ticker} (${source.timeframe.toLabel()})"
+        val chartTitle = "${source.params.ticker} (${source.params.timeframe.toLabel()})"
         title = chartTitle
 
         // Update legend title for candles

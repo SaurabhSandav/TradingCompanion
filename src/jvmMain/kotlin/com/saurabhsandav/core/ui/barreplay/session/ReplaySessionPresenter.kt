@@ -62,7 +62,7 @@ internal class ReplaySessionPresenter(
     )
     private var autoNextJob: Job? = null
     private val stockCharts = mutableListOf<StockChart>()
-    private val candleSources = mutableMapOf<Pair<String, Timeframe>, ReplayCandleSource>()
+    private val candleSources = mutableMapOf<StockChart.Params, ReplayCandleSource>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
         onCloseChart = ::onCloseChart,
@@ -242,7 +242,7 @@ internal class ReplaySessionPresenter(
                 ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
-                    ticker = replayCandleSource.ticker,
+                    ticker = replayCandleSource.params.ticker,
                     quantity = "",
                     lots = "",
                     isBuy = true,
@@ -267,7 +267,7 @@ internal class ReplaySessionPresenter(
                 ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
-                    ticker = replayCandleSource.ticker,
+                    ticker = replayCandleSource.params.ticker,
                     quantity = "",
                     lots = "",
                     isBuy = false,
@@ -310,11 +310,12 @@ internal class ReplaySessionPresenter(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val candleSource = candleSources.getOrPut(ticker to timeframe) {
+        val params = StockChart.Params(ticker, timeframe)
+
+        val candleSource = candleSources.getOrPut(params) {
             ReplayCandleSource(
-                ticker = ticker,
-                timeframe = timeframe,
-                replaySeriesFactory = { buildReplaySeries(ticker, timeframe) },
+                params = params,
+                replaySeriesFactory = { buildReplaySeries(params) },
                 getMarkers = { candleSeries -> getMarkers(ticker, candleSeries) },
             )
         }
@@ -345,17 +346,17 @@ internal class ReplaySessionPresenter(
         }
     }
 
-    private suspend fun buildReplaySeries(
-        ticker: String,
-        timeframe: Timeframe,
-    ): ReplaySeries {
+    private suspend fun buildReplaySeries(params: StockChart.Params): ReplaySeries {
 
-        val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
+        val candleSeries = getCandleSeries(params.ticker, replayParams.baseTimeframe)
 
         return barReplay.newSeries(
             inputSeries = candleSeries,
             initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayParams.replayFrom },
-            timeframeSeries = if (replayParams.baseTimeframe == timeframe) null else getCandleSeries(ticker, timeframe),
+            timeframeSeries = when (replayParams.baseTimeframe) {
+                params.timeframe -> null
+                else -> getCandleSeries(params.ticker, params.timeframe)
+            },
         )
     }
 
