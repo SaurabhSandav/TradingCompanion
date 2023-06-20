@@ -157,7 +157,9 @@ internal class TradeReviewPresenter(
         // Mark selected trade
         markedTradeIds.value = markedTradeIds.value.add(id)
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val profileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile).first()
+            ?: error("Trade review profile not set")
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val trade = tradingRecord.trades.getById(id).first()
         val start = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
