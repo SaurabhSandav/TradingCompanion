@@ -26,6 +26,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
@@ -62,7 +63,7 @@ internal class ReplaySessionPresenter(
     )
     private var autoNextJob: Job? = null
     private val stockCharts = mutableListOf<StockChart>()
-    private val candleSources = mutableMapOf<StockChart.Params, ReplayCandleSource>()
+    private val candleSources = mutableMapOf<StockChartParams, ReplayCandleSource>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
         onCloseChart = ::onCloseChart,
@@ -310,7 +311,7 @@ internal class ReplaySessionPresenter(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val params = StockChart.Params(ticker, timeframe)
+        val params = StockChartParams(ticker, timeframe)
 
         val candleSource = candleSources.getOrPut(params) {
             ReplayCandleSource(
@@ -346,7 +347,7 @@ internal class ReplaySessionPresenter(
         }
     }
 
-    private suspend fun buildReplaySeries(params: StockChart.Params): ReplaySeries {
+    private suspend fun buildReplaySeries(params: StockChartParams): ReplaySeries {
 
         val candleSeries = getCandleSeries(params.ticker, replayParams.baseTimeframe)
 

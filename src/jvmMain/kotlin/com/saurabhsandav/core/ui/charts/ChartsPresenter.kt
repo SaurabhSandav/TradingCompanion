@@ -21,6 +21,7 @@ import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.utils.NIFTY50
@@ -46,7 +47,7 @@ internal class ChartsPresenter(
     private val initialTicker = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
     private val stockCharts = mutableListOf<StockChart>()
-    private val candleSources = mutableMapOf<StockChart.Params, ChartsCandleSource>()
+    private val candleSources = mutableMapOf<StockChartParams, ChartsCandleSource>()
     private val queuedChartInitializers = mutableListOf<StockChart.() -> Unit>()
     private val chartsState = StockChartsState(
         onNewChart = ::onNewChart,
@@ -141,15 +142,15 @@ internal class ChartsPresenter(
     ) {
 
         // Default timeframe (Currently hardcoded to M5) chart for ticker
-        val tickerDTParams = StockChart.Params(ticker, Timeframe.M5)
+        val tickerDTParams = StockChartParams(ticker, Timeframe.M5)
 
         val chartParams = listOf(
             // Daily chart for index.
-            StockChart.Params(NIFTY50.first(), Timeframe.D1),
+            StockChartParams(NIFTY50.first(), Timeframe.D1),
             // Default timeframe (Currently hardcoded to M5) chart for index.
-            StockChart.Params(NIFTY50.first(), Timeframe.M5),
+            StockChartParams(NIFTY50.first(), Timeframe.M5),
             // Daily chart for ticker.
-            StockChart.Params(ticker, Timeframe.D1),
+            StockChartParams(ticker, Timeframe.D1),
             // Default timeframe (Currently hardcoded to M5) chart for ticker. Also bring to front.
             tickerDTParams,
         )
@@ -221,7 +222,7 @@ internal class ChartsPresenter(
             "Ticker ($ticker) and/or Timeframe ($timeframe) cannot be null"
         }
 
-        val params = StockChart.Params(ticker, timeframe)
+        val params = StockChartParams(ticker, timeframe)
 
         val candleSource = candleSources.getOrPut(params) {
             ChartsCandleSource(
@@ -253,7 +254,7 @@ internal class ChartsPresenter(
     }
 
     private suspend fun getCandles(
-        params: StockChart.Params,
+        params: StockChartParams,
         range: ClosedRange<Instant>,
     ): List<Candle> {
 

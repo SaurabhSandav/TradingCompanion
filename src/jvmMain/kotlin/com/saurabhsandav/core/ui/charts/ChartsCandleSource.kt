@@ -5,7 +5,7 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.ui.stockchart.CandleSource
-import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,7 +17,7 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 internal class ChartsCandleSource(
-    override val params: StockChart.Params,
+    override val params: StockChartParams,
     private val getCandles: suspend (ClosedRange<Instant>) -> List<Candle>,
     private val getMarkers: suspend (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {

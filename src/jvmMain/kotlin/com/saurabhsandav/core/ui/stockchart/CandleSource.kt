@@ -8,7 +8,7 @@ import kotlinx.datetime.Instant
 
 internal interface CandleSource {
 
-    val params: StockChart.Params
+    val params: StockChartParams
 
     val hasVolume: Boolean
 

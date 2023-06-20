@@ -55,7 +55,7 @@ internal class StockChart(
     private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
 
     val coroutineScope = MainScope()
-    var currentParams: Params? by mutableStateOf(null)
+    var currentParams: StockChartParams? by mutableStateOf(null)
     var title by mutableStateOf("")
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
     val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
@@ -404,9 +404,4 @@ internal class StockChart(
             }
         }
     }
-
-    data class Params(
-        val ticker: String,
-        val timeframe: Timeframe,
-    )
 }
