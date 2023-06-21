@@ -24,13 +24,8 @@ import kotlinx.datetime.toInstant
 
 @Stable
 internal class StockChartsState(
-    val onNewChart: (
-        newStockChart: StockChart,
-        prevStockChart: StockChart?,
-    ) -> Unit,
-    val onCloseChart: (StockChart) -> Unit,
-    val onChangeTicker: (StockChart, String) -> Unit,
-    val onChangeTimeframe: (StockChart, Timeframe) -> Unit,
+    private val initialParams: StockChartParams,
+    val marketDataProvider: MarketDataProvider,
     private val appModule: AppModule,
     val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
@@ -39,6 +34,7 @@ internal class StockChartsState(
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChart = MutableStateFlow<StockChart?>(null)
+    private val candleSources = mutableMapOf<StockChartParams, CandleSource>()
 
     val windows = mutableStateListOf<StockChartWindow>()
     val charts
@@ -60,7 +56,7 @@ internal class StockChartsState(
 
         val window = StockChartWindow(
             onNewChart = { arrangement, currentStockChart ->
-                newStockChart(arrangement, currentStockChart ?: fromStockChart)
+                newStockChart(arrangement, (currentStockChart ?: fromStockChart)?.currentParams)
             },
             onSelectChart = { stockChart ->
 
@@ -72,8 +68,8 @@ internal class StockChartsState(
                 // Destroy chart
                 stockChart.destroy()
 
-                // Notify observer
-                onCloseChart(stockChart)
+                // Remove unused CandleSources from cache
+                releaseUnusedCandleSources()
             },
         )
 
@@ -96,12 +92,21 @@ internal class StockChartsState(
         return true
     }
 
-    fun openNewTab() {
+    fun newChart(params: StockChartParams): StockChart {
 
+        // Get last active chart
         val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
 
-        // Find window with the last active chart, and open a new tab.
-        windows.first { lastActiveChart in it.charts }.tabsState.newTab()
+        // Get last active window based on last active chart
+        val window = windows.first { lastActiveChart in it.charts }
+
+        // Create new StockChart
+        val stockChart = newStockChart(window.pagedArrangement, params)
+
+        // Add our new chart to the window
+        window.openChart(stockChart)
+
+        return stockChart
     }
 
     fun bringToFront(stockChart: StockChart) {
@@ -121,6 +126,18 @@ internal class StockChartsState(
         }
     }
 
+    fun onChangeTicker(stockChart: StockChart, ticker: String) {
+
+        // New chart params
+        stockChart.newParams(stockChart.currentParams.copy(ticker = ticker))
+    }
+
+    fun onChangeTimeframe(stockChart: StockChart, timeframe: Timeframe) {
+
+        // New chart params
+        stockChart.newParams(stockChart.currentParams.copy(timeframe = timeframe))
+    }
+
     fun goToDateTime(
         stockChart: StockChart,
         dateTime: LocalDateTime?,
@@ -138,7 +155,7 @@ internal class StockChartsState(
 
     private fun newStockChart(
         arrangement: PagedChartArrangement,
-        fromStockChart: StockChart?,
+        params: StockChartParams?,
     ): StockChart {
 
         // New chart
@@ -150,6 +167,7 @@ internal class StockChartsState(
         val stockChart = StockChart(
             appModule = appModule,
             actualChart = actualChart,
+            initialSource = getCandleSource(params ?: initialParams),
             onLegendUpdate = { arrangement.setLegend(actualChart, it) },
         )
 
@@ -166,34 +184,66 @@ internal class StockChartsState(
                 if (lastActiveChart.value != stockChart) return@onEach
 
                 // Nothing to sync if chart does not have a candle source or sync key
-                val currentChartSyncKey = stockChart.source?.syncKey ?: return@onEach
+                val currentChartSyncKey = stockChart.source.syncKey ?: return@onEach
 
                 // Previously sync was not accurate if no. of candles across charts was not the same.
                 // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
                 // Note: This method does not work if the last candle of all (to-sync) charts is not at the
                 // same Instant. Should be fixed once live candles are implemented.
-                val startOffset = stockChart.source!!.candleSeries.size - range.from
-                val endOffset = stockChart.source!!.candleSeries.size - range.to
+                val startOffset = stockChart.source.candleSeries.size - range.from
+                val endOffset = stockChart.source.candleSeries.size - range.to
 
                 // Update all other charts with same timeframe
                 charts
                     .filter { filterStockChart ->
                         // Select charts with same sync key, ignore current chart
-                        currentChartSyncKey == filterStockChart.source?.syncKey &&
-                                filterStockChart != stockChart
+                        currentChartSyncKey == filterStockChart.source.syncKey && filterStockChart != stockChart
                     }
                     .forEach {
                         it.actualChart.timeScale.setVisibleLogicalRange(
-                            from = it.source!!.candleSeries.size - startOffset,
-                            to = it.source!!.candleSeries.size - endOffset,
+                            from = it.source.candleSeries.size - startOffset,
+                            to = it.source.candleSeries.size - endOffset,
                         )
                     }
             }
             .launchIn(coroutineScope)
 
-        // Notify observer
-        onNewChart(stockChart, fromStockChart)
-
         return stockChart
+    }
+
+    private fun getCandleSource(params: StockChartParams): CandleSource {
+        return candleSources.getOrPut(params) {
+            marketDataProvider.buildCandleSource(params)
+        }
+    }
+
+    private fun StockChart.newParams(params: StockChartParams) {
+
+        val candleSource = getCandleSource(params)
+
+        // Set CandleSource on StockChart
+        setCandleSource(candleSource)
+
+        // Remove unused CandleSources from cache
+        releaseUnusedCandleSources()
+    }
+
+    private fun releaseUnusedCandleSources() = coroutineScope.launchUnit {
+
+        // CandleSources currently in use
+        val usedCandleSources = charts.map { stockChart -> stockChart.source }
+
+        // CandleSources not in use
+        val unusedCandleSources = candleSources.filter { (_, candleSource) -> candleSource !in usedCandleSources }
+
+        // Remove unused CandleSource from cache
+        unusedCandleSources.forEach { (params, candleSource) ->
+
+            // Remove from cache
+            candleSources.remove(params)
+
+            // Notify MarketDataProvider about candle source release
+            marketDataProvider.releaseCandleSource(candleSource)
+        }
     }
 }

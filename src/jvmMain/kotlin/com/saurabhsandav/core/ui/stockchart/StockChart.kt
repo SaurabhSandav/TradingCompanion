@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.IChartApi
@@ -39,11 +36,10 @@ import java.math.RoundingMode
 internal class StockChart(
     val appModule: AppModule,
     val actualChart: IChartApi,
+    initialSource: CandleSource,
     onLegendUpdate: (List<String>) -> Unit,
 ) {
 
-    var source: CandleSource? = null
-        private set
     private var sourceCoroutineScope = MainScope()
 
     private val candlestickPlotter = CandlestickPlotter(actualChart)
@@ -55,8 +51,10 @@ internal class StockChart(
     private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
 
     val coroutineScope = MainScope()
-    var currentParams: StockChartParams? by mutableStateOf(null)
-    var title by mutableStateOf("")
+    var source: CandleSource = initialSource
+        private set
+    var currentParams by mutableStateOf(source.params)
+    val title by derivedStateOf { "${currentParams.ticker} (${currentParams.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
     val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
 
@@ -83,6 +81,7 @@ internal class StockChart(
             onLegendUpdate(plotters.map { it.legendText(params) })
         }.launchIn(coroutineScope)
 
+        // Observe plotter enabled prefs
         observerPlotterIsEnabled(PrefKeys.PlotterCandlesEnabled, candlestickPlotter)
         observerPlotterIsEnabled(PrefKeys.PlotterVolumeEnabled, volumePlotter)
         observerPlotterIsEnabled(PrefKeys.PlotterVWAPEnabled, vwapPlotter)
@@ -90,6 +89,9 @@ internal class StockChart(
         observerPlotterIsEnabled(PrefKeys.PlotterSMA50Enabled, sma50Plotter)
         observerPlotterIsEnabled(PrefKeys.PlotterSMA100Enabled, sma100Plotter)
         observerPlotterIsEnabled(PrefKeys.PlotterSMA200Enabled, sma200Plotter)
+
+        // Set initial CandleSource
+        setCandleSource(initialSource)
     }
 
     fun setCandleSource(source: CandleSource): CompletableDeferred<Unit> {
@@ -99,12 +101,8 @@ internal class StockChart(
         // Update chart params
         currentParams = source.params
 
-        // Update chart title
-        val chartTitle = "${source.params.ticker} (${source.params.timeframe.toLabel()})"
-        title = chartTitle
-
         // Update legend title for candles
-        candlestickPlotter.name = chartTitle
+        candlestickPlotter.name = title
 
         // Cancel CoroutineScope for the previous CandleSource
         sourceCoroutineScope.cancel()
@@ -188,6 +186,10 @@ internal class StockChart(
         return deferred
     }
 
+    fun refresh() {
+        setCandleSource(source)
+    }
+
     fun setDarkMode(isDark: Boolean) {
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
     }
@@ -228,8 +230,6 @@ internal class StockChart(
         val deferred = CompletableDeferred<Unit>()
 
         sourceCoroutineScope.launch {
-
-            val source = checkNotNull(source) { "Source not set on chart" }
 
             // Load candles in range
             if (source.onLoad(start, end)) plotters.forEach { it.setData(source.candleSeries.indices) }
@@ -352,8 +352,6 @@ internal class StockChart(
     }
 
     private fun navigateToInterval(range: ClosedRange<Instant>?) {
-
-        val source = checkNotNull(source) { "Source not set on chart" }
 
         val lastCandleIndex = source.candleSeries.lastIndex
 

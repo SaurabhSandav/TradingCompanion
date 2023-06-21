@@ -28,6 +28,7 @@ internal class StockChartWindow(
         get() = tabCharts.values.toList()
 
     private var currentStockChart: StockChart? = null
+    private val queuedCharts = mutableListOf<StockChart>()
 
     val tabsState = StockChartTabsState(
         onNew = ::onNewTab,
@@ -38,9 +39,19 @@ internal class StockChartWindow(
 
     val selectedStockChart by derivedStateOf { tabCharts.getValue(tabsState.tabIds[tabsState.selectedTabIndex]) }
 
+    fun openChart(stockChart: StockChart) {
+
+        // Queue provided chart
+        queuedCharts.add(stockChart)
+
+        // Open a new tab for queued chart
+        tabsState.newTab()
+    }
+
     private fun onNewTab(tabId: Int) {
 
-        val stockChart = onNewChart(pagedArrangement, currentStockChart)
+        // Get queued chart if available or request new chart
+        val stockChart = queuedCharts.removeFirstOrNull() ?: onNewChart(pagedArrangement, currentStockChart)
 
         // Save chart
         tabCharts[tabId] = stockChart

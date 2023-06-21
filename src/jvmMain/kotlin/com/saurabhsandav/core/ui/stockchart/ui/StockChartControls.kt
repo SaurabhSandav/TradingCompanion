@@ -19,7 +19,7 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.core.utils.NIFTY50
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -29,7 +29,9 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
+    tickers: ImmutableList<String>,
     onChangeTicker: (String) -> Unit,
+    timeframes: ImmutableList<Timeframe>,
     onChangeTimeframe: (Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
@@ -100,15 +102,15 @@ internal fun StockChartControls(
             Divider()
 
             ListSelectionField(
-                items = NIFTY50,
-                selection = stockChart.currentParams?.ticker,
+                items = tickers,
+                selection = stockChart.currentParams.ticker,
                 onSelection = onChangeTicker,
                 label = { Text("Ticker") },
             )
 
             ListSelectionField(
-                items = remember { Timeframe.values().map { it.toLabel() }.toImmutableList() },
-                selection = stockChart.currentParams?.timeframe?.toLabel(),
+                items = remember(timeframes) { timeframes.map { it.toLabel() }.toImmutableList() },
+                selection = stockChart.currentParams.timeframe.toLabel(),
                 onSelection = { onChangeTimeframe(timeframeFromLabel(it)) },
                 label = { Text("Timeframe") },
             )

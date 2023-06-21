@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
@@ -51,7 +52,9 @@ internal fun StockCharts(
                         // Controls
                         StockChartControls(
                             stockChart = stockChart,
+                            tickers = state.marketDataProvider.symbols().collectAsState().value,
                             onChangeTicker = { ticker -> state.onChangeTicker(stockChart, ticker) },
+                            timeframes = state.marketDataProvider.timeframes().collectAsState().value,
                             onChangeTimeframe = { timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
                             onGoToDateTime = { dateTime -> state.goToDateTime(stockChart, dateTime) },
                             customControls = customControls,

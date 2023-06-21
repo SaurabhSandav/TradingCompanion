@@ -1,0 +1,16 @@
+package com.saurabhsandav.core.ui.stockchart
+
+import com.saurabhsandav.core.trading.Timeframe
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.StateFlow
+
+internal interface MarketDataProvider {
+
+    fun symbols(): StateFlow<ImmutableList<String>>
+
+    fun timeframes(): StateFlow<ImmutableList<Timeframe>>
+
+    fun buildCandleSource(params: StockChartParams): CandleSource
+
+    fun releaseCandleSource(candleSource: CandleSource) = Unit
+}
