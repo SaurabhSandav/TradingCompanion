@@ -103,7 +103,7 @@ internal class ChartsPresenter(
 
         chartParams.forEach { params ->
 
-            val stockChart = chartsState.charts.firstOrNull { it.currentParams == params }
+            val stockChart = chartsState.charts.firstOrNull { it.params == params }
 
             if (stockChart == null) {
 

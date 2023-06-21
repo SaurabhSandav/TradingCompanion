@@ -56,7 +56,7 @@ internal class StockChartsState(
 
         val window = StockChartWindow(
             onNewChart = { arrangement, currentStockChart ->
-                newStockChart(arrangement, (currentStockChart ?: fromStockChart)?.currentParams)
+                newStockChart(arrangement, (currentStockChart ?: fromStockChart)?.params)
             },
             onSelectChart = { stockChart ->
 
@@ -129,13 +129,13 @@ internal class StockChartsState(
     fun onChangeTicker(stockChart: StockChart, ticker: String) {
 
         // New chart params
-        stockChart.newParams(stockChart.currentParams.copy(ticker = ticker))
+        stockChart.newParams(stockChart.params.copy(ticker = ticker))
     }
 
     fun onChangeTimeframe(stockChart: StockChart, timeframe: Timeframe) {
 
         // New chart params
-        stockChart.newParams(stockChart.currentParams.copy(timeframe = timeframe))
+        stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
     fun goToDateTime(

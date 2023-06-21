@@ -103,14 +103,14 @@ internal fun StockChartControls(
 
             ListSelectionField(
                 items = tickers,
-                selection = stockChart.currentParams.ticker,
+                selection = stockChart.params.ticker,
                 onSelection = onChangeTicker,
                 label = { Text("Ticker") },
             )
 
             ListSelectionField(
                 items = remember(timeframes) { timeframes.map { it.toLabel() }.toImmutableList() },
-                selection = stockChart.currentParams.timeframe.toLabel(),
+                selection = stockChart.params.timeframe.toLabel(),
                 onSelection = { onChangeTimeframe(timeframeFromLabel(it)) },
                 label = { Text("Timeframe") },
             )

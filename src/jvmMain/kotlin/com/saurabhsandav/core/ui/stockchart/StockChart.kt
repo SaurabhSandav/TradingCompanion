@@ -53,8 +53,8 @@ internal class StockChart(
     val coroutineScope = MainScope()
     var source: CandleSource = initialSource
         private set
-    var currentParams by mutableStateOf(source.params)
-    val title by derivedStateOf { "${currentParams.ticker} (${currentParams.timeframe.toLabel()})" }
+    var params by mutableStateOf(source.params)
+    val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
     val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
 
@@ -99,7 +99,7 @@ internal class StockChart(
         val deferred = CompletableDeferred<Unit>()
 
         // Update chart params
-        currentParams = source.params
+        params = source.params
 
         // Update legend title for candles
         candlestickPlotter.name = title
