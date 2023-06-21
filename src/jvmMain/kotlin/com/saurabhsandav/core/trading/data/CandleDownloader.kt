@@ -8,7 +8,7 @@ import kotlinx.datetime.Instant
 
 interface CandleDownloader {
 
-    suspend fun isLoggedIn(): Flow<Boolean>
+    fun isLoggedIn(): Flow<Boolean>
 
     suspend fun download(
         ticker: String,

@@ -15,7 +15,7 @@ internal class CandleRepository(
     private val candleCache: CandleCache,
 ) {
 
-    suspend fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()
+    fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()
 
     suspend fun getCandles(
         ticker: String,

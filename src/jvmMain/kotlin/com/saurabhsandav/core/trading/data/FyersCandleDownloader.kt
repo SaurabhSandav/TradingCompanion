@@ -28,7 +28,7 @@ internal class FyersCandleDownloader(
 
     private var accessToken: String? = null
 
-    override suspend fun isLoggedIn(): Flow<Boolean> {
+    override fun isLoggedIn(): Flow<Boolean> {
         return appPrefs.getStringOrNullFlow(PrefKeys.FyersAccessToken).map {
             if (it == null) return@map false
 
