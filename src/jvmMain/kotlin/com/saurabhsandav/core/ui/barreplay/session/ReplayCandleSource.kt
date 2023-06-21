@@ -24,8 +24,6 @@ internal class ReplayCandleSource(
     override val candleSeries: CandleSeries
         get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }
 
-    override val syncKey = params.timeframe
-
     override val candleMarkers: Flow<List<SeriesMarker>> = flow {
         val candleSeries = replaySeries.await()
         emitAll(getMarkers(candleSeries))

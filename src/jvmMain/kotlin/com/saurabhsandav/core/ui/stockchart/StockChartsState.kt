@@ -183,9 +183,6 @@ internal class StockChartsState(
                 // If chart is not active (user hasn't interacted), skip sync
                 if (lastActiveChart.value != stockChart) return@onEach
 
-                // Nothing to sync if chart does not have a candle source or sync key
-                val currentChartSyncKey = stockChart.source.syncKey ?: return@onEach
-
                 // Previously sync was not accurate if no. of candles across charts was not the same.
                 // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
                 // Note: This method does not work if the last candle of all (to-sync) charts is not at the
@@ -196,8 +193,9 @@ internal class StockChartsState(
                 // Update all other charts with same timeframe
                 charts
                     .filter { filterStockChart ->
-                        // Select charts with same sync key, ignore current chart
-                        currentChartSyncKey == filterStockChart.source.syncKey && filterStockChart != stockChart
+                        // Select charts with same timeframe, ignore current chart
+                        stockChart.params.timeframe == filterStockChart.params.timeframe &&
+                                filterStockChart != stockChart
                     }
                     .forEach {
                         it.actualChart.timeScale.setVisibleLogicalRange(

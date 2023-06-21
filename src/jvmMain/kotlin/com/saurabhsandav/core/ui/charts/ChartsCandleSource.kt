@@ -34,8 +34,6 @@ internal class ChartsCandleSource(
 
     override val candleMarkers: Flow<List<SeriesMarker>> = onLoadSignal.flatMapLatest { getMarkers(candleSeries) }
 
-    override val syncKey = params.timeframe
-
     override suspend fun onLoad() = mutex.withLock {
 
         if (loaded) return
