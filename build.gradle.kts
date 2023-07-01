@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.jetbrains.compose)
-    alias(libs.plugins.molecule)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
 }
@@ -100,6 +99,8 @@ kotlin {
                 implementation(libs.sqldelight.sqliteDriver)
                 implementation(libs.sqldelight.coroutinesExtensions)
 
+                implementation(libs.molecule.runtime)
+
                 // Multiplatform Settings
                 implementation(libs.multiplatformSettings.core)
                 implementation(libs.multiplatformSettings.coroutines)
@@ -108,15 +109,15 @@ kotlin {
                 implementation(libs.kotlinCsvJvm)
 
                 // JavaFx
-                implementation("org.openjfx:javafx-base:19.0.2.1:linux")
-                implementation("org.openjfx:javafx-controls:19.0.2.1:linux")
-                implementation("org.openjfx:javafx-graphics:19.0.2.1:linux")
-                implementation("org.openjfx:javafx-media:19.0.2.1:linux")
-                implementation("org.openjfx:javafx-swing:19.0.2.1:linux")
-                implementation("org.openjfx:javafx-web:19.0.2.1:linux")
+                implementation("org.openjfx:javafx-base:20.0.1:linux")
+                implementation("org.openjfx:javafx-controls:20.0.1:linux")
+                implementation("org.openjfx:javafx-graphics:20.0.1:linux")
+                implementation("org.openjfx:javafx-media:20.0.1:linux")
+                implementation("org.openjfx:javafx-swing:20.0.1:linux")
+                implementation("org.openjfx:javafx-web:20.0.1:linux")
 
                 // Krypto
-                implementation("com.soywiz.korlibs.krypto:krypto:3.4.0")
+                implementation("com.soywiz.korlibs.krypto:krypto:4.0.9")
 
                 // kotlin-result
                 implementation(libs.kotlinResult)

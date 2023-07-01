@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.profiles
 
 import androidx.compose.runtime.*
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
@@ -31,7 +31,7 @@ internal class ProfilesPresenter(
     private val events = MutableSharedFlow<ProfilesEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private val currentProfileId = MutableStateFlow<Long?>(null)
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 

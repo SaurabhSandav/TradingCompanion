@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
@@ -41,7 +41,7 @@ internal class ReplayOrderFormPresenter(
         )
     }
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule ReplayOrderFormState(
             title = "New Order",

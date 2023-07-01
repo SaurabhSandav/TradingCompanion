@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
@@ -37,7 +37,7 @@ internal class BarReplayPresenter(
     private val events = MutableSharedFlow<BarReplayEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private var replayState by mutableStateOf<ReplayState>(NewReplay(model = formModel))
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 

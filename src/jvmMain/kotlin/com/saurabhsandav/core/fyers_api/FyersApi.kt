@@ -7,7 +7,6 @@ import com.saurabhsandav.core.fyers_api.model.CandleResolution
 import com.saurabhsandav.core.fyers_api.model.DateFormat
 import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
 import com.saurabhsandav.core.fyers_api.model.response.*
-import com.soywiz.krypto.sha256
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -16,6 +15,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import korlibs.crypto.sha256
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject

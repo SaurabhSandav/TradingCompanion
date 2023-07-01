@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.charts.tradereview
 
 import androidx.compose.runtime.*
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
@@ -44,7 +44,7 @@ internal class TradeReviewPresenter(
 
     private val markedTradeIds = MutableStateFlow<PersistentSet<Long>>(persistentSetOf())
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 

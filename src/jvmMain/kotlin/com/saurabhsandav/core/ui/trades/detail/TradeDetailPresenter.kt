@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.trades.detail
 
 import androidx.compose.runtime.*
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -38,7 +38,7 @@ internal class TradeDetailPresenter(
 
     private val events = MutableSharedFlow<TradeDetailEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 

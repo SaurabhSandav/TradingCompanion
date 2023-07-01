@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.sizing
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
@@ -49,7 +49,7 @@ internal class SizingPresenter(
 
     private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 

@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.trades
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -66,7 +66,7 @@ internal class TradesPresenter(
     private val chartWindowsManager = MultipleWindowManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
-    val state = coroutineScope.launchMolecule(RecompositionClock.ContextClock) {
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         CollectEffect(events) { event ->
 
