@@ -14,7 +14,6 @@ import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -35,11 +34,14 @@ internal class StockChartsState(
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChart = MutableStateFlow<StockChart?>(null)
-    private val candleSources = mutableMapOf<StockChartParams, CandleSource>()
 
     val windows = mutableStateListOf<StockChartWindow>()
     val charts
         get() = windows.flatMap { it.charts }
+    val candleLoader = CandleLoader(
+        marketDataProvider = marketDataProvider,
+        onNewDataLoaded = ::onNewDataLoaded,
+    )
 
     init {
 
@@ -69,8 +71,9 @@ internal class StockChartsState(
                 // Destroy chart
                 stockChart.destroy()
 
-                // Remove unused CandleSources from cache
-                releaseUnusedCandleSources()
+                // Release StockChartData if unused
+                if (!charts.any { it.params == stockChart.params })
+                    candleLoader.releaseStockChartData(stockChart.params)
             },
         )
 
@@ -148,7 +151,7 @@ internal class StockChartsState(
 
         // Load data if date specified
         if (instant != null)
-            charts.map { it.loadInterval(instant) }.awaitAll()
+            candleLoader.load(stockChart.params, instant)
 
         // Navigate to datetime, other charts should be synced to same datetime.
         stockChart.goToDateTime(dateTime)
@@ -168,8 +171,9 @@ internal class StockChartsState(
         val stockChart = StockChart(
             appModule = appModule,
             marketDataProvider = marketDataProvider,
+            candleLoader = candleLoader,
             actualChart = actualChart,
-            initialSource = getCandleSource(params ?: initialParams),
+            initialData = candleLoader.getStockChartData(params ?: initialParams),
             onLegendUpdate = { arrangement.setLegend(actualChart, it) },
         )
 
@@ -186,7 +190,7 @@ internal class StockChartsState(
                 if (lastActiveChart.value != stockChart) return@onEach
 
                 // Current instant range. If not populated, skip sync
-                val instantRange = stockChart.source.getCandleSeries().instantRange.value ?: return@onEach
+                val instantRange = stockChart.data.getCandleSeries().instantRange.value ?: return@onEach
 
                 // Update all other charts with same timeframe
                 charts
@@ -198,7 +202,7 @@ internal class StockChartsState(
                     .forEach { chart ->
 
                         // Chart instant range. If not populated, skip sync
-                        val chartInstantRange = chart.source.getCandleSeries().instantRange.value ?: return@forEach
+                        val chartInstantRange = chart.data.getCandleSeries().instantRange.value ?: return@forEach
 
                         // Intersection range of current chart and iteration chart
                         // Skip sync if there is no overlap in instant ranges
@@ -208,11 +212,11 @@ internal class StockChartsState(
                         val commonInstant = intersection.endInclusive
 
                         // Current chart common candle index
-                        val candleIndex = stockChart.source.getCandleSeries().binarySearch {
+                        val candleIndex = stockChart.data.getCandleSeries().binarySearch {
                             it.openInstant.compareTo(commonInstant)
                         }
                         // Iteration chart common candle index
-                        val chartCandleIndex = chart.source.getCandleSeries().binarySearch {
+                        val chartCandleIndex = chart.data.getCandleSeries().binarySearch {
                             it.openInstant.compareTo(commonInstant)
                         }
 
@@ -231,40 +235,22 @@ internal class StockChartsState(
         return stockChart
     }
 
-    private fun getCandleSource(params: StockChartParams): CandleSource {
-        return candleSources.getOrPut(params) {
-            marketDataProvider.buildCandleSource(params)
-        }
-    }
-
     private fun StockChart.newParams(params: StockChartParams) {
 
-        val candleSource = getCandleSource(params)
+        val prevParams = params
 
-        // Set CandleSource on StockChart
-        setCandleSource(candleSource)
+        // Set StockChartData on StockChart
+        setData(candleLoader.getStockChartData(params))
 
-        // Remove unused CandleSources from cache
-        releaseUnusedCandleSources()
+        // Release StockChartData if unused
+        if (!charts.any { it.params == prevParams })
+            candleLoader.releaseStockChartData(prevParams)
     }
 
-    private fun releaseUnusedCandleSources() = coroutineScope.launchUnit {
+    private suspend fun onNewDataLoaded(params: StockChartParams) {
 
-        // CandleSources currently in use
-        val usedCandleSources = charts.map { stockChart -> stockChart.source }
-
-        // CandleSources not in use
-        val unusedCandleSources = candleSources.filter { (_, candleSource) -> candleSource !in usedCandleSources }
-
-        // Remove unused CandleSource from cache
-        unusedCandleSources.forEach { (params, candleSource) ->
-
-            // Remove from cache
-            candleSources.remove(params)
-
-            // Notify MarketDataProvider about candle source release
-            marketDataProvider.releaseCandleSource(candleSource)
-        }
+        charts.filter { stockChart -> stockChart.params == params }
+            .forEach { stockChart -> stockChart.refresh() }
     }
 
     private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {

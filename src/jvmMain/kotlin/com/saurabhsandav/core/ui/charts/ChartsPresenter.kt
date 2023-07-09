@@ -116,7 +116,7 @@ internal class ChartsPresenter(
                 coroutineScope.launch {
 
                     // Load data for specified interval
-                    newStockChart.loadInterval(start, end).await()
+                    chartsState.candleLoader.load(params, start, end)
 
                     // Navigate default timeframe chart to specified interval
                     if (params == tickerDTParams) newStockChart.navigateToInterval(start, end)
@@ -130,7 +130,7 @@ internal class ChartsPresenter(
                 coroutineScope.launch {
 
                     // Load data for specified interval
-                    stockChart.loadInterval(start, end).await()
+                    chartsState.candleLoader.load(params, start, end)
 
                     // Navigate default timeframe chart to specified interval
                     if (params == tickerDTParams) stockChart.navigateToInterval(start, end)

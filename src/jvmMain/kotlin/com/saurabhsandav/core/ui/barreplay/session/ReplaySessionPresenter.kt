@@ -190,7 +190,7 @@ internal class ReplaySessionPresenter(
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
+        val replayCandleSource = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySeries = replayCandleSource.replaySeries.await()
 
         val params = OrderFormParams(
@@ -215,7 +215,7 @@ internal class ReplaySessionPresenter(
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replayCandleSource = (stockChart.source as ReplayCandleSource?).let(::requireNotNull)
+        val replayCandleSource = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull)
         val replaySeries = replayCandleSource.replaySeries.await()
 
         val params = OrderFormParams(
@@ -251,7 +251,7 @@ internal class ReplaySessionPresenter(
 
     private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {
 
-        val replaySeries = (stockChart.source as ReplayCandleSource?).let(::requireNotNull).replaySeries
+        val replaySeries = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull).replaySeries
 
         return ReplayChartInfo(
             replayTime = flow { emitAll(replaySeries.await().replayTime.map(::formattedReplayTime)) }

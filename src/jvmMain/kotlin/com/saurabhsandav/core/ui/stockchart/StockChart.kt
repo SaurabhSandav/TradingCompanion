@@ -19,12 +19,13 @@ import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.*
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -32,12 +33,14 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.math.RoundingMode
+import kotlin.time.Duration.Companion.milliseconds
 
 internal class StockChart(
     val appModule: AppModule,
     private val marketDataProvider: MarketDataProvider,
+    private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
-    initialSource: CandleSource,
+    initialData: StockChartData,
     onLegendUpdate: (List<String>) -> Unit,
 ) {
 
@@ -52,9 +55,9 @@ internal class StockChart(
     private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
 
     val coroutineScope = MainScope()
-    var source: CandleSource = initialSource
+    var data: StockChartData = initialData
         private set
-    var params by mutableStateOf(source.params)
+    var params by mutableStateOf(initialData.params)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
     val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
@@ -91,14 +94,14 @@ internal class StockChart(
         observerPlotterIsEnabled(PrefKeys.PlotterSMA100Enabled, sma100Plotter)
         observerPlotterIsEnabled(PrefKeys.PlotterSMA200Enabled, sma200Plotter)
 
-        // Set initial CandleSource
-        setCandleSource(initialSource)
+        // Set initial StockChartData
+        setData(initialData)
     }
 
-    fun setCandleSource(source: CandleSource) {
+    fun setData(data: StockChartData) {
 
         // Update chart params
-        params = source.params
+        params = data.params
 
         // Update legend title for candles
         candlestickPlotter.name = title
@@ -106,25 +109,31 @@ internal class StockChart(
         // Cancel CoroutineScope for the previous CandleSource
         sourceCoroutineScope.cancel()
 
-        // Update cached CandleSource
-        this@StockChart.source = source
+        // Update data
+        this@StockChart.data = data
         sourceCoroutineScope = MainScope()
 
         sourceCoroutineScope.launch {
 
-            // Get the candles ready
-            source.onLoad()
+            // Wait for first load
+            data.loadState.first { loadState -> loadState == LoadState.Loaded }
 
-            val candleSeries = source.getCandleSeries()
+            val candleSeries = data.getCandleSeries()
 
-            // Setup Indicators
-            setupDefaultIndicators(
+            // Setup chart
+            setupCandlesAndIndicators(
                 candleSeries = candleSeries,
                 hasVolume = marketDataProvider.hasVolume(params),
             )
 
-            // Set data to chart
-            plotters.forEach { plotter -> plotter.setData(candleSeries.indices) }
+            // Set data
+            refresh()
+
+            // Show latest 100 candles initially
+            actualChart.timeScale.setVisibleLogicalRange(
+                from = candleSeries.size - 90F,
+                to = candleSeries.size + 10F,
+            )
 
             // Load before/after candles if needed
             actualChart.timeScale
@@ -133,14 +142,31 @@ internal class StockChart(
                 .filterNotNull()
                 .onEach { logicalRange ->
 
+                    // If a load is ongoing don't load before/after
+                    if (data.loadState.first() == LoadState.Loading) return@onEach
+
                     val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange) ?: return@onEach
 
                     when {
-                        // Load more historical data if there are less than 100 bars to the left of the visible area
-                        barsInfo.barsBefore < 100 -> performLoad { onLoadBefore() }
+                        // Load more historical data if there are less than 50 bars to the left of the visible area
+                        barsInfo.barsBefore < 50 -> {
 
-                        // Load more new data if there are less than 100 bars to the right of the visible area
-                        barsInfo.barsAfter < 100 -> performLoad { onLoadAfter() }
+                            // Load
+                            candleLoader.loadBefore(params)
+
+                            // Wait for loaded candles to be set to chart. Prevents un-necessary loads.
+                            delay(500.milliseconds)
+                        }
+
+                        // Load more new data if there are less than 50 bars to the right of the visible area
+                        barsInfo.barsAfter < 50 -> {
+
+                            // Load
+                            candleLoader.loadAfter(params)
+
+                            // Wait for loaded candles to be set to chart. Prevents un-necessary loads.
+                            delay(500.milliseconds)
+                        }
                     }
                 }
                 .launchIn(sourceCoroutineScope)
@@ -155,18 +181,12 @@ internal class StockChart(
                 }
                 .launchIn(sourceCoroutineScope)
 
-            // Show latest 100 candles initially
-            actualChart.timeScale.setVisibleLogicalRange(
-                from = candleSeries.size - 90F,
-                to = candleSeries.size + 10F,
-            )
-
             setupMarkers()
         }
     }
 
-    fun refresh() {
-        setCandleSource(source)
+    suspend fun refresh() {
+        plotters.forEach { it.setData(data.getCandleSeries().indices) }
     }
 
     fun setDarkMode(isDark: Boolean) {
@@ -204,22 +224,6 @@ internal class StockChart(
         navigateToInterval(if (end == null) start..start else start..end)
     }
 
-    fun loadInterval(start: Instant, end: Instant? = null): CompletableDeferred<Unit> {
-
-        val deferred = CompletableDeferred<Unit>()
-
-        sourceCoroutineScope.launch {
-
-            // Load candles in range
-            performLoad { onLoad(start, end) }
-
-            // Notify load complete
-            deferred.complete(Unit)
-        }
-
-        return deferred
-    }
-
     fun destroy() {
         coroutineScope.cancel()
         sourceCoroutineScope.cancel()
@@ -227,7 +231,7 @@ internal class StockChart(
         actualChart.remove()
     }
 
-    private fun setupDefaultIndicators(
+    private fun setupCandlesAndIndicators(
         candleSeries: CandleSeries,
         hasVolume: Boolean,
     ) {
@@ -322,8 +326,8 @@ internal class StockChart(
 
     private suspend fun setupMarkers() {
 
-        val candleSeries = source.getCandleSeries()
-        val candleMarkers = candleSeries.instantRange.flatMapLatest { source.getCandleMarkers() }
+        val candleSeries = data.getCandleSeries()
+        val candleMarkers = candleSeries.instantRange.flatMapLatest { data.getCandleMarkers() }
 
         // Set markers
         markersAreEnabled
@@ -361,7 +365,7 @@ internal class StockChart(
 
     private suspend fun navigateToInterval(range: ClosedRange<Instant>?) {
 
-        val candleSeries = source.getCandleSeries()
+        val candleSeries = data.getCandleSeries()
 
         val lastCandleIndex = candleSeries.lastIndex
 
@@ -411,19 +415,5 @@ internal class StockChart(
                 }
             }
         }
-    }
-
-    private suspend fun performLoad(block: suspend CandleSource.() -> Unit) {
-
-        val candleSeries = source.getCandleSeries()
-
-        val instantRange = candleSeries.instantRange.value
-
-        source.block()
-
-        val newInstantRange = candleSeries.instantRange.value
-
-        if (instantRange != newInstantRange)
-            plotters.forEach { plotter -> plotter.setData(candleSeries.indices) }
     }
 }
