@@ -1,4 +1,6 @@
 import java.math.BigDecimal;
+import kotlin.Boolean;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS TradeToOrderMap (
 tradeId INTEGER NOT NULL,

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.jetbrains.compose)
-    alias(libs.plugins.sqldelight)
+    id("app.cash.sqldelight") version "2.0.0"
     alias(libs.plugins.buildKonfig)
 }
 
@@ -95,9 +95,10 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinxJson)
 
                 // SQLDelight
-                implementation(libs.sqldelight.runtime)
-                implementation(libs.sqldelight.sqliteDriver)
-                implementation(libs.sqldelight.coroutinesExtensions)
+                implementation("app.cash.sqldelight:runtime:2.0.0")
+                implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
+                implementation("app.cash.sqldelight:primitive-adapters:2.0.0")
+                implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
 
                 implementation(libs.molecule.runtime)
 
@@ -155,26 +156,28 @@ buildkonfig {
 }
 
 sqldelight {
+    databases {
 
-    database("AppDB") {
-        packageName = "com.saurabhsandav.core"
-        sourceFolders = listOf("sqldelight/app")
-        schemaOutputDirectory = file("build/dbs")
-        dialect = "sqlite:3.25"
-    }
+        create("AppDB") {
+            packageName = "com.saurabhsandav.core"
+            srcDirs("src/commonMain/sqldelight/app")
+            schemaOutputDirectory = file("build/dbs")
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+        }
 
-    database("TradesDB") {
-        packageName = "com.saurabhsandav.core.trades"
-        sourceFolders = listOf("sqldelight/trades")
-        schemaOutputDirectory = file("build/dbs")
-        dialect = "sqlite:3.25"
-    }
+        create("TradesDB") {
+            packageName = "com.saurabhsandav.core.trades"
+            srcDirs("src/commonMain/sqldelight/trades")
+            schemaOutputDirectory = file("build/dbs")
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+        }
 
-    database("CandleDB") {
-        packageName = "com.saurabhsandav.core.trading.data"
-        sourceFolders = listOf("sqldelight/candles")
-        schemaOutputDirectory = file("build/dbs")
-        dialect = "sqlite:3.25"
+        create("CandleDB") {
+            packageName = "com.saurabhsandav.core.trading.data"
+            srcDirs("src/commonMain/sqldelight/candles")
+            schemaOutputDirectory = file("build/dbs")
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+        }
     }
 }
 

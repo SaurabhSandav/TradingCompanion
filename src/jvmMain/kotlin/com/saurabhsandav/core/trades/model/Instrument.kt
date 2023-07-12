@@ -15,7 +15,7 @@ actual enum class Instrument(val strValue: String) {
         }
     }
 
-    object ColumnAdapter : com.squareup.sqldelight.ColumnAdapter<Instrument, String> {
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<Instrument, String> {
         override fun decode(databaseValue: String): Instrument = Instrument.fromString(databaseValue)
 
         override fun encode(value: Instrument): String = value.strValue

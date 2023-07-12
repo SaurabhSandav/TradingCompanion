@@ -1,15 +1,9 @@
 package com.saurabhsandav.core.utils
 
-import com.squareup.sqldelight.ColumnAdapter
+import app.cash.sqldelight.ColumnAdapter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
-
-object IntColumnAdapter : ColumnAdapter<Int, Long> {
-    override fun decode(databaseValue: Long): Int = databaseValue.toInt()
-
-    override fun encode(value: Int): Long = value.toLong()
-}
 
 object BigDecimalColumnAdapter : ColumnAdapter<BigDecimal, String> {
     override fun decode(databaseValue: String): BigDecimal = databaseValue.toBigDecimal()

@@ -1,5 +1,7 @@
 package com.saurabhsandav.core
 
+import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -11,7 +13,6 @@ import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.utils.AppPaths
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -36,7 +37,11 @@ internal class AppModule {
             properties = Properties().apply { put("foreign_keys", "true") },
         )
         AppDB.Schema.create(driver)
-        AppDB(driver = driver)
+        AppDB(
+            driver = driver,
+            ClosedTradeAdapter = ClosedTrade.Adapter(IntColumnAdapter),
+            OpenTradeAdapter = OpenTrade.Adapter(IntColumnAdapter),
+        )
     }
 
     val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()

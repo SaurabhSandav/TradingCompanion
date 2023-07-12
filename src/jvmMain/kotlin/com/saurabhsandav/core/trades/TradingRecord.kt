@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.trades
 
+import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderType
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -7,7 +9,6 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import java.util.*
 
 internal class TradingRecord(
@@ -31,6 +32,7 @@ internal class TradingRecord(
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 closedQuantityAdapter = BigDecimalColumnAdapter,
+                lotsAdapter = IntColumnAdapter,
                 sideAdapter = TradeSide.ColumnAdapter,
                 averageEntryAdapter = BigDecimalColumnAdapter,
                 entryTimestampAdapter = LocalDateTimeColumnAdapter,
@@ -47,7 +49,8 @@ internal class TradingRecord(
             TradeOrderAdapter = TradeOrder.Adapter(
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
-                typeAdapter = OrderType.OrderTypeColumnAdapter,
+                lotsAdapter = IntColumnAdapter,
+                typeAdapter = OrderType.ColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
                 timestampAdapter = LocalDateTimeColumnAdapter,
             ),

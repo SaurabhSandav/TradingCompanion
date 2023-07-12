@@ -1,3 +1,4 @@
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS ClosedTrade (
 id INTEGER NOT NULL PRIMARY KEY,

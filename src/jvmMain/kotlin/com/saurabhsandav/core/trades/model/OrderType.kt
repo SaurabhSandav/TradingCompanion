@@ -13,7 +13,7 @@ actual enum class OrderType(val strValue: String) {
         }
     }
 
-    object OrderTypeColumnAdapter : com.squareup.sqldelight.ColumnAdapter<OrderType, String> {
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<OrderType, String> {
         override fun decode(databaseValue: String): OrderType = OrderType.fromString(databaseValue)
 
         override fun encode(value: OrderType): String = value.strValue

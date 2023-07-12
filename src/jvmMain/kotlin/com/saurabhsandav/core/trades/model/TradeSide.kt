@@ -13,7 +13,7 @@ actual enum class TradeSide(val strValue: String) {
         }
     }
 
-    object ColumnAdapter : com.squareup.sqldelight.ColumnAdapter<TradeSide, String> {
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<TradeSide, String> {
         override fun decode(databaseValue: String): TradeSide = TradeSide.fromString(databaseValue)
 
         override fun encode(value: TradeSide): String = value.strValue
