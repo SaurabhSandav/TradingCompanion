@@ -252,6 +252,9 @@ internal class TradeOrdersRepo(
             // Update Trade with new parameters
             trade.updateTradeInDB(openTrade.id)
 
+            // Regenerate supplemental data
+            regenerateSupplementalTradeData(openTrade.id)
+
             // If currentOpenQuantity is negative, that means a single order was used to exit a position and create
             // a new position. Create a new trade for this new position
             if (currentOpenQuantity < BigDecimal.ZERO) {
