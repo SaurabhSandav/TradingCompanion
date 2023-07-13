@@ -88,12 +88,12 @@ internal class ReplayChartsMarketDataProvider(
         val allCandlesResult = binding {
 
             val candlesBefore = async {
-                candleRepo.getCandles(
+                candleRepo.getCandlesBefore(
                     ticker = ticker,
                     timeframe = timeframe,
                     at = replayParams.replayFrom,
-                    before = replayParams.candlesBefore,
-                    after = 0,
+                    count = replayParams.candlesBefore,
+                    includeAt = true,
                 ).bind()
             }
 

@@ -28,17 +28,17 @@ SELECT * FROM (
   WHERE epochSeconds > :at
 );
 
-getAtByCount:
+getCountBefore:
 SELECT * FROM (
   SELECT * FROM Candles
-  WHERE epochSeconds <= :at
+  WHERE epochSeconds < :at OR (LOWER(:includeAt) = 'true' AND epochSeconds = :at)
   ORDER BY epochSeconds DESC
-  LIMIT :before
+  LIMIT :count
 )
-UNION
-SELECT * FROM (
-  SELECT * FROM Candles
-  WHERE epochSeconds > :at
-  ORDER BY epochSeconds ASC
-  LIMIT :after
-);
+ORDER BY epochSeconds ASC;
+
+getCountAfter:
+SELECT * FROM Candles
+WHERE epochSeconds > :at OR (LOWER(:includeAt) = 'true' AND epochSeconds = :at)
+ORDER BY epochSeconds ASC
+LIMIT :count;

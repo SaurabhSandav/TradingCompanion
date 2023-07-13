@@ -32,20 +32,36 @@ internal class CandleRepository(
         return Ok(candleCache.fetchRange(ticker, timeframe, from, to))
     }
 
-    suspend fun getCandles(
+    suspend fun getCandlesBefore(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
-        before: Int,
-        after: Int,
+        count: Int,
+        includeAt: Boolean,
     ): Result<List<Candle>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
-        val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, before, after)
+        val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, count, 0)
         if (fillResult is Err) return fillResult
 
         // Fetch and return candles
-        return Ok(candleCache.fetchByCount(ticker, timeframe, at, before, after))
+        return Ok(candleCache.getBefore(ticker, timeframe, at, count, includeAt))
+    }
+
+    suspend fun getCandlesAfter(
+        ticker: String,
+        timeframe: Timeframe,
+        at: Instant,
+        count: Int,
+        includeAt: Boolean,
+    ): Result<List<Candle>, Error> {
+
+        // Download entire range / Fill gaps at ends of cached range (if necessary)
+        val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, 0, count)
+        if (fillResult is Err) return fillResult
+
+        // Fetch and return candles
+        return Ok(candleCache.getAfter(ticker, timeframe, at, count, includeAt))
     }
 
     private suspend fun checkAndFillRange(

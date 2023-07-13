@@ -31,12 +31,20 @@ interface CandleCache {
         at: Instant,
     ): CountRange?
 
-    suspend fun fetchByCount(
+    suspend fun getBefore(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
-        before: Int,
-        after: Int,
+        count: Int,
+        includeAt: Boolean,
+    ): List<Candle>
+
+    suspend fun getAfter(
+        ticker: String,
+        timeframe: Timeframe,
+        at: Instant,
+        count: Int,
+        includeAt: Boolean,
     ): List<Candle>
 
     suspend fun save(

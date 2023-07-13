@@ -116,22 +116,50 @@ internal class CandleCacheDB(
         }
     }
 
-    override suspend fun fetchByCount(
+    override suspend fun getBefore(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
-        before: Int,
-        after: Int,
+        count: Int,
+        includeAt: Boolean,
     ): List<Candle> {
 
-        require(before > 0 || after > 0) { "CandleCacheDB: Both before and after cannot be 0 or less than 0" }
+        require(count > 0) { "CandleCacheDB: count should be greater than 0" }
 
         val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
 
-        return candlesQueries.getAtByCount(
+        return candlesQueries.getCountBefore(
             at = at.epochSeconds,
-            before = before.coerceAtLeast(0).toLong(),
-            after = after.coerceAtLeast(0).toLong(),
+            count = count.toLong(),
+            includeAt = includeAt.toString(),
+        ) { epochSeconds, open, high, low, close, volume ->
+            Candle(
+                Instant.fromEpochSeconds(epochSeconds),
+                open.toBigDecimal(),
+                high.toBigDecimal(),
+                low.toBigDecimal(),
+                close.toBigDecimal(),
+                volume.toBigDecimal(),
+            )
+        }.asFlow().mapToList(Dispatchers.IO).first()
+    }
+
+    override suspend fun getAfter(
+        ticker: String,
+        timeframe: Timeframe,
+        at: Instant,
+        count: Int,
+        includeAt: Boolean,
+    ): List<Candle> {
+
+        require(count > 0) { "CandleCacheDB: count should be greater than 0" }
+
+        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+
+        return candlesQueries.getCountAfter(
+            at = at.epochSeconds,
+            count = count.toLong(),
+            includeAt = includeAt.toString(),
         ) { epochSeconds, open, high, low, close, volume ->
             Candle(
                 Instant.fromEpochSeconds(epochSeconds),
