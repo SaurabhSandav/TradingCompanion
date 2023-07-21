@@ -30,7 +30,7 @@ internal class ChartsMarketDataProvider(
     }
 
     override fun timeframes(): StateFlow<ImmutableList<Timeframe>> {
-        return MutableStateFlow(Timeframe.values().asList().toImmutableList())
+        return MutableStateFlow(Timeframe.entries.toImmutableList())
     }
 
     override fun buildCandleSource(params: StockChartParams): ChartsCandleSource {

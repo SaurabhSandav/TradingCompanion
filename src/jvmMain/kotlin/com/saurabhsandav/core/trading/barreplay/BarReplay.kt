@@ -84,11 +84,7 @@ class BarReplay(
         Close;
 
         fun next(): CandleState {
-            return vals[(ordinal + 1) % vals.size]
-        }
-
-        private companion object {
-            private val vals = values()
+            return entries[(ordinal + 1) % entries.size]
         }
     }
 }
