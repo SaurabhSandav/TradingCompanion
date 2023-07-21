@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 
 internal class TradingProfiles(
     private val appFilesPath: String,
@@ -135,9 +135,7 @@ internal class TradingProfiles(
             withContext(Dispatchers.IO) {
 
                 val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
-                val profileFilesPath = profile.filesPath
-
-                if (!Files.exists(profileFilesPath)) Files.createDirectories(profileFilesPath)
+                val profileFilesPath = profile.filesPath.createDirectories()
 
                 TradingRecord(
                     recordPath = profileFilesPath.toString(),

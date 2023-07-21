@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import java.nio.file.Files
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 
 class CandleDBCollection {
 
@@ -21,10 +21,7 @@ class CandleDBCollection {
 
     fun get(ticker: String, timeframe: Timeframe): CandleDB {
 
-        val candlesFolderPath = Path("${AppPaths.getAppDataPath()}/Candles")
-
-        // Create if not exists
-        if (!Files.exists(candlesFolderPath)) Files.createDirectory(candlesFolderPath)
+        val candlesFolderPath = Path("${AppPaths.getAppDataPath()}/Candles").createDirectories()
 
         val dbName = "${ticker}_${timeframe.seconds}"
 
