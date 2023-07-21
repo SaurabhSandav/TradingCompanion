@@ -5,9 +5,9 @@ import java.util.*
 
 internal sealed class ReplaySessionEvent {
 
-    object ResetReplay : ReplaySessionEvent()
+    data object ResetReplay : ReplaySessionEvent()
 
-    object AdvanceReplay : ReplaySessionEvent()
+    data object AdvanceReplay : ReplaySessionEvent()
 
     data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
 

@@ -22,7 +22,7 @@ internal data class TradesState(
         class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
 
         @Immutable
-        object Closed : FyersLoginWindow()
+        data object Closed : FyersLoginWindow()
     }
 
     @Immutable

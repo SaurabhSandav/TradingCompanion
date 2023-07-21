@@ -5,7 +5,7 @@ import java.util.*
 
 internal sealed class TradeOrdersEvent {
 
-    object NewOrder : TradeOrdersEvent()
+    data object NewOrder : TradeOrdersEvent()
 
     data class NewOrderFromExisting(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
 

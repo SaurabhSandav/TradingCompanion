@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.barreplay.model
 
 internal sealed class BarReplayEvent {
 
-    object LaunchReplay : BarReplayEvent()
+    data object LaunchReplay : BarReplayEvent()
 
-    object NewReplay : BarReplayEvent()
+    data object NewReplay : BarReplayEvent()
 }

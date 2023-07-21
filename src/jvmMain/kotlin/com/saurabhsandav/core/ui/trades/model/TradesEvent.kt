@@ -8,7 +8,7 @@ internal sealed class TradesEvent {
 
     data class CloseDetails(val profileTradeId: ProfileTradeId) : TradesEvent()
 
-    object DetailsBroughtToFront : TradesEvent()
+    data object DetailsBroughtToFront : TradesEvent()
 
     data class OpenChart(val profileTradeId: ProfileTradeId) : TradesEvent()
 }

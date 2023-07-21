@@ -24,7 +24,7 @@ sealed interface OrderExecution {
         }
     }
 
-    object Market : OrderExecution {
+    data object Market : OrderExecution {
 
         override fun canExecute(
             type: OrderType,

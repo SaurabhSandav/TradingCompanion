@@ -275,7 +275,7 @@ internal class PNLCalculatorWindowParams(
 
     sealed class OperationType {
 
-        object New : OperationType()
+        data object New : OperationType()
 
         data class FromOpenTrade(val id: Long) : OperationType()
 

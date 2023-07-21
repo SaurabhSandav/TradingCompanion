@@ -16,9 +16,9 @@ internal data class ChartsState(
     sealed class FyersLoginWindow {
 
         @Immutable
-        internal class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
+        internal data class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
 
         @Immutable
-        object Closed : FyersLoginWindow()
+        data object Closed : FyersLoginWindow()
     }
 }
