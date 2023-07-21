@@ -13,7 +13,7 @@ abstract class RecursiveCachedIndicator<T : Any>(
 
             if (index > RECURSION_THRESHOLD) {
 
-                for (toCacheIndex in 0 until index) {
+                for (toCacheIndex in 0..<index) {
                     super.get(toCacheIndex)
                 }
             }

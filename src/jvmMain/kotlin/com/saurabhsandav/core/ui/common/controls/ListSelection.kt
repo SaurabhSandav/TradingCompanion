@@ -155,7 +155,7 @@ fun ListSelectionDialog(
 
                                             val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
                                             val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                            val filterQueryIndices = filterQueryStartIndex until filterQueryEndIndex
+                                            val filterQueryIndices = filterQueryStartIndex..<filterQueryEndIndex
 
                                             withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                                                 append(itemText.substring(filterQueryIndices))
