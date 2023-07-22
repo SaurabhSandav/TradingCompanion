@@ -18,6 +18,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -178,17 +179,13 @@ internal class StockChartsState(
         actualChart.timeScale
             .visibleLogicalRangeChange()
             .filterNotNull()
-            .onEach { range ->
+            .onEach { logicalRange ->
 
                 // If chart is not active (user hasn't interacted), skip sync
                 if (lastActiveChart.value != stockChart) return@onEach
 
-                // Previously sync was not accurate if no. of candles across charts was not the same.
-                // Offsets from the last candle should provide a more accurate way to sync charts in such cases.
-                // Note: This method does not work if the last candle of all (to-sync) charts is not at the
-                // same Instant. Should be fixed once live candles are implemented.
-                val startOffset = stockChart.source.candleSeries.size - range.from
-                val endOffset = stockChart.source.candleSeries.size - range.to
+                // Current instant range. If not populated, skip sync
+                val instantRange = stockChart.source.candleSeries.instantRange.value ?: return@onEach
 
                 // Update all other charts with same timeframe
                 charts
@@ -197,10 +194,34 @@ internal class StockChartsState(
                         stockChart.params.timeframe == filterStockChart.params.timeframe &&
                                 filterStockChart != stockChart
                     }
-                    .forEach {
-                        it.actualChart.timeScale.setVisibleLogicalRange(
-                            from = it.source.candleSeries.size - startOffset,
-                            to = it.source.candleSeries.size - endOffset,
+                    .forEach { chart ->
+
+                        // Chart instant range. If not populated, skip sync
+                        val chartInstantRange = chart.source.candleSeries.instantRange.value ?: return@forEach
+
+                        // Intersection range of current chart and iteration chart
+                        // Skip sync if there is no overlap in instant ranges
+                        val intersection = instantRange.intersect(chartInstantRange) ?: return@forEach
+
+                        // Pick a common candle instant to use for calculating a sync offset
+                        val commonInstant = intersection.endInclusive
+
+                        // Current chart common candle index
+                        val candleIndex = stockChart.source.candleSeries.binarySearch {
+                            it.openInstant.compareTo(commonInstant)
+                        }
+                        // Iteration chart common candle index
+                        val chartCandleIndex = chart.source.candleSeries.binarySearch {
+                            it.openInstant.compareTo(commonInstant)
+                        }
+
+                        // Sync offset for iteration chart
+                        val syncOffset = (chartCandleIndex - candleIndex).toFloat()
+
+                        // Set logical range with calculated offset
+                        chart.actualChart.timeScale.setVisibleLogicalRange(
+                            from = logicalRange.from + syncOffset,
+                            to = logicalRange.to + syncOffset,
                         )
                     }
             }
@@ -243,5 +264,21 @@ internal class StockChartsState(
             // Notify MarketDataProvider about candle source release
             marketDataProvider.releaseCandleSource(candleSource)
         }
+    }
+
+    private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {
+
+        // Check if the ranges intersect
+        val intersects = start <= other.endInclusive && endInclusive >= other.start
+
+        // If ranges don't intersect, return null
+        if (!intersects) return null
+
+        // Calculate the start and end of the intersection range
+        val start = maxOf(start, other.start)
+        val end = minOf(endInclusive, other.endInclusive)
+
+        // Intersection range
+        return start..end
     }
 }
