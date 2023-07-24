@@ -219,9 +219,8 @@ internal class CandleRepository(
             ticker = ticker,
             timeframe = timeframe,
             from = from,
-            // Next time re-fetch last candle just in case it wasn't finished this time.
-            // Unfinished candle is not available with Fyers historical data.
-            to = correctedTo - timeframe.seconds.seconds,
+            // Next time re-fetch last 3 candles (Re-fetches unfinished candles).
+            to = correctedTo - (timeframe.seconds.seconds * 3),
         )
 
         // Success
