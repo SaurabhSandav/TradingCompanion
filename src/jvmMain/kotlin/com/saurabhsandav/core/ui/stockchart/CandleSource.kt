@@ -10,8 +10,6 @@ internal interface CandleSource {
 
     val params: StockChartParams
 
-    val hasVolume: Boolean
-
     val candleSeries: CandleSeries
 
     suspend fun onLoad()

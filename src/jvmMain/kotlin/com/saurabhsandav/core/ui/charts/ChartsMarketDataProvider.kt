@@ -36,6 +36,10 @@ internal class ChartsMarketDataProvider(
         )
     }
 
+    override fun hasVolume(params: StockChartParams): Boolean {
+        return params.ticker != "NIFTY50"
+    }
+
     fun addMarkersProvider(provider: ChartMarkersProvider) {
 
         chartMarkersProviders.value = chartMarkersProviders.value.add(provider)

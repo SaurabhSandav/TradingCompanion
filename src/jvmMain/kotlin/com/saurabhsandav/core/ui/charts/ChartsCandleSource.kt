@@ -28,8 +28,6 @@ internal class ChartsCandleSource(
     private var loaded = false
     private val mutex = Mutex()
 
-    override val hasVolume: Boolean = params.ticker != "NIFTY50"
-
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
     override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
 

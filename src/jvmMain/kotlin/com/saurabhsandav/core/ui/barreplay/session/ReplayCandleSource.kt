@@ -18,8 +18,6 @@ internal class ReplayCandleSource(
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
 
-    override val hasVolume: Boolean = params.ticker != "NIFTY50"
-
     private var _candleSeries: CandleSeries? = null
     override val candleSeries: CandleSeries
         get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }

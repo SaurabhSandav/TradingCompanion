@@ -167,6 +167,7 @@ internal class StockChartsState(
         // New StockChart
         val stockChart = StockChart(
             appModule = appModule,
+            marketDataProvider = marketDataProvider,
             actualChart = actualChart,
             initialSource = getCandleSource(params ?: initialParams),
             onLegendUpdate = { arrangement.setLegend(actualChart, it) },

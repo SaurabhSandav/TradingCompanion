@@ -10,6 +10,8 @@ internal interface MarketDataProvider {
 
     fun timeframes(): StateFlow<ImmutableList<Timeframe>>
 
+    fun hasVolume(params: StockChartParams): Boolean
+
     fun buildCandleSource(params: StockChartParams): CandleSource
 
     fun releaseCandleSource(candleSource: CandleSource) = Unit

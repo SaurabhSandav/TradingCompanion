@@ -66,6 +66,10 @@ internal class ReplayChartsMarketDataProvider(
         barReplay.removeSeries((candleSource as ReplayCandleSource).replaySeries.await())
     }
 
+    override fun hasVolume(params: StockChartParams): Boolean {
+        return params.ticker != "NIFTY50"
+    }
+
     private suspend fun buildReplaySeries(params: StockChartParams): ReplaySeries {
 
         val candleSeries = getCandleSeries(params.ticker, replayParams.baseTimeframe)

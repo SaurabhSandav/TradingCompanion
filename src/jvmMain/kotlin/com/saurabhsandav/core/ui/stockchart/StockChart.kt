@@ -35,6 +35,7 @@ import java.math.RoundingMode
 
 internal class StockChart(
     val appModule: AppModule,
+    private val marketDataProvider: MarketDataProvider,
     val actualChart: IChartApi,
     initialSource: CandleSource,
     onLegendUpdate: (List<String>) -> Unit,
@@ -114,7 +115,10 @@ internal class StockChart(
         sourceCoroutineScope.launch {
 
             // Setup Indicators
-            setupDefaultIndicators(source.candleSeries, source.hasVolume)
+            setupDefaultIndicators(
+                candleSeries = source.candleSeries,
+                hasVolume = marketDataProvider.hasVolume(params),
+            )
 
             // Get the candles ready
             performLoad { onLoad() }
