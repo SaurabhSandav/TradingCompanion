@@ -14,8 +14,6 @@ import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -25,17 +23,12 @@ internal class ChartsCandleSource(
     private val getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
-    private var loaded = false
-    private val mutex = Mutex()
-
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
     private val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
 
     override suspend fun getCandleSeries(): CandleSeries = candleSeries
 
-    override suspend fun onLoad() = mutex.withLock {
-
-        if (loaded) return
+    override suspend fun onLoad() {
 
         val candles = getCandles {
 
@@ -50,15 +43,13 @@ internal class ChartsCandleSource(
 
         // Append candles
         mutableCandleSeries.appendCandles(candles)
-
-        loaded = true
     }
 
     override suspend fun onLoad(
         instant: Instant,
         to: Instant?,
         bufferCount: Int?,
-    ) = mutex.withLock {
+    ) {
 
         val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
         val isBefore = firstCandleInstant != null && instant < firstCandleInstant
@@ -98,24 +89,18 @@ internal class ChartsCandleSource(
 
     override suspend fun onLoadBefore() {
 
-        // If locked, loading before may be unnecessary.
-        if (mutex.isLocked) return
+        val oldCandles = getCandles {
 
-        mutex.withLock {
-
-            val oldCandles = getCandles {
-
-                candleRepo.getCandlesBefore(
-                    ticker = params.ticker,
-                    timeframe = params.timeframe,
-                    at = mutableCandleSeries.first().openInstant,
-                    count = ChartsCandleLoadCount,
-                    includeAt = false,
-                )
-            }
-
-            mutableCandleSeries.prependCandles(oldCandles)
+            candleRepo.getCandlesBefore(
+                ticker = params.ticker,
+                timeframe = params.timeframe,
+                at = mutableCandleSeries.first().openInstant,
+                count = ChartsCandleLoadCount,
+                includeAt = false,
+            )
         }
+
+        mutableCandleSeries.prependCandles(oldCandles)
     }
 
     override fun getCandleMarkers(): Flow<List<SeriesMarker>> = getMarkers(candleSeries)

@@ -2,6 +2,8 @@ package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
 
 internal class CandleLoader(
@@ -10,6 +12,7 @@ internal class CandleLoader(
 ) {
 
     private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
+    private val loadMutex = Mutex()
 
     fun getStockChartData(params: StockChartParams): StockChartData {
 
@@ -24,7 +27,10 @@ internal class CandleLoader(
             // Load initial candles
             data.coroutineScope.launch {
 
-                data.performLoad { onLoad() }
+                loadMutex.withLock {
+
+                    data.performLoad { onLoad() }
+                }
             }
 
             return@getOrPut data
@@ -50,7 +56,7 @@ internal class CandleLoader(
         params: StockChartParams,
         instant: Instant,
         to: Instant? = null,
-    ) {
+    ) = loadMutex.withLock {
 
         getStockChartData(params).performLoad {
 
@@ -67,12 +73,24 @@ internal class CandleLoader(
 
     suspend fun loadBefore(params: StockChartParams) {
 
-        getStockChartData(params).performLoad { onLoadBefore() }
+        // If locked, loading before may be unnecessary.
+        if (loadMutex.isLocked) return
+
+        loadMutex.withLock {
+
+            getStockChartData(params).performLoad { onLoadBefore() }
+        }
     }
 
     suspend fun loadAfter(params: StockChartParams) {
 
-        getStockChartData(params).performLoad { onLoadAfter() }
+        // If locked, loading before may be unnecessary.
+        if (loadMutex.isLocked) return
+
+        loadMutex.withLock {
+
+            getStockChartData(params).performLoad { onLoadAfter() }
+        }
     }
 
     private suspend fun StockChartData.performLoad(block: suspend CandleSource.() -> Unit) {
