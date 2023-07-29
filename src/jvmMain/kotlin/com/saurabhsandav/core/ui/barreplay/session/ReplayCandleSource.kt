@@ -18,17 +18,13 @@ internal class ReplayCandleSource(
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
 
-    private var _candleSeries: CandleSeries? = null
-    override val candleSeries: CandleSeries
-        get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }
+    override suspend fun getCandleSeries(): CandleSeries = replaySeries.await()
 
     override suspend fun onLoad() {
 
         if (!replaySeries.isCompleted) {
             replaySeries.complete(replaySeriesFactory())
         }
-
-        _candleSeries = replaySeries.await()
     }
 
     override fun getCandleMarkers(): Flow<List<SeriesMarker>> {

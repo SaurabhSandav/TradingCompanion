@@ -29,7 +29,9 @@ internal class ChartsCandleSource(
     private val mutex = Mutex()
 
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
-    override val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
+    private val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
+
+    override suspend fun getCandleSeries(): CandleSeries = candleSeries
 
     override suspend fun onLoad() = mutex.withLock {
 

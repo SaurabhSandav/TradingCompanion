@@ -95,9 +95,7 @@ internal class StockChart(
         setCandleSource(initialSource)
     }
 
-    fun setCandleSource(source: CandleSource): CompletableDeferred<Unit> {
-
-        val deferred = CompletableDeferred<Unit>()
+    fun setCandleSource(source: CandleSource) {
 
         // Update chart params
         params = source.params
@@ -114,17 +112,19 @@ internal class StockChart(
 
         sourceCoroutineScope.launch {
 
+            // Get the candles ready
+            source.onLoad()
+
+            val candleSeries = source.getCandleSeries()
+
             // Setup Indicators
             setupDefaultIndicators(
-                candleSeries = source.candleSeries,
+                candleSeries = candleSeries,
                 hasVolume = marketDataProvider.hasVolume(params),
             )
 
-            // Get the candles ready
-            performLoad { onLoad() }
-
-            // Notify load complete
-            deferred.complete(Unit)
+            // Set data to chart
+            plotters.forEach { plotter -> plotter.setData(candleSeries.indices) }
 
             // Load before/after candles if needed
             actualChart.timeScale
@@ -146,25 +146,23 @@ internal class StockChart(
                 .launchIn(sourceCoroutineScope)
 
             // Update chart with live candles
-            source.candleSeries
+            candleSeries
                 .live
                 .onEach { candle ->
                     plotters.forEach {
-                        it.update(source.candleSeries.indexOf(candle))
+                        it.update(candleSeries.indexOf(candle))
                     }
                 }
                 .launchIn(sourceCoroutineScope)
 
             // Show latest 100 candles initially
             actualChart.timeScale.setVisibleLogicalRange(
-                from = source.candleSeries.size - 90F,
-                to = source.candleSeries.size.toFloat() + 10,
+                from = candleSeries.size - 90F,
+                to = candleSeries.size + 10F,
             )
 
             setupMarkers()
         }
-
-        return deferred
     }
 
     fun refresh() {
@@ -195,14 +193,14 @@ internal class StockChart(
         appModule.appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
     }
 
-    fun goToDateTime(dateTime: LocalDateTime?) {
+    suspend fun goToDateTime(dateTime: LocalDateTime?) {
 
         val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
 
         navigateToInterval(instant?.let { it..it })
     }
 
-    fun navigateToInterval(start: Instant, end: Instant?) {
+    suspend fun navigateToInterval(start: Instant, end: Instant?) {
         navigateToInterval(if (end == null) start..start else start..end)
     }
 
@@ -322,9 +320,10 @@ internal class StockChart(
         }
     }
 
-    private fun setupMarkers() {
+    private suspend fun setupMarkers() {
 
-        val candleMarkers = source.candleSeries.instantRange.flatMapLatest { source.getCandleMarkers() }
+        val candleSeries = source.getCandleSeries()
+        val candleMarkers = candleSeries.instantRange.flatMapLatest { source.getCandleMarkers() }
 
         // Set markers
         markersAreEnabled
@@ -334,7 +333,7 @@ internal class StockChart(
 
                         val flows = listOf(
                             // Always emits a list
-                            generateSessionMarkers(source.candleSeries),
+                            generateSessionMarkers(candleSeries),
                             // May not always emit something. Emit an empty list to start combine
                             candleMarkers.onStart { emit(emptyList()) },
                         )
@@ -360,9 +359,11 @@ internal class StockChart(
             .launchIn(coroutineScope)
     }
 
-    private fun navigateToInterval(range: ClosedRange<Instant>?) {
+    private suspend fun navigateToInterval(range: ClosedRange<Instant>?) {
 
-        val lastCandleIndex = source.candleSeries.lastIndex
+        val candleSeries = source.getCandleSeries()
+
+        val lastCandleIndex = candleSeries.lastIndex
 
         val candleRange = when (range) {
 
@@ -372,12 +373,12 @@ internal class StockChart(
             // Find candle indices
             else -> {
 
-                val startCandleIndex = source.candleSeries.indexOfFirst { it.openInstant > range.start }
+                val startCandleIndex = candleSeries.indexOfFirst { it.openInstant > range.start }
 
                 // If start instant is not in current candle range, navigate to the latest candles
                 if (startCandleIndex == -1) lastCandleIndex..lastCandleIndex else {
 
-                    val endCandleIndex = source.candleSeries.indexOfFirst { it.openInstant > range.endInclusive }
+                    val endCandleIndex = candleSeries.indexOfFirst { it.openInstant > range.endInclusive }
 
                     when {
                         endCandleIndex != -1 -> startCandleIndex..endCandleIndex
@@ -414,13 +415,15 @@ internal class StockChart(
 
     private suspend fun performLoad(block: suspend CandleSource.() -> Unit) {
 
-        val instantRange = source.candleSeries.instantRange.value
+        val candleSeries = source.getCandleSeries()
+
+        val instantRange = candleSeries.instantRange.value
 
         source.block()
 
-        val newInstantRange = source.candleSeries.instantRange.value
+        val newInstantRange = candleSeries.instantRange.value
 
         if (instantRange != newInstantRange)
-            plotters.forEach { plotter -> plotter.setData(source.candleSeries.indices) }
+            plotters.forEach { plotter -> plotter.setData(candleSeries.indices) }
     }
 }

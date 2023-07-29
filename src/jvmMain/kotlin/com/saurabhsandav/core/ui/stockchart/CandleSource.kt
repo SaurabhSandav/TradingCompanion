@@ -10,7 +10,11 @@ internal interface CandleSource {
 
     val params: StockChartParams
 
-    val candleSeries: CandleSeries
+    /**
+     * Get CandleSeries. Suspends until CandleSeries is available. Does not load any candles.
+     * May suspend until initial candle load.
+     */
+    suspend fun getCandleSeries(): CandleSeries
 
     suspend fun onLoad()
 

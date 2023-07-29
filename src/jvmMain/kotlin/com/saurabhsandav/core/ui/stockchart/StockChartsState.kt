@@ -186,7 +186,7 @@ internal class StockChartsState(
                 if (lastActiveChart.value != stockChart) return@onEach
 
                 // Current instant range. If not populated, skip sync
-                val instantRange = stockChart.source.candleSeries.instantRange.value ?: return@onEach
+                val instantRange = stockChart.source.getCandleSeries().instantRange.value ?: return@onEach
 
                 // Update all other charts with same timeframe
                 charts
@@ -198,7 +198,7 @@ internal class StockChartsState(
                     .forEach { chart ->
 
                         // Chart instant range. If not populated, skip sync
-                        val chartInstantRange = chart.source.candleSeries.instantRange.value ?: return@forEach
+                        val chartInstantRange = chart.source.getCandleSeries().instantRange.value ?: return@forEach
 
                         // Intersection range of current chart and iteration chart
                         // Skip sync if there is no overlap in instant ranges
@@ -208,11 +208,11 @@ internal class StockChartsState(
                         val commonInstant = intersection.endInclusive
 
                         // Current chart common candle index
-                        val candleIndex = stockChart.source.candleSeries.binarySearch {
+                        val candleIndex = stockChart.source.getCandleSeries().binarySearch {
                             it.openInstant.compareTo(commonInstant)
                         }
                         // Iteration chart common candle index
-                        val chartCandleIndex = chart.source.candleSeries.binarySearch {
+                        val chartCandleIndex = chart.source.getCandleSeries().binarySearch {
                             it.openInstant.compareTo(commonInstant)
                         }
 
