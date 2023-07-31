@@ -73,6 +73,8 @@ private class MutableCandleSeriesImpl(
 
     override fun appendCandles(candles: List<Candle>) {
 
+        if (candles.isEmpty()) return
+
         candles.forEach(::appendCandle)
 
         // Update instant range
@@ -124,6 +126,8 @@ private class MutableCandleSeriesImpl(
     }
 
     override fun prependCandles(candles: List<Candle>) {
+
+        if (candles.isEmpty()) return
 
         candles.asReversed().forEach(::prependCandle)
 
