@@ -1,26 +1,30 @@
 package com.saurabhsandav.core.ui.charts
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.asCandleSeries
+import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.time.Duration.Companion.days
 
 internal class ChartsCandleSource(
     override val params: StockChartParams,
-    private val getCandles: suspend (ClosedRange<Instant>) -> List<Candle>,
+    private val candleRepo: CandleRepository,
     private val getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
-    private val downloadIntervalDays = 90.days
     private var loaded = false
     private val mutex = Mutex()
 
@@ -33,11 +37,16 @@ internal class ChartsCandleSource(
 
         if (loaded) return
 
-        val currentTime = Clock.System.now()
-        val range = currentTime.minus(downloadIntervalDays)..currentTime
+        val candles = getCandles {
 
-        // Range of 3 months before current time to current time
-        val candles = getCandles(range)
+            candleRepo.getCandlesBefore(
+                ticker = params.ticker,
+                timeframe = params.timeframe,
+                at = Clock.System.now(),
+                count = ChartsCandleLoadCount,
+                includeAt = true,
+            )
+        }
 
         // Append candles
         mutableCandleSeries.appendCandles(candles)
@@ -52,15 +61,24 @@ internal class ChartsCandleSource(
 
         if (isBefore) {
 
-            // New range starts 1 month before given date
-            val rangeStart = start.minus(30.days)
-            val rangeEnd = mutableCandleSeries.first().openInstant
-            val range = rangeStart..rangeEnd
+            do {
 
-            val oldCandles = getCandles(range)
+                val candles = getCandles {
 
-            if (oldCandles.isNotEmpty())
-                mutableCandleSeries.prependCandles(oldCandles)
+                    candleRepo.getCandlesBefore(
+                        ticker = params.ticker,
+                        timeframe = params.timeframe,
+                        at = mutableCandleSeries.first().openInstant,
+                        count = ChartsCandleLoadCount,
+                        includeAt = false,
+                    )
+                }
+
+                if (candles.isEmpty()) break
+
+                mutableCandleSeries.prependCandles(candles)
+
+            } while (start < candleSeries.first().openInstant)
         }
     }
 
@@ -71,18 +89,48 @@ internal class ChartsCandleSource(
 
         mutex.withLock {
 
-            val firstCandleInstant = mutableCandleSeries.first().openInstant
-            val range = firstCandleInstant.minus(downloadIntervalDays)..firstCandleInstant
+            val oldCandles = getCandles {
 
-            val oldCandles = getCandles(range)
+                candleRepo.getCandlesBefore(
+                    ticker = params.ticker,
+                    timeframe = params.timeframe,
+                    at = mutableCandleSeries.first().openInstant,
+                    count = ChartsCandleLoadCount,
+                    includeAt = false,
+                )
+            }
 
-            if (oldCandles.isNotEmpty())
-                mutableCandleSeries.prependCandles(oldCandles)
+            mutableCandleSeries.prependCandles(oldCandles)
         }
     }
 
     override fun getCandleMarkers(): Flow<List<SeriesMarker>> = getMarkers(candleSeries)
+
+    private suspend fun getCandles(
+        request: suspend () -> Result<List<Candle>, CandleRepository.Error>,
+    ): List<Candle> {
+
+        // Suspend until logged in
+        candleRepo.isLoggedIn().first { it }
+
+        // Retry until request successful
+        val candlesResult = retryIOResult(
+            initialDelay = 1000,
+            maxDelay = 10000,
+            block = request,
+        )
+
+        return when (candlesResult) {
+            is Ok -> candlesResult.value
+            is Err -> when (val error = candlesResult.error) {
+                is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
+                is CandleRepository.Error.UnknownError -> error(error.message)
+            }
+        }
+    }
 }
+
+private const val ChartsCandleLoadCount = 500
 
 fun interface ChartMarkersProvider {
 
