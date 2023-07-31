@@ -14,9 +14,6 @@ internal interface CandleSource {
 
     val candleSeries: CandleSeries
 
-    val candleMarkers: Flow<List<SeriesMarker>>
-        get() = emptyFlow()
-
     suspend fun onLoad()
 
     suspend fun onLoad(start: Instant, end: Instant? = null) = Unit
@@ -24,4 +21,6 @@ internal interface CandleSource {
     suspend fun onLoadBefore() = Unit
 
     suspend fun onLoadAfter() = Unit
+
+    fun getCandleMarkers(): Flow<List<SeriesMarker>> = emptyFlow()
 }

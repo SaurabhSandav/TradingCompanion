@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
 internal class ReplayCandleSource(
     override val params: StockChartParams,
     private val replaySeriesFactory: suspend () -> ReplaySeries,
-    getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
+    private val getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
 ) : CandleSource {
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
@@ -24,11 +24,6 @@ internal class ReplayCandleSource(
     override val candleSeries: CandleSeries
         get() = checkNotNull(_candleSeries) { "CandleSeries not loaded" }
 
-    override val candleMarkers: Flow<List<SeriesMarker>> = flow {
-        val candleSeries = replaySeries.await()
-        emitAll(getMarkers(candleSeries))
-    }
-
     override suspend fun onLoad() {
 
         if (!replaySeries.isCompleted) {
@@ -36,5 +31,9 @@ internal class ReplayCandleSource(
         }
 
         _candleSeries = replaySeries.await()
+    }
+
+    override fun getCandleMarkers(): Flow<List<SeriesMarker>> {
+        return flow { emitAll(getMarkers(replaySeries.await())) }
     }
 }

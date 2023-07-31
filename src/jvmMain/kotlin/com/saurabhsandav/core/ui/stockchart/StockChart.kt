@@ -157,25 +157,7 @@ internal class StockChart(
                 to = source.candleSeries.size.toFloat() + 10,
             )
 
-            // Send an initial value through candleMarkers to start collecting the session markers flow
-            val candleMarkers = source.candleMarkers.onStart { emit(emptyList()) }
-
-            // Set markers
-            markersAreEnabled.flatMapLatest { markersAreEnabled ->
-                when {
-                    markersAreEnabled -> {
-                        combine(
-                            flows = arrayOf(generateSessionMarkers(source.candleSeries), candleMarkers),
-                            transform = { it.toList().flatten() },
-                        )
-                    }
-
-                    else -> flowOf(emptyList())
-                }
-            }
-                .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
-                .onEach(candlestickPlotter::setMarkers)
-                .launchIn(sourceCoroutineScope)
+            setupMarkers()
         }
 
         return deferred
@@ -334,6 +316,34 @@ internal class StockChart(
                 )
             }
         }
+    }
+
+    private fun setupMarkers() {
+
+        val candleMarkers = source.candleSeries.instantRange.flatMapLatest { source.getCandleMarkers() }
+
+        // Set markers
+        markersAreEnabled
+            .flatMapLatest { markersAreEnabled ->
+                when {
+                    markersAreEnabled -> {
+
+                        val flows = listOf(
+                            // Always emits a list
+                            generateSessionMarkers(source.candleSeries),
+                            // May not always emit something. Emit an empty list to start combine
+                            candleMarkers.onStart { emit(emptyList()) },
+                        )
+
+                        combine(flows) { it.toList().flatten() }
+                    }
+
+                    else -> flowOf(emptyList())
+                }
+            }
+            .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
+            .onEach(candlestickPlotter::setMarkers)
+            .launchIn(sourceCoroutineScope)
     }
 
     private fun observerPlotterIsEnabled(
