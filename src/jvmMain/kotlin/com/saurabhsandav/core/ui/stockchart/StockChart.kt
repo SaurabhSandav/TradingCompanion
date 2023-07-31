@@ -113,16 +113,11 @@ internal class StockChart(
 
         sourceCoroutineScope.launch {
 
-            fun setData() = plotters.forEach { it.setData(source.candleSeries.indices) }
-
-            // Get the candles ready
-            source.onLoad()
-
             // Setup Indicators
             setupDefaultIndicators(source.candleSeries, source.hasVolume)
 
-            // Set initial data on chart
-            setData()
+            // Get the candles ready
+            performLoad { onLoad() }
 
             // Notify load complete
             deferred.complete(Unit)
@@ -138,10 +133,10 @@ internal class StockChart(
 
                     when {
                         // Load more historical data if there are less than 100 bars to the left of the visible area
-                        barsInfo.barsBefore < 100 && source.onLoadBefore() -> setData()
+                        barsInfo.barsBefore < 100 -> performLoad { onLoadBefore() }
 
                         // Load more new data if there are less than 100 bars to the right of the visible area
-                        barsInfo.barsAfter < 100 && source.onLoadAfter() -> setData()
+                        barsInfo.barsAfter < 100 -> performLoad { onLoadAfter() }
                     }
                 }
                 .launchIn(sourceCoroutineScope)
@@ -232,7 +227,7 @@ internal class StockChart(
         sourceCoroutineScope.launch {
 
             // Load candles in range
-            if (source.onLoad(start, end)) plotters.forEach { it.setData(source.candleSeries.indices) }
+            performLoad { onLoad(start, end) }
 
             // Notify load complete
             deferred.complete(Unit)
@@ -401,5 +396,17 @@ internal class StockChart(
                 }
             }
         }
+    }
+
+    private suspend fun performLoad(block: suspend CandleSource.() -> Unit) {
+
+        val instantRange = source.candleSeries.instantRange.value
+
+        source.block()
+
+        val newInstantRange = source.candleSeries.instantRange.value
+
+        if (instantRange != newInstantRange)
+            plotters.forEach { plotter -> plotter.setData(source.candleSeries.indices) }
     }
 }

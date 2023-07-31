@@ -52,7 +52,7 @@ internal class ChartsCandleSource(
         loaded = true
     }
 
-    override suspend fun onLoad(start: Instant, end: Instant?): Boolean = mutex.withLock {
+    override suspend fun onLoad(start: Instant, end: Instant?) = mutex.withLock {
 
         val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
         val isBefore = firstCandleInstant != null && start < firstCandleInstant
@@ -69,17 +69,14 @@ internal class ChartsCandleSource(
             if (oldCandles.isNotEmpty()) {
                 mutableCandleSeries.prependCandles(oldCandles)
                 onLoadSignal.tryEmit(Unit)
-                return true
             }
         }
-
-        return false
     }
 
-    override suspend fun onLoadBefore(): Boolean {
+    override suspend fun onLoadBefore() {
 
         // If locked, loading before may be unnecessary.
-        if (mutex.isLocked) return false
+        if (mutex.isLocked) return
 
         mutex.withLock {
 
@@ -88,14 +85,10 @@ internal class ChartsCandleSource(
 
             val oldCandles = getCandles(range)
 
-            val areCandlesAvailable = oldCandles.isNotEmpty()
-
-            if (areCandlesAvailable) {
+            if (oldCandles.isNotEmpty()) {
                 mutableCandleSeries.prependCandles(oldCandles)
                 onLoadSignal.tryEmit(Unit)
             }
-
-            return areCandlesAvailable
         }
     }
 }
