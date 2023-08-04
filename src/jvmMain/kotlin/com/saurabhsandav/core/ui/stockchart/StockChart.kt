@@ -148,8 +148,8 @@ internal class StockChart(
                     val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange) ?: return@onEach
 
                     when {
-                        // Load more historical data if there are less than 50 bars to the left of the visible area
-                        barsInfo.barsBefore < 50 -> {
+                        // Load more historical data if there are less than a certain no. of bars to the left of the visible area.
+                        barsInfo.barsBefore < StockChartLoadMoreThreshold -> {
 
                             // Load
                             candleLoader.loadBefore(params)
@@ -158,8 +158,8 @@ internal class StockChart(
                             delay(500.milliseconds)
                         }
 
-                        // Load more new data if there are less than 50 bars to the right of the visible area
-                        barsInfo.barsAfter < 50 -> {
+                        // Load more new data if there are less than a certain no. of bars to the right of the visible area.
+                        barsInfo.barsAfter < StockChartLoadMoreThreshold -> {
 
                             // Load
                             candleLoader.loadAfter(params)
@@ -417,3 +417,6 @@ internal class StockChart(
         }
     }
 }
+
+internal const val StockChartLoadMoreThreshold = 50
+internal const val StockChartLoadInstantBuffer = 100

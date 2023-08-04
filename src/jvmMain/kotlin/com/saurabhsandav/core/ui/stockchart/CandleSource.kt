@@ -18,7 +18,11 @@ internal interface CandleSource {
 
     suspend fun onLoad()
 
-    suspend fun onLoad(start: Instant, end: Instant? = null) = Unit
+    suspend fun onLoad(
+        instant: Instant,
+        to: Instant? = null,
+        bufferCount: Int? = null,
+    ) = Unit
 
     suspend fun onLoadBefore() = Unit
 

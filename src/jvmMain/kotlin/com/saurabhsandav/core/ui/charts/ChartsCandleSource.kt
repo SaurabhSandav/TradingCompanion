@@ -54,31 +54,45 @@ internal class ChartsCandleSource(
         loaded = true
     }
 
-    override suspend fun onLoad(start: Instant, end: Instant?) = mutex.withLock {
+    override suspend fun onLoad(
+        instant: Instant,
+        to: Instant?,
+        bufferCount: Int?,
+    ) = mutex.withLock {
 
         val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
-        val isBefore = firstCandleInstant != null && start < firstCandleInstant
+        val isBefore = firstCandleInstant != null && instant < firstCandleInstant
 
         if (isBefore) {
 
-            do {
+            val intervalCandles = getCandles {
 
-                val candles = getCandles {
+                candleRepo.getCandles(
+                    ticker = params.ticker,
+                    timeframe = params.timeframe,
+                    from = instant,
+                    to = mutableCandleSeries.first().openInstant,
+                )
+            }
 
-                    candleRepo.getCandlesBefore(
-                        ticker = params.ticker,
-                        timeframe = params.timeframe,
-                        at = mutableCandleSeries.first().openInstant,
-                        count = ChartsCandleLoadCount,
-                        includeAt = false,
-                    )
+            if (intervalCandles.isNotEmpty()) {
+
+                val bufferCandles = when {
+                    bufferCount == null -> emptyList()
+                    else -> getCandles {
+
+                        candleRepo.getCandlesBefore(
+                            ticker = params.ticker,
+                            timeframe = params.timeframe,
+                            at = intervalCandles.first().openInstant,
+                            count = bufferCount,
+                            includeAt = false,
+                        )
+                    }
                 }
 
-                if (candles.isEmpty()) break
-
-                mutableCandleSeries.prependCandles(candles)
-
-            } while (start < candleSeries.first().openInstant)
+                mutableCandleSeries.prependCandles(bufferCandles + intervalCandles)
+            }
         }
     }
 

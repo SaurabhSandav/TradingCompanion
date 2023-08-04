@@ -48,11 +48,21 @@ internal class CandleLoader(
 
     suspend fun load(
         params: StockChartParams,
-        start: Instant,
-        end: Instant? = null,
+        instant: Instant,
+        to: Instant? = null,
     ) {
 
-        getStockChartData(params).performLoad { onLoad(start, end) }
+        getStockChartData(params).performLoad {
+
+            onLoad(
+                instant = instant,
+                to = to,
+                // In case this method is called before navigating to the given interval, bufferCount should be greater
+                // than the 'load more threshold'. Otherwise, it'll trigger a load more request right after the
+                // navigation is complete.
+                bufferCount = StockChartLoadInstantBuffer,
+            )
+        }
     }
 
     suspend fun loadBefore(params: StockChartParams) {
