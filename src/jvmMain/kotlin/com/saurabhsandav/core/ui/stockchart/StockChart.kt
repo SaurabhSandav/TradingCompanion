@@ -38,6 +38,7 @@ internal class StockChart(
     private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
     initialData: StockChartData,
+    initialVisibleRange: ClosedRange<Float>? = null,
     onLegendUpdate: (List<String>) -> Unit,
 ) {
 
@@ -50,6 +51,8 @@ internal class StockChart(
     private val sma50Plotter = LinePlotter(actualChart, "SMA (50)", Color(0x0AB210))
     private val sma100Plotter = LinePlotter(actualChart, "SMA (100)", Color(0xB05F10))
     private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
+
+    var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
     val coroutineScope = MainScope()
     var data: StockChartData = initialData
@@ -97,6 +100,8 @@ internal class StockChart(
 
     fun setData(data: StockChartData) {
 
+        val prevParams = params
+
         // Update chart params
         params = data.params
 
@@ -126,10 +131,17 @@ internal class StockChart(
             // Set data
             refresh()
 
-            // Show latest 90 candles initially (with a 10 candle empty area)
+            // If no initialVisibleRange provided, show latest 90 candles (with a 10 candle empty area).
+            // On ticker change, restore visible range.
+            val finalVisibleRange = when {
+                prevParams.timeframe != params.timeframe -> null
+                else -> this@StockChart.visibleRange
+            } ?: (data.getCandleSeries().size - 90F..data.getCandleSeries().size + 10F)
+
+            // Set visible range
             actualChart.timeScale.setVisibleLogicalRange(
-                from = candleSeries.size - 90F,
-                to = candleSeries.size + 10F,
+                from = finalVisibleRange.start,
+                to = finalVisibleRange.endInclusive,
             )
 
             // Load before/after candles if needed
@@ -138,6 +150,9 @@ internal class StockChart(
                 .conflate()
                 .filterNotNull()
                 .onEach { logicalRange ->
+
+                    // Save visible range
+                    this@StockChart.visibleRange = logicalRange.from..logicalRange.to
 
                     // If a load is ongoing don't load before/after
                     if (data.loadState.first() == LoadState.Loading) return@onEach

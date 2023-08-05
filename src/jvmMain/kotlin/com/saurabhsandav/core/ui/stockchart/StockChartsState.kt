@@ -59,7 +59,12 @@ internal class StockChartsState(
 
         val window = StockChartWindow(
             onNewChart = { arrangement, currentStockChart ->
-                newStockChart(arrangement, (currentStockChart ?: fromStockChart)?.params)
+
+                newStockChart(
+                    arrangement = arrangement,
+                    params = (currentStockChart ?: fromStockChart)?.params,
+                    initialVisibleRange = (currentStockChart ?: fromStockChart)?.visibleRange,
+                )
             },
             onSelectChart = { stockChart ->
 
@@ -154,6 +159,7 @@ internal class StockChartsState(
     private fun newStockChart(
         arrangement: PagedChartArrangement,
         params: StockChartParams?,
+        initialVisibleRange: ClosedRange<Float>? = null,
     ): StockChart {
 
         // New chart
@@ -168,6 +174,7 @@ internal class StockChartsState(
             candleLoader = candleLoader,
             actualChart = actualChart,
             initialData = candleLoader.getStockChartData(params ?: initialParams),
+            initialVisibleRange = initialVisibleRange,
             onLegendUpdate = { arrangement.setLegend(actualChart, it) },
         )
 
