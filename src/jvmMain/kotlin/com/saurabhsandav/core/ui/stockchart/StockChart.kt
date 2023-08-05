@@ -29,9 +29,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -129,7 +126,7 @@ internal class StockChart(
             // Set data
             refresh()
 
-            // Show latest 100 candles initially
+            // Show latest 90 candles initially (with a 10 candle empty area)
             actualChart.timeScale.setVisibleLogicalRange(
                 from = candleSeries.size - 90F,
                 to = candleSeries.size + 10F,
@@ -213,15 +210,18 @@ internal class StockChart(
         appModule.appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
     }
 
-    suspend fun goToDateTime(dateTime: LocalDateTime?) {
+    suspend fun navigateTo(
+        instant: Instant? = null,
+        to: Instant? = null,
+    ) {
 
-        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
+        val range = when {
+            instant == null -> null
+            to == null -> instant..instant
+            else -> instant..to
+        }
 
-        navigateToInterval(instant?.let { it..it })
-    }
-
-    suspend fun navigateToInterval(start: Instant, end: Instant?) {
-        navigateToInterval(if (end == null) start..start else start..end)
+        navigateToInterval(range)
     }
 
     fun destroy() {
@@ -363,26 +363,37 @@ internal class StockChart(
             .launchIn(coroutineScope)
     }
 
-    private suspend fun navigateToInterval(range: ClosedRange<Instant>?) {
+    private suspend fun navigateToInterval(interval: ClosedRange<Instant>?) {
+
+        // Wait for any loading to finish
+        data.loadState.first { loadState -> loadState == LoadState.Loaded }
 
         val candleSeries = data.getCandleSeries()
 
-        val lastCandleIndex = candleSeries.lastIndex
+        // No candles loaded, nothing to do
+        if (candleSeries.isEmpty()) return
 
-        val candleRange = when (range) {
+        val candleRange = when (interval) {
 
             // If range is not provided, go to the latest candles
-            null -> lastCandleIndex..lastCandleIndex
+            null -> null
 
             // Find candle indices
             else -> {
 
-                val startCandleIndex = candleSeries.indexOfFirst { it.openInstant > range.start }
+                // Load data for specified interval
+                candleLoader.load(
+                    params = params,
+                    instant = interval.start,
+                    to = interval.endInclusive,
+                )
+
+                val startCandleIndex = candleSeries.indexOfFirst { it.openInstant > interval.start }
 
                 // If start instant is not in current candle range, navigate to the latest candles
-                if (startCandleIndex == -1) lastCandleIndex..lastCandleIndex else {
+                if (startCandleIndex == -1) null else {
 
-                    val endCandleIndex = candleSeries.indexOfFirst { it.openInstant > range.endInclusive }
+                    val endCandleIndex = candleSeries.indexOfFirst { it.openInstant > interval.endInclusive }
 
                     when {
                         endCandleIndex != -1 -> startCandleIndex..endCandleIndex
@@ -393,17 +404,25 @@ internal class StockChart(
             }
         }
 
-        val diff = candleRange.last - candleRange.first
-        val offset = if (diff >= 100) 10F else {
-            val customOffset = (100 - diff) / 2F
-            if (customOffset < 10) 10F else customOffset
+        val (from, to) = when {
+            candleRange != null -> {
+
+                // Add a 10 candle buffer on either sides if interval is greater than 100 candles.
+                // Else, add enough buffer candles to fit 100 candles on chart (minimum 10 candle buffer)
+                val diff = candleRange.last - candleRange.first
+                val offset = if (diff >= 100) 10F else {
+                    val customOffset = (100 - diff) / 2F
+                    if (customOffset < 10) 10F else customOffset
+                }
+
+                (candleRange.first - offset) to (candleRange.last + offset)
+            }
+
+            // Show latest 90 candles (with a 10 candle empty area)
+            else -> (candleSeries.size - 90F) to (candleSeries.size + 10F)
         }
 
-        // Navigate chart candle at index
-        actualChart.timeScale.setVisibleLogicalRange(
-            from = candleRange.first - offset,
-            to = candleRange.last + offset,
-        )
+        actualChart.timeScale.setVisibleLogicalRange(from = from, to = to)
     }
 
     private fun generateSessionMarkers(candleSeries: CandleSeries): Flow<List<TradingSessionMarker>> {

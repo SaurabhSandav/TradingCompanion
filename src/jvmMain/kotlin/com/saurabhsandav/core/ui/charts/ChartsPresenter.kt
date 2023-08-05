@@ -103,38 +103,16 @@ internal class ChartsPresenter(
 
         chartParams.forEach { params ->
 
-            val stockChart = chartsState.charts.firstOrNull { it.params == params }
+            // Get existing chart for params or create a new one
+            val stockChart = chartsState.charts.firstOrNull { it.params == params } ?: chartsState.newChart(params)
 
-            if (stockChart == null) {
-
-                // Chart doesn't exist, create a new one
-                val newStockChart = chartsState.newChart(params)
+            if (params == tickerDTParams) {
 
                 // Bring default timeframe chart for ticker to front
-                if (params == tickerDTParams) chartsState.bringToFront(newStockChart)
+                chartsState.bringToFront(stockChart)
 
-                coroutineScope.launch {
-
-                    // Load data for specified interval
-                    chartsState.candleLoader.load(params, start, end)
-
-                    // Navigate default timeframe chart to specified interval
-                    if (params == tickerDTParams) newStockChart.navigateToInterval(start, end)
-                }
-
-            } else {
-
-                // Bring default timeframe chart for ticker to front
-                if (params == tickerDTParams) chartsState.bringToFront(stockChart)
-
-                coroutineScope.launch {
-
-                    // Load data for specified interval
-                    chartsState.candleLoader.load(params, start, end)
-
-                    // Navigate default timeframe chart to specified interval
-                    if (params == tickerDTParams) stockChart.navigateToInterval(start, end)
-                }
+                // Navigate default timeframe chart to specified interval
+                coroutineScope.launch { stockChart.navigateTo(start, end) }
             }
         }
     }

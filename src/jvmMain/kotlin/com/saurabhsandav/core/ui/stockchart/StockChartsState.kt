@@ -38,7 +38,7 @@ internal class StockChartsState(
     val windows = mutableStateListOf<StockChartWindow>()
     val charts
         get() = windows.flatMap { it.charts }
-    val candleLoader = CandleLoader(
+    private val candleLoader = CandleLoader(
         marketDataProvider = marketDataProvider,
         onNewDataLoaded = ::onNewDataLoaded,
     )
@@ -147,14 +147,8 @@ internal class StockChartsState(
         dateTime: LocalDateTime?,
     ) = coroutineScope.launchUnit {
 
-        val instant = dateTime?.toInstant(TimeZone.currentSystemDefault())
-
-        // Load data if date specified
-        if (instant != null)
-            candleLoader.load(stockChart.params, instant)
-
-        // Navigate to datetime, other charts should be synced to same datetime.
-        stockChart.goToDateTime(dateTime)
+        // Navigate to datetime
+        stockChart.navigateTo(instant = dateTime?.toInstant(TimeZone.currentSystemDefault()))
     }
 
     private fun newStockChart(
