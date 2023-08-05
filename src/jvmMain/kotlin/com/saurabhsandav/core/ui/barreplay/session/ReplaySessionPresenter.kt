@@ -190,8 +190,11 @@ internal class ReplaySessionPresenter(
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replayCandleSource = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull)
-        val replaySeries = replayCandleSource.replaySeries.await()
+        val price = stockChart.data
+            .getCandleSeries()
+            .last()
+            .close
+            .toPlainString()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
@@ -199,11 +202,11 @@ internal class ReplaySessionPresenter(
                 ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
-                    ticker = replayCandleSource.params.ticker,
+                    ticker = stockChart.params.ticker,
                     quantity = "",
                     lots = "",
                     isBuy = true,
-                    price = replaySeries.last().close.toPlainString(),
+                    price = price,
                     stop = "",
                     target = "",
                 )
@@ -215,8 +218,11 @@ internal class ReplaySessionPresenter(
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
-        val replayCandleSource = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull)
-        val replaySeries = replayCandleSource.replaySeries.await()
+        val price = stockChart.data
+            .getCandleSeries()
+            .last()
+            .close
+            .toPlainString()
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
@@ -224,11 +230,11 @@ internal class ReplaySessionPresenter(
                 ReplayOrderFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
-                    ticker = replayCandleSource.params.ticker,
+                    ticker = stockChart.params.ticker,
                     quantity = "",
                     lots = "",
                     isBuy = false,
-                    price = replaySeries.last().close.toPlainString(),
+                    price = price,
                     stop = "",
                     target = "",
                 )
@@ -249,14 +255,18 @@ internal class ReplaySessionPresenter(
         orderFormParams = orderFormParams.remove(params)
     }
 
-    private fun getChartInfo(stockChart: StockChart): ReplayChartInfo {
+    private fun getChartInfo(stockChart: StockChart) = ReplayChartInfo(
+        replayTime = flow {
 
-        val replaySeries = (stockChart.data.source as ReplayCandleSource?).let(::requireNotNull).replaySeries
+            val replayTimeFlow = stockChart.data
+                .getCandleSeries()
+                .instantRange
+                .map { stockChart.data.getCandleSeries().last().openInstant }
+                .map(::formattedReplayTime)
 
-        return ReplayChartInfo(
-            replayTime = flow { emitAll(replaySeries.await().replayTime.map(::formattedReplayTime)) }
-        )
-    }
+            emitAll(replayTimeFlow)
+        }
+    )
 
     private fun formattedReplayTime(currentInstant: Instant): String {
         val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
