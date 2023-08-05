@@ -1,6 +1,10 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,6 +16,7 @@ internal class CandleLoader(
 ) {
 
     private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
+    private val loadedIntervals = mutableMapOf<Timeframe, ClosedRange<Instant>>()
     private val loadMutex = Mutex()
 
     fun getStockChartData(params: StockChartParams): StockChartData {
@@ -24,12 +29,28 @@ internal class CandleLoader(
                 source = marketDataProvider.buildCandleSource(params),
             )
 
-            // Load initial candles
             data.coroutineScope.launch {
 
                 loadMutex.withLock {
 
-                    data.performLoad { onLoad() }
+                    data.performLoad {
+
+                        // Load initial candles
+                        onLoad()
+
+                        // Previously loaded interval for same timeframe
+                        val loadedInterval = loadedIntervals[params.timeframe]
+
+                        when {
+                            // Match load with previously loaded interval
+                            loadedInterval != null -> onLoad(
+                                instant = loadedInterval.start,
+                                to = loadedInterval.endInclusive,
+                            )
+
+                            else -> loadedIntervals[params.timeframe] = data.getCandleSeries().instantRange.value!!
+                        }
+                    }
                 }
             }
 
@@ -58,6 +79,7 @@ internal class CandleLoader(
         to: Instant? = null,
     ) = loadMutex.withLock {
 
+        // Load candles
         getStockChartData(params).performLoad {
 
             onLoad(
@@ -69,6 +91,9 @@ internal class CandleLoader(
                 bufferCount = StockChartLoadInstantBuffer,
             )
         }
+
+        // Sync load interval for other StockChartData with same timeframe
+        syncLoadIntervalsAcrossTimeframe(params)
     }
 
     suspend fun loadBefore(params: StockChartParams) {
@@ -78,7 +103,11 @@ internal class CandleLoader(
 
         loadMutex.withLock {
 
+            // Load candles
             getStockChartData(params).performLoad { onLoadBefore() }
+
+            // Sync load interval for other StockChartData with same timeframe
+            syncLoadIntervalsAcrossTimeframe(params)
         }
     }
 
@@ -89,7 +118,11 @@ internal class CandleLoader(
 
         loadMutex.withLock {
 
+            // Load candles
             getStockChartData(params).performLoad { onLoadAfter() }
+
+            // Sync load interval for other StockChartData with same timeframe
+            syncLoadIntervalsAcrossTimeframe(params)
         }
     }
 
@@ -112,5 +145,31 @@ internal class CandleLoader(
         }.join()
 
         loadState.emit(LoadState.Loaded)
+    }
+
+    private suspend fun syncLoadIntervalsAcrossTimeframe(params: StockChartParams) = coroutineScope {
+
+        val candleSeries = getStockChartData(params).getCandleSeries()
+
+        // Update loaded interval
+        loadedIntervals[params.timeframe] = candleSeries.instantRange.value!!
+
+        stockChartDataMap
+            .keys
+            .filter { it.timeframe == params.timeframe }
+            .map { otherParams ->
+
+                async {
+
+                    getStockChartData(otherParams).performLoad {
+
+                        onLoad(
+                            instant = candleSeries.first().openInstant,
+                            to = candleSeries.last().openInstant,
+                        )
+                    }
+                }
+            }
+            .awaitAll()
     }
 }
