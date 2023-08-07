@@ -46,7 +46,7 @@ internal fun FyersLoginWindow(
 
                     // Watch for successful redirect
                     webViewState.location.collect { newLocation ->
-                        if (newLocation.startsWith("http://localhost:8080")) {
+                        if (newLocation.startsWith("http://127.0.0.1:8080")) {
                             loginState.onLoginSuccess(newLocation)
                         }
                     }

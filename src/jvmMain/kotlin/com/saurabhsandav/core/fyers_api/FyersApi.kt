@@ -36,7 +36,7 @@ class FyersApi {
 
     private val rateLimiter = FyersRateLimiter()
 
-    private val redirectURL = "http://localhost:8080"
+    private val redirectURL = "http://127.0.0.1:8080"
 
     fun getLoginURL(): String {
         return URLBuilder("https://api.fyers.in/api/v2/generate-authcode").apply {
