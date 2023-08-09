@@ -11,15 +11,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.studies.impl.Study
+import com.saurabhsandav.core.ui.studies.model.StudiesEvent.OpenStudy
 
 @Composable
 internal fun StudiesScreen(
@@ -27,8 +30,6 @@ internal fun StudiesScreen(
 ) {
 
     val state by presenter.state.collectAsState()
-    val studyFactories = remember { mutableStateListOf<Study.Factory<*>>() }
-    var bringToFrontStudyFactory by remember { mutableStateOf<Study.Factory<*>?>(null) }
 
     // Set window title
     WindowTitle("Studies")
@@ -45,12 +46,7 @@ internal fun StudiesScreen(
             items(items = state.studyFactories) { studyFactory ->
 
                 ListItem(
-                    modifier = Modifier.clickable {
-                        if (studyFactory !in studyFactories)
-                            studyFactories.add(studyFactory)
-
-                        bringToFrontStudyFactory = studyFactory
-                    },
+                    modifier = Modifier.clickable { presenter.event(OpenStudy(studyFactory)) },
                     headlineText = { Text(studyFactory.name) },
                 )
             }
@@ -62,27 +58,13 @@ internal fun StudiesScreen(
         )
     }
 
-    studyFactories.forEach { studyFactory ->
+    // Study windows
+    state.studyWindowsManager.Windows { window ->
 
-        key(studyFactory) {
-
-            val appWindowOwner = remember { AppWindowOwner() }
-
-            AppWindowOwner(appWindowOwner) {
-
-                StudyWindow(
-                    studyFactory = studyFactory,
-                    onCloseRequest = { studyFactories.remove(studyFactory) },
-                )
-            }
-
-            LaunchedEffect(bringToFrontStudyFactory) {
-                if (bringToFrontStudyFactory == studyFactory) {
-                    appWindowOwner.childrenToFront()
-                    bringToFrontStudyFactory = null
-                }
-            }
-        }
+        StudyWindow(
+            studyFactory = window.params,
+            onCloseRequest = window::close,
+        )
     }
 }
 
