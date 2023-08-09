@@ -22,20 +22,20 @@ import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.common.CollectEffect
-import com.saurabhsandav.core.ui.common.MultipleWindowManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -61,9 +61,8 @@ internal class TradesPresenter(
 
     private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private var showTradeDetailIds by mutableStateOf(persistentSetOf<ProfileTradeId>())
-    private var bringDetailsToFrontId by mutableStateOf<ProfileTradeId?>(null)
-    private val chartWindowsManager = MultipleWindowManager<TradeChartWindowParams>()
+    private val tradeDetailWindowsManager = AppWindowsManager<ProfileTradeId>()
+    private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -72,16 +71,13 @@ internal class TradesPresenter(
 
             when (event) {
                 is OpenDetails -> onOpenDetails(event.profileTradeId)
-                is CloseDetails -> onCloseDetails(event.profileTradeId)
-                DetailsBroughtToFront -> onDetailsBroughtToFront()
                 is OpenChart -> onOpenChart(event.profileTradeId)
             }
         }
 
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
-            showTradeDetailIds = showTradeDetailIds,
-            bringDetailsToFrontId = bringDetailsToFrontId,
+            tradeDetailWindowsManager = tradeDetailWindowsManager,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
         )
@@ -99,7 +95,7 @@ internal class TradesPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                showTradeDetailIds = showTradeDetailIds.clear()
+                tradeDetailWindowsManager.closeAll()
                 chartWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
@@ -154,16 +150,17 @@ internal class TradesPresenter(
     }
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
-        showTradeDetailIds = showTradeDetailIds.add(profileTradeId)
-        bringDetailsToFrontId = profileTradeId
-    }
 
-    private fun onCloseDetails(profileTradeId: ProfileTradeId) {
-        showTradeDetailIds = showTradeDetailIds.remove(profileTradeId)
-    }
+        val window = tradeDetailWindowsManager.windows.find { it.params == profileTradeId }
 
-    private fun onDetailsBroughtToFront() {
-        bringDetailsToFrontId = null
+        when (window) {
+
+            // Open new window
+            null -> tradeDetailWindowsManager.newWindow(profileTradeId)
+
+            // Window already open. Bring to front.
+            else -> window.toFront()
+        }
     }
 
     private fun onOpenChart(profileTradeId: ProfileTradeId): Unit = coroutineScope.launchUnit {
@@ -315,6 +312,6 @@ internal class TradesPresenter(
         )
 
         // Open Chart
-        chartWindowsManager.openNewWindow(params)
+        chartWindowsManager.newWindow(params)
     }
 }

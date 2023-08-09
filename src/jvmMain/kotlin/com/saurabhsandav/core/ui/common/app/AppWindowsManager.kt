@@ -1,0 +1,52 @@
+package com.saurabhsandav.core.ui.common.app
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
+
+@Stable
+internal class AppWindowsManager<T> {
+
+    private val _windows = mutableStateListOf<Window<T>>()
+    val windows: List<Window<T>> get() = _windows
+
+    @Composable
+    fun Windows(content: @Composable (Window<T>) -> Unit) {
+
+        windows.forEach { window ->
+
+            key(window) {
+
+                AppWindowOwner(window.owner) {
+
+                    content(window)
+                }
+            }
+        }
+    }
+
+    fun newWindow(params: T) {
+
+        _windows += Window(
+            params = params,
+            onCloseRequest = _windows::remove,
+        )
+    }
+
+    fun closeAll() {
+        _windows.clear()
+    }
+
+    @Stable
+    class Window<T>(
+        val params: T,
+        val onCloseRequest: (Window<T>) -> Unit,
+        val owner: AppWindowOwner = AppWindowOwner(),
+    ) {
+
+        fun toFront() = owner.childrenToFront()
+
+        fun close() = onCloseRequest(this)
+    }
+}

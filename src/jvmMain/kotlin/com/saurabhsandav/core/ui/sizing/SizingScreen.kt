@@ -40,17 +40,14 @@ internal fun SizingScreen(
     )
 
     // Order form windows
-    state.orderFormParams.forEach { params ->
+    state.orderFormWindowsManager.Windows { window ->
 
-        key(params.id) {
-
-            OrderFormWindow(
-                profileId = params.profileId,
-                formType = params.formType,
-                onOrderSaved = params.onOrderSaved,
-                onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
-            )
-        }
+        OrderFormWindow(
+            profileId = window.params.profileId,
+            formType = window.params.formType,
+            onOrderSaved = window.params.onOrderSaved,
+            onCloseRequest = window::close,
+        )
     }
 }
 

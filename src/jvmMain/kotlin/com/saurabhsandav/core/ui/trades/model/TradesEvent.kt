@@ -6,9 +6,5 @@ internal sealed class TradesEvent {
 
     data class OpenDetails(val profileTradeId: ProfileTradeId) : TradesEvent()
 
-    data class CloseDetails(val profileTradeId: ProfileTradeId) : TradesEvent()
-
-    data object DetailsBroughtToFront : TradesEvent()
-
     data class OpenChart(val profileTradeId: ProfileTradeId) : TradesEvent()
 }

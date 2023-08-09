@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.sizing.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import kotlinx.collections.immutable.ImmutableList
 import java.util.*
@@ -9,7 +10,7 @@ import java.util.*
 @Immutable
 internal data class SizingState(
     val sizedTrades: ImmutableList<SizedTrade>,
-    val orderFormParams: ImmutableList<OrderFormParams>,
+    val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
 ) {
 
     @Immutable

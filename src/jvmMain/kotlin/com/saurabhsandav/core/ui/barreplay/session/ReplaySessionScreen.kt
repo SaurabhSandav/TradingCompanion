@@ -58,15 +58,12 @@ internal fun ReplaySessionScreen(
     )
 
     // Order form windows
-    state.orderFormParams.forEach { params ->
+    state.orderFormWindowsManager.Windows { window ->
 
-        key(params.id) {
-
-            ReplayOrderFormWindow(
-                replayOrdersManager = presenter.replayOrdersManager,
-                initialFormModel = params.initialFormModel,
-                onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
-            )
-        }
+        ReplayOrderFormWindow(
+            replayOrdersManager = presenter.replayOrdersManager,
+            initialFormModel = window.params.initialFormModel,
+            onCloseRequest = window::close,
+        )
     }
 }

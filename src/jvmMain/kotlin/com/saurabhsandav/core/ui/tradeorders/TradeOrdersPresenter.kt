@@ -8,6 +8,7 @@ import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
@@ -37,7 +38,7 @@ internal class TradeOrdersPresenter(
 
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
+    private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -47,7 +48,6 @@ internal class TradeOrdersPresenter(
                 NewOrder -> onNewOrder()
                 is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
                 is EditOrder -> onEditOrder(event.profileOrderId)
-                is CloseOrderForm -> onCloseOrderForm(event.id)
                 is LockOrder -> onLockOrder(event.profileOrderId)
                 is DeleteOrder -> onDeleteOrder(event.profileOrderId)
             }
@@ -55,7 +55,7 @@ internal class TradeOrdersPresenter(
 
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
-            orderFormParams = orderFormParams,
+            orderFormWindowsManager = orderFormWindowsManager,
         )
     }
 
@@ -71,7 +71,7 @@ internal class TradeOrdersPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                orderFormParams = orderFormParams.clear()
+                orderFormWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -119,48 +119,55 @@ internal class TradeOrdersPresenter(
             formType = OrderFormType.New(),
         )
 
-        orderFormParams = orderFormParams.add(params)
+        orderFormWindowsManager.newWindow(params)
     }
 
     private fun onNewOrderFromExisting(profileOrderId: ProfileOrderId) {
 
-        // Don't allow opening duplicate windows
-        val isWindowAlreadyOpen = orderFormParams.any {
-            it.formType is OrderFormType.NewFromExisting && it.formType.id == profileOrderId.orderId
+        val window = orderFormWindowsManager.windows.find {
+            it.params.formType is OrderFormType.NewFromExisting && it.params.formType.id == profileOrderId.orderId
         }
-        if (isWindowAlreadyOpen) return
 
-        val params = OrderFormParams(
-            id = UUID.randomUUID(),
-            profileId = profileOrderId.profileId,
-            formType = OrderFormType.NewFromExisting(profileOrderId.orderId),
-        )
+        when (window) {
+            // Open new window
+            null -> {
 
-        orderFormParams = orderFormParams.add(params)
+                val params = OrderFormParams(
+                    id = UUID.randomUUID(),
+                    profileId = profileOrderId.profileId,
+                    formType = OrderFormType.NewFromExisting(profileOrderId.orderId),
+                )
+
+                orderFormWindowsManager.newWindow(params)
+            }
+
+            // Window already open. Bring to front.
+            else -> window.toFront()
+        }
     }
 
     private fun onEditOrder(profileOrderId: ProfileOrderId) {
 
-        // Don't allow opening duplicate windows
-        val isWindowAlreadyOpen = orderFormParams.any {
-            it.formType is OrderFormType.Edit && it.formType.id == profileOrderId.orderId
+        val window = orderFormWindowsManager.windows.find {
+            it.params.formType is OrderFormType.Edit && it.params.formType.id == profileOrderId.orderId
         }
-        if (isWindowAlreadyOpen) return
 
-        val params = OrderFormParams(
-            id = UUID.randomUUID(),
-            profileId = profileOrderId.profileId,
-            formType = OrderFormType.Edit(profileOrderId.orderId),
-        )
+        when (window) {
+            // Open new window
+            null -> {
 
-        orderFormParams = orderFormParams.add(params)
-    }
+                val params = OrderFormParams(
+                    id = UUID.randomUUID(),
+                    profileId = profileOrderId.profileId,
+                    formType = OrderFormType.Edit(profileOrderId.orderId),
+                )
 
-    private fun onCloseOrderForm(id: UUID) {
+                orderFormWindowsManager.newWindow(params)
+            }
 
-        val params = orderFormParams.first { it.id == id }
-
-        orderFormParams = orderFormParams.remove(params)
+            // Window already open. Bring to front.
+            else -> window.toFront()
+        }
     }
 
     private fun onLockOrder(profileOrderId: ProfileOrderId) = coroutineScope.launchUnit {

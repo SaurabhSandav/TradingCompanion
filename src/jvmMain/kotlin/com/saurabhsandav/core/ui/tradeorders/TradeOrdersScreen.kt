@@ -1,7 +1,10 @@
 package com.saurabhsandav.core.ui.tradeorders
 
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
@@ -38,16 +41,13 @@ internal fun TradeOrdersScreen(
         )
 
         // Order form windows
-        state.orderFormParams.forEach { params ->
+        state.orderFormWindowsManager.Windows { window ->
 
-            key(params.id) {
-
-                OrderFormWindow(
-                    profileId = params.profileId,
-                    formType = params.formType,
-                    onCloseRequest = { presenter.event(CloseOrderForm(params.id)) },
-                )
-            }
+            OrderFormWindow(
+                profileId = window.params.profileId,
+                formType = window.params.formType,
+                onCloseRequest = window::close,
+            )
         }
 
         // Errors

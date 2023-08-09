@@ -3,13 +3,16 @@ package com.saurabhsandav.core.ui.trades
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.detail.TradeDetailWindow
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
@@ -37,41 +40,22 @@ internal fun TradesScreen(
         )
 
         // Detail Windows
-        state.showTradeDetailIds.forEach { profileTradeId ->
+        state.tradeDetailWindowsManager.Windows { window ->
 
-            key(profileTradeId) {
-
-                val windowOwner = remember { AppWindowOwner() }
-
-                LaunchedEffect(state.bringDetailsToFrontId) {
-
-                    if (state.bringDetailsToFrontId == profileTradeId) {
-                        windowOwner.childrenToFront()
-                        presenter.event(DetailsBroughtToFront)
-                    }
-                }
-
-                AppWindowOwner(windowOwner) {
-
-                    TradeDetailWindow(
-                        profileId = profileTradeId.profileId,
-                        tradeId = profileTradeId.tradeId,
-                        onCloseRequest = { presenter.event(CloseDetails(profileTradeId)) },
-                    )
-                }
-            }
+            TradeDetailWindow(
+                profileId = window.params.profileId,
+                tradeId = window.params.tradeId,
+                onCloseRequest = window::close,
+            )
         }
 
         // Chart windows
-        state.chartWindowsManager.windows.forEach { windowEntry ->
+        state.chartWindowsManager.Windows { window ->
 
-            key(windowEntry) {
-
-                TradeChartWindow(
-                    onCloseRequest = windowEntry::close,
-                    chartData = windowEntry.params.chartData,
-                )
-            }
+            TradeChartWindow(
+                onCloseRequest = window::close,
+                chartData = window.params.chartData,
+            )
         }
 
         // Fyers login window

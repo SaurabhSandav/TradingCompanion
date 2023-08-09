@@ -17,6 +17,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.CollectEffect
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -61,7 +62,7 @@ internal class ReplaySessionPresenter(
         ),
         appModule = appModule,
     )
-    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
+    private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 
     val replayOrdersManager = ReplayOrdersManager(coroutineScope, replayParams, barReplay, appModule)
 
@@ -77,7 +78,6 @@ internal class ReplaySessionPresenter(
                 is Buy -> onBuy(event.stockChart)
                 is Sell -> onSell(event.stockChart)
                 is CancelOrder -> onCancelOrder(event.id)
-                is CloseOrderForm -> onCloseOrderForm(event.id)
             }
         }
 
@@ -85,7 +85,7 @@ internal class ReplaySessionPresenter(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
             replayOrderItems = getReplayOrderItems().value,
-            orderFormParams = orderFormParams,
+            orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
         )
     }
@@ -185,7 +185,7 @@ internal class ReplaySessionPresenter(
         appPrefs.putLong(PrefKeys.ReplayTradingProfile, id)
 
         // Close all child windows
-        orderFormParams = orderFormParams.clear()
+        orderFormWindowsManager.closeAll()
     }
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
@@ -213,7 +213,7 @@ internal class ReplaySessionPresenter(
             },
         )
 
-        orderFormParams = orderFormParams.add(params)
+        orderFormWindowsManager.newWindow(params)
     }
 
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
@@ -241,18 +241,11 @@ internal class ReplaySessionPresenter(
             },
         )
 
-        orderFormParams = orderFormParams.add(params)
+        orderFormWindowsManager.newWindow(params)
     }
 
     private fun onCancelOrder(id: Long) {
         replayOrdersManager.cancelOrder(id)
-    }
-
-    private fun onCloseOrderForm(id: UUID) {
-
-        val params = orderFormParams.first { it.id == id }
-
-        orderFormParams = orderFormParams.remove(params)
     }
 
     private fun getChartInfo(stockChart: StockChart) = ReplayChartInfo(

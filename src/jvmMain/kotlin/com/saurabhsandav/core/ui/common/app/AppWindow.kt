@@ -180,7 +180,7 @@ class AppWindowOwner {
         children.forEach { it.toFront() }
     }
 
-    fun toBack() {
+    fun childrenToBack() {
         children.forEach { it.toBack() }
     }
 

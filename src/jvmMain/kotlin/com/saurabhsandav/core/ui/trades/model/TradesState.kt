@@ -1,18 +1,16 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.ui.common.MultipleWindowManager
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableSet
 
 @Immutable
 internal data class TradesState(
     val tradesItems: ImmutableList<TradeListItem>,
-    val showTradeDetailIds: ImmutableSet<ProfileTradeId>,
-    val chartWindowsManager: MultipleWindowManager<TradeChartWindowParams>,
+    val tradeDetailWindowsManager: AppWindowsManager<ProfileTradeId>,
+    val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
-    val bringDetailsToFrontId: ProfileTradeId? = null,
 ) {
 
     @Immutable

@@ -12,6 +12,7 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.CollectEffect
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
 import com.saurabhsandav.core.ui.sizing.model.SizingState
@@ -47,7 +48,7 @@ internal class SizingPresenter(
 
     private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
-    private var orderFormParams by mutableStateOf(persistentListOf<OrderFormParams>())
+    private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -59,7 +60,6 @@ internal class SizingPresenter(
                 is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
                 is OpenLiveTrade -> openLiveTrade(event.id)
                 is RemoveTrade -> removeTrade(event.id)
-                is CloseOrderForm -> onCloseOrderForm(event.id)
             }
         }
 
@@ -74,7 +74,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
-            orderFormParams = orderFormParams,
+            orderFormWindowsManager = orderFormWindowsManager,
         )
     }
 
@@ -192,14 +192,7 @@ internal class SizingPresenter(
             },
         )
 
-        orderFormParams = orderFormParams.add(params)
-    }
-
-    private fun onCloseOrderForm(id: UUID) {
-
-        val params = orderFormParams.first { it.id == id }
-
-        orderFormParams = orderFormParams.remove(params)
+        orderFormWindowsManager.newWindow(params)
     }
 
     @Composable
@@ -208,7 +201,7 @@ internal class SizingPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                orderFormParams = orderFormParams.clear()
+                orderFormWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 

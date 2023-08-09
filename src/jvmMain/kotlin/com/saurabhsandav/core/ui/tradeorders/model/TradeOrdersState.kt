@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradeorders.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import kotlinx.collections.immutable.ImmutableList
 import java.util.*
@@ -8,7 +9,7 @@ import java.util.*
 @Immutable
 internal data class TradeOrdersState(
     val tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    val orderFormParams: ImmutableList<OrderFormParams>,
+    val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
 ) {
 
     @Immutable
