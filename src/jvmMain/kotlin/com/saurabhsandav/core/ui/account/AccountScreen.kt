@@ -7,7 +7,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -17,13 +16,12 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun AccountScreen(
-    presenter: AccountPresenter,
+    transactions: ImmutableList<Transaction>,
 ) {
-
-    val state by presenter.state.collectAsState()
 
     // Set window title
     WindowTitle("Account")
@@ -41,9 +39,7 @@ internal fun AccountScreen(
         schema = schema,
     ) {
 
-        rows(
-            items = state.transactions,
-        )
+        rows(items = transactions)
 
         row {
             SizingTradeCreator(

@@ -5,16 +5,20 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
+import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import com.saurabhsandav.core.utils.NIFTY50
@@ -22,25 +26,34 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun SizingScreen(
-    presenter: SizingPresenter,
+    sizedTrades: ImmutableList<SizedTrade>,
+    onUpdateEntry: (id: Long, entry: String) -> Unit,
+    onUpdateStop: (id: Long, stop: String) -> Unit,
+    onOpenLiveTrade: (Long) -> Unit,
+    onDeleteTrade: (Long) -> Unit,
+    onAddTrade: (ticker: String) -> Unit,
 ) {
-
-    val state by presenter.state.collectAsState()
 
     // Set window title
     WindowTitle("Trade Sizing")
 
     SizingTradesGrid(
-        sizedTrades = state.sizedTrades,
-        onUpdateEntry = { id, entry -> presenter.event(UpdateTradeEntry(id, entry)) },
-        onUpdateStop = { id, stop -> presenter.event(UpdateTradeStop(id, stop)) },
-        onOpenLiveTrade = { id -> presenter.event(OpenLiveTrade(id)) },
-        onDeleteTrade = { id -> presenter.event(RemoveTrade(id)) },
-        onAddTrade = { ticker -> presenter.event(AddTrade(ticker)) },
+        sizedTrades = sizedTrades,
+        onUpdateEntry = onUpdateEntry,
+        onUpdateStop = onUpdateStop,
+        onOpenLiveTrade = onOpenLiveTrade,
+        onDeleteTrade = onDeleteTrade,
+        onAddTrade = onAddTrade,
     )
+}
+
+@Composable
+internal fun SizingScreenWindows(
+    orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+) {
 
     // Order form windows
-    state.orderFormWindowsManager.Windows { window ->
+    orderFormWindowsManager.Windows { window ->
 
         OrderFormWindow(
             profileId = window.params.profileId,

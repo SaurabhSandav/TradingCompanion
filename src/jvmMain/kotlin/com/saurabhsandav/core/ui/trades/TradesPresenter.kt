@@ -64,6 +64,7 @@ internal class TradesPresenter(
     private val tradeDetailWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
+    private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -80,10 +81,9 @@ internal class TradesPresenter(
             tradeDetailWindowsManager = tradeDetailWindowsManager,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
+            errors = remember(errors) { errors.toImmutableList() },
         )
     }
-
-    val errors = mutableStateListOf<UIErrorMessage>()
 
     fun event(event: TradesEvent) {
         events.tryEmit(event)

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import kotlinx.collections.immutable.ImmutableList
@@ -11,6 +12,7 @@ internal data class TradesState(
     val tradeDetailWindowsManager: AppWindowsManager<ProfileTradeId>,
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
+    val errors: ImmutableList<UIErrorMessage>,
 ) {
 
     @Immutable

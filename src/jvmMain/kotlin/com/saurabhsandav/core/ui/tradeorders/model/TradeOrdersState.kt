@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradeorders.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import kotlinx.collections.immutable.ImmutableList
@@ -10,6 +11,7 @@ import java.util.*
 internal data class TradeOrdersState(
     val tradeOrderItems: ImmutableList<TradeOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+    val errors: ImmutableList<UIErrorMessage>,
 ) {
 
     @Immutable

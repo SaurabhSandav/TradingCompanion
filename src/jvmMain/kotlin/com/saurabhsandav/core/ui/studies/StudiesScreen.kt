@@ -12,24 +12,22 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.studies.impl.Study
-import com.saurabhsandav.core.ui.studies.model.StudiesEvent.OpenStudy
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun StudiesScreen(
-    presenter: StudiesPresenter,
+    studyFactories: ImmutableList<Study.Factory<*>>,
+    onOpenStudy: (Study.Factory<*>) -> Unit,
 ) {
-
-    val state by presenter.state.collectAsState()
 
     // Set window title
     WindowTitle("Studies")
@@ -43,10 +41,10 @@ internal fun StudiesScreen(
             state = lazyListState,
         ) {
 
-            items(items = state.studyFactories) { studyFactory ->
+            items(items = studyFactories) { studyFactory ->
 
                 ListItem(
-                    modifier = Modifier.clickable { presenter.event(OpenStudy(studyFactory)) },
+                    modifier = Modifier.clickable { onOpenStudy(studyFactory) },
                     headlineText = { Text(studyFactory.name) },
                 )
             }
@@ -57,9 +55,15 @@ internal fun StudiesScreen(
             adapter = rememberScrollbarAdapter(lazyListState)
         )
     }
+}
+
+@Composable
+internal fun StudiesScreenWindows(
+    studyWindowsManager: AppWindowsManager<Study.Factory<*>>,
+) {
 
     // Study windows
-    state.studyWindowsManager.Windows { window ->
+    studyWindowsManager.Windows { window ->
 
         StudyWindow(
             studyFactory = window.params,

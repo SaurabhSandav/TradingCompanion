@@ -10,8 +10,11 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.utils.mapList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 
 @Stable
 internal class AccountPresenter(
@@ -34,7 +37,8 @@ internal class AccountPresenter(
                         note = acTransaction.note,
                     )
                 }
-        }.collectAsState(emptyList())
+                .map { it.toImmutableList() }
+        }.collectAsState(persistentListOf())
 
         return@launchMolecule AccountState(transactions)
     }

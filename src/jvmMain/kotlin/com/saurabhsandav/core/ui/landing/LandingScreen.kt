@@ -15,8 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.account.AccountPresenter
-import com.saurabhsandav.core.ui.account.AccountScreen
+import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
@@ -29,14 +28,10 @@ import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
-import com.saurabhsandav.core.ui.sizing.SizingPresenter
-import com.saurabhsandav.core.ui.sizing.SizingScreen
-import com.saurabhsandav.core.ui.studies.StudiesPresenter
-import com.saurabhsandav.core.ui.studies.StudiesScreen
-import com.saurabhsandav.core.ui.tradeorders.TradeOrdersPresenter
-import com.saurabhsandav.core.ui.tradeorders.TradeOrdersScreen
-import com.saurabhsandav.core.ui.trades.TradesPresenter
-import com.saurabhsandav.core.ui.trades.TradesScreen
+import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
+import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
+import com.saurabhsandav.core.ui.tradeorders.TradeOrdersLandingSwitcherItem
+import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
 @Composable
 internal fun LandingScreen() {
@@ -174,22 +169,30 @@ private fun LandingScreen(
 
         Box(Modifier.fillMaxSize()) {
 
-            val coroutineScope = rememberCoroutineScope()
+            val scope = rememberCoroutineScope()
 
-            val accountPresenter = remember { AccountPresenter(coroutineScope, appModule) }
-            val sizingPresenter = remember { SizingPresenter(coroutineScope, appModule) }
-            val tradeOrdersPresenter = remember { TradeOrdersPresenter(coroutineScope, appModule) }
-            val tradesPresenter = remember { TradesPresenter(coroutineScope, appModule) }
-            val studiesPresenter = remember { StudiesPresenter(coroutineScope, appModule) }
+            val switcherItems = remember {
+                mapOf(
+                    LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
+                    LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
+                    LandingScreen.TradeOrders to TradeOrdersLandingSwitcherItem(scope, appModule),
+                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule),
+                    LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
+                )
+            }
 
+            // Main content of currently selected switcher item
             AnimatedContent(currentScreen) { targetState ->
 
-                when (targetState) {
-                    LandingScreen.Account -> AccountScreen(accountPresenter)
-                    LandingScreen.TradeSizing -> SizingScreen(sizingPresenter)
-                    LandingScreen.TradeOrders -> TradeOrdersScreen(tradeOrdersPresenter)
-                    LandingScreen.Trades -> TradesScreen(tradesPresenter)
-                    LandingScreen.Studies -> StudiesScreen(studiesPresenter)
+                remember(targetState) { switcherItems.getValue(targetState) }.Content()
+            }
+
+            // Windows of all switcher items
+            switcherItems.forEach { (key, item) ->
+
+                key(key) {
+
+                    item.Windows()
                 }
             }
         }

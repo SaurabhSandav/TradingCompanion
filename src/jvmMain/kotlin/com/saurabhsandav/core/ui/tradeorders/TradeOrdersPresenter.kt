@@ -39,6 +39,7 @@ internal class TradeOrdersPresenter(
     private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
+    private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -56,10 +57,9 @@ internal class TradeOrdersPresenter(
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
             orderFormWindowsManager = orderFormWindowsManager,
+            errors = remember(errors) { errors.toImmutableList() },
         )
     }
-
-    val errors = mutableStateListOf<UIErrorMessage>()
 
     fun event(event: TradeOrdersEvent) {
         events.tryEmit(event)

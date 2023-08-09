@@ -2,21 +2,26 @@ package com.saurabhsandav.core.ui.tradeorders
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
+import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
+import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
 import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersTable
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeOrdersScreen(
-    presenter: TradeOrdersPresenter,
+    onNewOrder: () -> Unit,
+    tradeOrderItems: ImmutableList<TradeOrderListItem>,
+    onNewOrderFromExisting: (ProfileOrderId) -> Unit,
+    onEditOrder: (ProfileOrderId) -> Unit,
+    onLockOrder: (ProfileOrderId) -> Unit,
+    onDeleteOrder: (ProfileOrderId) -> Unit,
+    errors: ImmutableList<UIErrorMessage>,
 ) {
-
-    val state by presenter.state.collectAsState()
 
     // Set window title
     WindowTitle("Trade Orders")
@@ -26,34 +31,41 @@ internal fun TradeOrdersScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { presenter.event(NewOrder) }) {
+
+            ExtendedFloatingActionButton(onClick = onNewOrder) {
                 Text(text = "New Order")
             }
         },
     ) {
 
         TradeOrdersTable(
-            tradeOrderItems = state.tradeOrderItems,
-            onNewOrder = { presenter.event(NewOrderFromExisting(it)) },
-            onLockOrder = { presenter.event(LockOrder(it)) },
-            onEditOrder = { presenter.event(EditOrder(it)) },
-            onDeleteOrder = { presenter.event(DeleteOrder(it)) },
+            tradeOrderItems = tradeOrderItems,
+            onNewOrder = onNewOrderFromExisting,
+            onEditOrder = onEditOrder,
+            onLockOrder = onLockOrder,
+            onDeleteOrder = onDeleteOrder,
         )
 
-        // Order form windows
-        state.orderFormWindowsManager.Windows { window ->
-
-            OrderFormWindow(
-                profileId = window.params.profileId,
-                formType = window.params.formType,
-                onCloseRequest = window::close,
-            )
-        }
-
         // Errors
-        presenter.errors.forEach { errorMessage ->
+        errors.forEach { errorMessage ->
 
             ErrorSnackbar(snackbarHostState, errorMessage)
         }
+    }
+}
+
+@Composable
+internal fun TradeOrdersScreenWindows(
+    orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+) {
+
+    // Order form windows
+    orderFormWindowsManager.Windows { window ->
+
+        OrderFormWindow(
+            profileId = window.params.profileId,
+            formType = window.params.formType,
+            onCloseRequest = window::close,
+        )
     }
 }
