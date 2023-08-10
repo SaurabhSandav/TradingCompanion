@@ -8,7 +8,6 @@ import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.*
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.seconds
 
 internal class CandleRepository(
     private val candleDownloader: CandleDownloader,
@@ -73,8 +72,13 @@ internal class CandleRepository(
 
         val availableRange = candleCache.getCachedRange(ticker, timeframe)
 
-        fun ClosedRange<Instant>.prevCandleInstant() = start.minus(timeframe.seconds, DateTimeUnit.SECOND)
-        fun ClosedRange<Instant>.nextCandleInstant() = endInclusive.plus(timeframe.seconds, DateTimeUnit.SECOND)
+        // Adjust first and last candle instants to re-download 2/3 candles at edges in case candles were incomplete.
+
+        fun ClosedRange<Instant>.adjustedFirstCandleInstant() =
+            start.plus(timeframe.seconds * 3, DateTimeUnit.SECOND)
+
+        fun ClosedRange<Instant>.adjustedLastCandleInstant() =
+            endInclusive.minus(timeframe.seconds * 3, DateTimeUnit.SECOND)
 
         @Suppress("SpellCheckingInspection")
         val downloadRanges = when {
@@ -83,25 +87,25 @@ internal class CandleRepository(
             // Some candles available
             // ..........F........T..........
             // ................CCCCCCCCC.....
-            from !in availableRange && to in availableRange -> listOf(from..availableRange.prevCandleInstant())
+            from !in availableRange && to in availableRange -> listOf(from..availableRange.adjustedFirstCandleInstant())
             // Some candles available
             // ..........F........T..........
             // .....CCCCCCCCC................
-            from in availableRange && to !in availableRange -> listOf(availableRange.nextCandleInstant()..to)
+            from in availableRange && to !in availableRange -> listOf(availableRange.adjustedLastCandleInstant()..to)
             // Some candles available between range
             from !in availableRange && to !in availableRange -> {
                 when {
                     // ..........F........T..........
                     // ....CCC.......................
-                    availableRange.endInclusive < from -> listOf(availableRange.nextCandleInstant()..to)
+                    availableRange.endInclusive < from -> listOf(availableRange.adjustedLastCandleInstant()..to)
                     // ..........F........T..........
                     // .......................CCC....
-                    availableRange.start > to -> listOf(from..availableRange.prevCandleInstant())
+                    availableRange.start > to -> listOf(from..availableRange.adjustedFirstCandleInstant())
                     // ..........F........T..........
                     // .............CCCC.............
                     else -> listOf(
-                        from..availableRange.prevCandleInstant(),
-                        availableRange.nextCandleInstant()..to,
+                        from..availableRange.adjustedFirstCandleInstant(),
+                        availableRange.adjustedLastCandleInstant()..to,
                     )
                 }
             }
@@ -219,8 +223,7 @@ internal class CandleRepository(
             ticker = ticker,
             timeframe = timeframe,
             from = from,
-            // Next time re-fetch last 3 candles (Re-fetches unfinished candles).
-            to = correctedTo - (timeframe.seconds.seconds * 3),
+            to = correctedTo,
         )
 
         // Success
