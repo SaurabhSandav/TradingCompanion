@@ -94,6 +94,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
         key = { it.profileOrderId },
     ) { item ->
 
+        var showLockConfirmationDialog by state { false }
         var showDeleteConfirmationDialog by state { false }
 
         ContextMenuArea(
@@ -105,7 +106,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
                     if (!item.locked) {
                         addAll(
                             listOf(
-                                ContextMenuItem("Lock") { onLockOrder(item.profileOrderId) },
+                                ContextMenuItem("Lock") { showLockConfirmationDialog = true },
                                 ContextMenuItem("Edit") { onEditOrder(item.profileOrderId) },
                                 ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                             )
@@ -122,9 +123,22 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
                 Divider()
             }
 
+            if (showLockConfirmationDialog) {
+
+                ConfirmationDialog(
+                    confirmationRequestText = "Are you sure you want to lock the order?",
+                    onDismiss = { showLockConfirmationDialog = false },
+                    onConfirm = {
+                        showLockConfirmationDialog = false
+                        onLockOrder(item.profileOrderId)
+                    },
+                )
+            }
+
             if (showDeleteConfirmationDialog) {
 
-                DeleteConfirmationDialog(
+                ConfirmationDialog(
+                    confirmationRequestText = "Are you sure you want to delete the order?",
                     onDismiss = { showDeleteConfirmationDialog = false },
                     onConfirm = { onDeleteOrder(item.profileOrderId) },
                 )
@@ -134,7 +148,8 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
 }
 
 @Composable
-private fun DeleteConfirmationDialog(
+private fun ConfirmationDialog(
+    confirmationRequestText: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -148,7 +163,7 @@ private fun DeleteConfirmationDialog(
             }
         },
         text = {
-            Text("Are you sure you want to delete the order?")
+            Text(confirmationRequestText)
         },
         dismissButton = {
             Button(onClick = onDismiss) {
