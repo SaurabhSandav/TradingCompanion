@@ -33,7 +33,7 @@ internal class CandleLoader(
 
                 loadMutex.withLock {
 
-                    data.performLoad {
+                    data.performLoad(isInitialLoad = true) {
 
                         // Load initial candles
                         onLoad()
@@ -126,7 +126,10 @@ internal class CandleLoader(
         }
     }
 
-    private suspend fun StockChartData.performLoad(block: suspend CandleSource.() -> Unit) {
+    private suspend fun StockChartData.performLoad(
+        isInitialLoad: Boolean = false,
+        block: suspend CandleSource.() -> Unit,
+    ) {
 
         loadState.emit(LoadState.Loading)
 
@@ -135,13 +138,26 @@ internal class CandleLoader(
         // Join so that callers can await load.
         coroutineScope.launch {
 
-            val instantRange = source.getCandleSeries().instantRange.value
+            when {
+                // getCandleSeries() might suspend. Use candle count on initial load to check for new candles.
+                isInitialLoad -> {
 
-            source.block()
+                    source.block()
 
-            val newInstantRange = source.getCandleSeries().instantRange.value
+                    if (source.getCandleSeries().isNotEmpty()) onNewDataLoaded(params)
+                }
 
-            if (instantRange != newInstantRange) onNewDataLoaded(params)
+                else -> {
+
+                    val instantRange = source.getCandleSeries().instantRange.value
+
+                    source.block()
+
+                    val newInstantRange = source.getCandleSeries().instantRange.value
+
+                    if (instantRange != newInstantRange) onNewDataLoaded(params)
+                }
+            }
         }.join()
 
         loadState.emit(LoadState.Loaded)
