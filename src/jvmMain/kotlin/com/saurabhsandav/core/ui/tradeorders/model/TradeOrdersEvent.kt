@@ -10,7 +10,7 @@ internal sealed class TradeOrdersEvent {
 
     data class EditOrder(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
 
-    data class LockOrder(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
+    data class LockOrders(val ids: List<ProfileOrderId>) : TradeOrdersEvent()
 
-    data class DeleteOrder(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
+    data class DeleteOrders(val ids: List<ProfileOrderId>) : TradeOrdersEvent()
 }

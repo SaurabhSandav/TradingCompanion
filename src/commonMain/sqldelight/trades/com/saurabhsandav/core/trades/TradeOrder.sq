@@ -47,14 +47,14 @@ AND datetime(:from) < datetime(timestamp)
 AND datetime(timestamp) < datetime(:to);
 
 isLocked:
-SELECT locked
+SELECT id, locked
 FROM TradeOrder
-WHERE id = ?;
+WHERE id IN ?;
 
-lockOrder:
+lock:
 UPDATE TradeOrder
 SET locked = TRUE
-WHERE id = ?;
+WHERE id IN ?;
 
 delete:
 DELETE FROM TradeOrder

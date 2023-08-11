@@ -49,8 +49,8 @@ internal class TradeOrdersPresenter(
                 NewOrder -> onNewOrder()
                 is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
                 is EditOrder -> onEditOrder(event.profileOrderId)
-                is LockOrder -> onLockOrder(event.profileOrderId)
-                is DeleteOrder -> onDeleteOrder(event.profileOrderId)
+                is LockOrders -> onLockOrders(event.ids)
+                is DeleteOrders -> onDeleteOrders(event.ids)
             }
         }
 
@@ -170,17 +170,23 @@ internal class TradeOrdersPresenter(
         }
     }
 
-    private fun onLockOrder(profileOrderId: ProfileOrderId) = coroutineScope.launchUnit {
+    private fun onLockOrders(ids: List<ProfileOrderId>) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileOrderId.profileId)
+        ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
 
-        tradingRecord.orders.lockOrder(profileOrderId.orderId)
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.orders.lock(ids.map { it.orderId })
+        }
     }
 
-    private fun onDeleteOrder(profileOrderId: ProfileOrderId) = coroutineScope.launchUnit {
+    private fun onDeleteOrders(ids: List<ProfileOrderId>) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileOrderId.profileId)
+        ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
 
-        tradingRecord.orders.delete(profileOrderId.orderId)
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.orders.delete(ids.map { it.orderId })
+        }
     }
 }

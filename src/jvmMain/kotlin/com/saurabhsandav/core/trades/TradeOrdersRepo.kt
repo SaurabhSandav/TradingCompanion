@@ -70,7 +70,9 @@ internal class TradeOrdersRepo(
         timestamp: LocalDateTime,
     ): Long = withContext(Dispatchers.IO) {
 
-        require(!isLocked(id)) { "Order is locked and cannot be edited" }
+        val notLocked = isLocked(listOf(id)).single().locked.not()
+
+        require(notLocked) { "Order is locked and cannot be edited" }
 
         tradesDB.transaction {
 
@@ -109,45 +111,48 @@ internal class TradeOrdersRepo(
         return@withContext id
     }
 
-    suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
+    suspend fun delete(ids: List<Long>) = withContext(Dispatchers.IO) {
 
-        require(!isLocked(id)) { "Order is locked and cannot be deleted" }
+        val noneLocked = isLocked(ids).none { it.locked }
+
+        require(noneLocked) { "Order(s) are locked and cannot be deleted" }
 
         tradesDB.transaction {
 
-            // Trades to be regenerated
-            val regenerationTrades = tradesDB.tradeToOrderMapQueries
-                .getTradesByOrder(id)
-                .executeAsList()
+            ids.forEach { id ->
 
-            // Delete order
-            tradesDB.tradeOrderQueries.delete(id)
+                // Trades to be regenerated
+                val regenerationTrades = tradesDB.tradeToOrderMapQueries
+                    .getTradesByOrder(id)
+                    .executeAsList()
 
-            // Regenerate Trades
-            regenerationTrades.forEach { trade ->
+                // Delete order
+                tradesDB.tradeOrderQueries.delete(id)
 
-                // Get orders for Trade
-                val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
+                // Regenerate Trades
+                regenerationTrades.forEach { trade ->
 
-                when {
-                    // Delete Trade.
-                    orders.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
-                    else -> {
+                    // Get orders for Trade
+                    val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
 
-                        // Update Trade
-                        orders.createTrade().updateTradeInDB(trade.id)
+                    when {
+                        // Delete Trade.
+                        orders.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
+                        else -> {
 
-                        // Regenerate supplemental data
-                        regenerateSupplementalTradeData(trade.id)
+                            // Update Trade
+                            orders.createTrade().updateTradeInDB(trade.id)
+
+                            // Regenerate supplemental data
+                            regenerateSupplementalTradeData(trade.id)
+                        }
                     }
                 }
             }
         }
     }
 
-    suspend fun lockOrder(id: Long) = withContext(Dispatchers.IO) {
-        tradesDB.tradeOrderQueries.lockOrder(id)
-    }
+    suspend fun lock(ids: List<Long>) = withContext(Dispatchers.IO) { tradesDB.tradeOrderQueries.lock(ids) }
 
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
         return tradesDB.tradeToOrderMapQueries.getOrdersByTrade(id, ::toTradeOrder).asFlow().mapToList(Dispatchers.IO)
@@ -184,8 +189,8 @@ internal class TradeOrdersRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    private suspend fun isLocked(id: Long): Boolean = withContext(Dispatchers.IO) {
-        tradesDB.tradeOrderQueries.isLocked(id).executeAsOne()
+    private suspend fun isLocked(ids: List<Long>) = withContext(Dispatchers.IO) {
+        tradesDB.tradeOrderQueries.isLocked(ids).executeAsList()
     }
 
     private fun consumeOrder(order: TradeOrder) {

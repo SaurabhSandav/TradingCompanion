@@ -1,14 +1,18 @@
 package com.saurabhsandav.core.ui.tradeorders
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
+import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersSelectionBar
 import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersTable
 import kotlinx.collections.immutable.ImmutableList
 
@@ -18,8 +22,8 @@ internal fun TradeOrdersScreen(
     tradeOrderItems: ImmutableList<TradeOrderListItem>,
     onNewOrderFromExisting: (ProfileOrderId) -> Unit,
     onEditOrder: (ProfileOrderId) -> Unit,
-    onLockOrder: (ProfileOrderId) -> Unit,
-    onDeleteOrder: (ProfileOrderId) -> Unit,
+    onLockOrders: (List<ProfileOrderId>) -> Unit,
+    onDeleteOrders: (List<ProfileOrderId>) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
 ) {
 
@@ -28,29 +32,44 @@ internal fun TradeOrdersScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
+    val selectionManager = remember { SelectionManager<TradeOrderEntry>() }
 
-            ExtendedFloatingActionButton(onClick = onNewOrder) {
-                Text(text = "New Order")
+    Column {
+
+        Scaffold(
+            modifier = Modifier.weight(1F),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            floatingActionButton = {
+
+                ExtendedFloatingActionButton(onClick = onNewOrder) {
+                    Text(text = "New Order")
+                }
+            },
+        ) {
+
+            TradeOrdersTable(
+                tradeOrderItems = tradeOrderItems,
+                isMarked = { entry -> entry in selectionManager.selection },
+                onClickOrder = { entry -> selectionManager.select(entry) },
+                onMarkOrder = { entry -> selectionManager.multiSelect(entry) },
+                onNewOrder = onNewOrderFromExisting,
+                onEditOrder = onEditOrder,
+                onLockOrder = { profileOrderId -> onLockOrders(listOf(profileOrderId)) },
+                onDeleteOrder = { profileOrderId -> onDeleteOrders(listOf(profileOrderId)) },
+            )
+
+            // Errors
+            errors.forEach { errorMessage ->
+
+                ErrorSnackbar(snackbarHostState, errorMessage)
             }
-        },
-    ) {
-
-        TradeOrdersTable(
-            tradeOrderItems = tradeOrderItems,
-            onNewOrder = onNewOrderFromExisting,
-            onEditOrder = onEditOrder,
-            onLockOrder = onLockOrder,
-            onDeleteOrder = onDeleteOrder,
-        )
-
-        // Errors
-        errors.forEach { errorMessage ->
-
-            ErrorSnackbar(snackbarHostState, errorMessage)
         }
+
+        TradeOrdersSelectionBar(
+            selectionManager = selectionManager,
+            onLockOrders = onLockOrders,
+            onDeleteOrders = onDeleteOrders,
+        )
     }
 }
 

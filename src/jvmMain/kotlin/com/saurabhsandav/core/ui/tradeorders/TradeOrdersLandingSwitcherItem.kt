@@ -24,9 +24,9 @@ internal class TradeOrdersLandingSwitcherItem(
             onNewOrder = { presenter.event(NewOrder) },
             tradeOrderItems = state.tradeOrderItems,
             onNewOrderFromExisting = { presenter.event(NewOrderFromExisting(it)) },
-            onLockOrder = { presenter.event(LockOrder(it)) },
+            onLockOrders = { ids -> presenter.event(LockOrders(ids)) },
             onEditOrder = { presenter.event(EditOrder(it)) },
-            onDeleteOrder = { presenter.event(DeleteOrder(it)) },
+            onDeleteOrders = { ids -> presenter.event(DeleteOrders(ids)) },
             errors = state.errors,
         )
     }

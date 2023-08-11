@@ -76,7 +76,11 @@ inline fun <T> TableScope<T>.rows(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline rowContent: @Composable LazyItemScope.(item: T) -> Unit = { item -> DefaultTableRow(item, schema) },
+    crossinline rowContent: @Composable LazyItemScope.(item: T) -> Unit = { item ->
+        // Fixes NoSuchMethodError when called without arguments names.
+        // Error appeared since adding onLongClick argument to DefaultTableRow. Probably compiler bug.
+        DefaultTableRow(item = item, schema = schema)
+    },
 ) = rows(
     count = items.size,
     key = if (key != null) { index: Int -> key(items[index]) } else null,

@@ -21,6 +21,9 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradeOrdersTable(
     tradeOrderItems: ImmutableList<TradeOrderListItem>,
+    isMarked: (TradeOrderEntry) -> Boolean,
+    onClickOrder: (TradeOrderEntry) -> Unit,
+    onMarkOrder: (TradeOrderEntry) -> Unit,
     onNewOrder: (ProfileOrderId) -> Unit,
     onEditOrder: (ProfileOrderId) -> Unit,
     onLockOrder: (ProfileOrderId) -> Unit,
@@ -28,11 +31,22 @@ internal fun TradeOrdersTable(
 ) {
 
     val schema = rememberTableSchema<TradeOrderEntry> {
+        addColumn(span = .5F) { entry ->
+
+            Checkbox(
+                checked = isMarked(entry),
+                onCheckedChange = { onMarkOrder(entry) },
+            )
+        }
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
-        addColumn("Type") {
-            Text(it.type, color = if (it.type == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
+        addColumn("Type") { entry ->
+
+            Text(
+                text = entry.type,
+                color = if (entry.type == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
+            )
         }
         addColumnText("Price") { it.price }
         addColumnText("Time") { it.timestamp }
@@ -48,6 +62,8 @@ internal fun TradeOrdersTable(
                 is TradeOrderListItem.DayHeader -> dayHeader(tradeOrderListItem)
                 is TradeOrderListItem.Entries -> tradeOrderItems(
                     tradeOrderListItem = tradeOrderListItem,
+                    onClickOrder = onClickOrder,
+                    onLongClickOrder = onMarkOrder,
                     onNewOrder = onNewOrder,
                     onEditOrder = onEditOrder,
                     onLockOrder = onLockOrder,
@@ -80,6 +96,8 @@ private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrder
 
 private fun TableScope<TradeOrderEntry>.tradeOrderItems(
     tradeOrderListItem: TradeOrderListItem.Entries,
+    onClickOrder: (TradeOrderEntry) -> Unit,
+    onLongClickOrder: (TradeOrderEntry) -> Unit,
     onNewOrder: (ProfileOrderId) -> Unit,
     onEditOrder: (ProfileOrderId) -> Unit,
     onLockOrder: (ProfileOrderId) -> Unit,
@@ -89,7 +107,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
     rows(
         items = tradeOrderListItem.entries,
         key = { it.profileOrderId },
-    ) { item ->
+    ) { entry ->
 
         var showLockConfirmationDialog by state { false }
         var showDeleteConfirmationDialog by state { false }
@@ -98,13 +116,13 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
             items = {
 
                 buildList {
-                    add(ContextMenuItem("New") { onNewOrder(item.profileOrderId) })
+                    add(ContextMenuItem("New") { onNewOrder(entry.profileOrderId) })
 
-                    if (!item.locked) {
+                    if (!entry.locked) {
                         addAll(
                             listOf(
                                 ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                                ContextMenuItem("Edit") { onEditOrder(item.profileOrderId) },
+                                ContextMenuItem("Edit") { onEditOrder(entry.profileOrderId) },
                                 ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                             )
                         )
@@ -115,7 +133,12 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
 
             Column {
 
-                DefaultTableRow(item, schema)
+                DefaultTableRow(
+                    item = entry,
+                    schema = schema,
+                    onClick = { onClickOrder(entry) },
+                    onLongClick = { onLongClickOrder(entry) },
+                )
 
                 Divider()
             }
@@ -127,7 +150,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
                     onDismiss = { showLockConfirmationDialog = false },
                     onConfirm = {
                         showLockConfirmationDialog = false
-                        onLockOrder(item.profileOrderId)
+                        onLockOrder(entry.profileOrderId)
                     },
                 )
             }
@@ -137,7 +160,7 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
                 ConfirmationDialog(
                     confirmationRequestText = "Are you sure you want to delete the order?",
                     onDismiss = { showDeleteConfirmationDialog = false },
-                    onConfirm = { onDeleteOrder(item.profileOrderId) },
+                    onConfirm = { onDeleteOrder(entry.profileOrderId) },
                 )
             }
         }
