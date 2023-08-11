@@ -22,6 +22,8 @@ internal fun ReplayCharts(
     chartsState: StockChartsState,
     chartInfo: (StockChart) -> ReplayChartInfo,
     onAdvanceReplay: () -> Unit,
+    enableAdvanceReplayByBar: Boolean,
+    onAdvanceReplayByBar: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     isTradingEnabled: Boolean,
     onBuy: (StockChart) -> Unit,
@@ -52,6 +54,8 @@ internal fun ReplayCharts(
 
         ReplayControls(
             onAdvanceReplay = onAdvanceReplay,
+            enableAdvanceReplayByBar = enableAdvanceReplayByBar,
+            onAdvanceReplayByBar = onAdvanceReplayByBar,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
             isTradingEnabled = isTradingEnabled,
             onBuy = { onBuy(stockChart) },

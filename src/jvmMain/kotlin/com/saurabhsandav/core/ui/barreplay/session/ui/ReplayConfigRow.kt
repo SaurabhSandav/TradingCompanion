@@ -16,6 +16,8 @@ internal fun ReplayConfigRow(
     onNewReplay: () -> Unit,
     onResetReplay: () -> Unit,
     onAdvanceReplay: () -> Unit,
+    enableAdvanceReplayByBar: Boolean,
+    onAdvanceReplayByBar: () -> Unit,
 ) {
 
     Row(
@@ -49,6 +51,16 @@ internal fun ReplayConfigRow(
             onClick = onAdvanceReplay,
         ) {
             Text("Advance Replay")
+        }
+
+        if (enableAdvanceReplayByBar) {
+
+            TextButton(
+                modifier = Modifier.weight(1F),
+                onClick = onAdvanceReplayByBar,
+            ) {
+                Text("Advance Replay By Bar")
+            }
         }
     }
 }

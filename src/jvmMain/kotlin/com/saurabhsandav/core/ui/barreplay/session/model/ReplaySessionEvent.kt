@@ -8,6 +8,8 @@ internal sealed class ReplaySessionEvent {
 
     data object AdvanceReplay : ReplaySessionEvent()
 
+    data object AdvanceReplayByBar : ReplaySessionEvent()
+
     data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
 
     data class SelectProfile(val id: Long) : ReplaySessionEvent()

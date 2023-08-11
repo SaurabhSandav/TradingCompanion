@@ -71,6 +71,21 @@ class BarReplay(
         }
     }
 
+    fun advanceByBar() {
+
+        // Move to candle close state
+        candleState = CandleState.Close
+
+        replaySeriesBuilders.forEach(
+            when (candleUpdateType) {
+                CandleUpdateType.FullBar -> { builder -> builder.addCandle(offset) }
+                CandleUpdateType.OHLC -> { builder -> builder.addCandle(offset, candleState) }
+            }
+        )
+
+        offset++
+    }
+
     fun reset() {
         replaySeriesBuilders.forEach { builder -> builder.reset() }
         offset = 0

@@ -73,6 +73,7 @@ internal class ReplaySessionPresenter(
             when (event) {
                 ResetReplay -> onResetReplay()
                 AdvanceReplay -> onAdvanceReplay()
+                AdvanceReplayByBar -> onAdvanceReplayByBar()
                 is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
                 is SelectProfile -> onSelectProfile(event.id)
                 is Buy -> onBuy(event.stockChart)
@@ -84,6 +85,7 @@ internal class ReplaySessionPresenter(
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
+            enableAdvanceReplayByBar = !replayParams.replayFullBar,
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
@@ -160,6 +162,10 @@ internal class ReplaySessionPresenter(
 
     private fun onAdvanceReplay() {
         barReplay.advance()
+    }
+
+    private fun onAdvanceReplayByBar() {
+        barReplay.advanceByBar()
     }
 
     private fun onSetIsAutoNextEnabled(isAutoNextEnabled: Boolean) {

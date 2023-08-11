@@ -36,6 +36,8 @@ internal fun ReplaySessionScreen(
             onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
             onResetReplay = { presenter.event(ResetReplay) },
             onAdvanceReplay = { presenter.event(AdvanceReplay) },
+            enableAdvanceReplayByBar = state.enableAdvanceReplayByBar,
+            onAdvanceReplayByBar = { presenter.event(AdvanceReplayByBar) },
         )
 
         Divider()
@@ -51,6 +53,8 @@ internal fun ReplaySessionScreen(
         chartsState = state.chartsState,
         chartInfo = state.chartInfo,
         onAdvanceReplay = { presenter.event(AdvanceReplay) },
+        enableAdvanceReplayByBar = state.enableAdvanceReplayByBar,
+        onAdvanceReplayByBar = { presenter.event(AdvanceReplayByBar) },
         onIsAutoNextEnabledChange = { presenter.event(SetIsAutoNextEnabled(it)) },
         isTradingEnabled = state.selectedProfileId != null,
         onBuy = { stockChart -> presenter.event(Buy(stockChart)) },

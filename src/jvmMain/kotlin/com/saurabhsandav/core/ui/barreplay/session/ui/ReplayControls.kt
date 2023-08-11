@@ -21,6 +21,8 @@ import com.saurabhsandav.core.ui.common.state
 @Composable
 internal fun ReplayControls(
     onAdvanceReplay: () -> Unit,
+    enableAdvanceReplayByBar: Boolean,
+    onAdvanceReplayByBar: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     isTradingEnabled: Boolean,
     onBuy: () -> Unit,
@@ -36,6 +38,16 @@ internal fun ReplayControls(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Advance Replay")
+        }
+
+        if (enableAdvanceReplayByBar) {
+
+            Button(
+                onClick = onAdvanceReplayByBar,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Advance Replay By Bar")
+            }
         }
 
         Row(
