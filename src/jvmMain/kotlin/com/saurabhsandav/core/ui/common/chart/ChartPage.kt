@@ -12,10 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
-import com.saurabhsandav.core.ui.common.JavaFxWebView
-import com.saurabhsandav.core.ui.common.WebViewState
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.webview.WebView
 
 @Composable
 fun ChartPage(
@@ -25,10 +24,10 @@ fun ChartPage(
 
     Column(modifier) {
 
-        WebViewLoadingIndicator(state.webViewState)
+        WebViewLoadingIndicator(state.webView)
 
-        JavaFxWebView(
-            state = state.webViewState,
+        WebView(
+            webView = state.webView,
             modifier = Modifier.fillMaxSize().onSizeChanged { size ->
 
                 // Resize chart on layout resize
@@ -40,7 +39,7 @@ fun ChartPage(
 
         // Set Material background as page background
         LaunchedEffect(backgroundColor) {
-            state.webViewState.setBackgroundColor(backgroundColor)
+            state.webView.setBackgroundColor(backgroundColor)
             state.setPageBackgroundColor(backgroundColor)
         }
 
@@ -54,7 +53,7 @@ fun ChartPage(
 }
 
 @Composable
-private fun WebViewLoadingIndicator(webViewState: WebViewState) {
+private fun WebViewLoadingIndicator(webView: WebView) {
 
     var isLoading by state { true }
 
@@ -62,9 +61,9 @@ private fun WebViewLoadingIndicator(webViewState: WebViewState) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
     }
 
-    LaunchedEffect(webViewState.loadState) {
-        webViewState.loadState.collect {
-            isLoading = it != WebViewState.LoadState.LOADED
+    LaunchedEffect(webView.loadState) {
+        webView.loadState.collect {
+            isLoading = it != WebView.LoadState.LOADED
         }
     }
 }

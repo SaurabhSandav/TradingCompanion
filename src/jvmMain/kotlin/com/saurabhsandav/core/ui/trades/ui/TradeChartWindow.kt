@@ -15,6 +15,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
+import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 
 @Composable
@@ -36,7 +37,13 @@ internal fun TradeChartWindow(
             createChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        val chartPageState = remember { ChartPageState(coroutineScope, chart) }
+        val chartPageState = remember {
+            ChartPageState(
+                coroutineScope = coroutineScope,
+                webView = JavaFxWebView(),
+                chart = chart,
+            )
+        }
 
         ChartPage(chartPageState)
 

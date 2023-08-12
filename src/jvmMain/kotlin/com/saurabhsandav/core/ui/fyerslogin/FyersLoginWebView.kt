@@ -4,16 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.ui.common.JavaFxWebView
-import com.saurabhsandav.core.ui.common.WebViewState
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.rememberWebViewState
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
+import com.saurabhsandav.core.ui.common.webview.WebView
 
 @Composable
 internal fun FyersLoginWindow(
@@ -27,28 +23,28 @@ internal fun FyersLoginWindow(
 
         Column(Modifier.fillMaxSize()) {
 
-            val webViewState = rememberWebViewState()
+            val webView = remember { JavaFxWebView() }
 
-            WebViewLoadingIndicator(webViewState)
+            WebViewLoadingIndicator(webView)
 
-            JavaFxWebView(
-                state = webViewState,
+            WebView(
+                webView = webView,
                 modifier = Modifier.fillMaxSize(),
             )
 
-            if (webViewState.isReady) {
+            // Load login page if WebView is ready
+            LaunchedEffect(webView) {
 
-                // Load login page if WebView is ready
-                LaunchedEffect(Unit) {
+                // Wait for WebView initialization
+                webView.awaitReady()
 
-                    // Load login page
-                    webViewState.load(loginState.url)
+                // Load login page
+                webView.load(loginState.url)
 
-                    // Watch for successful redirect
-                    webViewState.location.collect { newLocation ->
-                        if (newLocation.startsWith("http://127.0.0.1:8080")) {
-                            loginState.onLoginSuccess(newLocation)
-                        }
+                // Watch for successful redirect
+                webView.location.collect { newLocation ->
+                    if (newLocation.startsWith("http://127.0.0.1:8080")) {
+                        loginState.onLoginSuccess(newLocation)
                     }
                 }
             }
@@ -57,7 +53,7 @@ internal fun FyersLoginWindow(
 }
 
 @Composable
-private fun WebViewLoadingIndicator(webViewState: WebViewState) {
+private fun WebViewLoadingIndicator(webView: WebView) {
 
     var isLoading by state { true }
 
@@ -65,9 +61,9 @@ private fun WebViewLoadingIndicator(webViewState: WebViewState) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
     }
 
-    LaunchedEffect(webViewState.loadState) {
-        webViewState.loadState.collect {
-            isLoading = it != WebViewState.LoadState.LOADED
+    LaunchedEffect(webView.loadState) {
+        webView.loadState.collect {
+            isLoading = it != WebView.LoadState.LOADED
         }
     }
 }

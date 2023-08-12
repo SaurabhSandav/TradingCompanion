@@ -7,6 +7,7 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
+import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import kotlinx.coroutines.MainScope
 
 internal class StockChartWindow(
@@ -22,7 +23,11 @@ internal class StockChartWindow(
     lateinit var appWindowState: AppWindowState
 
     val pagedArrangement = ChartArrangement.paged()
-    val pageState = ChartPageState(coroutineScope, pagedArrangement)
+    val pageState = ChartPageState(
+        coroutineScope = coroutineScope,
+        arrangement = pagedArrangement,
+        webView = JavaFxWebView(),
+    )
     val tabCharts = mutableMapOf<Int, StockChart>()
     val charts
         get() = tabCharts.values.toList()

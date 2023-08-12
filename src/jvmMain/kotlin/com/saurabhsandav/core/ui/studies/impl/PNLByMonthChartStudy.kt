@@ -17,6 +17,7 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
+import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -77,7 +78,13 @@ internal class PNLByMonthChartStudy(
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
         val arrangement = remember { ChartArrangement.single() }
-        val chartPageState = remember { ChartPageState(coroutineScope, arrangement) }
+        val chartPageState = remember {
+            ChartPageState(
+                coroutineScope = coroutineScope,
+                arrangement = arrangement,
+                webView = JavaFxWebView(),
+            )
+        }
         val chart = remember {
             arrangement.newChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
