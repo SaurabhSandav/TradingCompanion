@@ -148,6 +148,9 @@ kotlin {
 
             // Compose Multiplatform File Picker
             implementation("com.darkrockstudios:mpfilepicker:2.1.0")
+
+            // JCEF
+            implementation("me.friwi:jcefmaven:110.0.25.1")
         }
 
         jvmTest.dependencies {
@@ -201,6 +204,12 @@ sqldelight {
 compose.desktop {
     application {
         mainClass = "com.saurabhsandav.core.MainKt"
+        jvmArgs += listOf(
+            "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
+            "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
+        )
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TradingCompanion"
