@@ -5,9 +5,6 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -155,7 +152,6 @@ private fun ConfirmationDialog(
 ) {
 
     AlertDialog(
-        modifier = Modifier.width(300.dp),
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = onConfirm) {
@@ -170,8 +166,5 @@ private fun ConfirmationDialog(
                 Text("No")
             }
         },
-        shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        contentColor = contentColorFor(SnackbarDefaults.backgroundColor),
     )
 }

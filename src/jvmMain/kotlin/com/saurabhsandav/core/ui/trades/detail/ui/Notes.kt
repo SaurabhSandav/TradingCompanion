@@ -4,8 +4,6 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -151,7 +149,6 @@ private fun DeleteNoteConfirmationDialog(
 ) {
 
     AlertDialog(
-        modifier = Modifier.width(300.dp),
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = onConfirm) {
@@ -166,8 +163,5 @@ private fun DeleteNoteConfirmationDialog(
                 Text("No")
             }
         },
-        shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        contentColor = contentColorFor(SnackbarDefaults.backgroundColor),
     )
 }

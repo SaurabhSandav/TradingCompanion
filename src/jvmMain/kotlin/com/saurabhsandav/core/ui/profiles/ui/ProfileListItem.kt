@@ -4,9 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
@@ -121,7 +118,6 @@ private fun DeleteConfirmationDialog(
 ) {
 
     AlertDialog(
-        modifier = Modifier.width(300.dp),
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = onConfirm) {
@@ -136,8 +132,5 @@ private fun DeleteConfirmationDialog(
                 Text("No")
             }
         },
-        shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        contentColor = contentColorFor(SnackbarDefaults.backgroundColor),
     )
 }

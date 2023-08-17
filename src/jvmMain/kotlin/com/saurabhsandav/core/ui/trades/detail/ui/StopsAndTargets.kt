@@ -3,8 +3,6 @@ package com.saurabhsandav.core.ui.trades.detail.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -241,7 +239,6 @@ private fun DeleteConfirmationDialog(
 ) {
 
     AlertDialog(
-        modifier = Modifier.width(300.dp),
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = onConfirm) {
@@ -256,9 +253,6 @@ private fun DeleteConfirmationDialog(
                 Text("No")
             }
         },
-        shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        contentColor = contentColorFor(SnackbarDefaults.backgroundColor),
     )
 }
 
