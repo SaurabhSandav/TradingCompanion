@@ -21,7 +21,8 @@ locked INTEGER AS Boolean NOT NULL
 insert:
 INSERT OR ROLLBACK
 INTO TradeOrder(broker, instrument, ticker, quantity, lots, type, price, timestamp, locked)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id;
 
 update:
 UPDATE TradeOrder

@@ -38,7 +38,7 @@ internal class TradeOrdersRepo(
         tradesDB.transactionWithResult {
 
             // Insert Trade order
-            tradesDB.tradeOrderQueries.insert(
+            val orderId = tradesDB.tradeOrderQueries.insert(
                 broker = broker,
                 instrument = instrument,
                 ticker = ticker,
@@ -48,10 +48,7 @@ internal class TradeOrdersRepo(
                 price = price,
                 timestamp = timestamp,
                 locked = locked,
-            )
-
-            // ID in database of just inserted order
-            val orderId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            ).executeAsOne()
 
             // Generate Trade
             val order = tradesDB.tradeOrderQueries.getById(orderId).executeAsOne()
@@ -204,7 +201,7 @@ internal class TradeOrdersRepo(
         if (openTrade == null) {
 
             // Insert Trade
-            tradesDB.tradeQueries.insert(
+            val tradeId = tradesDB.tradeQueries.insert(
                 broker = order.broker,
                 ticker = order.ticker,
                 instrument = order.instrument,
@@ -220,10 +217,7 @@ internal class TradeOrdersRepo(
                 fees = BigDecimal.ZERO,
                 netPnl = BigDecimal.ZERO,
                 isClosed = false,
-            )
-
-            // ID in database of just inserted trade
-            val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            ).executeAsOne()
 
             // Link trade and order in database
             tradesDB.tradeToOrderMapQueries.insert(
@@ -270,7 +264,7 @@ internal class TradeOrdersRepo(
                 val overrideQuantity = currentOpenQuantity.abs()
 
                 // Insert Trade
-                tradesDB.tradeQueries.insert(
+                val tradeId = tradesDB.tradeQueries.insert(
                     broker = order.broker,
                     ticker = order.ticker,
                     instrument = order.instrument,
@@ -286,10 +280,7 @@ internal class TradeOrdersRepo(
                     fees = BigDecimal.ZERO,
                     netPnl = BigDecimal.ZERO,
                     isClosed = false,
-                )
-
-                // ID in database of just inserted trade
-                val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+                ).executeAsOne()
 
                 // Link new trade and current order, override quantity with remainder quantity after previous trade
                 // consumed some
