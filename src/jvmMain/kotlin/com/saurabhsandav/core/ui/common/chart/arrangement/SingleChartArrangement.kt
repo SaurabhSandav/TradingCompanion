@@ -47,7 +47,7 @@ class SingleChartArrangement internal constructor() : ChartArrangement() {
         // Create new chart
         return createChart(
             container = "document.getElementById('$chartId')",
-            options = options,
+            options = options.copy(autoSize = true),
             name = chartId,
         ).also { this.chart = it }
     }

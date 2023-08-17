@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.common.chart.state
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.IntSize
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
@@ -33,7 +32,6 @@ class ChartPageState(
 
     private val scripts = Channel<String>(Channel.UNLIMITED)
     private val charts = mutableListOf<IChartApi>()
-    private var currentSize = IntSize.Zero
 
     init {
 
@@ -70,17 +68,6 @@ class ChartPageState(
             charts.forEach { it.onCallback(message) }
     }
 
-    fun resize(size: IntSize) {
-
-        // Resize only if necessary
-        if (size == currentSize) return
-
-        currentSize = size
-
-        // Resize all charts
-        charts.forEach { it.resize(width = size.width, height = size.height) }
-    }
-
     fun setPageBackgroundColor(color: Color) {
         scripts.trySend("setPageBackgroundColor('${color.toHexString()}');")
     }
@@ -93,9 +80,6 @@ class ChartPageState(
 
         // Cache chart
         charts.add(chart)
-
-        // Set initial size for chart
-        chart.resize(width = currentSize.width, height = currentSize.height)
 
         // Send chart js scripts to web engine
         coroutineScope.launch {

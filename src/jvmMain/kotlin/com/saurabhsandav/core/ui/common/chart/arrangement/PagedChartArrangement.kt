@@ -67,7 +67,7 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
 
         val chart = createChart(
             container = "document.getElementById('$chartId')",
-            options = options,
+            options = options.copy(autoSize = true),
             name = chartId,
         )
 

@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.webview.WebView
@@ -28,11 +27,7 @@ fun ChartPage(
 
         WebView(
             webView = state.webView,
-            modifier = Modifier.fillMaxSize().onSizeChanged { size ->
-
-                // Resize chart on layout resize
-                state.resize(size)
-            },
+            modifier = Modifier.fillMaxSize(),
         )
 
         val backgroundColor = MaterialTheme.colorScheme.background

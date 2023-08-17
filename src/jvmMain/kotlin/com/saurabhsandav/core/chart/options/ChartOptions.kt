@@ -13,6 +13,7 @@ import kotlinx.serialization.json.put
 data class ChartOptions(
     val width: Number? = null,
     val height: Number? = null,
+    val autoSize: Boolean? = null,
     val layout: LayoutOptions? = null,
     val leftPriceScale: PriceScaleOptions? = null,
     val rightPriceScale: PriceScaleOptions? = null,
@@ -24,6 +25,7 @@ data class ChartOptions(
     override fun toJsonElement() = buildJsonObject {
         width?.let { put("width", it) }
         height?.let { put("height", it) }
+        autoSize?.let { put("autoSize", it) }
         layout?.let { put("layout", it.toJsonElement()) }
         leftPriceScale?.let { put("leftPriceScale", it.toJsonElement()) }
         rightPriceScale?.let { put("rightPriceScale", it.toJsonElement()) }
