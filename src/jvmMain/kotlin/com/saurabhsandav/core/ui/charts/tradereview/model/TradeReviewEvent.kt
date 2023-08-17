@@ -10,4 +10,6 @@ internal sealed class TradeReviewEvent {
     ) : TradeReviewEvent()
 
     data class SelectTrade(val id: Long) : TradeReviewEvent()
+
+    data class OpenDetails(val id: Long) : TradeReviewEvent()
 }

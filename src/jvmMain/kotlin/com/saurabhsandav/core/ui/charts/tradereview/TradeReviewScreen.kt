@@ -9,6 +9,8 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Instant
@@ -22,11 +24,14 @@ internal fun TradeReviewWindow(
         end: Instant?,
     ) -> Unit,
     markersProvider: TradeReviewMarkersProvider,
+    tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradeReviewPresenter(scope, appModule, onOpenChart, markersProvider) }
+    val presenter = remember {
+        TradeReviewPresenter(scope, appModule, onOpenChart, markersProvider, tradeWindowsManager)
+    }
     val state by presenter.state.collectAsState()
 
     AppWindow(
@@ -40,6 +45,7 @@ internal fun TradeReviewWindow(
             tradesItems = state.tradesItems,
             onMarkTrade = { id, isMarked -> state.eventSink(MarkTrade(id, isMarked)) },
             onSelectTrade = { id -> state.eventSink(SelectTrade(id)) },
+            onOpenDetails = { state.eventSink(OpenDetails(it)) },
         )
     }
 }
@@ -51,6 +57,7 @@ internal fun TradeReviewScreen(
     tradesItems: ImmutableList<TradeListItem>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
+    onOpenDetails: (id: Long) -> Unit,
 ) {
 
     Column {
@@ -69,6 +76,7 @@ internal fun TradeReviewScreen(
             tradesItems = tradesItems,
             onMarkTrade = onMarkTrade,
             onSelectTrade = onSelectTrade,
+            onOpenDetails = onOpenDetails,
         )
     }
 }

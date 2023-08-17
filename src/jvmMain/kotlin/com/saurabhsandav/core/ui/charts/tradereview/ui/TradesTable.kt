@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.ui.charts.tradereview.ui
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ internal fun TradesTable(
     tradesItems: ImmutableList<TradeListItem>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
+    onOpenDetails: (id: Long) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
@@ -57,6 +60,7 @@ internal fun TradesTable(
                 is TradeListItem.Entries -> tradeItems(
                     tradeItem = tradeItem,
                     onSelectTrade = onSelectTrade,
+                    onOpenDetails = onOpenDetails,
                 )
             }
         }
@@ -86,6 +90,7 @@ private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader)
 private fun TableScope<TradeEntry>.tradeItems(
     tradeItem: TradeListItem.Entries,
     onSelectTrade: (id: Long) -> Unit,
+    onOpenDetails: (id: Long) -> Unit,
 ) {
 
     rows(
@@ -93,15 +98,24 @@ private fun TableScope<TradeEntry>.tradeItems(
         key = { it.id },
     ) { item ->
 
-        Column {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open Details") { onOpenDetails(item.id) },
+                )
+            },
+        ) {
 
-            DefaultTableRow(
-                modifier = Modifier.clickable { onSelectTrade(item.id) },
-                item = item,
-                schema = schema,
-            )
+            Column {
 
-            Divider()
+                DefaultTableRow(
+                    modifier = Modifier.clickable { onSelectTrade(item.id) },
+                    item = item,
+                    schema = schema,
+                )
+
+                Divider()
+            }
         }
     }
 }

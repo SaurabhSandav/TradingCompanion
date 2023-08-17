@@ -237,6 +237,7 @@ private fun LandingScreen(
             AppWindowOwner(chartsWindowOwner) {
 
                 ChartsScreen(
+                    tradeWindowsManager = tradeWindowsManager,
                     onCloseRequest = { showChartsWindow = false },
                 )
             }
