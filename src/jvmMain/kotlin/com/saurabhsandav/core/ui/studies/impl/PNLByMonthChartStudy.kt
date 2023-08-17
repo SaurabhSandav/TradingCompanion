@@ -17,7 +17,6 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
-import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -27,7 +26,7 @@ import kotlinx.datetime.LocalDate
 import java.math.BigDecimal
 
 internal class PNLByMonthChartStudy(
-    appModule: AppModule,
+    private val appModule: AppModule,
 ) : Study {
 
     private val data = appModule.tradingProfiles.currentProfile.flatMapLatest { profile ->
@@ -82,7 +81,7 @@ internal class PNLByMonthChartStudy(
             ChartPageState(
                 coroutineScope = coroutineScope,
                 arrangement = arrangement,
-                webView = JavaFxWebView(),
+                webView = appModule.webViewProvider(),
             )
         }
         val chart = remember {

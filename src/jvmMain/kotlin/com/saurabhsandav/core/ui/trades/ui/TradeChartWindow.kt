@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.chart.*
 import com.saurabhsandav.core.chart.options.*
 import com.saurabhsandav.core.chart.options.common.LineWidth
@@ -15,7 +16,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
-import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 
 @Composable
@@ -33,6 +33,8 @@ internal fun TradeChartWindow(
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
 
+        val appModule = LocalAppModule.current
+
         val chart = remember {
             createChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
@@ -40,7 +42,7 @@ internal fun TradeChartWindow(
         val chartPageState = remember {
             ChartPageState(
                 coroutineScope = coroutineScope,
-                webView = JavaFxWebView(),
+                webView = appModule.webViewProvider(),
                 chart = chart,
             )
         }

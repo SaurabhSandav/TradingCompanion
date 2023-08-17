@@ -10,6 +10,7 @@ import com.saurabhsandav.core.chart.options.CrosshairOptions
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
+import com.saurabhsandav.core.ui.common.webview.WebView
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -28,6 +29,7 @@ internal class StockChartsState(
     val marketDataProvider: MarketDataProvider,
     private val appModule: AppModule,
     val appPrefs: FlowSettings = appModule.appPrefs,
+    val webViewProvider: () -> WebView = appModule.webViewProvider,
 ) {
 
     private val coroutineScope = MainScope()
@@ -58,6 +60,7 @@ internal class StockChartsState(
     fun newWindow(fromStockChart: StockChart?) {
 
         val window = StockChartWindow(
+            webView = webViewProvider(),
             onNewChart = { arrangement, currentStockChart ->
 
                 newStockChart(

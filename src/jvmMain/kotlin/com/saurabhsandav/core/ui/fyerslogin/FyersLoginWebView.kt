@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.common.webview.WebView
 
 @Composable
@@ -23,7 +23,8 @@ internal fun FyersLoginWindow(
 
         Column(Modifier.fillMaxSize()) {
 
-            val webView = remember { JavaFxWebView() }
+            val appModule = LocalAppModule.current
+            val webView = remember(appModule) { appModule.webViewProvider() }
 
             WebViewLoadingIndicator(webView)
 
