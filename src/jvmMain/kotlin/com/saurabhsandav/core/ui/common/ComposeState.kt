@@ -8,6 +8,11 @@ internal inline fun <T> state(crossinline value: @DisallowComposableCalls () -> 
 }
 
 @Composable
+internal inline fun intState(crossinline value: @DisallowComposableCalls () -> Int): MutableIntState {
+    return remember { mutableIntStateOf(value()) }
+}
+
+@Composable
 internal inline fun <T> state(
     key1: Any?,
     crossinline value: @DisallowComposableCalls () -> T,

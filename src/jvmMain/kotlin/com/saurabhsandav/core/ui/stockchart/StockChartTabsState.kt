@@ -14,7 +14,7 @@ class StockChartTabsState(
 
     val tabIds = mutableStateListOf<Int>()
 
-    var selectedTabIndex by mutableStateOf(0)
+    var selectedTabIndex by mutableIntStateOf(0)
         private set
 
     init {

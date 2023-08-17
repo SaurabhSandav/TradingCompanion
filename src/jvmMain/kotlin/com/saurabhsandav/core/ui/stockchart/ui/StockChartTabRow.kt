@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.intState
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
@@ -32,7 +32,7 @@ fun StockChartTabRow(
             selectedTabIndex = state.selectedTabIndex,
             indicator = { tabPositions ->
 
-                var prevSelectedTabIndex by state { 0 }
+                var prevSelectedTabIndex by intState { 0 }
 
                 val selectedTabIndex = state.selectedTabIndex
 
