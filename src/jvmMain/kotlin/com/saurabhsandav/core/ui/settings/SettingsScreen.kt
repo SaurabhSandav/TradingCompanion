@@ -106,7 +106,7 @@ private fun DarkModePreference(
 ) {
 
     ListItem(
-        headlineText = { Text("Dark Mode") },
+        headlineContent = { Text("Dark Mode") },
         trailingContent = {
 
             Switch(
@@ -125,7 +125,7 @@ private fun LandingScreenPreference(
 ) {
 
     ListItem(
-        headlineText = { Text("Landing Screen") },
+        headlineContent = { Text("Landing Screen") },
         trailingContent = {
 
             ListSelectionField(
@@ -144,7 +144,7 @@ private fun DensityPreference(
 ) {
 
     ListItem(
-        headlineText = {
+        headlineContent = {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

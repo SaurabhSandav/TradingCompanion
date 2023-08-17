@@ -58,8 +58,8 @@ internal fun Notes(
 
                     ListItem(
                         modifier = Modifier.fillMaxWidth(),
-                        overlineText = { Text(note.dateText) },
-                        headlineText = { Text(note.note) },
+                        overlineContent = { Text(note.dateText) },
+                        headlineContent = { Text(note.note) },
                     )
 
                     if (showEditDialog) {

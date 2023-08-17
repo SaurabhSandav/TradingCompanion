@@ -40,7 +40,7 @@ internal fun ProfileListItem(
 
     ListItem(
         modifier = Modifier.clickable(onClick = onSetCurrent),
-        headlineText = {
+        headlineContent = {
 
             Row {
 
@@ -56,13 +56,13 @@ internal fun ProfileListItem(
                 }
             }
         },
-        overlineText = {
+        overlineContent = {
             Text(
                 text = if (isTraining) "TRAINING" else "LIVE",
                 color = if (isTraining) AppColor.LossRed else AppColor.ProfitGreen,
             )
         },
-        supportingText = { Text(description) },
+        supportingContent = { Text(description) },
         trailingContent = {
 
             Row {

@@ -45,7 +45,7 @@ internal fun StudiesScreen(
 
                 ListItem(
                     modifier = Modifier.clickable { onOpenStudy(studyFactory) },
-                    headlineText = { Text(studyFactory.name) },
+                    headlineContent = { Text(studyFactory.name) },
                 )
             }
         }

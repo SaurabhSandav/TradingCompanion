@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.jetbrains.compose)
-    id("app.cash.sqldelight") version "2.0.0"
+    alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
 }
 
@@ -95,10 +95,10 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinxJson)
 
                 // SQLDelight
-                implementation("app.cash.sqldelight:runtime:2.0.0")
-                implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
-                implementation("app.cash.sqldelight:primitive-adapters:2.0.0")
-                implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
+                implementation(libs.sqldelight.runtime)
+                implementation(libs.sqldelight.sqliteDriver)
+                implementation(libs.sqldelight.primitiveAdapters)
+                implementation(libs.sqldelight.coroutinesExtensions)
 
                 implementation(libs.molecule.runtime)
 
@@ -110,15 +110,15 @@ kotlin {
                 implementation(libs.kotlinCsvJvm)
 
                 // JavaFx
-                implementation("org.openjfx:javafx-base:20.0.1:linux")
-                implementation("org.openjfx:javafx-controls:20.0.1:linux")
-                implementation("org.openjfx:javafx-graphics:20.0.1:linux")
-                implementation("org.openjfx:javafx-media:20.0.1:linux")
-                implementation("org.openjfx:javafx-swing:20.0.1:linux")
-                implementation("org.openjfx:javafx-web:20.0.1:linux")
+                implementation("org.openjfx:javafx-base:20.0.2:linux")
+                implementation("org.openjfx:javafx-controls:20.0.2:linux")
+                implementation("org.openjfx:javafx-graphics:20.0.2:linux")
+                implementation("org.openjfx:javafx-media:20.0.2:linux")
+                implementation("org.openjfx:javafx-swing:20.0.2:linux")
+                implementation("org.openjfx:javafx-web:20.0.2:linux")
 
                 // Krypto
-                implementation("com.soywiz.korlibs.krypto:krypto:4.0.9")
+                implementation("com.soywiz.korlibs.krypto:krypto:4.0.10")
 
                 // kotlin-result
                 implementation(libs.kotlinResult)
@@ -162,21 +162,21 @@ sqldelight {
             packageName = "com.saurabhsandav.core"
             srcDirs("src/commonMain/sqldelight/app")
             schemaOutputDirectory = file("build/dbs")
-            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+            dialect(libs.sqldelight.dialect.sqlite338)
         }
 
         create("TradesDB") {
             packageName = "com.saurabhsandav.core.trades"
             srcDirs("src/commonMain/sqldelight/trades")
             schemaOutputDirectory = file("build/dbs")
-            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+            dialect(libs.sqldelight.dialect.sqlite338)
         }
 
         create("CandleDB") {
             packageName = "com.saurabhsandav.core.trading.data"
             srcDirs("src/commonMain/sqldelight/candles")
             schemaOutputDirectory = file("build/dbs")
-            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.0.0")
+            dialect(libs.sqldelight.dialect.sqlite338)
         }
     }
 }

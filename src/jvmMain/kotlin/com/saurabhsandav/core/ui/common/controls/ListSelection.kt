@@ -66,7 +66,7 @@ fun ListSelectionField(
             isError = isError,
             enabled = false,
             interactionSource = interactionSource,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
+            colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = when {
                     isError -> MaterialTheme.colorScheme.error
                     else -> MaterialTheme.colorScheme.onSurface
@@ -147,7 +147,7 @@ fun ListSelectionDialog(
 
                         ListItem(
                             modifier = Modifier.clickable { onSelection(itemText) },
-                            headlineText = {
+                            headlineContent = {
 
                                 val filterHighlightedText by remember(itemText) {
                                     derivedStateOf {
