@@ -14,10 +14,13 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
+import com.saurabhsandav.core.ui.common.webview.CefWebView
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
+import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
+import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
@@ -82,9 +85,22 @@ internal class AppModule {
         )
     }
 
-    val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
+    private val _appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName))
 
-    val webViewProvider = { JavaFxWebView() }
+    val appPrefs = _appPrefs.toFlowSettings()
+
+    val webViewProvider = run {
+
+        val webViewBackend = _appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name);
+
+        {
+            when (webViewBackend) {
+                WebViewBackend.JCEF.name -> CefWebView()
+                WebViewBackend.JavaFX.name -> JavaFxWebView()
+                else -> error("Invalid WebView Backend: $webViewBackend")
+            }
+        }
+    }
 
     val loginServicesManager by lazy { LoginServicesManager() }
 

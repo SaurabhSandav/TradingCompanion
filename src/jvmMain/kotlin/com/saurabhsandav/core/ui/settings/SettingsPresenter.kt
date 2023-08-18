@@ -13,11 +13,14 @@ import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.SettingsState
+import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
+import java.io.File
+import kotlin.system.exitProcess
 
 @Stable
 internal class SettingsPresenter(
@@ -46,11 +49,17 @@ internal class SettingsPresenter(
                 .map { kotlin.runCatching { Timeframe.valueOf(it) }.getOrNull() ?: PrefDefaults.DefaultTimeframe }
         }.collectAsState(PrefDefaults.DefaultTimeframe)
 
+        val webViewBackend by remember {
+            appPrefs.getStringFlow(PrefKeys.WebViewBackend, PrefDefaults.WebViewBackend.name)
+                .map { kotlin.runCatching { WebViewBackend.valueOf(it) }.getOrNull() ?: PrefDefaults.WebViewBackend }
+        }.collectAsState(PrefDefaults.WebViewBackend)
+
         return@launchMolecule SettingsState(
             darkModeEnabled = darkModeEnabled,
             landingScreen = landingScreen,
             densityFraction = densityFraction,
             defaultTimeframe = defaultTimeframe,
+            webViewBackend = webViewBackend,
             eventSink = ::onEvent,
         )
     }
@@ -62,6 +71,7 @@ internal class SettingsPresenter(
             is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
             is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
             is ChangeDefaultTimeframe -> onDefaultTimeframeChange(event.timeframe)
+            is ChangeWebViewBackend -> onWebViewBackendChange(event.webViewBackend)
         }
     }
 
@@ -79,5 +89,34 @@ internal class SettingsPresenter(
 
     private fun onDefaultTimeframeChange(defaultTimeframe: Timeframe) = coroutineScope.launchUnit {
         appPrefs.putString(PrefKeys.DefaultTimeframe, defaultTimeframe.name)
+    }
+
+    private fun onWebViewBackendChange(webViewBackend: WebViewBackend) = coroutineScope.launchUnit {
+
+        appPrefs.putString(PrefKeys.WebViewBackend, webViewBackend.name)
+
+        restartApplication()
+    }
+
+    private fun restartApplication() {
+
+        val javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java"
+        val currentJar = File(SettingsPresenter::class.java.protectionDomain.codeSource.location.toURI())
+
+        // If file is not a jar file, this could be a debugging session. Force user to restart manually by crashing app.
+        if (!currentJar.name.endsWith(".jar")) error("App jar file not found. Restart manually")
+
+        // Build command: $javaBin -jar $currentJar
+        val command = ArrayList<String>().apply {
+            add(javaBin)
+            add("-jar")
+            add(currentJar.path)
+        }
+
+        // Execute command
+        ProcessBuilder(command).start()
+
+        // Exit current App instance
+        exitProcess(0)
     }
 }

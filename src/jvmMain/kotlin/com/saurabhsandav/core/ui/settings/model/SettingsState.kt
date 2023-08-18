@@ -10,5 +10,11 @@ internal data class SettingsState(
     val landingScreen: LandingScreen,
     val densityFraction: Float,
     val defaultTimeframe: Timeframe,
+    val webViewBackend: WebViewBackend,
     val eventSink: (SettingsEvent) -> Unit,
 )
+
+enum class WebViewBackend {
+    JavaFX,
+    JCEF;
+}

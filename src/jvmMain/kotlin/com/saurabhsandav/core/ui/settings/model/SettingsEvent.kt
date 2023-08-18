@@ -12,4 +12,6 @@ internal sealed class SettingsEvent {
     data class ChangeDensityFraction(val densityFraction: Float) : SettingsEvent()
 
     data class ChangeDefaultTimeframe(val timeframe: Timeframe) : SettingsEvent()
+
+    data class ChangeWebViewBackend(val webViewBackend: WebViewBackend) : SettingsEvent()
 }

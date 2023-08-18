@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
+import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -52,6 +53,8 @@ internal fun SettingsWindow(
             onDensityFractionChange = { state.eventSink(ChangeDensityFraction(it)) },
             defaultTimeframe = state.defaultTimeframe,
             onDefaultTimeframeChange = { state.eventSink(ChangeDefaultTimeframe(it)) },
+            webViewBackend = state.webViewBackend,
+            onWebViewBackendChange = { state.eventSink(ChangeWebViewBackend(it)) },
         )
     }
 }
@@ -66,6 +69,8 @@ internal fun SettingsScreen(
     onDensityFractionChange: (Float) -> Unit,
     defaultTimeframe: Timeframe,
     onDefaultTimeframeChange: (Timeframe) -> Unit,
+    webViewBackend: WebViewBackend,
+    onWebViewBackendChange: (WebViewBackend) -> Unit,
 ) {
 
     Box {
@@ -103,6 +108,14 @@ internal fun SettingsScreen(
                 items = remember { persistentListOf(*enumValues<Timeframe>()) },
                 selectedItem = defaultTimeframe,
                 onDefaultTimeframeChange = onDefaultTimeframeChange,
+            )
+
+            Divider()
+
+            WebViewBackendPreference(
+                items = remember { persistentListOf(*enumValues<WebViewBackend>()) },
+                selectedItem = webViewBackend,
+                onWebViewBackendChange = onWebViewBackendChange,
             )
         }
 
@@ -204,6 +217,64 @@ private fun DefaultTimeframePreference(
                 selection = selectedItem,
                 onSelection = onDefaultTimeframeChange,
             )
+        },
+    )
+}
+
+@Composable
+private fun WebViewBackendPreference(
+    items: ImmutableList<WebViewBackend>,
+    selectedItem: WebViewBackend,
+    onWebViewBackendChange: (WebViewBackend) -> Unit,
+) {
+
+    var newBackend by state<WebViewBackend?> { null }
+
+    ListItem(
+        headlineContent = { Text("WebView Backend") },
+        trailingContent = {
+
+            OutlinedListSelectionField(
+                items = items,
+                itemText = { it.name },
+                selection = selectedItem,
+                onSelection = { if (selectedItem != it) newBackend = it },
+            )
+        },
+    )
+
+    if (newBackend != null) {
+
+        WebViewChangeConfirmationDialog(
+            onDismiss = { newBackend = null },
+            onConfirm = {
+                onWebViewBackendChange(newBackend!!)
+                newBackend = null
+            },
+        )
+    }
+}
+
+@Composable
+private fun WebViewChangeConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Yes")
+            }
+        },
+        text = {
+            Text("Are you sure you want to change WebView Backend? (App will restart)")
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("No")
+            }
         },
     )
 }
