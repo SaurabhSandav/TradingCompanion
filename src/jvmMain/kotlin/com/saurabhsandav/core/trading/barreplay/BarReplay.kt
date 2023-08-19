@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.dailySessionStart
 
 class BarReplay(
     private val timeframe: Timeframe,
@@ -36,7 +36,7 @@ class BarReplay(
                 currentOffset = offset,
                 currentCandleState = candleState,
                 timeframeSeries = timeframeSeries,
-                isSessionStart = ::dailySessionStart,
+                sessionChecker = DailySessionChecker,
             )
         }
 

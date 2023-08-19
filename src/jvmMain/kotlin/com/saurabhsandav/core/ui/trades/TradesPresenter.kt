@@ -13,10 +13,10 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
-import com.saurabhsandav.core.trading.dailySessionStart
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
@@ -222,7 +222,7 @@ internal class TradesPresenter(
 
         // Setup indicators
         val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
-        val vwapIndicator = VWAPIndicator(candles, ::dailySessionStart)
+        val vwapIndicator = VWAPIndicator(candles, DailySessionChecker)
 
         val candleData = mutableListOf<CandlestickData>()
         val volumeData = mutableListOf<HistogramData>()

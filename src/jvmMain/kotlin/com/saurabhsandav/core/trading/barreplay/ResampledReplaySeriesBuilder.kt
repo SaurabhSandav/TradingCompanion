@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.utils.subList
 import com.saurabhsandav.core.utils.subListInclusive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +14,7 @@ internal class ResampledReplaySeriesBuilder(
     currentOffset: Int,
     currentCandleState: BarReplay.CandleState,
     private val timeframeSeries: CandleSeries,
-    private val isSessionStart: (CandleSeries, Int) -> Boolean,
+    private val sessionChecker: SessionChecker,
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries: MutableCandleSeries
@@ -173,14 +170,14 @@ internal class ResampledReplaySeriesBuilder(
     ): Boolean {
 
         // Session start is also candle start
-        if (isSessionStart(candleSeries, index)) return true
+        if (sessionChecker.isSessionStart(candleSeries, index)) return true
 
         // Find candle for current session start
         // If no session start found, default to the first candle
         var sessionStartCandle = candleSeries.first()
 
         for (i in candleSeries.indices.reversed()) {
-            if (isSessionStart(candleSeries, i)) {
+            if (sessionChecker.isSessionStart(candleSeries, i)) {
                 sessionStartCandle = candleSeries[i]
                 break
             }
