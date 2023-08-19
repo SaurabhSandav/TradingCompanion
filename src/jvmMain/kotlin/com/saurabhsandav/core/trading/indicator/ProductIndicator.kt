@@ -12,7 +12,7 @@ class ProductIndicator(
     override val candleSeries: CandleSeries
         get() = input1.candleSeries
 
-    override val description: String = "ProductIndicator(${input1.description}, ${input2.description})"
+    override val cacheKey: String = "ProductIndicator(${input1.cacheKey}, ${input2.cacheKey})"
 
     override fun get(index: Int): BigDecimal {
         return input1[index].multiply(input2[index], mathContext)

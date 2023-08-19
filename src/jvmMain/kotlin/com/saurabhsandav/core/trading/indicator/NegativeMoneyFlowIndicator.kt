@@ -9,7 +9,7 @@ class NegativeMoneyFlowIndicator(
     private val moneyFlow: MoneyFlowIndicator,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = price.candleSeries,
-    description = "NegativeMoneyFlowIndicator(${price.description}, ${moneyFlow.description})",
+    cacheKey = "NegativeMoneyFlowIndicator(${price.cacheKey}, ${moneyFlow.cacheKey})",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

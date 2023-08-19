@@ -4,10 +4,10 @@ import com.saurabhsandav.core.trading.CandleSeries
 
 abstract class CachedIndicator<T : Any>(
     final override val candleSeries: CandleSeries,
-    final override val description: String?,
+    final override val cacheKey: String?,
 ) : Indicator<T> {
 
-    private val cache = candleSeries.getIndicatorCache<T>(description)
+    private val cache = candleSeries.getIndicatorCache<T>(cacheKey)
 
     protected abstract fun calculate(index: Int): T
 

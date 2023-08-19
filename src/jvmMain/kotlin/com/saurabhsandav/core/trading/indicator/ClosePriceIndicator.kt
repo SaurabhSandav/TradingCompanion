@@ -6,6 +6,6 @@ class ClosePriceIndicator(
     candleSeries: CandleSeries,
 ) : PriceIndicator(
     candleSeries = candleSeries,
-    description = "ClosePriceIndicator",
+    cacheKey = "ClosePriceIndicator",
     transform = { it.close }
 )

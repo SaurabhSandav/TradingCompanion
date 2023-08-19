@@ -8,7 +8,7 @@ class LossIndicator(
     private val input: Indicator<BigDecimal>,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "LossIndicator(${input.description})",
+    cacheKey = "LossIndicator(${input.cacheKey})",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

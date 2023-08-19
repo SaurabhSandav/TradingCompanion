@@ -4,8 +4,8 @@ import com.saurabhsandav.core.trading.CandleSeries
 
 abstract class RecursiveCachedIndicator<T : Any>(
     candleSeries: CandleSeries,
-    description: String,
-) : CachedIndicator<T>(candleSeries, description) {
+    cacheKey: String,
+) : CachedIndicator<T>(candleSeries, cacheKey) {
 
     override fun get(index: Int): T {
 

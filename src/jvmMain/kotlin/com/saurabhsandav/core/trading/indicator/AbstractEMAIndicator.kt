@@ -9,7 +9,7 @@ abstract class AbstractEMAIndicator(
     private val multiplier: BigDecimal,
 ) : RecursiveCachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "AbstractEMAIndicator(${input.description}, $multiplier)",
+    cacheKey = "AbstractEMAIndicator(${input.cacheKey}, $multiplier)",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

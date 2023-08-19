@@ -8,7 +8,7 @@ class TRIndicator(
     candleSeries: CandleSeries,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = candleSeries,
-    description = "TrueRange",
+    cacheKey = "TrueRange",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

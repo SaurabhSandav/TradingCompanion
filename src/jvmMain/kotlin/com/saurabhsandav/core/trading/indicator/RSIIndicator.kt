@@ -10,7 +10,7 @@ class RSIIndicator(
     length: Int = 14,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "RelativeStrengthIndex(${input.description}, $length)",
+    cacheKey = "RelativeStrengthIndex(${input.cacheKey}, $length)",
 ) {
 
     private val averageGain = MMAIndicator(GainIndicator(input), length)

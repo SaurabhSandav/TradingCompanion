@@ -11,7 +11,7 @@ class SMAIndicator(
     val length: Int,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "SMA ($length)",
+    cacheKey = "SMA ($length)",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

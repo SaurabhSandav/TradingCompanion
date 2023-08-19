@@ -6,7 +6,7 @@ class TypicalPriceIndicator(
     candleSeries: CandleSeries,
 ) : PriceIndicator(
     candleSeries = candleSeries,
-    description = "TypicalPriceIndicator",
+    cacheKey = "TypicalPriceIndicator",
     transform = { candle ->
         (candle.high + candle.low + candle.close).divide(3.toBigDecimal(), candleSeries.indicatorMathContext)
     }

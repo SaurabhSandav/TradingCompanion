@@ -7,9 +7,9 @@ import java.math.BigDecimal
 
 open class PriceIndicator(
     candleSeries: CandleSeries,
-    description: String?,
+    cacheKey: String?,
     private val transform: (Candle) -> BigDecimal,
-) : CachedIndicator<BigDecimal>(candleSeries, description) {
+) : CachedIndicator<BigDecimal>(candleSeries, cacheKey) {
 
     override fun calculate(index: Int): BigDecimal {
         return transform(candleSeries[index])

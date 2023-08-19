@@ -10,7 +10,7 @@ interface Indicator<T : Any> {
     val mathContext: MathContext
         get() = candleSeries.indicatorMathContext
 
-    val description: String?
+    val cacheKey: String?
 
     operator fun get(index: Int): T
 }

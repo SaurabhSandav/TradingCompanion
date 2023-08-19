@@ -8,7 +8,7 @@ class GainIndicator(
     private val input: Indicator<BigDecimal>,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "GainIndicator(${input.description})",
+    cacheKey = "GainIndicator(${input.cacheKey})",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

@@ -10,7 +10,7 @@ class VolumeIndicator(
     private val length: Int = 1,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = candleSeries,
-    description = "Volume($length)",
+    cacheKey = "Volume($length)",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

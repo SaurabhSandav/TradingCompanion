@@ -10,7 +10,7 @@ class SessionCumulativeIndicator(
     private val isSessionStart: (CandleSeries, index: Int) -> Boolean,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = null,
+    cacheKey = null,
 ) {
 
     override fun calculate(index: Int): BigDecimal {

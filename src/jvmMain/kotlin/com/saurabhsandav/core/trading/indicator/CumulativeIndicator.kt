@@ -10,7 +10,7 @@ class CumulativeIndicator(
     private val length: Int,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "CumulativeIndicator(${input.description}, $length)",
+    cacheKey = "CumulativeIndicator(${input.cacheKey}, $length)",
 ) {
 
     override fun calculate(index: Int): BigDecimal {

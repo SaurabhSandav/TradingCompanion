@@ -11,7 +11,7 @@ class MFIIndicator(
     length: Int = 14,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    description = "MFIIndicator(${input.description}, $length)",
+    cacheKey = "MFIIndicator(${input.cacheKey}, $length)",
 ) {
 
     constructor(
