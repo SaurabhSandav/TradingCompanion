@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.StateFlow
@@ -15,4 +16,6 @@ internal interface MarketDataProvider {
     fun buildCandleSource(params: StockChartParams): CandleSource
 
     fun releaseCandleSource(candleSource: CandleSource) = Unit
+
+    suspend fun sessionChecker(): SessionChecker
 }

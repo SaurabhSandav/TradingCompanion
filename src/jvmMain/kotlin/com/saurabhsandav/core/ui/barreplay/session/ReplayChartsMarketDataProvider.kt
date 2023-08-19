@@ -6,9 +6,7 @@ import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -52,6 +50,10 @@ internal class ReplayChartsMarketDataProvider(
         return MutableStateFlow(Timeframe.entries.toImmutableList())
     }
 
+    override fun hasVolume(params: StockChartParams): Boolean {
+        return params.ticker != "NIFTY50"
+    }
+
     override fun buildCandleSource(params: StockChartParams): CandleSource {
         return ReplayCandleSource(
             params = params,
@@ -66,9 +68,7 @@ internal class ReplayChartsMarketDataProvider(
         barReplay.removeSeries((candleSource as ReplayCandleSource).replaySeries.await())
     }
 
-    override fun hasVolume(params: StockChartParams): Boolean {
-        return params.ticker != "NIFTY50"
-    }
+    override suspend fun sessionChecker(): SessionChecker = DailySessionChecker
 
     private suspend fun buildReplaySeries(params: StockChartParams): ReplaySeries {
 

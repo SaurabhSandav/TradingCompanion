@@ -2,6 +2,8 @@ package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.DailySessionChecker
+import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
@@ -49,6 +51,8 @@ internal class ChartsMarketDataProvider(
 
         chartMarkersProviders.value = chartMarkersProviders.value.remove(provider)
     }
+
+    override suspend fun sessionChecker(): SessionChecker = DailySessionChecker
 
     private fun getMarkers(
         ticker: String,

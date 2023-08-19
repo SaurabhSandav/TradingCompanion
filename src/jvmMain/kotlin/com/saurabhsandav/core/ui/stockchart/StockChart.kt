@@ -10,7 +10,6 @@ import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
@@ -246,14 +245,14 @@ internal class StockChart(
         actualChart.remove()
     }
 
-    private fun setupCandlesAndIndicators(
+    private suspend fun setupCandlesAndIndicators(
         candleSeries: CandleSeries,
         hasVolume: Boolean,
     ) {
 
         val closePriceIndicator = ClosePriceIndicator(candleSeries)
         val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
-        val vwapIndicator = VWAPIndicator(candleSeries, DailySessionChecker)
+        val vwapIndicator = VWAPIndicator(candleSeries, marketDataProvider.sessionChecker())
 
         // Don't show time in daily chart
         val timeScaleOptions = TimeScaleOptions(timeVisible = candleSeries.timeframe != Timeframe.D1)
@@ -444,7 +443,7 @@ internal class StockChart(
         return candleSeries.instantRange.map {
             candleSeries.mapIndexedNotNull { index, candle ->
                 when {
-                    !DailySessionChecker.isSessionStart(candleSeries, index) -> null
+                    !marketDataProvider.sessionChecker().isSessionStart(candleSeries, index) -> null
                     else -> TradingSessionMarker(candle.openInstant)
                 }
             }
