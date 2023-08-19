@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.trading.indicator.base
 
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Indicator
 
 abstract class CachedIndicator<T : Any>(
     final override val candleSeries: CandleSeries,

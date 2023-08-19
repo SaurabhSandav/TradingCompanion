@@ -1,6 +1,5 @@
-package com.saurabhsandav.core.trading.indicator.base
+package com.saurabhsandav.core.trading
 
-import com.saurabhsandav.core.trading.CandleSeries
 import java.math.MathContext
 
 interface Indicator<T : Any> {
