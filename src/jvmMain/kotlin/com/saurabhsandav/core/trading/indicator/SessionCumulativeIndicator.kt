@@ -3,6 +3,7 @@ package com.saurabhsandav.core.trading.indicator
 import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
+import com.saurabhsandav.core.trading.indicator.base.buildIndicatorCacheKey
 import java.math.BigDecimal
 
 class SessionCumulativeIndicator(
@@ -10,7 +11,12 @@ class SessionCumulativeIndicator(
     private val sessionChecker: SessionChecker,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    cacheKey = null,
+    cacheKey = buildIndicatorCacheKey {
+        CacheKey(
+            input = input.bindCacheKey(),
+            sessionChecker = sessionChecker,
+        )
+    },
 ) {
 
     override fun calculate(index: Int): BigDecimal {
@@ -22,4 +28,9 @@ class SessionCumulativeIndicator(
 
         return accumulated + input[index]
     }
+
+    private data class CacheKey(
+        val input: Indicator.CacheKey,
+        val sessionChecker: SessionChecker,
+    ) : Indicator.CacheKey
 }

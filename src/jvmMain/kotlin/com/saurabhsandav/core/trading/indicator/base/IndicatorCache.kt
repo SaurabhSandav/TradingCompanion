@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trading.indicator.base
 
-class IndicatorCache<T> internal constructor(val key: String?) {
+import com.saurabhsandav.core.trading.Indicator
+
+class IndicatorCache<T> internal constructor(val key: Indicator.CacheKey?) {
 
     private val cache = mutableListOf<T?>()
 

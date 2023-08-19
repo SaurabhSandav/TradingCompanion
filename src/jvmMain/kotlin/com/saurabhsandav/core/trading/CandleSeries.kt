@@ -16,5 +16,6 @@ interface CandleSeries : List<Candle> {
 
     val indicatorMathContext: MathContext
 
-    fun <T> getIndicatorCache(key: String?): IndicatorCache<T>
+    // Null [key] values allow caching indicators that shouldn't share cache.
+    fun <T> getIndicatorCache(key: Indicator.CacheKey?): IndicatorCache<T>
 }

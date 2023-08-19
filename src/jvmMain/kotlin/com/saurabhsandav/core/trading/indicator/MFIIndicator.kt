@@ -3,6 +3,7 @@ package com.saurabhsandav.core.trading.indicator
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
+import com.saurabhsandav.core.trading.indicator.base.buildIndicatorCacheKey
 import com.saurabhsandav.core.trading.isZero
 import java.math.BigDecimal
 
@@ -11,7 +12,12 @@ class MFIIndicator(
     length: Int = 14,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    cacheKey = "MFIIndicator(${input.cacheKey}, $length)",
+    cacheKey = buildIndicatorCacheKey {
+        CacheKey(
+            input = input.bindCacheKey(),
+            length = length,
+        )
+    },
 ) {
 
     constructor(
@@ -44,4 +50,9 @@ class MFIIndicator(
 
         return hundred - (hundred.divide(BigDecimal.ONE + moneyRatio, mathContext))
     }
+
+    private data class CacheKey(
+        val input: Indicator.CacheKey,
+        val length: Int,
+    ) : Indicator.CacheKey
 }

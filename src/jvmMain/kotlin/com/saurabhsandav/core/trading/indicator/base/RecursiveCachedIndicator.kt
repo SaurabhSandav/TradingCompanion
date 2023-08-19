@@ -1,10 +1,11 @@
 package com.saurabhsandav.core.trading.indicator.base
 
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Indicator
 
 abstract class RecursiveCachedIndicator<T : Any>(
     candleSeries: CandleSeries,
-    cacheKey: String,
+    cacheKey: Indicator.CacheKey?,
 ) : CachedIndicator<T>(candleSeries, cacheKey) {
 
     override fun get(index: Int): T {

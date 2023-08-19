@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.trading.indicator
 
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
 
@@ -8,7 +9,7 @@ class TRIndicator(
     candleSeries: CandleSeries,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = candleSeries,
-    cacheKey = "TrueRange",
+    cacheKey = CacheKey,
 ) {
 
     override fun calculate(index: Int): BigDecimal {
@@ -27,4 +28,6 @@ class TRIndicator(
 
         return listOf(ts.abs(), ys.abs(), yst.abs()).maxOrNull()!!
     }
+
+    private object CacheKey : Indicator.CacheKey
 }

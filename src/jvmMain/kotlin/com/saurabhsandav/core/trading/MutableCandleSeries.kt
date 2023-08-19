@@ -207,7 +207,7 @@ private class MutableCandleSeriesImpl(
         }
     }
 
-    override fun <T> getIndicatorCache(key: String?): IndicatorCache<T> {
+    override fun <T> getIndicatorCache(key: Indicator.CacheKey?): IndicatorCache<T> {
 
         val cache = when (key) {
 

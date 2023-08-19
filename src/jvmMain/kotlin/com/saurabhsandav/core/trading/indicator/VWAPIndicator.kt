@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.trading.indicator
 
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
@@ -10,7 +11,7 @@ class VWAPIndicator(
     sessionChecker: SessionChecker,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = candleSeries,
-    cacheKey = null,
+    cacheKey = CacheKey(sessionChecker),
 ) {
 
     private val typicalPrice = TypicalPriceIndicator(candleSeries)
@@ -25,4 +26,8 @@ class VWAPIndicator(
             else -> cumulativeTPV[index].divide(cumulativeVolume[index], mathContext)
         }
     }
+
+    private data class CacheKey(
+        val sessionChecker: SessionChecker,
+    ) : Indicator.CacheKey
 }

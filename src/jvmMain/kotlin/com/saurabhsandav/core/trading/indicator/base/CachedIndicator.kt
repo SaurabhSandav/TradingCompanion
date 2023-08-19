@@ -5,7 +5,7 @@ import com.saurabhsandav.core.trading.Indicator
 
 abstract class CachedIndicator<T : Any>(
     final override val candleSeries: CandleSeries,
-    final override val cacheKey: String?,
+    final override val cacheKey: Indicator.CacheKey?,
 ) : Indicator<T> {
 
     private val cache = candleSeries.getIndicatorCache<T>(cacheKey)

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading.indicator
 
 import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.indicator.base.RecursiveCachedIndicator
+import com.saurabhsandav.core.trading.indicator.base.buildIndicatorCacheKey
 import java.math.BigDecimal
 
 abstract class AbstractEMAIndicator(
@@ -9,7 +10,12 @@ abstract class AbstractEMAIndicator(
     private val multiplier: BigDecimal,
 ) : RecursiveCachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    cacheKey = "AbstractEMAIndicator(${input.cacheKey}, $multiplier)",
+    cacheKey = buildIndicatorCacheKey {
+        CacheKey(
+            input = input.bindCacheKey(),
+            multiplier = multiplier,
+        )
+    },
 ) {
 
     override fun calculate(index: Int): BigDecimal {
@@ -21,4 +27,9 @@ abstract class AbstractEMAIndicator(
 
         return (input - prevEMA).multiply(multiplier, mathContext) + prevEMA
     }
+
+    private data class CacheKey(
+        val input: Indicator.CacheKey,
+        val multiplier: BigDecimal,
+    ) : Indicator.CacheKey
 }

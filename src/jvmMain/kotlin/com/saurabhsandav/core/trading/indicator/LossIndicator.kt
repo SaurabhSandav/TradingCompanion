@@ -2,13 +2,16 @@ package com.saurabhsandav.core.trading.indicator
 
 import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
+import com.saurabhsandav.core.trading.indicator.base.buildIndicatorCacheKey
 import java.math.BigDecimal
 
 class LossIndicator(
     private val input: Indicator<BigDecimal>,
 ) : CachedIndicator<BigDecimal>(
     candleSeries = input.candleSeries,
-    cacheKey = "LossIndicator(${input.cacheKey})",
+    cacheKey = buildIndicatorCacheKey {
+        CacheKey(input = input.bindCacheKey())
+    },
 ) {
 
     override fun calculate(index: Int): BigDecimal {
@@ -20,4 +23,8 @@ class LossIndicator(
             else -> BigDecimal.ZERO
         }
     }
+
+    private data class CacheKey(
+        val input: Indicator.CacheKey,
+    ) : Indicator.CacheKey
 }
