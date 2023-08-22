@@ -12,7 +12,6 @@ import kotlinx.datetime.Instant
 
 internal class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
-    private val onNewDataLoaded: suspend (StockChartParams) -> Unit,
 ) {
 
     private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
@@ -33,7 +32,7 @@ internal class CandleLoader(
 
                 loadMutex.withLock {
 
-                    data.performLoad(isInitialLoad = true) {
+                    data.performLoad {
 
                         // Load initial candles
                         onLoad()
@@ -126,39 +125,14 @@ internal class CandleLoader(
         }
     }
 
-    private suspend fun StockChartData.performLoad(
-        isInitialLoad: Boolean = false,
-        block: suspend CandleSource.() -> Unit,
-    ) {
+    private suspend fun StockChartData.performLoad(block: suspend CandleSource.() -> Unit) {
 
         loadState.emit(LoadState.Loading)
 
         // Perform load in StockChartData coroutineScope.
         // This allows cancellation of all loading for this StockChartData at once.
         // Join so that callers can await load.
-        coroutineScope.launch {
-
-            when {
-                // getCandleSeries() might suspend. Use candle count on initial load to check for new candles.
-                isInitialLoad -> {
-
-                    source.block()
-
-                    if (source.getCandleSeries().isNotEmpty()) onNewDataLoaded(params)
-                }
-
-                else -> {
-
-                    val instantRange = source.getCandleSeries().instantRange.value
-
-                    source.block()
-
-                    val newInstantRange = source.getCandleSeries().instantRange.value
-
-                    if (instantRange != newInstantRange) onNewDataLoaded(params)
-                }
-            }
-        }.join()
+        coroutineScope.launch { source.block() }.join()
 
         loadState.emit(LoadState.Loaded)
     }

@@ -127,21 +127,24 @@ internal class StockChart(
                 hasVolume = marketDataProvider.hasVolume(params),
             )
 
-            // Set data
-            refresh()
-
             // If no initialVisibleRange provided, show latest 90 candles (with a 10 candle empty area).
             // On ticker change, restore visible range.
             val finalVisibleRange = when {
                 prevParams.timeframe != params.timeframe -> null
                 else -> this@StockChart.visibleRange
-            } ?: (data.getCandleSeries().size - 90F..data.getCandleSeries().size + 10F)
+            } ?: (candleSeries.size - 90F)..(candleSeries.size + 10F)
 
             // Set visible range
             actualChart.timeScale.setVisibleLogicalRange(
                 from = finalVisibleRange.start,
                 to = finalVisibleRange.endInclusive,
             )
+
+            // Set initial data
+            refresh()
+
+            // Set data on future loads
+            candleSeries.modifications.onEach { refresh() }.launchIn(sourceCoroutineScope)
 
             // Load before/after candles if needed
             actualChart.timeScale

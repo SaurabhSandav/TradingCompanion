@@ -40,10 +40,7 @@ internal class StockChartsState(
     val windows = mutableStateListOf<StockChartWindow>()
     val charts
         get() = windows.flatMap { it.charts }
-    private val candleLoader = CandleLoader(
-        marketDataProvider = marketDataProvider,
-        onNewDataLoaded = ::onNewDataLoaded,
-    )
+    private val candleLoader = CandleLoader(marketDataProvider)
 
     init {
 
@@ -249,12 +246,6 @@ internal class StockChartsState(
         // Release StockChartData if unused
         if (!charts.any { it.params == prevParams })
             candleLoader.releaseStockChartData(prevParams)
-    }
-
-    private suspend fun onNewDataLoaded(params: StockChartParams) {
-
-        charts.filter { stockChart -> stockChart.params == params }
-            .forEach { stockChart -> stockChart.refresh() }
     }
 
     private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {
