@@ -53,12 +53,7 @@ class ChartPageState(
                 .launchIn(coroutineScope)
 
             // Execute chart scripts
-            scripts.consumeAsFlow().onEach(webView::executeScript).collect()
-        }
-
-        // Send arrangement js scripts to web engine
-        coroutineScope.launch {
-            arrangement.scripts.collect(scripts::trySend)
+            merge(arrangement.scripts, scripts.consumeAsFlow()).onEach(webView::executeScript).collect()
         }
     }
 
