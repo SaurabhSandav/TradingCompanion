@@ -50,6 +50,11 @@ private class MutableCandleSeriesImpl(
     private val _live = MutableSharedFlow<Candle>(extraBufferCapacity = Int.MAX_VALUE)
     override val live: Flow<Candle> = _live.asSharedFlow()
 
+    private val _modifications = MutableSharedFlow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>>(
+        extraBufferCapacity = Int.MAX_VALUE,
+    )
+    override val modifications: Flow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>> = _modifications.asSharedFlow()
+
     private val _instantRange = MutableStateFlow<ClosedRange<Instant>?>(null)
     override val instantRange: StateFlow<ClosedRange<Instant>?> = _instantRange.asStateFlow()
 
@@ -75,6 +80,8 @@ private class MutableCandleSeriesImpl(
 
         if (candles.isEmpty()) return
 
+        val prevInstantRange = instantRange.value
+
         candles.forEach(::appendCandle)
 
         // Update instant range
@@ -82,6 +89,10 @@ private class MutableCandleSeriesImpl(
             list.isNotEmpty() -> first().openInstant..last().openInstant
             else -> null
         }
+
+        // Notify modification
+        val newInstantRange = instantRange.value
+        _modifications.tryEmit(prevInstantRange to newInstantRange)
     }
 
     private fun appendCandle(candle: Candle) {
@@ -129,6 +140,8 @@ private class MutableCandleSeriesImpl(
 
         if (candles.isEmpty()) return
 
+        val prevInstantRange = instantRange.value
+
         candles.asReversed().forEach(::prependCandle)
 
         // Recalculate all indicator values
@@ -139,6 +152,10 @@ private class MutableCandleSeriesImpl(
             list.isNotEmpty() -> first().openInstant..last().openInstant
             else -> null
         }
+
+        // Notify modification
+        val newInstantRange = instantRange.value
+        _modifications.tryEmit(prevInstantRange to newInstantRange)
     }
 
     private fun prependCandle(candle: Candle) {
@@ -173,6 +190,8 @@ private class MutableCandleSeriesImpl(
 
     override fun removeFirst(n: Int) {
 
+        val prevInstantRange = instantRange.value
+
         repeat(n) {
 
             // Drop cached indicators values
@@ -187,9 +206,15 @@ private class MutableCandleSeriesImpl(
             list.isNotEmpty() -> first().openInstant..last().openInstant
             else -> null
         }
+
+        // Notify modification
+        val newInstantRange = instantRange.value
+        _modifications.tryEmit(prevInstantRange to newInstantRange)
     }
 
     override fun removeLast(n: Int) {
+
+        val prevInstantRange = instantRange.value
 
         repeat(n) {
 
@@ -205,6 +230,10 @@ private class MutableCandleSeriesImpl(
             list.isNotEmpty() -> first().openInstant..last().openInstant
             else -> null
         }
+
+        // Notify modification
+        val newInstantRange = instantRange.value
+        _modifications.tryEmit(prevInstantRange to newInstantRange)
     }
 
     override fun <T> getIndicatorCache(key: Indicator.CacheKey?): IndicatorCache<T> {

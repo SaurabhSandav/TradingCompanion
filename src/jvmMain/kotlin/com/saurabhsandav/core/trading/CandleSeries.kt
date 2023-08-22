@@ -14,6 +14,8 @@ interface CandleSeries : List<Candle> {
 
     val instantRange: StateFlow<ClosedRange<Instant>?>
 
+    val modifications: Flow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>>
+
     val indicatorMathContext: MathContext
 
     // Null [key] values allow caching indicators that shouldn't share cache.
