@@ -9,14 +9,14 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogState
+import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.DialogWindowScope
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalDensityFraction
 
 @Composable
-fun AppDialog(
+fun AppDialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
     visible: Boolean = true,
@@ -32,7 +32,7 @@ fun AppDialog(
     content: @Composable DialogWindowScope.() -> Unit,
 ) {
 
-    Dialog(
+    DialogWindow(
         onCloseRequest = onCloseRequest,
         state = state,
         visible = visible,

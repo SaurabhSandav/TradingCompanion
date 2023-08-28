@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.model.ProfileModel
@@ -83,7 +83,7 @@ internal fun ProfileSwitcher(
 
     if (showSelectorDialog) {
 
-        AppDialog(
+        AppDialogWindow(
             title = "Select Profile",
             onCloseRequest = { showSelectorDialog = false },
         ) {

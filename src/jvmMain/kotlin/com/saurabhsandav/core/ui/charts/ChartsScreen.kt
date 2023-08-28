@@ -19,7 +19,7 @@ import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
-import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
@@ -119,7 +119,7 @@ private fun FetchCandleDataLoginConfirmationDialog(
     // Ideally, AlertDialog would be used here instead. But currently, Compose cannot draw on top of Swing components.
     // AlertDialog is drawn in the same window on top of existing content. As the chart composable is a swing
     // composable, the AlertDialog will be invisible.
-    AppDialog(
+    AppDialogWindow(
         onCloseRequest = onDismissRequest,
         title = "Do you want to login to fetch candles?",
         state = rememberDialogState(

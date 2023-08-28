@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.collections.immutable.ImmutableList
 
@@ -112,7 +112,7 @@ fun ListSelectionDialog(
     onCloseRequest: () -> Unit,
 ) {
 
-    AppDialog(
+    AppDialogWindow(
         onCloseRequest = onCloseRequest,
         title = selectionDialogTitle,
     ) {

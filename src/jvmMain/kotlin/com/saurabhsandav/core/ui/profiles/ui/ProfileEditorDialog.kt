@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
-import com.saurabhsandav.core.ui.common.app.AppDialog
+import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
@@ -38,7 +38,7 @@ internal fun ProfileEditorDialog(
         )
     }
 
-    AppDialog(
+    AppDialogWindow(
         onCloseRequest = onCloseRequest,
         state = dialogState,
         title = when {
