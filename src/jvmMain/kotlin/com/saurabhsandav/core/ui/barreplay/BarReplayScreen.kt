@@ -32,11 +32,11 @@ internal fun BarReplayWindow(
         when (val replayState = state.replayState) {
             is NewReplay -> NewReplayForm(
                 model = replayState.model,
-                onLaunchReplay = { presenter.event(BarReplayEvent.LaunchReplay) },
+                onLaunchReplay = { state.eventSink(BarReplayEvent.LaunchReplay) },
             )
 
             is ReplayStarted -> ReplaySessionScreen(
-                onNewReplay = { presenter.event(BarReplayEvent.NewReplay) },
+                onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
                 replayParams = replayState.replayParams,
             )
         }

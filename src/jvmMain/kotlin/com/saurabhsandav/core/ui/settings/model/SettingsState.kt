@@ -7,4 +7,5 @@ data class SettingsState(
     val darkModeEnabled: Boolean,
     val landingScreen: String,
     val densityFraction: Float,
+    val eventSink: (SettingsEvent) -> Unit,
 )

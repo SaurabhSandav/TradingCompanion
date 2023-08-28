@@ -22,11 +22,11 @@ internal class SizingLandingSwitcherItem(
 
         SizingScreen(
             sizedTrades = state.sizedTrades,
-            onUpdateEntry = { id, entry -> presenter.event(UpdateTradeEntry(id, entry)) },
-            onUpdateStop = { id, stop -> presenter.event(UpdateTradeStop(id, stop)) },
-            onOpenLiveTrade = { id -> presenter.event(OpenLiveTrade(id)) },
-            onDeleteTrade = { id -> presenter.event(RemoveTrade(id)) },
-            onAddTrade = { ticker -> presenter.event(AddTrade(ticker)) },
+            onUpdateEntry = { id, entry -> state.eventSink(UpdateTradeEntry(id, entry)) },
+            onUpdateStop = { id, stop -> state.eventSink(UpdateTradeStop(id, stop)) },
+            onOpenLiveTrade = { id -> state.eventSink(OpenLiveTrade(id)) },
+            onDeleteTrade = { id -> state.eventSink(RemoveTrade(id)) },
+            onAddTrade = { ticker -> state.eventSink(AddTrade(ticker)) },
         )
     }
 

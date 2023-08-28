@@ -21,12 +21,12 @@ internal class TradeOrdersLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         TradeOrdersScreen(
-            onNewOrder = { presenter.event(NewOrder) },
+            onNewOrder = { state.eventSink(NewOrder) },
             tradeOrderItems = state.tradeOrderItems,
-            onNewOrderFromExisting = { presenter.event(NewOrderFromExisting(it)) },
-            onLockOrders = { ids -> presenter.event(LockOrders(ids)) },
-            onEditOrder = { presenter.event(EditOrder(it)) },
-            onDeleteOrders = { ids -> presenter.event(DeleteOrders(ids)) },
+            onNewOrderFromExisting = { state.eventSink(NewOrderFromExisting(it)) },
+            onLockOrders = { ids -> state.eventSink(LockOrders(ids)) },
+            onEditOrder = { state.eventSink(EditOrder(it)) },
+            onDeleteOrders = { ids -> state.eventSink(DeleteOrders(ids)) },
             errors = state.errors,
         )
     }

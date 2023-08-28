@@ -8,9 +8,10 @@ import com.saurabhsandav.core.ui.common.form.fields.textField
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-data class ProfilesState(
+internal data class ProfilesState(
     val profiles: ImmutableList<Profile>,
     val currentProfile: Profile?,
+    val eventSink: (ProfilesEvent) -> Unit,
 ) {
 
     @Immutable

@@ -6,7 +6,6 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
@@ -19,7 +18,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -36,33 +34,28 @@ internal class TradeOrdersPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val events = MutableSharedFlow<TradeOrdersEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                NewOrder -> onNewOrder()
-                is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
-                is EditOrder -> onEditOrder(event.profileOrderId)
-                is LockOrders -> onLockOrders(event.ids)
-                is DeleteOrders -> onDeleteOrders(event.ids)
-            }
-        }
-
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
             orderFormWindowsManager = orderFormWindowsManager,
             errors = remember(errors) { errors.toImmutableList() },
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: TradeOrdersEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: TradeOrdersEvent) {
+
+        when (event) {
+            NewOrder -> onNewOrder()
+            is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
+            is EditOrder -> onEditOrder(event.profileOrderId)
+            is LockOrders -> onLockOrders(event.ids)
+            is DeleteOrders -> onDeleteOrders(event.ids)
+        }
     }
 
     @Composable

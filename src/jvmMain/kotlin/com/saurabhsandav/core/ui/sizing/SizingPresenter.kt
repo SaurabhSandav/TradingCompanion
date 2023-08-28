@@ -11,7 +11,6 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
@@ -26,7 +25,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -46,22 +44,9 @@ internal class SizingPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val events = MutableSharedFlow<SizingEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
-
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is AddTrade -> addTrade(event.ticker)
-                is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
-                is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
-                is OpenLiveTrade -> openLiveTrade(event.id)
-                is RemoveTrade -> removeTrade(event.id)
-            }
-        }
 
         val account by appModule.account.collectAsState(
             Account(
@@ -75,11 +60,19 @@ internal class SizingPresenter(
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
             orderFormWindowsManager = orderFormWindowsManager,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: SizingEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: SizingEvent) {
+
+        when (event) {
+            is AddTrade -> addTrade(event.ticker)
+            is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
+            is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
+            is OpenLiveTrade -> openLiveTrade(event.id)
+            is RemoveTrade -> removeTrade(event.id)
+        }
     }
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {

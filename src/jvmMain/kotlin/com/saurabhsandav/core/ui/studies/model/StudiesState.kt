@@ -9,4 +9,5 @@ import kotlinx.collections.immutable.ImmutableList
 internal data class StudiesState(
     val studyFactories: ImmutableList<Study.Factory<*>>,
     val studyWindowsManager: AppWindowsManager<Study.Factory<*>>,
+    val eventSink: (StudiesEvent) -> Unit,
 )

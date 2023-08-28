@@ -11,6 +11,7 @@ internal data class TradeDetailState(
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
     val notes: ImmutableList<TradeNote>,
+    val eventSink: (TradeDetailEvent) -> Unit,
 ) {
 
     @Immutable

@@ -6,7 +6,6 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.profiles.model.ProfileModel
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
@@ -28,30 +27,26 @@ internal class ProfilesPresenter(
     private val trainingOnly: Boolean = false,
 ) {
 
-    private val events = MutableSharedFlow<ProfilesEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private val currentProfileId = MutableStateFlow<Long?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is CreateNewProfile -> onCreateNewProfile(event.profileModel)
-                is SetCurrentProfile -> onSetCurrentProfile(event.id)
-                is DeleteProfile -> onDeleteProfile(event.id)
-                is UpdateProfile -> onUpdateProfile(event.id, event.profileModel)
-                is CopyProfile -> onCopyProfile(event.id)
-            }
-        }
-
         return@launchMolecule ProfilesState(
             profiles = getProfiles().value,
             currentProfile = getCurrentProfile().value,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: ProfilesEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: ProfilesEvent) {
+
+        when (event) {
+            is CreateNewProfile -> onCreateNewProfile(event.profileModel)
+            is SetCurrentProfile -> onSetCurrentProfile(event.id)
+            is DeleteProfile -> onDeleteProfile(event.id)
+            is UpdateProfile -> onUpdateProfile(event.id, event.profileModel)
+            is CopyProfile -> onCopyProfile(event.id)
+        }
     }
 
     @Composable

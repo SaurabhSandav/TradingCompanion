@@ -33,18 +33,18 @@ internal fun ReplaySessionScreen(
         ReplayConfigRow(
             onNewReplay = onNewReplay,
             selectedProfileId = state.selectedProfileId,
-            onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
-            onResetReplay = { presenter.event(ResetReplay) },
+            onSelectProfile = { id -> state.eventSink(SelectProfile(id)) },
+            onResetReplay = { state.eventSink(ResetReplay) },
             replayFullBar = replayParams.replayFullBar,
-            onAdvanceReplay = { presenter.event(AdvanceReplay) },
-            onAdvanceReplayByBar = { presenter.event(AdvanceReplayByBar) },
+            onAdvanceReplay = { state.eventSink(AdvanceReplay) },
+            onAdvanceReplayByBar = { state.eventSink(AdvanceReplayByBar) },
         )
 
         Divider()
 
         ReplayOrdersTable(
             replayOrderItems = state.replayOrderItems,
-            onCancelOrder = { id -> presenter.event(CancelOrder(id)) },
+            onCancelOrder = { id -> state.eventSink(CancelOrder(id)) },
         )
     }
 
@@ -52,13 +52,13 @@ internal fun ReplaySessionScreen(
         onCloseRequest = onNewReplay,
         chartsState = state.chartsState,
         chartInfo = state.chartInfo,
-        onAdvanceReplay = { presenter.event(AdvanceReplay) },
+        onAdvanceReplay = { state.eventSink(AdvanceReplay) },
         replayFullBar = replayParams.replayFullBar,
-        onAdvanceReplayByBar = { presenter.event(AdvanceReplayByBar) },
-        onIsAutoNextEnabledChange = { presenter.event(SetIsAutoNextEnabled(it)) },
+        onAdvanceReplayByBar = { state.eventSink(AdvanceReplayByBar) },
+        onIsAutoNextEnabledChange = { state.eventSink(SetIsAutoNextEnabled(it)) },
         isTradingEnabled = state.selectedProfileId != null,
-        onBuy = { stockChart -> presenter.event(Buy(stockChart)) },
-        onSell = { stockChart -> presenter.event(Sell(stockChart)) },
+        onBuy = { stockChart -> state.eventSink(Buy(stockChart)) },
+        onSell = { stockChart -> state.eventSink(Sell(stockChart)) },
     )
 
     // Order form windows

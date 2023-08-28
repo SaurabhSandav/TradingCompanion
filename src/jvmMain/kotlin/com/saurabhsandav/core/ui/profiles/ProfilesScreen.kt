@@ -42,11 +42,11 @@ internal fun ProfilesWindow(
         ProfilesScreen(
             profiles = state.profiles,
             currentProfileId = state.currentProfile?.id,
-            onCreateProfile = { profileModel -> presenter.event(CreateNewProfile(profileModel)) },
-            onSetCurrent = { id -> presenter.event(SetCurrentProfile(id)) },
-            onDeleteProfile = { id -> presenter.event(DeleteProfile(id)) },
-            onUpdateProfile = { id, profileModel -> presenter.event(UpdateProfile(id, profileModel)) },
-            onCopyProfile = { id -> presenter.event(CopyProfile(id)) },
+            onCreateProfile = { profileModel -> state.eventSink(CreateNewProfile(profileModel)) },
+            onSetCurrent = { id -> state.eventSink(SetCurrentProfile(id)) },
+            onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
+            onUpdateProfile = { id, profileModel -> state.eventSink(UpdateProfile(id, profileModel)) },
+            onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
         )
     }
 }
@@ -70,7 +70,7 @@ internal fun ProfileSwitcher(
 
     LaunchedEffect(selectedProfileId) {
         if (selectedProfileId != null)
-            presenter.event(SetCurrentProfile(selectedProfileId))
+            state.eventSink(SetCurrentProfile(selectedProfileId))
     }
 
     TextButton(
@@ -91,14 +91,14 @@ internal fun ProfileSwitcher(
             ProfilesScreen(
                 profiles = state.profiles,
                 currentProfileId = state.currentProfile?.id,
-                onCreateProfile = { profileModel -> presenter.event(CreateNewProfile(profileModel)) },
+                onCreateProfile = { profileModel -> state.eventSink(CreateNewProfile(profileModel)) },
                 onSetCurrent = { id ->
                     onSelectProfile(id)
                     showSelectorDialog = false
                 },
-                onDeleteProfile = { id -> presenter.event(DeleteProfile(id)) },
-                onUpdateProfile = { id, profileModel -> presenter.event(UpdateProfile(id, profileModel)) },
-                onCopyProfile = { id -> presenter.event(CopyProfile(id)) },
+                onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
+                onUpdateProfile = { id, profileModel -> state.eventSink(UpdateProfile(id, profileModel)) },
+                onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
                 trainingOnly = trainingOnly,
             )
         }

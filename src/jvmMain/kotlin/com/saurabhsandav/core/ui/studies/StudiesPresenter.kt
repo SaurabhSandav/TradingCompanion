@@ -4,22 +4,18 @@ import androidx.compose.runtime.Stable
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.studies.impl.*
 import com.saurabhsandav.core.ui.studies.model.StudiesEvent
 import com.saurabhsandav.core.ui.studies.model.StudiesState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Stable
 internal class StudiesPresenter(
     coroutineScope: CoroutineScope,
     appModule: AppModule,
 ) {
-
-    private val events = MutableSharedFlow<StudiesEvent>(extraBufferCapacity = Int.MAX_VALUE)
 
     private val studyFactories = persistentListOf(
         PNLStudy.Factory(appModule),
@@ -36,21 +32,18 @@ internal class StudiesPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is StudiesEvent.OpenStudy -> onOpenStudy(event.studyFactory)
-            }
-        }
-
         return@launchMolecule StudiesState(
             studyFactories = studyFactories,
             studyWindowsManager = studyWindowsManager,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: StudiesEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: StudiesEvent) {
+
+        when (event) {
+            is StudiesEvent.OpenStudy -> onOpenStudy(event.studyFactory)
+        }
     }
 
     private fun onOpenStudy(studyFactory: Study.Factory<*>) {

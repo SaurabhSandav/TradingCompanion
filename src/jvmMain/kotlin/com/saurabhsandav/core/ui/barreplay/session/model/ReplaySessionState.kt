@@ -17,7 +17,8 @@ internal data class ReplaySessionState(
     val selectedProfileId: Long?,
     val replayOrderItems: ImmutableList<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
-    val chartInfo: (StockChart) -> ReplayChartInfo = { ReplayChartInfo() },
+    val chartInfo: (StockChart) -> ReplayChartInfo,
+    val eventSink: (ReplaySessionEvent) -> Unit,
 ) {
 
     @Immutable

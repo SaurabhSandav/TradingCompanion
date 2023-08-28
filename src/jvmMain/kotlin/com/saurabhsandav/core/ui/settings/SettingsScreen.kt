@@ -43,11 +43,11 @@ internal fun SettingsWindow(
 
         SettingsScreen(
             darkModeEnabled = state.darkModeEnabled,
-            onDarkThemeEnabledChange = { presenter.event(ChangeDarkModeEnabled(it)) },
+            onDarkThemeEnabledChange = { state.eventSink(ChangeDarkModeEnabled(it)) },
             landingScreen = state.landingScreen,
-            onLandingScreenChange = { presenter.event(ChangeLandingScreen(it)) },
+            onLandingScreenChange = { state.eventSink(ChangeLandingScreen(it)) },
             densityFraction = state.densityFraction,
-            onDensityFractionChange = { presenter.event(ChangeDensityFraction(it)) },
+            onDensityFractionChange = { state.eventSink(ChangeDensityFraction(it)) },
         )
     }
 }

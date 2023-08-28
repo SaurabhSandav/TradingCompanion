@@ -73,18 +73,18 @@ internal fun TradeDetailScreen(
 
                     StopsAndTargets(
                         stops = state.stops,
-                        onAddStop = { presenter.event(AddStop(it)) },
-                        onDeleteStop = { presenter.event(DeleteStop(it)) },
+                        onAddStop = { state.eventSink(AddStop(it)) },
+                        onDeleteStop = { state.eventSink(DeleteStop(it)) },
                         targets = state.targets,
-                        onAddTarget = { presenter.event(AddTarget(it)) },
-                        onDeleteTarget = { presenter.event(DeleteTarget(it)) },
+                        onAddTarget = { state.eventSink(AddTarget(it)) },
+                        onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
                     )
 
                     Notes(
                         notes = state.notes,
-                        onAddNote = { presenter.event(AddNote(it)) },
-                        onUpdateNote = { id, note -> presenter.event(UpdateNote(id, note)) },
-                        onDeleteNote = { presenter.event(DeleteNote(it)) },
+                        onAddNote = { state.eventSink(AddNote(it)) },
+                        onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
+                        onDeleteNote = { state.eventSink(DeleteNote(it)) },
                     )
                 }
             }

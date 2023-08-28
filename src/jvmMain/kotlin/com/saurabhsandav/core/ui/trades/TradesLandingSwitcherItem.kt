@@ -23,8 +23,8 @@ internal class TradesLandingSwitcherItem(
 
         TradesScreen(
             tradesItems = state.tradesItems,
-            onOpenDetails = { presenter.event(OpenDetails(it)) },
-            onOpenChart = { presenter.event(OpenChart(it)) },
+            onOpenDetails = { state.eventSink(OpenDetails(it)) },
+            onOpenChart = { state.eventSink(OpenChart(it)) },
             errors = state.errors,
         )
     }

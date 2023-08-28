@@ -7,7 +7,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 @Immutable
 internal data class LandingState(
-    val currentScreen: LandingScreen? = null,
+    val currentScreen: LandingScreen?,
+    val eventSink: (LandingEvent) -> Unit,
 )
 
 enum class LandingScreen(

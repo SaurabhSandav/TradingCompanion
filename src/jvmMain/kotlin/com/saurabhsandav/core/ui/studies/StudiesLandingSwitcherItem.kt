@@ -22,7 +22,7 @@ internal class StudiesLandingSwitcherItem(
 
         StudiesScreen(
             studyFactories = state.studyFactories,
-            onOpenStudy = { studyFactory -> presenter.event(StudiesEvent.OpenStudy(studyFactory)) },
+            onOpenStudy = { studyFactory -> state.eventSink(StudiesEvent.OpenStudy(studyFactory)) },
         )
     }
 

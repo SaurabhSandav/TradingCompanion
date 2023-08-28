@@ -36,10 +36,10 @@ internal fun TradeReviewWindow(
 
         TradeReviewScreen(
             selectedProfileId = state.selectedProfileId,
-            onSelectProfile = { id -> presenter.event(SelectProfile(id)) },
+            onSelectProfile = { id -> state.eventSink(SelectProfile(id)) },
             tradesItems = state.tradesItems,
-            onMarkTrade = { id, isMarked -> presenter.event(MarkTrade(id, isMarked)) },
-            onSelectTrade = { id -> presenter.event(SelectTrade(id)) },
+            onMarkTrade = { id, isMarked -> state.eventSink(MarkTrade(id, isMarked)) },
+            onSelectTrade = { id -> state.eventSink(SelectTrade(id)) },
         )
     }
 }

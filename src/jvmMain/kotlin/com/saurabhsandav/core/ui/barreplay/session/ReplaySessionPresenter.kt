@@ -17,7 +17,6 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
@@ -46,8 +45,6 @@ internal class ReplaySessionPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val events = MutableSharedFlow<ReplaySessionEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val barReplay = BarReplay(
         timeframe = replayParams.baseTimeframe,
         candleUpdateType = if (replayParams.replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
@@ -69,31 +66,28 @@ internal class ReplaySessionPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                ResetReplay -> onResetReplay()
-                AdvanceReplay -> onAdvanceReplay()
-                AdvanceReplayByBar -> onAdvanceReplayByBar()
-                is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
-                is SelectProfile -> onSelectProfile(event.id)
-                is Buy -> onBuy(event.stockChart)
-                is Sell -> onSell(event.stockChart)
-                is CancelOrder -> onCancelOrder(event.id)
-            }
-        }
-
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: ReplaySessionEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: ReplaySessionEvent) {
+
+        when (event) {
+            ResetReplay -> onResetReplay()
+            AdvanceReplay -> onAdvanceReplay()
+            AdvanceReplayByBar -> onAdvanceReplayByBar()
+            is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
+            is SelectProfile -> onSelectProfile(event.id)
+            is Buy -> onBuy(event.stockChart)
+            is Sell -> onSell(event.stockChart)
+            is CancelOrder -> onCancelOrder(event.id)
+        }
     }
 
     @Composable

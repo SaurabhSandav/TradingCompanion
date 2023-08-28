@@ -11,6 +11,7 @@ import java.util.*
 internal data class SizingState(
     val sizedTrades: ImmutableList<SizedTrade>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+    val eventSink: (SizingEvent) -> Unit,
 ) {
 
     @Immutable

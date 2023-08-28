@@ -8,7 +8,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
@@ -17,7 +16,6 @@ import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 
 @Stable
@@ -27,18 +25,7 @@ internal class SettingsPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
-    private val events = MutableSharedFlow<SettingsEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
-
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is ChangeDarkModeEnabled -> onDarkModeEnabledChange(event.isEnabled)
-                is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
-                is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
-            }
-        }
 
         val darkModeEnabled by remember {
             appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
@@ -56,11 +43,17 @@ internal class SettingsPresenter(
             darkModeEnabled = darkModeEnabled,
             landingScreen = landingScreen,
             densityFraction = densityFraction,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: SettingsEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: SettingsEvent) {
+
+        when (event) {
+            is ChangeDarkModeEnabled -> onDarkModeEnabledChange(event.isEnabled)
+            is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
+            is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
+        }
     }
 
     private fun onDarkModeEnabledChange(isEnabled: Boolean) = coroutineScope.launchUnit {

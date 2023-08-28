@@ -48,7 +48,7 @@ internal fun LandingScreen() {
         LandingScreen(
             appModule = appModule,
             currentScreen = currentScreen,
-            onCurrentScreenChange = { presenter.event(LandingEvent.ChangeCurrentScreen(it)) },
+            onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
         )
     }
 }

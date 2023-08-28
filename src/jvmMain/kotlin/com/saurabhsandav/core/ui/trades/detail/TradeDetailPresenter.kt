@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent
 import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
@@ -17,7 +16,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -36,22 +34,7 @@ internal class TradeDetailPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val events = MutableSharedFlow<TradeDetailEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
-
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is AddStop -> onAddStop(event.price)
-                is DeleteStop -> onDeleteStop(event.price)
-                is AddTarget -> onAddTarget(event.price)
-                is DeleteTarget -> onDeleteTarget(event.price)
-                is AddNote -> onAddNote(event.note)
-                is UpdateNote -> onUpdateNote(event.id, event.note)
-                is DeleteNote -> onDeleteNote(event.id)
-            }
-        }
 
         return@launchMolecule TradeDetailState(
             tradeDetail = getTradeDetail().value,
@@ -59,13 +42,23 @@ internal class TradeDetailPresenter(
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
             notes = getTradeNotes().value,
+            eventSink = ::onEvent,
         )
     }
 
     val errors = mutableStateListOf<UIErrorMessage>()
 
-    fun event(event: TradeDetailEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: TradeDetailEvent) {
+
+        when (event) {
+            is AddStop -> onAddStop(event.price)
+            is DeleteStop -> onDeleteStop(event.price)
+            is AddTarget -> onAddTarget(event.price)
+            is DeleteTarget -> onDeleteTarget(event.price)
+            is AddNote -> onAddNote(event.note)
+            is UpdateNote -> onUpdateNote(event.id, event.note)
+            is DeleteNote -> onDeleteNote(event.id)
+        }
     }
 
     @Composable

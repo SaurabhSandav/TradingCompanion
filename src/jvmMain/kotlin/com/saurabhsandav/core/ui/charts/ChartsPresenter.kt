@@ -13,14 +13,12 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancel
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -35,8 +33,6 @@ internal class ChartsPresenter(
     private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
-    private val events = MutableSharedFlow<ChartsEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val initialTicker = NIFTY50.first()
     private val initialTimeframe = Timeframe.M5
     private val marketDataProvider = ChartsMarketDataProvider(appModule = appModule)
@@ -48,29 +44,26 @@ internal class ChartsPresenter(
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
+    init {
+        loginFlowLauncher()
+    }
+
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
-
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
-                CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
-            }
-        }
 
         return@launchMolecule ChartsState(
             chartsState = chartsState,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = errors,
+            eventSink = ::onEvent,
         )
     }
 
-    init {
-        loginFlowLauncher()
-    }
+    private fun onEvent(event: ChartsEvent) {
 
-    fun event(event: ChartsEvent) {
-        events.tryEmit(event)
+        when (event) {
+            is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
+            CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
+        }
     }
 
     fun addMarkersProvider(provider: ChartMarkersProvider) {

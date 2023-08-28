@@ -10,6 +10,7 @@ internal data class ChartsState(
     val chartsState: StockChartsState,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: List<UIErrorMessage>,
+    val eventSink: (ChartsEvent) -> Unit,
 ) {
 
     @Immutable

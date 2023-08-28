@@ -21,7 +21,6 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
@@ -38,7 +37,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -59,8 +57,6 @@ internal class TradesPresenter(
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
-    private val events = MutableSharedFlow<TradesEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val tradeDetailWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
@@ -68,25 +64,22 @@ internal class TradesPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is OpenDetails -> onOpenDetails(event.profileTradeId)
-                is OpenChart -> onOpenChart(event.profileTradeId)
-            }
-        }
-
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
             tradeDetailWindowsManager = tradeDetailWindowsManager,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = remember(errors) { errors.toImmutableList() },
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: TradesEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: TradesEvent) {
+
+        when (event) {
+            is OpenDetails -> onOpenDetails(event.profileTradeId)
+            is OpenChart -> onOpenChart(event.profileTradeId)
+        }
     }
 
     @Composable

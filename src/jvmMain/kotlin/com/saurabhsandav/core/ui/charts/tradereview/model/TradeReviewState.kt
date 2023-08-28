@@ -7,6 +7,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal data class TradeReviewState(
     val selectedProfileId: Long?,
     val tradesItems: ImmutableList<TradeListItem>,
+    val eventSink: (TradeReviewEvent) -> Unit,
 ) {
 
     @Immutable

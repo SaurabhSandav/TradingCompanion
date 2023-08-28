@@ -12,7 +12,6 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.*
@@ -40,27 +39,7 @@ internal class TradeReviewPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
-    private val events = MutableSharedFlow<TradeReviewEvent>(extraBufferCapacity = Int.MAX_VALUE)
-
     private val markedTradeIds = MutableStateFlow<PersistentSet<Long>>(persistentSetOf())
-
-    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
-
-        CollectEffect(events) { event ->
-
-            when (event) {
-                is SelectProfile -> onSelectProfile(event.id)
-                is MarkTrade -> onMarkTrade(event.id, event.isMarked)
-                is SelectTrade -> onSelectTrade(event.id)
-            }
-        }
-
-        return@launchMolecule TradeReviewState(
-            selectedProfileId = remember { appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile) }
-                .collectAsState(null).value,
-            tradesItems = getTradeListEntries().value,
-        )
-    }
 
     init {
         coroutineScope.launch {
@@ -68,8 +47,23 @@ internal class TradeReviewPresenter(
         }
     }
 
-    fun event(event: TradeReviewEvent) {
-        events.tryEmit(event)
+    val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
+
+        return@launchMolecule TradeReviewState(
+            selectedProfileId = remember { appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile) }
+                .collectAsState(null).value,
+            tradesItems = getTradeListEntries().value,
+            eventSink = ::onEvent,
+        )
+    }
+
+    private fun onEvent(event: TradeReviewEvent) {
+
+        when (event) {
+            is SelectProfile -> onSelectProfile(event.id)
+            is MarkTrade -> onMarkTrade(event.id, event.isMarked)
+            is SelectTrade -> onSelectTrade(event.id)
+        }
     }
 
     @Composable

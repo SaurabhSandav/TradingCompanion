@@ -13,6 +13,7 @@ internal data class TradesState(
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: ImmutableList<UIErrorMessage>,
+    val eventSink: (TradesEvent) -> Unit,
 ) {
 
     @Immutable

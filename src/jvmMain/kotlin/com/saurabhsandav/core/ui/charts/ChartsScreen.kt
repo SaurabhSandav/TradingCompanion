@@ -86,7 +86,7 @@ internal fun ChartsScreen(
 
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
-                onOpenChart = { ticker, start, end -> presenter.event(OpenChart(ticker, start, end)) },
+                onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
                 markersProvider = markersProvider,
             )
         }
@@ -101,7 +101,7 @@ internal fun ChartsScreen(
 
         FetchCandleDataLoginConfirmationDialog(
             onConfirm = { showLoginWindow = true },
-            onDismissRequest = { presenter.event(CandleFetchLoginCancelled) },
+            onDismissRequest = { state.eventSink(CandleFetchLoginCancelled) },
         )
 
         if (showLoginWindow) {

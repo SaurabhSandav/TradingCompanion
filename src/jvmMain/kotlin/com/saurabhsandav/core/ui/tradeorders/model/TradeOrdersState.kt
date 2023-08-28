@@ -12,6 +12,7 @@ internal data class TradeOrdersState(
     val tradeOrderItems: ImmutableList<TradeOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val errors: ImmutableList<UIErrorMessage>,
+    val eventSink: (TradeOrdersEvent) -> Unit,
 ) {
 
     @Immutable

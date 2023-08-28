@@ -13,13 +13,11 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
-import com.saurabhsandav.core.ui.common.CollectEffect
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -34,26 +32,22 @@ internal class BarReplayPresenter(
     private val formValidator = FormValidator()
     private val formModel = initialLaunchFormModel()
 
-    private val events = MutableSharedFlow<BarReplayEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private var replayState by mutableStateOf<ReplayState>(NewReplay(model = formModel))
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        CollectEffect(events) { event ->
-
-            when (event) {
-                BarReplayEvent.NewReplay -> onNewReplay()
-                BarReplayEvent.LaunchReplay -> onLaunchReplay()
-            }
-        }
-
         return@launchMolecule BarReplayState(
             replayState = replayState,
+            eventSink = ::onEvent,
         )
     }
 
-    fun event(event: BarReplayEvent) {
-        events.tryEmit(event)
+    private fun onEvent(event: BarReplayEvent) {
+
+        when (event) {
+            BarReplayEvent.NewReplay -> onNewReplay()
+            BarReplayEvent.LaunchReplay -> onLaunchReplay()
+        }
     }
 
     private fun onLaunchReplay() {
