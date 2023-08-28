@@ -15,7 +15,6 @@ import java.util.*
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
     val selectedProfileId: Long?,
-    val enableAdvanceReplayByBar: Boolean,
     val replayOrderItems: ImmutableList<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo = { ReplayChartInfo() },
@@ -42,5 +41,6 @@ internal data class ReplaySessionState(
     @Immutable
     internal data class ReplayChartInfo(
         val replayTime: Flow<String> = emptyFlow(),
+        val candleState: Flow<String> = emptyFlow(),
     )
 }

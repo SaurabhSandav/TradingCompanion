@@ -98,8 +98,11 @@ class BarReplay(
         Extreme2,
         Close;
 
-        fun next(): CandleState {
-            return entries[(ordinal + 1) % entries.size]
+        fun next(): CandleState = when (this) {
+            Open -> Extreme1
+            Extreme1 -> Extreme2
+            Extreme2 -> Close
+            Close -> Open
         }
     }
 }

@@ -10,6 +10,7 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trading.backtest.OrderExecution.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
+import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
@@ -85,7 +86,6 @@ internal class ReplaySessionPresenter(
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
             selectedProfileId = getSelectedProfileId(),
-            enableAdvanceReplayByBar = !replayParams.replayFullBar,
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
@@ -259,12 +259,22 @@ internal class ReplaySessionPresenter(
 
             val replayTimeFlow = stockChart.data
                 .getCandleSeries()
-                .instantRange
-                .map { stockChart.data.getCandleSeries().last().openInstant }
+                .let { it as ReplaySeries }
+                .replayTime
                 .map(::formattedReplayTime)
 
             emitAll(replayTimeFlow)
-        }
+        },
+        candleState = flow {
+
+            val candleStateFlow = stockChart.data
+                .getCandleSeries()
+                .let { it as ReplaySeries }
+                .candleState
+                .map { it.name }
+
+            emitAll(candleStateFlow)
+        },
     )
 
     private fun formattedReplayTime(currentInstant: Instant): String {

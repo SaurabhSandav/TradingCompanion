@@ -7,6 +7,7 @@ import kotlinx.datetime.Instant
 class ReplaySeries(
     replaySeries: CandleSeries,
     val replayTime: StateFlow<Instant>,
+    val candleState: StateFlow<BarReplay.CandleState>,
 ) : CandleSeries by replaySeries
 
 internal interface ReplaySeriesBuilder {

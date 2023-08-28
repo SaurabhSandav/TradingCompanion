@@ -11,7 +11,7 @@ internal class SimpleReplaySeriesBuilder(
     private val inputSeries: CandleSeries,
     private val initialIndex: Int,
     currentOffset: Int,
-    currentCandleState: BarReplay.CandleState,
+    private val currentCandleState: BarReplay.CandleState,
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries = MutableCandleSeries(
@@ -19,6 +19,7 @@ internal class SimpleReplaySeriesBuilder(
         timeframe = inputSeries.timeframe,
     )
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
+    private val _candleState = MutableStateFlow(currentCandleState)
 
     init {
 
@@ -27,7 +28,11 @@ internal class SimpleReplaySeriesBuilder(
             addCandle(currentOffset, currentCandleState)
     }
 
-    override val replaySeries: ReplaySeries = ReplaySeries(_replaySeries, _replayTime.asStateFlow())
+    override val replaySeries: ReplaySeries = ReplaySeries(
+        replaySeries = _replaySeries,
+        replayTime = _replayTime.asStateFlow(),
+        candleState = _candleState.asStateFlow(),
+    )
 
     override fun addCandle(offset: Int) {
 
@@ -54,6 +59,9 @@ internal class SimpleReplaySeriesBuilder(
 
         // Update time
         _replayTime.update { candle.openInstant }
+
+        // Update candle state
+        _candleState.update { candleState }
     }
 
     override fun reset() {
@@ -63,5 +71,8 @@ internal class SimpleReplaySeriesBuilder(
 
         // Update time
         _replayTime.update { _replaySeries.last().openInstant }
+
+        // Update candle state
+        _candleState.update { currentCandleState }
     }
 }

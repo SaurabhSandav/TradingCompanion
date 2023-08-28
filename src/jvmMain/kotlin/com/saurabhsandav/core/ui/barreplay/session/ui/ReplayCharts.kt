@@ -21,8 +21,8 @@ internal fun ReplayCharts(
     onCloseRequest: () -> Unit,
     chartsState: StockChartsState,
     chartInfo: (StockChart) -> ReplayChartInfo,
+    replayFullBar: Boolean,
     onAdvanceReplay: () -> Unit,
-    enableAdvanceReplayByBar: Boolean,
     onAdvanceReplayByBar: () -> Unit,
     onIsAutoNextEnabledChange: (Boolean) -> Unit,
     isTradingEnabled: Boolean,
@@ -50,11 +50,26 @@ internal fun ReplayCharts(
             Text(replayTime, textAlign = TextAlign.End)
         }
 
+        if (!replayFullBar) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+
+                Text("Candle State")
+
+                val candleState by currentChartInfo.candleState.collectAsState("")
+
+                Text(candleState, textAlign = TextAlign.End)
+            }
+        }
+
         Divider()
 
         ReplayControls(
+            replayFullBar = replayFullBar,
             onAdvanceReplay = onAdvanceReplay,
-            enableAdvanceReplayByBar = enableAdvanceReplayByBar,
             onAdvanceReplayByBar = onAdvanceReplayByBar,
             onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
             isTradingEnabled = isTradingEnabled,

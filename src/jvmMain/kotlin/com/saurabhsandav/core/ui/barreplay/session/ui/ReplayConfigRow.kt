@@ -15,8 +15,8 @@ internal fun ReplayConfigRow(
     onSelectProfile: (Long) -> Unit,
     onNewReplay: () -> Unit,
     onResetReplay: () -> Unit,
+    replayFullBar: Boolean,
     onAdvanceReplay: () -> Unit,
-    enableAdvanceReplayByBar: Boolean,
     onAdvanceReplayByBar: () -> Unit,
 ) {
 
@@ -53,7 +53,7 @@ internal fun ReplayConfigRow(
             Text("Advance Replay")
         }
 
-        if (enableAdvanceReplayByBar) {
+        if (!replayFullBar) {
 
             TextButton(
                 modifier = Modifier.weight(1F),
