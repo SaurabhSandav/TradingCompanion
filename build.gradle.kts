@@ -20,13 +20,23 @@ repositories {
 }
 
 allprojects {
+
     tasks.withType(org.jetbrains.kotlin.gradle.dsl.KotlinCompile::class.java).configureEach {
+
         kotlinOptions {
-            // Trigger this with:
-            // ./gradlew assembleRelease -PenableMultiModuleComposeReports=true --rerun-tasks
+
+        // Trigger this with:
+            // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
             if (project.findProperty("enableMultiModuleComposeReports") == "true") {
-                freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" + rootProject.buildDir.absolutePath + "/compose_metrics/")
-                freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" + rootProject.buildDir.absolutePath + "/compose_metrics/")
+
+                val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
+
+                freeCompilerArgs += listOf(
+                    "-P",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
+                    "-P",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
+                )
             }
         }
     }
