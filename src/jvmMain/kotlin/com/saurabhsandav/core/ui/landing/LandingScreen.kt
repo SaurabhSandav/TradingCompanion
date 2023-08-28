@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
@@ -46,7 +45,6 @@ internal fun LandingScreen() {
     if (currentScreen != null) {
 
         LandingScreen(
-            appModule = appModule,
             currentScreen = currentScreen,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
         )
@@ -55,7 +53,6 @@ internal fun LandingScreen() {
 
 @Composable
 private fun LandingScreen(
-    appModule: AppModule,
     currentScreen: LandingScreen,
     onCurrentScreenChange: (LandingScreen) -> Unit,
 ) {
@@ -169,6 +166,7 @@ private fun LandingScreen(
 
         Box(Modifier.fillMaxSize()) {
 
+            val appModule = LocalAppModule.current
             val scope = rememberCoroutineScope()
 
             val switcherItems = remember {

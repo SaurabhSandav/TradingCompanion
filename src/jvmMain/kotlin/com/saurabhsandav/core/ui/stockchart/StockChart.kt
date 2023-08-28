@@ -31,6 +31,7 @@ import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
 
+@Stable
 internal class StockChart(
     val appModule: AppModule,
     private val marketDataProvider: MarketDataProvider,

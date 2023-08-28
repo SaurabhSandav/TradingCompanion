@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.charts.tradereview
 
+import androidx.compose.runtime.Stable
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -18,6 +19,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
+@Stable
 internal class TradeReviewMarkersProvider(
     private val appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
