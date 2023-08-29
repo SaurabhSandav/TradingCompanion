@@ -19,9 +19,10 @@ import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingState.*
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
@@ -29,6 +30,8 @@ import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
+import com.saurabhsandav.core.ui.trade.TradeWindow
+import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import com.saurabhsandav.core.ui.tradeorders.TradeOrdersLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
@@ -164,6 +167,29 @@ private fun LandingScreen(
             }
         }
 
+        val orderFormWindowsManager = remember { AppWindowsManager<OrderFormWindowParams>() }
+        val tradeWindowsManager = remember { AppWindowsManager<TradeWindowParams>() }
+
+        // Trade order windows
+        orderFormWindowsManager.Windows { window ->
+
+            OrderFormWindow(
+                profileId = window.params.profileId,
+                formType = window.params.formType,
+                onCloseRequest = window::close,
+            )
+        }
+
+        // Trade windows
+        tradeWindowsManager.Windows { window ->
+
+            TradeWindow(
+                profileId = window.params.profileId,
+                tradeId = window.params.tradeId,
+                onCloseRequest = window::close,
+            )
+        }
+
         Box(Modifier.fillMaxSize()) {
 
             val appModule = LocalAppModule.current
@@ -173,8 +199,9 @@ private fun LandingScreen(
                 mapOf(
                     LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
-                    LandingScreen.TradeOrders to TradeOrdersLandingSwitcherItem(scope, appModule),
-                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule),
+                    LandingScreen.TradeOrders to
+                            TradeOrdersLandingSwitcherItem(scope, appModule, orderFormWindowsManager),
+                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule, tradeWindowsManager),
                     LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
                 )
             }

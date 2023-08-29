@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 
 @Immutable
 internal data class LandingState(
@@ -32,4 +33,16 @@ internal data class LandingState(
             )
         }
     }
+
+    @Immutable
+    internal data class OrderFormWindowParams(
+        val profileId: Long,
+        val formType: OrderFormType,
+    )
+
+    @Immutable
+    internal data class TradeWindowParams(
+        val profileId: Long,
+        val tradeId: Long,
+    )
 }

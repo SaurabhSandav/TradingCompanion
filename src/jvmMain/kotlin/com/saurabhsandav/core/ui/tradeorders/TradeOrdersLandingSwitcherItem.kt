@@ -4,16 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
+import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
 import kotlinx.coroutines.CoroutineScope
 
 internal class TradeOrdersLandingSwitcherItem(
     coroutineScope: CoroutineScope,
     appModule: AppModule,
+    orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
 ) : LandingSwitcherItem {
 
-    private val presenter = TradeOrdersPresenter(coroutineScope, appModule)
+    private val presenter = TradeOrdersPresenter(coroutineScope, appModule, orderFormWindowsManager)
 
     @Composable
     override fun Content() {
@@ -28,16 +31,6 @@ internal class TradeOrdersLandingSwitcherItem(
             onEditOrder = { state.eventSink(EditOrder(it)) },
             onDeleteOrders = { ids -> state.eventSink(DeleteOrders(ids)) },
             errors = state.errors,
-        )
-    }
-
-    @Composable
-    override fun Windows() {
-
-        val state by presenter.state.collectAsState()
-
-        TradeOrdersScreenWindows(
-            orderFormWindowsManager = state.orderFormWindowsManager,
         )
     }
 }

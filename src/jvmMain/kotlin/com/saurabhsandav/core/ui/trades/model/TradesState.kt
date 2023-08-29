@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.ImmutableList
 @Immutable
 internal data class TradesState(
     val tradesItems: ImmutableList<TradeListItem>,
-    val tradeWindowsManager: AppWindowsManager<ProfileTradeId>,
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: ImmutableList<UIErrorMessage>,

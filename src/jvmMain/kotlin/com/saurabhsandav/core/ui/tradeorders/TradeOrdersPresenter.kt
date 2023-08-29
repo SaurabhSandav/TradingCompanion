@@ -8,6 +8,7 @@ import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
@@ -31,17 +32,16 @@ import java.util.*
 internal class TradeOrdersPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeOrdersState(
             tradeOrderItems = getTradeListEntries().value,
-            orderFormWindowsManager = orderFormWindowsManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
@@ -62,9 +62,6 @@ internal class TradeOrdersPresenter(
     private fun getTradeListEntries(): State<ImmutableList<TradeOrderListItem>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
-
-                // Close all child windows
-                orderFormWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -106,8 +103,7 @@ internal class TradeOrdersPresenter(
 
         val currentProfile = tradingProfiles.currentProfile.first()
 
-        val params = OrderFormParams(
-            id = UUID.randomUUID(),
+        val params = OrderFormWindowParams(
             profileId = currentProfile.id,
             formType = OrderFormType.New(),
         )
@@ -125,8 +121,7 @@ internal class TradeOrdersPresenter(
             // Open new window
             null -> {
 
-                val params = OrderFormParams(
-                    id = UUID.randomUUID(),
+                val params = OrderFormWindowParams(
                     profileId = profileOrderId.profileId,
                     formType = OrderFormType.NewFromExisting(profileOrderId.orderId),
                 )
@@ -149,8 +144,7 @@ internal class TradeOrdersPresenter(
             // Open new window
             null -> {
 
-                val params = OrderFormParams(
-                    id = UUID.randomUUID(),
+                val params = OrderFormWindowParams(
                     profileId = profileOrderId.profileId,
                     formType = OrderFormType.Edit(profileOrderId.orderId),
                 )

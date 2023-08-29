@@ -8,9 +8,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
 import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
 import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersSelectionBar
 import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersTable
@@ -69,22 +67,6 @@ internal fun TradeOrdersScreen(
             selectionManager = selectionManager,
             onLockOrders = onLockOrders,
             onDeleteOrders = onDeleteOrders,
-        )
-    }
-}
-
-@Composable
-internal fun TradeOrdersScreenWindows(
-    orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
-) {
-
-    // Order form windows
-    orderFormWindowsManager.Windows { window ->
-
-        OrderFormWindow(
-            profileId = window.params.profileId,
-            formType = window.params.formType,
-            onCloseRequest = window::close,
         )
     }
 }

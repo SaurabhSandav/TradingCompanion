@@ -10,7 +10,6 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
-import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
@@ -50,20 +49,9 @@ internal fun TradesScreen(
 
 @Composable
 internal fun TradesScreenWindows(
-    tradeWindowsManager: AppWindowsManager<ProfileTradeId>,
     chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     fyersLoginWindowState: FyersLoginWindow,
 ) {
-
-    // Detail Windows
-    tradeWindowsManager.Windows { window ->
-
-        TradeWindow(
-            profileId = window.params.profileId,
-            tradeId = window.params.tradeId,
-            onCloseRequest = window::close,
-        )
-    }
 
     // Chart windows
     chartWindowsManager.Windows { window ->

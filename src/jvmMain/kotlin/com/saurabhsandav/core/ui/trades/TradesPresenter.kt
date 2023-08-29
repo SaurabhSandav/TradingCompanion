@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
@@ -51,13 +52,13 @@ import java.util.*
 internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
-    private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
@@ -66,7 +67,6 @@ internal class TradesPresenter(
 
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
-            tradeWindowsManager = tradeWindowsManager,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = remember(errors) { errors.toImmutableList() },
@@ -88,7 +88,6 @@ internal class TradesPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                tradeWindowsManager.closeAll()
                 chartWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
@@ -144,12 +143,22 @@ internal class TradesPresenter(
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
-        val window = tradeWindowsManager.windows.find { it.params == profileTradeId }
+        val window = tradeWindowsManager.windows.find {
+            it.params.profileId == profileTradeId.profileId && it.params.tradeId == profileTradeId.tradeId
+        }
 
         when (window) {
 
             // Open new window
-            null -> tradeWindowsManager.newWindow(profileTradeId)
+            null -> {
+
+                val params = TradeWindowParams(
+                    profileId = profileTradeId.profileId,
+                    tradeId = profileTradeId.tradeId
+                )
+
+                tradeWindowsManager.newWindow(params)
+            }
 
             // Window already open. Bring to front.
             else -> window.toFront()
