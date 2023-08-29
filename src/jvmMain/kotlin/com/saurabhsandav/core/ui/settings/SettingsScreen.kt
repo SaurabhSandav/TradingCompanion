@@ -16,7 +16,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.ListSelectionField
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList

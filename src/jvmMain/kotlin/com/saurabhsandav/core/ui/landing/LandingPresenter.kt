@@ -9,8 +9,8 @@ import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
-import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.landing.model.LandingState
+import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.CoroutineScope

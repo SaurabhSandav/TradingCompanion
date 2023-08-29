@@ -9,26 +9,27 @@ import androidx.compose.ui.graphics.vector.ImageVector
 internal data class LandingState(
     val currentScreen: LandingScreen?,
     val eventSink: (LandingEvent) -> Unit,
-)
-
-enum class LandingScreen(
-    val title: String,
-    val icon: ImageVector,
 ) {
-    Account("Account", Icons.Filled.AccountBalance),
-    TradeSizing("Trade Sizing", Icons.Filled.Straighten),
-    TradeOrders("Orders", Icons.Filled.FolderOpen),
-    Trades("Trades", Icons.Filled.Folder),
-    Studies("Studies", Icons.Filled.FactCheck);
 
-    companion object {
+    enum class LandingScreen(
+        val title: String,
+        val icon: ImageVector,
+    ) {
+        Account("Account", Icons.Filled.AccountBalance),
+        TradeSizing("Trade Sizing", Icons.Filled.Straighten),
+        TradeOrders("Orders", Icons.Filled.FolderOpen),
+        Trades("Trades", Icons.Filled.Folder),
+        Studies("Studies", Icons.Filled.FactCheck);
 
-        val items = listOf(
-            Account,
-            TradeSizing,
-            TradeOrders,
-            Trades,
-            Studies,
-        )
+        companion object {
+
+            val items = listOf(
+                Account,
+                TradeSizing,
+                TradeOrders,
+                Trades,
+                Studies,
+            )
+        }
     }
 }

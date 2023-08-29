@@ -21,7 +21,7 @@ import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
-import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState

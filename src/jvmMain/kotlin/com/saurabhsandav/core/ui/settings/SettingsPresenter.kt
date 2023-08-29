@@ -8,7 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.SettingsState
