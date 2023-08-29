@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.trades.detail
+package com.saurabhsandav.core.ui.trade
 
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
@@ -6,10 +6,10 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.*
+import com.saurabhsandav.core.ui.trade.model.TradeEvent
+import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
+import com.saurabhsandav.core.ui.trade.model.TradeState
+import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Stable
-internal class TradeDetailPresenter(
+internal class TradePresenter(
     private val profileId: Long,
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,
@@ -36,8 +36,8 @@ internal class TradeDetailPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        return@launchMolecule TradeDetailState(
-            tradeDetail = getTradeDetail().value,
+        return@launchMolecule TradeState(
+            details = getTradeDetail().value,
             mfeAndMae = getMfeAndMae().value,
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
@@ -48,7 +48,7 @@ internal class TradeDetailPresenter(
 
     val errors = mutableStateListOf<UIErrorMessage>()
 
-    private fun onEvent(event: TradeDetailEvent) {
+    private fun onEvent(event: TradeEvent) {
 
         when (event) {
             is AddStop -> onAddStop(event.price)
@@ -62,8 +62,8 @@ internal class TradeDetailPresenter(
     }
 
     @Composable
-    private fun getTradeDetail(): State<TradeDetail?> {
-        return produceState<TradeDetail?>(null) {
+    private fun getTradeDetail(): State<Details?> {
+        return produceState<Details?>(null) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -79,7 +79,7 @@ internal class TradeDetailPresenter(
 
                 val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
 
-                value = TradeDetail(
+                value = Details(
                     id = trade.id,
                     broker = "${trade.broker} ($instrumentCapitalized)",
                     ticker = trade.ticker,

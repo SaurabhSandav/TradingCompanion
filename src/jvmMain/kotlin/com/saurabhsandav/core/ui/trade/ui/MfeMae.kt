@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.trades.detail.ui
+package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,10 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState
+import com.saurabhsandav.core.ui.trade.model.TradeState
 
 @Composable
-internal fun MfeAndMae(mfeAndMae: TradeDetailState.MfeAndMae) {
+internal fun MfeAndMae(mfeAndMae: TradeState.MfeAndMae) {
 
     Column(
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),

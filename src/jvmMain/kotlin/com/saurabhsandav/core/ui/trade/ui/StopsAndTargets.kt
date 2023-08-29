@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.trades.detail.ui
+package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.border
@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.TradeStop
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.TradeTarget
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import kotlinx.collections.immutable.ImmutableList
 import java.math.BigDecimal
 

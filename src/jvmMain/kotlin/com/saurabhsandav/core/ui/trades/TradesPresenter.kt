@@ -57,7 +57,7 @@ internal class TradesPresenter(
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
-    private val tradeDetailWindowsManager = AppWindowsManager<ProfileTradeId>()
+    private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
@@ -66,7 +66,7 @@ internal class TradesPresenter(
 
         return@launchMolecule TradesState(
             tradesItems = getTradeListEntries().value,
-            tradeDetailWindowsManager = tradeDetailWindowsManager,
+            tradeWindowsManager = tradeWindowsManager,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = remember(errors) { errors.toImmutableList() },
@@ -88,7 +88,7 @@ internal class TradesPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                tradeDetailWindowsManager.closeAll()
+                tradeWindowsManager.closeAll()
                 chartWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
@@ -144,12 +144,12 @@ internal class TradesPresenter(
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
-        val window = tradeDetailWindowsManager.windows.find { it.params == profileTradeId }
+        val window = tradeWindowsManager.windows.find { it.params == profileTradeId }
 
         when (window) {
 
             // Open new window
-            null -> tradeDetailWindowsManager.newWindow(profileTradeId)
+            null -> tradeWindowsManager.newWindow(profileTradeId)
 
             // Window already open. Bring to front.
             else -> window.toFront()

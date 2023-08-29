@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.trades.detail
+package com.saurabhsandav.core.ui.trade
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,14 +14,14 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailEvent.*
-import com.saurabhsandav.core.ui.trades.detail.ui.MfeAndMae
-import com.saurabhsandav.core.ui.trades.detail.ui.Notes
-import com.saurabhsandav.core.ui.trades.detail.ui.StopsAndTargets
-import com.saurabhsandav.core.ui.trades.detail.ui.TradeDetailItem
+import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
+import com.saurabhsandav.core.ui.trade.ui.Details
+import com.saurabhsandav.core.ui.trade.ui.MfeAndMae
+import com.saurabhsandav.core.ui.trade.ui.Notes
+import com.saurabhsandav.core.ui.trade.ui.StopsAndTargets
 
 @Composable
-internal fun TradeDetailWindow(
+internal fun TradeWindow(
     profileId: Long,
     tradeId: Long,
     onCloseRequest: () -> Unit,
@@ -29,7 +29,7 @@ internal fun TradeDetailWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradeDetailPresenter(profileId, tradeId, scope, appModule) }
+    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule) }
 
     val windowState = rememberWindowState(
         placement = WindowPlacement.Maximized,
@@ -37,24 +37,24 @@ internal fun TradeDetailWindow(
 
     AppWindow(
         state = windowState,
-        title = "Trade Detail ($tradeId)",
+        title = "Trade ($tradeId)",
         onCloseRequest = onCloseRequest,
     ) {
 
-        TradeDetailScreen(presenter)
+        TradeScreen(presenter)
     }
 }
 
 @Composable
-internal fun TradeDetailScreen(
-    presenter: TradeDetailPresenter,
+internal fun TradeScreen(
+    presenter: TradePresenter,
 ) {
 
     val state by presenter.state.collectAsState()
 
     Scaffold {
 
-        when (val detail = state.tradeDetail) {
+        when (val details = state.details) {
             null -> CircularProgressIndicator()
             else -> {
 
@@ -63,7 +63,7 @@ internal fun TradeDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
 
-                    TradeDetailItem(detail)
+                    Details(details)
 
                     val mfeAndMae = state.mfeAndMae
 

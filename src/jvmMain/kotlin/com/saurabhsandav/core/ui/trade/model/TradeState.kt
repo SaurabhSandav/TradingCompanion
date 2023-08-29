@@ -1,21 +1,21 @@
-package com.saurabhsandav.core.ui.trades.detail.model
+package com.saurabhsandav.core.ui.trade.model
 
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 import java.math.BigDecimal
 
 @Immutable
-internal data class TradeDetailState(
-    val tradeDetail: TradeDetail?,
+internal data class TradeState(
+    val details: Details?,
     val mfeAndMae: MfeAndMae?,
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
     val notes: ImmutableList<TradeNote>,
-    val eventSink: (TradeDetailEvent) -> Unit,
+    val eventSink: (TradeEvent) -> Unit,
 ) {
 
     @Immutable
-    internal data class TradeDetail(
+    internal data class Details(
         val id: Long,
         val broker: String,
         val ticker: String,

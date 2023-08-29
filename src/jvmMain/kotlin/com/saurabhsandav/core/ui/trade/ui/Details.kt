@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.trades.detail.ui
+package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,10 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.trades.detail.model.TradeDetailState.TradeDetail
+import com.saurabhsandav.core.ui.trade.model.TradeState.Details
 
 @Composable
-internal fun TradeDetailItem(detail: TradeDetail) {
+internal fun Details(details: Details) {
 
     Column(
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -52,37 +52,37 @@ internal fun TradeDetailItem(detail: TradeDetail) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Text(detail.broker, Modifier.weight(2F))
+            Text(details.broker, Modifier.weight(2F))
 
-            Text(detail.ticker, Modifier.weight(1F))
-
-            Text(
-                text = detail.side,
-                modifier = Modifier.weight(1F),
-                color = if (detail.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
-            )
-
-            Text(detail.quantity, Modifier.weight(1F))
-
-            Text(detail.entry, Modifier.weight(1F))
-
-            Text(detail.exit ?: "NA", Modifier.weight(1F))
-
-            Text(detail.duration, Modifier.weight(2F))
+            Text(details.ticker, Modifier.weight(1F))
 
             Text(
-                text = detail.pnl,
+                text = details.side,
                 modifier = Modifier.weight(1F),
-                color = if (detail.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                color = if (details.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
+            )
+
+            Text(details.quantity, Modifier.weight(1F))
+
+            Text(details.entry, Modifier.weight(1F))
+
+            Text(details.exit ?: "NA", Modifier.weight(1F))
+
+            Text(details.duration, Modifier.weight(2F))
+
+            Text(
+                text = details.pnl,
+                modifier = Modifier.weight(1F),
+                color = if (details.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
             )
 
             Text(
-                text = detail.netPnl,
+                text = details.netPnl,
                 modifier = Modifier.weight(1F),
-                color = if (detail.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                color = if (details.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
             )
 
-            Text(detail.fees, Modifier.weight(1F))
+            Text(details.fees, Modifier.weight(1F))
         }
     }
 }

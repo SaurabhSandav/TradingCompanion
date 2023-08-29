@@ -35,7 +35,7 @@ internal class TradesLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         TradesScreenWindows(
-            tradeDetailWindowsManager = state.tradeDetailWindowsManager,
+            tradeWindowsManager = state.tradeWindowsManager,
             chartWindowsManager = state.chartWindowsManager,
             fyersLoginWindowState = state.fyersLoginWindowState,
         )
