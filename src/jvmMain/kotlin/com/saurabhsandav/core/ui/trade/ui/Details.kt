@@ -1,15 +1,19 @@
 package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details
 
 @Composable
@@ -19,70 +23,50 @@ internal fun Details(details: Details) {
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        Row(
-            modifier = Modifier.fillMaxWidth().height(64.dp).padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        val schema = rememberTableSchema<Details> {
+            addColumnText("Broker", span = 1.5F) { it.broker }
+            addColumnText("Ticker") { it.ticker }
+            addColumn("Side") {
 
-            Text("Broker", Modifier.weight(2F))
+                Text(
+                    text = it.side,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
+                )
+            }
+            addColumnText("Quantity") { it.quantity }
+            addColumnText("Avg. Entry") { it.entry }
+            addColumnText("Avg. Exit") { it.exit ?: "NA" }
+            addColumnText("Duration", span = 2F) { it.duration }
+            addColumn("PNL") {
 
-            Text("Ticker", Modifier.weight(1F))
+                Text(
+                    text = it.pnl,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                )
+            }
+            addColumn("Net PNL") {
 
-            Text("Side", Modifier.weight(1F))
-
-            Text("Quantity", Modifier.weight(1F))
-
-            Text("Avg. Entry", Modifier.weight(1F))
-
-            Text("Avg. Exit", Modifier.weight(1F))
-
-            Text("Duration", Modifier.weight(2F))
-
-            Text("PNL", Modifier.weight(1F))
-
-            Text("Net PNL", Modifier.weight(1F))
-
-            Text("Fees", Modifier.weight(1F))
+                Text(
+                    text = it.netPnl,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                )
+            }
+            addColumnText("Fees") { it.fees }
         }
 
-        Divider()
+        ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+            DefaultTableHeader(schema = schema)
 
-            Text(details.broker, Modifier.weight(2F))
+            Divider()
 
-            Text(details.ticker, Modifier.weight(1F))
-
-            Text(
-                text = details.side,
-                modifier = Modifier.weight(1F),
-                color = if (details.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
+            DefaultTableRow(
+                item = details,
+                schema = schema,
             )
-
-            Text(details.quantity, Modifier.weight(1F))
-
-            Text(details.entry, Modifier.weight(1F))
-
-            Text(details.exit ?: "NA", Modifier.weight(1F))
-
-            Text(details.duration, Modifier.weight(2F))
-
-            Text(
-                text = details.pnl,
-                modifier = Modifier.weight(1F),
-                color = if (details.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-            )
-
-            Text(
-                text = details.netPnl,
-                modifier = Modifier.weight(1F),
-                color = if (details.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-            )
-
-            Text(details.fees, Modifier.weight(1F))
         }
     }
 }

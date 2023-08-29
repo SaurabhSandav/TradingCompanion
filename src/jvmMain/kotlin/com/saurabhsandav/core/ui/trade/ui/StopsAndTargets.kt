@@ -2,7 +2,9 @@ package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -12,9 +14,14 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
+import com.saurabhsandav.core.ui.common.table.DefaultTableRow
+import com.saurabhsandav.core.ui.common.table.addColumnText
+import com.saurabhsandav.core.ui.common.table.rememberTableSchema
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import kotlinx.collections.immutable.ImmutableList
@@ -60,57 +67,35 @@ private fun StopsList(
 
     Column(
         modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        // Header
-        Row(
-            modifier = Modifier.height(64.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        val schema = rememberTableSchema<TradeStop> {
+            addColumnText("Stop") { it.priceText }
+            addColumnText("Risk") { it.risk }
+            addColumn(span = .5f) { stop ->
 
-            Text(
-                text = "Stop",
-                modifier = Modifier.weight(1F),
-                textAlign = TextAlign.Center,
-            )
-
-            Text(
-                text = "Risk",
-                modifier = Modifier.weight(1F),
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(Modifier.weight(1F))
+                DeleteIconButton(
+                    deleteTypeText = "Stop @ ${stop.priceText}",
+                    onDelete = { onDeleteStop(stop.price) },
+                )
+            }
         }
 
-        Divider()
+        ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-        // Stops list
-        stops.forEach { stop ->
+            // Header
+            DefaultTableHeader(schema = schema)
 
-            key(stop) {
+            Divider()
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+            // Stops list
+            stops.forEach { stop ->
 
-                    Text(
-                        text = stop.priceText,
-                        modifier = Modifier.weight(1F),
-                        textAlign = TextAlign.Center,
-                    )
+                key(stop) {
 
-                    Text(
-                        text = stop.risk,
-                        modifier = Modifier.weight(1F),
-                        textAlign = TextAlign.Center,
-                    )
-
-                    DeleteIconButton(
-                        deleteTypeText = "Stop @ ${stop.priceText}",
-                        onDelete = { onDeleteStop(stop.price) },
-                        modifier = Modifier.weight(1F),
+                    DefaultTableRow(
+                        item = stop,
+                        schema = schema,
                     )
                 }
             }
@@ -137,57 +122,35 @@ private fun TargetsList(
 
     Column(
         modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        // Header
-        Row(
-            modifier = Modifier.height(64.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        val schema = rememberTableSchema<TradeTarget> {
+            addColumnText("Target") { it.priceText }
+            addColumnText("Profit") { it.profit }
+            addColumn(span = .5f) { target ->
 
-            Text(
-                text = "Target",
-                modifier = Modifier.weight(1F),
-                textAlign = TextAlign.Center,
-            )
-
-            Text(
-                text = "Profit",
-                modifier = Modifier.weight(1F),
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(Modifier.weight(1F))
+                DeleteIconButton(
+                    deleteTypeText = "Target @ ${target.priceText}",
+                    onDelete = { onDeleteTarget(target.price) },
+                )
+            }
         }
 
-        Divider()
+        ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-        // Targets list
-        targets.forEach { target ->
+            // Header
+            DefaultTableHeader(schema = schema)
 
-            key(target) {
+            Divider()
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+            // Targets list
+            targets.forEach { target ->
 
-                    Text(
-                        text = target.priceText,
-                        modifier = Modifier.weight(1F),
-                        textAlign = TextAlign.Center,
-                    )
+                key(target) {
 
-                    Text(
-                        text = target.profit,
-                        modifier = Modifier.weight(1F),
-                        textAlign = TextAlign.Center,
-                    )
-
-                    DeleteIconButton(
-                        deleteTypeText = "Target @ ${target.priceText}",
-                        onDelete = { onDeleteTarget(target.price) },
-                        modifier = Modifier.weight(1F),
+                    DefaultTableRow(
+                        item = target,
+                        schema = schema,
                     )
                 }
             }
@@ -208,14 +171,12 @@ private fun TargetsList(
 private fun DeleteIconButton(
     deleteTypeText: String,
     onDelete: () -> Unit,
-    modifier: Modifier,
 ) {
 
     var showDeleteConfirmationDialog by state { false }
 
     IconButton(
         onClick = { showDeleteConfirmationDialog = true },
-        modifier = modifier,
     ) {
 
         Icon(Icons.Default.Close, contentDescription = "Delete $deleteTypeText")

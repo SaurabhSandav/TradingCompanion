@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.common.table
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 
 interface TableSchema<T> {
 
@@ -39,8 +41,15 @@ fun <T> TableSchema<T>.addColumn(
     span: Float = 1F,
     content: @Composable (T) -> Unit,
 ) {
+
     addColumn(
-        header = { Text(headerText) },
+        header = {
+
+            Text(
+                text = headerText,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
         span = span,
         content = content,
     )
@@ -52,9 +61,21 @@ fun <T> TableSchema<T>.addColumnText(
     contentText: (T) -> String,
 ) {
     addColumn(
-        header = { Text(headerText) },
+        header = {
+
+            Text(
+                text = headerText,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
         span = span,
-        content = { Text(contentText(it)) },
+        content = {
+
+            Text(
+                text = contentText(it),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
     )
 }
 

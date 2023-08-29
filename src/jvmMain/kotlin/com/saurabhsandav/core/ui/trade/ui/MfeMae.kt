@@ -1,59 +1,44 @@
 package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.trade.model.TradeState
+import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
+import com.saurabhsandav.core.ui.common.table.DefaultTableRow
+import com.saurabhsandav.core.ui.common.table.addColumnText
+import com.saurabhsandav.core.ui.common.table.rememberTableSchema
+import com.saurabhsandav.core.ui.trade.model.TradeState.MfeAndMae
 
 @Composable
-internal fun MfeAndMae(mfeAndMae: TradeState.MfeAndMae) {
+internal fun MfeAndMae(mfeAndMae: MfeAndMae) {
 
     Column(
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        Row(
-            modifier = Modifier.fillMaxWidth().height(64.dp).padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            Text(
-                modifier = Modifier.weight(1F),
-                text = "Maximum Favorable Excursion",
-                textAlign = TextAlign.Center,
-            )
-
-            Text(
-                modifier = Modifier.weight(1F),
-                text = "Maximum Adverse Excursion",
-                textAlign = TextAlign.Center,
-            )
+        val schema = rememberTableSchema<MfeAndMae> {
+            addColumnText("Maximum Favorable Excursion") { it.mfePrice }
+            addColumnText("Maximum Adverse Excursion") { it.maePrice }
         }
 
-        Divider()
+        ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+            // Header
+            DefaultTableHeader(schema = schema)
 
-            Text(
-                modifier = Modifier.weight(1F),
-                text = mfeAndMae.mfePrice,
-                textAlign = TextAlign.Center,
-            )
+            Divider()
 
-            Text(
-                modifier = Modifier.weight(1F),
-                text = mfeAndMae.maePrice,
-                textAlign = TextAlign.Center,
+            DefaultTableRow(
+                item = mfeAndMae,
+                schema = schema,
             )
         }
     }
