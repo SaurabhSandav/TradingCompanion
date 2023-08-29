@@ -14,8 +14,7 @@ VALUES ("Default", "", "DEFAULT", 0);
 
 insert:
 INSERT INTO TradingProfile(name, description, path, isTraining)
-VALUES (?, ?, ?, ?)
-RETURNING id;
+VALUES (?, ?, ?, ?);
 
 get:
 SELECT * FROM TradingProfile

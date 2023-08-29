@@ -62,12 +62,15 @@ internal class TradingProfiles(
         appDB.transactionWithResult {
 
             // Insert into DB
-            val id = appDB.tradingProfileQueries.insert(
+            appDB.tradingProfileQueries.insert(
                 name = name,
                 description = description,
                 path = path ?: UUID.randomUUID().toString(),
                 isTraining = isTraining,
-            ).executeAsOne()
+            )
+
+            // Get id of last inserted row
+            val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
             // Return TradingProfile
             appDB.tradingProfileQueries.get(id).asFlow().mapToOne(Dispatchers.IO)
