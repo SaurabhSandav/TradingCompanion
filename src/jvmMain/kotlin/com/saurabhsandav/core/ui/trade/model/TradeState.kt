@@ -7,9 +7,10 @@ import java.math.BigDecimal
 @Immutable
 internal data class TradeState(
     val details: Details?,
-    val mfeAndMae: MfeAndMae?,
+    val orders: ImmutableList<Order>,
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
+    val mfeAndMae: MfeAndMae?,
     val notes: ImmutableList<TradeNote>,
     val eventSink: (TradeEvent) -> Unit,
 ) {
@@ -29,6 +30,16 @@ internal data class TradeState(
         val netPnl: String,
         val isNetProfitable: Boolean,
         val fees: String,
+    )
+
+    @Immutable
+    internal data class Order(
+        val id: Long,
+        val quantity: String,
+        val type: String,
+        val price: String,
+        val timestamp: String,
+        val locked: Boolean,
     )
 
     @Immutable

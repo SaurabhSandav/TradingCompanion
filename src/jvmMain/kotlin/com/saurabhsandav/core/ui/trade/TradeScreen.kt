@@ -14,22 +14,24 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
-import com.saurabhsandav.core.ui.trade.ui.Details
-import com.saurabhsandav.core.ui.trade.ui.MfeAndMae
-import com.saurabhsandav.core.ui.trade.ui.Notes
-import com.saurabhsandav.core.ui.trade.ui.StopsAndTargets
+import com.saurabhsandav.core.ui.trade.model.TradeState
+import com.saurabhsandav.core.ui.trade.ui.*
 
 @Composable
 internal fun TradeWindow(
     profileId: Long,
     tradeId: Long,
+    orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule) }
+    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule, orderFormWindowsManager) }
+    val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
         placement = WindowPlacement.Maximized,
@@ -41,16 +43,14 @@ internal fun TradeWindow(
         onCloseRequest = onCloseRequest,
     ) {
 
-        TradeScreen(presenter)
+        TradeScreen(state)
     }
 }
 
 @Composable
 internal fun TradeScreen(
-    presenter: TradePresenter,
+    state: TradeState,
 ) {
-
-    val state by presenter.state.collectAsState()
 
     Scaffold {
 
@@ -65,11 +65,16 @@ internal fun TradeScreen(
 
                     Details(details)
 
-                    val mfeAndMae = state.mfeAndMae
-
-                    if (mfeAndMae != null) {
-                        MfeAndMae(mfeAndMae)
+                    if (state.mfeAndMae != null) {
+                        MfeAndMae(state.mfeAndMae)
                     }
+
+                    TradeOrdersTable(
+                        tradeOrderItems = state.orders,
+                        onEditOrder = { orderId -> state.eventSink(EditOrder(orderId)) },
+                        onLockOrder = { orderId -> state.eventSink(LockOrder(orderId)) },
+                        onDeleteOrder = { orderId -> state.eventSink(DeleteOrder(orderId)) },
+                    )
 
                     StopsAndTargets(
                         stops = state.stops,

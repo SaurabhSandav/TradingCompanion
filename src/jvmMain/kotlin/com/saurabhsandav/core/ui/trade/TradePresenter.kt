@@ -6,10 +6,13 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
+import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -31,6 +34,7 @@ internal class TradePresenter(
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val orderFormWindowsManager: AppWindowsManager<LandingState.OrderFormWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
@@ -38,9 +42,10 @@ internal class TradePresenter(
 
         return@launchMolecule TradeState(
             details = getTradeDetail().value,
-            mfeAndMae = getMfeAndMae().value,
+            orders = getTradeOrders().value,
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
+            mfeAndMae = getMfeAndMae().value,
             notes = getTradeNotes().value,
             eventSink = ::onEvent,
         )
@@ -51,6 +56,9 @@ internal class TradePresenter(
     private fun onEvent(event: TradeEvent) {
 
         when (event) {
+            is EditOrder -> onEditOrder(event.orderId)
+            is LockOrder -> onLockOrder(event.orderId)
+            is DeleteOrder -> onDeleteOrder(event.orderId)
             is AddStop -> onAddStop(event.price)
             is DeleteStop -> onDeleteStop(event.price)
             is AddTarget -> onAddTarget(event.price)
@@ -100,19 +108,25 @@ internal class TradePresenter(
     }
 
     @Composable
-    private fun getMfeAndMae(): State<MfeAndMae?> {
-        return produceState<MfeAndMae?>(null) {
+    private fun getTradeOrders(): State<ImmutableList<Order>> {
+        return produceState<ImmutableList<Order>>(persistentListOf()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getMfeAndMae(tradeId).map { mfeAndMae ->
+            tradingRecord.trades.getOrdersForTrade(tradeId).collect { orders ->
 
-                mfeAndMae ?: return@map null
+                value = orders.map { order ->
 
-                MfeAndMae(
-                    mfePrice = mfeAndMae.mfePrice.toPlainString(),
-                    maePrice = mfeAndMae.maePrice.toPlainString(),
-                )
+                    Order(
+                        id = order.id,
+                        quantity = order.lots?.let { "${order.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
+                            ?: order.quantity.toString(),
+                        type = order.type.strValue.uppercase(),
+                        price = order.price.toPlainString(),
+                        timestamp = order.timestamp.time.toString(),
+                        locked = order.locked,
+                    )
+                }.toImmutableList()
             }
         }
     }
@@ -156,6 +170,24 @@ internal class TradePresenter(
     }
 
     @Composable
+    private fun getMfeAndMae(): State<MfeAndMae?> {
+        return produceState<MfeAndMae?>(null) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades.getMfeAndMae(tradeId).map { mfeAndMae ->
+
+                mfeAndMae ?: return@map null
+
+                MfeAndMae(
+                    mfePrice = mfeAndMae.mfePrice.toPlainString(),
+                    maePrice = mfeAndMae.maePrice.toPlainString(),
+                )
+            }
+        }
+    }
+
+    @Composable
     private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
         return produceState<ImmutableList<TradeNote>>(persistentListOf()) {
 
@@ -184,6 +216,43 @@ internal class TradePresenter(
                 }
                 .collect { value = it.toImmutableList() }
         }
+    }
+
+    private fun onEditOrder(orderId: Long) {
+
+        val window = orderFormWindowsManager.windows.find {
+            it.params.formType is OrderFormType.Edit && it.params.formType.id == orderId
+        }
+
+        when (window) {
+            // Open new window
+            null -> {
+
+                val params = LandingState.OrderFormWindowParams(
+                    profileId = profileId,
+                    formType = OrderFormType.Edit(orderId),
+                )
+
+                orderFormWindowsManager.newWindow(params)
+            }
+
+            // Window already open. Bring to front.
+            else -> window.toFront()
+        }
+    }
+
+    private fun onLockOrder(orderId: Long) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        tradingRecord.orders.lock(listOf(orderId))
+    }
+
+    private fun onDeleteOrder(orderId: Long) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        tradingRecord.orders.delete(listOf(orderId))
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {

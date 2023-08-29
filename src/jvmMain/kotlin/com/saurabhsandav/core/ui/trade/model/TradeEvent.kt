@@ -4,6 +4,12 @@ import java.math.BigDecimal
 
 internal sealed class TradeEvent {
 
+    data class EditOrder(val orderId: Long) : TradeEvent()
+
+    data class LockOrder(val orderId: Long) : TradeEvent()
+
+    data class DeleteOrder(val orderId: Long) : TradeEvent()
+
     data class AddStop(val price: BigDecimal) : TradeEvent()
 
     data class DeleteStop(val price: BigDecimal) : TradeEvent()

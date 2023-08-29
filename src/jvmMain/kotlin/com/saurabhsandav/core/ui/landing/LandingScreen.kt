@@ -186,6 +186,7 @@ private fun LandingScreen(
             TradeWindow(
                 profileId = window.params.profileId,
                 tradeId = window.params.tradeId,
+                orderFormWindowsManager = orderFormWindowsManager,
                 onCloseRequest = window::close,
             )
         }
