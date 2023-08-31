@@ -6,6 +6,7 @@ import java.math.BigDecimal
 
 @Immutable
 internal data class TradeState(
+    val title: String,
     val details: Details?,
     val orders: ImmutableList<Order>,
     val stops: ImmutableList<TradeStop>,

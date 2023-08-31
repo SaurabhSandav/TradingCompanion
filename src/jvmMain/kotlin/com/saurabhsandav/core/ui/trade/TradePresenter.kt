@@ -40,7 +40,12 @@ internal class TradePresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
+        val tradingProfileName by remember {
+            tradingProfiles.getProfile(profileId).map { profile -> "${profile.name} - " }
+        }.collectAsState("")
+
         return@launchMolecule TradeState(
+            title = "${tradingProfileName}Trade ($tradeId)",
             details = getTradeDetail().value,
             orders = getTradeOrders().value,
             stops = getTradeStops().value,

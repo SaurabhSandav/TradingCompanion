@@ -39,7 +39,7 @@ internal fun TradeWindow(
 
     AppWindow(
         state = windowState,
-        title = "Trade ($tradeId)",
+        title = state.title,
         onCloseRequest = onCloseRequest,
     ) {
 
