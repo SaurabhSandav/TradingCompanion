@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.gradle.versions.checker)
@@ -19,29 +20,6 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
-allprojects {
-
-    tasks.withType(org.jetbrains.kotlin.gradle.dsl.KotlinCompile::class.java).configureEach {
-
-        kotlinOptions {
-
-        // Trigger this with:
-            // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
-            if (project.findProperty("enableMultiModuleComposeReports") == "true") {
-
-                val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
-
-                freeCompilerArgs += listOf(
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
-                )
-            }
-        }
-    }
-}
-
 kotlin {
 
     jvm {
@@ -51,8 +29,29 @@ kotlin {
         }
 
         compilations.all {
-            kotlinOptions {
-                jvmTarget = "18"
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_1_8)
+            }
+        }
+    }
+
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+
+                // Trigger this with:
+                // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
+                if (project.findProperty("enableMultiModuleComposeReports") == "true") {
+
+                    val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
+
+                    freeCompilerArgs.addAll(
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
+                    )
+                }
             }
         }
     }
