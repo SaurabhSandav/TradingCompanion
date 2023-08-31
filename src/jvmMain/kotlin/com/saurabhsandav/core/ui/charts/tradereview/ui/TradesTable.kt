@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.charts.tradereview.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -109,9 +108,9 @@ private fun TableScope<TradeEntry>.tradeItems(
             Column {
 
                 DefaultTableRow(
-                    modifier = Modifier.clickable { onSelectTrade(item.id) },
                     item = item,
                     schema = schema,
+                    onClick = { onSelectTrade(item.id) },
                 )
 
                 Divider()
