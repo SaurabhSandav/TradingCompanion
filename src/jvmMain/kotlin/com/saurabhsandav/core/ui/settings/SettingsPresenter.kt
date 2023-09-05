@@ -33,8 +33,9 @@ internal class SettingsPresenter(
 
         val landingScreen by remember {
             appPrefs.getStringFlow(PrefKeys.LandingScreen, PrefDefaults.LandingScreen.name)
-                .map { LandingScreen.valueOf(it).title }
-        }.collectAsState(PrefDefaults.LandingScreen.name)
+                .map { kotlin.runCatching { LandingScreen.valueOf(it) }.getOrNull() ?: PrefDefaults.LandingScreen }
+                .map { it.title }
+        }.collectAsState(PrefDefaults.LandingScreen.title)
 
         val densityFraction by appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
             .collectAsState(PrefDefaults.DensityFraction)

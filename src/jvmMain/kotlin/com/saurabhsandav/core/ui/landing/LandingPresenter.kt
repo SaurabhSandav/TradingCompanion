@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @Stable
 internal class LandingPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
@@ -29,8 +29,9 @@ internal class LandingPresenter(
     init {
 
         coroutineScope.launch {
-            currentScreen = appPrefs.getStringFlow(PrefKeys.LandingScreen, PrefDefaults.LandingScreen.name).first()
-                .let(LandingScreen::valueOf)
+            currentScreen = appPrefs.getStringFlow(PrefKeys.LandingScreen, PrefDefaults.LandingScreen.name)
+                .first()
+                .let { kotlin.runCatching { LandingScreen.valueOf(it) }.getOrNull() ?: PrefDefaults.LandingScreen }
         }
     }
 
