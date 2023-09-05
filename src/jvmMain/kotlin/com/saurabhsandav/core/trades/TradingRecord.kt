@@ -59,11 +59,9 @@ internal class TradingRecord(
             ),
             TradeStopAdapter = TradeStop.Adapter(
                 priceAdapter = BigDecimalColumnAdapter,
-                riskAdapter = BigDecimalColumnAdapter,
             ),
             TradeTargetAdapter = TradeTarget.Adapter(
                 priceAdapter = BigDecimalColumnAdapter,
-                profitAdapter = BigDecimalColumnAdapter,
             ),
             TradeNoteAdapter = TradeNote.Adapter(
                 addedAdapter = InstantColumnAdapter,

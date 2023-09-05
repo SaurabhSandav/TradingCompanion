@@ -129,20 +129,10 @@ internal class TradesRepo(
 
     suspend fun addStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
 
-        // Get trade
-        val trade = tradesDB.tradeQueries.getById(id).executeAsOne()
-
-        // Calculate risk
-        val risk = when (trade.side) {
-            TradeSide.Long -> trade.averageEntry - price
-            TradeSide.Short -> price - trade.averageEntry
-        } * trade.quantity
-
         // Insert into DB
         tradesDB.tradeStopQueries.insert(
             tradeId = id,
             price = price,
-            risk = risk,
         )
     }
 
@@ -156,20 +146,10 @@ internal class TradesRepo(
 
     suspend fun addTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
 
-        // Get trade
-        val trade = tradesDB.tradeQueries.getById(id).executeAsOne()
-
-        // Calculate profit
-        val profit = when (trade.side) {
-            TradeSide.Long -> price - trade.averageEntry
-            TradeSide.Short -> trade.averageEntry - price
-        } * trade.quantity
-
         // Insert into DB
         tradesDB.tradeTargetQueries.insert(
             tradeId = id,
             price = price,
-            profit = profit,
         )
     }
 

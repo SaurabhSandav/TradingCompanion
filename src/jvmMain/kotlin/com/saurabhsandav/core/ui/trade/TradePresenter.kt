@@ -5,6 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
@@ -19,6 +20,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -143,16 +145,24 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getStopsForTrade(tradeId).collect { stops ->
+            tradingRecord.trades.getById(tradeId)
+                .combine(tradingRecord.trades.getStopsForTrade(tradeId)) { trade, stops ->
 
-                value = stops.map { stop ->
-                    TradeStop(
-                        price = stop.price,
-                        priceText = stop.price.toPlainString(),
-                        risk = stop.risk.toPlainString(),
-                    )
-                }.toImmutableList()
-            }
+                    stops.map { stop ->
+
+                        val risk = when (trade.side) {
+                            TradeSide.Long -> trade.averageEntry - stop.price
+                            TradeSide.Short -> stop.price - trade.averageEntry
+                        } * trade.quantity
+
+                        TradeStop(
+                            price = stop.price,
+                            priceText = stop.price.toPlainString(),
+                            risk = risk.toPlainString(),
+                        )
+                    }.toImmutableList()
+                }
+                .collect { tradeStops -> value = tradeStops }
         }
     }
 
@@ -162,16 +172,24 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getTargetsForTrade(tradeId).collect { targets ->
+            tradingRecord.trades.getById(tradeId)
+                .combine(tradingRecord.trades.getTargetsForTrade(tradeId)) { trade, targets ->
 
-                value = targets.map { target ->
-                    TradeTarget(
-                        price = target.price,
-                        priceText = target.price.toPlainString(),
-                        profit = target.profit.toPlainString(),
-                    )
-                }.toImmutableList()
-            }
+                    targets.map { target ->
+
+                        val profit = when (trade.side) {
+                            TradeSide.Long -> target.price - trade.averageEntry
+                            TradeSide.Short -> trade.averageEntry - target.price
+                        } * trade.quantity
+
+                        TradeTarget(
+                            price = target.price,
+                            priceText = target.price.toPlainString(),
+                            profit = profit.toPlainString(),
+                        )
+                    }.toImmutableList()
+                }
+                .collect { tradeTargets -> value = tradeTargets }
         }
     }
 

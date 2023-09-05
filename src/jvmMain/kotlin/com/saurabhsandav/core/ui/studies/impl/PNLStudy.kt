@@ -65,7 +65,18 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                 val netPnlBD = brokerage.netPNL
 
                 val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                    tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+
+                    tradeStops.maxByOrNull { tradeStop ->
+
+                        brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = tradeStop.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        ).pnl
+                    }
                 }.first()?.price
 
                 val rValue = when (stop) {
@@ -80,7 +91,18 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                     .format(trade.entryTimestamp.toJavaLocalDateTime())
 
                 val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
-                    tradeTargets.maxByOrNull { tradeTarget -> tradeTarget.profit }
+
+                    tradeTargets.maxByOrNull { tradeTarget ->
+
+                        brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = tradeTarget.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        ).pnl
+                    }
                 }.first()?.price
 
                 Model(

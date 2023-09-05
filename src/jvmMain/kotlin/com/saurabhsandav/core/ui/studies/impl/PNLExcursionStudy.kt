@@ -108,11 +108,33 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
                     .format(trade.entryTimestamp.toJavaLocalDateTime())
 
                 val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                    tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+
+                    tradeStops.maxByOrNull { tradeStop ->
+
+                        brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = tradeStop.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        ).pnl
+                    }
                 }.first()?.price
 
                 val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
-                    tradeTargets.maxByOrNull { tradeTarget -> tradeTarget.profit }
+
+                    tradeTargets.maxByOrNull { tradeTarget ->
+
+                        brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = tradeTarget.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        ).pnl
+                    }
                 }.first()?.price
 
                 val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()

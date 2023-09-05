@@ -451,10 +451,6 @@ internal class TradeExecutionsRepo(
             tradesDB.tradeStopQueries.insert(
                 tradeId = trade.id,
                 price = stop.price,
-                risk = when (trade.side) {
-                    TradeSide.Long -> trade.averageEntry - stop.price
-                    TradeSide.Short -> stop.price - trade.averageEntry
-                } * trade.quantity,
             )
         }
 
@@ -470,10 +466,6 @@ internal class TradeExecutionsRepo(
             tradesDB.tradeTargetQueries.insert(
                 tradeId = trade.id,
                 price = target.price,
-                profit = when (trade.side) {
-                    TradeSide.Long -> target.price - trade.averageEntry
-                    TradeSide.Short -> trade.averageEntry - target.price
-                } * trade.quantity
             )
         }
 

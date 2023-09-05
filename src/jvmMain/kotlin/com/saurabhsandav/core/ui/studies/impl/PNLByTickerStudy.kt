@@ -60,7 +60,18 @@ internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerSt
                         val netPnlBD = brokerage.netPNL
 
                         val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                            tradeStops.maxByOrNull { tradeStop -> tradeStop.risk }
+
+                            tradeStops.maxByOrNull { tradeStop ->
+
+                                brokerage(
+                                    broker = trade.broker,
+                                    instrument = trade.instrument,
+                                    entry = trade.averageEntry,
+                                    exit = tradeStop.price,
+                                    quantity = trade.quantity,
+                                    side = trade.side,
+                                ).pnl
+                            }
                         }.first()?.price
 
                         val rValue = when (stop) {
