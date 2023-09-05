@@ -68,9 +68,6 @@ internal class AppModule {
     init {
 
         runStartupJobs()
-
-//        TradeImporter(appDB).importTrades()
-//        TradeMigrator(tradesRepo, tradeOrdersRepo, appDB, tradesDB).migrateTrades()
     }
 
     private fun runStartupJobs() {
