@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
@@ -14,6 +13,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -150,15 +150,20 @@ internal class TradePresenter(
 
                     stops.map { stop ->
 
-                        val risk = when (trade.side) {
-                            TradeSide.Long -> trade.averageEntry - stop.price
-                            TradeSide.Short -> stop.price - trade.averageEntry
-                        } * trade.quantity
+                        val brokerage = brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = stop.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        )
 
                         TradeStop(
                             price = stop.price,
                             priceText = stop.price.toPlainString(),
-                            risk = risk.toPlainString(),
+                            risk = brokerage.pnl.toPlainString(),
+                            netRisk = brokerage.netPNL.toPlainString(),
                         )
                     }.toImmutableList()
                 }
@@ -177,15 +182,20 @@ internal class TradePresenter(
 
                     targets.map { target ->
 
-                        val profit = when (trade.side) {
-                            TradeSide.Long -> target.price - trade.averageEntry
-                            TradeSide.Short -> trade.averageEntry - target.price
-                        } * trade.quantity
+                        val brokerage = brokerage(
+                            broker = trade.broker,
+                            instrument = trade.instrument,
+                            entry = trade.averageEntry,
+                            exit = target.price,
+                            quantity = trade.quantity,
+                            side = trade.side,
+                        )
 
                         TradeTarget(
                             price = target.price,
                             priceText = target.price.toPlainString(),
-                            profit = profit.toPlainString(),
+                            profit = brokerage.pnl.toPlainString(),
+                            netProfit = brokerage.netPNL.toPlainString(),
                         )
                     }.toImmutableList()
                 }

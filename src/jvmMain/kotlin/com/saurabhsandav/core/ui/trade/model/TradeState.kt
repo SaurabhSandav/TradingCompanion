@@ -54,6 +54,7 @@ internal data class TradeState(
         val price: BigDecimal,
         val priceText: String,
         val risk: String,
+        val netRisk: String,
     )
 
     @Immutable
@@ -61,6 +62,7 @@ internal data class TradeState(
         val price: BigDecimal,
         val priceText: String,
         val profit: String,
+        val netProfit: String,
     )
 
     @Immutable

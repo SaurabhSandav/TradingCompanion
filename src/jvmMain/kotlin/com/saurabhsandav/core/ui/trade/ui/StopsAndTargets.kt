@@ -72,6 +72,7 @@ private fun StopsList(
         val schema = rememberTableSchema<TradeStop> {
             addColumnText("Stop") { it.priceText }
             addColumnText("Risk") { it.risk }
+            addColumnText("Net Risk") { it.netRisk }
             addColumn(span = .5f) { stop ->
 
                 DeleteIconButton(
@@ -127,6 +128,7 @@ private fun TargetsList(
         val schema = rememberTableSchema<TradeTarget> {
             addColumnText("Target") { it.priceText }
             addColumnText("Profit") { it.profit }
+            addColumnText("Net Profit") { it.netProfit }
             addColumn(span = .5f) { target ->
 
                 DeleteIconButton(
