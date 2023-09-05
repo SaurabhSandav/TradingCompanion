@@ -18,6 +18,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradeOrdersScreen(
     onNewOrder: () -> Unit,
     tradeOrderItems: ImmutableList<TradeOrderListItem>,
+    selectionManager: SelectionManager<TradeOrderEntry>,
     onNewOrderFromExisting: (ProfileOrderId) -> Unit,
     onEditOrder: (ProfileOrderId) -> Unit,
     onLockOrders: (List<ProfileOrderId>) -> Unit,
@@ -29,8 +30,6 @@ internal fun TradeOrdersScreen(
     WindowTitle("Trade Orders")
 
     val snackbarHostState = remember { SnackbarHostState() }
-
-    val selectionManager = remember { SelectionManager<TradeOrderEntry>() }
 
     Column {
 

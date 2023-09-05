@@ -26,6 +26,7 @@ internal class TradeOrdersLandingSwitcherItem(
         TradeOrdersScreen(
             onNewOrder = { state.eventSink(NewOrder) },
             tradeOrderItems = state.tradeOrderItems,
+            selectionManager = state.selectionManager,
             onNewOrderFromExisting = { state.eventSink(NewOrderFromExisting(it)) },
             onLockOrders = { ids -> state.eventSink(LockOrders(ids)) },
             onEditOrder = { state.eventSink(EditOrder(it)) },

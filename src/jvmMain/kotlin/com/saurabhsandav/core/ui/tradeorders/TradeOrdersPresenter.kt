@@ -6,6 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeOrder
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
@@ -37,11 +38,13 @@ internal class TradeOrdersPresenter(
 ) {
 
     private val errors = mutableStateListOf<UIErrorMessage>()
+    private val selectionManager = SelectionManager<TradeOrderEntry>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeOrdersState(
-            tradeOrderItems = getTradeListEntries().value,
+            tradeOrderItems = getTradeOrderListEntries().value,
+            selectionManager = selectionManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
@@ -59,9 +62,12 @@ internal class TradeOrdersPresenter(
     }
 
     @Composable
-    private fun getTradeListEntries(): State<ImmutableList<TradeOrderListItem>> {
+    private fun getTradeOrderListEntries(): State<ImmutableList<TradeOrderListItem>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                // Clear order selection
+                selectionManager.clear()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
