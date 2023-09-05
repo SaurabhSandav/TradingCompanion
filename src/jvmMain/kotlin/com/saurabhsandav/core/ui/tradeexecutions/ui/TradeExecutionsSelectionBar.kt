@@ -17,14 +17,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.ProfileOrderId
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.TradeOrderEntry
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 
 @Composable
-internal fun TradeOrdersSelectionBar(
-    selectionManager: SelectionManager<TradeOrderEntry>,
-    onLockOrders: (List<ProfileOrderId>) -> Unit,
-    onDeleteOrders: (List<ProfileOrderId>) -> Unit,
+internal fun TradeExecutionsSelectionBar(
+    selectionManager: SelectionManager<TradeExecutionEntry>,
+    onLockExecutions: (List<ProfileTradeExecutionId>) -> Unit,
+    onDeleteExecutions: (List<ProfileTradeExecutionId>) -> Unit,
 ) {
 
     AnimatedVisibility(selectionManager.inMultiSelectMode) {
@@ -71,11 +71,11 @@ internal fun TradeOrdersSelectionBar(
                 if (showLockConfirmationDialog) {
 
                     ConfirmationDialog(
-                        confirmationRequestText = "Are you sure you want to lock the orders?",
+                        confirmationRequestText = "Are you sure you want to lock the executions?",
                         onDismiss = { showLockConfirmationDialog = false },
                         onConfirm = {
                             showLockConfirmationDialog = false
-                            onLockOrders(selectionManager.selection.map { it.profileOrderId })
+                            onLockExecutions(selectionManager.selection.map { it.profileTradeExecutionId })
                             selectionManager.clear()
                         },
                     )
@@ -84,10 +84,10 @@ internal fun TradeOrdersSelectionBar(
                 if (showDeleteConfirmationDialog) {
 
                     ConfirmationDialog(
-                        confirmationRequestText = "Are you sure you want to delete the orders?",
+                        confirmationRequestText = "Are you sure you want to delete the executions?",
                         onDismiss = { showDeleteConfirmationDialog = false },
                         onConfirm = {
-                            onDeleteOrders(selectionManager.selection.map { it.profileOrderId })
+                            onDeleteExecutions(selectionManager.selection.map { it.profileTradeExecutionId })
                             selectionManager.clear()
                         },
                     )

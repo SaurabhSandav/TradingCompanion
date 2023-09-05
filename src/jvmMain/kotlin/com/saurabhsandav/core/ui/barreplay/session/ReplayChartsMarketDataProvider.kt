@@ -15,8 +15,8 @@ import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
-import com.saurabhsandav.core.ui.stockchart.plotter.TradeOrderMarker
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -136,7 +136,7 @@ internal class ReplayChartsMarketDataProvider(
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 
-        val orderMarkers = replayProfile.flatMapLatest { profile ->
+        val executionMarkers = replayProfile.flatMapLatest { profile ->
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -153,14 +153,14 @@ internal class ReplayChartsMarketDataProvider(
                 )
             }
         }
-            .mapList { order ->
+            .mapList { execution ->
 
-                val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
+                val executionInstant = execution.timestamp.toInstant(TimeZone.currentSystemDefault())
 
-                TradeOrderMarker(
-                    instant = orderInstant.markerTime(),
-                    side = order.side,
-                    price = order.price,
+                TradeExecutionMarker(
+                    instant = executionInstant.markerTime(),
+                    side = execution.side,
+                    price = execution.price,
                 )
             }
 
@@ -207,7 +207,7 @@ internal class ReplayChartsMarketDataProvider(
                 }
             }
 
-        return orderMarkers.combine(tradeMarkers) { orderMkrs, tradeMkrs -> orderMkrs + tradeMkrs }
+        return executionMarkers.combine(tradeMarkers) { executionMkrs, tradeMkrs -> executionMkrs + tradeMkrs }
             .flowOn(Dispatchers.IO)
     }
 }

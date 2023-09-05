@@ -7,12 +7,12 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -34,7 +34,7 @@ internal class TradePresenter(
     private val tradeId: Long,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val orderFormWindowsManager: AppWindowsManager<LandingState.OrderFormWindowParams>,
+    private val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
@@ -47,7 +47,7 @@ internal class TradePresenter(
         return@launchMolecule TradeState(
             title = "${tradingProfileName}Trade ($tradeId)",
             details = getTradeDetail().value,
-            orders = getTradeOrders().value,
+            executions = getTradeExecutions().value,
             stops = getTradeStops().value,
             targets = getTradeTargets().value,
             mfeAndMae = getMfeAndMae().value,
@@ -61,9 +61,9 @@ internal class TradePresenter(
     private fun onEvent(event: TradeEvent) {
 
         when (event) {
-            is EditOrder -> onEditOrder(event.orderId)
-            is LockOrder -> onLockOrder(event.orderId)
-            is DeleteOrder -> onDeleteOrder(event.orderId)
+            is EditExecution -> onEditExecution(event.executionId)
+            is LockExecution -> onLockExecution(event.executionId)
+            is DeleteExecution -> onDeleteExecution(event.executionId)
             is AddStop -> onAddStop(event.price)
             is DeleteStop -> onDeleteStop(event.price)
             is AddTarget -> onAddTarget(event.price)
@@ -113,23 +113,24 @@ internal class TradePresenter(
     }
 
     @Composable
-    private fun getTradeOrders(): State<ImmutableList<Order>> {
-        return produceState<ImmutableList<Order>>(persistentListOf()) {
+    private fun getTradeExecutions(): State<ImmutableList<Execution>> {
+        return produceState<ImmutableList<Execution>>(persistentListOf()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getExecutionsForTrade(tradeId).collect { orders ->
+            tradingRecord.trades.getExecutionsForTrade(tradeId).collect { executions ->
 
-                value = orders.map { order ->
+                value = executions.map { execution ->
 
-                    Order(
-                        id = order.id,
-                        quantity = order.lots?.let { "${order.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
-                            ?: order.quantity.toString(),
-                        side = order.side.strValue.uppercase(),
-                        price = order.price.toPlainString(),
-                        timestamp = order.timestamp.time.toString(),
-                        locked = order.locked,
+                    Execution(
+                        id = execution.id,
+                        quantity = execution.lots
+                            ?.let { "${execution.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
+                            ?: execution.quantity.toString(),
+                        side = execution.side.strValue.uppercase(),
+                        price = execution.price.toPlainString(),
+                        timestamp = execution.timestamp.time.toString(),
+                        locked = execution.locked,
                     )
                 }.toImmutableList()
             }
@@ -223,22 +224,22 @@ internal class TradePresenter(
         }
     }
 
-    private fun onEditOrder(orderId: Long) {
+    private fun onEditExecution(executionId: Long) {
 
-        val window = orderFormWindowsManager.windows.find {
-            it.params.formType is OrderFormType.Edit && it.params.formType.id == orderId
+        val window = executionFormWindowsManager.windows.find {
+            it.params.formType is TradeExecutionFormType.Edit && it.params.formType.id == executionId
         }
 
         when (window) {
             // Open new window
             null -> {
 
-                val params = LandingState.OrderFormWindowParams(
+                val params = TradeExecutionFormWindowParams(
                     profileId = profileId,
-                    formType = OrderFormType.Edit(orderId),
+                    formType = TradeExecutionFormType.Edit(executionId),
                 )
 
-                orderFormWindowsManager.newWindow(params)
+                executionFormWindowsManager.newWindow(params)
             }
 
             // Window already open. Bring to front.
@@ -246,18 +247,18 @@ internal class TradePresenter(
         }
     }
 
-    private fun onLockOrder(orderId: Long) = coroutineScope.launchUnit {
+    private fun onLockExecution(executionId: Long) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        tradingRecord.executions.lock(listOf(orderId))
+        tradingRecord.executions.lock(listOf(executionId))
     }
 
-    private fun onDeleteOrder(orderId: Long) = coroutineScope.launchUnit {
+    private fun onDeleteExecution(executionId: Long) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        tradingRecord.executions.delete(listOf(orderId))
+        tradingRecord.executions.delete(listOf(executionId))
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {

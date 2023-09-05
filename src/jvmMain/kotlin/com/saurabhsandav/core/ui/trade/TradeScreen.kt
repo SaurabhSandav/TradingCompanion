@@ -15,7 +15,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.ui.*
@@ -24,13 +24,13 @@ import com.saurabhsandav.core.ui.trade.ui.*
 internal fun TradeWindow(
     profileId: Long,
     tradeId: Long,
-    orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
+    executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule, orderFormWindowsManager) }
+    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule, executionFormWindowsManager) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
@@ -69,11 +69,11 @@ internal fun TradeScreen(
                         MfeAndMae(state.mfeAndMae)
                     }
 
-                    TradeOrdersTable(
-                        tradeOrderItems = state.orders,
-                        onEditOrder = { orderId -> state.eventSink(EditOrder(orderId)) },
-                        onLockOrder = { orderId -> state.eventSink(LockOrder(orderId)) },
-                        onDeleteOrder = { orderId -> state.eventSink(DeleteOrder(orderId)) },
+                    TradeExecutionsTable(
+                        items = state.executions,
+                        onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
+                        onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
+                        onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
                     )
 
                     StopsAndTargets(

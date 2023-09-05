@@ -29,7 +29,7 @@ class TradingSessionMarker(
     )
 }
 
-class TradeOrderMarker(
+class TradeExecutionMarker(
     override val instant: Instant,
     private val side: TradeExecutionSide,
     private val price: BigDecimal,

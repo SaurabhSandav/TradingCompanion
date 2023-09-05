@@ -15,10 +15,10 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
 import com.saurabhsandav.core.ui.sizing.model.SizingState
-import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -44,7 +44,7 @@ internal class SizingPresenter(
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
+    private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -59,7 +59,7 @@ internal class SizingPresenter(
 
         return@launchMolecule SizingState(
             sizedTrades = getSizedTrades(account),
-            orderFormWindowsManager = orderFormWindowsManager,
+            executionFormWindowsManager = executionFormWindowsManager,
             eventSink = ::onEvent,
         )
     }
@@ -148,11 +148,11 @@ internal class SizingPresenter(
         val currentTime = Clock.System.now()
         val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
 
-        val params = OrderFormParams(
+        val params = TradeExecutionFormParams(
             id = UUID.randomUUID(),
             profileId = tradingProfiles.currentProfile.first().id,
-            formType = OrderFormType.New { formValidator ->
-                OrderFormModel(
+            formType = TradeExecutionFormType.New { formValidator ->
+                TradeExecutionFormModel(
                     validator = formValidator,
                     instrument = Instrument.Equity.strValue,
                     ticker = sizingTrade.ticker,
@@ -163,13 +163,13 @@ internal class SizingPresenter(
                     timestamp = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
                 )
             },
-            onOrderSaved = { orderId ->
+            onExecutionSaved = { executionId ->
 
                 coroutineScope.launch {
 
-                    // Single order can close a trade and open a new one.
+                    // Single execution can close a trade and open a new one.
                     // Make sure to choose the open trade
-                    val trade = tradingRecord.trades.getTradesForExecution(orderId).first().single { !it.isClosed }
+                    val trade = tradingRecord.trades.getTradesForExecution(executionId).first().single { !it.isClosed }
 
                     // Add stop
                     tradingRecord.trades.addStop(trade.id, sizingTrade.stop)
@@ -185,7 +185,7 @@ internal class SizingPresenter(
             },
         )
 
-        orderFormWindowsManager.newWindow(params)
+        executionFormWindowsManager.newWindow(params)
     }
 
     @Composable
@@ -194,7 +194,7 @@ internal class SizingPresenter(
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
                 // Close all child windows
-                orderFormWindowsManager.closeAll()
+                executionFormWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 

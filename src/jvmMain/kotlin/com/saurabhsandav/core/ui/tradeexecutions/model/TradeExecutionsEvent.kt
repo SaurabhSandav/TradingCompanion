@@ -1,16 +1,16 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.ProfileOrderId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
 
-internal sealed class TradeOrdersEvent {
+internal sealed class TradeExecutionsEvent {
 
-    data object NewOrder : TradeOrdersEvent()
+    data object NewExecution : TradeExecutionsEvent()
 
-    data class NewOrderFromExisting(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
+    data class NewExecutionFromExisting(val profileTradeExecutionId: ProfileTradeExecutionId) : TradeExecutionsEvent()
 
-    data class EditOrder(val profileOrderId: ProfileOrderId) : TradeOrdersEvent()
+    data class EditExecution(val profileTradeExecutionId: ProfileTradeExecutionId) : TradeExecutionsEvent()
 
-    data class LockOrders(val ids: List<ProfileOrderId>) : TradeOrdersEvent()
+    data class LockExecutions(val ids: List<ProfileTradeExecutionId>) : TradeExecutionsEvent()
 
-    data class DeleteOrders(val ids: List<ProfileOrderId>) : TradeOrdersEvent()
+    data class DeleteExecutions(val ids: List<ProfileTradeExecutionId>) : TradeExecutionsEvent()
 }

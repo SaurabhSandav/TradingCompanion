@@ -31,8 +31,8 @@ import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
 import com.saurabhsandav.core.ui.trade.TradeWindow
-import com.saurabhsandav.core.ui.tradeexecutionform.OrderFormWindow
-import com.saurabhsandav.core.ui.tradeexecutions.TradeOrdersLandingSwitcherItem
+import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
+import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
 @Composable
@@ -167,13 +167,13 @@ private fun LandingScreen(
             }
         }
 
-        val orderFormWindowsManager = remember { AppWindowsManager<OrderFormWindowParams>() }
+        val executionFormWindowsManager = remember { AppWindowsManager<TradeExecutionFormWindowParams>() }
         val tradeWindowsManager = remember { AppWindowsManager<TradeWindowParams>() }
 
-        // Trade order windows
-        orderFormWindowsManager.Windows { window ->
+        // Trade execution form windows
+        executionFormWindowsManager.Windows { window ->
 
-            OrderFormWindow(
+            TradeExecutionFormWindow(
                 profileId = window.params.profileId,
                 formType = window.params.formType,
                 onCloseRequest = window::close,
@@ -186,7 +186,7 @@ private fun LandingScreen(
             TradeWindow(
                 profileId = window.params.profileId,
                 tradeId = window.params.tradeId,
-                orderFormWindowsManager = orderFormWindowsManager,
+                executionFormWindowsManager = executionFormWindowsManager,
                 onCloseRequest = window::close,
             )
         }
@@ -200,8 +200,8 @@ private fun LandingScreen(
                 mapOf(
                     LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
-                    LandingScreen.TradeOrders to
-                            TradeOrdersLandingSwitcherItem(scope, appModule, orderFormWindowsManager),
+                    LandingScreen.TradeExecutions to
+                            TradeExecutionsLandingSwitcherItem(scope, appModule, executionFormWindowsManager),
                     LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule, tradeWindowsManager),
                     LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
                 )

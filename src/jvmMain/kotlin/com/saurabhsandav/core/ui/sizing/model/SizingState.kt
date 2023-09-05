@@ -3,14 +3,14 @@ package com.saurabhsandav.core.ui.sizing.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import kotlinx.collections.immutable.ImmutableList
 import java.util.*
 
 @Immutable
 internal data class SizingState(
     val sizedTrades: ImmutableList<SizedTrade>,
-    val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+    val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormParams>,
     val eventSink: (SizingEvent) -> Unit,
 ) {
 
@@ -29,10 +29,10 @@ internal data class SizingState(
     )
 
     @Immutable
-    internal data class OrderFormParams(
+    internal data class TradeExecutionFormParams(
         val id: UUID,
         val profileId: Long,
-        val formType: OrderFormType,
-        val onOrderSaved: (orderId: Long) -> Unit,
+        val formType: TradeExecutionFormType,
+        val onExecutionSaved: (executionId: Long) -> Unit,
     )
 }

@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 
 @Immutable
 internal data class LandingState(
@@ -18,7 +18,7 @@ internal data class LandingState(
     ) {
         Account("Account", Icons.Filled.AccountBalance),
         TradeSizing("Trade Sizing", Icons.Filled.Straighten),
-        TradeOrders("Orders", Icons.Filled.FolderOpen),
+        TradeExecutions("Trade Executions", Icons.Filled.FolderOpen),
         Trades("Trades", Icons.Filled.Folder),
         Studies("Studies", Icons.Filled.FactCheck);
 
@@ -27,7 +27,7 @@ internal data class LandingState(
             val items = listOf(
                 Account,
                 TradeSizing,
-                TradeOrders,
+                TradeExecutions,
                 Trades,
                 Studies,
             )
@@ -35,9 +35,9 @@ internal data class LandingState(
     }
 
     @Immutable
-    internal data class OrderFormWindowParams(
+    internal data class TradeExecutionFormWindowParams(
         val profileId: Long,
-        val formType: OrderFormType,
+        val formType: TradeExecutionFormType,
     )
 
     @Immutable

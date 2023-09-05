@@ -36,7 +36,7 @@ internal class SizingLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         SizingScreenWindows(
-            orderFormWindowsManager = state.orderFormWindowsManager,
+            executionFormWindowsManager = state.executionFormWindowsManager,
         )
     }
 }

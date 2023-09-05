@@ -21,18 +21,18 @@ import com.saurabhsandav.core.ui.trade.model.TradeState
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-internal fun TradeOrdersTable(
-    tradeOrderItems: ImmutableList<TradeState.Order>,
-    onEditOrder: (Long) -> Unit,
-    onLockOrder: (Long) -> Unit,
-    onDeleteOrder: (Long) -> Unit,
+internal fun TradeExecutionsTable(
+    items: ImmutableList<TradeState.Execution>,
+    onEditExecution: (Long) -> Unit,
+    onLockExecution: (Long) -> Unit,
+    onDeleteExecution: (Long) -> Unit,
 ) {
 
     Column(
         modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        val schema = rememberTableSchema<TradeState.Order> {
+        val schema = rememberTableSchema<TradeState.Execution> {
             addColumnText("Quantity") { it.quantity }
             addColumn("Side") {
 
@@ -52,16 +52,16 @@ internal fun TradeOrdersTable(
 
             Divider()
 
-            tradeOrderItems.forEach { item ->
+            items.forEach { item ->
 
                 key(item) {
 
-                    TradeOrderItem(
+                    TradeExecutionItem(
                         schema = schema,
                         item = item,
-                        onEditOrder = { onEditOrder(item.id) },
-                        onLockOrder = { onLockOrder(item.id) },
-                        onDeleteOrder = { onDeleteOrder(item.id) },
+                        onEditExecution = { onEditExecution(item.id) },
+                        onLockExecution = { onLockExecution(item.id) },
+                        onDeleteExecution = { onDeleteExecution(item.id) },
                     )
                 }
             }
@@ -70,12 +70,12 @@ internal fun TradeOrdersTable(
 }
 
 @Composable
-private fun TradeOrderItem(
-    schema: TableSchema<TradeState.Order>,
-    item: TradeState.Order,
-    onEditOrder: () -> Unit,
-    onLockOrder: () -> Unit,
-    onDeleteOrder: () -> Unit,
+private fun TradeExecutionItem(
+    schema: TableSchema<TradeState.Execution>,
+    item: TradeState.Execution,
+    onEditExecution: () -> Unit,
+    onLockExecution: () -> Unit,
+    onDeleteExecution: () -> Unit,
 ) {
 
     var showLockConfirmationDialog by state { false }
@@ -87,7 +87,7 @@ private fun TradeOrderItem(
             if (!item.locked) {
                 listOf(
                     ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                    ContextMenuItem("Edit", onEditOrder),
+                    ContextMenuItem("Edit", onEditExecution),
                     ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                 )
             } else emptyList()
@@ -107,11 +107,11 @@ private fun TradeOrderItem(
         if (showLockConfirmationDialog) {
 
             ConfirmationDialog(
-                confirmationRequestText = "Are you sure you want to lock the order?",
+                confirmationRequestText = "Are you sure you want to lock the execution?",
                 onDismiss = { showLockConfirmationDialog = false },
                 onConfirm = {
                     showLockConfirmationDialog = false
-                    onLockOrder()
+                    onLockExecution()
                 },
             )
         }
@@ -119,9 +119,9 @@ private fun TradeOrderItem(
         if (showDeleteConfirmationDialog) {
 
             ConfirmationDialog(
-                confirmationRequestText = "Are you sure you want to delete the order?",
+                confirmationRequestText = "Are you sure you want to delete the execution?",
                 onDismiss = { showDeleteConfirmationDialog = false },
-                onConfirm = onDeleteOrder,
+                onConfirm = onDeleteExecution,
             )
         }
     }

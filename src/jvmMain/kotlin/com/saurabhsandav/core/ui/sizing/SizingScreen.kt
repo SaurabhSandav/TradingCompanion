@@ -18,9 +18,9 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
-import com.saurabhsandav.core.ui.tradeexecutionform.OrderFormWindow
+import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
+import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.ImmutableList
 
@@ -49,16 +49,16 @@ internal fun SizingScreen(
 
 @Composable
 internal fun SizingScreenWindows(
-    orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
+    executionFormWindowsManager: AppWindowsManager<TradeExecutionFormParams>,
 ) {
 
-    // Order form windows
-    orderFormWindowsManager.Windows { window ->
+    // Trade execution form windows
+    executionFormWindowsManager.Windows { window ->
 
-        OrderFormWindow(
+        TradeExecutionFormWindow(
             profileId = window.params.profileId,
             formType = window.params.formType,
-            onOrderSaved = window.params.onOrderSaved,
+            onExecutionSaved = window.params.onExecutionSaved,
             onCloseRequest = window::close,
         )
     }

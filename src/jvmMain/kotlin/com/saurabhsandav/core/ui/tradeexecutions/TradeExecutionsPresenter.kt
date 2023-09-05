@@ -9,12 +9,12 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent.*
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -30,53 +30,53 @@ import java.time.format.FormatStyle
 import java.util.*
 
 @Stable
-internal class TradeOrdersPresenter(
+internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
+    private val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private val errors = mutableStateListOf<UIErrorMessage>()
-    private val selectionManager = SelectionManager<TradeOrderEntry>()
+    private val selectionManager = SelectionManager<TradeExecutionEntry>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        return@launchMolecule TradeOrdersState(
-            tradeOrderItems = getTradeOrderListEntries().value,
+        return@launchMolecule TradeExecutionsState(
+            items = getTradeExecutionListItems().value,
             selectionManager = selectionManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
     }
 
-    private fun onEvent(event: TradeOrdersEvent) {
+    private fun onEvent(event: TradeExecutionsEvent) {
 
         when (event) {
-            NewOrder -> onNewOrder()
-            is NewOrderFromExisting -> onNewOrderFromExisting(event.profileOrderId)
-            is EditOrder -> onEditOrder(event.profileOrderId)
-            is LockOrders -> onLockOrders(event.ids)
-            is DeleteOrders -> onDeleteOrders(event.ids)
+            NewExecution -> onNewExecution()
+            is NewExecutionFromExisting -> onNewExecutionFromExisting(event.profileTradeExecutionId)
+            is EditExecution -> onEditExecution(event.profileTradeExecutionId)
+            is LockExecutions -> onLockExecutions(event.ids)
+            is DeleteExecutions -> onDeleteExecutions(event.ids)
         }
     }
 
     @Composable
-    private fun getTradeOrderListEntries(): State<ImmutableList<TradeOrderListItem>> {
+    private fun getTradeExecutionListItems(): State<ImmutableList<TradeExecutionListItem>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
-                // Clear order selection
+                // Clear execution selection
                 selectionManager.clear()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                tradingRecord.executions.allExecutions.map { orders ->
-                    orders.groupBy { it.timestamp.date }
+                tradingRecord.executions.allExecutions.map { executions ->
+                    executions.groupBy { it.timestamp.date }
                         .map { (date, list) ->
                             listOf(
-                                date.toTradeOrderListDayHeader(),
-                                TradeOrderListItem.Entries(list.map { it.toTradeOrderListEntry(profile.id) }
+                                date.toTradeExecutionListDayHeader(),
+                                TradeExecutionListItem.Entries(list.map { it.toTradeExecutionListEntry(profile.id) }
                                     .toImmutableList()),
                             )
                         }.flatten().toImmutableList()
@@ -85,13 +85,13 @@ internal class TradeOrdersPresenter(
         }.collectAsState(persistentListOf())
     }
 
-    private fun LocalDate.toTradeOrderListDayHeader(): TradeOrderListItem.DayHeader {
+    private fun LocalDate.toTradeExecutionListDayHeader(): TradeExecutionListItem.DayHeader {
         val formatted = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(toJavaLocalDate())
-        return TradeOrderListItem.DayHeader(formatted)
+        return TradeExecutionListItem.DayHeader(formatted)
     }
 
-    private fun TradeExecution.toTradeOrderListEntry(profileId: Long) = TradeOrderEntry(
-        profileOrderId = ProfileOrderId(profileId = profileId, orderId = id),
+    private fun TradeExecution.toTradeExecutionListEntry(profileId: Long) = TradeExecutionEntry(
+        profileTradeExecutionId = ProfileTradeExecutionId(profileId = profileId, executionId = id),
         broker = run {
             val instrumentCapitalized = instrument.strValue
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -105,34 +105,34 @@ internal class TradeOrdersPresenter(
         locked = locked,
     )
 
-    private fun onNewOrder() = coroutineScope.launchUnit {
+    private fun onNewExecution() = coroutineScope.launchUnit {
 
         val currentProfile = tradingProfiles.currentProfile.first()
 
-        val params = OrderFormWindowParams(
+        val params = TradeExecutionFormWindowParams(
             profileId = currentProfile.id,
-            formType = OrderFormType.New(),
+            formType = TradeExecutionFormType.New(),
         )
 
-        orderFormWindowsManager.newWindow(params)
+        executionFormWindowsManager.newWindow(params)
     }
 
-    private fun onNewOrderFromExisting(profileOrderId: ProfileOrderId) {
+    private fun onNewExecutionFromExisting(profileTradeExecutionId: ProfileTradeExecutionId) {
 
-        val window = orderFormWindowsManager.windows.find {
-            it.params.formType is OrderFormType.NewFromExisting && it.params.formType.id == profileOrderId.orderId
+        val window = executionFormWindowsManager.windows.find {
+            it.params.formType is TradeExecutionFormType.NewFromExisting && it.params.formType.id == profileTradeExecutionId.executionId
         }
 
         when (window) {
             // Open new window
             null -> {
 
-                val params = OrderFormWindowParams(
-                    profileId = profileOrderId.profileId,
-                    formType = OrderFormType.NewFromExisting(profileOrderId.orderId),
+                val params = TradeExecutionFormWindowParams(
+                    profileId = profileTradeExecutionId.profileId,
+                    formType = TradeExecutionFormType.NewFromExisting(profileTradeExecutionId.executionId),
                 )
 
-                orderFormWindowsManager.newWindow(params)
+                executionFormWindowsManager.newWindow(params)
             }
 
             // Window already open. Bring to front.
@@ -140,22 +140,23 @@ internal class TradeOrdersPresenter(
         }
     }
 
-    private fun onEditOrder(profileOrderId: ProfileOrderId) {
+    private fun onEditExecution(profileTradeExecutionId: ProfileTradeExecutionId) {
 
-        val window = orderFormWindowsManager.windows.find {
-            it.params.formType is OrderFormType.Edit && it.params.formType.id == profileOrderId.orderId
+        val window = executionFormWindowsManager.windows.find {
+            it.params.formType is TradeExecutionFormType.Edit
+                    && it.params.formType.id == profileTradeExecutionId.executionId
         }
 
         when (window) {
             // Open new window
             null -> {
 
-                val params = OrderFormWindowParams(
-                    profileId = profileOrderId.profileId,
-                    formType = OrderFormType.Edit(profileOrderId.orderId),
+                val params = TradeExecutionFormWindowParams(
+                    profileId = profileTradeExecutionId.profileId,
+                    formType = TradeExecutionFormType.Edit(profileTradeExecutionId.executionId),
                 )
 
-                orderFormWindowsManager.newWindow(params)
+                executionFormWindowsManager.newWindow(params)
             }
 
             // Window already open. Bring to front.
@@ -163,23 +164,23 @@ internal class TradeOrdersPresenter(
         }
     }
 
-    private fun onLockOrders(ids: List<ProfileOrderId>) = coroutineScope.launchUnit {
+    private fun onLockExecutions(ids: List<ProfileTradeExecutionId>) = coroutineScope.launchUnit {
 
         ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.executions.lock(ids.map { it.orderId })
+            tradingRecord.executions.lock(ids.map { it.executionId })
         }
     }
 
-    private fun onDeleteOrders(ids: List<ProfileOrderId>) = coroutineScope.launchUnit {
+    private fun onDeleteExecutions(ids: List<ProfileTradeExecutionId>) = coroutineScope.launchUnit {
 
         ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.executions.delete(ids.map { it.orderId })
+            tradingRecord.executions.delete(ids.map { it.executionId })
         }
     }
 }

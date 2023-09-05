@@ -16,14 +16,14 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Immutable
-internal data class OrderFormState(
+internal data class TradeExecutionFormState(
     val title: String,
-    val formModel: OrderFormModel?,
-    val onSaveOrder: () -> Unit,
+    val formModel: TradeExecutionFormModel?,
+    val onSaveExecution: () -> Unit,
 )
 
 @Stable
-internal class OrderFormModel(
+internal class TradeExecutionFormModel(
     validator: FormValidator,
     instrument: String?,
     ticker: String?,

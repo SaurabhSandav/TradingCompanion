@@ -6,31 +6,31 @@ import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent.*
+import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import kotlinx.coroutines.CoroutineScope
 
-internal class TradeOrdersLandingSwitcherItem(
+internal class TradeExecutionsLandingSwitcherItem(
     coroutineScope: CoroutineScope,
     appModule: AppModule,
-    orderFormWindowsManager: AppWindowsManager<OrderFormWindowParams>,
+    executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
 ) : LandingSwitcherItem {
 
-    private val presenter = TradeOrdersPresenter(coroutineScope, appModule, orderFormWindowsManager)
+    private val presenter = TradeExecutionsPresenter(coroutineScope, appModule, executionFormWindowsManager)
 
     @Composable
     override fun Content() {
 
         val state by presenter.state.collectAsState()
 
-        TradeOrdersScreen(
-            onNewOrder = { state.eventSink(NewOrder) },
-            tradeOrderItems = state.tradeOrderItems,
+        TradeExecutionsScreen(
+            onNewExecution = { state.eventSink(NewExecution) },
+            items = state.items,
             selectionManager = state.selectionManager,
-            onNewOrderFromExisting = { state.eventSink(NewOrderFromExisting(it)) },
-            onLockOrders = { ids -> state.eventSink(LockOrders(ids)) },
-            onEditOrder = { state.eventSink(EditOrder(it)) },
-            onDeleteOrders = { ids -> state.eventSink(DeleteOrders(ids)) },
+            onNewExecutionFromExisting = { state.eventSink(NewExecutionFromExisting(it)) },
+            onLockExecutions = { ids -> state.eventSink(LockExecutions(ids)) },
+            onEditExecution = { state.eventSink(EditExecution(it)) },
+            onDeleteExecutions = { ids -> state.eventSink(DeleteExecutions(ids)) },
             errors = state.errors,
         )
     }

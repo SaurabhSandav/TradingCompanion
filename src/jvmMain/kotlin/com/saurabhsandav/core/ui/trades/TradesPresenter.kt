@@ -172,7 +172,7 @@ internal class TradesPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
         val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
-        val tradeOrders = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
+        val executions = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
 
         val exitDateTime = trade.exitTimestamp ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -276,27 +276,27 @@ internal class TradesPresenter(
                 exitIndex = index
         }
 
-        val markers = tradeOrders.map { order ->
+        val markers = executions.map { execution ->
 
-            val orderInstant = order.timestamp.toInstant(TimeZone.currentSystemDefault())
+            val executionInstant = execution.timestamp.toInstant(TimeZone.currentSystemDefault())
 
             SeriesMarker(
-                time = Time.UTCTimestamp(orderInstant.offsetTimeForChart()),
-                position = when (order.side) {
+                time = Time.UTCTimestamp(executionInstant.offsetTimeForChart()),
+                position = when (execution.side) {
                     TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
                     TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar
                 },
-                shape = when (order.side) {
+                shape = when (execution.side) {
                     TradeExecutionSide.Buy -> SeriesMarkerShape.ArrowUp
                     TradeExecutionSide.Sell -> SeriesMarkerShape.ArrowDown
                 },
-                color = when (order.side) {
+                color = when (execution.side) {
                     TradeExecutionSide.Buy -> Color.Green
                     TradeExecutionSide.Sell -> Color.Red
                 },
-                text = when (order.side) {
-                    TradeExecutionSide.Buy -> order.price.toPlainString()
-                    TradeExecutionSide.Sell -> order.price.toPlainString()
+                text = when (execution.side) {
+                    TradeExecutionSide.Buy -> execution.price.toPlainString()
+                    TradeExecutionSide.Sell -> execution.price.toPlainString()
                 },
             )
         }

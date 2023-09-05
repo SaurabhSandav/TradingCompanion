@@ -15,27 +15,27 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-internal fun TradeOrdersTable(
-    tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    isMarked: (TradeOrderEntry) -> Boolean,
-    onClickOrder: (TradeOrderEntry) -> Unit,
-    onMarkOrder: (TradeOrderEntry) -> Unit,
-    onNewOrder: (ProfileOrderId) -> Unit,
-    onEditOrder: (ProfileOrderId) -> Unit,
-    onLockOrder: (ProfileOrderId) -> Unit,
-    onDeleteOrder: (ProfileOrderId) -> Unit,
+internal fun TradeExecutionsTable(
+    items: ImmutableList<TradeExecutionListItem>,
+    isMarked: (TradeExecutionEntry) -> Boolean,
+    onClickExecution: (TradeExecutionEntry) -> Unit,
+    onMarkExecution: (TradeExecutionEntry) -> Unit,
+    onNewExecution: (ProfileTradeExecutionId) -> Unit,
+    onEditExecution: (ProfileTradeExecutionId) -> Unit,
+    onLockExecution: (ProfileTradeExecutionId) -> Unit,
+    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeOrderEntry> {
+    val schema = rememberTableSchema<TradeExecutionEntry> {
         addColumn(span = .5F) { entry ->
 
             Checkbox(
                 checked = isMarked(entry),
-                onCheckedChange = { onMarkOrder(entry) },
+                onCheckedChange = { onMarkExecution(entry) },
             )
         }
         addColumnText("Broker") { it.broker }
@@ -56,25 +56,25 @@ internal fun TradeOrdersTable(
         schema = schema,
     ) {
 
-        tradeOrderItems.forEach { tradeOrderListItem ->
+        items.forEach { item ->
 
-            when (tradeOrderListItem) {
-                is TradeOrderListItem.DayHeader -> dayHeader(tradeOrderListItem)
-                is TradeOrderListItem.Entries -> tradeOrderItems(
-                    tradeOrderListItem = tradeOrderListItem,
-                    onClickOrder = onClickOrder,
-                    onLongClickOrder = onMarkOrder,
-                    onNewOrder = onNewOrder,
-                    onEditOrder = onEditOrder,
-                    onLockOrder = onLockOrder,
-                    onDeleteOrder = onDeleteOrder,
+            when (item) {
+                is TradeExecutionListItem.DayHeader -> dayHeader(item)
+                is TradeExecutionListItem.Entries -> tradeExecutionItems(
+                    tradeExecutionListItem = item,
+                    onClickExecution = onClickExecution,
+                    onLongClickExecution = onMarkExecution,
+                    onNewExecution = onNewExecution,
+                    onEditExecution = onEditExecution,
+                    onLockExecution = onLockExecution,
+                    onDeleteExecution = onDeleteExecution,
                 )
             }
         }
     }
 }
 
-private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrderListItem.DayHeader) {
+private fun TableScope<TradeExecutionEntry>.dayHeader(item: TradeExecutionListItem.DayHeader) {
 
     stickyHeader {
 
@@ -86,7 +86,7 @@ private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrder
                 modifier = Modifier.fillParentMaxWidth().padding(8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(tradeOrderListItem.header)
+                Text(item.header)
             }
         }
 
@@ -94,19 +94,19 @@ private fun TableScope<TradeOrderEntry>.dayHeader(tradeOrderListItem: TradeOrder
     }
 }
 
-private fun TableScope<TradeOrderEntry>.tradeOrderItems(
-    tradeOrderListItem: TradeOrderListItem.Entries,
-    onClickOrder: (TradeOrderEntry) -> Unit,
-    onLongClickOrder: (TradeOrderEntry) -> Unit,
-    onNewOrder: (ProfileOrderId) -> Unit,
-    onEditOrder: (ProfileOrderId) -> Unit,
-    onLockOrder: (ProfileOrderId) -> Unit,
-    onDeleteOrder: (ProfileOrderId) -> Unit,
+private fun TableScope<TradeExecutionEntry>.tradeExecutionItems(
+    tradeExecutionListItem: TradeExecutionListItem.Entries,
+    onClickExecution: (TradeExecutionEntry) -> Unit,
+    onLongClickExecution: (TradeExecutionEntry) -> Unit,
+    onNewExecution: (ProfileTradeExecutionId) -> Unit,
+    onEditExecution: (ProfileTradeExecutionId) -> Unit,
+    onLockExecution: (ProfileTradeExecutionId) -> Unit,
+    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
 ) {
 
     rows(
-        items = tradeOrderListItem.entries,
-        key = { it.profileOrderId },
+        items = tradeExecutionListItem.entries,
+        key = { it.profileTradeExecutionId },
     ) { entry ->
 
         var showLockConfirmationDialog by state { false }
@@ -116,13 +116,13 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
             items = {
 
                 buildList {
-                    add(ContextMenuItem("New") { onNewOrder(entry.profileOrderId) })
+                    add(ContextMenuItem("New") { onNewExecution(entry.profileTradeExecutionId) })
 
                     if (!entry.locked) {
                         addAll(
                             listOf(
                                 ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                                ContextMenuItem("Edit") { onEditOrder(entry.profileOrderId) },
+                                ContextMenuItem("Edit") { onEditExecution(entry.profileTradeExecutionId) },
                                 ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                             )
                         )
@@ -136,8 +136,8 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
                 DefaultTableRow(
                     item = entry,
                     schema = schema,
-                    onClick = { onClickOrder(entry) },
-                    onLongClick = { onLongClickOrder(entry) },
+                    onClick = { onClickExecution(entry) },
+                    onLongClick = { onLongClickExecution(entry) },
                 )
 
                 Divider()
@@ -146,11 +146,11 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
             if (showLockConfirmationDialog) {
 
                 ConfirmationDialog(
-                    confirmationRequestText = "Are you sure you want to lock the order?",
+                    confirmationRequestText = "Are you sure you want to lock the execution?",
                     onDismiss = { showLockConfirmationDialog = false },
                     onConfirm = {
                         showLockConfirmationDialog = false
-                        onLockOrder(entry.profileOrderId)
+                        onLockExecution(entry.profileTradeExecutionId)
                     },
                 )
             }
@@ -158,9 +158,9 @@ private fun TableScope<TradeOrderEntry>.tradeOrderItems(
             if (showDeleteConfirmationDialog) {
 
                 ConfirmationDialog(
-                    confirmationRequestText = "Are you sure you want to delete the order?",
+                    confirmationRequestText = "Are you sure you want to delete the execution?",
                     onDismiss = { showDeleteConfirmationDialog = false },
-                    onConfirm = { onDeleteOrder(entry.profileOrderId) },
+                    onConfirm = { onDeleteExecution(entry.profileTradeExecutionId) },
                 )
             }
         }

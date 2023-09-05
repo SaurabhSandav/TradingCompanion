@@ -16,25 +16,25 @@ import com.saurabhsandav.core.ui.common.controls.DateTimeField
 import com.saurabhsandav.core.ui.common.controls.ListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.toImmutableList
 import java.util.*
 
 @Composable
-internal fun OrderFormWindow(
+internal fun TradeExecutionFormWindow(
     profileId: Long,
-    formType: OrderFormType,
-    onOrderSaved: ((orderId: Long) -> Unit)? = null,
+    formType: TradeExecutionFormType,
+    onExecutionSaved: ((executionId: Long) -> Unit)? = null,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        OrderFormPresenter(scope, profileId, formType, appModule) { id ->
-            onOrderSaved?.invoke(id)
+        TradeExecutionFormPresenter(scope, profileId, formType, appModule) { id ->
+            onExecutionSaved?.invoke(id)
             onCloseRequest()
         }
     }
@@ -54,9 +54,9 @@ internal fun OrderFormWindow(
             val formModel = state.formModel
 
             when {
-                formModel != null -> OrderForm(
+                formModel != null -> TradeExecutionForm(
                     model = formModel,
-                    onSaveOrder = { state.onSaveOrder() },
+                    onSaveExecution = state.onSaveExecution,
                 )
 
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -66,9 +66,9 @@ internal fun OrderFormWindow(
 }
 
 @Composable
-private fun OrderForm(
-    model: OrderFormModel,
-    onSaveOrder: () -> Unit,
+private fun TradeExecutionForm(
+    model: TradeExecutionFormModel,
+    onSaveExecution: () -> Unit,
 ) {
 
     Column(
@@ -153,7 +153,7 @@ private fun OrderForm(
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = onSaveOrder,
+            onClick = onSaveExecution,
         ) {
 
             Text("Add")

@@ -8,7 +8,7 @@ import java.math.BigDecimal
 internal data class TradeState(
     val title: String,
     val details: Details?,
-    val orders: ImmutableList<Order>,
+    val executions: ImmutableList<Execution>,
     val stops: ImmutableList<TradeStop>,
     val targets: ImmutableList<TradeTarget>,
     val mfeAndMae: MfeAndMae?,
@@ -34,7 +34,7 @@ internal data class TradeState(
     )
 
     @Immutable
-    internal data class Order(
+    internal data class Execution(
         val id: Long,
         val quantity: String,
         val side: String,

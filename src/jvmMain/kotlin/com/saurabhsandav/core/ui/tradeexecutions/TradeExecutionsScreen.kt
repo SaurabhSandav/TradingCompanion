@@ -9,25 +9,25 @@ import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
-import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeOrdersSelectionBar
-import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeOrdersTable
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.*
+import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsSelectionBar
+import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsTable
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-internal fun TradeOrdersScreen(
-    onNewOrder: () -> Unit,
-    tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    selectionManager: SelectionManager<TradeOrderEntry>,
-    onNewOrderFromExisting: (ProfileOrderId) -> Unit,
-    onEditOrder: (ProfileOrderId) -> Unit,
-    onLockOrders: (List<ProfileOrderId>) -> Unit,
-    onDeleteOrders: (List<ProfileOrderId>) -> Unit,
+internal fun TradeExecutionsScreen(
+    onNewExecution: () -> Unit,
+    items: ImmutableList<TradeExecutionListItem>,
+    selectionManager: SelectionManager<TradeExecutionEntry>,
+    onNewExecutionFromExisting: (ProfileTradeExecutionId) -> Unit,
+    onEditExecution: (ProfileTradeExecutionId) -> Unit,
+    onLockExecutions: (List<ProfileTradeExecutionId>) -> Unit,
+    onDeleteExecutions: (List<ProfileTradeExecutionId>) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
 ) {
 
     // Set window title
-    WindowTitle("Trade Orders")
+    WindowTitle("Trade Executions")
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -38,21 +38,21 @@ internal fun TradeOrdersScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             floatingActionButton = {
 
-                ExtendedFloatingActionButton(onClick = onNewOrder) {
-                    Text(text = "New Order")
+                ExtendedFloatingActionButton(onClick = onNewExecution) {
+                    Text(text = "New Trade Execution")
                 }
             },
         ) {
 
-            TradeOrdersTable(
-                tradeOrderItems = tradeOrderItems,
+            TradeExecutionsTable(
+                items = items,
                 isMarked = { entry -> entry in selectionManager.selection },
-                onClickOrder = { entry -> selectionManager.select(entry) },
-                onMarkOrder = { entry -> selectionManager.multiSelect(entry) },
-                onNewOrder = onNewOrderFromExisting,
-                onEditOrder = onEditOrder,
-                onLockOrder = { profileOrderId -> onLockOrders(listOf(profileOrderId)) },
-                onDeleteOrder = { profileOrderId -> onDeleteOrders(listOf(profileOrderId)) },
+                onClickExecution = { entry -> selectionManager.select(entry) },
+                onMarkExecution = { entry -> selectionManager.multiSelect(entry) },
+                onNewExecution = onNewExecutionFromExisting,
+                onEditExecution = onEditExecution,
+                onLockExecution = { profileExecutionId -> onLockExecutions(listOf(profileExecutionId)) },
+                onDeleteExecution = { profileExecutionId -> onDeleteExecutions(listOf(profileExecutionId)) },
             )
 
             // Errors
@@ -62,10 +62,10 @@ internal fun TradeOrdersScreen(
             }
         }
 
-        TradeOrdersSelectionBar(
+        TradeExecutionsSelectionBar(
             selectionManager = selectionManager,
-            onLockOrders = onLockOrders,
-            onDeleteOrders = onDeleteOrders,
+            onLockExecutions = onLockExecutions,
+            onDeleteExecutions = onDeleteExecutions,
         )
     }
 }

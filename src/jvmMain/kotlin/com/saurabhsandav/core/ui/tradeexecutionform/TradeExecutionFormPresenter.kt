@@ -8,10 +8,10 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormState
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
-import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType.*
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -22,24 +22,24 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.nanoseconds
 
 @Stable
-internal class OrderFormPresenter(
+internal class TradeExecutionFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: Long,
-    private val formType: OrderFormType,
+    private val formType: TradeExecutionFormType,
     private val appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
+    private val onExecutionSaved: ((executionId: Long) -> Unit)? = null,
 ) {
 
     private val formValidator = FormValidator()
-    private var formModel by mutableStateOf<OrderFormModel?>(null)
+    private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
     init {
 
         when (formType) {
             is New -> new(formType.formModel)
             is NewFromExisting -> newFromExisting(formType.id)
-            is Edit -> editOrder(formType.id)
+            is Edit -> edit(formType.id)
         }
     }
 
@@ -49,14 +49,14 @@ internal class OrderFormPresenter(
             tradingProfiles.getProfile(profileId).map { profile -> "${profile.name} - " }
         }.collectAsState("")
 
-        return@launchMolecule OrderFormState(
-            title = "${tradingProfileName}${if (formType is Edit) "Edit Order (${formType.id})" else "New Order"}",
+        return@launchMolecule TradeExecutionFormState(
+            title = "${tradingProfileName}${if (formType is Edit) "Edit Trade Execution (${formType.id})" else "New Trade Execution"}",
             formModel = formModel,
-            onSaveOrder = ::onSaveOrder,
+            onSaveExecution = ::onSaveExecution,
         )
     }
 
-    private fun onSaveOrder() = coroutineScope.launchUnit {
+    private fun onSaveExecution() = coroutineScope.launchUnit {
 
         if (!formValidator.isValid()) return@launchUnit
 
@@ -64,7 +64,7 @@ internal class OrderFormPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        val orderId = when (formType) {
+        val executionId = when (formType) {
             is Edit -> tradingRecord.executions.edit(
                 id = formType.id,
                 broker = "Finvasia",
@@ -90,13 +90,13 @@ internal class OrderFormPresenter(
             )
         }
 
-        // Notify order saved
-        onOrderSaved?.invoke(orderId)
+        // Notify execution saved
+        onExecutionSaved?.invoke(executionId)
     }
 
-    private fun new(formModel: ((FormValidator) -> OrderFormModel)? = null) {
+    private fun new(formModel: ((FormValidator) -> TradeExecutionFormModel)? = null) {
 
-        this.formModel = formModel?.invoke(formValidator) ?: OrderFormModel(
+        this.formModel = formModel?.invoke(formValidator) ?: TradeExecutionFormModel(
             validator = formValidator,
             instrument = null,
             ticker = null,
@@ -116,16 +116,16 @@ internal class OrderFormPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        val order = tradingRecord.executions.getById(id).first()
+        val execution = tradingRecord.executions.getById(id).first()
 
-        formModel = OrderFormModel(
+        formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = order.instrument.strValue,
-            ticker = order.ticker,
-            quantity = order.quantity.toString(),
-            lots = order.lots?.toString() ?: "",
-            isBuy = order.side == TradeExecutionSide.Buy,
-            price = order.price.toPlainString(),
+            instrument = execution.instrument.strValue,
+            ticker = execution.ticker,
+            quantity = execution.quantity.toString(),
+            lots = execution.lots?.toString() ?: "",
+            isBuy = execution.side == TradeExecutionSide.Buy,
+            price = execution.price.toPlainString(),
             timestamp = run {
                 val currentTime = Clock.System.now()
                 val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
@@ -134,21 +134,21 @@ internal class OrderFormPresenter(
         )
     }
 
-    private fun editOrder(id: Long) = coroutineScope.launchUnit {
+    private fun edit(id: Long) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        val order = tradingRecord.executions.getById(id).first()
+        val execution = tradingRecord.executions.getById(id).first()
 
-        formModel = OrderFormModel(
+        formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = order.instrument.strValue,
-            ticker = order.ticker,
-            quantity = order.quantity.toString(),
-            lots = order.lots?.toString() ?: "",
-            isBuy = order.side == TradeExecutionSide.Buy,
-            price = order.price.toPlainString(),
-            timestamp = order.timestamp,
+            instrument = execution.instrument.strValue,
+            ticker = execution.ticker,
+            quantity = execution.quantity.toString(),
+            lots = execution.lots?.toString() ?: "",
+            isBuy = execution.side == TradeExecutionSide.Buy,
+            price = execution.price.toPlainString(),
+            timestamp = execution.timestamp,
         )
     }
 }

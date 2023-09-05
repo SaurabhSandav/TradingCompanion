@@ -6,16 +6,16 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-internal data class TradeOrdersState(
-    val tradeOrderItems: ImmutableList<TradeOrderListItem>,
-    val selectionManager: SelectionManager<TradeOrderEntry>,
+internal data class TradeExecutionsState(
+    val items: ImmutableList<TradeExecutionListItem>,
+    val selectionManager: SelectionManager<TradeExecutionEntry>,
     val errors: ImmutableList<UIErrorMessage>,
-    val eventSink: (TradeOrdersEvent) -> Unit,
+    val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {
 
     @Immutable
-    internal data class TradeOrderEntry(
-        val profileOrderId: ProfileOrderId,
+    internal data class TradeExecutionEntry(
+        val profileTradeExecutionId: ProfileTradeExecutionId,
         val broker: String,
         val ticker: String,
         val quantity: String,
@@ -26,18 +26,18 @@ internal data class TradeOrdersState(
     )
 
     @Immutable
-    internal sealed class TradeOrderListItem {
+    internal sealed class TradeExecutionListItem {
 
         @Immutable
-        internal data class DayHeader(val header: String) : TradeOrderListItem()
+        internal data class DayHeader(val header: String) : TradeExecutionListItem()
 
         @Immutable
-        internal data class Entries(val entries: ImmutableList<TradeOrderEntry>) : TradeOrderListItem()
+        internal data class Entries(val entries: ImmutableList<TradeExecutionEntry>) : TradeExecutionListItem()
     }
 
     @Immutable
-    data class ProfileOrderId(
+    data class ProfileTradeExecutionId(
         val profileId: Long,
-        val orderId: Long,
+        val executionId: Long,
     )
 }
