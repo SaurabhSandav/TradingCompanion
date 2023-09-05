@@ -147,7 +147,7 @@ internal class ReplayChartsMarketDataProvider(
                 val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
                         instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
-                tradingRecord.orders.getOrdersByTickerInInterval(
+                tradingRecord.executions.getExecutionsByTickerInInterval(
                     ticker,
                     ldtRange,
                 )

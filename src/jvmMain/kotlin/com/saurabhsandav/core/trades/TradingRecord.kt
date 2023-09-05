@@ -3,7 +3,7 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
@@ -46,15 +46,15 @@ internal class TradingRecord(
                 mfePriceAdapter = BigDecimalColumnAdapter,
                 maePriceAdapter = BigDecimalColumnAdapter,
             ),
-            TradeOrderAdapter = TradeOrder.Adapter(
+            TradeExecutionAdapter = TradeExecution.Adapter(
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 lotsAdapter = IntColumnAdapter,
-                sideAdapter = OrderSide.ColumnAdapter,
+                sideAdapter = TradeExecutionSide.ColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
                 timestampAdapter = LocalDateTimeColumnAdapter,
             ),
-            TradeToOrderMapAdapter = TradeToOrderMap.Adapter(
+            TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
                 overrideQuantityAdapter = BigDecimalColumnAdapter,
             ),
             TradeStopAdapter = TradeStop.Adapter(
@@ -72,9 +72,9 @@ internal class TradingRecord(
         )
     }
 
-    val orders = TradeOrdersRepo(tradesDB)
+    val executions = TradeExecutionsRepo(tradesDB)
 
-    val trades = TradesRepo(tradesDB, orders, candleRepo)
+    val trades = TradesRepo(tradesDB, executions, candleRepo)
 
     val sizingTrades = SizingTradesRepo(tradesDB)
 }

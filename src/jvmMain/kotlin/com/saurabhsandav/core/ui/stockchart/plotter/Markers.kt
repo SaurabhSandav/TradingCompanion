@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.chart.data.SeriesMarkerPosition
 import com.saurabhsandav.core.chart.data.SeriesMarkerShape
 import com.saurabhsandav.core.chart.data.Time
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
@@ -31,27 +31,27 @@ class TradingSessionMarker(
 
 class TradeOrderMarker(
     override val instant: Instant,
-    private val side: OrderSide,
+    private val side: TradeExecutionSide,
     private val price: BigDecimal,
 ) : SeriesMarker {
 
     override fun toActualMarker() = ActualSeriesMarker(
         time = Time.UTCTimestamp(instant.offsetTimeForChart()),
         position = when (side) {
-            OrderSide.Buy -> SeriesMarkerPosition.BelowBar
-            OrderSide.Sell -> SeriesMarkerPosition.AboveBar
+            TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
+            TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar
         },
         shape = when (side) {
-            OrderSide.Buy -> SeriesMarkerShape.ArrowUp
-            OrderSide.Sell -> SeriesMarkerShape.ArrowDown
+            TradeExecutionSide.Buy -> SeriesMarkerShape.ArrowUp
+            TradeExecutionSide.Sell -> SeriesMarkerShape.ArrowDown
         },
         color = when (side) {
-            OrderSide.Buy -> Color.Green
-            OrderSide.Sell -> Color.Red
+            TradeExecutionSide.Buy -> Color.Green
+            TradeExecutionSide.Sell -> Color.Red
         },
         text = when (side) {
-            OrderSide.Buy -> price.toPlainString()
-            OrderSide.Sell -> price.toPlainString()
+            TradeExecutionSide.Buy -> price.toPlainString()
+            TradeExecutionSide.Sell -> price.toPlainString()
         },
     )
 }

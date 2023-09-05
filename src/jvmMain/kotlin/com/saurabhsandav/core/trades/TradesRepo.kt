@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.minutes
 
 internal class TradesRepo(
     private val tradesDB: TradesDB,
-    private val tradeOrdersRepo: TradeOrdersRepo,
+    private val executionsRepo: TradeExecutionsRepo,
     private val candleRepo: CandleRepository,
 ) {
 
@@ -62,13 +62,13 @@ internal class TradesRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
-        return tradeOrdersRepo.getOrdersForTrade(id)
+    fun getExecutionsForTrade(id: Long): Flow<List<TradeExecution>> {
+        return executionsRepo.getExecutionsForTrade(id)
     }
 
-    fun getTradesForOrder(orderId: Long): Flow<List<Trade>> {
+    fun getTradesForExecution(executionId: Long): Flow<List<Trade>> {
         return tradesDB.tradeToExecutionMapQueries
-            .getTradesByOrder(orderId)
+            .getTradesByExecution(executionId)
             .asFlow()
             .mapToList(Dispatchers.IO)
     }

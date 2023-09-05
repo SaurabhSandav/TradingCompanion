@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trades.model
 
-actual enum class OrderSide(val strValue: String) {
+actual enum class TradeExecutionSide(val strValue: String) {
     Buy("buy"),
     Sell("sell");
 
@@ -9,13 +9,13 @@ actual enum class OrderSide(val strValue: String) {
         fun fromString(strValue: String) = when (strValue.lowercase()) {
             "buy" -> Buy
             "sell" -> Sell
-            else -> error("Invalid order side: $strValue")
+            else -> error("Invalid trade execution side: $strValue")
         }
     }
 
-    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<OrderSide, String> {
-        override fun decode(databaseValue: String): OrderSide = OrderSide.fromString(databaseValue)
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<TradeExecutionSide, String> {
+        override fun decode(databaseValue: String): TradeExecutionSide = TradeExecutionSide.fromString(databaseValue)
 
-        override fun encode(value: OrderSide): String = value.strValue
+        override fun encode(value: TradeExecutionSide): String = value.strValue
     }
 }

@@ -169,7 +169,7 @@ internal class SizingPresenter(
 
                     // Single order can close a trade and open a new one.
                     // Make sure to choose the open trade
-                    val trade = tradingRecord.trades.getTradesForOrder(orderId).first().single { !it.isClosed }
+                    val trade = tradingRecord.trades.getTradesForExecution(orderId).first().single { !it.isClosed }
 
                     // Add stop
                     tradingRecord.trades.addStop(trade.id, sizingTrade.stop)

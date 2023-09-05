@@ -1,18 +1,18 @@
 import com.saurabhsandav.core.trades.model.Instrument;
-import com.saurabhsandav.core.trades.model.OrderSide;
+import com.saurabhsandav.core.trades.model.TradeExecutionSide;
 import java.math.BigDecimal;
 import kotlin.Boolean;
 import kotlin.Int;
 import kotlinx.datetime.LocalDateTime;
 
-CREATE TABLE IF NOT EXISTS TradeOrder (
+CREATE TABLE IF NOT EXISTS TradeExecution (
 id INTEGER NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
-side TEXT AS OrderSide NOT NULL,
+side TEXT AS TradeExecutionSide NOT NULL,
 price TEXT AS BigDecimal NOT NULL,
 timestamp TEXT AS LocalDateTime NOT NULL,
 locked INTEGER AS Boolean NOT NULL
@@ -20,41 +20,41 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeOrder(broker, instrument, ticker, quantity, lots, side, price, timestamp, locked)
+INTO TradeExecution(broker, instrument, ticker, quantity, lots, side, price, timestamp, locked)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
-UPDATE TradeOrder
+UPDATE TradeExecution
 SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
 getAll:
 SELECT *
-FROM TradeOrder
+FROM TradeExecution
 ORDER BY date(timestamp) DESC, time(timestamp) DESC;
 
 getById:
 SELECT *
-FROM TradeOrder
+FROM TradeExecution
 WHERE id = ?;
 
 getByTickerInInterval:
 SELECT *
-FROM TradeOrder
+FROM TradeExecution
 WHERE ticker = :ticker
 AND datetime(:from) < datetime(timestamp)
 AND datetime(timestamp) < datetime(:to);
 
 isLocked:
 SELECT id, locked
-FROM TradeOrder
+FROM TradeExecution
 WHERE id IN ?;
 
 lock:
-UPDATE TradeOrder
+UPDATE TradeExecution
 SET locked = TRUE
 WHERE id IN ?;
 
 delete:
-DELETE FROM TradeOrder
+DELETE FROM TradeExecution
 WHERE id = ?;

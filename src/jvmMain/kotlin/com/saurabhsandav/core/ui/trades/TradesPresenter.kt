@@ -12,7 +12,7 @@ import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -172,7 +172,7 @@ internal class TradesPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
         val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
-        val tradeOrders = tradingRecord.trades.getOrdersForTrade(profileTradeId.tradeId).first()
+        val tradeOrders = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
 
         val exitDateTime = trade.exitTimestamp ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -283,20 +283,20 @@ internal class TradesPresenter(
             SeriesMarker(
                 time = Time.UTCTimestamp(orderInstant.offsetTimeForChart()),
                 position = when (order.side) {
-                    OrderSide.Buy -> SeriesMarkerPosition.BelowBar
-                    OrderSide.Sell -> SeriesMarkerPosition.AboveBar
+                    TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
+                    TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar
                 },
                 shape = when (order.side) {
-                    OrderSide.Buy -> SeriesMarkerShape.ArrowUp
-                    OrderSide.Sell -> SeriesMarkerShape.ArrowDown
+                    TradeExecutionSide.Buy -> SeriesMarkerShape.ArrowUp
+                    TradeExecutionSide.Sell -> SeriesMarkerShape.ArrowDown
                 },
                 color = when (order.side) {
-                    OrderSide.Buy -> Color.Green
-                    OrderSide.Sell -> Color.Red
+                    TradeExecutionSide.Buy -> Color.Green
+                    TradeExecutionSide.Sell -> Color.Red
                 },
                 text = when (order.side) {
-                    OrderSide.Buy -> order.price.toPlainString()
-                    OrderSide.Sell -> order.price.toPlainString()
+                    TradeExecutionSide.Buy -> order.price.toPlainString()
+                    TradeExecutionSide.Sell -> order.price.toPlainString()
                 },
             )
         }

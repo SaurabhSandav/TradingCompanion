@@ -49,7 +49,11 @@ internal class TradeReviewMarkersProvider(
 
                     val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                    tradingRecord.orders.getOrdersByTickerAndTradeIdsInInterval(ticker, tradeIds.toList(), ldtRange)
+                    tradingRecord.executions.getExecutionsByTickerAndTradeIdsInInterval(
+                        ticker = ticker,
+                        ids = tradeIds.toList(),
+                        range = ldtRange,
+                    )
                 }
             }
             .mapList { order ->

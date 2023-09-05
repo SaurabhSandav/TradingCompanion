@@ -6,7 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormState
@@ -65,25 +65,25 @@ internal class OrderFormPresenter(
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val orderId = when (formType) {
-            is Edit -> tradingRecord.orders.edit(
+            is Edit -> tradingRecord.executions.edit(
                 id = formType.id,
                 broker = "Finvasia",
                 instrument = Instrument.fromString(formModel.instrument.value!!),
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuy.value) OrderSide.Buy else OrderSide.Sell,
+                side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
                 timestamp = formModel.timestamp.value,
             )
 
-            else -> tradingRecord.orders.new(
+            else -> tradingRecord.executions.new(
                 broker = "Finvasia",
                 instrument = Instrument.fromString(formModel.instrument.value!!),
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuy.value) OrderSide.Buy else OrderSide.Sell,
+                side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
                 timestamp = formModel.timestamp.value,
                 locked = false,
@@ -116,7 +116,7 @@ internal class OrderFormPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        val order = tradingRecord.orders.getById(id).first()
+        val order = tradingRecord.executions.getById(id).first()
 
         formModel = OrderFormModel(
             validator = formValidator,
@@ -124,7 +124,7 @@ internal class OrderFormPresenter(
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             lots = order.lots?.toString() ?: "",
-            isBuy = order.side == OrderSide.Buy,
+            isBuy = order.side == TradeExecutionSide.Buy,
             price = order.price.toPlainString(),
             timestamp = run {
                 val currentTime = Clock.System.now()
@@ -138,7 +138,7 @@ internal class OrderFormPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        val order = tradingRecord.orders.getById(id).first()
+        val order = tradingRecord.executions.getById(id).first()
 
         formModel = OrderFormModel(
             validator = formValidator,
@@ -146,7 +146,7 @@ internal class OrderFormPresenter(
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             lots = order.lots?.toString() ?: "",
-            isBuy = order.side == OrderSide.Buy,
+            isBuy = order.side == TradeExecutionSide.Buy,
             price = order.price.toPlainString(),
             timestamp = order.timestamp,
         )

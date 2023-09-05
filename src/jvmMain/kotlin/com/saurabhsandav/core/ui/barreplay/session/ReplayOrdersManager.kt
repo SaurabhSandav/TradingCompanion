@@ -8,7 +8,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.ClosedOrder
@@ -55,7 +55,7 @@ internal class ReplayOrdersManager(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        side: OrderSide,
+        side: TradeExecutionSide,
         price: BigDecimal,
         stop: BigDecimal?,
         target: BigDecimal?,
@@ -94,7 +94,7 @@ internal class ReplayOrdersManager(
 
                 if (closedOrder !is ClosedOrder.Executed) return@contingentOrders
 
-                val savedOrderId = tradingRecord.orders.new(
+                val savedOrderId = tradingRecord.executions.new(
                     broker = closedOrder.params.broker,
                     instrument = closedOrder.params.instrument,
                     ticker = closedOrder.params.ticker,
@@ -109,12 +109,12 @@ internal class ReplayOrdersManager(
                 if (target != null || stop != null) {
 
                     // Find generated trade for executed order
-                    val trade = tradingRecord.trades.getTradesForOrder(savedOrderId).first().single { !it.isClosed }
+                    val trade = tradingRecord.trades.getTradesForExecution(savedOrderId).first().single { !it.isClosed }
 
                     val positionCloseParams = orderParams.copy(
                         side = when (orderParams.side) {
-                            OrderSide.Buy -> OrderSide.Sell
-                            OrderSide.Sell -> OrderSide.Buy
+                            TradeExecutionSide.Buy -> TradeExecutionSide.Sell
+                            TradeExecutionSide.Sell -> TradeExecutionSide.Buy
                         }
                     )
 
@@ -140,7 +140,7 @@ internal class ReplayOrdersManager(
                             // If order was executed, record it.
                             if (closedStopOrder is ClosedOrder.Executed) {
 
-                                tradingRecord.orders.new(
+                                tradingRecord.executions.new(
                                     broker = closedStopOrder.params.broker,
                                     instrument = closedStopOrder.params.instrument,
                                     ticker = closedStopOrder.params.ticker,
@@ -178,7 +178,7 @@ internal class ReplayOrdersManager(
                             // If order was executed, record it.
                             if (closedTargetOrder is ClosedOrder.Executed) {
 
-                                tradingRecord.orders.new(
+                                tradingRecord.executions.new(
                                     broker = closedTargetOrder.params.broker,
                                     instrument = closedTargetOrder.params.instrument,
                                     ticker = closedTargetOrder.params.ticker,

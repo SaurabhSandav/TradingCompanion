@@ -4,7 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderSide
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +13,14 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 
-internal class TradeOrdersRepo(
+internal class TradeExecutionsRepo(
     private val tradesDB: TradesDB,
 ) {
 
-    val allOrders: Flow<List<TradeOrder>>
+    val allExecutions: Flow<List<TradeExecution>>
         get() = tradesDB.tradeExecutionQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
-    fun getById(id: Long): Flow<TradeOrder> {
+    fun getById(id: Long): Flow<TradeExecution> {
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
@@ -30,14 +30,14 @@ internal class TradeOrdersRepo(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        side: OrderSide,
+        side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
     ): Long = withContext(Dispatchers.IO) {
         tradesDB.transactionWithResult {
 
-            // Insert Trade order
+            // Insert Trade execution
             tradesDB.tradeExecutionQueries.insert(
                 broker = broker,
                 instrument = instrument,
@@ -50,14 +50,14 @@ internal class TradeOrdersRepo(
                 locked = locked,
             )
 
-            // ID in database of just inserted order
-            val orderId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            // ID in database of just inserted execution
+            val executionId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
             // Generate Trade
-            val order = tradesDB.tradeExecutionQueries.getById(orderId).executeAsOne()
-            consumeOrder(order)
+            val execution = tradesDB.tradeExecutionQueries.getById(executionId).executeAsOne()
+            consumeExecution(execution)
 
-            return@transactionWithResult orderId
+            return@transactionWithResult executionId
         }
     }
 
@@ -68,18 +68,18 @@ internal class TradeOrdersRepo(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        side: OrderSide,
+        side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
     ): Long = withContext(Dispatchers.IO) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
 
-        require(notLocked) { "Order is locked and cannot be edited" }
+        require(notLocked) { "Trade execution is locked and cannot be edited" }
 
         tradesDB.transaction {
 
-            // Update order
+            // Update execution
             tradesDB.tradeExecutionQueries.update(
                 id = id,
                 broker = broker,
@@ -94,19 +94,19 @@ internal class TradeOrdersRepo(
 
             // Trades to be regenerated
             val regenerationTrades = tradesDB.tradeToExecutionMapQueries
-                .getTradesByOrder(id)
+                .getTradesByExecution(id)
                 .executeAsList()
 
             // Regenerate Trades
             regenerationTrades.forEach { trade ->
 
-                // Get orders for Trade
-                val orders = tradesDB.tradeToExecutionMapQueries
-                    .getOrdersByTrade(trade.id, ::toTradeOrder)
+                // Get executions for Trade
+                val executions = tradesDB.tradeToExecutionMapQueries
+                    .getExecutionsByTrade(trade.id, ::toTradeExecution)
                     .executeAsList()
 
                 // Update Trade
-                orders.createTrade().updateTradeInDB(trade.id)
+                executions.createTrade().updateTradeInDB(trade.id)
 
                 // Regenerate supplemental data
                 regenerateSupplementalTradeData(trade.id)
@@ -120,35 +120,36 @@ internal class TradeOrdersRepo(
 
         val noneLocked = isLocked(ids).none { it.locked }
 
-        require(noneLocked) { "Order(s) are locked and cannot be deleted" }
+        require(noneLocked) { "Trade execution(s) are locked and cannot be deleted" }
 
         tradesDB.transaction {
 
             ids.forEach { id ->
 
                 // Trades to be regenerated
-                val regenerationTrades = tradesDB.tradeToExecutionMapQueries
-                    .getTradesByOrder(id)
+                val regenerationTrades = tradesDB
+                    .tradeToExecutionMapQueries
+                    .getTradesByExecution(id)
                     .executeAsList()
 
-                // Delete order
+                // Delete execution
                 tradesDB.tradeExecutionQueries.delete(id)
 
                 // Regenerate Trades
                 regenerationTrades.forEach { trade ->
 
-                    // Get orders for Trade
-                    val orders = tradesDB.tradeToExecutionMapQueries
-                        .getOrdersByTrade(trade.id, ::toTradeOrder)
+                    // Get executions for Trade
+                    val executions = tradesDB.tradeToExecutionMapQueries
+                        .getExecutionsByTrade(trade.id, ::toTradeExecution)
                         .executeAsList()
 
                     when {
                         // Delete Trade.
-                        orders.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
+                        executions.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
                         else -> {
 
                             // Update Trade
-                            orders.createTrade().updateTradeInDB(trade.id)
+                            executions.createTrade().updateTradeInDB(trade.id)
 
                             // Regenerate supplemental data
                             regenerateSupplementalTradeData(trade.id)
@@ -161,17 +162,17 @@ internal class TradeOrdersRepo(
 
     suspend fun lock(ids: List<Long>) = withContext(Dispatchers.IO) { tradesDB.tradeExecutionQueries.lock(ids) }
 
-    fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
+    fun getExecutionsForTrade(id: Long): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
-            .getOrdersByTrade(id, ::toTradeOrder)
+            .getExecutionsByTrade(id, ::toTradeExecution)
             .asFlow()
             .mapToList(Dispatchers.IO)
     }
 
-    fun getOrdersByTickerInInterval(
+    fun getExecutionsByTickerInInterval(
         ticker: String,
         range: ClosedRange<LocalDateTime>,
-    ): Flow<List<TradeOrder>> {
+    ): Flow<List<TradeExecution>> {
         return tradesDB.tradeExecutionQueries
             .getByTickerInInterval(
                 ticker = ticker,
@@ -182,18 +183,18 @@ internal class TradeOrdersRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    fun getOrdersByTickerAndTradeIdsInInterval(
+    fun getExecutionsByTickerAndTradeIdsInInterval(
         ticker: String,
         ids: List<Long>,
         range: ClosedRange<LocalDateTime>,
-    ): Flow<List<TradeOrder>> {
+    ): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
-            .getOrdersByTickerAndTradeIdsInInterval(
+            .getExecutionsByTickerAndTradeIdsInInterval(
                 ticker = ticker,
                 ids = ids,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
-                mapper = ::toTradeOrder,
+                mapper = ::toTradeExecution,
             )
             .asFlow()
             .mapToList(Dispatchers.IO)
@@ -203,29 +204,29 @@ internal class TradeOrdersRepo(
         tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
 
-    private fun consumeOrder(order: TradeOrder) {
+    private fun consumeExecution(execution: TradeExecution) {
 
         // Currently open trades
         val openTrades = tradesDB.tradeQueries.getOpenTrades().executeAsList()
-        // Trade that will consume this order
+        // Trade that will consume this execution
         val openTrade = openTrades.find {
-            it.broker == order.broker && it.instrument == order.instrument && it.ticker == order.ticker
+            it.broker == execution.broker && it.instrument == execution.instrument && it.ticker == execution.ticker
         }
 
-        // No open trade exists to consume order. Create new trade.
+        // No open trade exists to consume execution. Create new trade.
         if (openTrade == null) {
 
             // Insert Trade
             tradesDB.tradeQueries.insert(
-                broker = order.broker,
-                ticker = order.ticker,
-                instrument = order.instrument,
-                quantity = order.quantity,
+                broker = execution.broker,
+                ticker = execution.ticker,
+                instrument = execution.instrument,
+                quantity = execution.quantity,
                 closedQuantity = BigDecimal.ZERO,
                 lots = null,
-                side = (if (order.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short),
-                averageEntry = order.price,
-                entryTimestamp = order.timestamp,
+                side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
+                averageEntry = execution.price,
+                entryTimestamp = execution.timestamp,
                 averageExit = null,
                 exitTimestamp = null,
                 pnl = BigDecimal.ZERO,
@@ -237,31 +238,32 @@ internal class TradeOrdersRepo(
             // ID in database of just inserted trade
             val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
-            // Link trade and order in database
+            // Link trade and execution in database
             tradesDB.tradeToExecutionMapQueries.insert(
                 tradeId = tradeId,
-                orderId = order.id,
+                executionId = execution.id,
                 overrideQuantity = null,
             )
 
-        } else { // Open Trade exists. Update trade with new order
+        } else { // Open Trade exists. Update trade with new execution
 
-            // Quantity of instrument that is still open after consuming current order
+            // Quantity of instrument that is still open after consuming current execution
             val currentOpenQuantity = openTrade.quantity - when {
-                (openTrade.side == TradeSide.Long && order.side == OrderSide.Sell) ||
-                        (openTrade.side == TradeSide.Short && order.side == OrderSide.Buy) ->
-                    openTrade.closedQuantity + order.quantity
+                (openTrade.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
+                        (openTrade.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) ->
+                    openTrade.closedQuantity + execution.quantity
 
                 else -> openTrade.closedQuantity
             }
 
-            // Get pre-existing orders for open trade
-            val orders = tradesDB.tradeToExecutionMapQueries
-                .getOrdersByTrade(openTrade.id, ::toTradeOrder)
+            // Get pre-existing executions for open trade
+            val executions = tradesDB
+                .tradeToExecutionMapQueries
+                .getExecutionsByTrade(openTrade.id, ::toTradeExecution)
                 .executeAsList()
 
-            // Recalculate trade parameters after consuming current order
-            val trade = (orders + order).createTrade()
+            // Recalculate trade parameters after consuming current execution
+            val trade = (executions + execution).createTrade()
 
             // Update Trade with new parameters
             trade.updateTradeInDB(openTrade.id)
@@ -269,15 +271,15 @@ internal class TradeOrdersRepo(
             // Regenerate supplemental data
             regenerateSupplementalTradeData(openTrade.id)
 
-            // If currentOpenQuantity is negative, that means a single order was used to exit a position and create
+            // If currentOpenQuantity is negative, that means a single execution was used to exit a position and create
             // a new position. Create a new trade for this new position
             if (currentOpenQuantity < BigDecimal.ZERO) {
 
-                // Link exiting trade and order in database, while overriding quantity
+                // Link existing trade and execution in database, while overriding quantity
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
-                    orderId = order.id,
-                    overrideQuantity = order.quantity + currentOpenQuantity,
+                    executionId = execution.id,
+                    overrideQuantity = execution.quantity + currentOpenQuantity,
                 )
 
                 // Quantity for new trade
@@ -285,15 +287,15 @@ internal class TradeOrdersRepo(
 
                 // Insert Trade
                 tradesDB.tradeQueries.insert(
-                    broker = order.broker,
-                    ticker = order.ticker,
-                    instrument = order.instrument,
+                    broker = execution.broker,
+                    ticker = execution.ticker,
+                    instrument = execution.instrument,
                     quantity = overrideQuantity,
                     closedQuantity = BigDecimal.ZERO,
                     lots = null,
-                    side = (if (order.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short),
-                    averageEntry = order.price,
-                    entryTimestamp = order.timestamp,
+                    side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
+                    averageEntry = execution.price,
+                    entryTimestamp = execution.timestamp,
                     averageExit = null,
                     exitTimestamp = null,
                     pnl = BigDecimal.ZERO,
@@ -305,45 +307,45 @@ internal class TradeOrdersRepo(
                 // ID in database of just inserted trade
                 val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
-                // Link new trade and current order, override quantity with remainder quantity after previous trade
+                // Link new trade and current execution, override quantity with remainder quantity after previous trade
                 // consumed some
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = tradeId,
-                    orderId = order.id,
+                    executionId = execution.id,
                     overrideQuantity = overrideQuantity,
                 )
             } else {
 
-                // Link trade and order in database
+                // Link trade and execution in database
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
-                    orderId = order.id,
+                    executionId = execution.id,
                     overrideQuantity = null,
                 )
             }
         }
     }
 
-    private fun List<TradeOrder>.createTrade(): Trade {
+    private fun List<TradeExecution>.createTrade(): Trade {
 
-        check(isNotEmpty()) { error("Cannot create trade from empty order list") }
+        check(isNotEmpty()) { error("Cannot create trade without any executions") }
 
-        val firstOrder = first()
-        val (entryOrders, exitOrders) = partition { it.side == firstOrder.side }
-        val side = if (firstOrder.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short
-        val entryQuantity = entryOrders.sumOf { it.quantity }
-        val exitQuantity = exitOrders.sumOf { it.quantity }
-        val lots = entryOrders.mapNotNull { it.lots }.sum()
-        val averageEntry = entryOrders.averagePrice()
+        val firstExecution = first()
+        val (entryExecutions, exitExecutions) = partition { it.side == firstExecution.side }
+        val side = if (firstExecution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short
+        val entryQuantity = entryExecutions.sumOf { it.quantity }
+        val exitQuantity = exitExecutions.sumOf { it.quantity }
+        val lots = entryExecutions.mapNotNull { it.lots }.sum()
+        val averageEntry = entryExecutions.averagePrice()
         val averageExit = when {
-            exitOrders.isEmpty() -> null
+            exitExecutions.isEmpty() -> null
             else -> {
                 val extra = exitQuantity - entryQuantity
                 when {
-                    extra <= BigDecimal.ZERO -> exitOrders.averagePrice()
+                    extra <= BigDecimal.ZERO -> exitExecutions.averagePrice()
                     else -> {
-                        (exitOrders.dropLast(1) + exitOrders.last()
-                            .copy(quantity = exitOrders.last().quantity - extra)).averagePrice()
+                        (exitExecutions.dropLast(1) + exitExecutions.last()
+                            .copy(quantity = exitExecutions.last().quantity - extra)).averagePrice()
                     }
                 }
             }
@@ -352,8 +354,8 @@ internal class TradeOrdersRepo(
 
         val brokerage = averageExit?.let {
             brokerage(
-                broker = firstOrder.broker,
-                instrument = firstOrder.instrument,
+                broker = firstExecution.broker,
+                instrument = firstExecution.instrument,
                 entry = averageEntry,
                 exit = averageExit,
                 quantity = closedQuantity,
@@ -363,17 +365,17 @@ internal class TradeOrdersRepo(
 
         return Trade(
             id = -1,
-            broker = firstOrder.broker,
-            ticker = firstOrder.ticker,
-            instrument = firstOrder.instrument,
+            broker = firstExecution.broker,
+            ticker = firstExecution.ticker,
+            instrument = firstExecution.instrument,
             quantity = entryQuantity,
             closedQuantity = closedQuantity,
             lots = if (lots == 0) null else lots,
             side = side,
             averageEntry = averageEntry,
-            entryTimestamp = firstOrder.timestamp,
+            entryTimestamp = firstExecution.timestamp,
             averageExit = averageExit,
-            exitTimestamp = exitOrders.lastOrNull()?.timestamp,
+            exitTimestamp = exitExecutions.lastOrNull()?.timestamp,
             pnl = brokerage?.pnl ?: BigDecimal.ZERO,
             fees = brokerage?.totalCharges ?: BigDecimal.ZERO,
             netPnl = brokerage?.netPNL ?: BigDecimal.ZERO,
@@ -399,7 +401,7 @@ internal class TradeOrdersRepo(
         )
     }
 
-    private fun List<TradeOrder>.averagePrice(): BigDecimal {
+    private fun List<TradeExecution>.averagePrice(): BigDecimal {
 
         val totalQuantity = sumOf { it.quantity }
         val sum: BigDecimal = sumOf { it.price * it.quantity }
@@ -407,19 +409,19 @@ internal class TradeOrdersRepo(
         return if (totalQuantity == BigDecimal.ZERO) BigDecimal.ZERO else sum / totalQuantity
     }
 
-    private fun toTradeOrder(
+    private fun toTradeExecution(
         id: Long,
         broker: String,
         instrument: Instrument,
         ticker: String,
         @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
         lots: Int?,
-        side: OrderSide,
+        side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
         overrideQuantity: String,
-    ) = TradeOrder(
+    ) = TradeExecution(
         id = id,
         broker = broker,
         instrument = instrument,

@@ -118,7 +118,7 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getOrdersForTrade(tradeId).collect { orders ->
+            tradingRecord.trades.getExecutionsForTrade(tradeId).collect { orders ->
 
                 value = orders.map { order ->
 
@@ -250,14 +250,14 @@ internal class TradePresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        tradingRecord.orders.lock(listOf(orderId))
+        tradingRecord.executions.lock(listOf(orderId))
     }
 
     private fun onDeleteOrder(orderId: Long) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        tradingRecord.orders.delete(listOf(orderId))
+        tradingRecord.executions.delete(listOf(orderId))
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {

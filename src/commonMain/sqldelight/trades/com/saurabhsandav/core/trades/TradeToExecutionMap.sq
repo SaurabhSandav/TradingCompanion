@@ -2,38 +2,38 @@ import java.math.BigDecimal;
 import kotlin.Boolean;
 import kotlin.Int;
 
-CREATE TABLE IF NOT EXISTS TradeToOrderMap (
+CREATE TABLE IF NOT EXISTS TradeToExecutionMap (
 tradeId INTEGER NOT NULL,
-orderId INTEGER NOT NULL,
+executionId INTEGER NOT NULL,
 overrideQuantity TEXT AS BigDecimal,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
-FOREIGN KEY(orderId) REFERENCES TradeOrder(id) ON DELETE CASCADE,
-PRIMARY KEY (tradeId, orderId)
+FOREIGN KEY(executionId) REFERENCES TradeExecution(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, executionId)
 );
 
 insert:
-INSERT OR IGNORE INTO TradeToOrderMap
+INSERT OR IGNORE INTO TradeToExecutionMap
 VALUES (?, ?, ?);
 
-getOrdersByTrade:
-SELECT TradeOrder.*, IFNULL(overrideQuantity, TradeOrder.quantity) AS overrideQuantity FROM TradeToOrderMap
-INNER JOIN TradeOrder
-ON TradeToOrderMap.orderId = TradeOrder.id
-WHERE TradeToOrderMap.tradeId = ?
-ORDER BY TradeOrder.timestamp ASC;
+getExecutionsByTrade:
+SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
+INNER JOIN TradeExecution
+ON TradeToExecutionMap.executionId = TradeExecution.id
+WHERE TradeToExecutionMap.tradeId = ?
+ORDER BY TradeExecution.timestamp ASC;
 
-getOrdersByTickerAndTradeIdsInInterval:
-SELECT TradeOrder.*, IFNULL(overrideQuantity, TradeOrder.quantity) AS overrideQuantity FROM TradeToOrderMap
-INNER JOIN TradeOrder
-ON TradeToOrderMap.orderId = TradeOrder.id
-WHERE TradeOrder.ticker = :ticker
-AND TradeToOrderMap.tradeId IN :ids
-AND datetime(:from) < datetime(TradeOrder.timestamp)
-AND datetime(TradeOrder.timestamp) < datetime(:to)
-ORDER BY TradeOrder.timestamp ASC;
+getExecutionsByTickerAndTradeIdsInInterval:
+SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
+INNER JOIN TradeExecution
+ON TradeToExecutionMap.executionId = TradeExecution.id
+WHERE TradeExecution.ticker = :ticker
+AND TradeToExecutionMap.tradeId IN :ids
+AND datetime(:from) < datetime(TradeExecution.timestamp)
+AND datetime(TradeExecution.timestamp) < datetime(:to)
+ORDER BY TradeExecution.timestamp ASC;
 
-getTradesByOrder:
-SELECT Trade.* FROM TradeToOrderMap
+getTradesByExecution:
+SELECT Trade.* FROM TradeToExecutionMap
 INNER JOIN Trade
-ON TradeToOrderMap.tradeId = Trade.id
-WHERE TradeToOrderMap.orderId = ?;
+ON TradeToExecutionMap.tradeId = Trade.id
+WHERE TradeToExecutionMap.executionId = ?;

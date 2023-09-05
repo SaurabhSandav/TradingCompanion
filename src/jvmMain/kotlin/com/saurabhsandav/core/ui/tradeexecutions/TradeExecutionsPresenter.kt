@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.trades.TradeOrder
+import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
@@ -71,7 +71,7 @@ internal class TradeOrdersPresenter(
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                tradingRecord.orders.allOrders.map { orders ->
+                tradingRecord.executions.allExecutions.map { orders ->
                     orders.groupBy { it.timestamp.date }
                         .map { (date, list) ->
                             listOf(
@@ -90,7 +90,7 @@ internal class TradeOrdersPresenter(
         return TradeOrderListItem.DayHeader(formatted)
     }
 
-    private fun TradeOrder.toTradeOrderListEntry(profileId: Long) = TradeOrderEntry(
+    private fun TradeExecution.toTradeOrderListEntry(profileId: Long) = TradeOrderEntry(
         profileOrderId = ProfileOrderId(profileId = profileId, orderId = id),
         broker = run {
             val instrumentCapitalized = instrument.strValue
@@ -169,7 +169,7 @@ internal class TradeOrdersPresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.orders.lock(ids.map { it.orderId })
+            tradingRecord.executions.lock(ids.map { it.orderId })
         }
     }
 
@@ -179,7 +179,7 @@ internal class TradeOrdersPresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.orders.delete(ids.map { it.orderId })
+            tradingRecord.executions.delete(ids.map { it.orderId })
         }
     }
 }
