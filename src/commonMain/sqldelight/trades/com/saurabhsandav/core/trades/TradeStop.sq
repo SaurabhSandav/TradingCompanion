@@ -15,7 +15,8 @@ VALUES (?, ?);
 getByTrade:
 SELECT *
 FROM TradeStop
-WHERE tradeId = ?;
+WHERE tradeId = ?
+ORDER BY rowid ASC;
 
 delete:
 DELETE FROM TradeStop
