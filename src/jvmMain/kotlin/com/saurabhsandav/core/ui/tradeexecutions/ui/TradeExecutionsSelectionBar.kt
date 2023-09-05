@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.ui
+package com.saurabhsandav.core.ui.tradeexecutions.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.ProfileOrderId
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.TradeOrderEntry
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.ProfileOrderId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.TradeOrderEntry
 
 @Composable
 internal fun TradeOrdersSelectionBar(

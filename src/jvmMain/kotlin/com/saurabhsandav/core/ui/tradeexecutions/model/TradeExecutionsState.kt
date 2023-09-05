@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.model
+package com.saurabhsandav.core.ui.tradeexecutions.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.common.SelectionManager

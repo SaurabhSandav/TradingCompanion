@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorderform.model
+package com.saurabhsandav.core.ui.tradeexecutionform.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable

@@ -20,7 +20,7 @@ import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
+import com.saurabhsandav.core.ui.tradeexecutionform.OrderFormWindow
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.ImmutableList
 

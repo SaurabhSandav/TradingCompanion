@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.sizing.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
 import kotlinx.collections.immutable.ImmutableList
 import java.util.*
 

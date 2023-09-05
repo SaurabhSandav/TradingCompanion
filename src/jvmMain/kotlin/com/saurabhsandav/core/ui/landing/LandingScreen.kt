@@ -31,8 +31,8 @@ import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
 import com.saurabhsandav.core.ui.trade.TradeWindow
-import com.saurabhsandav.core.ui.tradeorderform.OrderFormWindow
-import com.saurabhsandav.core.ui.tradeorders.TradeOrdersLandingSwitcherItem
+import com.saurabhsandav.core.ui.tradeexecutionform.OrderFormWindow
+import com.saurabhsandav.core.ui.tradeexecutions.TradeOrdersLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
 @Composable

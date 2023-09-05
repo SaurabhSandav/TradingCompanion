@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders
+package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
@@ -10,11 +10,11 @@ import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

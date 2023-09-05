@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders
+package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -7,7 +7,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.landing.model.LandingState.OrderFormWindowParams
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersEvent.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersEvent.*
 import kotlinx.coroutines.CoroutineScope
 
 internal class TradeOrdersLandingSwitcherItem(

@@ -1,6 +1,6 @@
-package com.saurabhsandav.core.ui.tradeorders.model
+package com.saurabhsandav.core.ui.tradeexecutions.model
 
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.ProfileOrderId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.ProfileOrderId
 
 internal sealed class TradeOrdersEvent {
 

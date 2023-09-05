@@ -17,8 +17,8 @@ import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
 import com.saurabhsandav.core.ui.sizing.model.SizingState
 import com.saurabhsandav.core.ui.sizing.model.SizingState.OrderFormParams
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList

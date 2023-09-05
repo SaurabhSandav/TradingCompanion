@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders.ui
+package com.saurabhsandav.core.ui.tradeexecutions.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

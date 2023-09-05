@@ -67,7 +67,7 @@ internal class TradesRepo(
     }
 
     fun getTradesForOrder(orderId: Long): Flow<List<Trade>> {
-        return tradesDB.tradeToOrderMapQueries
+        return tradesDB.tradeToExecutionMapQueries
             .getTradesByOrder(orderId)
             .asFlow()
             .mapToList(Dispatchers.IO)

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorders
+package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
@@ -9,9 +9,9 @@ import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradeorders.model.TradeOrdersState.*
-import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersSelectionBar
-import com.saurabhsandav.core.ui.tradeorders.ui.TradeOrdersTable
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeOrdersState.*
+import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeOrdersSelectionBar
+import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeOrdersTable
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

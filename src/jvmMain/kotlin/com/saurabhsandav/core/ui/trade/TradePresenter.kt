@@ -12,7 +12,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList

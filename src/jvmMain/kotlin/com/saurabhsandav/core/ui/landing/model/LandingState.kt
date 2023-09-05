@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
 
 @Immutable
 internal data class LandingState(

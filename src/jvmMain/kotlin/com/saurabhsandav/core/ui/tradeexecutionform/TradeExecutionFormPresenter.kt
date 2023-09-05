@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tradeorderform
+package com.saurabhsandav.core.ui.tradeexecutionform
 
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
@@ -8,10 +8,10 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormState
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType
-import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormType.*
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormState
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.OrderFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first

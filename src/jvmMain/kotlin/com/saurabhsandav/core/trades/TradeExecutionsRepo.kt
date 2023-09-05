@@ -18,10 +18,10 @@ internal class TradeOrdersRepo(
 ) {
 
     val allOrders: Flow<List<TradeOrder>>
-        get() = tradesDB.tradeOrderQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+        get() = tradesDB.tradeExecutionQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
     fun getById(id: Long): Flow<TradeOrder> {
-        return tradesDB.tradeOrderQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
     suspend fun new(
@@ -38,7 +38,7 @@ internal class TradeOrdersRepo(
         tradesDB.transactionWithResult {
 
             // Insert Trade order
-            tradesDB.tradeOrderQueries.insert(
+            tradesDB.tradeExecutionQueries.insert(
                 broker = broker,
                 instrument = instrument,
                 ticker = ticker,
@@ -54,7 +54,7 @@ internal class TradeOrdersRepo(
             val orderId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
             // Generate Trade
-            val order = tradesDB.tradeOrderQueries.getById(orderId).executeAsOne()
+            val order = tradesDB.tradeExecutionQueries.getById(orderId).executeAsOne()
             consumeOrder(order)
 
             return@transactionWithResult orderId
@@ -80,7 +80,7 @@ internal class TradeOrdersRepo(
         tradesDB.transaction {
 
             // Update order
-            tradesDB.tradeOrderQueries.update(
+            tradesDB.tradeExecutionQueries.update(
                 id = id,
                 broker = broker,
                 instrument = instrument,
@@ -93,7 +93,7 @@ internal class TradeOrdersRepo(
             )
 
             // Trades to be regenerated
-            val regenerationTrades = tradesDB.tradeToOrderMapQueries
+            val regenerationTrades = tradesDB.tradeToExecutionMapQueries
                 .getTradesByOrder(id)
                 .executeAsList()
 
@@ -101,7 +101,9 @@ internal class TradeOrdersRepo(
             regenerationTrades.forEach { trade ->
 
                 // Get orders for Trade
-                val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
+                val orders = tradesDB.tradeToExecutionMapQueries
+                    .getOrdersByTrade(trade.id, ::toTradeOrder)
+                    .executeAsList()
 
                 // Update Trade
                 orders.createTrade().updateTradeInDB(trade.id)
@@ -125,18 +127,20 @@ internal class TradeOrdersRepo(
             ids.forEach { id ->
 
                 // Trades to be regenerated
-                val regenerationTrades = tradesDB.tradeToOrderMapQueries
+                val regenerationTrades = tradesDB.tradeToExecutionMapQueries
                     .getTradesByOrder(id)
                     .executeAsList()
 
                 // Delete order
-                tradesDB.tradeOrderQueries.delete(id)
+                tradesDB.tradeExecutionQueries.delete(id)
 
                 // Regenerate Trades
                 regenerationTrades.forEach { trade ->
 
                     // Get orders for Trade
-                    val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(trade.id, ::toTradeOrder).executeAsList()
+                    val orders = tradesDB.tradeToExecutionMapQueries
+                        .getOrdersByTrade(trade.id, ::toTradeOrder)
+                        .executeAsList()
 
                     when {
                         // Delete Trade.
@@ -155,17 +159,20 @@ internal class TradeOrdersRepo(
         }
     }
 
-    suspend fun lock(ids: List<Long>) = withContext(Dispatchers.IO) { tradesDB.tradeOrderQueries.lock(ids) }
+    suspend fun lock(ids: List<Long>) = withContext(Dispatchers.IO) { tradesDB.tradeExecutionQueries.lock(ids) }
 
     fun getOrdersForTrade(id: Long): Flow<List<TradeOrder>> {
-        return tradesDB.tradeToOrderMapQueries.getOrdersByTrade(id, ::toTradeOrder).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeToExecutionMapQueries
+            .getOrdersByTrade(id, ::toTradeOrder)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
     }
 
     fun getOrdersByTickerInInterval(
         ticker: String,
         range: ClosedRange<LocalDateTime>,
     ): Flow<List<TradeOrder>> {
-        return tradesDB.tradeOrderQueries
+        return tradesDB.tradeExecutionQueries
             .getByTickerInInterval(
                 ticker = ticker,
                 from = range.start.toString(),
@@ -180,7 +187,7 @@ internal class TradeOrdersRepo(
         ids: List<Long>,
         range: ClosedRange<LocalDateTime>,
     ): Flow<List<TradeOrder>> {
-        return tradesDB.tradeToOrderMapQueries
+        return tradesDB.tradeToExecutionMapQueries
             .getOrdersByTickerAndTradeIdsInInterval(
                 ticker = ticker,
                 ids = ids,
@@ -193,7 +200,7 @@ internal class TradeOrdersRepo(
     }
 
     private suspend fun isLocked(ids: List<Long>) = withContext(Dispatchers.IO) {
-        tradesDB.tradeOrderQueries.isLocked(ids).executeAsList()
+        tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
 
     private fun consumeOrder(order: TradeOrder) {
@@ -231,7 +238,7 @@ internal class TradeOrdersRepo(
             val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
 
             // Link trade and order in database
-            tradesDB.tradeToOrderMapQueries.insert(
+            tradesDB.tradeToExecutionMapQueries.insert(
                 tradeId = tradeId,
                 orderId = order.id,
                 overrideQuantity = null,
@@ -249,7 +256,9 @@ internal class TradeOrdersRepo(
             }
 
             // Get pre-existing orders for open trade
-            val orders = tradesDB.tradeToOrderMapQueries.getOrdersByTrade(openTrade.id, ::toTradeOrder).executeAsList()
+            val orders = tradesDB.tradeToExecutionMapQueries
+                .getOrdersByTrade(openTrade.id, ::toTradeOrder)
+                .executeAsList()
 
             // Recalculate trade parameters after consuming current order
             val trade = (orders + order).createTrade()
@@ -265,7 +274,7 @@ internal class TradeOrdersRepo(
             if (currentOpenQuantity < BigDecimal.ZERO) {
 
                 // Link exiting trade and order in database, while overriding quantity
-                tradesDB.tradeToOrderMapQueries.insert(
+                tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
                     orderId = order.id,
                     overrideQuantity = order.quantity + currentOpenQuantity,
@@ -298,7 +307,7 @@ internal class TradeOrdersRepo(
 
                 // Link new trade and current order, override quantity with remainder quantity after previous trade
                 // consumed some
-                tradesDB.tradeToOrderMapQueries.insert(
+                tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = tradeId,
                     orderId = order.id,
                     overrideQuantity = overrideQuantity,
@@ -306,7 +315,7 @@ internal class TradeOrdersRepo(
             } else {
 
                 // Link trade and order in database
-                tradesDB.tradeToOrderMapQueries.insert(
+                tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
                     orderId = order.id,
                     overrideQuantity = null,
