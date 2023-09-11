@@ -1,10 +1,7 @@
 package com.saurabhsandav.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -26,6 +23,7 @@ fun main() = application {
 
     CompositionLocalProvider(
         LocalDensityFraction provides densityFraction,
+        LocalMinimumInteractiveComponentEnforcement provides false,
         LocalAppModule provides appModule,
     ) {
 
