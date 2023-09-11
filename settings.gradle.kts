@@ -36,7 +36,7 @@ dependencyResolutionManagement {
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.83.0")
+            from("com.saurabhsandav:common-versions:0.84.0")
         }
     }
 }
