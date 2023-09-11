@@ -73,7 +73,7 @@ internal class TradeExecutionFormPresenter(
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
-                timestamp = formModel.timestamp.value,
+                timestamp = formModel.timestamp,
             )
 
             else -> tradingRecord.executions.new(
@@ -84,7 +84,7 @@ internal class TradeExecutionFormPresenter(
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
-                timestamp = formModel.timestamp.value,
+                timestamp = formModel.timestamp,
                 locked = false,
             )
         }

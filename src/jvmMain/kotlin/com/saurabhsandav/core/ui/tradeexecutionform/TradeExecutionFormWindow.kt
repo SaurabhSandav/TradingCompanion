@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutionform
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,14 +14,18 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.controls.DateTimeField
+import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
+import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 @Composable
@@ -40,13 +46,14 @@ internal fun TradeExecutionFormWindow(
     }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 550.dp))
+    val windowState = rememberWindowState(
+        size = DpSize(width = 300.dp, height = 600.dp),
+    )
 
     AppWindow(
         onCloseRequest = onCloseRequest,
         state = windowState,
         title = state.title,
-        resizable = false,
     ) {
 
         Box(Modifier.wrapContentSize()) {
@@ -72,7 +79,10 @@ private fun TradeExecutionForm(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxHeight().padding(16.dp).width(IntrinsicSize.Min),
+        modifier = Modifier.fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .width(IntrinsicSize.Min)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
@@ -143,12 +153,23 @@ private fun TradeExecutionForm(
             singleLine = true,
         )
 
-        DateTimeField(
-            value = model.timestamp.value,
-            onValidValueChange = { model.timestamp.value = it },
-            label = { Text("Entry DateTime") },
-            isError = model.timestamp.isError,
-            supportingText = optionalContent(model.timestamp.errorMessage) { Text(it) },
+        DatePickerField(
+            value = model.date.value,
+            onValidValueChange = { model.date.value = it },
+            label = { Text("Entry Date") },
+            isError = model.date.isError,
+            supportingText = optionalContent(model.date.errorMessage) { Text(it) },
+            yearRange = remember {
+                1900..Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+            }
+        )
+
+        TimeField(
+            value = model.time.value,
+            onValidValueChange = { model.time.value = it },
+            label = { Text("Entry Time") },
+            isError = model.time.isError,
+            supportingText = optionalContent(model.time.errorMessage) { Text(it) },
         )
 
         Button(

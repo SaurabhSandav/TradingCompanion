@@ -7,14 +7,8 @@ import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.IsBigDecimal
 import com.saurabhsandav.core.ui.common.form.IsInt
 import com.saurabhsandav.core.ui.common.form.Validation
-import com.saurabhsandav.core.ui.common.form.fields.dateTimeField
-import com.saurabhsandav.core.ui.common.form.fields.listSelectionField
-import com.saurabhsandav.core.ui.common.form.fields.switch
-import com.saurabhsandav.core.ui.common.form.fields.textField
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import com.saurabhsandav.core.ui.common.form.fields.*
+import kotlinx.datetime.*
 
 @Immutable
 internal data class TradeExecutionFormState(
@@ -63,13 +57,31 @@ internal class TradeExecutionFormModel(
         validations = setOf(IsBigDecimal),
     )
 
-    val timestamp = validator.dateTimeField(
-        initial = timestamp,
+    val date = validator.dateField(
+        initial = timestamp.date,
         validations = setOf(
             Validation(
                 errorMessage = "Cannot be in the future",
-                isValid = { it < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) },
+                isValid = { date ->
+                    date <= Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                },
             ),
         ),
     )
+
+    val time = validator.timeField(
+        initial = timestamp.time,
+        validations = setOf(
+            Validation(
+                errorMessage = "Cannot be in the future",
+                dependsOn = setOf(date),
+                isValid = { time ->
+                    date.value.atTime(time) < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                },
+            ),
+        ),
+    )
+
+    val timestamp: LocalDateTime
+        get() = date.value.atTime(time.value)
 }

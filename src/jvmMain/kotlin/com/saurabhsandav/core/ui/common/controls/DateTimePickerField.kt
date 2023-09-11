@@ -1,20 +1,228 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.*
 import java.time.format.DateTimeFormatter
 
+@Composable
+fun DateTimePickerField(
+    value: LocalDateTime,
+    onValidValueChange: (LocalDateTime) -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    label: @Composable (() -> Unit)? = null,
+    yearRange: IntRange = DatePickerDefaults.YearRange,
+) {
+
+    val formatter = remember { DateTimeFormatter.ofPattern(DateTimePattern) }
+    val valueUpdated by rememberUpdatedState(value)
+    val dateTimeText by derivedState { formatter.format(valueUpdated.toJavaLocalDateTime()) }
+
+    var showDateDialog by state { false }
+    var showTimeDialog by state { false }
+
+    OutlinedTextField(
+        modifier = modifier.pointerInput(Unit) {
+            awaitEachGesture {
+                awaitFirstDown(pass = PointerEventPass.Initial)
+                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                if (upEvent != null) showDateDialog = true
+            }
+        },
+        value = dateTimeText,
+        onValueChange = {},
+        enabled = enabled,
+        readOnly = true,
+        label = label,
+        supportingText = supportingText,
+        isError = isError,
+    )
+
+    if (showDateDialog) {
+
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = remember {
+                value.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+            },
+            yearRange = yearRange,
+        )
+        val confirmEnabled by derivedState { datePickerState.selectedDateMillis != null }
+
+        DatePickerDialog(
+            onDismissRequest = { showDateDialog = false },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        showDateDialog = false
+
+                        val selectedDateMillis = datePickerState.selectedDateMillis
+                        if (selectedDateMillis != null) {
+
+                            val dateTime = Instant.fromEpochMilliseconds(selectedDateMillis)
+                                .toLocalDateTime(TimeZone.currentSystemDefault())
+                                .date
+                                .atTime(value.time)
+
+                            onValidValueChange(dateTime)
+
+                            showTimeDialog = true
+                        }
+                    },
+                    enabled = confirmEnabled,
+                ) {
+                    Text("Next")
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = { showDateDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimeDialog) {
+
+        val timePickerState = rememberTimePickerState(
+            initialHour = value.hour,
+            initialMinute = value.minute,
+            is24Hour = true,
+        )
+        var showingPicker by state { true }
+
+        TimePickerDialog(
+            title = when {
+                showingPicker -> "Select Time "
+                else -> "Enter Time"
+            },
+            onCancel = { showTimeDialog = false },
+            onConfirm = {
+
+                showTimeDialog = false
+
+                val dateTime = value.date.atTime(
+                    hour = timePickerState.hour,
+                    minute = timePickerState.minute,
+                )
+
+                onValidValueChange(dateTime)
+            },
+            toggle = {
+
+                IconButton(onClick = { showingPicker = !showingPicker }) {
+                    val icon = when {
+                        showingPicker -> Icons.Outlined.Keyboard
+                        else -> Icons.Outlined.Schedule
+                    }
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = when {
+                            showingPicker -> "Switch to Text Input"
+                            else -> "Switch to Touch Input"
+                        }
+                    )
+                }
+            }
+        ) {
+
+            when {
+                showingPicker -> TimePicker(state = timePickerState)
+                else -> TimeInput(state = timePickerState)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimePickerDialog(
+    title: String = "Select Time",
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    toggle: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+
+    Dialog(
+        onDismissRequest = onCancel,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier.width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface,
+                ),
+        ) {
+
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+
+                content()
+
+                Row(
+                    modifier = Modifier.height(40.dp).fillMaxWidth(),
+                ) {
+
+                    toggle()
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    TextButton(onClick = onCancel) {
+                        Text("Cancel")
+                    }
+
+                    TextButton(onClick = onConfirm) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// TODO Remove. Blocked on Swing z-order support
 @Composable
 fun DateTimeField(
     value: LocalDateTime,
@@ -26,7 +234,7 @@ fun DateTimeField(
     label: @Composable (() -> Unit)? = null,
 ) {
 
-    val formatter = remember { DateTimeFormatter.ofPattern(DatePattern) }
+    val formatter = remember { DateTimeFormatter.ofPattern("ddMMyyyyHHmmss") }
     var dateTimeStr by state(value) { formatter.format(value.toJavaLocalDateTime()) }
     var isDateTimeValid by state { true }
 
@@ -102,4 +310,4 @@ fun DateTimeField(
     )
 }
 
-private const val DatePattern = "ddMMyyyyHHmmss"
+private const val DateTimePattern = "MMMM dd, yyyy - HH:mm"

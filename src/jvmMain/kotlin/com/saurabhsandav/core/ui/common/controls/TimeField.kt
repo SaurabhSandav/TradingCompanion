@@ -21,17 +21,18 @@ fun TimeField(
     onValidValueChange: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 ) {
 
     val formatter = remember { DateTimeFormatter.ofPattern(TimePattern) }
-    var timeStr by state(value) { formatter.format(value.toJavaLocalTime()) }
+    var timeText by state(value) { formatter.format(value.toJavaLocalTime()) }
     var isTimeValid by state { true }
 
     OutlinedTextField(
         modifier = modifier,
-        value = timeStr,
+        value = timeText,
         onValueChange = { newValue ->
 
             val trimmed = newValue.trim().take(6)
@@ -39,7 +40,7 @@ fun TimeField(
             // If still editing, update textfield, signal error
             if (trimmed.isEmpty() || trimmed.length < 6) {
                 isTimeValid = false
-                timeStr = trimmed
+                timeText = trimmed
                 return@OutlinedTextField
             }
 
@@ -51,12 +52,12 @@ fun TimeField(
 
             time.onSuccess { onValidValueChange(it) }
             isTimeValid = time.isSuccess
-            timeStr = trimmed
+            timeText = trimmed
         },
-        label = label,
-        isError = isError || !isTimeValid,
-        singleLine = true,
         enabled = enabled,
+        label = label,
+        supportingText = supportingText,
+        isError = isError || !isTimeValid,
         visualTransformation = {
 
             var out = ""

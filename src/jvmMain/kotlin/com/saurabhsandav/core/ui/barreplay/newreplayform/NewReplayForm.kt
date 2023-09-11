@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.controls.DateTimeField
+import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
@@ -56,7 +56,7 @@ internal fun NewReplayForm(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 
-            DateTimeField(
+            DateTimePickerField(
                 value = model.replayFrom.value,
                 onValidValueChange = { model.replayFrom.value = it },
                 label = { Text("Replay From") },
@@ -64,7 +64,7 @@ internal fun NewReplayForm(
                 supportingText = optionalContent(model.replayFrom.errorMessage) { Text(it) },
             )
 
-            DateTimeField(
+            DateTimePickerField(
                 value = model.dataTo.value,
                 onValidValueChange = { model.dataTo.value = it },
                 label = { Text("Data To") },
