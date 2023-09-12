@@ -1,12 +1,12 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import java.math.BigDecimal
 
 sealed interface OrderExecution {
 
     fun canExecute(
-        type: OrderType,
+        side: OrderSide,
         prevPrice: BigDecimal,
         newPrice: BigDecimal,
     ): Boolean
@@ -16,7 +16,7 @@ sealed interface OrderExecution {
     ) : OrderExecution {
 
         override fun canExecute(
-            type: OrderType,
+            side: OrderSide,
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean {
@@ -27,7 +27,7 @@ sealed interface OrderExecution {
     data object Market : OrderExecution {
 
         override fun canExecute(
-            type: OrderType,
+            side: OrderSide,
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean = true
@@ -39,7 +39,7 @@ sealed interface OrderExecution {
     ) : OrderExecution {
 
         override fun canExecute(
-            type: OrderType,
+            side: OrderSide,
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean {
@@ -52,7 +52,7 @@ sealed interface OrderExecution {
     ) : OrderExecution {
 
         override fun canExecute(
-            type: OrderType,
+            side: OrderSide,
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean {
@@ -61,7 +61,7 @@ sealed interface OrderExecution {
     }
 
     data class TrailingStop(
-        private val orderType: OrderType,
+        private val orderSide: OrderSide,
         val callbackRate: BigDecimal,
         val activationPrice: BigDecimal,
     ) : OrderExecution {
@@ -69,13 +69,13 @@ sealed interface OrderExecution {
         private val callbackDecimal = callbackRate / 100.toBigDecimal()
 
         private var isActivated: Boolean = false
-        var trailingStop: BigDecimal = activationPrice * when (orderType) {
-            OrderType.Buy -> BigDecimal.ONE + callbackDecimal
-            OrderType.Sell -> BigDecimal.ONE - callbackDecimal
+        var trailingStop: BigDecimal = activationPrice * when (orderSide) {
+            OrderSide.Buy -> BigDecimal.ONE + callbackDecimal
+            OrderSide.Sell -> BigDecimal.ONE - callbackDecimal
         }
 
         override fun canExecute(
-            type: OrderType,
+            side: OrderSide,
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean {
@@ -90,20 +90,20 @@ sealed interface OrderExecution {
             // Return true if trailing stop hit
             if (trailingStop.isBetween(prevPrice, newPrice)) return true
 
-            val newExtremePrice = when (orderType) {
-                OrderType.Buy -> minOf(prevPrice, newPrice)
-                OrderType.Sell -> maxOf(prevPrice, newPrice)
+            val newExtremePrice = when (orderSide) {
+                OrderSide.Buy -> minOf(prevPrice, newPrice)
+                OrderSide.Sell -> maxOf(prevPrice, newPrice)
             }
 
             // Calculate new trailing stop
-            val newTrailingStop = newExtremePrice * when (orderType) {
-                OrderType.Buy -> BigDecimal.ONE + callbackDecimal
-                OrderType.Sell -> BigDecimal.ONE - callbackDecimal
+            val newTrailingStop = newExtremePrice * when (orderSide) {
+                OrderSide.Buy -> BigDecimal.ONE + callbackDecimal
+                OrderSide.Sell -> BigDecimal.ONE - callbackDecimal
             }
 
-            trailingStop = when (orderType) {
-                OrderType.Buy -> minOf(trailingStop, newTrailingStop)
-                OrderType.Sell -> maxOf(trailingStop, newTrailingStop)
+            trailingStop = when (orderSide) {
+                OrderSide.Buy -> minOf(trailingStop, newTrailingStop)
+                OrderSide.Sell -> maxOf(trailingStop, newTrailingStop)
             }
 
             // Cannot execute order

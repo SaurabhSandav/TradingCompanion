@@ -34,12 +34,12 @@ internal fun TradeOrdersTable(
 
         val schema = rememberTableSchema<TradeState.Order> {
             addColumnText("Quantity") { it.quantity }
-            addColumn("Type") {
+            addColumn("Side") {
 
                 Text(
-                    text = it.type,
+                    text = it.side,
                     modifier = Modifier.fillMaxWidth(),
-                    color = if (it.type == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
+                    color = if (it.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
                 )
             }
             addColumnText("Price") { it.price }

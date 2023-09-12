@@ -125,7 +125,7 @@ internal class ReplaySessionPresenter(
                         ticker = params.ticker,
                         quantity = params.lots
                             ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
-                        type = params.type.strValue.uppercase(),
+                        side = params.side.strValue.uppercase(),
                         price = when (openOrder.execution) {
                             is Limit -> openOrder.execution.price.toPlainString()
                             is Market -> ""

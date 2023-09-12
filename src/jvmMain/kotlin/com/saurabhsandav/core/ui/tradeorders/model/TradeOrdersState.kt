@@ -19,7 +19,7 @@ internal data class TradeOrdersState(
         val broker: String,
         val ticker: String,
         val quantity: String,
-        val type: String,
+        val side: String,
         val price: String,
         val timestamp: String,
         val locked: Boolean,

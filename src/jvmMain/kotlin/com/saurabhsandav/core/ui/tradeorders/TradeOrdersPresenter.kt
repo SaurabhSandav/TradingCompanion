@@ -99,7 +99,7 @@ internal class TradeOrdersPresenter(
         },
         ticker = ticker,
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
-        type = type.strValue.uppercase(),
+        side = side.strValue.uppercase(),
         price = price.toPlainString(),
         timestamp = timestamp.time.toString(),
         locked = locked,

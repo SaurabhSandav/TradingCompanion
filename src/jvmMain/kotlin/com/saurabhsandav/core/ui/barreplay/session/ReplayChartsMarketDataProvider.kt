@@ -159,7 +159,7 @@ internal class ReplayChartsMarketDataProvider(
 
                 TradeOrderMarker(
                     instant = orderInstant.markerTime(),
-                    orderType = order.type,
+                    side = order.side,
                     price = order.price,
                 )
             }

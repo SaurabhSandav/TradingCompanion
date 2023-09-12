@@ -6,7 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormModel
 import com.saurabhsandav.core.ui.tradeorderform.model.OrderFormState
@@ -72,7 +72,7 @@ internal class OrderFormPresenter(
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                type = if (formModel.isBuy.value) OrderType.Buy else OrderType.Sell,
+                side = if (formModel.isBuy.value) OrderSide.Buy else OrderSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
                 timestamp = formModel.timestamp.value,
             )
@@ -83,7 +83,7 @@ internal class OrderFormPresenter(
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                type = if (formModel.isBuy.value) OrderType.Buy else OrderType.Sell,
+                side = if (formModel.isBuy.value) OrderSide.Buy else OrderSide.Sell,
                 price = formModel.price.value.toBigDecimal(),
                 timestamp = formModel.timestamp.value,
                 locked = false,
@@ -124,7 +124,7 @@ internal class OrderFormPresenter(
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             lots = order.lots?.toString() ?: "",
-            isBuy = order.type == OrderType.Buy,
+            isBuy = order.side == OrderSide.Buy,
             price = order.price.toPlainString(),
             timestamp = run {
                 val currentTime = Clock.System.now()
@@ -146,7 +146,7 @@ internal class OrderFormPresenter(
             ticker = order.ticker,
             quantity = order.quantity.toString(),
             lots = order.lots?.toString() ?: "",
-            isBuy = order.type == OrderType.Buy,
+            isBuy = order.side == OrderSide.Buy,
             price = order.price.toPlainString(),
             timestamp = order.timestamp,
         )

@@ -41,11 +41,11 @@ internal fun TradeOrdersTable(
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
-        addColumn("Type") { entry ->
+        addColumn("Side") { entry ->
 
             Text(
-                text = entry.type,
-                color = if (entry.type == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
+                text = entry.side,
+                color = if (entry.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
             )
         }
         addColumnText("Price") { it.price }

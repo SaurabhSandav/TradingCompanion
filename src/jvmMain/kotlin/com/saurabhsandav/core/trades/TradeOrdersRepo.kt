@@ -4,7 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ internal class TradeOrdersRepo(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        type: OrderType,
+        side: OrderSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
@@ -44,7 +44,7 @@ internal class TradeOrdersRepo(
                 ticker = ticker,
                 quantity = quantity,
                 lots = lots,
-                type = type,
+                side = side,
                 price = price,
                 timestamp = timestamp,
                 locked = locked,
@@ -68,7 +68,7 @@ internal class TradeOrdersRepo(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        type: OrderType,
+        side: OrderSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
     ): Long = withContext(Dispatchers.IO) {
@@ -87,7 +87,7 @@ internal class TradeOrdersRepo(
                 ticker = ticker,
                 quantity = quantity,
                 lots = lots,
-                type = type,
+                side = side,
                 price = price,
                 timestamp = timestamp,
             )
@@ -216,7 +216,7 @@ internal class TradeOrdersRepo(
                 quantity = order.quantity,
                 closedQuantity = BigDecimal.ZERO,
                 lots = null,
-                side = (if (order.type == OrderType.Buy) TradeSide.Long else TradeSide.Short),
+                side = (if (order.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short),
                 averageEntry = order.price,
                 entryTimestamp = order.timestamp,
                 averageExit = null,
@@ -241,8 +241,8 @@ internal class TradeOrdersRepo(
 
             // Quantity of instrument that is still open after consuming current order
             val currentOpenQuantity = openTrade.quantity - when {
-                (openTrade.side == TradeSide.Long && order.type == OrderType.Sell) ||
-                        (openTrade.side == TradeSide.Short && order.type == OrderType.Buy) ->
+                (openTrade.side == TradeSide.Long && order.side == OrderSide.Sell) ||
+                        (openTrade.side == TradeSide.Short && order.side == OrderSide.Buy) ->
                     openTrade.closedQuantity + order.quantity
 
                 else -> openTrade.closedQuantity
@@ -282,7 +282,7 @@ internal class TradeOrdersRepo(
                     quantity = overrideQuantity,
                     closedQuantity = BigDecimal.ZERO,
                     lots = null,
-                    side = (if (order.type == OrderType.Buy) TradeSide.Long else TradeSide.Short),
+                    side = (if (order.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short),
                     averageEntry = order.price,
                     entryTimestamp = order.timestamp,
                     averageExit = null,
@@ -320,8 +320,8 @@ internal class TradeOrdersRepo(
         check(isNotEmpty()) { error("Cannot create trade from empty order list") }
 
         val firstOrder = first()
-        val (entryOrders, exitOrders) = partition { it.type == firstOrder.type }
-        val side = if (firstOrder.type == OrderType.Buy) TradeSide.Long else TradeSide.Short
+        val (entryOrders, exitOrders) = partition { it.side == firstOrder.side }
+        val side = if (firstOrder.side == OrderSide.Buy) TradeSide.Long else TradeSide.Short
         val entryQuantity = entryOrders.sumOf { it.quantity }
         val exitQuantity = exitOrders.sumOf { it.quantity }
         val lots = entryOrders.mapNotNull { it.lots }.sum()
@@ -405,7 +405,7 @@ internal class TradeOrdersRepo(
         ticker: String,
         @Suppress("UNUSED_PARAMETER") quantity: BigDecimal,
         lots: Int?,
-        type: OrderType,
+        side: OrderSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
@@ -417,7 +417,7 @@ internal class TradeOrdersRepo(
         ticker = ticker,
         quantity = overrideQuantity.toBigDecimal(),
         lots = lots,
-        type = type,
+        side = side,
         price = price,
         timestamp = timestamp,
         locked = locked,

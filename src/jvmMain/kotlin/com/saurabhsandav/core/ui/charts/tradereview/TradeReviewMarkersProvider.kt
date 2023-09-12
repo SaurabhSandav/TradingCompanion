@@ -58,7 +58,7 @@ internal class TradeReviewMarkersProvider(
 
                 TradeOrderMarker(
                     instant = orderInstant.markerTime(),
-                    orderType = order.type,
+                    side = order.side,
                     price = order.price,
                 )
             }

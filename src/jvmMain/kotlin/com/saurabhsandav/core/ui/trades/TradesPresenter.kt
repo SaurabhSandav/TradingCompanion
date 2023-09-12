@@ -12,7 +12,7 @@ import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -282,21 +282,21 @@ internal class TradesPresenter(
 
             SeriesMarker(
                 time = Time.UTCTimestamp(orderInstant.offsetTimeForChart()),
-                position = when (order.type) {
-                    OrderType.Buy -> SeriesMarkerPosition.BelowBar
-                    OrderType.Sell -> SeriesMarkerPosition.AboveBar
+                position = when (order.side) {
+                    OrderSide.Buy -> SeriesMarkerPosition.BelowBar
+                    OrderSide.Sell -> SeriesMarkerPosition.AboveBar
                 },
-                shape = when (order.type) {
-                    OrderType.Buy -> SeriesMarkerShape.ArrowUp
-                    OrderType.Sell -> SeriesMarkerShape.ArrowDown
+                shape = when (order.side) {
+                    OrderSide.Buy -> SeriesMarkerShape.ArrowUp
+                    OrderSide.Sell -> SeriesMarkerShape.ArrowDown
                 },
-                color = when (order.type) {
-                    OrderType.Buy -> Color.Green
-                    OrderType.Sell -> Color.Red
+                color = when (order.side) {
+                    OrderSide.Buy -> Color.Green
+                    OrderSide.Sell -> Color.Red
                 },
-                text = when (order.type) {
-                    OrderType.Buy -> order.price.toPlainString()
-                    OrderType.Sell -> order.price.toPlainString()
+                text = when (order.side) {
+                    OrderSide.Buy -> order.price.toPlainString()
+                    OrderSide.Sell -> order.price.toPlainString()
                 },
             )
         }

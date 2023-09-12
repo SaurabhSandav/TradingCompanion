@@ -126,7 +126,7 @@ internal class TradePresenter(
                         id = order.id,
                         quantity = order.lots?.let { "${order.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
                             ?: order.quantity.toString(),
-                        type = order.type.strValue.uppercase(),
+                        side = order.side.strValue.uppercase(),
                         price = order.price.toPlainString(),
                         timestamp = order.timestamp.time.toString(),
                         locked = order.locked,

@@ -8,7 +8,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.ClosedOrder
@@ -55,7 +55,7 @@ internal class ReplayOrdersManager(
         ticker: String,
         quantity: BigDecimal,
         lots: Int?,
-        type: OrderType,
+        side: OrderSide,
         price: BigDecimal,
         stop: BigDecimal?,
         target: BigDecimal?,
@@ -78,7 +78,7 @@ internal class ReplayOrdersManager(
                 ticker = ticker,
                 quantity = quantity,
                 lots = lots,
-                type = type,
+                side = side,
             )
 
             val openOrder = backtestBroker.newOrder(
@@ -100,7 +100,7 @@ internal class ReplayOrdersManager(
                     ticker = closedOrder.params.ticker,
                     quantity = closedOrder.params.quantity,
                     lots = closedOrder.params.lots,
-                    type = closedOrder.params.type,
+                    side = closedOrder.params.side,
                     price = closedOrder.executionPrice,
                     timestamp = replaySession.replayTime.first().toLocalDateTime(TimeZone.currentSystemDefault()),
                     locked = false,
@@ -112,9 +112,9 @@ internal class ReplayOrdersManager(
                     val trade = tradingRecord.trades.getTradesForOrder(savedOrderId).first().single { !it.isClosed }
 
                     val positionCloseParams = orderParams.copy(
-                        type = when (orderParams.type) {
-                            OrderType.Buy -> OrderType.Sell
-                            OrderType.Sell -> OrderType.Buy
+                        side = when (orderParams.side) {
+                            OrderSide.Buy -> OrderSide.Sell
+                            OrderSide.Sell -> OrderSide.Buy
                         }
                     )
 
@@ -146,7 +146,7 @@ internal class ReplayOrdersManager(
                                     ticker = closedStopOrder.params.ticker,
                                     quantity = closedStopOrder.params.quantity,
                                     lots = closedStopOrder.params.lots,
-                                    type = closedStopOrder.params.type,
+                                    side = closedStopOrder.params.side,
                                     price = closedStopOrder.executionPrice,
                                     timestamp = replaySession.replayTime.first()
                                         .toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -184,7 +184,7 @@ internal class ReplayOrdersManager(
                                     ticker = closedTargetOrder.params.ticker,
                                     quantity = closedTargetOrder.params.quantity,
                                     lots = closedTargetOrder.params.lots,
-                                    type = closedTargetOrder.params.type,
+                                    side = closedTargetOrder.params.side,
                                     price = closedTargetOrder.executionPrice,
                                     timestamp = replaySession.replayTime.first()
                                         .toLocalDateTime(TimeZone.currentSystemDefault()),

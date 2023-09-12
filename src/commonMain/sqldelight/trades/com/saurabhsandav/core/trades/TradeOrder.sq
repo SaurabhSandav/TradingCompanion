@@ -1,5 +1,5 @@
 import com.saurabhsandav.core.trades.model.Instrument;
-import com.saurabhsandav.core.trades.model.OrderType;
+import com.saurabhsandav.core.trades.model.OrderSide;
 import java.math.BigDecimal;
 import kotlin.Boolean;
 import kotlin.Int;
@@ -12,7 +12,7 @@ instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
-type TEXT AS OrderType NOT NULL,
+side TEXT AS OrderSide NOT NULL,
 price TEXT AS BigDecimal NOT NULL,
 timestamp TEXT AS LocalDateTime NOT NULL,
 locked INTEGER AS Boolean NOT NULL
@@ -20,12 +20,12 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeOrder(broker, instrument, ticker, quantity, lots, type, price, timestamp, locked)
+INTO TradeOrder(broker, instrument, ticker, quantity, lots, side, price, timestamp, locked)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TradeOrder
-SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, type = ?, price = ?, timestamp = ?
+SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
 getAll:

@@ -37,7 +37,7 @@ internal data class TradeState(
     internal data class Order(
         val id: Long,
         val quantity: String,
-        val type: String,
+        val side: String,
         val price: String,
         val timestamp: String,
         val locked: Boolean,

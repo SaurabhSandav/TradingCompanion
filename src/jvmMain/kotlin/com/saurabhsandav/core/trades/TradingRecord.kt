@@ -3,7 +3,7 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
@@ -50,7 +50,7 @@ internal class TradingRecord(
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 lotsAdapter = IntColumnAdapter,
-                typeAdapter = OrderType.ColumnAdapter,
+                sideAdapter = OrderSide.ColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
                 timestampAdapter = LocalDateTimeColumnAdapter,
             ),

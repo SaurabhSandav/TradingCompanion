@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.OrderType
+import com.saurabhsandav.core.trades.model.OrderSide
 import kotlinx.datetime.LocalDateTime
 import java.math.BigDecimal
 
@@ -18,7 +18,7 @@ sealed class BacktestOrder {
         val ticker: String,
         val quantity: BigDecimal,
         val lots: Int?,
-        val type: OrderType,
+        val side: OrderSide,
     )
 
     data class OpenOrder(
@@ -33,7 +33,7 @@ sealed class BacktestOrder {
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
         ): Boolean = execution.canExecute(
-            type = params.type,
+            side = params.side,
             prevPrice = prevPrice,
             newPrice = newPrice,
         )

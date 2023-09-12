@@ -27,8 +27,8 @@ internal fun ReplayOrdersTable(
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }
-        addColumn("Type") {
-            Text(it.type, color = if (it.type == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
+        addColumn("Side") {
+            Text(it.side, color = if (it.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
         }
         addColumnText("Price") { it.price }
         addColumnText("Time") { it.timestamp }
