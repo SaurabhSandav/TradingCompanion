@@ -8,7 +8,9 @@ import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.SelectionManager
+import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
@@ -51,7 +54,7 @@ internal fun TradeExecutionsSelectionBar(
 
                 VerticalDivider()
 
-                val allLocked by remember { derivedStateOf { selectionManager.selection.all { it.locked } } }
+                val allLocked by derivedState { selectionManager.selection.all { it.locked } }
 
                 AnimatedVisibility(!allLocked) {
 

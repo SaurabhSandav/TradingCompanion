@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.collections.immutable.ImmutableList
 
@@ -119,8 +120,9 @@ fun ListSelectionDialog(
 
         var filterQuery by state { "" }
         val focusRequester = remember { FocusRequester() }
-        val filteredItems by remember(items) {
-            derivedStateOf { items.filter { it.startsWith(filterQuery, ignoreCase = true) } }
+        val itemsUpdated by rememberUpdatedState(items)
+        val filteredItems by derivedState {
+            itemsUpdated.filter { item -> item.startsWith(filterQuery, ignoreCase = true) }
         }
 
         Box {
@@ -145,24 +147,27 @@ fun ListSelectionDialog(
                         key = { it },
                     ) { itemText ->
 
+                        val itemTextUpdated by rememberUpdatedState(itemText)
+
                         ListItem(
                             modifier = Modifier.clickable { onSelection(itemText) },
                             headlineContent = {
 
-                                val filterHighlightedText by remember(itemText) {
-                                    derivedStateOf {
-                                        buildAnnotatedString {
+                                val filterHighlightedText by derivedState {
+                                    buildAnnotatedString {
 
-                                            val filterQueryStartIndex = itemText.indexOf(filterQuery, ignoreCase = true)
-                                            val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                            val filterQueryIndices = filterQueryStartIndex..<filterQueryEndIndex
+                                        val filterQueryStartIndex = itemTextUpdated.indexOf(
+                                            string = filterQuery,
+                                            ignoreCase = true,
+                                        )
+                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
+                                        val filterQueryIndices = filterQueryStartIndex..<filterQueryEndIndex
 
-                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                                append(itemText.substring(filterQueryIndices))
-                                            }
-
-                                            append(itemText.removeRange(filterQueryIndices))
+                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append(itemTextUpdated.substring(filterQueryIndices))
                                         }
+
+                                        append(itemTextUpdated.removeRange(filterQueryIndices))
                                     }
                                 }
 

@@ -19,3 +19,6 @@ internal inline fun <T> state(
 ): MutableState<T> {
     return remember(key1) { mutableStateOf(value()) }
 }
+
+@Composable
+internal fun <T> derivedState(calculation: () -> T): State<T> = remember { derivedStateOf(calculation) }
