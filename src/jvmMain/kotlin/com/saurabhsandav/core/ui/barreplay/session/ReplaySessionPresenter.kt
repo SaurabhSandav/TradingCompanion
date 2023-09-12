@@ -7,7 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trading.backtest.OrderExecution.*
+import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
@@ -110,7 +110,7 @@ internal class ReplaySessionPresenter(
 
                     ReplayOrderListItem(
                         id = openOrder.id,
-                        execution = when (openOrder.execution) {
+                        executionType = when (openOrder.executionType) {
                             is Limit -> "Limit"
                             is Market -> "Market"
                             is StopLimit -> "Stop Limit"
@@ -126,12 +126,12 @@ internal class ReplaySessionPresenter(
                         quantity = params.lots
                             ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
                         side = params.side.strValue.uppercase(),
-                        price = when (openOrder.execution) {
-                            is Limit -> openOrder.execution.price.toPlainString()
+                        price = when (openOrder.executionType) {
+                            is Limit -> openOrder.executionType.price.toPlainString()
                             is Market -> ""
-                            is StopLimit -> openOrder.execution.limitPrice.toPlainString()
-                            is StopMarket -> openOrder.execution.trigger.toPlainString()
-                            is TrailingStop -> openOrder.execution.trailingStop.toPlainString()
+                            is StopLimit -> openOrder.executionType.limitPrice.toPlainString()
+                            is StopMarket -> openOrder.executionType.trigger.toPlainString()
+                            is TrailingStop -> openOrder.executionType.trailingStop.toPlainString()
                         },
                         timestamp = openOrder.createdAt.time.toString(),
                     )

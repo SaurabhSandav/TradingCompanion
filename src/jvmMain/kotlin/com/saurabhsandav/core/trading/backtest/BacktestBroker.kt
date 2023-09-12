@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.*
-import com.saurabhsandav.core.trading.backtest.OrderExecution.*
+import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,14 +23,14 @@ class BacktestBroker(
 
     fun newOrder(
         params: OrderParams,
-        execution: OrderExecution,
+        executionType: OrderExecutionType,
         ocoId: Any? = null,
     ): OpenOrder {
 
         val openOrder = OpenOrder(
             id = nextId++,
             params = params,
-            execution = execution,
+            executionType = executionType,
             createdAt = getCurrentTime(params.ticker),
             ocoId = ocoId,
         )
@@ -47,7 +47,7 @@ class BacktestBroker(
         val canceledOrder = ClosedOrder.Canceled(
             id = openOrder.id,
             params = openOrder.params,
-            execution = openOrder.execution,
+            executionType = openOrder.executionType,
             createdAt = openOrder.createdAt,
             closedAt = getCurrentTime(openOrder.params.ticker),
         )
@@ -91,15 +91,15 @@ class BacktestBroker(
             val executedOrder = ClosedOrder.Executed(
                 id = openOrder.id,
                 params = openOrder.params,
-                execution = openOrder.execution,
+                executionType = openOrder.executionType,
                 createdAt = openOrder.createdAt,
                 closedAt = getCurrentTime(openOrder.params.ticker),
-                executionPrice = when (openOrder.execution) {
-                    is Limit -> openOrder.execution.price
+                executionPrice = when (openOrder.executionType) {
+                    is Limit -> openOrder.executionType.price
                     is Market -> newPrice
-                    is StopLimit -> openOrder.execution.limitPrice
+                    is StopLimit -> openOrder.executionType.limitPrice
                     is StopMarket -> newPrice
-                    is TrailingStop -> openOrder.execution.trailingStop
+                    is TrailingStop -> openOrder.executionType.trailingStop
                 }
             )
 
@@ -118,7 +118,7 @@ class BacktestBroker(
                     val canceledOrder = ClosedOrder.Canceled(
                         id = openOCOOrder.id,
                         params = openOCOOrder.params,
-                        execution = openOCOOrder.execution,
+                        executionType = openOCOOrder.executionType,
                         createdAt = openOCOOrder.createdAt,
                         closedAt = getCurrentTime(openOrder.params.ticker),
                     )

@@ -13,7 +13,7 @@ import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.ClosedOrder
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.OrderParams
-import com.saurabhsandav.core.trading.backtest.OrderExecution
+import com.saurabhsandav.core.trading.backtest.OrderExecutionType
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -83,7 +83,7 @@ internal class ReplayOrdersManager(
 
             val openOrder = backtestBroker.newOrder(
                 params = orderParams,
-                execution = OrderExecution.Limit(price = price),
+                executionType = OrderExecutionType.Limit(price = price),
             )
 
             coroutineScope.launch contingentOrders@{
@@ -126,7 +126,7 @@ internal class ReplayOrdersManager(
                         // Send stop order to broker
                         val openStopOrder = backtestBroker.newOrder(
                             params = positionCloseParams,
-                            execution = OrderExecution.StopMarket(trigger = stop),
+                            executionType = OrderExecutionType.StopMarket(trigger = stop),
                         )
 
                         // Handle stop order execution
@@ -164,7 +164,7 @@ internal class ReplayOrdersManager(
                         // Send target order to broker
                         val openTargetOrder = backtestBroker.newOrder(
                             params = positionCloseParams,
-                            execution = OrderExecution.Limit(price = target),
+                            executionType = OrderExecutionType.Limit(price = target),
                         )
 
                         // Handle target order execution

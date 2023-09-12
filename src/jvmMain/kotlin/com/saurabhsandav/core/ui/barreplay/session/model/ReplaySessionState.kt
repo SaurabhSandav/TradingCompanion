@@ -24,7 +24,7 @@ internal data class ReplaySessionState(
     @Immutable
     internal data class ReplayOrderListItem(
         val id: Long,
-        val execution: String,
+        val executionType: String,
         val broker: String,
         val ticker: String,
         val quantity: String,

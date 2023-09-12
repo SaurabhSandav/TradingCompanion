@@ -23,7 +23,7 @@ internal fun ReplayOrdersTable(
 ) {
 
     val schema = rememberTableSchema<ReplayOrderListItem> {
-        addColumnText("Execution") { it.execution }
+        addColumnText("Execution Type") { it.executionType }
         addColumnText("Broker") { it.broker }
         addColumnText("Ticker") { it.ticker }
         addColumnText("Quantity") { it.quantity }

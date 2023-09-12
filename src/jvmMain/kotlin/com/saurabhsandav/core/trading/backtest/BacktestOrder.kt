@@ -10,7 +10,7 @@ sealed class BacktestOrder {
     abstract val id: Long
     abstract val params: OrderParams
     abstract val createdAt: LocalDateTime
-    abstract val execution: OrderExecution
+    abstract val executionType: OrderExecutionType
 
     data class OrderParams(
         val broker: String,
@@ -25,14 +25,14 @@ sealed class BacktestOrder {
         override val id: Long,
         override val params: OrderParams,
         override val createdAt: LocalDateTime,
-        override val execution: OrderExecution,
+        override val executionType: OrderExecutionType,
         val ocoId: Any? = null,
     ) : BacktestOrder() {
 
         fun canExecute(
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
-        ): Boolean = execution.canExecute(
+        ): Boolean = executionType.canExecute(
             side = params.side,
             prevPrice = prevPrice,
             newPrice = newPrice,
@@ -48,7 +48,7 @@ sealed class BacktestOrder {
             override val params: OrderParams,
             override val createdAt: LocalDateTime,
             override val closedAt: LocalDateTime,
-            override val execution: OrderExecution,
+            override val executionType: OrderExecutionType,
         ) : ClosedOrder()
 
         data class Executed(
@@ -56,7 +56,7 @@ sealed class BacktestOrder {
             override val params: OrderParams,
             override val createdAt: LocalDateTime,
             override val closedAt: LocalDateTime,
-            override val execution: OrderExecution,
+            override val executionType: OrderExecutionType,
             val executionPrice: BigDecimal,
         ) : ClosedOrder()
     }
