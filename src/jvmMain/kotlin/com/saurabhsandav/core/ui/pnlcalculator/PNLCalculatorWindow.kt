@@ -16,7 +16,6 @@ import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.common.table.*
 
 @Composable
@@ -76,7 +75,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.quantity.value = it.trim() },
                 label = { Text("Quantity") },
                 isError = model.quantity.isError,
-                supportingText = optionalContent(model.quantity.errorMessage) { Text(it) },
+                supportingText = model.quantity.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 enabled = model.enableModification,
             )
@@ -86,7 +85,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.entry.value = it.trim() },
                 label = { Text("Entry") },
                 isError = model.entry.isError,
-                supportingText = optionalContent(model.entry.errorMessage) { Text(it) },
+                supportingText = model.entry.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 enabled = model.enableModification,
             )
@@ -96,7 +95,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.exit.value = it.trim() },
                 label = { Text("Exit") },
                 isError = model.exit.isError,
-                supportingText = optionalContent(model.exit.errorMessage) { Text(it) },
+                supportingText = model.exit.errorMessage?.let { { Text(it) } },
                 singleLine = true,
             )
 

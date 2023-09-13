@@ -15,7 +15,6 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.profiles.model.ProfileModel
 
 @Composable
@@ -58,7 +57,7 @@ internal fun ProfileEditorDialog(
                 onValueChange = { formModel.name.value = it },
                 label = { Text("Name") },
                 isError = formModel.name.isError,
-                supportingText = optionalContent(formModel.name.errorMessage) { Text(it) },
+                supportingText = formModel.name.errorMessage?.let { { Text(it) } },
                 singleLine = true,
             )
 

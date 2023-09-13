@@ -13,7 +13,6 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
@@ -43,7 +42,7 @@ internal fun NewReplayForm(
                 label = { Text("Base Timeframe") },
                 placeholderText = "Select Timeframe...",
                 isError = model.baseTimeframe.isError,
-                supportingText = optionalContent(model.baseTimeframe.errorMessage) { Text(it) },
+                supportingText = model.baseTimeframe.errorMessage?.let { { Text(it) } },
             )
 
             OutlinedTextField(
@@ -51,7 +50,7 @@ internal fun NewReplayForm(
                 onValueChange = { model.candlesBefore.value = it.trim() },
                 label = { Text("Candles Before") },
                 isError = model.candlesBefore.isError,
-                supportingText = optionalContent(model.candlesBefore.errorMessage) { Text(it) },
+                supportingText = model.candlesBefore.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
@@ -61,7 +60,7 @@ internal fun NewReplayForm(
                 onValidValueChange = { model.replayFrom.value = it },
                 label = { Text("Replay From") },
                 isError = model.replayFrom.isError,
-                supportingText = optionalContent(model.replayFrom.errorMessage) { Text(it) },
+                supportingText = model.replayFrom.errorMessage?.let { { Text(it) } },
             )
 
             DateTimePickerField(
@@ -69,7 +68,7 @@ internal fun NewReplayForm(
                 onValidValueChange = { model.dataTo.value = it },
                 label = { Text("Data To") },
                 isError = model.dataTo.isError,
-                supportingText = optionalContent(model.dataTo.errorMessage) { Text(it) },
+                supportingText = model.dataTo.errorMessage?.let { { Text(it) } },
             )
 
             Row(
@@ -98,7 +97,7 @@ internal fun NewReplayForm(
                 label = { Text("Ticker") },
                 placeholderText = "Select Ticker...",
                 isError = model.initialTicker.isError,
-                supportingText = optionalContent(model.initialTicker.errorMessage) { Text(it) },
+                supportingText = model.initialTicker.errorMessage?.let { { Text(it) } },
             )
 
             Divider()

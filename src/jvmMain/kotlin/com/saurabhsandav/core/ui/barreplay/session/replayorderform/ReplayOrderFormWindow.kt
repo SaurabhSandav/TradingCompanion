@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
 import java.util.*
@@ -85,7 +84,7 @@ private fun ReplayOrderForm(
             selection = model.instrument.value,
             label = { Text("Instrument") },
             isError = model.instrument.isError,
-            supportingText = optionalContent(model.instrument.errorMessage) { Text(it) },
+            supportingText = model.instrument.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedListSelectionField(
@@ -95,7 +94,7 @@ private fun ReplayOrderForm(
             selection = model.ticker.value,
             label = { Text("Ticker") },
             isError = model.ticker.isError,
-            supportingText = optionalContent(model.ticker.errorMessage) { Text(it) },
+            supportingText = model.ticker.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedTextField(
@@ -103,7 +102,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantity.isError,
-            supportingText = optionalContent(model.quantity.errorMessage) { Text(it) },
+            supportingText = model.quantity.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -112,7 +111,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.lots.value = it.trim() },
             label = { Text("Lots") },
             isError = model.lots.isError,
-            supportingText = optionalContent(model.lots.errorMessage) { Text(it) },
+            supportingText = model.lots.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -137,7 +136,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.price.value = it.trim() },
             label = { Text("Price") },
             isError = model.price.isError,
-            supportingText = optionalContent(model.price.errorMessage) { Text(it) },
+            supportingText = model.price.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -146,7 +145,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.stop.value = it.trim() },
             label = { Text("Stop") },
             isError = model.stop.isError,
-            supportingText = optionalContent(model.stop.errorMessage) { Text(it) },
+            supportingText = model.stop.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -155,7 +154,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
             isError = model.target.isError,
-            supportingText = optionalContent(model.target.errorMessage) { Text(it) },
+            supportingText = model.target.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
