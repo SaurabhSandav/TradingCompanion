@@ -78,9 +78,11 @@ internal fun TradeScreen(
 
                     StopsAndTargets(
                         stops = state.stops,
+                        previewStop = state.previewStop,
                         onAddStop = { state.eventSink(AddStop(it)) },
                         onDeleteStop = { state.eventSink(DeleteStop(it)) },
                         targets = state.targets,
+                        previewTarget = state.previewTarget,
                         onAddTarget = { state.eventSink(AddTarget(it)) },
                         onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
                     )

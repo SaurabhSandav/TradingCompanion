@@ -2,20 +2,19 @@ package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,14 +26,18 @@ import com.saurabhsandav.core.ui.common.table.rememberTableSchema
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 @Composable
 internal fun StopsAndTargets(
     stops: ImmutableList<TradeStop>,
+    previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
     targets: ImmutableList<TradeTarget>,
+    previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
 ) {
@@ -46,6 +49,7 @@ internal fun StopsAndTargets(
         StopsList(
             modifier = Modifier.weight(1F),
             stops = stops,
+            previewStop = previewStop,
             onAddStop = onAddStop,
             onDeleteStop = onDeleteStop,
         )
@@ -53,6 +57,7 @@ internal fun StopsAndTargets(
         TargetsList(
             modifier = Modifier.weight(1F),
             targets = targets,
+            previewTarget = previewTarget,
             onAddTarget = onAddTarget,
             onDeleteTarget = onDeleteTarget,
         )
@@ -62,6 +67,7 @@ internal fun StopsAndTargets(
 @Composable
 private fun StopsList(
     stops: ImmutableList<TradeStop>,
+    previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
     modifier: Modifier,
@@ -102,22 +108,41 @@ private fun StopsList(
                     )
                 }
             }
+
+            Divider()
+
+            val addValueState = remember {
+                AddValueState(
+                    preview = previewStop,
+                    onAdd = onAddStop,
+                )
+            }
+
+            // Add Stop Form
+            AddValueForm(
+                addValueState = addValueState,
+                valueLabel = "Stop",
+                previewContent = { tradeStop ->
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = tradeStop.risk,
+                    )
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = tradeStop.netRisk,
+                    )
+                },
+            )
         }
-
-        Divider()
-
-        // Add Stop Form
-        AddValueForm(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            addTypeText = "Stop",
-            onAdd = onAddStop,
-        )
     }
 }
 
 @Composable
 private fun TargetsList(
     targets: ImmutableList<TradeTarget>,
+    previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
     modifier: Modifier,
@@ -158,16 +183,34 @@ private fun TargetsList(
                     )
                 }
             }
+
+            Divider()
+
+            val addValueState = remember {
+                AddValueState(
+                    preview = previewTarget,
+                    onAdd = onAddTarget,
+                )
+            }
+
+            // Add Target Form
+            AddValueForm(
+                addValueState = addValueState,
+                valueLabel = "Target",
+                previewContent = { tradeTarget ->
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = tradeTarget.profit,
+                    )
+
+                    Text(
+                        modifier = Modifier.weight(1F),
+                        text = tradeTarget.netProfit,
+                    )
+                },
+            )
         }
-
-        Divider()
-
-        // Add Target Form
-        AddValueForm(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            addTypeText = "Target",
-            onAdd = onAddTarget,
-        )
     }
 }
 
@@ -222,69 +265,150 @@ private fun DeleteConfirmationDialog(
 }
 
 @Composable
-private fun AddValueForm(
-    modifier: Modifier,
-    addTypeText: String,
-    onAdd: (BigDecimal) -> Unit,
+private fun <T : Any> AddValueForm(
+    addValueState: AddValueState<T>,
+    valueLabel: String,
+    previewContent: @Composable RowScope.(T) -> Unit,
 ) {
 
-    var showAddRow by state { false }
-
     AnimatedContent(
-        targetState = showAddRow,
-        modifier = modifier,
-    ) { targetShowAddRow ->
+        targetState = addValueState.addFormShown,
+    ) { showAddForm ->
 
-        if (targetShowAddRow) {
+        when {
+            showAddForm -> {
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                var price by state { "" }
-                var priceIsError by state { false }
-
-                OutlinedTextField(
-                    value = price,
-                    onValueChange = {
-                        price = it.trim()
-                        priceIsError = price.toBigDecimalOrNull() == null
-                    },
-                    label = { Text(addTypeText) },
-                    isError = priceIsError,
-                    supportingText = {
-                        if (priceIsError) Text("Not a valid price")
-                    },
-                    singleLine = true,
-                )
-
-                TextButton(
-                    onClick = {
-                        showAddRow = false
-                        onAdd(price.toBigDecimal())
-                    }
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Add")
-                }
 
-                TextButton(
-                    onClick = {
-                        showAddRow = false
-                        price = ""
+                    AddValueTextField(
+                        modifier = Modifier.weight(1F),
+                        addValueState = addValueState,
+                    )
+
+                    val previewValue = addValueState.previewValue.collectAsState(null).value
+
+                    when {
+                        addValueState.priceText.isEmpty() || addValueState.isError -> Spacer(Modifier.weight(2F))
+                        previewValue == null -> {
+
+                            Text(
+                                modifier = Modifier.weight(2F),
+                                text = "Invalid $valueLabel",
+                            )
+                        }
+
+                        else -> previewContent(previewValue)
                     }
-                ) {
-                    Text("Close")
+
+                    Box(Modifier.weight(.5F)) {
+
+                        IconButton(
+                            onClick = addValueState::hideAddForm,
+                            content = { Icon(Icons.Default.Close, contentDescription = "Cancel") },
+                        )
+                    }
                 }
             }
-        } else {
 
-            TextButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { showAddRow = true },
-                shape = RectangleShape,
-            ) {
-                Text("Add $addTypeText")
+            else -> {
+
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = addValueState::showAddForm,
+                    shape = RectangleShape,
+                    content = { Text("Add $valueLabel") },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun AddValueTextField(
+    modifier: Modifier,
+    addValueState: AddValueState<*>,
+) {
+
+    val focusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
+    TextField(
+        modifier = modifier.focusRequester(focusRequester).onKeyEvent {
+            when (it.key) {
+                Key.Enter, Key.NumPadEnter -> {
+                    coroutineScope.launch {
+                        addValueState.submit()
+                    }
+                    true
+                }
+
+                Key.Escape -> {
+                    addValueState.hideAddForm()
+                    true
+                }
+
+                else -> false
+            }
+        },
+        value = addValueState.priceText,
+        onValueChange = addValueState::onValueChange,
+        isError = addValueState.isError,
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            errorContainerColor = MaterialTheme.colorScheme.background,
+        ),
+    )
+
+    LaunchedEffect(focusRequester) {
+        focusRequester.requestFocus()
+    }
+}
+
+@Stable
+private class AddValueState<T : Any>(
+    private val preview: (BigDecimal) -> Flow<T?>,
+    private val onAdd: (BigDecimal) -> Unit,
+) {
+
+    var addFormShown by mutableStateOf(false)
+    var priceText by mutableStateOf("")
+    var isError by mutableStateOf(false)
+
+    val previewValue = flow {
+        emitAll(
+            snapshotFlow { priceText }.flatMapLatest { it.toBigDecimalOrNull()?.let(preview) ?: emptyFlow() }
+        )
+    }
+
+    fun showAddForm() {
+        addFormShown = true
+    }
+
+    fun hideAddForm() {
+        addFormShown = false
+        priceText = ""
+        isError = false
+    }
+
+    fun onValueChange(newValue: String) {
+        priceText = newValue.trim()
+        val price = priceText.toBigDecimalOrNull()
+        isError = price == null
+    }
+
+    suspend fun submit() {
+
+        val price = priceText.toBigDecimalOrNull() ?: return
+
+        // If preview available, price is valid
+        preview(price).first() ?: return
+
+        onAdd(price)
+        hideAddForm()
     }
 }

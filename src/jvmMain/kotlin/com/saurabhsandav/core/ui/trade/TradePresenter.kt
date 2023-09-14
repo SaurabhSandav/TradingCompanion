@@ -5,6 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
@@ -56,7 +57,9 @@ internal class TradePresenter(
             details = getTradeDetail().value,
             executions = getTradeExecutions().value,
             stops = getTradeStops().value,
+            previewStop = ::previewStop,
             targets = getTradeTargets().value,
+            previewTarget = ::previewTarget,
             mfeAndMae = getMfeAndMae().value,
             notes = getTradeNotes().value,
             eventSink = ::onEvent,
@@ -150,26 +153,25 @@ internal class TradePresenter(
 
             trade.combine(tradingRecord.trades.getStopsForTrade(tradeId)) { trade, stops ->
 
-                    stops.map { stop ->
+                stops.map { stop ->
 
-                        val brokerage = brokerage(
-                            broker = trade.broker,
-                            instrument = trade.instrument,
-                            entry = trade.averageEntry,
-                            exit = stop.price,
-                            quantity = trade.quantity,
-                            side = trade.side,
-                        )
+                    val brokerage = brokerage(
+                        broker = trade.broker,
+                        instrument = trade.instrument,
+                        entry = trade.averageEntry,
+                        exit = stop.price,
+                        quantity = trade.quantity,
+                        side = trade.side,
+                    )
 
-                        TradeStop(
-                            price = stop.price,
-                            priceText = stop.price.toPlainString(),
-                            risk = brokerage.pnl.toPlainString(),
-                            netRisk = brokerage.netPNL.toPlainString(),
-                        )
-                    }.toImmutableList()
-                }
-                .collect { tradeStops -> value = tradeStops }
+                    TradeStop(
+                        price = stop.price,
+                        priceText = stop.price.toPlainString(),
+                        risk = brokerage.pnl.toPlainString(),
+                        netRisk = brokerage.netPNL.toPlainString(),
+                    )
+                }.toImmutableList()
+            }.collect { tradeStops -> value = tradeStops }
         }
     }
 
@@ -181,26 +183,25 @@ internal class TradePresenter(
 
             trade.combine(tradingRecord.trades.getTargetsForTrade(tradeId)) { trade, targets ->
 
-                    targets.map { target ->
+                targets.map { target ->
 
-                        val brokerage = brokerage(
-                            broker = trade.broker,
-                            instrument = trade.instrument,
-                            entry = trade.averageEntry,
-                            exit = target.price,
-                            quantity = trade.quantity,
-                            side = trade.side,
-                        )
+                    val brokerage = brokerage(
+                        broker = trade.broker,
+                        instrument = trade.instrument,
+                        entry = trade.averageEntry,
+                        exit = target.price,
+                        quantity = trade.quantity,
+                        side = trade.side,
+                    )
 
-                        TradeTarget(
-                            price = target.price,
-                            priceText = target.price.toPlainString(),
-                            profit = brokerage.pnl.toPlainString(),
-                            netProfit = brokerage.netPNL.toPlainString(),
-                        )
-                    }.toImmutableList()
-                }
-                .collect { tradeTargets -> value = tradeTargets }
+                    TradeTarget(
+                        price = target.price,
+                        priceText = target.price.toPlainString(),
+                        profit = brokerage.pnl.toPlainString(),
+                        netProfit = brokerage.netPNL.toPlainString(),
+                    )
+                }.toImmutableList()
+            }.collect { tradeTargets -> value = tradeTargets }
         }
     }
 
@@ -250,6 +251,70 @@ internal class TradePresenter(
                     )
                 }
                 .collect { value = it.toImmutableList() }
+        }
+    }
+
+    private fun previewStop(price: BigDecimal): Flow<TradeStop?> {
+        return trade.map { trade ->
+
+            val stopIsValid = when (trade.side) {
+                TradeSide.Long -> price < trade.averageEntry
+                TradeSide.Short -> price > trade.averageEntry
+            }
+
+            when {
+                !stopIsValid -> null
+                else -> {
+
+                    val brokerage = brokerage(
+                        broker = trade.broker,
+                        instrument = trade.instrument,
+                        entry = trade.averageEntry,
+                        exit = price,
+                        quantity = trade.quantity,
+                        side = trade.side,
+                    )
+
+                    TradeStop(
+                        price = price,
+                        priceText = price.toPlainString(),
+                        risk = brokerage.pnl.toPlainString(),
+                        netRisk = brokerage.netPNL.toPlainString(),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun previewTarget(price: BigDecimal): Flow<TradeTarget?> {
+        return trade.map { trade ->
+
+            val targetIsValid = when (trade.side) {
+                TradeSide.Long -> price > trade.averageEntry
+                TradeSide.Short -> price < trade.averageEntry
+            }
+
+            when {
+                !targetIsValid -> null
+                else -> {
+
+                    val brokerage = brokerage(
+                        broker = trade.broker,
+                        instrument = trade.instrument,
+                        entry = trade.averageEntry,
+                        exit = price,
+                        quantity = trade.quantity,
+                        side = trade.side,
+                    )
+
+                    TradeTarget(
+                        price = price,
+                        priceText = price.toPlainString(),
+                        profit = brokerage.pnl.toPlainString(),
+                        netProfit = brokerage.netPNL.toPlainString(),
+                    )
+                }
+            }
         }
     }
 

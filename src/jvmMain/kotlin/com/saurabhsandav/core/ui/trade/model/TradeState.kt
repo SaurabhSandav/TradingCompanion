@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.trade.model
 
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
 @Immutable
@@ -10,7 +11,9 @@ internal data class TradeState(
     val details: Details?,
     val executions: ImmutableList<Execution>,
     val stops: ImmutableList<TradeStop>,
+    val previewStop: (BigDecimal) -> Flow<TradeStop?>,
     val targets: ImmutableList<TradeTarget>,
+    val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     val mfeAndMae: MfeAndMae?,
     val notes: ImmutableList<TradeNote>,
     val eventSink: (TradeEvent) -> Unit,
