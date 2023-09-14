@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
@@ -86,12 +87,14 @@ internal fun Notes(
         var showAddWindow by state { false }
         val addWindowOwner = remember { AppWindowOwner() }
 
-        Button(
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 showAddWindow = true
                 addWindowOwner.childrenToFront()
             },
-            content = { Text("Add note") },
+            shape = RectangleShape,
+            content = { Text("Add Note") },
         )
 
         if (showAddWindow) {
@@ -130,8 +133,8 @@ private fun NoteEditorWindow(
                 onValueChange = { text = it }
             )
 
-            Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
+            TextButton(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onCloseRequest()
                     onSaveNote(text)
