@@ -12,6 +12,7 @@ internal data class LandingState(
     val eventSink: (LandingEvent) -> Unit,
 ) {
 
+    @Immutable
     enum class LandingScreen(
         val title: String,
         val icon: ImageVector,

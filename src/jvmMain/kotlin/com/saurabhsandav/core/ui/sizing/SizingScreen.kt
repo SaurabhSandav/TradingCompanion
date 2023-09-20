@@ -212,10 +212,10 @@ private fun AddTradeCard(
 
     Card {
 
-        var showStockSelectionDialog by state { false }
+        var showTickerSelectionDialog by state { false }
 
         TextButton(
-            onClick = { showStockSelectionDialog = true },
+            onClick = { showTickerSelectionDialog = true },
         ) {
 
             Text(
@@ -225,16 +225,17 @@ private fun AddTradeCard(
             )
         }
 
-        if (showStockSelectionDialog) {
+        if (showTickerSelectionDialog) {
 
             ListSelectionDialog(
+                onDismissRequest = { showTickerSelectionDialog = false },
                 items = NIFTY50,
+                itemText = { it },
                 onSelection = {
                     onAddTrade(it)
-                    showStockSelectionDialog = false
+                    showTickerSelectionDialog = false
                 },
-                selectionDialogTitle = "Select Stock",
-                onCloseRequest = { showStockSelectionDialog = false },
+                placeholderText = "Select Ticker...",
             )
         }
     }

@@ -4,11 +4,11 @@ import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.Validation
 
-private class ListSelectionField(
-    initial: String?,
-    validations: Set<Validation<String?>> = emptySet(),
+private class ListSelectionField<T : Any>(
+    initial: T?,
+    validations: Set<Validation<T?>> = emptySet(),
     private val isRequired: Boolean = true,
-) : BaseFormField<String?>(initial, validations) {
+) : BaseFormField<T?>(initial, validations) {
 
     override fun validate() {
 
@@ -25,11 +25,11 @@ private class ListSelectionField(
     }
 }
 
-fun FormValidator.listSelectionField(
-    initial: String?,
+fun <T : Any> FormValidator.listSelectionField(
+    initial: T?,
     isRequired: Boolean = true,
-    validations: Set<Validation<String?>> = emptySet(),
-): FormField<String?> {
+    validations: Set<Validation<T?>> = emptySet(),
+): FormField<T?> {
 
     val field = ListSelectionField(
         initial = initial,

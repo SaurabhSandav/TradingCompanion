@@ -13,13 +13,13 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
-import com.saurabhsandav.core.ui.common.controls.ListSelectionField
+import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.optionalContent
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.NIFTY50
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import java.util.*
 
 @Composable
@@ -76,13 +76,12 @@ private fun TradeExecutionForm(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
-        ListSelectionField(
-            items = remember {
-                enumValues<Instrument>().map { instrument ->
-                    instrument.strValue.replaceFirstChar { char ->
-                        if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
-                    }
-                }.toImmutableList()
+        OutlinedListSelectionField(
+            items = remember { persistentListOf(*enumValues<Instrument>()) },
+            itemText = {
+                it.strValue.replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                }
             },
             onSelection = { model.instrument.value = it },
             selection = model.instrument.value,
@@ -91,8 +90,9 @@ private fun TradeExecutionForm(
             supportingText = optionalContent(model.instrument.errorMessage) { Text(it) },
         )
 
-        ListSelectionField(
+        OutlinedListSelectionField(
             items = NIFTY50,
+            itemText = { it },
             onSelection = { model.ticker.value = it },
             selection = model.ticker.value,
             label = { Text("Ticker") },

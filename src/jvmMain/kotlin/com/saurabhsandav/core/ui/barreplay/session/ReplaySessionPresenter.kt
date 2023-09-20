@@ -201,7 +201,7 @@ internal class ReplaySessionPresenter(
             initialFormModel = { formValidator ->
                 ReplayOrderFormModel(
                     validator = formValidator,
-                    instrument = Instrument.Equity.strValue,
+                    instrument = Instrument.Equity,
                     ticker = stockChart.params.ticker,
                     quantity = "",
                     lots = "",
@@ -229,7 +229,7 @@ internal class ReplaySessionPresenter(
             initialFormModel = { formValidator ->
                 ReplayOrderFormModel(
                     validator = formValidator,
-                    instrument = Instrument.Equity.strValue,
+                    instrument = Instrument.Equity,
                     ticker = stockChart.params.ticker,
                     quantity = "",
                     lots = "",

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.tradeexecutionform.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.IsBigDecimal
 import com.saurabhsandav.core.ui.common.form.IsInt
@@ -25,7 +26,7 @@ internal data class TradeExecutionFormState(
 @Stable
 internal class TradeExecutionFormModel(
     validator: FormValidator,
-    instrument: String?,
+    instrument: Instrument?,
     ticker: String?,
     quantity: String,
     lots: String,

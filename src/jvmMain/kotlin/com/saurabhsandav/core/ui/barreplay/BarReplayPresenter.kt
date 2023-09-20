@@ -14,8 +14,6 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.timeframeFromLabel
-import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Clock
@@ -54,13 +52,8 @@ internal class BarReplayPresenter(
 
         if (!formValidator.isValid()) return
 
-        val baseTimeframe = when (val timeframeLabel = formModel.baseTimeframe.value) {
-            null -> Timeframe.M5
-            else -> timeframeFromLabel(timeframeLabel)
-        }
-
         val replayParams = ReplayParams(
-            baseTimeframe = baseTimeframe,
+            baseTimeframe = formModel.baseTimeframe.value ?: Timeframe.M5,
             candlesBefore = formModel.candlesBefore.value.toInt(),
             replayFrom = formModel.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
             dataTo = formModel.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
@@ -86,7 +79,7 @@ internal class BarReplayPresenter(
 
         return NewReplayFormModel(
             validator = formValidator,
-            baseTimeframe = Timeframe.M5.toLabel(),
+            baseTimeframe = Timeframe.M5,
             candlesBefore = candlesBefore.toString(),
             replayFrom = replayFrom,
             dataTo = dataTo,

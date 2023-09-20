@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.newreplayform
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.IsInt
 import com.saurabhsandav.core.ui.common.form.Validation
@@ -16,7 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 
 class NewReplayFormModel(
     validator: FormValidator,
-    baseTimeframe: String?,
+    baseTimeframe: Timeframe?,
     candlesBefore: String,
     replayFrom: LocalDateTime,
     dataTo: LocalDateTime,

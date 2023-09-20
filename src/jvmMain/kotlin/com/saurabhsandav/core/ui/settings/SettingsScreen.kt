@@ -14,12 +14,12 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.controls.ListSelectionField
+import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun SettingsWindow(
@@ -56,8 +56,8 @@ internal fun SettingsWindow(
 internal fun SettingsScreen(
     darkModeEnabled: Boolean,
     onDarkThemeEnabledChange: (Boolean) -> Unit,
-    landingScreen: String,
-    onLandingScreenChange: (String) -> Unit,
+    landingScreen: LandingScreen,
+    onLandingScreenChange: (LandingScreen) -> Unit,
     densityFraction: Float,
     onDensityFractionChange: (Float) -> Unit,
 ) {
@@ -79,7 +79,7 @@ internal fun SettingsScreen(
             Divider()
 
             LandingScreenPreference(
-                items = remember { enumValues<LandingScreen>().map { it.title }.toImmutableList() },
+                items = remember { persistentListOf(*enumValues<LandingScreen>()) },
                 selectedItem = landingScreen,
                 onLandingScreenChange = onLandingScreenChange,
             )
@@ -119,17 +119,18 @@ private fun DarkModePreference(
 
 @Composable
 private fun LandingScreenPreference(
-    items: ImmutableList<String>,
-    selectedItem: String,
-    onLandingScreenChange: (String) -> Unit,
+    items: ImmutableList<LandingScreen>,
+    selectedItem: LandingScreen,
+    onLandingScreenChange: (LandingScreen) -> Unit,
 ) {
 
     ListItem(
         headlineContent = { Text("Landing Screen") },
         trailingContent = {
 
-            ListSelectionField(
+            OutlinedListSelectionField(
                 items = items,
+                itemText = { it.title },
                 selection = selectedItem,
                 onSelection = onLandingScreenChange,
             )

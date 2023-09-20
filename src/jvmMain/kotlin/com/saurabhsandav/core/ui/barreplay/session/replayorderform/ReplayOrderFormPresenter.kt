@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
@@ -58,7 +57,7 @@ internal class ReplayOrderFormPresenter(
 
         val orderId = replayOrdersManager.newOrder(
             broker = "Finvasia",
-            instrument = Instrument.fromString(formModel.instrument.value!!),
+            instrument = formModel.instrument.value!!,
             ticker = formModel.ticker.value!!,
             quantity = formModel.quantity.value.toBigDecimal(),
             lots = formModel.lots.value.ifBlank { null }?.toInt(),

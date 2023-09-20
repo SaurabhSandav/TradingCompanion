@@ -1,193 +1,209 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun ListSelectionField(
-    items: ImmutableList<String>,
-    onSelection: (String) -> Unit,
-    selection: String? = null,
+fun <T : Any> OutlinedListSelectionField(
+    items: ImmutableList<T>,
+    itemText: (T) -> String,
+    onSelection: (T) -> Unit,
+    selection: T? = null,
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
-    enabled: Boolean = true,
 ) {
 
-    var showSelectionDialog by state { false }
-    val interactionSource = remember { MutableInteractionSource() }
+    var expanded by state { false }
+    val selectionUpdated by rememberUpdatedState(selection)
+    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
 
-    val modifier = if (!enabled) Modifier else Modifier.clickable(
-        interactionSource = interactionSource,
-        indication = null,
-        onClick = { showSelectionDialog = true },
-    )
-
-    Box(modifier) {
-
-        val isFocused by interactionSource.collectIsFocusedAsState()
-
-        val selectedItem = remember(items, selection) { items.firstOrNull { it.lowercase() == selection?.lowercase() } }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
 
         OutlinedTextField(
-            value = selectedItem ?: "",
-            onValueChange = {},
-            label = label,
-            supportingText = supportingText,
-            placeholder = { Text(placeholderText) },
-            readOnly = true,
-            isError = isError,
-            enabled = false,
-            interactionSource = interactionSource,
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = when {
-                    isError -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
-                disabledBorderColor = when {
-                    isError -> MaterialTheme.colorScheme.error
-                    isFocused -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.outline
-                },
-                disabledLabelColor = when {
-                    isError -> MaterialTheme.colorScheme.error
-                    isFocused -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledSupportingTextColor = when {
-                    isError -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            ),
-        )
-    }
+            modifier = Modifier.menuAnchor().onKeyEvent {
+                when (it.key) {
+                    Key.Enter, Key.NumPadEnter -> {
+                        expanded = true
+                        true
+                    }
 
-    if (showSelectionDialog) {
+                    Key.Escape -> {
+                        expanded = false
+                        true
+                    }
 
-        ListSelectionDialog(
-            items = items,
-            onSelection = {
-                onSelection(it)
-                showSelectionDialog = false
+                    else -> false
+                }
             },
-            selectionDialogTitle = placeholderText,
-            onCloseRequest = { showSelectionDialog = false },
+            value = selectedItemText,
+            onValueChange = {},
+            readOnly = true,
+            label = label,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            supportingText = supportingText,
+            isError = isError,
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
         )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+
+            var filter by state { "" }
+            val filteredItems by derivedState {
+                items.filter { item -> itemText(item).lowercase().contains(filter.lowercase()) }
+            }
+            val focusRequester = remember { FocusRequester() }
+
+            OutlinedTextField(
+                modifier = Modifier.focusRequester(focusRequester),
+                value = filter,
+                onValueChange = { filter = it },
+                singleLine = true,
+            )
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+
+            filteredItems.forEach { item ->
+
+                DropdownMenuItem(
+                    text = { Text(itemText(item)) },
+                    onClick = {
+                        expanded = false
+                        onSelection(item)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun ListSelectionDialog(
-    items: ImmutableList<String>,
-    onSelection: (ticker: String) -> Unit,
-    selectionDialogTitle: String,
-    onCloseRequest: () -> Unit,
+fun <T : Any> ListSelectionField(
+    items: ImmutableList<T>,
+    itemText: (T) -> String,
+    onSelection: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    selection: T? = null,
+    placeholderText: String = "Select...",
+    label: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
 ) {
 
-    AppDialogWindow(
-        onCloseRequest = onCloseRequest,
-        title = selectionDialogTitle,
+    var expanded by state { false }
+    val selectionUpdated by rememberUpdatedState(selection)
+    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
     ) {
 
-        var filterQuery by state { "" }
-        val focusRequester = remember { FocusRequester() }
-        val itemsUpdated by rememberUpdatedState(items)
-        val filteredItems by derivedState {
-            itemsUpdated.filter { item -> item.startsWith(filterQuery, ignoreCase = true) }
-        }
+        TextField(
+            modifier = modifier.menuAnchor().onKeyEvent {
+                when (it.key) {
+                    Key.Enter, Key.NumPadEnter -> {
+                        expanded = true
+                        true
+                    }
 
-        Box {
+                    Key.Escape -> {
+                        expanded = false
+                        true
+                    }
 
-            // For filtering list, Size is zero to hide
-            BasicTextField(
-                value = filterQuery,
-                onValueChange = { value -> filterQuery = value.trim() },
-                modifier = Modifier.size(0.dp, 0.dp).focusRequester(focusRequester)
+                    else -> false
+                }
+            },
+            value = selectedItemText,
+            onValueChange = {},
+            readOnly = true,
+            label = label,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            supportingText = supportingText,
+            isError = isError,
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+
+            var filter by state { "" }
+            val filteredItems by derivedState {
+                items.filter { item -> itemText(item).lowercase().contains(filter.lowercase()) }
+            }
+            val focusRequester = remember { FocusRequester() }
+
+            OutlinedTextField(
+                modifier = Modifier.focusRequester(focusRequester),
+                value = filter,
+                onValueChange = { filter = it },
+                singleLine = true,
             )
 
-            SideEffect { focusRequester.requestFocus() }
-
-            Box {
-
-                val lazyListState = rememberLazyListState()
-
-                LazyColumn(state = lazyListState) {
-
-                    items(
-                        items = filteredItems,
-                        key = { it },
-                    ) { itemText ->
-
-                        val itemTextUpdated by rememberUpdatedState(itemText)
-
-                        ListItem(
-                            modifier = Modifier.clickable { onSelection(itemText) },
-                            headlineContent = {
-
-                                val filterHighlightedText by derivedState {
-                                    buildAnnotatedString {
-
-                                        val filterQueryStartIndex = itemTextUpdated.indexOf(
-                                            string = filterQuery,
-                                            ignoreCase = true,
-                                        )
-                                        val filterQueryEndIndex = filterQueryStartIndex + filterQuery.length
-                                        val filterQueryIndices = filterQueryStartIndex..<filterQueryEndIndex
-
-                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                            append(itemTextUpdated.substring(filterQueryIndices))
-                                        }
-
-                                        append(itemTextUpdated.removeRange(filterQueryIndices))
-                                    }
-                                }
-
-                                Text(
-                                    text = filterHighlightedText,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        )
-                    }
-                }
-
-                VerticalScrollbar(
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                    adapter = rememberScrollbarAdapter(lazyListState)
-                )
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
             }
 
-            Text(filterQuery, Modifier.align(Alignment.BottomStart))
+            filteredItems.forEach { item ->
+
+                DropdownMenuItem(
+                    text = { Text(itemText(item)) },
+                    onClick = {
+                        expanded = false
+                        onSelection(item)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun <T : Any> ListSelectionDialog(
+    onDismissRequest: () -> Unit,
+    items: ImmutableList<T>,
+    itemText: (T) -> String,
+    onSelection: (T) -> Unit,
+    selection: T? = null,
+    placeholderText: String = "Select...",
+) {
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+    ) {
+
+        Surface {
+
+            OutlinedListSelectionField(
+                items = items,
+                itemText = itemText,
+                onSelection = onSelection,
+                selection = selection,
+                placeholderText = placeholderText,
+            )
         }
     }
 }

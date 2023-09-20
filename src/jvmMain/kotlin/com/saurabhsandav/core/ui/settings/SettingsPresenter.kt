@@ -34,8 +34,7 @@ internal class SettingsPresenter(
         val landingScreen by remember {
             appPrefs.getStringFlow(PrefKeys.LandingScreen, PrefDefaults.LandingScreen.name)
                 .map { kotlin.runCatching { LandingScreen.valueOf(it) }.getOrNull() ?: PrefDefaults.LandingScreen }
-                .map { it.title }
-        }.collectAsState(PrefDefaults.LandingScreen.title)
+        }.collectAsState(PrefDefaults.LandingScreen)
 
         val densityFraction by appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
             .collectAsState(PrefDefaults.DensityFraction)
@@ -61,8 +60,8 @@ internal class SettingsPresenter(
         appPrefs.putBoolean(PrefKeys.DarkModeEnabled, isEnabled)
     }
 
-    private fun onLandingScreenChange(landingScreen: String) = coroutineScope.launchUnit {
-        appPrefs.putString(PrefKeys.LandingScreen, LandingScreen.items.first { it.title == landingScreen }.name)
+    private fun onLandingScreenChange(landingScreen: LandingScreen) = coroutineScope.launchUnit {
+        appPrefs.putString(PrefKeys.LandingScreen, landingScreen.name)
     }
 
     private fun onDensityFractionChange(densityFraction: Float) = coroutineScope.launchUnit {

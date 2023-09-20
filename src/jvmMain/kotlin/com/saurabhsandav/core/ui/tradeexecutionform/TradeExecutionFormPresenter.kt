@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
@@ -68,7 +67,7 @@ internal class TradeExecutionFormPresenter(
             is Edit -> tradingRecord.executions.edit(
                 id = formType.id,
                 broker = "Finvasia",
-                instrument = Instrument.fromString(formModel.instrument.value!!),
+                instrument = formModel.instrument.value!!,
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
@@ -79,7 +78,7 @@ internal class TradeExecutionFormPresenter(
 
             else -> tradingRecord.executions.new(
                 broker = "Finvasia",
-                instrument = Instrument.fromString(formModel.instrument.value!!),
+                instrument = formModel.instrument.value!!,
                 ticker = formModel.ticker.value!!,
                 quantity = formModel.quantity.value.toBigDecimal(),
                 lots = formModel.lots.value.ifBlank { null }?.toInt(),
@@ -120,7 +119,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = execution.instrument.strValue,
+            instrument = execution.instrument,
             ticker = execution.ticker,
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",
@@ -142,7 +141,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = execution.instrument.strValue,
+            instrument = execution.instrument,
             ticker = execution.ticker,
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",

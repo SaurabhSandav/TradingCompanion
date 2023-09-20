@@ -154,7 +154,7 @@ internal class SizingPresenter(
             formType = TradeExecutionFormType.New { formValidator ->
                 TradeExecutionFormModel(
                     validator = formValidator,
-                    instrument = Instrument.Equity.strValue,
+                    instrument = Instrument.Equity,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
                     lots = "",

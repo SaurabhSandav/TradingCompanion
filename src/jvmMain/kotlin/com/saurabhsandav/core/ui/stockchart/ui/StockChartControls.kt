@@ -14,13 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
-import com.saurabhsandav.core.ui.common.controls.ListSelectionField
+import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.timeframeFromLabel
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -101,17 +99,19 @@ internal fun StockChartControls(
 
             Divider()
 
-            ListSelectionField(
+            OutlinedListSelectionField(
                 items = tickers,
+                itemText = { it },
                 selection = stockChart.params.ticker,
                 onSelection = onChangeTicker,
                 label = { Text("Ticker") },
             )
 
-            ListSelectionField(
-                items = remember(timeframes) { timeframes.map { it.toLabel() }.toImmutableList() },
-                selection = stockChart.params.timeframe.toLabel(),
-                onSelection = { onChangeTimeframe(timeframeFromLabel(it)) },
+            OutlinedListSelectionField(
+                items = timeframes,
+                itemText = { it.toLabel() },
+                selection = stockChart.params.timeframe,
+                onSelection = onChangeTimeframe,
                 label = { Text("Timeframe") },
             )
 
