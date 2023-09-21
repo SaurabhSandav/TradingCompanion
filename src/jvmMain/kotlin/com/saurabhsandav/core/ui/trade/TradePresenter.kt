@@ -20,8 +20,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
@@ -39,6 +38,12 @@ internal class TradePresenter(
     private val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
+
+    private val trade = flow { emitAll(tradingProfiles.getRecord(profileId).trades.getById(tradeId)) }.shareIn(
+        scope = coroutineScope,
+        started = SharingStarted.Eagerly,
+        replay = 1,
+    )
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -80,9 +85,7 @@ internal class TradePresenter(
     private fun getTradeDetail(): State<Details?> {
         return produceState<Details?>(null) {
 
-            val tradingRecord = tradingProfiles.getRecord(profileId)
-
-            tradingRecord.trades.getById(tradeId).collect { trade ->
+            trade.collect { trade ->
 
                 val instrumentCapitalized = trade.instrument.strValue
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -145,8 +148,7 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getById(tradeId)
-                .combine(tradingRecord.trades.getStopsForTrade(tradeId)) { trade, stops ->
+            trade.combine(tradingRecord.trades.getStopsForTrade(tradeId)) { trade, stops ->
 
                     stops.map { stop ->
 
@@ -177,8 +179,7 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getById(tradeId)
-                .combine(tradingRecord.trades.getTargetsForTrade(tradeId)) { trade, targets ->
+            trade.combine(tradingRecord.trades.getTargetsForTrade(tradeId)) { trade, targets ->
 
                     targets.map { target ->
 
