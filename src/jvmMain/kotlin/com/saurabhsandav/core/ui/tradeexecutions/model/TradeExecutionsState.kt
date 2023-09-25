@@ -7,11 +7,17 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TradeExecutionsState(
-    val items: ImmutableList<TradeExecutionListItem>,
+    val executionsByDays: ImmutableList<TradeExecutionsByDay>,
     val selectionManager: SelectionManager<TradeExecutionEntry>,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {
+
+    @Immutable
+    data class TradeExecutionsByDay(
+        val dayHeader: String,
+        val executions: ImmutableList<TradeExecutionEntry>,
+    )
 
     @Immutable
     internal data class TradeExecutionEntry(
@@ -24,16 +30,6 @@ internal data class TradeExecutionsState(
         val timestamp: String,
         val locked: Boolean,
     )
-
-    @Immutable
-    internal sealed class TradeExecutionListItem {
-
-        @Immutable
-        internal data class DayHeader(val header: String) : TradeExecutionListItem()
-
-        @Immutable
-        internal data class Entries(val entries: ImmutableList<TradeExecutionEntry>) : TradeExecutionListItem()
-    }
 
     @Immutable
     data class ProfileTradeExecutionId(

@@ -6,7 +6,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -42,7 +42,7 @@ internal fun TradeReviewWindow(
         TradeReviewScreen(
             selectedProfileId = state.selectedProfileId,
             onSelectProfile = { id -> state.eventSink(SelectProfile(id)) },
-            tradesItems = state.tradesItems,
+            tradesByDays = state.tradesByDays,
             onMarkTrade = { id, isMarked -> state.eventSink(MarkTrade(id, isMarked)) },
             onSelectTrade = { id -> state.eventSink(SelectTrade(id)) },
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
@@ -54,7 +54,7 @@ internal fun TradeReviewWindow(
 internal fun TradeReviewScreen(
     selectedProfileId: Long?,
     onSelectProfile: (Long) -> Unit,
-    tradesItems: ImmutableList<TradeListItem>,
+    tradesByDays: ImmutableList<TradesByDay>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
     onOpenDetails: (id: Long) -> Unit,
@@ -73,7 +73,7 @@ internal fun TradeReviewScreen(
         Divider()
 
         TradesTable(
-            tradesItems = tradesItems,
+            tradesByDays = tradesByDays,
             onMarkTrade = onMarkTrade,
             onSelectTrade = onSelectTrade,
             onOpenDetails = onOpenDetails,

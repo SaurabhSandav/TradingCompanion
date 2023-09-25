@@ -18,7 +18,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesScreen(
-    tradesItems: ImmutableList<TradeListItem>,
+    tradesByDays: ImmutableList<TradesByDay>,
     onOpenDetails: (ProfileTradeId) -> Unit,
     onOpenChart: (ProfileTradeId) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
@@ -34,7 +34,7 @@ internal fun TradesScreen(
     ) {
 
         TradesTable(
-            tradesItems = tradesItems,
+            tradesByDays = tradesByDays,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
         )

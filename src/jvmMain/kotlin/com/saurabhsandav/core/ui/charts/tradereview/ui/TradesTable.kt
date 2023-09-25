@@ -11,14 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeListItem
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    tradesItems: ImmutableList<TradeListItem>,
+    tradesByDays: ImmutableList<TradesByDay>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
     onOpenDetails: (id: Long) -> Unit,
@@ -52,69 +52,80 @@ internal fun TradesTable(
         schema = schema,
     ) {
 
-        tradesItems.forEach { tradeItem ->
+        tradesByDays.forEach { tradesByDay ->
 
-            when (tradeItem) {
-                is TradeListItem.DayHeader -> dayHeader(tradeItem)
-                is TradeListItem.Entries -> tradeItems(
-                    tradeItem = tradeItem,
-                    onSelectTrade = onSelectTrade,
-                    onOpenDetails = onOpenDetails,
+            stickyHeader {
+
+                DayHeader(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    header = tradesByDay.dayHeader,
+                )
+            }
+
+            rows(
+                items = tradesByDay.trades,
+                key = { it.id },
+            ) { entry ->
+
+                TradeEntry(
+                    schema = schema,
+                    entry = entry,
+                    onSelectTrade = { onSelectTrade(entry.id) },
+                    onOpenDetails = { onOpenDetails(entry.id) },
                 )
             }
         }
     }
 }
 
-private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader) {
+@Composable
+private fun DayHeader(
+    modifier: Modifier,
+    header: String,
+) {
 
-    stickyHeader {
+    Column {
 
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
         ) {
 
             Box(
-                modifier = Modifier.fillParentMaxWidth().padding(8.dp),
+                modifier = modifier.padding(8.dp),
                 contentAlignment = Alignment.Center,
-            ) {
-                Text(tradeItem.header)
-            }
-        }
+                content = { Text(header) },
+            )
 
-        Divider()
+            Divider()
+        }
     }
 }
 
-private fun TableScope<TradeEntry>.tradeItems(
-    tradeItem: TradeListItem.Entries,
-    onSelectTrade: (id: Long) -> Unit,
-    onOpenDetails: (id: Long) -> Unit,
+@Composable
+private fun TradeEntry(
+    schema: TableSchema<TradeEntry>,
+    entry: TradeEntry,
+    onSelectTrade: () -> Unit,
+    onOpenDetails: () -> Unit,
 ) {
 
-    rows(
-        items = tradeItem.entries,
-        key = { it.id },
-    ) { item ->
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem("Open Details", onOpenDetails),
+            )
+        },
+    ) {
 
-        ContextMenuArea(
-            items = {
-                listOf(
-                    ContextMenuItem("Open Details") { onOpenDetails(item.id) },
-                )
-            },
-        ) {
+        Column {
 
-            Column {
+            DefaultTableRow(
+                item = entry,
+                schema = schema,
+                onClick = onSelectTrade,
+            )
 
-                DefaultTableRow(
-                    item = item,
-                    schema = schema,
-                    onClick = { onSelectTrade(item.id) },
-                )
-
-                Divider()
-            }
+            Divider()
         }
     }
 }

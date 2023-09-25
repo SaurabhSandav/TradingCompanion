@@ -17,7 +17,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradeExecutionsScreen(
     onNewExecution: () -> Unit,
-    items: ImmutableList<TradeExecutionListItem>,
+    executionsByDays: ImmutableList<TradeExecutionsByDay>,
     selectionManager: SelectionManager<TradeExecutionEntry>,
     onNewExecutionFromExisting: (ProfileTradeExecutionId) -> Unit,
     onEditExecution: (ProfileTradeExecutionId) -> Unit,
@@ -45,7 +45,7 @@ internal fun TradeExecutionsScreen(
         ) {
 
             TradeExecutionsTable(
-                items = items,
+                executionsByDays = executionsByDays,
                 isMarked = { entry -> entry in selectionManager.selection },
                 onClickExecution = { entry -> selectionManager.select(entry) },
                 onMarkExecution = { entry -> selectionManager.multiSelect(entry) },

@@ -6,9 +6,15 @@ import kotlinx.collections.immutable.ImmutableList
 @Immutable
 internal data class TradeReviewState(
     val selectedProfileId: Long?,
-    val tradesItems: ImmutableList<TradeListItem>,
+    val tradesByDays: ImmutableList<TradesByDay>,
     val eventSink: (TradeReviewEvent) -> Unit,
 ) {
+
+    @Immutable
+    data class TradesByDay(
+        val dayHeader: String,
+        val trades: ImmutableList<TradeEntry>,
+    )
 
     @Immutable
     internal data class TradeEntry(
@@ -26,14 +32,4 @@ internal data class TradeReviewState(
         val netPnl: String,
         val isNetProfitable: Boolean,
     )
-
-    @Immutable
-    internal sealed class TradeListItem {
-
-        @Immutable
-        internal data class DayHeader(val header: String) : TradeListItem()
-
-        @Immutable
-        internal data class Entries(val entries: ImmutableList<TradeEntry>) : TradeListItem()
-    }
 }

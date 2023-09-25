@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
-    items: ImmutableList<TradeExecutionListItem>,
+    executionsByDays: ImmutableList<TradeExecutionsByDay>,
     isMarked: (TradeExecutionEntry) -> Boolean,
     onClickExecution: (TradeExecutionEntry) -> Unit,
     onMarkExecution: (TradeExecutionEntry) -> Unit,
@@ -56,113 +56,124 @@ internal fun TradeExecutionsTable(
         schema = schema,
     ) {
 
-        items.forEach { item ->
+        executionsByDays.forEach { executionsByDay ->
 
-            when (item) {
-                is TradeExecutionListItem.DayHeader -> dayHeader(item)
-                is TradeExecutionListItem.Entries -> tradeExecutionItems(
-                    tradeExecutionListItem = item,
-                    onClickExecution = onClickExecution,
-                    onLongClickExecution = onMarkExecution,
-                    onNewExecution = onNewExecution,
-                    onEditExecution = onEditExecution,
-                    onLockExecution = onLockExecution,
-                    onDeleteExecution = onDeleteExecution,
+            stickyHeader {
+
+                DayHeader(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    header = executionsByDay.dayHeader,
+                )
+            }
+
+            rows(
+                items = executionsByDay.executions,
+                key = { it.profileTradeExecutionId },
+            ) { entry ->
+
+                TradeExecutionEntry(
+                    schema = schema,
+                    entry = entry,
+                    onClick = { onClickExecution(entry) },
+                    onLongClick = { onMarkExecution(entry) },
+                    onNewExecution = { onNewExecution(entry.profileTradeExecutionId) },
+                    onEditExecution = { onEditExecution(entry.profileTradeExecutionId) },
+                    onLockExecution = { onLockExecution(entry.profileTradeExecutionId) },
+                    onDeleteExecution = { onDeleteExecution(entry.profileTradeExecutionId) },
                 )
             }
         }
     }
 }
 
-private fun TableScope<TradeExecutionEntry>.dayHeader(item: TradeExecutionListItem.DayHeader) {
+@Composable
+private fun DayHeader(
+    modifier: Modifier,
+    header: String,
+) {
 
-    stickyHeader {
+    Column {
 
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
         ) {
 
             Box(
-                modifier = Modifier.fillParentMaxWidth().padding(8.dp),
+                modifier = modifier.padding(8.dp),
                 contentAlignment = Alignment.Center,
-            ) {
-                Text(item.header)
-            }
-        }
+                content = { Text(header) },
+            )
 
-        Divider()
+            Divider()
+        }
     }
 }
 
-private fun TableScope<TradeExecutionEntry>.tradeExecutionItems(
-    tradeExecutionListItem: TradeExecutionListItem.Entries,
-    onClickExecution: (TradeExecutionEntry) -> Unit,
-    onLongClickExecution: (TradeExecutionEntry) -> Unit,
-    onNewExecution: (ProfileTradeExecutionId) -> Unit,
-    onEditExecution: (ProfileTradeExecutionId) -> Unit,
-    onLockExecution: (ProfileTradeExecutionId) -> Unit,
-    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
+@Composable
+private fun TradeExecutionEntry(
+    schema: TableSchema<TradeExecutionEntry>,
+    entry: TradeExecutionEntry,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onNewExecution: () -> Unit,
+    onEditExecution: () -> Unit,
+    onLockExecution: () -> Unit,
+    onDeleteExecution: () -> Unit,
 ) {
 
-    rows(
-        items = tradeExecutionListItem.entries,
-        key = { it.profileTradeExecutionId },
-    ) { entry ->
+    var showLockConfirmationDialog by state { false }
+    var showDeleteConfirmationDialog by state { false }
 
-        var showLockConfirmationDialog by state { false }
-        var showDeleteConfirmationDialog by state { false }
+    ContextMenuArea(
+        items = {
 
-        ContextMenuArea(
-            items = {
+            buildList {
+                add(ContextMenuItem("New", onNewExecution))
 
-                buildList {
-                    add(ContextMenuItem("New") { onNewExecution(entry.profileTradeExecutionId) })
-
-                    if (!entry.locked) {
-                        addAll(
-                            listOf(
-                                ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                                ContextMenuItem("Edit") { onEditExecution(entry.profileTradeExecutionId) },
-                                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                            )
+                if (!entry.locked) {
+                    addAll(
+                        listOf(
+                            ContextMenuItem("Lock") { showLockConfirmationDialog = true },
+                            ContextMenuItem("Edit", onEditExecution),
+                            ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                         )
-                    }
+                    )
                 }
-            },
-        ) {
-
-            Column {
-
-                DefaultTableRow(
-                    item = entry,
-                    schema = schema,
-                    onClick = { onClickExecution(entry) },
-                    onLongClick = { onLongClickExecution(entry) },
-                )
-
-                Divider()
             }
+        },
+    ) {
 
-            if (showLockConfirmationDialog) {
+        Column {
 
-                ConfirmationDialog(
-                    confirmationRequestText = "Are you sure you want to lock the execution?",
-                    onDismiss = { showLockConfirmationDialog = false },
-                    onConfirm = {
-                        showLockConfirmationDialog = false
-                        onLockExecution(entry.profileTradeExecutionId)
-                    },
-                )
-            }
+            DefaultTableRow(
+                item = entry,
+                schema = schema,
+                onClick = onClick,
+                onLongClick = onLongClick,
+            )
 
-            if (showDeleteConfirmationDialog) {
+            Divider()
+        }
 
-                ConfirmationDialog(
-                    confirmationRequestText = "Are you sure you want to delete the execution?",
-                    onDismiss = { showDeleteConfirmationDialog = false },
-                    onConfirm = { onDeleteExecution(entry.profileTradeExecutionId) },
-                )
-            }
+        if (showLockConfirmationDialog) {
+
+            ConfirmationDialog(
+                confirmationRequestText = "Are you sure you want to lock the execution?",
+                onDismiss = { showLockConfirmationDialog = false },
+                onConfirm = {
+                    showLockConfirmationDialog = false
+                    onLockExecution()
+                },
+            )
+        }
+
+        if (showDeleteConfirmationDialog) {
+
+            ConfirmationDialog(
+                confirmationRequestText = "Are you sure you want to delete the execution?",
+                onDismiss = { showDeleteConfirmationDialog = false },
+                onConfirm = onDeleteExecution,
+            )
         }
     }
 }

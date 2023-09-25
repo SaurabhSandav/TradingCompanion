@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    tradesItems: ImmutableList<TradeListItem>,
+    tradesByDays: ImmutableList<TradesByDay>,
     onOpenDetails: (ProfileTradeId) -> Unit,
     onOpenChart: (ProfileTradeId) -> Unit,
 ) {
@@ -48,70 +48,81 @@ internal fun TradesTable(
         schema = schema,
     ) {
 
-        tradesItems.forEach { tradeItem ->
+        tradesByDays.forEach { tradesByDay ->
 
-            when (tradeItem) {
-                is TradeListItem.DayHeader -> dayHeader(tradeItem)
-                is TradeListItem.Entries -> tradeItems(
-                    tradeItem = tradeItem,
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
+            stickyHeader {
+
+                DayHeader(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    header = tradesByDay.dayHeader,
+                )
+            }
+
+            rows(
+                items = tradesByDay.trades,
+                key = { it.profileTradeId },
+            ) { entry ->
+
+                TradeEntry(
+                    schema = schema,
+                    entry = entry,
+                    onOpenDetails = { onOpenDetails(entry.profileTradeId) },
+                    onOpenChart = { onOpenChart(entry.profileTradeId) },
                 )
             }
         }
     }
 }
 
-private fun TableScope<TradeEntry>.dayHeader(tradeItem: TradeListItem.DayHeader) {
+@Composable
+private fun DayHeader(
+    modifier: Modifier,
+    header: String,
+) {
 
-    stickyHeader {
+    Column {
 
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
         ) {
 
             Box(
-                modifier = Modifier.fillParentMaxWidth().padding(8.dp),
+                modifier = modifier.padding(8.dp),
                 contentAlignment = Alignment.Center,
-            ) {
-                Text(tradeItem.header)
-            }
-        }
+                content = { Text(header) },
+            )
 
-        Divider()
+            Divider()
+        }
     }
 }
 
-private fun TableScope<TradeEntry>.tradeItems(
-    tradeItem: TradeListItem.Entries,
-    onOpenDetails: (ProfileTradeId) -> Unit,
-    onOpenChart: (ProfileTradeId) -> Unit,
+@Composable
+private fun TradeEntry(
+    schema: TableSchema<TradeEntry>,
+    entry: TradeEntry,
+    onOpenDetails: () -> Unit,
+    onOpenChart: () -> Unit,
 ) {
 
-    rows(
-        items = tradeItem.entries,
-        key = { it.profileTradeId },
-    ) { item ->
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem("Open Details", onOpenDetails),
+                ContextMenuItem("Open Chart", onOpenChart),
+            )
+        },
+    ) {
 
-        ContextMenuArea(
-            items = {
-                listOf(
-                    ContextMenuItem("Open Details") { onOpenDetails(item.profileTradeId) },
-                    ContextMenuItem("Open Chart") { onOpenChart(item.profileTradeId) },
-                )
-            },
-        ) {
+        Column {
 
-            Column {
+            DefaultTableRow(
+                item = entry,
+                schema = schema,
+                onClick = onOpenDetails,
+            )
 
-                DefaultTableRow(
-                    item = item,
-                    schema = schema,
-                    onClick = { onOpenDetails(item.profileTradeId) },
-                )
-
-                Divider()
-            }
+            Divider()
         }
     }
 }

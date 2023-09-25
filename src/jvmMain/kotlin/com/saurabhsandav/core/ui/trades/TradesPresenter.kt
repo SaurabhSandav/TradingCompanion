@@ -66,7 +66,7 @@ internal class TradesPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradesState(
-            tradesItems = getTradeListEntries().value,
+            tradesByDays = getTradesByDays().value,
             chartWindowsManager = chartWindowsManager,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = remember(errors) { errors.toImmutableList() },
@@ -83,7 +83,7 @@ internal class TradesPresenter(
     }
 
     @Composable
-    private fun getTradeListEntries(): State<ImmutableList<TradeListItem>> {
+    private fun getTradesByDays(): State<ImmutableList<TradesByDay>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
@@ -96,19 +96,17 @@ internal class TradesPresenter(
                     trades
                         .groupBy { it.entryTimestamp.date }
                         .map { (date, list) ->
-                            listOf(
-                                date.toTradeListDayHeader(),
-                                TradeListItem.Entries(list.map { it.toTradeListEntry(profile.id) }.toImmutableList()),
+
+                            TradesByDay(
+                                dayHeader = DateTimeFormatter
+                                    .ofLocalizedDate(FormatStyle.LONG)
+                                    .format(date.toJavaLocalDate()),
+                                trades = list.map { it.toTradeListEntry(profile.id) }.toImmutableList(),
                             )
-                        }.flatten().toImmutableList()
+                        }.toImmutableList()
                 }
             }
         }.collectAsState(persistentListOf())
-    }
-
-    private fun LocalDate.toTradeListDayHeader(): TradeListItem.DayHeader {
-        val formatted = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(toJavaLocalDate())
-        return TradeListItem.DayHeader(formatted)
     }
 
     private fun Trade.toTradeListEntry(profileId: Long): TradeEntry {

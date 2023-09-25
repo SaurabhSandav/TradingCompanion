@@ -8,7 +8,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TradesState(
-    val tradesItems: ImmutableList<TradeListItem>,
+    val tradesByDays: ImmutableList<TradesByDay>,
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: ImmutableList<UIErrorMessage>,
@@ -26,6 +26,12 @@ internal data class TradesState(
     }
 
     @Immutable
+    data class TradesByDay(
+        val dayHeader: String,
+        val trades: ImmutableList<TradeEntry>,
+    )
+
+    @Immutable
     internal data class TradeEntry(
         val profileTradeId: ProfileTradeId,
         val broker: String,
@@ -41,16 +47,6 @@ internal data class TradesState(
         val isNetProfitable: Boolean,
         val fees: String,
     )
-
-    @Immutable
-    internal sealed class TradeListItem {
-
-        @Immutable
-        internal data class DayHeader(val header: String) : TradeListItem()
-
-        @Immutable
-        internal data class Entries(val entries: ImmutableList<TradeEntry>) : TradeListItem()
-    }
 
     @Immutable
     data class ProfileTradeId(

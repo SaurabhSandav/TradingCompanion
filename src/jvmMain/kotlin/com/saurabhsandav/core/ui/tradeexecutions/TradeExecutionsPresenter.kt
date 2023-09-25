@@ -23,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -43,7 +42,7 @@ internal class TradeExecutionsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
-            items = getTradeExecutionListItems().value,
+            executionsByDays = getExecutionsByDays().value,
             selectionManager = selectionManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
@@ -62,7 +61,7 @@ internal class TradeExecutionsPresenter(
     }
 
     @Composable
-    private fun getTradeExecutionListItems(): State<ImmutableList<TradeExecutionListItem>> {
+    private fun getExecutionsByDays(): State<ImmutableList<TradeExecutionsByDay>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
@@ -74,20 +73,17 @@ internal class TradeExecutionsPresenter(
                 tradingRecord.executions.allExecutions.map { executions ->
                     executions.groupBy { it.timestamp.date }
                         .map { (date, list) ->
-                            listOf(
-                                date.toTradeExecutionListDayHeader(),
-                                TradeExecutionListItem.Entries(list.map { it.toTradeExecutionListEntry(profile.id) }
-                                    .toImmutableList()),
+
+                            TradeExecutionsByDay(
+                                dayHeader = DateTimeFormatter
+                                    .ofLocalizedDate(FormatStyle.LONG)
+                                    .format(date.toJavaLocalDate()),
+                                executions = list.map { it.toTradeExecutionListEntry(profile.id) }.toImmutableList(),
                             )
-                        }.flatten().toImmutableList()
+                        }.toImmutableList()
                 }
             }
         }.collectAsState(persistentListOf())
-    }
-
-    private fun LocalDate.toTradeExecutionListDayHeader(): TradeExecutionListItem.DayHeader {
-        val formatted = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(toJavaLocalDate())
-        return TradeExecutionListItem.DayHeader(formatted)
     }
 
     private fun TradeExecution.toTradeExecutionListEntry(profileId: Long) = TradeExecutionEntry(
