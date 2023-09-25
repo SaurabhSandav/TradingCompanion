@@ -21,6 +21,7 @@ fun <T : Any> OutlinedListSelectionField(
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
     isError: Boolean = false,
 ) {
 
@@ -30,7 +31,7 @@ fun <T : Any> OutlinedListSelectionField(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { if (enabled) expanded = it },
     ) {
 
         OutlinedTextField(
@@ -51,9 +52,10 @@ fun <T : Any> OutlinedListSelectionField(
             },
             value = selectedItemText,
             onValueChange = {},
+            enabled = enabled,
             readOnly = true,
             label = label,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             supportingText = supportingText,
             isError = isError,
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
