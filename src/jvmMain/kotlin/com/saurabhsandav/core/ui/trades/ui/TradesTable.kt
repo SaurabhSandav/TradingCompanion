@@ -108,8 +108,8 @@ private fun TradeEntry(
     ContextMenuArea(
         items = {
             listOf(
-                ContextMenuItem("Open Details", onOpenDetails),
-                ContextMenuItem("Open Chart", onOpenChart),
+                ContextMenuItem("Details", onOpenDetails),
+                ContextMenuItem("Chart", onOpenChart),
             )
         },
     ) {
