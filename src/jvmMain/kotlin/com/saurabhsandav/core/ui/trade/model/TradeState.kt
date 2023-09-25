@@ -10,6 +10,7 @@ internal data class TradeState(
     val title: String,
     val details: Details?,
     val executions: ImmutableList<Execution>,
+    val newExecutionEnabled: Boolean,
     val stops: ImmutableList<TradeStop>,
     val previewStop: (BigDecimal) -> Flow<TradeStop?>,
     val targets: ImmutableList<TradeTarget>,

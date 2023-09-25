@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,9 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradeExecutionsTable(
     items: ImmutableList<TradeState.Execution>,
+    newExecutionEnabled: Boolean,
+    onNewExecution: () -> Unit,
+    onNewFromExistingExecution: (Long) -> Unit,
     onEditExecution: (Long) -> Unit,
     onLockExecution: (Long) -> Unit,
     onDeleteExecution: (Long) -> Unit,
@@ -59,11 +63,22 @@ internal fun TradeExecutionsTable(
                     TradeExecutionItem(
                         schema = schema,
                         item = item,
+                        onNewExecution = { onNewFromExistingExecution(item.id) },
                         onEditExecution = { onEditExecution(item.id) },
                         onLockExecution = { onLockExecution(item.id) },
                         onDeleteExecution = { onDeleteExecution(item.id) },
                     )
                 }
+            }
+
+            if (newExecutionEnabled) {
+
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onNewExecution,
+                    shape = RectangleShape,
+                    content = { Text("New Execution") },
+                )
             }
         }
     }
@@ -73,6 +88,7 @@ internal fun TradeExecutionsTable(
 private fun TradeExecutionItem(
     schema: TableSchema<TradeState.Execution>,
     item: TradeState.Execution,
+    onNewExecution: () -> Unit,
     onEditExecution: () -> Unit,
     onLockExecution: () -> Unit,
     onDeleteExecution: () -> Unit,
@@ -84,13 +100,19 @@ private fun TradeExecutionItem(
     ContextMenuArea(
         items = {
 
-            if (!item.locked) {
-                listOf(
-                    ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                    ContextMenuItem("Edit", onEditExecution),
-                    ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                )
-            } else emptyList()
+            buildList {
+                add(ContextMenuItem("New", onNewExecution))
+
+                if (!item.locked) {
+                    addAll(
+                        listOf(
+                            ContextMenuItem("Lock") { showLockConfirmationDialog = true },
+                            ContextMenuItem("Edit", onEditExecution),
+                            ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                        )
+                    )
+                }
+            }
         },
     ) {
 

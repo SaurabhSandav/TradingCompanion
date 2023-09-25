@@ -71,6 +71,11 @@ internal fun TradeScreen(
 
                     TradeExecutionsTable(
                         items = state.executions,
+                        newExecutionEnabled = state.newExecutionEnabled,
+                        onNewExecution = { state.eventSink(NewExecution()) },
+                        onNewFromExistingExecution = { fromExecutionId ->
+                            state.eventSink(NewExecution(fromExecutionId))
+                        },
                         onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
                         onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
                         onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },

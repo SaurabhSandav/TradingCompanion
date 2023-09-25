@@ -46,6 +46,8 @@ internal class TradePresenter(
         replay = 1,
     )
 
+    private var newExecutionEnabled by mutableStateOf(false)
+
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         val tradingProfileName by remember {
@@ -56,6 +58,7 @@ internal class TradePresenter(
             title = "${tradingProfileName}Trade ($tradeId)",
             details = getTradeDetail().value,
             executions = getTradeExecutions().value,
+            newExecutionEnabled = newExecutionEnabled,
             stops = getTradeStops().value,
             previewStop = ::previewStop,
             targets = getTradeTargets().value,
@@ -71,6 +74,7 @@ internal class TradePresenter(
     private fun onEvent(event: TradeEvent) {
 
         when (event) {
+            is NewExecution -> onNewExecution(event.fromExecutionId)
             is EditExecution -> onEditExecution(event.executionId)
             is LockExecution -> onLockExecution(event.executionId)
             is DeleteExecution -> onDeleteExecution(event.executionId)
@@ -116,6 +120,8 @@ internal class TradePresenter(
                     isNetProfitable = trade.netPnl > BigDecimal.ZERO,
                     fees = trade.fees.toPlainString(),
                 )
+
+                newExecutionEnabled = !trade.isClosed
             }
         }
     }
@@ -316,6 +322,19 @@ internal class TradePresenter(
                 }
             }
         }
+    }
+
+    private fun onNewExecution(fromExecutionId: Long?) {
+
+        val params = TradeExecutionFormWindowParams(
+            profileId = profileId,
+            formType = when {
+                fromExecutionId == null -> TradeExecutionFormType.AddToTrade(tradeId)
+                else -> TradeExecutionFormType.NewFromExisting(fromExecutionId, addToTrade = true)
+            },
+        )
+
+        executionFormWindowsManager.newWindow(params)
     }
 
     private fun onEditExecution(executionId: Long) {

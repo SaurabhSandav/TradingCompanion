@@ -38,6 +38,7 @@ internal class TradeExecutionFormPresenter(
         when (formType) {
             is New -> new(formType.formModel)
             is NewFromExisting -> newFromExisting(formType.id)
+            is AddToTrade -> addToTrade(formType.tradeId)
             is Edit -> edit(formType.id)
         }
     }
@@ -51,6 +52,7 @@ internal class TradeExecutionFormPresenter(
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}${if (formType is Edit) "Edit Trade Execution (${formType.id})" else "New Trade Execution"}",
             formModel = formModel,
+            isTickerEditable = !(formType is AddToTrade || formType is NewFromExisting && formType.addToTrade),
             onSaveExecution = ::onSaveExecution,
         )
     }
@@ -125,6 +127,28 @@ internal class TradeExecutionFormPresenter(
             lots = execution.lots?.toString() ?: "",
             isBuy = execution.side == TradeExecutionSide.Buy,
             price = execution.price.toPlainString(),
+            timestamp = run {
+                val currentTime = Clock.System.now()
+                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+            },
+        )
+    }
+
+    private fun addToTrade(tradeId: Long) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        val trade = tradingRecord.trades.getById(tradeId).first()
+
+        formModel = TradeExecutionFormModel(
+            validator = formValidator,
+            instrument = trade.instrument,
+            ticker = trade.ticker,
+            quantity = "",
+            lots = "",
+            isBuy = true,
+            price = "",
             timestamp = run {
                 val currentTime = Clock.System.now()
                 val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds

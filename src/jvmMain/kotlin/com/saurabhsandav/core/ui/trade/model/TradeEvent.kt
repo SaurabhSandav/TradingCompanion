@@ -4,6 +4,8 @@ import java.math.BigDecimal
 
 internal sealed class TradeEvent {
 
+    data class NewExecution(val fromExecutionId: Long? = null) : TradeEvent()
+
     data class EditExecution(val executionId: Long) : TradeEvent()
 
     data class LockExecution(val executionId: Long) : TradeEvent()

@@ -57,6 +57,7 @@ internal fun TradeExecutionFormWindow(
 
         TradeExecutionFormScreen(
             formModel = state.formModel,
+            isTickerEditable = state.isTickerEditable,
             onSaveExecution = state.onSaveExecution,
         )
     }
@@ -65,6 +66,7 @@ internal fun TradeExecutionFormWindow(
 @Composable
 private fun TradeExecutionFormScreen(
     formModel: TradeExecutionFormModel?,
+    isTickerEditable: Boolean,
     onSaveExecution: () -> Unit,
 ) {
 
@@ -73,6 +75,7 @@ private fun TradeExecutionFormScreen(
         when {
             formModel != null -> TradeExecutionForm(
                 model = formModel,
+                isTickerEditable = isTickerEditable,
                 onSaveExecution = onSaveExecution,
             )
 
@@ -84,6 +87,7 @@ private fun TradeExecutionFormScreen(
 @Composable
 private fun TradeExecutionForm(
     model: TradeExecutionFormModel,
+    isTickerEditable: Boolean,
     onSaveExecution: () -> Unit,
 ) {
 
@@ -105,6 +109,7 @@ private fun TradeExecutionForm(
             onSelection = { model.instrument.value = it },
             selection = model.instrument.value,
             label = { Text("Instrument") },
+            enabled = isTickerEditable,
             isError = model.instrument.isError,
             supportingText = model.instrument.errorMessage?.let { { Text(it) } },
         )
@@ -115,6 +120,7 @@ private fun TradeExecutionForm(
             onSelection = { model.ticker.value = it },
             selection = model.ticker.value,
             label = { Text("Ticker") },
+            enabled = isTickerEditable,
             isError = model.ticker.isError,
             supportingText = model.ticker.errorMessage?.let { { Text(it) } },
         )
