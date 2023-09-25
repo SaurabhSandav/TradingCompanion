@@ -115,25 +115,12 @@ internal class TradeExecutionsPresenter(
 
     private fun onNewExecutionFromExisting(profileTradeExecutionId: ProfileTradeExecutionId) {
 
-        val window = executionFormWindowsManager.windows.find {
-            it.params.formType is TradeExecutionFormType.NewFromExisting && it.params.formType.id == profileTradeExecutionId.executionId
-        }
+        val params = TradeExecutionFormWindowParams(
+            profileId = profileTradeExecutionId.profileId,
+            formType = TradeExecutionFormType.NewFromExisting(profileTradeExecutionId.executionId),
+        )
 
-        when (window) {
-            // Open new window
-            null -> {
-
-                val params = TradeExecutionFormWindowParams(
-                    profileId = profileTradeExecutionId.profileId,
-                    formType = TradeExecutionFormType.NewFromExisting(profileTradeExecutionId.executionId),
-                )
-
-                executionFormWindowsManager.newWindow(params)
-            }
-
-            // Window already open. Bring to front.
-            else -> window.toFront()
-        }
+        executionFormWindowsManager.newWindow(params)
     }
 
     private fun onEditExecution(profileTradeExecutionId: ProfileTradeExecutionId) {
