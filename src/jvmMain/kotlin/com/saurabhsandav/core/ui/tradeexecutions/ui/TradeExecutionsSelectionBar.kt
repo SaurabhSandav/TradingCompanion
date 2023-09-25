@@ -3,8 +3,6 @@ package com.saurabhsandav.core.ui.tradeexecutions.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -124,8 +122,6 @@ private fun ConfirmationDialog(
             }
         },
         shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        contentColor = contentColorFor(SnackbarDefaults.backgroundColor),
     )
 }
 

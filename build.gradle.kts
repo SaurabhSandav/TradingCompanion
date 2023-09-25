@@ -23,6 +23,14 @@ repositories {
     maven("https://androidx.dev/storage/compose-compiler/repository/")
 }
 
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("org.jetbrains.compose.material:material"))
+            .using(module("org.jetbrains.compose.material3:material3:${libs.versions.jetbrainsCompose}"))
+            .because("Material 3 is newer")
+    }
+}
+
 kotlin {
 
     compilerOptions {
@@ -35,7 +43,6 @@ kotlin {
             "androidx.compose.foundation.ExperimentalFoundationApi",
             "androidx.compose.ui.ExperimentalComposeUiApi",
             "androidx.compose.animation.ExperimentalAnimationApi",
-            "androidx.compose.material.ExperimentalMaterialApi",
             "androidx.compose.material3.ExperimentalMaterial3Api",
             "com.russhwolf.settings.ExperimentalSettingsApi",
         )
