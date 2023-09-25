@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradeexecutions.ui
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -28,7 +28,11 @@ internal fun TradeExecutionsSelectionBar(
     onDeleteExecutions: (List<ProfileTradeExecutionId>) -> Unit,
 ) {
 
-    AnimatedVisibility(selectionManager.inMultiSelectMode) {
+    AnimatedVisibility(
+        visible = selectionManager.inMultiSelectMode,
+        enter = fadeIn() + expandVertically(),
+        exit = shrinkVertically() + fadeOut(),
+    ) {
 
         Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
 
