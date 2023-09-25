@@ -55,18 +55,28 @@ internal fun TradeExecutionFormWindow(
         title = state.title,
     ) {
 
-        Box(Modifier.wrapContentSize()) {
+        TradeExecutionFormScreen(
+            formModel = state.formModel,
+            onSaveExecution = state.onSaveExecution,
+        )
+    }
+}
 
-            val formModel = state.formModel
+@Composable
+private fun TradeExecutionFormScreen(
+    formModel: TradeExecutionFormModel?,
+    onSaveExecution: () -> Unit,
+) {
 
-            when {
-                formModel != null -> TradeExecutionForm(
-                    model = formModel,
-                    onSaveExecution = state.onSaveExecution,
-                )
+    Box(Modifier.wrapContentSize()) {
 
-                else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            }
+        when {
+            formModel != null -> TradeExecutionForm(
+                model = formModel,
+                onSaveExecution = onSaveExecution,
+            )
+
+            else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
     }
 }
