@@ -101,7 +101,10 @@ internal class TradesPresenter(
                                 dayHeader = DateTimeFormatter
                                     .ofLocalizedDate(FormatStyle.LONG)
                                     .format(date.toJavaLocalDate()),
-                                trades = list.map { it.toTradeListEntry(profile.id) }.toImmutableList(),
+                                trades = list
+                                    .sortedBy { it.entryTimestamp }
+                                    .map { it.toTradeListEntry(profile.id) }
+                                    .toImmutableList(),
                             )
                         }.toImmutableList()
                 }

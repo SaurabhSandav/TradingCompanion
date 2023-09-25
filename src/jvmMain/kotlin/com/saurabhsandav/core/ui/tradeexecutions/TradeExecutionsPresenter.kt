@@ -78,7 +78,10 @@ internal class TradeExecutionsPresenter(
                                 dayHeader = DateTimeFormatter
                                     .ofLocalizedDate(FormatStyle.LONG)
                                     .format(date.toJavaLocalDate()),
-                                executions = list.map { it.toTradeExecutionListEntry(profile.id) }.toImmutableList(),
+                                executions = list
+                                    .sortedBy { it.timestamp }
+                                    .map { it.toTradeExecutionListEntry(profile.id) }
+                                    .toImmutableList(),
                             )
                         }.toImmutableList()
                 }
