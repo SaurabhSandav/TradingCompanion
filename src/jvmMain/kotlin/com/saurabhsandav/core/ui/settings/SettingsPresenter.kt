@@ -37,8 +37,9 @@ internal class SettingsPresenter(
                 .map { kotlin.runCatching { LandingScreen.valueOf(it) }.getOrNull() ?: PrefDefaults.LandingScreen }
         }.collectAsState(PrefDefaults.LandingScreen)
 
-        val densityFraction by appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
-            .collectAsState(PrefDefaults.DensityFraction)
+        val densityFraction by remember {
+            appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
+        }.collectAsState(PrefDefaults.DensityFraction)
 
         val defaultTimeframe by remember {
             appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)

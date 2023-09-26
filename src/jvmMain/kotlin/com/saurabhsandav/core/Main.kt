@@ -18,8 +18,9 @@ fun main() = application {
 
     val appModule = remember { AppModule() }
 
-    val densityFraction by appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
-        .collectAsState(PrefDefaults.DensityFraction)
+    val densityFraction by remember {
+        appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
+    }.collectAsState(PrefDefaults.DensityFraction)
 
     CompositionLocalProvider(
         LocalDensityFraction provides densityFraction,
