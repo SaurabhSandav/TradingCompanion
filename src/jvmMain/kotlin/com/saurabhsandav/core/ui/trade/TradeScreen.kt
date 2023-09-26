@@ -1,13 +1,12 @@
 package com.saurabhsandav.core.ui.trade
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
@@ -54,50 +53,53 @@ internal fun TradeScreen(
 
     Scaffold {
 
-        when (val details = state.details) {
-            null -> CircularProgressIndicator()
-            else -> {
+        Box(Modifier.fillMaxSize()) {
 
-                Column(
-                    modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
+            when (val details = state.details) {
+                null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                else -> {
 
-                    Details(details)
+                    Column(
+                        modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
 
-                    if (state.mfeAndMae != null) {
-                        MfeAndMae(state.mfeAndMae)
+                        Details(details)
+
+                        if (state.mfeAndMae != null) {
+                            MfeAndMae(state.mfeAndMae)
+                        }
+
+                        TradeExecutionsTable(
+                            items = state.executions,
+                            newExecutionEnabled = state.newExecutionEnabled,
+                            onNewExecution = { state.eventSink(NewExecution()) },
+                            onNewFromExistingExecution = { fromExecutionId ->
+                                state.eventSink(NewExecution(fromExecutionId))
+                            },
+                            onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
+                            onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
+                            onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
+                        )
+
+                        StopsAndTargets(
+                            stops = state.stops,
+                            previewStop = state.previewStop,
+                            onAddStop = { state.eventSink(AddStop(it)) },
+                            onDeleteStop = { state.eventSink(DeleteStop(it)) },
+                            targets = state.targets,
+                            previewTarget = state.previewTarget,
+                            onAddTarget = { state.eventSink(AddTarget(it)) },
+                            onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
+                        )
+
+                        Notes(
+                            notes = state.notes,
+                            onAddNote = { state.eventSink(AddNote(it)) },
+                            onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
+                            onDeleteNote = { state.eventSink(DeleteNote(it)) },
+                        )
                     }
-
-                    TradeExecutionsTable(
-                        items = state.executions,
-                        newExecutionEnabled = state.newExecutionEnabled,
-                        onNewExecution = { state.eventSink(NewExecution()) },
-                        onNewFromExistingExecution = { fromExecutionId ->
-                            state.eventSink(NewExecution(fromExecutionId))
-                        },
-                        onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
-                        onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
-                        onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
-                    )
-
-                    StopsAndTargets(
-                        stops = state.stops,
-                        previewStop = state.previewStop,
-                        onAddStop = { state.eventSink(AddStop(it)) },
-                        onDeleteStop = { state.eventSink(DeleteStop(it)) },
-                        targets = state.targets,
-                        previewTarget = state.previewTarget,
-                        onAddTarget = { state.eventSink(AddTarget(it)) },
-                        onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
-                    )
-
-                    Notes(
-                        notes = state.notes,
-                        onAddNote = { state.eventSink(AddNote(it)) },
-                        onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
-                        onDeleteNote = { state.eventSink(DeleteNote(it)) },
-                    )
                 }
             }
         }
