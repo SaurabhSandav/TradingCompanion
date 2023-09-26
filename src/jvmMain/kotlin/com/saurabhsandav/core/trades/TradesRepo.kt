@@ -10,6 +10,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlinx.datetime.Clock
@@ -129,6 +130,15 @@ internal class TradesRepo(
 
     suspend fun addStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
 
+        val trade = getById(id).first()
+
+        val stopIsValid = when (trade.side) {
+            TradeSide.Long -> price < trade.averageEntry
+            TradeSide.Short -> price > trade.averageEntry
+        }
+
+        if (!stopIsValid) error("Invalid stop for Trade (#$id)")
+
         // Insert into DB
         tradesDB.tradeStopQueries.insert(
             tradeId = id,
@@ -145,6 +155,15 @@ internal class TradesRepo(
     }
 
     suspend fun addTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+
+        val trade = getById(id).first()
+
+        val targetIsValid = when (trade.side) {
+            TradeSide.Long -> price > trade.averageEntry
+            TradeSide.Short -> price < trade.averageEntry
+        }
+
+        if (!targetIsValid) error("Invalid target for Trade (#$id)")
 
         // Insert into DB
         tradesDB.tradeTargetQueries.insert(
