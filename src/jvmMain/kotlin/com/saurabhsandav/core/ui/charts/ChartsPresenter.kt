@@ -18,8 +18,14 @@ import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.PrefDefaults
+import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -33,14 +39,19 @@ internal class ChartsPresenter(
     private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
-    private val initialTicker = NIFTY50.first()
-    private val initialTimeframe = Timeframe.M5
     private val marketDataProvider = ChartsMarketDataProvider(appModule = appModule)
-    private val chartsState = StockChartsState(
-        initialParams = StockChartParams(initialTicker, initialTimeframe),
-        marketDataProvider = marketDataProvider,
-        appModule = appModule,
-    )
+    private val chartsState = coroutineScope.async {
+
+        val defaultTimeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
+            .map(Timeframe::valueOf)
+            .first()
+
+        StockChartsState(
+            initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
+            marketDataProvider = marketDataProvider,
+            appModule = appModule,
+        )
+    }
     private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
@@ -51,7 +62,7 @@ internal class ChartsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule ChartsState(
-            chartsState = chartsState,
+            chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
             fyersLoginWindowState = fyersLoginWindowState,
             errors = errors,
             eventSink = ::onEvent,
@@ -78,21 +89,34 @@ internal class ChartsPresenter(
         ticker: String,
         start: Instant,
         end: Instant?,
-    ) {
+    ) = coroutineScope.launchUnit {
 
-        // Default timeframe (Currently hardcoded to M5) chart for ticker
-        val tickerDTParams = StockChartParams(ticker, Timeframe.M5)
+        val defaultTimeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
+            .map(Timeframe::valueOf)
+            .first()
 
-        val chartParams = listOf(
-            // Daily chart for index.
-            StockChartParams(NIFTY50.first(), Timeframe.D1),
-            // Default timeframe (Currently hardcoded to M5) chart for index.
-            StockChartParams(NIFTY50.first(), Timeframe.M5),
-            // Daily chart for ticker.
-            StockChartParams(ticker, Timeframe.D1),
-            // Default timeframe (Currently hardcoded to M5) chart for ticker. Also bring to front.
-            tickerDTParams,
-        )
+        // Default timeframe chart for ticker
+        val tickerDTParams = StockChartParams(ticker, defaultTimeframe)
+
+        val chartParams = buildList {
+
+            if (defaultTimeframe != Timeframe.D1) {
+
+                // Daily chart for index.
+                add(StockChartParams(NIFTY50.first(), Timeframe.D1))
+
+                // Daily chart for ticker.
+                add(StockChartParams(ticker, Timeframe.D1))
+            }
+
+            // Default timeframe chart for index.
+            add(StockChartParams(NIFTY50.first(), defaultTimeframe))
+
+            // Default timeframe chart for ticker. Also bring to front.
+            add(tickerDTParams)
+        }
+
+        val chartsState = chartsState.await()
 
         chartParams.forEach { params ->
 

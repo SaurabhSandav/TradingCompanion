@@ -7,7 +7,7 @@ import kotlinx.datetime.Instant
 
 @Immutable
 internal data class BarReplayState(
-    val replayState: ReplayState,
+    val replayState: ReplayState?,
     val eventSink: (BarReplayEvent) -> Unit,
 ) {
 

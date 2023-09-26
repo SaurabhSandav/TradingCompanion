@@ -7,7 +7,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsState
 
 @Immutable
 internal data class ChartsState(
-    val chartsState: StockChartsState,
+    val chartsState: StockChartsState?,
     val fyersLoginWindowState: FyersLoginWindow,
     val errors: List<UIErrorMessage>,
     val eventSink: (ChartsEvent) -> Unit,

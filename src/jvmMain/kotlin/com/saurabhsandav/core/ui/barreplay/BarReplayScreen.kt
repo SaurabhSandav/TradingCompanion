@@ -1,8 +1,13 @@
 package com.saurabhsandav.core.ui.barreplay
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
@@ -16,7 +21,8 @@ internal fun BarReplayWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val presenter = remember { BarReplayPresenter(scope) }
+    val appModule = LocalAppModule.current
+    val presenter = remember { BarReplayPresenter(scope, appModule) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
@@ -29,16 +35,20 @@ internal fun BarReplayWindow(
         onCloseRequest = onCloseRequest,
     ) {
 
-        when (val replayState = state.replayState) {
-            is NewReplay -> NewReplayForm(
-                model = replayState.model,
-                onLaunchReplay = { state.eventSink(BarReplayEvent.LaunchReplay) },
-            )
+        Box(Modifier.wrapContentSize()) {
 
-            is ReplayStarted -> ReplaySessionScreen(
-                onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
-                replayParams = replayState.replayParams,
-            )
+            when (val replayState = state.replayState) {
+                null -> CircularProgressIndicator()
+                is NewReplay -> NewReplayForm(
+                    model = replayState.model,
+                    onLaunchReplay = { state.eventSink(BarReplayEvent.LaunchReplay) },
+                )
+
+                is ReplayStarted -> ReplaySessionScreen(
+                    onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
+                    replayParams = replayState.replayParams,
+                )
+            }
         }
     }
 }

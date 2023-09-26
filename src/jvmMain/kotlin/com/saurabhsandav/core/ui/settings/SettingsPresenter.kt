@@ -8,6 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
@@ -39,10 +40,16 @@ internal class SettingsPresenter(
         val densityFraction by appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
             .collectAsState(PrefDefaults.DensityFraction)
 
+        val defaultTimeframe by remember {
+            appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
+                .map { kotlin.runCatching { Timeframe.valueOf(it) }.getOrNull() ?: PrefDefaults.DefaultTimeframe }
+        }.collectAsState(PrefDefaults.DefaultTimeframe)
+
         return@launchMolecule SettingsState(
             darkModeEnabled = darkModeEnabled,
             landingScreen = landingScreen,
             densityFraction = densityFraction,
+            defaultTimeframe = defaultTimeframe,
             eventSink = ::onEvent,
         )
     }
@@ -53,6 +60,7 @@ internal class SettingsPresenter(
             is ChangeDarkModeEnabled -> onDarkModeEnabledChange(event.isEnabled)
             is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
             is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
+            is ChangeDefaultTimeframe -> onDefaultTimeframeChange(event.timeframe)
         }
     }
 
@@ -66,5 +74,9 @@ internal class SettingsPresenter(
 
     private fun onDensityFractionChange(densityFraction: Float) = coroutineScope.launchUnit {
         appPrefs.putFloat(PrefKeys.DensityFraction, densityFraction)
+    }
+
+    private fun onDefaultTimeframeChange(defaultTimeframe: Timeframe) = coroutineScope.launchUnit {
+        appPrefs.putString(PrefKeys.DefaultTimeframe, defaultTimeframe.name)
     }
 }

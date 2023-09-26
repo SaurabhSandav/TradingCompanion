@@ -41,37 +41,42 @@ internal fun ChartsScreen(
     var showTradeReviewWindow by state { false }
     val tradeReviewWindowOwner = remember { AppWindowOwner() }
 
-    StockCharts(
-        state = state.chartsState,
-        windowTitle = "Charts",
-        onCloseRequest = onCloseRequest,
-        snackbarHost = {
+    val chartsState = state.chartsState
 
-            val snackbarHostState = remember { SnackbarHostState() }
+    if (chartsState != null) {
 
-            // Errors
-            state.errors.forEach { errorMessage ->
+        StockCharts(
+            state = chartsState,
+            windowTitle = "Charts",
+            onCloseRequest = onCloseRequest,
+            snackbarHost = {
 
-                ErrorSnackbar(snackbarHostState, errorMessage)
-            }
+                val snackbarHostState = remember { SnackbarHostState() }
 
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
-            )
-        },
-        customControls = {
+                // Errors
+                state.errors.forEach { errorMessage ->
 
-            Button(
-                modifier = Modifier.fillMaxSize(),
-                onClick = {
-                    showTradeReviewWindow = true
-                    tradeReviewWindowOwner.childrenToFront()
-                },
-                content = { Text("Trade Review") },
-            )
-        },
-    )
+                    ErrorSnackbar(snackbarHostState, errorMessage)
+                }
+
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
+                )
+            },
+            customControls = {
+
+                Button(
+                    modifier = Modifier.fillMaxSize(),
+                    onClick = {
+                        showTradeReviewWindow = true
+                        tradeReviewWindowOwner.childrenToFront()
+                    },
+                    content = { Text("Trade Review") },
+                )
+            },
+        )
+    }
 
     // Trade review window
     if (showTradeReviewWindow) {

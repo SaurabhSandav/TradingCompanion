@@ -33,6 +33,8 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
+import com.saurabhsandav.core.utils.PrefDefaults
+import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -180,7 +182,9 @@ internal class TradesPresenter(
         // Candles range of 1 month before and after trade interval
         val from = trade.entryTimestamp.date - DatePeriod(months = 1)
         val to = exitDateTime.date + DatePeriod(months = 1)
-        val timeframe = Timeframe.M5
+        val timeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
+            .map(Timeframe::valueOf)
+            .first()
 
         // Get candles
         val candlesResult = candleRepo.getCandles(

@@ -13,9 +13,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import kotlinx.collections.immutable.ImmutableList
@@ -48,6 +50,8 @@ internal fun SettingsWindow(
             onLandingScreenChange = { state.eventSink(ChangeLandingScreen(it)) },
             densityFraction = state.densityFraction,
             onDensityFractionChange = { state.eventSink(ChangeDensityFraction(it)) },
+            defaultTimeframe = state.defaultTimeframe,
+            onDefaultTimeframeChange = { state.eventSink(ChangeDefaultTimeframe(it)) },
         )
     }
 }
@@ -60,6 +64,8 @@ internal fun SettingsScreen(
     onLandingScreenChange: (LandingScreen) -> Unit,
     densityFraction: Float,
     onDensityFractionChange: (Float) -> Unit,
+    defaultTimeframe: Timeframe,
+    onDefaultTimeframeChange: (Timeframe) -> Unit,
 ) {
 
     Box {
@@ -89,6 +95,14 @@ internal fun SettingsScreen(
             DensityPreference(
                 densityFraction = densityFraction,
                 onDensityFractionChange = onDensityFractionChange,
+            )
+
+            Divider()
+
+            DefaultTimeframePreference(
+                items = remember { persistentListOf(*enumValues<Timeframe>()) },
+                selectedItem = defaultTimeframe,
+                onDefaultTimeframeChange = onDefaultTimeframeChange,
             )
         }
 
@@ -169,6 +183,27 @@ private fun DensityPreference(
                     },
                 )
             }
+        },
+    )
+}
+
+@Composable
+private fun DefaultTimeframePreference(
+    items: ImmutableList<Timeframe>,
+    selectedItem: Timeframe,
+    onDefaultTimeframeChange: (Timeframe) -> Unit,
+) {
+
+    ListItem(
+        headlineContent = { Text("Timeframe") },
+        trailingContent = {
+
+            OutlinedListSelectionField(
+                items = items,
+                itemText = { it.toLabel() },
+                selection = selectedItem,
+                onSelection = onDefaultTimeframeChange,
+            )
         },
     )
 }
