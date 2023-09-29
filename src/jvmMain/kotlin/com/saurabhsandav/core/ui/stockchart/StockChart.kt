@@ -9,6 +9,7 @@ import com.saurabhsandav.core.chart.data.HistogramData
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.TimeScaleOptions
+import com.saurabhsandav.core.chart.plugin.SessionMarkers
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
@@ -23,14 +24,14 @@ import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
-import com.saurabhsandav.core.ui.stockchart.plotter.*
+import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
+import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
+import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
@@ -57,6 +58,7 @@ class StockChart(
     private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color(0x0AB210))
     private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
     private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
+    private val sessionMarkers = SessionMarkers()
 
     private lateinit var indicators: Indicators
 
@@ -84,6 +86,8 @@ class StockChart(
         )
 
         plotters.forEach { plotter -> plotter.onAttach(this) }
+
+        candlestickPlotter.series.attachPrimitive(sessionMarkers)
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
@@ -421,22 +425,19 @@ class StockChart(
         val candleSeries = data.getCandleSeries()
         val candleMarkers = candleSeries.instantRange.flatMapLatest { data.getCandleMarkers() }
 
+        // Session markers
+        generateSessionStartInstants(candleSeries)
+            .onEach { instants ->
+                val times = instants.map { Time.UTCTimestamp(it.offsetTimeForChart()) }
+                sessionMarkers.setTimes(times)
+            }
+            .launchIn(dataCoroutineScope)
+
         // Set markers
         markersAreEnabled
             .flatMapLatest { markersAreEnabled ->
                 when {
-                    markersAreEnabled -> {
-
-                        val flows = listOf(
-                            // Always emits a list
-                            generateSessionMarkers(candleSeries),
-                            // May not always emit something. Emit an empty list to start combine
-                            candleMarkers.onStart { emit(emptyList()) },
-                        )
-
-                        combine(flows) { it.toList().flatten() }
-                    }
-
+                    markersAreEnabled -> candleMarkers
                     else -> flowOf(emptyList())
                 }
             }
@@ -507,14 +508,11 @@ class StockChart(
         actualChart.timeScale.setVisibleLogicalRange(from = from, to = to)
     }
 
-    private fun generateSessionMarkers(candleSeries: CandleSeries): Flow<List<TradingSessionMarker>> {
+    private fun generateSessionStartInstants(candleSeries: CandleSeries): Flow<List<Instant>> {
         return candleSeries.instantRange.map {
-            candleSeries.mapIndexedNotNull { index, candle ->
-                when {
-                    !marketDataProvider.sessionChecker().isSessionStart(candleSeries, index) -> null
-                    else -> TradingSessionMarker(candle.openInstant)
-                }
-            }
+            candleSeries
+                .filterIndexed { index, _ -> marketDataProvider.sessionChecker().isSessionStart(candleSeries, index) }
+                .map { it.openInstant }
         }
     }
 

@@ -16,11 +16,15 @@ class ISeriesApi<T : SeriesData>(
 ) {
 
     private val priceLineMapReference = "$seriesInstanceReference.priceLinesMap"
+    private val primitivesMapReference = "$seriesInstanceReference.primitivesMap"
 
     val reference = "$seriesInstanceReference.series"
     val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
 
     private var nextPriceLineId = 0
+    private var nextPrimitiveId = 0
+
+    private val primitivesMap = mutableMapOf<ISeriesPrimitive, Int>()
 
     suspend fun barsInLogicalRange(range: LogicalRange): BarsInfo? {
 
@@ -77,5 +81,27 @@ class ISeriesApi<T : SeriesData>(
         executeJs("$reference.removePriceLine(${line.reference});")
 
         executeJs("$priceLineMapReference.delete(${line.id});")
+    }
+
+    fun attachPrimitive(primitive: ISeriesPrimitive) {
+
+        val id = nextPrimitiveId++
+        primitivesMap[primitive] = id
+
+        val ref = "$primitivesMapReference.get($id)"
+        val initializerStr = primitive.initializer { executeJs("$ref.$it") }
+
+        executeJs("$primitivesMapReference.set($id, $initializerStr);")
+
+        executeJs("$reference.attachPrimitive($ref);")
+    }
+
+    fun detachPrimitive(primitive: ISeriesPrimitive) {
+
+        val id = primitivesMap.remove(primitive) ?: return
+
+        executeJs("$reference.detachPrimitive($primitivesMapReference.get($id));")
+
+        executeJs("$primitivesMapReference.delete($id);")
     }
 }

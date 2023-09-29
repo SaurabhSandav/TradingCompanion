@@ -60,6 +60,7 @@ class SeriesInstance {
   constructor(series) {
     this.series = series;
     this.priceLinesMap = new Map();
+    this.primitivesMap = new Map();
   }
 }
 
