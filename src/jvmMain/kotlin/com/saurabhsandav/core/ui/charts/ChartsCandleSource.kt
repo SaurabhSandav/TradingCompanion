@@ -130,8 +130,3 @@ internal class ChartsCandleSource(
 }
 
 private const val ChartsCandleLoadCount = 500
-
-fun interface ChartMarkersProvider {
-
-    fun provideMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>>
-}

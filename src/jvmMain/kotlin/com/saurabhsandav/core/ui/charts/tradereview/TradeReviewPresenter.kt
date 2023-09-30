@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
@@ -16,11 +17,12 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import java.math.BigDecimal
@@ -39,7 +41,7 @@ internal class TradeReviewPresenter(
         start: Instant,
         end: Instant?,
     ) -> Unit,
-    private val markersProvider: TradeReviewMarkersProvider,
+    private val markersProvider: ChartMarkersProvider,
     private val tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val appPrefs: FlowSettings = appModule.appPrefs,
@@ -47,13 +49,6 @@ internal class TradeReviewPresenter(
 
     private val selectedProfileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
-    private val markedTradeIds = MutableStateFlow<PersistentSet<Long>>(persistentSetOf())
-
-    init {
-        coroutineScope.launch {
-            markedTradeIds.collect(markersProvider::setMarkedTradeIds)
-        }
-    }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -87,7 +82,7 @@ internal class TradeReviewPresenter(
 
                     val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                    tradingRecord.trades.allTrades.combine(markedTradeIds) { trades, markedTradeIds ->
+                    tradingRecord.trades.allTrades.combine(markersProvider.markedTradeIds) { trades, markedTradeIds ->
                         trades
                             .groupBy { it.entryTimestamp.date }
                             .map { (date, list) ->
@@ -162,17 +157,21 @@ internal class TradeReviewPresenter(
         appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id)
 
         // Clear marked trades
-        markedTradeIds.value = markedTradeIds.value.clear()
+        markersProvider.clearMarkedTrades()
     }
 
     private fun onMarkTrade(id: Long, isMarked: Boolean) {
-        markedTradeIds.value = if (isMarked) markedTradeIds.value.add(id) else markedTradeIds.value.remove(id)
+
+        when {
+            isMarked -> markersProvider.markTrade(id)
+            else -> markersProvider.unMarkTrade(id)
+        }
     }
 
     private fun onSelectTrade(id: Long) = coroutineScope.launchUnit {
 
         // Mark selected trade
-        markedTradeIds.value = markedTradeIds.value.add(id)
+        markersProvider.markTrade(id)
 
         val profileId = selectedProfileId.value ?: error("Trade review profile not set")
         val tradingRecord = tradingProfiles.getRecord(profileId)

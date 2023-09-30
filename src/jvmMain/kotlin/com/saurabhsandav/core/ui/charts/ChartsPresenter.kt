@@ -33,13 +33,17 @@ import kotlinx.datetime.Instant
 @Stable
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
+    markersProvider: ChartMarkersProvider,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val fyersApi: FyersApi = appModule.fyersApi,
     private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
 
-    private val marketDataProvider = ChartsMarketDataProvider(appModule = appModule)
+    private val marketDataProvider = ChartsMarketDataProvider(
+        markersProvider = markersProvider,
+        appModule = appModule,
+    )
     private val chartsState = coroutineScope.async {
 
         val defaultTimeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
@@ -75,14 +79,6 @@ internal class ChartsPresenter(
             is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
             CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
         }
-    }
-
-    fun addMarkersProvider(provider: ChartMarkersProvider) {
-        marketDataProvider.addMarkersProvider(provider)
-    }
-
-    fun removeMarkersProvider(provider: ChartMarkersProvider) {
-        marketDataProvider.removeMarkersProvider(provider)
     }
 
     private fun onOpenChart(

@@ -1,11 +1,10 @@
-package com.saurabhsandav.core.ui.charts.tradereview
+package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.runtime.Stable
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
@@ -20,15 +19,15 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 @Stable
-internal class TradeReviewMarkersProvider(
+internal class ChartMarkersProvider(
     private val appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val appPrefs: FlowSettings = appModule.appPrefs,
-) : ChartMarkersProvider {
+) {
 
-    private val markedTradeIds = MutableStateFlow<Set<Long>>(persistentSetOf())
+    val markedTradeIds = MutableStateFlow<Set<Long>>(persistentSetOf())
 
-    override fun provideMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
+    fun getMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
 
         fun Instant.markerTime(): Instant {
             val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
@@ -109,7 +108,15 @@ internal class TradeReviewMarkersProvider(
             .flowOn(Dispatchers.IO)
     }
 
-    fun setMarkedTradeIds(ids: Set<Long>) {
-        markedTradeIds.value = ids
+    fun markTrade(id: Long) {
+        markedTradeIds.value += id
+    }
+
+    fun unMarkTrade(id: Long) {
+        markedTradeIds.value -= id
+    }
+
+    fun clearMarkedTrades() {
+        markedTradeIds.value = emptySet()
     }
 }

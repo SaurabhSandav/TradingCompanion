@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
@@ -23,7 +24,7 @@ internal fun TradeReviewWindow(
         start: Instant,
         end: Instant?,
     ) -> Unit,
-    markersProvider: TradeReviewMarkersProvider,
+    markersProvider: ChartMarkersProvider,
     tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
 ) {
 
