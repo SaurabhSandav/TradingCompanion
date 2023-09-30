@@ -1,7 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Instant
@@ -28,5 +29,7 @@ interface CandleSource {
 
     suspend fun onLoadAfter() = Unit
 
-    fun getCandleMarkers(): Flow<List<SeriesMarker>> = emptyFlow()
+    fun getTradeMarkers(): Flow<List<TradeMarker>> = emptyFlow()
+
+    fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = emptyFlow()
 }

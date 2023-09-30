@@ -15,7 +15,6 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.NIFTY50
@@ -56,7 +55,8 @@ internal class ReplayChartsMarketDataProvider(
         return ReplayCandleSource(
             params = params,
             replaySeriesFactory = { buildReplaySeries(params) },
-            getMarkers = { candleSeries -> getMarkers(params.ticker, candleSeries) },
+            getTradeMarkers = { candleSeries -> getTradeMarkers(params.ticker, candleSeries) },
+            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.ticker, candleSeries) },
         )
     }
 
@@ -121,78 +121,84 @@ internal class ReplayChartsMarketDataProvider(
         }
     }
 
-    private fun getMarkers(
+    private fun getTradeMarkers(
         ticker: String,
         candleSeries: CandleSeries,
-    ): Flow<List<SeriesMarker>> {
+    ): Flow<List<TradeMarker>> {
 
         fun Instant.markerTime(): Instant {
             val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
             return candleSeries[markerCandleIndex].openInstant
         }
 
+        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
+
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
             .map { it?.let(::ProfileId) }
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 
-        val executionMarkers = replayProfile.flatMapLatest { profile ->
+        return replayProfile.flatMapLatest { profile ->
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-            candleSeries.instantRange.flatMapLatest instantRange@{ instantRange ->
+            tradingRecord.trades
+                .getByTickerInInterval(ticker, instantRange)
+                .map { trades ->
 
-                instantRange ?: return@instantRange emptyFlow()
+                    trades.filter { it.isClosed }.mapNotNull { trade ->
 
-                tradingRecord.executions.getExecutionsByTickerInInterval(ticker, instantRange)
-            }
-        }
-            .mapList { execution ->
+                        val stop = tradingRecord.trades.getStopsForTrade(trade.id).first().maxByOrNull {
+                            (trade.averageEntry - it.price).abs()
+                        } ?: return@mapNotNull null
+                        val target = tradingRecord.trades.getTargetsForTrade(trade.id).first().maxByOrNull {
+                            (trade.averageEntry - it.price).abs()
+                        } ?: return@mapNotNull null
 
-                TradeExecutionMarker(
-                    instant = execution.timestamp.markerTime(),
-                    side = execution.side,
-                    price = execution.price,
-                )
-            }
-
-        val tradeMarkers = replayProfile.flatMapLatest { profile ->
-
-            val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-            candleSeries.instantRange.flatMapLatest instantRange@{ instantRange ->
-
-                instantRange ?: return@instantRange emptyFlow()
-
-                tradingRecord.trades.getByTickerInInterval(ticker, instantRange)
-            }
-        }
-            .map { trades ->
-                trades.flatMap { trade ->
-
-                    buildList {
-
-                        add(
-                            TradeMarker(
-                                instant = trade.entryTimestamp.markerTime(),
-                                isEntry = true,
-                            )
+                        TradeMarker(
+                            entryPrice = trade.averageEntry,
+                            exitPrice = trade.averageExit!!,
+                            entryInstant = trade.entryTimestamp.markerTime(),
+                            exitInstant = trade.exitTimestamp!!.markerTime(),
+                            stopPrice = stop.price,
+                            targetPrice = target.price,
                         )
-
-                        if (trade.isClosed) {
-
-                            add(
-                                TradeMarker(
-                                    instant = trade.exitTimestamp!!.markerTime(),
-                                    isEntry = false,
-                                )
-                            )
-                        }
                     }
                 }
-            }
+        }.flowOn(Dispatchers.IO)
+    }
 
-        return executionMarkers.combine(tradeMarkers) { executionMkrs, tradeMkrs -> executionMkrs + tradeMkrs }
-            .flowOn(Dispatchers.IO)
+    private fun getTradeExecutionMarkers(
+        ticker: String,
+        candleSeries: CandleSeries,
+    ): Flow<List<TradeExecutionMarker>> {
+
+        fun Instant.markerTime(): Instant {
+            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
+            return candleSeries[markerCandleIndex].openInstant
+        }
+
+        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
+
+        val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+            .map { it?.let(::ProfileId) }
+            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
+            .filterNotNull()
+
+        return replayProfile.flatMapLatest { profile ->
+
+            val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+            tradingRecord.executions
+                .getExecutionsByTickerInInterval(ticker, instantRange)
+                .mapList { execution ->
+
+                    TradeExecutionMarker(
+                        instant = execution.timestamp.markerTime(),
+                        side = execution.side,
+                        price = execution.price,
+                    )
+                }
+        }.flowOn(Dispatchers.IO)
     }
 }

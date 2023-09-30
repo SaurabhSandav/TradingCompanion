@@ -10,7 +10,8 @@ import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -20,7 +21,8 @@ import kotlinx.datetime.Instant
 internal class ChartsCandleSource(
     override val params: StockChartParams,
     private val candleRepo: CandleRepository,
-    private val getMarkers: (CandleSeries) -> Flow<List<SeriesMarker>>,
+    private val getTradeMarkers: (CandleSeries) -> Flow<List<TradeMarker>>,
+    private val getTradeExecutionMarkers: (CandleSeries) -> Flow<List<TradeExecutionMarker>>,
 ) : CandleSource {
 
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
@@ -104,7 +106,9 @@ internal class ChartsCandleSource(
         mutableCandleSeries.prependCandles(oldCandles)
     }
 
-    override fun getCandleMarkers(): Flow<List<SeriesMarker>> = getMarkers(candleSeries)
+    override fun getTradeMarkers(): Flow<List<TradeMarker>> = getTradeMarkers(candleSeries)
+
+    override fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = getTradeExecutionMarkers(candleSeries)
 
     private suspend fun getCandles(
         request: suspend () -> Result<List<Candle>, CandleRepository.Error>,

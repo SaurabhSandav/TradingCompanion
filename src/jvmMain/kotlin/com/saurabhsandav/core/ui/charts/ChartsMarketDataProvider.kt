@@ -31,7 +31,12 @@ internal class ChartsMarketDataProvider(
         return ChartsCandleSource(
             params = params,
             candleRepo = candleRepo,
-            getMarkers = { candleSeries -> markersProvider.getMarkers(params.ticker, candleSeries) },
+            getTradeMarkers = { candleSeries ->
+                markersProvider.getTradeMarkers(params.ticker, candleSeries)
+            },
+            getTradeExecutionMarkers = { candleSeries ->
+                markersProvider.getTradeExecutionMarkers(params.ticker, candleSeries)
+            },
         )
     }
 

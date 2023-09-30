@@ -7,7 +7,6 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.PrefKeys
@@ -26,7 +25,57 @@ internal class ChartMarkersProvider(
 
     val markedTradeIds = MutableStateFlow<Set<TradeId>>(persistentSetOf())
 
-    fun getMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
+    fun getTradeMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<TradeMarker>> {
+
+        fun Instant.markerTime(): Instant {
+            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
+            return candleSeries[markerCandleIndex].openInstant
+        }
+
+        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
+
+        val reviewProfile = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
+            .map { it?.let(::ProfileId) }
+            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
+            .filterNotNull()
+
+        return reviewProfile
+            .flatMapLatest { profile ->
+                markedTradeIds.flatMapLatest { tradeIds ->
+
+                    val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                    tradingRecord.trades
+                        .getByTickerAndIdsInInterval(ticker, tradeIds.toList(), instantRange)
+                        .map { trades ->
+
+                            trades.filter { it.isClosed }.mapNotNull { trade ->
+
+                                val stop = tradingRecord.trades.getStopsForTrade(trade.id).first().maxByOrNull {
+                                    (trade.averageEntry - it.price).abs()
+                                } ?: return@mapNotNull null
+                                val target = tradingRecord.trades.getTargetsForTrade(trade.id).first().maxByOrNull {
+                                    (trade.averageEntry - it.price).abs()
+                                } ?: return@mapNotNull null
+
+                                TradeMarker(
+                                    entryPrice = trade.averageEntry,
+                                    exitPrice = trade.averageExit!!,
+                                    entryInstant = trade.entryTimestamp.markerTime(),
+                                    exitInstant = trade.exitTimestamp!!.markerTime(),
+                                    stopPrice = stop.price,
+                                    targetPrice = target.price,
+                                )
+                            }
+                        }
+                }
+            }.flowOn(Dispatchers.IO)
+    }
+
+    fun getTradeExecutionMarkers(
+        ticker: String,
+        candleSeries: CandleSeries,
+    ): Flow<List<TradeExecutionMarker>> {
 
         fun Instant.markerTime(): Instant {
             val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
@@ -62,42 +111,7 @@ internal class ChartMarkersProvider(
                 )
             }
 
-        val tradeMarkers = reviewProfile
-            .flatMapLatest { profile ->
-                markedTradeIds.flatMapLatest { tradeIds ->
-
-                    val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                    tradingRecord.trades.getByTickerAndIdsInInterval(ticker, tradeIds.toList(), instantRange)
-                }
-            }
-            .map { trades ->
-                trades.flatMap { trade ->
-
-                    buildList {
-
-                        add(
-                            TradeMarker(
-                                instant = trade.entryTimestamp.markerTime(),
-                                isEntry = true,
-                            )
-                        )
-
-                        if (trade.isClosed) {
-
-                            add(
-                                TradeMarker(
-                                    instant = trade.exitTimestamp!!.markerTime(),
-                                    isEntry = false,
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-        return executionMarkers.combine(tradeMarkers) { executionMkrs, tradeMkrs -> executionMkrs + tradeMkrs }
-            .flowOn(Dispatchers.IO)
+        return executionMarkers.flowOn(Dispatchers.IO)
     }
 
     fun markTrade(id: TradeId) {

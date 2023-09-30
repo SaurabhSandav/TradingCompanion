@@ -1,7 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
+import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,9 @@ class StockChartData(
 
     suspend fun getCandleSeries(): CandleSeries = source.getCandleSeries()
 
-    fun getCandleMarkers(): Flow<List<SeriesMarker>> = source.getCandleMarkers()
+    fun getTradeMarkers(): Flow<List<TradeMarker>> = source.getTradeMarkers()
+
+    fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = source.getTradeExecutionMarkers()
 
     fun destroy() {
         coroutineScope.cancel()

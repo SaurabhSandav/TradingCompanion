@@ -10,6 +10,8 @@ import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.chart.plugin.SessionMarkers
+import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers
+import com.saurabhsandav.core.chart.plugin.TradeMarkers
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
@@ -26,7 +28,6 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
-import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
@@ -59,6 +60,8 @@ class StockChart(
     private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
     private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
     private val sessionMarkers = SessionMarkers()
+    private val tradeExecutionMarkers = TradeExecutionMarkers()
+    private val tradeMarkers = TradeMarkers()
 
     private lateinit var indicators: Indicators
 
@@ -88,6 +91,8 @@ class StockChart(
         plotters.forEach { plotter -> plotter.onAttach(this) }
 
         candlestickPlotter.series.attachPrimitive(sessionMarkers)
+        candlestickPlotter.series.attachPrimitive(tradeExecutionMarkers)
+        candlestickPlotter.series.attachPrimitive(tradeMarkers)
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
@@ -423,7 +428,6 @@ class StockChart(
     private suspend fun setupMarkers() {
 
         val candleSeries = data.getCandleSeries()
-        val candleMarkers = candleSeries.instantRange.flatMapLatest { data.getCandleMarkers() }
 
         // Session markers
         generateSessionStartInstants(candleSeries)
@@ -433,16 +437,22 @@ class StockChart(
             }
             .launchIn(dataCoroutineScope)
 
-        // Set markers
-        markersAreEnabled
-            .flatMapLatest { markersAreEnabled ->
-                when {
-                    markersAreEnabled -> candleMarkers
-                    else -> flowOf(emptyList())
-                }
+        // Trade execution markers
+        candleSeries.instantRange
+            .flatMapLatest { data.getTradeExecutionMarkers() }
+            .onEach { markers ->
+                val actualMarkers = markers.map { it.toActualMarker() }
+                tradeExecutionMarkers.setExecutions(actualMarkers)
             }
-            .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
-            .onEach(candlestickPlotter::setMarkers)
+            .launchIn(dataCoroutineScope)
+
+        // Trade execution markers
+        candleSeries.instantRange
+            .flatMapLatest { data.getTradeMarkers() }
+            .onEach { markers ->
+                val actualMarkers = markers.map { it.toActualMarker() }
+                tradeMarkers.setTrades(actualMarkers)
+            }
             .launchIn(dataCoroutineScope)
     }
 

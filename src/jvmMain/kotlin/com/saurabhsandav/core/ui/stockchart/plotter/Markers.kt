@@ -1,58 +1,47 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.chart.data.SeriesMarkerPosition
-import com.saurabhsandav.core.chart.data.SeriesMarkerShape
 import com.saurabhsandav.core.chart.data.Time
+import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
-import com.saurabhsandav.core.chart.data.SeriesMarker as ActualSeriesMarker
-
-interface SeriesMarker {
-
-    val instant: Instant
-
-    fun toActualMarker(): ActualSeriesMarker
-}
+import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
+import com.saurabhsandav.core.chart.plugin.TradeMarkers.Trade as ActualTradeMarker
 
 class TradeExecutionMarker(
-    override val instant: Instant,
+    private val instant: Instant,
     private val side: TradeExecutionSide,
     private val price: BigDecimal,
-) : SeriesMarker {
+) {
 
-    override fun toActualMarker() = ActualSeriesMarker(
+    fun toActualMarker() = ActualTradeExecutionMarker(
         time = Time.UTCTimestamp(instant.offsetTimeForChart()),
-        position = when (side) {
-            TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
-            TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar
-        },
-        shape = when (side) {
-            TradeExecutionSide.Buy -> SeriesMarkerShape.ArrowUp
-            TradeExecutionSide.Sell -> SeriesMarkerShape.ArrowDown
-        },
-        color = when (side) {
-            TradeExecutionSide.Buy -> Color.Green
-            TradeExecutionSide.Sell -> Color.Red
-        },
-        text = when (side) {
-            TradeExecutionSide.Buy -> price.toPlainString()
-            TradeExecutionSide.Sell -> price.toPlainString()
+        price = price,
+        side = when (side) {
+            TradeExecutionSide.Buy -> TradeExecutionMarkers.TradeExecutionSide.Buy
+            TradeExecutionSide.Sell -> TradeExecutionMarkers.TradeExecutionSide.Sell
         },
     )
 }
 
 class TradeMarker(
-    override val instant: Instant,
-    private val isEntry: Boolean,
-) : SeriesMarker {
+    private val entryInstant: Instant,
+    private val entryPrice: BigDecimal,
+    private val exitInstant: Instant,
+    private val exitPrice: BigDecimal,
+    private val stopPrice: BigDecimal,
+    private val targetPrice: BigDecimal,
+) {
 
-    override fun toActualMarker() = ActualSeriesMarker(
-        time = Time.UTCTimestamp(instant.offsetTimeForChart()),
-        position = SeriesMarkerPosition.AboveBar,
-        shape = SeriesMarkerShape.Circle,
-        color = if (isEntry) Color.Green else Color.Red,
-    )
+    fun toActualMarker(): ActualTradeMarker {
+        return ActualTradeMarker(
+            entryTime = Time.UTCTimestamp(entryInstant.offsetTimeForChart()),
+            entryPrice = entryPrice,
+            exitTime = Time.UTCTimestamp(exitInstant.offsetTimeForChart()),
+            exitPrice = exitPrice,
+            stopPrice = stopPrice,
+            targetPrice = targetPrice,
+        )
+    }
 }
