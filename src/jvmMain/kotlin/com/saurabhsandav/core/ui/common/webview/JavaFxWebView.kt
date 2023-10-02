@@ -69,20 +69,6 @@ class JavaFxWebView : WebView {
         }
     }
 
-    override suspend fun loadResource(path: String) {
-
-        awaitReady()
-
-        val url = JFXWebView::class.java.getResource(path)?.toExternalForm() ?: error("Resource '$path' not found")
-
-        runInJavaFxThread {
-
-            _loadState.value = LoadState.INITIALIZED
-
-            engine.load(url)
-        }
-    }
-
     override suspend fun executeScript(script: String) {
 
         awaitReady()

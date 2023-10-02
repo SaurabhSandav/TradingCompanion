@@ -42,8 +42,6 @@ interface WebView {
 
     suspend fun load(url: String)
 
-    suspend fun loadResource(path: String)
-
     suspend fun executeScript(script: String)
 
     suspend fun createJSCallback(jsFuncName: String): JSCallback
