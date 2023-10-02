@@ -96,6 +96,7 @@ kotlin {
             implementation(libs.kotlinx.collections.immutable)
 
             // Ktor
+            implementation(libs.ktor.server.netty)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.ktor.client.contentNegotiation)

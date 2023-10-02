@@ -35,13 +35,15 @@ class ChartPageState(
 
     init {
 
+        ChartsPageServer.startIfNotStarted()
+
         coroutineScope.launch {
 
             // Wait for WebView initialization
             webView.awaitReady()
 
             // Load chart webpage
-            webView.loadResource("/charts_page/index.html")
+            webView.load(ChartsPageServer.getUrl())
 
             // Await page load
             webView.loadState.first { loadState -> loadState == WebView.LoadState.LOADED }
