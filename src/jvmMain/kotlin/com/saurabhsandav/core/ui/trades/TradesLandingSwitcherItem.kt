@@ -39,7 +39,6 @@ internal class TradesLandingSwitcherItem(
 
         TradesScreenWindows(
             chartWindowsManager = state.chartWindowsManager,
-            fyersLoginWindowState = state.fyersLoginWindowState,
         )
     }
 }

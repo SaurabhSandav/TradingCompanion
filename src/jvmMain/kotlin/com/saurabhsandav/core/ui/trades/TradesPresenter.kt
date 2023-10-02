@@ -24,8 +24,10 @@ import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
-import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
+import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
+import com.saurabhsandav.core.ui.loginservice.ResultHandle
+import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
@@ -59,11 +61,11 @@ internal class TradesPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val loginServicesManager: LoginServicesManager = appModule.loginServicesManager,
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) {
 
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
-    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -71,7 +73,6 @@ internal class TradesPresenter(
         return@launchMolecule TradesState(
             tradesByDays = getTradesByDays().value,
             chartWindowsManager = chartWindowsManager,
-            fyersLoginWindowState = fyersLoginWindowState,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
@@ -229,21 +230,24 @@ internal class TradesPresenter(
                         message = "Please login",
                         actionLabel = "Login",
                         onActionClick = {
-                            fyersLoginWindowState = FyersLoginWindow.Open(
-                                FyersLoginState(
+
+                            loginServicesManager.addService(
+                                serviceBuilder = FyersLoginService.Builder(
                                     fyersApi = fyersApi,
-                                    appPrefs = appPrefs,
-                                    onCloseRequest = { fyersLoginWindowState = FyersLoginWindow.Closed },
-                                    onLoginSuccess = { onOpenChart(profileTradeId) },
-                                    onLoginFailure = { message ->
+                                    appPrefs = appPrefs
+                                ),
+                                resultHandle = ResultHandle(
+                                    onFailure = { message ->
                                         errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
                                     },
-                                )
+                                    onSuccess = { onOpenChart(profileTradeId) },
+                                ),
                             )
                         },
                         withDismissAction = true,
                         duration = UIErrorMessage.Duration.Indefinite,
-                    ) { errors -= it }
+                        onNotified = { errors -= it },
+                    )
                     return@launchUnit
                 }
             }

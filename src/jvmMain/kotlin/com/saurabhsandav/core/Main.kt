@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
@@ -58,6 +59,11 @@ internal fun App(onCloseRequest: () -> Unit) {
             Surface {
 
                 LandingScreen()
+
+                WindowsOnlyLayout {
+
+                    appModule.loginServicesManager.Windows()
+                }
 
                 if (showExitConfirmationDialog) {
 

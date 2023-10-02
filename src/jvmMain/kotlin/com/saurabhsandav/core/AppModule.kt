@@ -13,6 +13,7 @@ import com.saurabhsandav.core.trading.data.CandleDBCollection
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
+import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +49,8 @@ internal class AppModule {
     val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
     val webViewProvider = { JavaFxWebView() }
+
+    val loginServicesManager by lazy { LoginServicesManager() }
 
     val fyersApi by lazy { FyersApi() }
 

@@ -10,5 +10,7 @@ internal sealed class ChartsEvent {
         val end: Instant?,
     ) : ChartsEvent()
 
-    data object CandleFetchLoginCancelled : ChartsEvent()
+    data object CandleDataLoginConfirmed : ChartsEvent()
+
+    data object CandleDataLoginDeclined : ChartsEvent()
 }

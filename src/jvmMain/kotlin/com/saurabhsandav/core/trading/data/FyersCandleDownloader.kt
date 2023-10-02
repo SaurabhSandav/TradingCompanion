@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -13,9 +14,10 @@ import com.saurabhsandav.core.fyers_api.model.response.FyersResponse
 import com.saurabhsandav.core.fyers_api.model.response.HistoricalCandlesResult
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -26,14 +28,12 @@ internal class FyersCandleDownloader(
     private val fyersApi: FyersApi = appModule.fyersApi,
 ) : CandleDownloader {
 
-    private var accessToken: String? = null
-
     override fun isLoggedIn(): Flow<Boolean> {
-        return appPrefs.getStringOrNullFlow(PrefKeys.FyersAccessToken).map {
-            if (it == null) return@map false
+        return FyersLoginService.getAuthTokensFromPrefs(appPrefs).map { authTokens ->
+            if (authTokens == null) return@map false
 
             // Check if access token expired
-            val profileResult = fyersApi.getProfile(it)
+            val profileResult = fyersApi.getProfile(authTokens.accessToken)
             profileResult.statusCode != HttpStatusCode.Unauthorized
         }
     }
@@ -97,13 +97,9 @@ internal class FyersCandleDownloader(
     }
 
     private suspend fun getAccessToken(): Result<String, CandleDownloader.Error> {
-
-        if (accessToken == null) {
-            accessToken = appPrefs.getStringOrNull(PrefKeys.FyersAccessToken)
-                ?: return Err(CandleDownloader.Error.AuthError("Fyers not logged in"))
+        return FyersLoginService.getAuthTokensFromPrefs(appPrefs).first()?.accessToken.toResultOr {
+            CandleDownloader.Error.AuthError("Fyers not logged in")
         }
-
-        return Ok(accessToken!!)
     }
 
     private fun FyersResponse<HistoricalCandlesResult>.toResult(): Result<List<Candle>, CandleDownloader.Error> {

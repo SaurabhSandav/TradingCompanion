@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.trades.model
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
@@ -11,20 +10,9 @@ import kotlinx.coroutines.flow.Flow
 internal data class TradesState(
     val tradesByDays: ImmutableList<TradesByDay>,
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
-    val fyersLoginWindowState: FyersLoginWindow,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
-
-    @Immutable
-    internal sealed class FyersLoginWindow {
-
-        @Immutable
-        class Open(val fyersLoginState: FyersLoginState) : FyersLoginWindow()
-
-        @Immutable
-        data object Closed : FyersLoginWindow()
-    }
 
     @Immutable
     data class TradesByDay(

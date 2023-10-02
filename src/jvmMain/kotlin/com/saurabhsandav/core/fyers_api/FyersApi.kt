@@ -37,13 +37,11 @@ class FyersApi {
 
     private val rateLimiter = FyersRateLimiter()
 
-    private val redirectURL = "http://127.0.0.1:8080"
-
-    fun getLoginURL(): String {
+    fun getLoginURL(redirectUrl: String): String {
         return URLBuilder("https://api-t1.fyers.in/api/v3/generate-authcode").apply {
             encodedParameters.apply {
                 append("client_id", BuildKonfig.FYERS_APP_ID)
-                append("redirect_uri", redirectURL)
+                append("redirect_uri", redirectUrl)
                 append("response_type", "code")
                 append("state", "trading_companion")
             }

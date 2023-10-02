@@ -13,16 +13,15 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
-import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 
@@ -94,21 +93,13 @@ internal fun ChartsScreen(
         }
     }
 
-    // Fyers login window
-    val fyersLoginWindowState = state.fyersLoginWindowState
-
-    if (fyersLoginWindowState is FyersLoginWindow.Open) {
-
-        var showLoginWindow by state { false }
+    // Login confirmation dialog
+    if (state.showCandleDataLoginConfirmation) {
 
         FetchCandleDataLoginConfirmationDialog(
-            onConfirm = { showLoginWindow = true },
-            onDismissRequest = { state.eventSink(CandleFetchLoginCancelled) },
+            onConfirm = { state.eventSink(CandleDataLoginConfirmed) },
+            onDismissRequest = { state.eventSink(ChartsEvent.CandleDataLoginDeclined) },
         )
-
-        if (showLoginWindow) {
-            FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
-        }
     }
 }
 

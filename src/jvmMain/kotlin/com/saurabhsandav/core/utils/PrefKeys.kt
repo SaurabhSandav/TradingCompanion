@@ -6,7 +6,7 @@ object PrefKeys {
     const val LandingScreen = "landing_screen"
     const val DensityFraction = "density_fraction"
     const val DefaultTimeframe = "default_timeframe"
-    const val FyersAccessToken = "fyers_access_token"
+    const val FyersAuthTokens = "fyers_auth_tokens"
     const val CurrentTradingProfile = "current_trading_profile"
     const val TradeReviewTradingProfile = "trade_review_trading_profile"
     const val ReplayTradingProfile = "replay_trading_profile"

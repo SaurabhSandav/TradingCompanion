@@ -9,9 +9,9 @@ import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.fyerslogin.FyersLoginWindow
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
-import com.saurabhsandav.core.ui.trades.model.TradesState.*
+import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradesByDay
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import kotlinx.collections.immutable.ImmutableList
@@ -50,7 +50,6 @@ internal fun TradesScreen(
 @Composable
 internal fun TradesScreenWindows(
     chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
-    fyersLoginWindowState: FyersLoginWindow,
 ) {
 
     // Chart windows
@@ -60,11 +59,5 @@ internal fun TradesScreenWindows(
             onCloseRequest = window::close,
             chartData = window.params.chartData,
         )
-    }
-
-    // Fyers login window
-    if (fyersLoginWindowState is FyersLoginWindow.Open) {
-
-        FyersLoginWindow(fyersLoginWindowState.fyersLoginState)
     }
 }

@@ -9,12 +9,12 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleFetchLoginCancelled
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.*
 import com.saurabhsandav.core.ui.charts.model.ChartsState
-import com.saurabhsandav.core.ui.charts.model.ChartsState.FyersLoginWindow
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
+import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
+import com.saurabhsandav.core.ui.loginservice.ResultHandle
+import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.NIFTY50
@@ -24,9 +24,7 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
@@ -36,6 +34,7 @@ internal class ChartsPresenter(
     markersProvider: ChartMarkersProvider,
     private val appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val loginServicesManager: LoginServicesManager = appModule.loginServicesManager,
     private val fyersApi: FyersApi = appModule.fyersApi,
     private val candleRepo: CandleRepository = appModule.candleRepo,
 ) {
@@ -56,7 +55,7 @@ internal class ChartsPresenter(
             appModule = appModule,
         )
     }
-    private var fyersLoginWindowState by mutableStateOf<FyersLoginWindow>(FyersLoginWindow.Closed)
+    private var showCandleDataLoginConfirmation by mutableStateOf(false)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     init {
@@ -67,7 +66,7 @@ internal class ChartsPresenter(
 
         return@launchMolecule ChartsState(
             chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
-            fyersLoginWindowState = fyersLoginWindowState,
+            showCandleDataLoginConfirmation = showCandleDataLoginConfirmation,
             errors = errors,
             eventSink = ::onEvent,
         )
@@ -77,7 +76,8 @@ internal class ChartsPresenter(
 
         when (event) {
             is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
-            CandleFetchLoginCancelled -> onCandleFetchLoginCancelled()
+            CandleDataLoginConfirmed -> onCandleDataLoginConfirmed()
+            CandleDataLoginDeclined -> onCandleDataLoginDeclined()
         }
     }
 
@@ -130,31 +130,32 @@ internal class ChartsPresenter(
         }
     }
 
-    private fun onCandleFetchLoginCancelled() {
-        fyersLoginWindowState = FyersLoginWindow.Closed
+    private fun onCandleDataLoginConfirmed() {
+
+        showCandleDataLoginConfirmation = false
+
+        loginServicesManager.addService(
+            serviceBuilder = FyersLoginService.Builder(
+                fyersApi = fyersApi,
+                appPrefs = appPrefs
+            ),
+            resultHandle = ResultHandle(
+                onFailure = { message ->
+                    errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
+                }
+            ),
+        )
     }
 
-    private fun loginFlowLauncher() {
+    private fun onCandleDataLoginDeclined() {
+        showCandleDataLoginConfirmation = false
+    }
 
-        candleRepo.isLoggedIn().onEach { isLoggedIn ->
+    private fun loginFlowLauncher() = coroutineScope.launchUnit {
 
-            // If not logged in and login window not launched
-            if (!isLoggedIn && fyersLoginWindowState !is FyersLoginWindow.Open) {
+        val isLoggedIn = candleRepo.isLoggedIn().first()
 
-                fyersLoginWindowState = FyersLoginWindow.Open(
-                    FyersLoginState(
-                        fyersApi = fyersApi,
-                        appPrefs = appPrefs,
-                        onCloseRequest = {
-                            fyersLoginWindowState = FyersLoginWindow.Closed
-                        },
-                        onLoginSuccess = { },
-                        onLoginFailure = { message ->
-                            errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
-                        },
-                    )
-                )
-            }
-        }.launchIn(coroutineScope)
+        // If not logged in, show login confirmation
+        if (!isLoggedIn) showCandleDataLoginConfirmation = true
     }
 }
