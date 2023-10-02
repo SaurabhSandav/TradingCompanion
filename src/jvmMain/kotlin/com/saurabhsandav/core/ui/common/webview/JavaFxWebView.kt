@@ -11,13 +11,9 @@ import javafx.scene.paint.Color
 import javafx.scene.web.WebEngine
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.*
 import netscape.javascript.JSObject
 import javafx.scene.web.WebView as JFXWebView
-
 
 @Stable
 class JavaFxWebView : WebView {
@@ -28,14 +24,11 @@ class JavaFxWebView : WebView {
 
     private val isReady = CompletableDeferred<Unit>()
 
-    private val _loadState = MutableSharedFlow<LoadState>(
-        replay = 1,
-        extraBufferCapacity = 10,
-    )
-    override val loadState: Flow<LoadState> = _loadState.distinctUntilChanged()
+    private val _loadState = MutableStateFlow(LoadState.INITIALIZED)
+    override val loadState: Flow<LoadState> = _loadState.asStateFlow()
 
-    private val _location = MutableSharedFlow<String>(replay = 1)
-    override val location: Flow<String> = _location.asSharedFlow()
+    private val _location = MutableStateFlow<String?>(null)
+    override val location: Flow<String> = _location.filterNotNull()
 
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     override val errors: Flow<Throwable> = _errors.asSharedFlow()
@@ -58,6 +51,8 @@ class JavaFxWebView : WebView {
 
             setEngine(webView.engine)
 
+            webView.isContextMenuEnabled = false
+
             component.scene = Scene(webView)
         }
     }
@@ -66,7 +61,12 @@ class JavaFxWebView : WebView {
 
         awaitReady()
 
-        runInJavaFxThread { engine.load(url) }
+        runInJavaFxThread {
+
+            _loadState.value = LoadState.INITIALIZED
+
+            engine.load(url)
+        }
     }
 
     override suspend fun loadResource(path: String) {
@@ -75,7 +75,12 @@ class JavaFxWebView : WebView {
 
         val url = JFXWebView::class.java.getResource(path)?.toExternalForm() ?: error("Resource '$path' not found")
 
-        runInJavaFxThread { engine.load(url) }
+        runInJavaFxThread {
+
+            _loadState.value = LoadState.INITIALIZED
+
+            engine.load(url)
+        }
     }
 
     override suspend fun executeScript(script: String) {
@@ -142,14 +147,22 @@ class JavaFxWebView : WebView {
 
             newValue ?: return@addListener
 
+            // Sometimes after a SUCCEEDED emission loadWorker re-emits SCHEDULED, RUNNING but not SUCCEEDED.
+            // Could not find out the cause for this.
+            // Work around it by ignoring SCHEDULED, RUNNING emissions when new load was not explicitly requested.
+            // Track explicit load requests by setting loadState to INITIALIZED.
+
             val loadState = when (newValue) {
                 Worker.State.READY -> LoadState.INITIALIZED
-                Worker.State.SCHEDULED, Worker.State.RUNNING -> LoadState.LOADING
+                Worker.State.SCHEDULED, Worker.State.RUNNING -> when (_loadState.value) {
+                    LoadState.INITIALIZED -> LoadState.LOADING
+                    else -> _loadState.value
+                }
                 Worker.State.SUCCEEDED -> LoadState.LOADED
                 Worker.State.CANCELLED, Worker.State.FAILED -> LoadState.FAILED
             }
 
-            if (!_loadState.tryEmit(loadState)) error("Could not emit WebView load state")
+            _loadState.value = loadState
         }
 
         engine.loadWorker.exceptionProperty().addListener { _, _, newValue ->
@@ -158,8 +171,7 @@ class JavaFxWebView : WebView {
         }
 
         engine.locationProperty().addListener { _, _, newValue ->
-            newValue ?: return@addListener
-            if (!_location.tryEmit(newValue)) error("Could not emit WebView location")
+            _location.value = newValue ?: return@addListener
         }
 
         isReady.complete(Unit)
