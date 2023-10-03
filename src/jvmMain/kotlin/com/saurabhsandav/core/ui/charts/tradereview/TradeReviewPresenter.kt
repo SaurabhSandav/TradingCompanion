@@ -18,16 +18,17 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaLocalDate
 import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradeReviewPresenter(
@@ -113,9 +114,27 @@ internal class TradeReviewPresenter(
         val timeZone = TimeZone.of("Asia/Kolkata")
         val entryInstant = entryTimestamp.toInstant(timeZone)
         val exitInstant = exitTimestamp?.toInstant(timeZone)
-        val s = exitInstant?.let { (it - entryInstant).inWholeSeconds }
 
-        val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
+        fun formatDuration(duration: Duration): String {
+
+            val durationSeconds = duration.inWholeSeconds
+
+            return "%02d:%02d:%02d".format(
+                durationSeconds / 3600,
+                (durationSeconds % 3600) / 60,
+                durationSeconds % 60,
+            )
+        }
+
+        val durationStr = when {
+            exitInstant != null -> flowOf(formatDuration(exitInstant - entryInstant))
+            else -> flow {
+                while (true) {
+                    emit(formatDuration(Clock.System.now() - entryInstant))
+                    delay(1.seconds)
+                }
+            }
+        }
 
         return TradeEntry(
             isMarked = isMarked,
@@ -123,11 +142,13 @@ internal class TradeReviewPresenter(
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
-            quantity = (lots?.let { "$closedQuantity / $quantity ($it ${if (it == 1) "lot" else "lots"})" }
-                ?: "$closedQuantity / $quantity").toString(),
+            quantity = when {
+                !isClosed -> "$closedQuantity / $quantity"
+                else -> quantity.toPlainString()
+            },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
-            duration = "${entryTimestamp.time} -> ${exitTimestamp?.time ?: "Now"}\n${duration?.let { "($it)" }}",
+            duration = durationStr,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
             netPnl = netPnl.toPlainString(),

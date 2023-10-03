@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -37,7 +38,13 @@ internal fun Details(details: Details) {
             addColumnText("Quantity") { it.quantity }
             addColumnText("Avg. Entry") { it.entry }
             addColumnText("Avg. Exit") { it.exit ?: "NA" }
-            addColumnText("Duration", span = 2F) { it.duration }
+            addColumn("Duration") {
+
+                Text(
+                    text = it.duration.collectAsState("").value,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
             addColumn("PNL") {
 
                 Text(

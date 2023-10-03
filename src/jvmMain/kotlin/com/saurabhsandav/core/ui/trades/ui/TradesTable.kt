@@ -4,12 +4,14 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -34,7 +36,14 @@ internal fun TradesTable(
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumnText("Duration") { it.duration }
+        addColumn("Entry Time") { it.entryTime }
+        addColumn("Duration") {
+
+            Text(
+                text = it.duration.collectAsState("").value,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
         }

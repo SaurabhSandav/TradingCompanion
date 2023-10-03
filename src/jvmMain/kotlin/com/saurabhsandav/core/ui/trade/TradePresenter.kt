@@ -21,14 +21,15 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradePresenter(
@@ -100,20 +101,40 @@ internal class TradePresenter(
                 val timeZone = TimeZone.of("Asia/Kolkata")
                 val entryInstant = trade.entryTimestamp.toInstant(timeZone)
                 val exitInstant = trade.exitTimestamp?.toInstant(timeZone)
-                val s = exitInstant?.let { (it - entryInstant).inWholeSeconds }
 
-                val duration = s?.let { "%02d:%02d:%02d".format(it / 3600, (it % 3600) / 60, (it % 60)) }
+                fun formatDuration(duration: Duration): String {
+
+                    val durationSeconds = duration.inWholeSeconds
+
+                    return "%02d:%02d:%02d".format(
+                        durationSeconds / 3600,
+                        (durationSeconds % 3600) / 60,
+                        durationSeconds % 60,
+                    )
+                }
+
+                val durationStr = when {
+                    exitInstant != null -> flowOf(formatDuration(exitInstant - entryInstant))
+                    else -> flow {
+                        while (true) {
+                            emit(formatDuration(Clock.System.now() - entryInstant))
+                            delay(1.seconds)
+                        }
+                    }
+                }
 
                 value = Details(
                     id = trade.id,
                     broker = "${trade.broker} ($instrumentCapitalized)",
                     ticker = trade.ticker,
                     side = trade.side.toString().uppercase(),
-                    quantity = (trade.lots?.let { "${trade.closedQuantity} / ${trade.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
-                        ?: "${trade.closedQuantity} / ${trade.quantity}").toString(),
+                    quantity = when {
+                        !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"
+                        else -> trade.quantity.toPlainString()
+                    },
                     entry = trade.averageEntry.toPlainString(),
                     exit = trade.averageExit?.toPlainString() ?: "",
-                    duration = "${trade.entryTimestamp.time} -> ${trade.exitTimestamp?.time ?: "Now"} ${duration?.let { "($it)" }}",
+                    duration = durationStr,
                     pnl = trade.pnl.toPlainString(),
                     isProfitable = trade.pnl > BigDecimal.ZERO,
                     netPnl = trade.netPnl.toPlainString(),
@@ -132,6 +153,8 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
+            val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy - HH:mm:ss")
+
             tradingRecord.trades.getExecutionsForTrade(tradeId).collect { executions ->
 
                 value = executions.map { execution ->
@@ -143,7 +166,7 @@ internal class TradePresenter(
                             ?: execution.quantity.toString(),
                         side = execution.side.strValue.uppercase(),
                         price = execution.price.toPlainString(),
-                        timestamp = execution.timestamp.time.toString(),
+                        timestamp = formatter.format(execution.timestamp.toJavaLocalDateTime()),
                         locked = execution.locked,
                     )
                 }.toImmutableList()

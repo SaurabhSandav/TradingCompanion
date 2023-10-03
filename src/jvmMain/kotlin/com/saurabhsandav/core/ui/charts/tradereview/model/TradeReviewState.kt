@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.charts.tradereview.model
 
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
 
 @Immutable
 internal data class TradeReviewState(
@@ -26,7 +27,7 @@ internal data class TradeReviewState(
         val quantity: String,
         val entry: String,
         val exit: String?,
-        val duration: String,
+        val duration: Flow<String>,
         val pnl: String,
         val isProfitable: Boolean,
         val netPnl: String,

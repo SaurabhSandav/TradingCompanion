@@ -5,6 +5,7 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.fyerslogin.FyersLoginState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
 
 @Immutable
 internal data class TradesState(
@@ -40,7 +41,8 @@ internal data class TradesState(
         val quantity: String,
         val entry: String,
         val exit: String?,
-        val duration: String,
+        val entryTime: String,
+        val duration: Flow<String>,
         val pnl: String,
         val isProfitable: Boolean,
         val netPnl: String,

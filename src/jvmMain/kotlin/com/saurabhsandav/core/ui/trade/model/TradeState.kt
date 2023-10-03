@@ -29,7 +29,7 @@ internal data class TradeState(
         val quantity: String,
         val entry: String,
         val exit: String?,
-        val duration: String,
+        val duration: Flow<String>,
         val pnl: String,
         val isProfitable: Boolean,
         val netPnl: String,
