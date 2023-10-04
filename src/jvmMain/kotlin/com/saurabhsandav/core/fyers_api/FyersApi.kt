@@ -6,6 +6,7 @@ import com.github.michaelbull.result.runCatching
 import com.saurabhsandav.core.fyers_api.model.CandleResolution
 import com.saurabhsandav.core.fyers_api.model.DateFormat
 import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
+import com.saurabhsandav.core.fyers_api.model.request.RefreshValidationRequest
 import com.saurabhsandav.core.fyers_api.model.response.*
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -49,7 +50,7 @@ class FyersApi {
         }.buildString()
     }
 
-    suspend fun getAccessToken(redirectUrl: String): FyersResponse<AuthValidationResult> {
+    suspend fun validateLogin(redirectUrl: String): FyersResponse<AuthValidationResult> {
 
         // Rate-limit
         rateLimiter.limit()
@@ -61,6 +62,29 @@ class FyersApi {
         )
 
         val response = client.post("https://api-t1.fyers.in/api/v3/validate-authcode") {
+            contentType(ContentType.Application.Json)
+            setBody(requestBody)
+        }
+
+        return response.decodeToFyersResponse()
+    }
+
+    suspend fun refreshLogin(
+        refreshToken: String,
+        pin: String,
+    ): FyersResponse<RefreshValidationResult> {
+
+        // Rate-limit
+        rateLimiter.limit()
+
+        val requestBody = RefreshValidationRequest(
+            grantType = "refresh_token",
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".toByteArray().sha256().toString(),
+            refreshToken = refreshToken,
+            pin = pin,
+        )
+
+        val response = client.post("https://api-t1.fyers.in/api/v3/validate-refresh-token") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }

@@ -18,7 +18,7 @@ internal class FyersLoginState(
 
     suspend fun onLoginSuccess(redirectUrl: String) {
 
-        val response = fyersApi.getAccessToken(redirectUrl)
+        val response = fyersApi.validateLogin(redirectUrl)
 
         when (response.result) {
             null -> {
