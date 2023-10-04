@@ -13,10 +13,14 @@ data class LineStyleOptions(
     val lineStyle: LineStyle? = null,
     val lineWidth: LineWidth? = null,
     val lineType: LineType? = null,
+    val lineVisible: Boolean? = null,
+    val pointMarkersVisible: Boolean? = null,
+    val pointMarkersRadius: Number? = null,
     val crosshairMarkerVisible: Boolean? = null,
     val crosshairMarkerRadius: Number? = null,
     val crosshairMarkerBorderColor: Color? = null,
     val crosshairMarkerBackgroundColor: Color? = null,
+    val crosshairMarkerBorderWidth: Number? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
 
     override val lastValueVisible: Boolean? = null,
@@ -41,10 +45,14 @@ data class LineStyleOptions(
         lineStyle?.let { put("lineStyle", it.toJsonElement()) }
         lineWidth?.let { put("lineWidth", it.toJsonElement()) }
         lineType?.let { put("lineType", it.toJsonElement()) }
+        lineVisible?.let { put("lineVisible", it) }
+        pointMarkersVisible?.let { put("pointMarkersVisible", it) }
+        pointMarkersRadius?.let { put("pointMarkersRadius", it) }
         crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
         crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
         crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it.toHexString()) }
         crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it.toHexString()) }
+        crosshairMarkerBorderWidth?.let { put("crosshairMarkerBorderWidth", it) }
         lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
 
         putSeriesOptionsCommonElements()

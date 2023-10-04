@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.chart.data
 
+import androidx.compose.ui.graphics.Color
+import com.saurabhsandav.core.ui.common.toHexString
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -10,6 +12,9 @@ class CandlestickData(
     val high: Number,
     val low: Number,
     val close: Number,
+    val color: Color? = null,
+    val borderColor: Color? = null,
+    val wickColor: Color? = null,
 ) : SeriesData {
 
     override fun toJsonElement(): JsonElement = buildJsonObject {
@@ -18,5 +23,8 @@ class CandlestickData(
         put("high", high)
         put("low", low)
         put("close", close)
+        color?.let { put("color", it.toHexString()) }
+        borderColor?.let { put("borderColor", it.toHexString()) }
+        wickColor?.let { put("wickColor", it.toHexString()) }
     }
 }

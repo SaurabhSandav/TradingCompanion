@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateListOf
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
-import com.saurabhsandav.core.chart.options.CrosshairMode
-import com.saurabhsandav.core.chart.options.CrosshairOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange

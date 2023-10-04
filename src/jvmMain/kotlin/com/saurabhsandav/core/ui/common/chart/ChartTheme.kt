@@ -4,9 +4,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.chart.options.ChartOptions
-import com.saurabhsandav.core.chart.options.GridLineOptions
-import com.saurabhsandav.core.chart.options.GridOptions
-import com.saurabhsandav.core.chart.options.LayoutOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.GridOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.GridOptions.GridLineOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.LayoutOptions
 import com.saurabhsandav.core.chart.options.common.Background
 import com.saurabhsandav.core.ui.theme.isDark
 

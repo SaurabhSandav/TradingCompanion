@@ -2,8 +2,8 @@ package com.saurabhsandav.core.ui.stockchart.plotter
 
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
-import com.saurabhsandav.core.chart.PriceScaleMargins
 import com.saurabhsandav.core.chart.PriceScaleOptions
+import com.saurabhsandav.core.chart.PriceScaleOptions.PriceScaleMargins
 import com.saurabhsandav.core.chart.data.HistogramData
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.misc.MouseEventParams

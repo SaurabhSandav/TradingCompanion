@@ -9,7 +9,13 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.chart.*
-import com.saurabhsandav.core.chart.options.*
+import com.saurabhsandav.core.chart.PriceScaleOptions.PriceScaleMargins
+import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.core.chart.options.HistogramStyleOptions
+import com.saurabhsandav.core.chart.options.LineStyleOptions
+import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.chart.options.common.LineWidth
 import com.saurabhsandav.core.chart.options.common.PriceFormat
 import com.saurabhsandav.core.ui.common.app.AppWindow

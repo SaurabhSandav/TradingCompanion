@@ -149,6 +149,18 @@ class IChartApi internal constructor(
         return IPriceScaleApi(reference, ::executeJs, priceScaleId)
     }
 
+    fun setCrosshairPosition(
+        price: Number,
+        horizontalPosition: Time,
+        seriesApi: ISeriesApi<*>,
+    ) {
+        executeJs("$reference.setCrosshairPosition($price, ${horizontalPosition.toJsonElement()}, ${seriesApi.reference});")
+    }
+
+    fun clearCrosshairPosition() {
+        executeJs("$reference.clearCrosshairPosition();")
+    }
+
     fun applyOptions(options: ChartOptions) {
 
         val optionsJson = options.toJsonElement()

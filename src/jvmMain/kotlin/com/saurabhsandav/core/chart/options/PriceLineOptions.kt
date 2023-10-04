@@ -10,6 +10,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 data class PriceLineOptions(
+    val id: String? = null,
     val price: Number? = null,
     val color: Color? = null,
     val lineWidth: LineWidth? = null,
@@ -22,6 +23,7 @@ data class PriceLineOptions(
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
+        id?.let { put("id", it) }
         price?.let { put("price", it) }
         color?.let { put("color", it.toHexString()) }
         lineWidth?.let { put("lineWidth", it.toJsonElement()) }

@@ -24,21 +24,23 @@ class IPriceScaleApi(
 }
 
 data class PriceScaleOptions(
+    val alignLabels: Boolean? = null,
     val scaleMargins: PriceScaleMargins? = null,
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonElement = buildJsonObject {
+        alignLabels?.let { put("alignLabels", it) }
         scaleMargins?.let { put("scaleMargins", it.toJsonElement()) }
     }
-}
 
-data class PriceScaleMargins(
-    val top: Number? = null,
-    val bottom: Number? = null,
-) : IsJsonElement {
+    data class PriceScaleMargins(
+        val top: Number? = null,
+        val bottom: Number? = null,
+    ) : IsJsonElement {
 
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        top?.let { put("top", it) }
-        bottom?.let { put("bottom", it) }
+        override fun toJsonElement(): JsonElement = buildJsonObject {
+            top?.let { put("top", it) }
+            bottom?.let { put("bottom", it) }
+        }
     }
 }

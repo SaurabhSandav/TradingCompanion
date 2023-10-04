@@ -16,10 +16,15 @@ data class BaselineStyleOptions(
     val bottomLineColor: String? = null,
     val lineWidth: LineWidth? = null,
     val lineStyle: LineStyle? = null,
+    val lineType: LineType? = null,
+    val lineVisible: Boolean? = null,
+    val pointMarkersVisible: Boolean? = null,
+    val pointMarkersRadius: Number? = null,
     val crosshairMarkerVisible: Boolean? = null,
     val crosshairMarkerRadius: Number? = null,
     val crosshairMarkerBorderColor: String? = null,
     val crosshairMarkerBackgroundColor: String? = null,
+    val crosshairMarkerBorderWidth: Number? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
 
     override val lastValueVisible: Boolean? = null,
@@ -49,23 +54,28 @@ data class BaselineStyleOptions(
         bottomLineColor?.let { put("bottomLineColor", it) }
         lineWidth?.let { put("lineWidth", it.toJsonElement()) }
         lineStyle?.let { put("lineStyle", it.toJsonElement()) }
+        lineType?.let { put("lineType", it.toJsonElement()) }
+        lineVisible?.let { put("lineVisible", it) }
+        pointMarkersVisible?.let { put("pointMarkersVisible", it) }
+        pointMarkersRadius?.let { put("pointMarkersRadius", it) }
         crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
         crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
         crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it) }
         crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it) }
+        crosshairMarkerBorderWidth?.let { put("crosshairMarkerBorderWidth", it) }
         lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
 
         putSeriesOptionsCommonElements()
     }
-}
 
-data class BaseValuePrice(
-    val type: String,
-    val price: Number,
-) : IsJsonElement {
+    data class BaseValuePrice(
+        val type: String,
+        val price: Number,
+    ) : IsJsonElement {
 
-    override fun toJsonElement(): JsonObject = buildJsonObject {
-        put("type", type)
-        put("price", price)
+        override fun toJsonElement(): JsonObject = buildJsonObject {
+            put("type", type)
+            put("price", price)
+        }
     }
 }

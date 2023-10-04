@@ -9,8 +9,8 @@ import com.saurabhsandav.core.chart.baselineSeries
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
-import com.saurabhsandav.core.chart.options.CrosshairMode
-import com.saurabhsandav.core.chart.options.CrosshairOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
+import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single

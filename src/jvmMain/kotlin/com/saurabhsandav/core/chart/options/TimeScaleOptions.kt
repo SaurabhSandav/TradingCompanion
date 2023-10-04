@@ -7,9 +7,13 @@ import kotlinx.serialization.json.put
 
 class TimeScaleOptions(
     private val timeVisible: Boolean? = null,
+    private val secondsVisible: Boolean? = null,
+    private val shiftVisibleRangeOnNewBar: Boolean? = null,
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
         timeVisible?.let { put("timeVisible", it) }
+        secondsVisible?.let { put("secondsVisible", it) }
+        shiftVisibleRangeOnNewBar?.let { put("shiftVisibleRangeOnNewBar", it) }
     }
 }
