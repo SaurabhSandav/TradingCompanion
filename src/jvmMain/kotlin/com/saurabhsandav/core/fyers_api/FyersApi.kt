@@ -39,7 +39,7 @@ class FyersApi {
     private val redirectURL = "http://127.0.0.1:8080"
 
     fun getLoginURL(): String {
-        return URLBuilder("https://api.fyers.in/api/v2/generate-authcode").apply {
+        return URLBuilder("https://api-t1.fyers.in/api/v3/generate-authcode").apply {
             encodedParameters.apply {
                 append("client_id", BuildKonfig.FYERS_APP_ID)
                 append("redirect_uri", redirectURL)
@@ -55,12 +55,12 @@ class FyersApi {
         rateLimiter.limit()
 
         val requestBody = AuthValidationRequest(
-            code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
-            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".toByteArray().sha256().toString(),
             grantType = "authorization_code",
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".toByteArray().sha256().toString(),
+            code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
         )
 
-        val response = client.post("https://api.fyers.in/api/v2/validate-authcode") {
+        val response = client.post("https://api-t1.fyers.in/api/v3/validate-authcode") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }
@@ -75,7 +75,7 @@ class FyersApi {
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api.fyers.in/api/v2/profile") {
+        val response = client.get("https://api-t1.fyers.in/api/v3/profile") {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
         }
 
@@ -94,7 +94,7 @@ class FyersApi {
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api.fyers.in/data-rest/v2/history/") {
+        val response = client.get("https://api-t1.fyers.in/data/history") {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
             parameter("symbol", symbol)
             parameter("resolution", resolution.strValue)
@@ -115,7 +115,7 @@ class FyersApi {
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api.fyers.in/data-rest/v2/quotes/") {
+        val response = client.get("https://api-t1.fyers.in/data/quotes") {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
             parameter("symbols", symbols.joinToString(","))
         }

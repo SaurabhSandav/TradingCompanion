@@ -19,10 +19,19 @@ data class ProfileResult(
     var emailId: String,
 
     @SerialName("PAN")
-    var PAN: String,
+    var pan: String,
 
     @SerialName("fy_id")
     var fyId: String,
+
+    @SerialName("pin_change_date")
+    var pinChangeDate: String,
+
+    @SerialName("mobile_number")
+    var mobileNumber: String,
+
+    @SerialName("totp")
+    var totp: Boolean,
 
     @SerialName("pwd_change_date")
     var pwdChangeDate: String,

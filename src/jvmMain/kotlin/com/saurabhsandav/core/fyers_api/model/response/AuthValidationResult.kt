@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.fyers_api.model.response
 
-import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,4 +8,7 @@ data class AuthValidationResult(
 
     @SerialName("access_token")
     val accessToken: String,
+
+    @SerialName("refresh_token")
+    val refreshToken: String,
 )
