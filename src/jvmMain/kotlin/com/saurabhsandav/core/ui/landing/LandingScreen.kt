@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.state
@@ -214,11 +215,14 @@ private fun LandingScreen(
             }
 
             // Windows of all switcher items
-            switcherItems.forEach { (key, item) ->
+            WindowsOnlyLayout {
 
-                key(key) {
+                switcherItems.forEach { (key, item) ->
 
-                    item.Windows()
+                    key(key) {
+
+                        item.Windows()
+                    }
                 }
             }
         }
