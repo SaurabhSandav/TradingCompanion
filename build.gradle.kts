@@ -2,7 +2,6 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.gradle.versions.checker)
@@ -15,13 +14,6 @@ plugins {
 
 group = "com.saurabhsandav.apps"
 version = "1.0-SNAPSHOT"
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://androidx.dev/storage/compose-compiler/repository/")
-}
 
 configurations.all {
     resolutionStrategy.dependencySubstitution {
@@ -69,7 +61,7 @@ kotlin {
         }
 
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmToolchain(17)
         }
     }
 
