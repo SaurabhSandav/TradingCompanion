@@ -36,7 +36,7 @@ internal fun TradesTable(
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumn("Entry Time") { it.entryTime }
+        addColumnText("Entry Time") { it.entryTime }
         addColumn("Duration") {
 
             Text(
