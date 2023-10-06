@@ -21,10 +21,10 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
@@ -57,7 +57,7 @@ import kotlin.time.Duration.Companion.seconds
 internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
+    private val tradeContentLauncher: TradeContentLauncher,
     private val appPrefs: FlowSettings = appModule.appPrefs,
     private val candleRepo: CandleRepository = appModule.candleRepo,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
@@ -169,26 +169,10 @@ internal class TradesPresenter(
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
-        val window = tradeWindowsManager.windows.find {
-            it.params.profileId == profileTradeId.profileId && it.params.tradeId == profileTradeId.tradeId
-        }
-
-        when (window) {
-
-            // Open new window
-            null -> {
-
-                val params = TradeWindowParams(
-                    profileId = profileTradeId.profileId,
-                    tradeId = profileTradeId.tradeId
-                )
-
-                tradeWindowsManager.newWindow(params)
-            }
-
-            // Window already open. Bring to front.
-            else -> window.toFront()
-        }
+        tradeContentLauncher.openTrade(
+            profileId = profileTradeId.profileId,
+            tradeId = profileTradeId.tradeId,
+        )
     }
 
     private fun onOpenChart(profileTradeId: ProfileTradeId): Unit = coroutineScope.launchUnit {

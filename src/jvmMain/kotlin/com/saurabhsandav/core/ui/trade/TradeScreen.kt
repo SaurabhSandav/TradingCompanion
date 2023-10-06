@@ -12,9 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.ui.*
@@ -23,13 +22,13 @@ import com.saurabhsandav.core.ui.trade.ui.*
 internal fun TradeWindow(
     profileId: Long,
     tradeId: Long,
-    executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
+    tradeContentLauncher: TradeContentLauncher,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule, executionFormWindowsManager) }
+    val presenter = remember { TradePresenter(profileId, tradeId, scope, appModule, tradeContentLauncher) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(

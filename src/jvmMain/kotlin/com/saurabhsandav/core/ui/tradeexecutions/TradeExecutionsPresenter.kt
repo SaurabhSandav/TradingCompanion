@@ -6,10 +6,9 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeExecutionFormWindowParams
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
@@ -32,7 +31,7 @@ import java.util.*
 internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
-    private val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormWindowParams>,
+    private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
@@ -108,46 +107,26 @@ internal class TradeExecutionsPresenter(
 
         val currentProfile = tradingProfiles.currentProfile.first()
 
-        val params = TradeExecutionFormWindowParams(
+        tradeContentLauncher.openExecutionForm(
             profileId = currentProfile.id,
             formType = TradeExecutionFormType.New(),
         )
-
-        executionFormWindowsManager.newWindow(params)
     }
 
     private fun onNewExecutionFromExisting(profileTradeExecutionId: ProfileTradeExecutionId) {
 
-        val params = TradeExecutionFormWindowParams(
+        tradeContentLauncher.openExecutionForm(
             profileId = profileTradeExecutionId.profileId,
             formType = TradeExecutionFormType.NewFromExisting(profileTradeExecutionId.executionId),
         )
-
-        executionFormWindowsManager.newWindow(params)
     }
 
     private fun onEditExecution(profileTradeExecutionId: ProfileTradeExecutionId) {
 
-        val window = executionFormWindowsManager.windows.find {
-            it.params.formType is TradeExecutionFormType.Edit
-                    && it.params.formType.id == profileTradeExecutionId.executionId
-        }
-
-        when (window) {
-            // Open new window
-            null -> {
-
-                val params = TradeExecutionFormWindowParams(
-                    profileId = profileTradeExecutionId.profileId,
-                    formType = TradeExecutionFormType.Edit(profileTradeExecutionId.executionId),
-                )
-
-                executionFormWindowsManager.newWindow(params)
-            }
-
-            // Window already open. Bring to front.
-            else -> window.toFront()
-        }
+        tradeContentLauncher.openExecutionForm(
+            profileId = profileTradeExecutionId.profileId,
+            formType = TradeExecutionFormType.Edit(profileTradeExecutionId.executionId),
+        )
     }
 
     private fun onLockExecutions(ids: List<ProfileTradeExecutionId>) = coroutineScope.launchUnit {

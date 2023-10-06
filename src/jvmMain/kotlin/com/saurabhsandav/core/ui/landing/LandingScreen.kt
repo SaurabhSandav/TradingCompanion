@@ -14,16 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
-import com.saurabhsandav.core.ui.landing.model.LandingState.*
+import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
@@ -31,8 +31,6 @@ import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
-import com.saurabhsandav.core.ui.trade.TradeWindow
-import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
@@ -168,28 +166,12 @@ private fun LandingScreen(
             }
         }
 
-        val executionFormWindowsManager = remember { AppWindowsManager<TradeExecutionFormWindowParams>() }
-        val tradeWindowsManager = remember { AppWindowsManager<TradeWindowParams>() }
+        val tradeContentLauncher = remember { TradeContentLauncher() }
 
-        // Trade execution form windows
-        executionFormWindowsManager.Windows { window ->
+        // Trade content windows
+        WindowsOnlyLayout {
 
-            TradeExecutionFormWindow(
-                profileId = window.params.profileId,
-                formType = window.params.formType,
-                onCloseRequest = window::close,
-            )
-        }
-
-        // Trade windows
-        tradeWindowsManager.Windows { window ->
-
-            TradeWindow(
-                profileId = window.params.profileId,
-                tradeId = window.params.tradeId,
-                executionFormWindowsManager = executionFormWindowsManager,
-                onCloseRequest = window::close,
-            )
+            tradeContentLauncher.Windows()
         }
 
         Box(Modifier.fillMaxSize()) {
@@ -202,8 +184,8 @@ private fun LandingScreen(
                     LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeExecutions to
-                            TradeExecutionsLandingSwitcherItem(scope, appModule, executionFormWindowsManager),
-                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule, tradeWindowsManager),
+                            TradeExecutionsLandingSwitcherItem(scope, appModule, tradeContentLauncher),
+                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule, tradeContentLauncher),
                     LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
                 )
             }
@@ -242,7 +224,7 @@ private fun LandingScreen(
             AppWindowOwner(chartsWindowOwner) {
 
                 ChartsScreen(
-                    tradeWindowsManager = tradeWindowsManager,
+                    tradeContentLauncher = tradeContentLauncher,
                     onCloseRequest = { showChartsWindow = false },
                 )
             }

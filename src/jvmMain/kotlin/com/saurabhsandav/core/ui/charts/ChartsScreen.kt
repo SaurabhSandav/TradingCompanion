@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
@@ -20,14 +21,12 @@ import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 
 @Composable
 internal fun ChartsScreen(
-    tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
+    tradeContentLauncher: TradeContentLauncher,
     onCloseRequest: () -> Unit,
 ) {
 
@@ -88,7 +87,7 @@ internal fun ChartsScreen(
                 onCloseRequest = { showTradeReviewWindow = false },
                 onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
                 markersProvider = markersProvider,
-                tradeWindowsManager = tradeWindowsManager,
+                tradeContentLauncher = tradeContentLauncher,
             )
         }
     }

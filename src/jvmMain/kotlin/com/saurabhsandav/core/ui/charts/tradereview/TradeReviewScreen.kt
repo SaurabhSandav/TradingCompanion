@@ -5,13 +5,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Instant
@@ -25,13 +24,13 @@ internal fun TradeReviewWindow(
         end: Instant?,
     ) -> Unit,
     markersProvider: ChartMarkersProvider,
-    tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
+    tradeContentLauncher: TradeContentLauncher,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        TradeReviewPresenter(scope, appModule, onOpenChart, markersProvider, tradeWindowsManager)
+        TradeReviewPresenter(scope, appModule, onOpenChart, markersProvider, tradeContentLauncher)
     }
     val state by presenter.state.collectAsState()
 

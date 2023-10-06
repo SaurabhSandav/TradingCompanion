@@ -7,14 +7,13 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
@@ -42,7 +41,7 @@ internal class TradeReviewPresenter(
         end: Instant?,
     ) -> Unit,
     private val markersProvider: ChartMarkersProvider,
-    private val tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
+    private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
@@ -188,25 +187,9 @@ internal class TradeReviewPresenter(
 
         val profileId = selectedProfileId.value ?: error("Trade review profile not set")
 
-        val window = tradeWindowsManager.windows.find {
-            it.params.profileId == profileId && it.params.tradeId == id
-        }
-
-        when (window) {
-
-            // Open new window
-            null -> {
-
-                val params = TradeWindowParams(
-                    profileId = profileId,
-                    tradeId = id,
-                )
-
-                tradeWindowsManager.newWindow(params)
-            }
-
-            // Window already open. Bring to front.
-            else -> window.toFront()
-        }
+        tradeContentLauncher.openTrade(
+            profileId = profileId,
+            tradeId = id,
+        )
     }
 }

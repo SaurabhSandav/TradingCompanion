@@ -4,9 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.landing.model.LandingState.TradeWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import kotlinx.coroutines.CoroutineScope
@@ -14,10 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 internal class TradesLandingSwitcherItem(
     coroutineScope: CoroutineScope,
     appModule: AppModule,
-    tradeWindowsManager: AppWindowsManager<TradeWindowParams>,
+    tradeContentLauncher: TradeContentLauncher,
 ) : LandingSwitcherItem {
 
-    private val presenter = TradesPresenter(coroutineScope, appModule, tradeWindowsManager)
+    private val presenter = TradesPresenter(coroutineScope, appModule, tradeContentLauncher)
 
     @Composable
     override fun Content() {

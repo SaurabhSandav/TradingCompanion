@@ -34,16 +34,4 @@ internal data class LandingState(
             )
         }
     }
-
-    @Immutable
-    internal data class TradeExecutionFormWindowParams(
-        val profileId: Long,
-        val formType: TradeExecutionFormType,
-    )
-
-    @Immutable
-    internal data class TradeWindowParams(
-        val profileId: Long,
-        val tradeId: Long,
-    )
 }
