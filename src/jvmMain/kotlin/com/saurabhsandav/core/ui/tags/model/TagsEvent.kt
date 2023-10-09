@@ -1,0 +1,10 @@
+package com.saurabhsandav.core.ui.tags.model
+
+import com.saurabhsandav.core.ui.tags.model.TagsState.ProfileTagId
+
+internal sealed class TagsEvent {
+
+    data class DeleteTag(val profileTagId: ProfileTagId) : TagsEvent()
+
+    data class CopyTag(val profileTagId: ProfileTagId) : TagsEvent()
+}

@@ -1,0 +1,36 @@
+
+CREATE TABLE IF NOT EXISTS TradeToTagMap (
+tradeId INTEGER NOT NULL,
+tagId INTEGER NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
+FOREIGN KEY(tagId) REFERENCES TradeTag(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, tagId)
+);
+
+insert:
+INSERT OR IGNORE INTO TradeToTagMap(tradeId, tagId)
+VALUES (?, ?);
+
+delete:
+DELETE FROM TradeToTagMap
+WHERE tradeId = ? AND tagId = ?;
+
+getTagsByTrade:
+SELECT TradeTag.* FROM TradeToTagMap
+INNER JOIN TradeTag
+ON TradeToTagMap.tagId = TradeTag.id
+WHERE TradeToTagMap.tradeId = ?;
+
+getSuggestedTagsForTrade:
+SELECT TradeTag.* FROM TradeTag
+LEFT OUTER JOIN TradeToTagMap
+ON TradeToTagMap.tagId = TradeTag.id
+AND TradeToTagMap.tradeId = ?
+WHERE TradeToTagMap.tradeId IS NULL
+AND TradeTag.name LIKE '%' || :filter || '%';
+
+getTradesByTag:
+SELECT Trade.* FROM TradeToTagMap
+INNER JOIN Trade
+ON TradeToTagMap.tradeId = Trade.id
+WHERE TradeToTagMap.tagId = ?;

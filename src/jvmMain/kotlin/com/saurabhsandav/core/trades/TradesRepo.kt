@@ -176,6 +176,91 @@ internal class TradesRepo(
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
     }
 
+    fun getAllTags(): Flow<List<TradeTag>> {
+        return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getTagById(id: Long): Flow<TradeTag> {
+        return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getTagsForTrade(id: Long): Flow<List<TradeTag>> {
+        return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getSuggestedTagsForTrade(tradeId: Long, filter: String): Flow<List<TradeTag>> {
+        return tradesDB.tradeToTagMapQueries
+            .getSuggestedTagsForTrade(tradeId, filter)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+    }
+
+    suspend fun createTag(name: String, description: String) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeTagQueries.insert(
+            name = name,
+            description = description,
+        )
+    }
+
+    suspend fun updateTag(
+        id: Long,
+        name: String,
+        description: String,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeTagQueries.update(
+            id = id,
+            name = name,
+            description = description,
+        )
+    }
+
+    suspend fun copyTag(id: Long) = withContext(Dispatchers.IO) {
+
+        // Get tag details to copy
+        val tag = tradesDB.tradeTagQueries.getById(id).executeAsOne()
+
+        tradesDB.tradeTagQueries.insert(
+            name = tag.name,
+            description = tag.description,
+        )
+    }
+
+    suspend fun deleteTag(id: Long) = withContext(Dispatchers.IO) {
+        tradesDB.tradeTagQueries.delete(id)
+    }
+
+    suspend fun isTagNameUnique(
+        name: String,
+        ignoreTagId: Long? = null,
+    ): Boolean = withContext(Dispatchers.IO) {
+        return@withContext tradesDB.tradeTagQueries
+            .run {
+                when {
+                    ignoreTagId == null -> isTagNameUnique(name)
+                    else -> isTagNameUniqueIgnoreId(name, ignoreTagId)
+                }
+            }
+            .executeAsOne()
+    }
+
+    suspend fun addTag(tradeId: Long, tagId: Long) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeToTagMapQueries.insert(
+            tradeId = tradeId,
+            tagId = tagId,
+        )
+    }
+
+    suspend fun removeTag(tradeId: Long, tagId: Long) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeToTagMapQueries.delete(
+            tradeId = tradeId,
+            tagId = tagId,
+        )
+    }
+
     fun getNotesForTrade(id: Long): Flow<List<TradeNote>> {
         return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }

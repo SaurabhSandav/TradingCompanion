@@ -64,6 +64,8 @@ internal class TradePresenter(
             targets = getTradeTargets().value,
             previewTarget = ::previewTarget,
             mfeAndMae = getMfeAndMae().value,
+            tags = getTradeTags().value,
+            tagSuggestions = ::tagSuggestions,
             notes = getTradeNotes().value,
             eventSink = ::onEvent,
         )
@@ -84,6 +86,8 @@ internal class TradePresenter(
             is DeleteStop -> onDeleteStop(event.price)
             is AddTarget -> onAddTarget(event.price)
             is DeleteTarget -> onDeleteTarget(event.price)
+            is AddTag -> onAddTag(event.id)
+            is RemoveTag -> onRemoveTag(event.id)
             is AddNote -> onAddNote(event.note)
             is UpdateNote -> onUpdateNote(event.id, event.note)
             is DeleteNote -> onDeleteNote(event.id)
@@ -254,6 +258,26 @@ internal class TradePresenter(
     }
 
     @Composable
+    private fun getTradeTags(): State<ImmutableList<TradeTag>> {
+        return produceState<ImmutableList<TradeTag>>(persistentListOf()) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades
+                .getTagsForTrade(tradeId)
+                .mapList { tag ->
+
+                    TradeTag(
+                        id = tag.id,
+                        name = tag.name,
+                        description = tag.description,
+                    )
+                }
+                .collect { value = it.toImmutableList() }
+        }
+    }
+
+    @Composable
     private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
         return produceState<ImmutableList<TradeNote>>(persistentListOf()) {
 
@@ -348,6 +372,24 @@ internal class TradePresenter(
         }
     }
 
+    private fun tagSuggestions(filter: String): Flow<ImmutableList<TradeTag>> = flow {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        tradingRecord.trades
+            .getSuggestedTagsForTrade(tradeId, filter)
+            .mapList { tag ->
+
+                TradeTag(
+                    id = tag.id,
+                    name = tag.name,
+                    description = tag.description,
+                )
+            }
+            .map { it.toImmutableList() }
+            .let { emitAll(it) }
+    }
+
     private fun onAddToTrade() {
 
         tradeContentLauncher.openExecutionForm(
@@ -412,6 +454,16 @@ internal class TradePresenter(
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.deleteTarget(tradeId, price)
+    }
+
+    private fun onAddTag(id: Long) = coroutineScope.launchUnit {
+
+        tradingProfiles.getRecord(profileId).trades.addTag(tradeId, id)
+    }
+
+    private fun onRemoveTag(id: Long) = coroutineScope.launchUnit {
+
+        tradingProfiles.getRecord(profileId).trades.removeTag(tradeId, id)
     }
 
     private fun onAddNote(note: String) = coroutineScope.launchUnit {

@@ -17,6 +17,8 @@ internal data class TradeState(
     val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     val mfeAndMae: MfeAndMae?,
     val notes: ImmutableList<TradeNote>,
+    val tags: ImmutableList<TradeTag>,
+    val tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
     val eventSink: (TradeEvent) -> Unit,
 ) {
 
@@ -67,6 +69,13 @@ internal data class TradeState(
         val priceText: String,
         val profit: String,
         val netProfit: String,
+    )
+
+    @Immutable
+    internal data class TradeTag(
+        val id: Long,
+        val name: String,
+        val description: String,
     )
 
     @Immutable

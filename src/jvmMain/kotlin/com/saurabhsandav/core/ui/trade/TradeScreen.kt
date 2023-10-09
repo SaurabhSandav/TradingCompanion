@@ -93,6 +93,13 @@ internal fun TradeScreen(
                             onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
                         )
 
+                        Tags(
+                            tags = state.tags,
+                            tagSuggestions = state.tagSuggestions,
+                            onAddTag = { id -> state.eventSink(AddTag(id)) },
+                            onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
+                        )
+
                         Notes(
                             notes = state.notes,
                             onAddNote = { state.eventSink(AddNote(it)) },

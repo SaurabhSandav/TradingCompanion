@@ -31,6 +31,7 @@ import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
+import com.saurabhsandav.core.ui.tags.TagsWindow
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
@@ -64,6 +65,9 @@ private fun LandingScreen(
 
     var showChartsWindow by state { false }
     val chartsWindowOwner = remember { AppWindowOwner() }
+
+    var showTagsWindow by state { false }
+    val tagsWindowOwner = remember { AppWindowOwner() }
 
     var showPNLCalculatorWindow by state { false }
     val pnlCalculatorWindowOwner = remember { AppWindowOwner() }
@@ -119,6 +123,20 @@ private fun LandingScreen(
                     onClick = {
                         showChartsWindow = true
                         chartsWindowOwner.childrenToFront()
+                    }
+                )
+            }
+
+            TooltipArea(
+                tooltip = { Tooltip("Tags") },
+            ) {
+
+                NavigationRailItem(
+                    icon = { Icon(Icons.Default.Label, contentDescription = "Tags") },
+                    selected = false,
+                    onClick = {
+                        showTagsWindow = true
+                        tagsWindowOwner.childrenToFront()
                     }
                 )
             }
@@ -226,6 +244,16 @@ private fun LandingScreen(
                 ChartsScreen(
                     tradeContentLauncher = tradeContentLauncher,
                     onCloseRequest = { showChartsWindow = false },
+                )
+            }
+        }
+
+        if (showTagsWindow) {
+
+            AppWindowOwner(tagsWindowOwner) {
+
+                TagsWindow(
+                    onCloseRequest = { showTagsWindow = false },
                 )
             }
         }

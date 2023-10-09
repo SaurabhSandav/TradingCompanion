@@ -74,6 +74,7 @@ kotlin {
                     "kotlin.contracts.ExperimentalContracts",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "androidx.compose.foundation.ExperimentalFoundationApi",
+                    "androidx.compose.foundation.layout.ExperimentalLayoutApi",
                     "androidx.compose.ui.ExperimentalComposeUiApi",
                     "androidx.compose.animation.ExperimentalAnimationApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
