@@ -1,0 +1,46 @@
+package com.saurabhsandav.core.trading.data.db
+
+import app.cash.sqldelight.db.SqlDriver
+import com.saurabhsandav.core.trading.Timeframe
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
+class CandleQueriesCollection(private val driver: SqlDriver) {
+
+    private var nextIdentifierSeries = 0
+    private val mutex = Mutex()
+    private val queriesMap = mutableMapOf<String, CandlesQueries>()
+
+    fun getTableName(ticker: String, timeframe: Timeframe) = "${ticker}_${timeframe.seconds}"
+
+    suspend fun get(ticker: String, timeframe: Timeframe): CandlesQueries = mutex.withLock {
+
+        val tableName = getTableName(ticker, timeframe)
+
+        return@withLock queriesMap.getOrPut(tableName) {
+
+            driver.execute(
+                identifier = null,
+                sql = """
+                    |CREATE TABLE IF NOT EXISTS $tableName (
+                    |epochSeconds INTEGER NOT NULL PRIMARY KEY,
+                    |open TEXT NOT NULL,
+                    |high TEXT NOT NULL,
+                    |low TEXT NOT NULL,
+                    |close TEXT NOT NULL,
+                    |volume INTEGER NOT NULL
+                    |)
+                    """.trimMargin(),
+                parameters = 0,
+            )
+
+            nextIdentifierSeries += 1
+
+            CandlesQueries(
+                driver = driver,
+                tableName = tableName,
+                identifierSeries = nextIdentifierSeries,
+            )
+        }
+    }
+}

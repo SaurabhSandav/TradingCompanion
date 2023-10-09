@@ -3,39 +3,17 @@ package com.saurabhsandav.core.trading.data
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
-
-class CandleDBCollection {
-
-    private val dbMap = mutableMapOf<String, CandleDB>()
-
-    fun get(ticker: String, timeframe: Timeframe): CandleDB {
-
-        val candlesFolderPath = Path("${AppPaths.getAppDataPath()}/Candles").createDirectories()
-
-        val dbName = "${ticker}_${timeframe.seconds}"
-
-        return dbMap.getOrPut(dbName) {
-            val driver = JdbcSqliteDriver("jdbc:sqlite:$candlesFolderPath/${dbName}.db")
-            CandleDB.Schema.create(driver)
-            CandleDB(driver = driver)
-        }
-    }
-}
 
 internal class CandleCacheDB(
-    appModule: AppModule,
-    private val candleDBCollection: CandleDBCollection = appModule.candleDBCollection,
+    private val candleDB: CandleDB,
+    private val candleQueriesCollection: CandleQueriesCollection,
 ) : CandleCache {
 
     override suspend fun saveCheckedRange(
@@ -47,14 +25,16 @@ internal class CandleCacheDB(
 
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
-        val checkedRangeQueries = candleDBCollection.get(ticker, timeframe).checkedRangeQueries
+        val checkedRangeQueries = candleDB.checkedRangeQueries
         val currentRange = getCachedRange(ticker, timeframe)
 
         // Expand range on either side
         val minFrom = minOf(from, currentRange?.start ?: from)
         val maxTo = maxOf(to, currentRange?.endInclusive ?: to)
 
-        checkedRangeQueries.insert(minFrom.epochSeconds, maxTo.epochSeconds)
+        val tableName = candleQueriesCollection.getTableName(ticker, timeframe)
+
+        checkedRangeQueries.insert(tableName, minFrom, maxTo)
     }
 
     override suspend fun getCachedRange(
@@ -62,10 +42,12 @@ internal class CandleCacheDB(
         timeframe: Timeframe,
     ): ClosedRange<Instant>? {
 
-        val checkedRangeQueries = candleDBCollection.get(ticker, timeframe).checkedRangeQueries
+        val checkedRangeQueries = candleDB.checkedRangeQueries
+
+        val tableName = candleQueriesCollection.getTableName(ticker, timeframe)
 
         return checkedRangeQueries
-            .get { _, start, end -> Instant.fromEpochSeconds(start)..Instant.fromEpochSeconds(end) }
+            .get(tableName) { _, start, end -> start..end }
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .first()
@@ -78,7 +60,7 @@ internal class CandleCacheDB(
         to: Instant,
     ): List<Candle> {
 
-        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
         return candlesQueries.getInRange(
             from = from.epochSeconds,
@@ -101,7 +83,7 @@ internal class CandleCacheDB(
         at: Instant,
     ): CandleCache.CountRange? {
 
-        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
         val result =
             candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds).asFlow().mapToList(Dispatchers.IO).first()
 
@@ -126,7 +108,7 @@ internal class CandleCacheDB(
 
         require(count > 0) { "CandleCacheDB: count should be greater than 0" }
 
-        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
         return candlesQueries.getCountBefore(
             at = at.epochSeconds,
@@ -154,7 +136,7 @@ internal class CandleCacheDB(
 
         require(count > 0) { "CandleCacheDB: count should be greater than 0" }
 
-        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
         return candlesQueries.getCountAfter(
             at = at.epochSeconds,
@@ -178,13 +160,13 @@ internal class CandleCacheDB(
         candles: List<Candle>,
     ) = withContext(Dispatchers.IO) {
 
-        val candlesQueries = candleDBCollection.get(ticker, timeframe).candlesQueries
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
         candlesQueries.transaction {
             candles.forEach { candle ->
                 candlesQueries.insert(
                     epochSeconds = candle.openInstant.epochSeconds,
-                    open_ = candle.open.toPlainString(),
+                    open = candle.open.toPlainString(),
                     high = candle.high.toPlainString(),
                     low = candle.low.toPlainString(),
                     close = candle.close.toPlainString(),

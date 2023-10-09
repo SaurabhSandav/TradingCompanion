@@ -1,14 +1,15 @@
+import kotlinx.datetime.Instant;
 
 CREATE TABLE IF NOT EXISTS CheckedRange (
-    id INTEGER PRIMARY KEY CHECK (id = 0),
-    fromEpochSeconds INTEGER NOT NULL,
-    toEpochSeconds INTEGER NOT NULL
+tableName TEXT NOT NULL UNIQUE,
+fromEpochSeconds INTEGER AS Instant NOT NULL,
+toEpochSeconds INTEGER AS Instant NOT NULL
 );
 
 insert:
-INSERT OR REPLACE INTO CheckedRange
-VALUES (0, ?, ?);
+INSERT OR REPLACE INTO CheckedRange(tableName, fromEpochSeconds, toEpochSeconds)
+VALUES (?, ?, ?);
 
 get:
 SELECT * FROM CheckedRange
-WHERE id = 0;
+WHERE tableName = ?;

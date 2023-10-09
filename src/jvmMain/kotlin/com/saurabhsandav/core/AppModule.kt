@@ -1,6 +1,7 @@
 package com.saurabhsandav.core
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
+import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
@@ -8,13 +9,12 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
-import com.saurabhsandav.core.trading.data.CandleCacheDB
-import com.saurabhsandav.core.trading.data.CandleDBCollection
-import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.trading.data.FyersCandleDownloader
+import com.saurabhsandav.core.trading.data.*
+import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.core.utils.InstantColumnAdapter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -46,6 +46,24 @@ internal class AppModule {
         )
     }
 
+    private val candleDBDriver: SqlDriver = run {
+        JdbcSqliteDriver(
+            url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/Candles.db",
+            properties = Properties().apply { put("foreign_keys", "true") },
+        )
+    }
+
+    val candleDB: CandleDB = run {
+        CandleDB.Schema.create(candleDBDriver)
+        CandleDB(
+            driver = candleDBDriver,
+            CheckedRangeAdapter = CheckedRange.Adapter(
+                fromEpochSecondsAdapter = InstantColumnAdapter,
+                toEpochSecondsAdapter = InstantColumnAdapter,
+            )
+        )
+    }
+
     val appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName)).toFlowSettings()
 
     val webViewProvider = { JavaFxWebView() }
@@ -54,11 +72,14 @@ internal class AppModule {
 
     val fyersApi by lazy { FyersApi() }
 
-    val candleDBCollection = CandleDBCollection()
+    private val candleQueriesCollection = CandleQueriesCollection(driver = candleDBDriver)
 
     val candleRepo = CandleRepository(
         candleDownloader = FyersCandleDownloader(this),
-        candleCache = CandleCacheDB(this),
+        candleCache = CandleCacheDB(
+            candleDB = candleDB,
+            candleQueriesCollection = candleQueriesCollection,
+        ),
     )
 
     val tradingProfiles = TradingProfiles(
