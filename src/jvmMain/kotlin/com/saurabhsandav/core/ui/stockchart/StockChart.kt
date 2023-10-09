@@ -135,14 +135,14 @@ internal class StockChart(
                 else -> this@StockChart.visibleRange
             } ?: (candleSeries.size - 90F)..(candleSeries.size + 10F)
 
+            // Set initial data
+            refresh()
+
             // Set visible range
             actualChart.timeScale.setVisibleLogicalRange(
                 from = finalVisibleRange.start,
                 to = finalVisibleRange.endInclusive,
             )
-
-            // Set initial data
-            refresh()
 
             // Set data on future loads
             candleSeries.modifications.onEach { refresh() }.launchIn(sourceCoroutineScope)
