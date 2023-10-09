@@ -223,7 +223,20 @@ internal class CandleRepository(
             ticker = ticker,
             timeframe = timeframe,
             from = from,
-            to = correctedTo,
+            to = run {
+
+                // If correctedTo is today, set checked range to end at start of day, today.
+                // This will re-fetch all the candles for today everytime they're requested.
+                // This handles situations where incorrect candles are provided by the download service.
+                // The assumption is that the candles will be corrected by the end of day.
+                val today = currentTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val correctedDate = correctedTo.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+                when (today) {
+                    correctedDate -> today.atStartOfDayIn(TimeZone.currentSystemDefault())
+                    else -> correctedTo
+                }
+            },
         )
 
         // Success
