@@ -12,7 +12,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -74,7 +74,9 @@ internal class TradePresenter(
     private fun onEvent(event: TradeEvent) {
 
         when (event) {
-            is NewExecution -> onNewExecution(event.fromExecutionId)
+            is AddToTrade -> onAddToTrade()
+            is CloseTrade -> onCloseTrade()
+            is NewFromExistingExecution -> onNewExecution(event.fromExecutionId)
             is EditExecution -> onEditExecution(event.executionId)
             is LockExecution -> onLockExecution(event.executionId)
             is DeleteExecution -> onDeleteExecution(event.executionId)
@@ -346,14 +348,27 @@ internal class TradePresenter(
         }
     }
 
-    private fun onNewExecution(fromExecutionId: Long?) {
+    private fun onAddToTrade() {
 
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
-            formType = when {
-                fromExecutionId == null -> AddToTrade(tradeId)
-                else -> NewFromExistingInTrade(fromExecutionId)
-            },
+            formType = TradeExecutionFormType.AddToTrade(tradeId),
+        )
+    }
+
+    private fun onCloseTrade() {
+
+        tradeContentLauncher.openExecutionForm(
+            profileId = profileId,
+            formType = TradeExecutionFormType.CloseTrade(tradeId),
+        )
+    }
+
+    private fun onNewExecution(fromExecutionId: Long) {
+
+        tradeContentLauncher.openExecutionForm(
+            profileId = profileId,
+            formType = TradeExecutionFormType.NewFromExistingInTrade(fromExecutionId),
         )
     }
 
@@ -361,7 +376,7 @@ internal class TradePresenter(
 
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
-            formType = Edit(executionId),
+            formType = TradeExecutionFormType.Edit(executionId),
         )
     }
 

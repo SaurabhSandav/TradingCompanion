@@ -4,6 +4,7 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,7 +26,8 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradeExecutionsTable(
     items: ImmutableList<TradeState.Execution>,
     newExecutionEnabled: Boolean,
-    onNewExecution: () -> Unit,
+    onAddToTrade: () -> Unit,
+    onCloseTrade: () -> Unit,
     onNewFromExistingExecution: (Long) -> Unit,
     onEditExecution: (Long) -> Unit,
     onLockExecution: (Long) -> Unit,
@@ -73,12 +75,22 @@ internal fun TradeExecutionsTable(
 
             if (newExecutionEnabled) {
 
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onNewExecution,
-                    shape = RectangleShape,
-                    content = { Text("New Execution") },
-                )
+                Row(modifier = Modifier.fillMaxWidth()) {
+
+                    TextButton(
+                        modifier = Modifier.weight(1F),
+                        onClick = onAddToTrade,
+                        shape = RectangleShape,
+                        content = { Text("Add to Trade") },
+                    )
+
+                    TextButton(
+                        modifier = Modifier.weight(1F),
+                        onClick = onCloseTrade,
+                        shape = RectangleShape,
+                        content = { Text("Close Trade") },
+                    )
+                }
             }
         }
     }

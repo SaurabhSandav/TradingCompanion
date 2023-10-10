@@ -12,5 +12,7 @@ internal sealed class TradeExecutionFormType {
 
     data class AddToTrade(val tradeId: Long) : TradeExecutionFormType()
 
+    data class CloseTrade(val tradeId: Long) : TradeExecutionFormType()
+
     data class Edit(val id: Long) : TradeExecutionFormType()
 }

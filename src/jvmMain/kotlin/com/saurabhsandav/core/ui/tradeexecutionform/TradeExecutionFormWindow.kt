@@ -20,8 +20,7 @@ import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.AddToTrade
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Clock
@@ -101,7 +100,8 @@ private fun TradeExecutionForm(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
-        val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade)
+        val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
+        val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)
 
         OutlinedListSelectionField(
             items = remember { persistentListOf(*enumValues<Instrument>()) },
@@ -158,6 +158,7 @@ private fun TradeExecutionForm(
             Switch(
                 checked = model.isBuy.value,
                 onCheckedChange = { model.isBuy.value = it },
+                enabled = isSideSelectable,
             )
 
             Text("BUY", color = AppColor.ProfitGreen)

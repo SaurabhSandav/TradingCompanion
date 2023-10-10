@@ -6,6 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
@@ -40,6 +41,7 @@ internal class TradeExecutionFormPresenter(
             is NewFromExisting -> newFromExisting(formType.id)
             is NewFromExistingInTrade -> newFromExisting(formType.id)
             is AddToTrade -> addToTrade(formType.tradeId)
+            is CloseTrade -> closeTrade(formType.tradeId)
             is Edit -> edit(formType.id)
         }
     }
@@ -147,7 +149,29 @@ internal class TradeExecutionFormPresenter(
             ticker = trade.ticker,
             quantity = "",
             lots = "",
-            isBuy = true,
+            isBuy = trade.side == TradeSide.Long,
+            price = "",
+            timestamp = run {
+                val currentTime = Clock.System.now()
+                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+            },
+        )
+    }
+
+    private fun closeTrade(tradeId: Long) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        val trade = tradingRecord.trades.getById(tradeId).first()
+
+        formModel = TradeExecutionFormModel(
+            validator = formValidator,
+            instrument = trade.instrument,
+            ticker = trade.ticker,
+            quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
+            lots = "",
+            isBuy = trade.side != TradeSide.Long,
             price = "",
             timestamp = run {
                 val currentTime = Clock.System.now()
