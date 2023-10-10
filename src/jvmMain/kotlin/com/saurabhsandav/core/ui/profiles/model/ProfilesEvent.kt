@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.profiles.model
 
 internal sealed class ProfilesEvent {
 
-    data class CreateNewProfile(val profileModel: ProfileModel) : ProfilesEvent()
+    data class CreateProfile(val formModel: ProfileFormModel) : ProfilesEvent()
 
     data class SetCurrentProfile(val id: Long) : ProfilesEvent()
 
@@ -10,7 +10,7 @@ internal sealed class ProfilesEvent {
 
     data class UpdateProfile(
         val id: Long,
-        val profileModel: ProfileModel,
+        val formModel: ProfileFormModel,
     ) : ProfilesEvent()
 
     data class CopyProfile(val id: Long) : ProfilesEvent()

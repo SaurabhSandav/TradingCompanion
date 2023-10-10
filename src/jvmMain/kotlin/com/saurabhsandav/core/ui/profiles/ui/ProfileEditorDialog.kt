@@ -15,12 +15,12 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.profiles.model.ProfileModel
+import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
 
 @Composable
 internal fun ProfileEditorDialog(
-    profileModel: ((FormValidator) -> ProfileModel)?,
-    onSaveProfile: (ProfileModel) -> Unit,
+    formModel: ((FormValidator) -> ProfileFormModel)?,
+    onSaveProfile: (ProfileFormModel) -> Unit,
     onCloseRequest: () -> Unit,
     trainingOnly: Boolean,
 ) {
@@ -28,8 +28,8 @@ internal fun ProfileEditorDialog(
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
 
     val formValidator = remember { FormValidator() }
-    val formModel = remember {
-        profileModel?.invoke(formValidator) ?: ProfileModel(
+    val model = remember {
+        formModel?.invoke(formValidator) ?: ProfileFormModel(
             validator = formValidator,
             name = "",
             description = "",
@@ -41,7 +41,7 @@ internal fun ProfileEditorDialog(
         onCloseRequest = onCloseRequest,
         state = dialogState,
         title = when {
-            profileModel != null -> "Edit Profile"
+            formModel != null -> "Edit Profile"
             else -> "New Profile"
         },
     ) {
@@ -53,17 +53,17 @@ internal fun ProfileEditorDialog(
         ) {
 
             OutlinedTextField(
-                value = formModel.name.value,
-                onValueChange = { formModel.name.value = it },
+                value = model.name.value,
+                onValueChange = { model.name.value = it },
                 label = { Text("Name") },
-                isError = formModel.name.isError,
-                supportingText = formModel.name.errorMessage?.let { { Text(it) } },
+                isError = model.name.isError,
+                supportingText = model.name.errorMessage?.let { { Text(it) } },
                 singleLine = true,
             )
 
             OutlinedTextField(
-                value = formModel.description.value,
-                onValueChange = { formModel.description.value = it },
+                value = model.description.value,
+                onValueChange = { model.description.value = it },
                 label = { Text("Description") },
             )
 
@@ -74,8 +74,8 @@ internal fun ProfileEditorDialog(
                 Text("Training", Modifier.weight(1F))
 
                 Checkbox(
-                    checked = trainingOnly || formModel.isTraining.value,
-                    onCheckedChange = { formModel.isTraining.value = it },
+                    checked = trainingOnly || model.isTraining.value,
+                    onCheckedChange = { model.isTraining.value = it },
                     enabled = !trainingOnly,
                 )
             }
@@ -83,7 +83,7 @@ internal fun ProfileEditorDialog(
             Button(
                 onClick = {
                     if (formValidator.isValid()) {
-                        onSaveProfile(formModel)
+                        onSaveProfile(model)
                         onCloseRequest()
                     }
                 },

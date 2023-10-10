@@ -17,7 +17,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.model.ProfileModel
+import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.ui.profiles.ui.ProfileEditorDialog
@@ -42,8 +42,8 @@ internal fun ProfilesWindow(
         ProfilesScreen(
             profiles = state.profiles,
             currentProfileId = state.currentProfile?.id,
-            onCreateProfile = { profileModel -> state.eventSink(CreateNewProfile(profileModel)) },
-            onSetCurrent = { id -> state.eventSink(SetCurrentProfile(id)) },
+            onCreateProfile = { profileModel -> state.eventSink(CreateProfile(profileModel)) },
+            onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
             onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
             onUpdateProfile = { id, profileModel -> state.eventSink(UpdateProfile(id, profileModel)) },
             onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
@@ -91,8 +91,8 @@ internal fun ProfileSwitcher(
             ProfilesScreen(
                 profiles = state.profiles,
                 currentProfileId = state.currentProfile?.id,
-                onCreateProfile = { profileModel -> state.eventSink(CreateNewProfile(profileModel)) },
-                onSetCurrent = { id ->
+                onCreateProfile = { profileModel -> state.eventSink(CreateProfile(profileModel)) },
+                onSetCurrentProfile = { id ->
                     onSelectProfile(id)
                     showSelectorDialog = false
                 },
@@ -109,10 +109,10 @@ internal fun ProfileSwitcher(
 private fun ProfilesScreen(
     profiles: ImmutableList<Profile>,
     currentProfileId: Long?,
-    onCreateProfile: (ProfileModel) -> Unit,
-    onSetCurrent: (Long) -> Unit,
+    onCreateProfile: (ProfileFormModel) -> Unit,
+    onSetCurrentProfile: (Long) -> Unit,
     onDeleteProfile: (Long) -> Unit,
-    onUpdateProfile: (Long, ProfileModel) -> Unit,
+    onUpdateProfile: (Long, ProfileFormModel) -> Unit,
     onCopyProfile: (Long) -> Unit,
     trainingOnly: Boolean = false,
 ) {
@@ -145,8 +145,8 @@ private fun ProfilesScreen(
                             description = profile.description,
                             isTraining = profile.isTraining,
                             isCurrent = profile.id == currentProfileId,
-                            onSetCurrent = { onSetCurrent(profile.id) },
-                            onDelete = { onDeleteProfile(profile.id) },
+                            onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
+                            onDeleteProfile = { onDeleteProfile(profile.id) },
                             onUpdateProfile = { profileModel -> onUpdateProfile(profile.id, profileModel) },
                             onCopyProfile = { onCopyProfile(profile.id) },
                             trainingOnly = trainingOnly,
@@ -165,7 +165,7 @@ private fun ProfilesScreen(
     if (showNewProfileDialog) {
 
         ProfileEditorDialog(
-            profileModel = null,
+            formModel = null,
             onSaveProfile = onCreateProfile,
             onCloseRequest = { showNewProfileDialog = false },
             trainingOnly = trainingOnly,

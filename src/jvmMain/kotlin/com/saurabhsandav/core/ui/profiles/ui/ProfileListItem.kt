@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.model.ProfileModel
+import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
 
 @Composable
 internal fun ProfileListItem(
@@ -25,9 +25,9 @@ internal fun ProfileListItem(
     description: String,
     isTraining: Boolean,
     isCurrent: Boolean,
-    onSetCurrent: () -> Unit,
-    onDelete: () -> Unit,
-    onUpdateProfile: (ProfileModel) -> Unit,
+    onSetCurrentProfile: () -> Unit,
+    onDeleteProfile: () -> Unit,
+    onUpdateProfile: (ProfileFormModel) -> Unit,
     onCopyProfile: () -> Unit,
     trainingOnly: Boolean,
 ) {
@@ -36,7 +36,7 @@ internal fun ProfileListItem(
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable(onClick = onSetCurrent),
+        modifier = Modifier.clickable(onClick = onSetCurrentProfile),
         headlineContent = {
 
             Row {
@@ -88,8 +88,8 @@ internal fun ProfileListItem(
     if (showEditProfileDialog) {
 
         ProfileEditorDialog(
-            profileModel = { formValidator ->
-                ProfileModel(
+            formModel = { formValidator ->
+                ProfileFormModel(
                     validator = formValidator,
                     name = name,
                     description = description,
@@ -106,7 +106,7 @@ internal fun ProfileListItem(
 
         DeleteConfirmationDialog(
             onDismiss = { showDeleteConfirmationDialog = false },
-            onConfirm = onDelete,
+            onConfirm = onDeleteProfile,
         )
     }
 }

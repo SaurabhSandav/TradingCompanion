@@ -6,7 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.profiles.model.ProfileModel
+import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
@@ -41,10 +41,10 @@ internal class ProfilesPresenter(
     private fun onEvent(event: ProfilesEvent) {
 
         when (event) {
-            is CreateNewProfile -> onCreateNewProfile(event.profileModel)
+            is CreateProfile -> onCreateProfile(event.formModel)
             is SetCurrentProfile -> onSetCurrentProfile(event.id)
             is DeleteProfile -> onDeleteProfile(event.id)
-            is UpdateProfile -> onUpdateProfile(event.id, event.profileModel)
+            is UpdateProfile -> onUpdateProfile(event.id, event.formModel)
             is CopyProfile -> onCopyProfile(event.id)
         }
     }
@@ -76,12 +76,12 @@ internal class ProfilesPresenter(
         }.collectAsState(null)
     }
 
-    private fun onCreateNewProfile(profileModel: ProfileModel) = coroutineScope.launchUnit {
+    private fun onCreateProfile(formModel: ProfileFormModel) = coroutineScope.launchUnit {
 
         tradingProfiles.newProfile(
-            name = profileModel.name.value,
-            description = profileModel.description.value,
-            isTraining = profileModel.isTraining.value,
+            name = formModel.name.value,
+            description = formModel.description.value,
+            isTraining = formModel.isTraining.value,
         )
     }
 
@@ -98,14 +98,14 @@ internal class ProfilesPresenter(
 
     private fun onUpdateProfile(
         id: Long,
-        profileModel: ProfileModel,
+        formModel: ProfileFormModel,
     ) = coroutineScope.launchUnit {
 
         tradingProfiles.updateProfile(
             id = id,
-            name = profileModel.name.value,
-            description = profileModel.description.value,
-            isTraining = profileModel.isTraining.value,
+            name = formModel.name.value,
+            description = formModel.description.value,
+            isTraining = formModel.isTraining.value,
         )
     }
 

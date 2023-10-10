@@ -24,7 +24,7 @@ internal data class ProfilesState(
 }
 
 @Stable
-internal class ProfileModel(
+internal class ProfileFormModel(
     validator: FormValidator,
     name: String,
     description: String,
