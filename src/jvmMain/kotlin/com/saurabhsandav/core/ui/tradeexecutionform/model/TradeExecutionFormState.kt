@@ -14,7 +14,6 @@ import kotlinx.datetime.*
 internal data class TradeExecutionFormState(
     val title: String,
     val formModel: TradeExecutionFormModel?,
-    val isTickerEditable: Boolean,
     val onSaveExecution: () -> Unit,
 )
 

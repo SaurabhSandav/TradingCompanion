@@ -20,6 +20,8 @@ import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.AddToTrade
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Clock
@@ -56,8 +58,8 @@ internal fun TradeExecutionFormWindow(
     ) {
 
         TradeExecutionFormScreen(
+            formType = formType,
             formModel = state.formModel,
-            isTickerEditable = state.isTickerEditable,
             onSaveExecution = state.onSaveExecution,
         )
     }
@@ -65,8 +67,8 @@ internal fun TradeExecutionFormWindow(
 
 @Composable
 private fun TradeExecutionFormScreen(
+    formType: TradeExecutionFormType,
     formModel: TradeExecutionFormModel?,
-    isTickerEditable: Boolean,
     onSaveExecution: () -> Unit,
 ) {
 
@@ -74,8 +76,8 @@ private fun TradeExecutionFormScreen(
 
         when {
             formModel != null -> TradeExecutionForm(
+                formType = formType,
                 model = formModel,
-                isTickerEditable = isTickerEditable,
                 onSaveExecution = onSaveExecution,
             )
 
@@ -86,8 +88,8 @@ private fun TradeExecutionFormScreen(
 
 @Composable
 private fun TradeExecutionForm(
+    formType: TradeExecutionFormType,
     model: TradeExecutionFormModel,
-    isTickerEditable: Boolean,
     onSaveExecution: () -> Unit,
 ) {
 
@@ -98,6 +100,8 @@ private fun TradeExecutionForm(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
+
+        val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade)
 
         OutlinedListSelectionField(
             items = remember { persistentListOf(*enumValues<Instrument>()) },

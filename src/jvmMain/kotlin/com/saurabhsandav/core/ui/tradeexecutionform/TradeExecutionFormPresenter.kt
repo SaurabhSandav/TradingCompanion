@@ -38,6 +38,7 @@ internal class TradeExecutionFormPresenter(
         when (formType) {
             is New -> new(formType.formModel)
             is NewFromExisting -> newFromExisting(formType.id)
+            is NewFromExistingInTrade -> newFromExisting(formType.id)
             is AddToTrade -> addToTrade(formType.tradeId)
             is Edit -> edit(formType.id)
         }
@@ -52,7 +53,6 @@ internal class TradeExecutionFormPresenter(
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}${if (formType is Edit) "Edit Trade Execution (${formType.id})" else "New Trade Execution"}",
             formModel = formModel,
-            isTickerEditable = !(formType is AddToTrade || formType is NewFromExisting && formType.addToTrade),
             onSaveExecution = ::onSaveExecution,
         )
     }

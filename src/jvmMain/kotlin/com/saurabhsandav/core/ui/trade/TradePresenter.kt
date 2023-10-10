@@ -12,7 +12,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -351,8 +351,8 @@ internal class TradePresenter(
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
             formType = when {
-                fromExecutionId == null -> TradeExecutionFormType.AddToTrade(tradeId)
-                else -> TradeExecutionFormType.NewFromExisting(fromExecutionId, addToTrade = true)
+                fromExecutionId == null -> AddToTrade(tradeId)
+                else -> NewFromExistingInTrade(fromExecutionId)
             },
         )
     }
@@ -361,7 +361,7 @@ internal class TradePresenter(
 
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
-            formType = TradeExecutionFormType.Edit(executionId),
+            formType = Edit(executionId),
         )
     }
 
