@@ -138,6 +138,9 @@ kotlin {
 
             // AppDirs
             implementation(libs.appdirs)
+
+            // Kermit
+            implementation(libs.kermit)
         }
 
         jvmTest.dependencies {

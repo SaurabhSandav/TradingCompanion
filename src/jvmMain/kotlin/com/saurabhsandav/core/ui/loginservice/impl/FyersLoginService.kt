@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
+import co.touchlab.kermit.Logger
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -132,6 +133,8 @@ internal class FyersLoginService private constructor(
                 }
             }
         }.start(wait = false)
+
+        Logger.d { "Initialized Charts page at http://127.0.0.1:$PORT" }
 
         // Generate login url
         val loginUrl = fyersApi.getLoginURL(redirectUrl = "http://127.0.0.1:$PORT")

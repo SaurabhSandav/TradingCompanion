@@ -3,6 +3,9 @@ package com.saurabhsandav.core
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -15,14 +18,28 @@ import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import java.nio.file.StandardOpenOption.APPEND
+import java.nio.file.StandardOpenOption.CREATE
 import java.util.*
 import java.util.prefs.Preferences
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.outputStream
 
 internal class AppModule {
+
+    val appScope = MainScope()
+
+    init {
+
+        setupLogging()
+    }
 
     val account: Flow<Account> = flowOf(
         Account(
@@ -94,16 +111,56 @@ internal class AppModule {
         runStartupJobs()
     }
 
-    private fun runStartupJobs() {
+    private fun setupLogging() {
 
-        val startupScope = MainScope()
+        // Current time
+        val currentTime = Clock.System.now().epochSeconds
+
+        // Log file path
+        val logDirectory = Path(AppPaths.getAppDataPath(), "logs")
+        val logFile = logDirectory.resolve("$currentTime.log")
+
+        // Create log directory
+        logDirectory.createDirectories()
+
+        // Create FileLogWriter
+        val fileLogWriter = object : LogWriter() {
+
+            private val writer = logFile.outputStream(CREATE, APPEND).bufferedWriter()
+
+            override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+
+                appScope.launch(Dispatchers.IO) {
+
+                    writer.write("$severity: ($tag) $message\n")
+
+                    throwable?.let {
+                        writer.write("${it.stackTraceToString()}\n")
+                    }
+
+                    writer.flush()
+                }
+            }
+        }
+
+        // Set FileLogWriter as the only LogWriter
+        Logger.addLogWriter(fileLogWriter)
+
+        val globalExceptionHandler = Thread.UncaughtExceptionHandler { _, e ->
+            Logger.e(e) { "Unhandled exception caught!" }
+        }
+
+        Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler)
+    }
+
+    private fun runStartupJobs() {
 
         val startupJobs = listOf(
             TradeManagementJob(tradingProfiles),
         )
 
         startupJobs.forEach { job ->
-            startupScope.launch { job.run() }
+            appScope.launch { job.run() }
         }
     }
 }
