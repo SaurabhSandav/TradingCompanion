@@ -1,7 +1,7 @@
 import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS TradeMfeMae (
-tradeId INTEGER NOT NULL,
+tradeId INTEGER NOT NULL UNIQUE,
 mfePrice TEXT AS BigDecimal NOT NULL,
 maePrice TEXT AS BigDecimal NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
