@@ -145,6 +145,9 @@ kotlin {
 
             // Kermit
             implementation(libs.kermit)
+
+            // Compose Multiplatform File Picker
+            implementation("com.darkrockstudios:mpfilepicker:2.1.0")
         }
 
         jvmTest.dependencies {

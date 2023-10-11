@@ -100,6 +100,13 @@ internal fun TradeScreen(
                             onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
                         )
 
+                        Attachments(
+                            attachments = state.attachments,
+                            onAddAttachment = { formModel -> state.eventSink(AddAttachment(formModel)) },
+                            onUpdateAttachment = { id, formModel -> state.eventSink(UpdateAttachment(id, formModel)) },
+                            onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
+                        )
+
                         Notes(
                             notes = state.notes,
                             onAddNote = { state.eventSink(AddNote(it)) },

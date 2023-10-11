@@ -1,0 +1,20 @@
+
+CREATE TABLE IF NOT EXISTS TradeAttachment (
+id INTEGER NOT NULL PRIMARY KEY,
+fileName TEXT NOT NULL,
+checksum TEXT NOT NULL UNIQUE
+);
+
+insert:
+INSERT OR ROLLBACK INTO TradeAttachment(fileName, checksum)
+VALUES (?, ?);
+
+getById:
+SELECT * FROM TradeAttachment WHERE id = ?;
+
+getByChecksum:
+SELECT * FROM TradeAttachment WHERE checksum = ?;
+
+delete:
+DELETE FROM TradeAttachment
+WHERE id = ?;

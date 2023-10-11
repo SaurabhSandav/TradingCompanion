@@ -28,6 +28,15 @@ internal sealed class TradeEvent {
 
     data class RemoveTag(val id: Long) : TradeEvent()
 
+    data class AddAttachment(val formModel: AttachmentFormModel) : TradeEvent()
+
+    data class UpdateAttachment(
+        val id: Long,
+        val formModel: AttachmentFormModel,
+    ) : TradeEvent()
+
+    data class RemoveAttachment(val id: Long) : TradeEvent()
+
     data class AddNote(val note: String) : TradeEvent()
 
     data class UpdateNote(val id: Long, val note: String) : TradeEvent()

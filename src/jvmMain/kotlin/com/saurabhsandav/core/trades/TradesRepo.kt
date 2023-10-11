@@ -18,13 +18,21 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.math.BigDecimal
+import java.nio.file.Path
+import java.security.DigestInputStream
+import java.security.MessageDigest
+import java.util.*
+import kotlin.io.path.*
 import kotlin.time.Duration.Companion.minutes
 
 internal class TradesRepo(
+    recordPath: String,
     private val tradesDB: TradesDB,
     private val executionsRepo: TradeExecutionsRepo,
     private val candleRepo: CandleRepository,
 ) {
+
+    val attachmentsPath = Path(recordPath, AttachmentFolderName)
 
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
@@ -261,6 +269,137 @@ internal class TradesRepo(
         )
     }
 
+    fun getAttachmentsForTrade(id: Long): Flow<List<GetAttachmentsByTrade>> {
+        return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    suspend fun addAttachment(
+        tradeId: Long,
+        name: String,
+        description: String,
+        pathStr: String,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.transaction {
+
+            val inputFilepath = Path(pathStr)
+            val checksum = generateSHA1(inputFilepath)
+
+            // Get Attachment from DB if it exists
+            val existingAttachment = tradesDB.tradeAttachmentQueries.getByChecksum(checksum).executeAsOneOrNull()
+
+            val attachmentId = when {
+                existingAttachment == null -> {
+
+                    val attachedFileName = "$checksum.${inputFilepath.extension}"
+                    val attachedFilePath = attachmentsPath.resolve(attachedFileName)
+
+                    // Create attachment folder
+                    attachmentsPath.createDirectories()
+
+                    // Copy file to attachments directory
+                    inputFilepath.copyTo(attachedFilePath)
+
+                    // Save attachment entry to DB
+                    tradesDB.tradeAttachmentQueries.insert(
+                        fileName = attachedFileName,
+                        checksum = checksum,
+                    )
+
+                    // Get id of attachment in DB
+                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+                }
+
+                else -> existingAttachment.id
+            }
+
+            // Link Attachment to Trade
+            tradesDB.tradeToAttachmentMapQueries.insert(
+                tradeId = tradeId,
+                attachmentId = attachmentId,
+                name = name,
+                description = description,
+            )
+        }
+    }
+
+    private fun generateSHA1(path: Path): String {
+
+        val fileInputStream = path.inputStream()
+        val digest = MessageDigest.getInstance("SHA-1")
+        val digestInputStream = DigestInputStream(fileInputStream, digest)
+        val bytes = ByteArray(1024)
+
+        // read all file content
+        @Suppress("ControlFlowWithEmptyBody")
+        while (digestInputStream.read(bytes) > 0);
+
+        val resultByteArray = digest.digest()
+
+        return buildString {
+
+            for (b in resultByteArray) {
+
+                val value = b.toInt() and 0xFF
+
+                if (value < 16) {
+                    // if value less than 16, then it's hex String will be only
+                    // one character, so we need to append a character of '0'
+                    append("0")
+                }
+
+                append(Integer.toHexString(value).uppercase(Locale.getDefault()))
+            }
+        }
+    }
+
+    suspend fun updateAttachment(
+        tradeId: Long,
+        attachmentId: Long,
+        name: String,
+        description: String,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeToAttachmentMapQueries.update(
+            tradeId = tradeId,
+            attachmentId = attachmentId,
+            name = name,
+            description = description,
+        )
+    }
+
+    suspend fun removeAttachment(
+        tradeId: Long,
+        attachmentId: Long,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.transaction {
+
+            // Delete attachment from trade in DB
+            tradesDB.tradeToAttachmentMapQueries.delete(
+                tradeId = tradeId,
+                attachmentId = attachmentId,
+            )
+
+            // Check if attachment is still used
+            val isAttachmentStillUsed = tradesDB.tradeToAttachmentMapQueries
+                .isAttachmentLinked(attachmentId)
+                .executeAsOne()
+
+            // If attachment is not used, delete file
+            if (!isAttachmentStillUsed) {
+
+                val attachment = tradesDB.tradeAttachmentQueries.getById(attachmentId).executeAsOne()
+
+                // Delete attachment DB entry
+                tradesDB.tradeAttachmentQueries.delete(attachmentId)
+
+                // Delete attachment file
+                attachmentsPath.resolve(attachment.fileName).deleteExisting()
+            }
+        }
+    }
+
     fun getNotesForTrade(id: Long): Flow<List<TradeNote>> {
         return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
@@ -288,5 +427,10 @@ internal class TradesRepo(
 
     suspend fun deleteNote(id: Long) = withContext(Dispatchers.IO) {
         tradesDB.tradeNoteQueries.delete(id)
+    }
+
+    companion object {
+
+        const val AttachmentFolderName = "attachments"
     }
 }

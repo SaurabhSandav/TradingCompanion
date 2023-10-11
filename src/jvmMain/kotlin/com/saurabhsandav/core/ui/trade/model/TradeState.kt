@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.trade.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
@@ -19,6 +22,7 @@ internal data class TradeState(
     val notes: ImmutableList<TradeNote>,
     val tags: ImmutableList<TradeTag>,
     val tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    val attachments: ImmutableList<TradeAttachment>,
     val eventSink: (TradeEvent) -> Unit,
 ) {
 
@@ -79,9 +83,36 @@ internal data class TradeState(
     )
 
     @Immutable
+    internal data class TradeAttachment(
+        val id: Long,
+        val name: String,
+        val description: String?,
+        val path: String,
+        val extension: String?,
+    )
+
+    @Immutable
     internal data class TradeNote(
         val id: Long,
         val note: String,
         val dateText: String,
+    )
+}
+
+@Stable
+internal class AttachmentFormModel(
+    val validator: FormValidator,
+    initial: Initial,
+) {
+
+    val nameField = validator.addField(initial.name) { isRequired() }
+
+    val descriptionField = validator.addField(initial.description)
+
+    var path = ""
+
+    class Initial(
+        val name: String = "",
+        val description: String = "",
     )
 }

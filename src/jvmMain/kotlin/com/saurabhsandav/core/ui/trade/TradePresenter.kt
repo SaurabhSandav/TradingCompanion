@@ -8,6 +8,7 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
@@ -27,6 +28,7 @@ import kotlinx.datetime.TimeZone
 import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.io.path.extension
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,6 +68,7 @@ internal class TradePresenter(
             mfeAndMae = getMfeAndMae().value,
             tags = getTradeTags().value,
             tagSuggestions = ::tagSuggestions,
+            attachments = getTradeAttachments().value,
             notes = getTradeNotes().value,
             eventSink = ::onEvent,
         )
@@ -88,6 +91,9 @@ internal class TradePresenter(
             is DeleteTarget -> onDeleteTarget(event.price)
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
+            is AddAttachment -> onAddAttachment(event.formModel)
+            is UpdateAttachment -> onUpdateAttachment(event.id, event.formModel)
+            is RemoveAttachment -> onRemoveAttachment(event.id)
             is AddNote -> onAddNote(event.note)
             is UpdateNote -> onUpdateNote(event.id, event.note)
             is DeleteNote -> onDeleteNote(event.id)
@@ -271,6 +277,30 @@ internal class TradePresenter(
                         id = tag.id,
                         name = tag.name,
                         description = tag.description,
+                    )
+                }
+                .collect { value = it.toImmutableList() }
+        }
+    }
+
+    @Composable
+    private fun getTradeAttachments(): State<ImmutableList<TradeAttachment>> {
+        return produceState<ImmutableList<TradeAttachment>>(persistentListOf()) {
+
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+            tradingRecord.trades
+                .getAttachmentsForTrade(tradeId)
+                .mapList { attachment ->
+
+                    val path = tradingRecord.trades.attachmentsPath.resolve(attachment.fileName)
+
+                    TradeAttachment(
+                        id = attachment.id,
+                        name = attachment.name,
+                        description = attachment.description.ifBlank { null },
+                        path = path.toString(),
+                        extension = path.extension.uppercase().ifBlank { null },
                     )
                 }
                 .collect { value = it.toImmutableList() }
@@ -464,6 +494,34 @@ internal class TradePresenter(
     private fun onRemoveTag(id: Long) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.removeTag(tradeId, id)
+    }
+
+    private fun onAddAttachment(formModel: AttachmentFormModel) = coroutineScope.launchUnit {
+
+        tradingProfiles.getRecord(profileId).trades.addAttachment(
+            tradeId = tradeId,
+            name = formModel.nameField.value,
+            description = formModel.descriptionField.value,
+            pathStr = formModel.path,
+        )
+    }
+
+    private fun onUpdateAttachment(
+        id: Long,
+        formModel: AttachmentFormModel,
+    ) = coroutineScope.launchUnit {
+
+        tradingProfiles.getRecord(profileId).trades.updateAttachment(
+            tradeId = tradeId,
+            attachmentId = id,
+            name = formModel.nameField.value,
+            description = formModel.descriptionField.value,
+        )
+    }
+
+    private fun onRemoveAttachment(id: Long) = coroutineScope.launchUnit {
+
+        tradingProfiles.getRecord(profileId).trades.removeAttachment(tradeId, id)
     }
 
     private fun onAddNote(note: String) = coroutineScope.launchUnit {

@@ -72,7 +72,7 @@ internal class TradingRecord(
 
     val executions = TradeExecutionsRepo(tradesDB)
 
-    val trades = TradesRepo(tradesDB, executions, candleRepo)
+    val trades = TradesRepo(recordPath, tradesDB, executions, candleRepo)
 
     val sizingTrades = SizingTradesRepo(tradesDB)
 }
