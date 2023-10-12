@@ -40,7 +40,10 @@ kotlin {
         compilations.all {
             compilerOptions.configure {
 
-                freeCompilerArgs.add("-Xexpect-actual-classes")
+                freeCompilerArgs.addAll(
+                    "-Xexpect-actual-classes",
+                    "-Xcontext-receivers",
+                )
 
                 // Trigger this with:
                 // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
