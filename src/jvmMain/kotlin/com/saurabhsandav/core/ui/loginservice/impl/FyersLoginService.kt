@@ -8,6 +8,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -245,7 +247,12 @@ internal class FyersLoginService private constructor(
                         propagateMinConstraints = true,
                     ) {
 
+                        val focusRequester = remember { FocusRequester() }
+
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
                         OutlinedTextField(
+                            modifier = Modifier.focusRequester(focusRequester),
                             value = pin,
                             onValueChange = {
                                 if (it.isEmpty() || (it.length <= 4 && it.toIntOrNull() != null)) {
