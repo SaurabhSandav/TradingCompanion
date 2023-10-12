@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
@@ -34,7 +37,12 @@ internal fun NewReplayForm(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
+            val initialFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+
             OutlinedListSelectionField(
+                modifier = Modifier.focusRequester(initialFocusRequester),
                 items = remember { persistentListOf(*enumValues<Timeframe>()) },
                 itemText = { it.toLabel() },
                 onSelection = { model.baseTimeframe.value = it },

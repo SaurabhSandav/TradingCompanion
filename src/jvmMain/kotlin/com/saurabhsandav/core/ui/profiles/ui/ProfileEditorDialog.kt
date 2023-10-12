@@ -6,9 +6,12 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
@@ -52,7 +55,12 @@ internal fun ProfileEditorDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
+            val initialFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+
             OutlinedTextField(
+                modifier = Modifier.focusRequester(initialFocusRequester),
                 value = model.name.value,
                 onValueChange = { model.name.value = it },
                 label = { Text("Name") },

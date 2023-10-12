@@ -7,6 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
@@ -73,7 +75,12 @@ private fun ReplayOrderForm(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
+        val initialFocusRequester = remember { FocusRequester() }
+
+        LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+
         OutlinedListSelectionField(
+            modifier = Modifier.focusRequester(initialFocusRequester),
             items = remember { persistentListOf(*enumValues<Instrument>()) },
             itemText = {
                 it.strValue.replaceFirstChar { char ->

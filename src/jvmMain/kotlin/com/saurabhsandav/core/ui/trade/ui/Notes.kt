@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -126,9 +128,12 @@ private fun NoteEditorWindow(
         Column(Modifier.fillMaxSize()) {
 
             var text by state { note }
+            val initialFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
 
             TextField(
-                modifier = Modifier.weight(1F).fillMaxWidth(),
+                modifier = Modifier.weight(1F).fillMaxWidth().focusRequester(initialFocusRequester),
                 value = text,
                 onValueChange = { text = it }
             )

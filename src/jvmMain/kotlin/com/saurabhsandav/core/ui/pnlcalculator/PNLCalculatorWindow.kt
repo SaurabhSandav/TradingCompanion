@@ -6,10 +6,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
@@ -70,7 +74,12 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 Text("Long")
             }
 
+            val initialFocusRequester = remember { FocusRequester() }
+
+            LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+
             OutlinedTextField(
+                modifier = Modifier.focusRequester(initialFocusRequester),
                 value = model.quantity.value,
                 onValueChange = { model.quantity.value = it.trim() },
                 label = { Text("Quantity") },

@@ -7,6 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
@@ -103,7 +105,15 @@ private fun TradeExecutionForm(
         val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
         val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)
 
+        val (instrumentFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
+
+        LaunchedEffect(Unit) {
+            val requester = if (isTickerEditable) instrumentFocusRequester else quantityFocusRequester
+            requester.requestFocus()
+        }
+
         OutlinedListSelectionField(
+            modifier = Modifier.focusRequester(instrumentFocusRequester),
             items = remember { persistentListOf(*enumValues<Instrument>()) },
             itemText = {
                 it.strValue.replaceFirstChar { char ->
@@ -130,6 +140,7 @@ private fun TradeExecutionForm(
         )
 
         OutlinedTextField(
+            modifier = Modifier.focusRequester(quantityFocusRequester),
             value = model.quantity.value,
             onValueChange = { model.quantity.value = it.trim() },
             label = { Text("Quantity") },
