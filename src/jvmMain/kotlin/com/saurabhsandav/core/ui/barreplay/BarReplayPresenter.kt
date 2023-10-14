@@ -17,7 +17,7 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
@@ -39,7 +39,7 @@ internal class BarReplayPresenter(
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
-    private val formValidator = FormValidator()
+    private val formValidator = FormValidator(coroutineScope)
 
     private var replayState by mutableStateOf<ReplayState?>(null)
 
@@ -66,19 +66,19 @@ internal class BarReplayPresenter(
         }
     }
 
-    private fun onLaunchReplay() {
+    private fun onLaunchReplay() = coroutineScope.launchUnit {
 
-        if (!formValidator.isValid()) return
+        if (!formValidator.validate()) return@launchUnit
 
         val formModel = (replayState as NewReplay).model
 
         val replayParams = ReplayParams(
-            baseTimeframe = formModel.baseTimeframe.value!!,
-            candlesBefore = formModel.candlesBefore.value.toInt(),
-            replayFrom = formModel.replayFrom.value.toInstant(TimeZone.currentSystemDefault()),
-            dataTo = formModel.dataTo.value.toInstant(TimeZone.currentSystemDefault()),
+            baseTimeframe = formModel.baseTimeframeField.value!!,
+            candlesBefore = formModel.candlesBeforeField.value.toInt(),
+            replayFrom = formModel.replayFromField.value.toInstant(TimeZone.currentSystemDefault()),
+            dataTo = formModel.dataToField.value.toInstant(TimeZone.currentSystemDefault()),
             replayFullBar = formModel.replayFullBar,
-            initialTicker = formModel.initialTicker.value!!,
+            initialTicker = formModel.initialTickerField.value!!,
         )
 
         replayState = ReplayStarted(replayParams = replayParams)

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
-import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
@@ -45,38 +45,38 @@ internal fun NewReplayForm(
                 modifier = Modifier.focusRequester(initialFocusRequester),
                 items = remember { persistentListOf(*enumValues<Timeframe>()) },
                 itemText = { it.toLabel() },
-                onSelection = { model.baseTimeframe.value = it },
-                selection = model.baseTimeframe.value,
+                onSelection = { model.baseTimeframeField.value = it },
+                selection = model.baseTimeframeField.value,
                 label = { Text("Base Timeframe") },
                 placeholderText = "Select Timeframe...",
-                isError = model.baseTimeframe.isError,
-                supportingText = model.baseTimeframe.errorMessage?.let { { Text(it) } },
+                isError = model.baseTimeframeField.isError,
+                supportingText = model.baseTimeframeField.errorMessage?.let { { Text(it) } },
             )
 
             OutlinedTextField(
-                value = model.candlesBefore.value,
-                onValueChange = { model.candlesBefore.value = it.trim() },
+                value = model.candlesBeforeField.value,
+                onValueChange = { model.candlesBeforeField.value = it.trim() },
                 label = { Text("Candles Before") },
-                isError = model.candlesBefore.isError,
-                supportingText = model.candlesBefore.errorMessage?.let { { Text(it) } },
+                isError = model.candlesBeforeField.isError,
+                supportingText = model.candlesBeforeField.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 
             DateTimePickerField(
-                value = model.replayFrom.value,
-                onValidValueChange = { model.replayFrom.value = it },
+                value = model.replayFromField.value,
+                onValidValueChange = { model.replayFromField.value = it },
                 label = { Text("Replay From") },
-                isError = model.replayFrom.isError,
-                supportingText = model.replayFrom.errorMessage?.let { { Text(it) } },
+                isError = model.replayFromField.isError,
+                supportingText = model.replayFromField.errorMessage?.let { { Text(it) } },
             )
 
             DateTimePickerField(
-                value = model.dataTo.value,
-                onValidValueChange = { model.dataTo.value = it },
+                value = model.dataToField.value,
+                onValidValueChange = { model.dataToField.value = it },
                 label = { Text("Data To") },
-                isError = model.dataTo.isError,
-                supportingText = model.dataTo.errorMessage?.let { { Text(it) } },
+                isError = model.dataToField.isError,
+                supportingText = model.dataToField.errorMessage?.let { { Text(it) } },
             )
 
             Row(
@@ -100,19 +100,21 @@ internal fun NewReplayForm(
             OutlinedListSelectionField(
                 items = NIFTY50,
                 itemText = { it },
-                onSelection = { model.initialTicker.value = it },
-                selection = model.initialTicker.value,
+                onSelection = { model.initialTickerField.value = it },
+                selection = model.initialTickerField.value,
                 label = { Text("Ticker") },
                 placeholderText = "Select Ticker...",
-                isError = model.initialTicker.isError,
-                supportingText = model.initialTicker.errorMessage?.let { { Text(it) } },
+                isError = model.initialTickerField.isError,
+                supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
             )
 
             Divider()
 
-            Button(onClick = onLaunchReplay) {
-                Text("Launch")
-            }
+            Button(
+                onClick = onLaunchReplay,
+                enabled = model.validator.isValid,
+                content = { Text("Launch") },
+            )
         }
     }
 }

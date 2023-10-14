@@ -4,19 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.IsInt
-import com.saurabhsandav.core.ui.common.form.Validation
-import com.saurabhsandav.core.ui.common.form.fields.dateTimeField
-import com.saurabhsandav.core.ui.common.form.fields.listSelectionField
-import com.saurabhsandav.core.ui.common.form.fields.textField
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.validations.isInt
+import com.saurabhsandav.core.ui.common.form2.validations.isPositive
+import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class NewReplayFormModel(
-    validator: FormValidator,
+    val validator: FormValidator,
     baseTimeframe: Timeframe?,
     candlesBefore: String,
     replayFrom: LocalDateTime,
@@ -25,41 +23,34 @@ class NewReplayFormModel(
     initialTicker: String?,
 ) {
 
-    val baseTimeframe = validator.listSelectionField(baseTimeframe)
+    val baseTimeframeField = validator.addField(baseTimeframe) { isRequired() }
 
-    val candlesBefore = validator.textField(
-        initial = candlesBefore,
-        validations = setOf(
-            IsInt,
-            Validation(
-                errorMessage = "Cannot be 0 or negative",
-                isValid = { it.toInt() > 0 },
-            ),
-        ),
-    )
+    val candlesBeforeField = validator.addField(candlesBefore) {
+        isRequired()
+        isInt {
+            isPositive()
+        }
+    }
 
-    val replayFrom = validator.dateTimeField(
-        initial = replayFrom,
-        validations = setOf(
-            Validation(
-                errorMessage = "Cannot be in the future",
-                isValid = { it < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) },
-            ),
-        ),
-    )
+    val replayFromField = validator.addField(replayFrom) {
+        isRequired()
 
-    val dataTo = validator.dateTimeField(
-        initial = dataTo,
-        validations = setOf(
-            Validation(
-                errorMessage = "Cannot be before entry time",
-                dependsOn = setOf(this.replayFrom),
-                isValid = { this.replayFrom.value < it },
-            ),
-        ),
-    )
+        check(
+            value = this < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+            errorMessage = { "Cannot be in the future" },
+        )
+    }
+
+    val dataToField = validator.addField(dataTo) {
+        isRequired()
+
+        check(
+            value = validated(replayFromField) < this,
+            errorMessage = { "Cannot be before or same as replay from" },
+        )
+    }
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialTicker = validator.listSelectionField(initialTicker)
+    val initialTickerField = validator.addField(initialTicker) { isRequired() }
 }
