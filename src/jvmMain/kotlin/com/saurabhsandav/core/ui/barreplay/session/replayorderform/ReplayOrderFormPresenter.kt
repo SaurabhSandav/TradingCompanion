@@ -10,7 +10,7 @@ import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormState
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 
@@ -22,7 +22,7 @@ internal class ReplayOrderFormPresenter(
     private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
 ) {
 
-    private val formValidator = FormValidator()
+    private val formValidator = FormValidator(coroutineScope)
     private var formModel by mutableStateOf<ReplayOrderFormModel?>(null)
 
     init {
@@ -51,18 +51,18 @@ internal class ReplayOrderFormPresenter(
 
     private fun onSaveOrder() = coroutineScope.launchUnit {
 
-        if (!formValidator.isValid()) return@launchUnit
+        if (!formValidator.validate()) return@launchUnit
 
         val formModel = requireNotNull(formModel)
 
         val orderId = replayOrdersManager.newOrder(
             broker = "Finvasia",
-            instrument = formModel.instrument.value!!,
-            ticker = formModel.ticker.value!!,
-            quantity = formModel.quantity.value.toBigDecimal(),
-            lots = formModel.lots.value.ifBlank { null }?.toInt(),
-            side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-            price = formModel.price.value.toBigDecimal(),
+            instrument = formModel.instrumentField.value!!,
+            ticker = formModel.tickerField.value!!,
+            quantity = formModel.quantityField.value.toBigDecimal(),
+            lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+            side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+            price = formModel.priceField.value.toBigDecimal(),
             stop = formModel.stop.value.toBigDecimalOrNull(),
             target = formModel.target.value.toBigDecimalOrNull(),
         )

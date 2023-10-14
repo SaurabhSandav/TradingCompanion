@@ -18,8 +18,8 @@ import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayO
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
 import java.util.*
@@ -87,38 +87,38 @@ private fun ReplayOrderForm(
                     if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
                 }
             },
-            onSelection = { model.instrument.value = it },
-            selection = model.instrument.value,
+            onSelection = { model.instrumentField.value = it },
+            selection = model.instrumentField.value,
             label = { Text("Instrument") },
-            isError = model.instrument.isError,
-            supportingText = model.instrument.errorMessage?.let { { Text(it) } },
+            isError = model.instrumentField.isError,
+            supportingText = model.instrumentField.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedListSelectionField(
             items = NIFTY50,
             itemText = { it },
-            onSelection = { model.ticker.value = it },
-            selection = model.ticker.value,
+            onSelection = { model.tickerField.value = it },
+            selection = model.tickerField.value,
             label = { Text("Ticker") },
-            isError = model.ticker.isError,
-            supportingText = model.ticker.errorMessage?.let { { Text(it) } },
+            isError = model.tickerField.isError,
+            supportingText = model.tickerField.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedTextField(
-            value = model.quantity.value,
-            onValueChange = { model.quantity.value = it.trim() },
+            value = model.quantityField.value,
+            onValueChange = { model.quantityField.value = it.trim() },
             label = { Text("Quantity") },
-            isError = model.quantity.isError,
-            supportingText = model.quantity.errorMessage?.let { { Text(it) } },
+            isError = model.quantityField.isError,
+            supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
         OutlinedTextField(
-            value = model.lots.value,
-            onValueChange = { model.lots.value = it.trim() },
+            value = model.lotsField.value,
+            onValueChange = { model.lotsField.value = it.trim() },
             label = { Text("Lots") },
-            isError = model.lots.isError,
-            supportingText = model.lots.errorMessage?.let { { Text(it) } },
+            isError = model.lotsField.isError,
+            supportingText = model.lotsField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -131,19 +131,19 @@ private fun ReplayOrderForm(
             Text("SELL", color = AppColor.LossRed)
 
             Switch(
-                checked = model.isBuy.value,
-                onCheckedChange = { model.isBuy.value = it },
+                checked = model.isBuyField.value,
+                onCheckedChange = { model.isBuyField.value = it },
             )
 
             Text("BUY", color = AppColor.ProfitGreen)
         }
 
         OutlinedTextField(
-            value = model.price.value,
-            onValueChange = { model.price.value = it.trim() },
+            value = model.priceField.value,
+            onValueChange = { model.priceField.value = it.trim() },
             label = { Text("Price") },
-            isError = model.price.isError,
-            supportingText = model.price.errorMessage?.let { { Text(it) } },
+            isError = model.priceField.isError,
+            supportingText = model.priceField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -168,9 +168,8 @@ private fun ReplayOrderForm(
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = onSaveOrder,
-        ) {
-
-            Text("Add")
-        }
+            enabled = model.validator.isValid,
+            content = { Text("Add") },
+        )
     }
 }

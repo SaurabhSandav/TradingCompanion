@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session.model
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.collections.immutable.ImmutableList

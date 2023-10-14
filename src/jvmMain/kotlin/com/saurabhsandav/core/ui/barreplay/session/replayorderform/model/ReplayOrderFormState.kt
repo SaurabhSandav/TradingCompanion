@@ -3,13 +3,11 @@ package com.saurabhsandav.core.ui.barreplay.session.replayorderform.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.IsBigDecimal
-import com.saurabhsandav.core.ui.common.form.IsInt
-import com.saurabhsandav.core.ui.common.form.Validation
-import com.saurabhsandav.core.ui.common.form.fields.listSelectionField
-import com.saurabhsandav.core.ui.common.form.fields.switch
-import com.saurabhsandav.core.ui.common.form.fields.textField
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.validations.isBigDecimal
+import com.saurabhsandav.core.ui.common.form2.validations.isInt
+import com.saurabhsandav.core.ui.common.form2.validations.isPositive
+import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 
 @Immutable
 internal data class ReplayOrderFormState(
@@ -20,7 +18,7 @@ internal data class ReplayOrderFormState(
 
 @Stable
 internal class ReplayOrderFormModel(
-    validator: FormValidator,
+    val validator: FormValidator,
     instrument: Instrument?,
     ticker: String?,
     quantity: String,
@@ -31,65 +29,57 @@ internal class ReplayOrderFormModel(
     target: String,
 ) {
 
-    val instrument = validator.listSelectionField(instrument)
+    val instrumentField = validator.addField(instrument) { isRequired() }
 
-    val ticker = validator.listSelectionField(ticker)
+    val tickerField = validator.addField(ticker) { isRequired() }
 
-    val quantity = validator.textField(
-        initial = quantity,
-        validations = setOf(
-            IsInt,
-            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
-        ),
-    )
+    val quantityField = validator.addField(quantity) {
+        isRequired()
+        isInt {
+            isPositive()
+        }
+    }
 
-    val lots = validator.textField(
-        initial = lots,
-        validations = setOf(
-            IsInt,
-            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
-        ),
-        isRequired = false,
-    )
+    val lotsField = validator.addField(lots) {
+        isInt {
+            isPositive()
+        }
+    }
 
-    val isBuy = validator.switch(isBuy)
+    val isBuyField = validator.addField(isBuy)
 
-    val price = validator.textField(
-        initial = price,
-        validations = setOf(IsBigDecimal),
-    )
+    val priceField = validator.addField(price) {
+        isRequired()
+        isBigDecimal {
+            isPositive()
+        }
+    }
 
-    val stop = validator.textField(
-        initial = stop,
-        validations = setOf(
-            IsBigDecimal,
-            Validation(
-                errorMessage = "Invalid Stop",
-                dependsOn = setOf(this.price, this.isBuy),
-                isValid = { stop ->
-                    val stopBD = stop.toBigDecimal()
-                    val priceBD = this.price.value.toBigDecimal()
-                    if (this.isBuy.value) stopBD < priceBD else stopBD > priceBD
+    val stop = validator.addField(stop) {
+        isBigDecimal {
+            isPositive()
+
+            check(
+                value = when {
+                    validated(isBuyField) -> this < validated(priceField).toBigDecimal()
+                    else -> this > validated(priceField).toBigDecimal()
                 },
-            ),
-        ),
-        isRequired = false,
-    )
+                errorMessage = { "Invalid Stop" },
+            )
+        }
+    }
 
-    val target = validator.textField(
-        initial = target,
-        validations = setOf(
-            IsBigDecimal,
-            Validation(
-                errorMessage = "Invalid Target",
-                dependsOn = setOf(this.price, this.isBuy),
-                isValid = { target ->
-                    val targetBD = target.toBigDecimal()
-                    val priceBD = this.price.value.toBigDecimal()
-                    if (this.isBuy.value) targetBD > priceBD else targetBD < priceBD
+    val target = validator.addField(target) {
+        isBigDecimal {
+            isPositive()
+
+            check(
+                value = when {
+                    validated(isBuyField) -> this > validated(priceField).toBigDecimal()
+                    else -> this < validated(priceField).toBigDecimal()
                 },
-            ),
-        ),
-        isRequired = false,
-    )
+                errorMessage = { "Invalid Target" },
+            )
+        }
+    }
 }
