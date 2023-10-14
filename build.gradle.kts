@@ -1,5 +1,3 @@
-@file:Suppress("OPT_IN_USAGE")
-
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -25,47 +23,61 @@ configurations.all {
 
 kotlin {
 
-    compilerOptions {
-
-        progressiveMode = true
-
-        optIn.addAll(
-            "kotlin.contracts.ExperimentalContracts",
-            "kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "androidx.compose.foundation.ExperimentalFoundationApi",
-            "androidx.compose.ui.ExperimentalComposeUiApi",
-            "androidx.compose.animation.ExperimentalAnimationApi",
-            "androidx.compose.material3.ExperimentalMaterial3Api",
-            "com.russhwolf.settings.ExperimentalSettingsApi",
-        )
-
-        // Trigger this with:
-        // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
-        if (project.findProperty("enableMultiModuleComposeReports") == "true") {
-
-            val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
-
-            freeCompilerArgs.addAll(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
-            )
-        }
-    }
-
     jvm {
 
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
 
-        compilerOptions {
-            jvmToolchain(17)
+        compilations.all {
+            compilerOptions.configure {
+                jvmToolchain(17)
+            }
+        }
+    }
+
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+
+                // Trigger this with:
+                // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
+                if (project.findProperty("enableMultiModuleComposeReports") == "true") {
+
+                    val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
+
+                    freeCompilerArgs.addAll(
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
+                    )
+                }
+            }
         }
     }
 
     sourceSets {
+
+        all {
+
+            languageSettings {
+
+                progressiveMode = true
+
+                listOf(
+                    "kotlin.contracts.ExperimentalContracts",
+                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "androidx.compose.foundation.ExperimentalFoundationApi",
+                    "androidx.compose.ui.ExperimentalComposeUiApi",
+                    "androidx.compose.animation.ExperimentalAnimationApi",
+                    "androidx.compose.material3.ExperimentalMaterial3Api",
+                    "com.russhwolf.settings.ExperimentalSettingsApi",
+                ).forEach { optIn(it) }
+            }
+        }
 
         jvmMain.dependencies {
 
