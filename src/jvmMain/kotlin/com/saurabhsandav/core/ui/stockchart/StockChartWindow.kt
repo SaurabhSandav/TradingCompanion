@@ -8,9 +8,11 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.webview.WebView
-import kotlinx.coroutines.MainScope
+import com.saurabhsandav.core.utils.newChildScope
+import kotlinx.coroutines.CoroutineScope
 
 internal class StockChartWindow(
+    parentScope: CoroutineScope,
     webView: WebView,
     private val onNewChart: (
         pagedArrangement: PagedChartArrangement,
@@ -20,7 +22,7 @@ internal class StockChartWindow(
     private val onCloseChart: (StockChart) -> Unit,
 ) {
 
-    val coroutineScope = MainScope()
+    val coroutineScope = parentScope.newChildScope()
     lateinit var appWindowState: AppWindowState
 
     val pagedArrangement = ChartArrangement.paged()

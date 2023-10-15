@@ -1,10 +1,8 @@
 package com.saurabhsandav.core.utils
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -42,3 +40,5 @@ fun CoroutineScope.launchUnit(
 ) {
     launch(context, start, block)
 }
+
+fun CoroutineScope.newChildScope(): CoroutineScope = this + Job(parent = coroutineContext[Job])

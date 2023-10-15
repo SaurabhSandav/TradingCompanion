@@ -14,7 +14,8 @@ import com.saurabhsandav.core.ui.common.webview.WebView
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.coroutines.MainScope
+import com.saurabhsandav.core.utils.newChildScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ import kotlinx.datetime.toInstant
 
 @Stable
 internal class StockChartsState(
+    parentScope: CoroutineScope,
     private val initialParams: StockChartParams,
     val marketDataProvider: MarketDataProvider,
     private val appModule: AppModule,
@@ -32,7 +34,7 @@ internal class StockChartsState(
     val webViewProvider: () -> WebView = appModule.webViewProvider,
 ) {
 
-    private val coroutineScope = MainScope()
+    private val coroutineScope = parentScope.newChildScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChart = MutableStateFlow<StockChart?>(null)
@@ -57,6 +59,7 @@ internal class StockChartsState(
     fun newWindow(fromStockChart: StockChart?) {
 
         val window = StockChartWindow(
+            parentScope = coroutineScope,
             webView = webViewProvider(),
             onNewChart = { arrangement, currentStockChart ->
 
@@ -169,6 +172,7 @@ internal class StockChartsState(
 
         // New StockChart
         val stockChart = StockChart(
+            parentScope = coroutineScope,
             appModule = appModule,
             marketDataProvider = marketDataProvider,
             candleLoader = candleLoader,

@@ -50,6 +50,7 @@ internal class ChartsPresenter(
             .first()
 
         StockChartsState(
+            parentScope = coroutineScope,
             initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
             marketDataProvider = marketDataProvider,
             appModule = appModule,

@@ -51,6 +51,7 @@ internal class ReplaySessionPresenter(
     )
     private var autoNextJob: Job? = null
     private val chartsState = StockChartsState(
+        parentScope = coroutineScope,
         initialParams = StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe),
         marketDataProvider = ReplayChartsMarketDataProvider(
             coroutineScope = coroutineScope,

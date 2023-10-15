@@ -22,7 +22,8 @@ import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.*
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.coroutines.MainScope
+import com.saurabhsandav.core.utils.newChildScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -33,6 +34,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
 internal class StockChart(
+    parentScope: CoroutineScope,
     val appModule: AppModule,
     private val marketDataProvider: MarketDataProvider,
     private val candleLoader: CandleLoader,
@@ -42,7 +44,8 @@ internal class StockChart(
     onLegendUpdate: (List<String>) -> Unit,
 ) {
 
-    private var sourceCoroutineScope = MainScope()
+    private val coroutineScope = parentScope.newChildScope()
+    private var dataCoroutineScope = coroutineScope.newChildScope()
 
     private val candlestickPlotter = CandlestickPlotter(actualChart)
     private val volumePlotter = VolumePlotter(actualChart)
@@ -54,7 +57,6 @@ internal class StockChart(
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
-    val coroutineScope = MainScope()
     var data: StockChartData = initialData
         private set
     var params by mutableStateOf(initialData.params)
@@ -108,14 +110,14 @@ internal class StockChart(
         // Update legend title for candles
         candlestickPlotter.name = title
 
-        // Cancel CoroutineScope for the previous CandleSource
-        sourceCoroutineScope.cancel()
+        // Cancel CoroutineScope for the previous StockChartData
+        dataCoroutineScope.cancel()
 
         // Update data
         this@StockChart.data = data
-        sourceCoroutineScope = MainScope()
+        dataCoroutineScope = coroutineScope.newChildScope()
 
-        sourceCoroutineScope.launch {
+        dataCoroutineScope.launch {
 
             // Wait for first load
             data.loadState.first { loadState -> loadState == LoadState.Loaded }
@@ -145,7 +147,7 @@ internal class StockChart(
             )
 
             // Set data on future loads
-            candleSeries.modifications.onEach { refresh() }.launchIn(sourceCoroutineScope)
+            candleSeries.modifications.onEach { refresh() }.launchIn(dataCoroutineScope)
 
             // Load before/after candles if needed
             actualChart.timeScale
@@ -184,7 +186,7 @@ internal class StockChart(
                         }
                     }
                 }
-                .launchIn(sourceCoroutineScope)
+                .launchIn(dataCoroutineScope)
 
             // Update chart with live candles
             candleSeries
@@ -194,7 +196,7 @@ internal class StockChart(
                         it.update(candleSeries.indexOf(candle))
                     }
                 }
-                .launchIn(sourceCoroutineScope)
+                .launchIn(dataCoroutineScope)
 
             setupMarkers()
         }
@@ -244,7 +246,7 @@ internal class StockChart(
 
     fun destroy() {
         coroutineScope.cancel()
-        sourceCoroutineScope.cancel()
+        dataCoroutineScope.cancel()
         plotters.forEach { it.remove() }
         actualChart.remove()
     }
@@ -368,7 +370,7 @@ internal class StockChart(
             }
             .map { list -> list.sortedBy(SeriesMarker::instant).map(SeriesMarker::toActualMarker) }
             .onEach(candlestickPlotter::setMarkers)
-            .launchIn(sourceCoroutineScope)
+            .launchIn(dataCoroutineScope)
     }
 
     private fun observerPlotterIsEnabled(
