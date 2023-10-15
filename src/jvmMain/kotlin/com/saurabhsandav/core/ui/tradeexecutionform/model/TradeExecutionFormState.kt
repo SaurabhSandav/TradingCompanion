@@ -3,11 +3,11 @@ package com.saurabhsandav.core.ui.tradeexecutionform.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.IsBigDecimal
-import com.saurabhsandav.core.ui.common.form.IsInt
-import com.saurabhsandav.core.ui.common.form.Validation
-import com.saurabhsandav.core.ui.common.form.fields.*
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.validations.isBigDecimal
+import com.saurabhsandav.core.ui.common.form2.validations.isInt
+import com.saurabhsandav.core.ui.common.form2.validations.isPositive
+import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 import kotlinx.datetime.*
 
 @Immutable
@@ -19,7 +19,7 @@ internal data class TradeExecutionFormState(
 
 @Stable
 internal class TradeExecutionFormModel(
-    validator: FormValidator,
+    val validator: FormValidator,
     instrument: Instrument?,
     ticker: String?,
     quantity: String,
@@ -29,59 +29,42 @@ internal class TradeExecutionFormModel(
     timestamp: LocalDateTime,
 ) {
 
-    val instrument = validator.listSelectionField(instrument)
+    val instrumentField = validator.addField(instrument) { isRequired() }
 
-    val ticker = validator.listSelectionField(ticker)
+    val tickerField = validator.addField(ticker) { isRequired() }
 
-    val quantity = validator.textField(
-        initial = quantity,
-        validations = setOf(
-            IsInt,
-            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
-        ),
-    )
+    val quantityField = validator.addField(quantity) {
+        isRequired()
+        isInt {
+            isPositive()
+        }
+    }
 
-    val lots = validator.textField(
-        initial = lots,
-        validations = setOf(
-            IsInt,
-            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
-        ),
-        isRequired = false,
-    )
+    val lotsField = validator.addField(lots) {
+        isInt {
+            isPositive()
+        }
+    }
 
-    val isBuy = validator.switch(isBuy)
+    val isBuyField = validator.addField(isBuy)
 
-    val price = validator.textField(
-        initial = price,
-        validations = setOf(IsBigDecimal),
-    )
+    val priceField = validator.addField(price) {
+        isRequired()
+        isBigDecimal {
+            isPositive()
+        }
+    }
 
-    val date = validator.dateField(
-        initial = timestamp.date,
-        validations = setOf(
-            Validation(
-                errorMessage = "Cannot be in the future",
-                isValid = { date ->
-                    date <= Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-                },
-            ),
-        ),
-    )
+    val dateField = validator.addField(timestamp.date) {
+        check(this <= currentLocalDateTime().date) { "Cannot be in the future" }
+    }
 
-    val time = validator.timeField(
-        initial = timestamp.time,
-        validations = setOf(
-            Validation(
-                errorMessage = "Cannot be in the future",
-                dependsOn = setOf(date),
-                isValid = { time ->
-                    date.value.atTime(time) < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                },
-            ),
-        ),
-    )
+    val timeField = validator.addField(timestamp.time) {
+        check(validated(dateField).atTime(this) < currentLocalDateTime()) { "Cannot be in the future" }
+    }
 
     val timestamp: LocalDateTime
-        get() = date.value.atTime(time.value)
+        get() = dateField.value.atTime(timeField.value)
+
+    private fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }

@@ -7,7 +7,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -31,7 +31,7 @@ internal class TradeExecutionFormPresenter(
     private val onExecutionSaved: ((executionId: Long) -> Unit)? = null,
 ) {
 
-    private val formValidator = FormValidator()
+    private val formValidator = FormValidator(coroutineScope)
     private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
     init {
@@ -61,7 +61,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun onSaveExecution() = coroutineScope.launchUnit {
 
-        if (!formValidator.isValid()) return@launchUnit
+        if (!formValidator.validate()) return@launchUnit
 
         val formModel = requireNotNull(formModel)
 
@@ -71,23 +71,23 @@ internal class TradeExecutionFormPresenter(
             is Edit -> tradingRecord.executions.edit(
                 id = formType.id,
                 broker = "Finvasia",
-                instrument = formModel.instrument.value!!,
-                ticker = formModel.ticker.value!!,
-                quantity = formModel.quantity.value.toBigDecimal(),
-                lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = formModel.price.value.toBigDecimal(),
+                instrument = formModel.instrumentField.value!!,
+                ticker = formModel.tickerField.value!!,
+                quantity = formModel.quantityField.value.toBigDecimal(),
+                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                price = formModel.priceField.value.toBigDecimal(),
                 timestamp = formModel.timestamp,
             )
 
             else -> tradingRecord.executions.new(
                 broker = "Finvasia",
-                instrument = formModel.instrument.value!!,
-                ticker = formModel.ticker.value!!,
-                quantity = formModel.quantity.value.toBigDecimal(),
-                lots = formModel.lots.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuy.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = formModel.price.value.toBigDecimal(),
+                instrument = formModel.instrumentField.value!!,
+                ticker = formModel.tickerField.value!!,
+                quantity = formModel.quantityField.value.toBigDecimal(),
+                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                price = formModel.priceField.value.toBigDecimal(),
                 timestamp = formModel.timestamp,
                 locked = false,
             )

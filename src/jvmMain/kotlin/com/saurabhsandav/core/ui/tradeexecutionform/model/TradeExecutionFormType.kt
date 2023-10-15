@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 
 internal sealed class TradeExecutionFormType {
 

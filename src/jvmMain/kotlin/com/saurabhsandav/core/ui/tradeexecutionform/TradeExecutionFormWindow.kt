@@ -19,7 +19,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
-import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
@@ -120,41 +120,41 @@ private fun TradeExecutionForm(
                     if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
                 }
             },
-            onSelection = { model.instrument.value = it },
-            selection = model.instrument.value,
+            onSelection = { model.instrumentField.value = it },
+            selection = model.instrumentField.value,
             label = { Text("Instrument") },
             enabled = isTickerEditable,
-            isError = model.instrument.isError,
-            supportingText = model.instrument.errorMessage?.let { { Text(it) } },
+            isError = model.instrumentField.isError,
+            supportingText = model.instrumentField.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedListSelectionField(
             items = NIFTY50,
             itemText = { it },
-            onSelection = { model.ticker.value = it },
-            selection = model.ticker.value,
+            onSelection = { model.tickerField.value = it },
+            selection = model.tickerField.value,
             label = { Text("Ticker") },
             enabled = isTickerEditable,
-            isError = model.ticker.isError,
-            supportingText = model.ticker.errorMessage?.let { { Text(it) } },
+            isError = model.tickerField.isError,
+            supportingText = model.tickerField.errorMessage?.let { { Text(it) } },
         )
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
-            value = model.quantity.value,
-            onValueChange = { model.quantity.value = it.trim() },
+            value = model.quantityField.value,
+            onValueChange = { model.quantityField.value = it.trim() },
             label = { Text("Quantity") },
-            isError = model.quantity.isError,
-            supportingText = model.quantity.errorMessage?.let { { Text(it) } },
+            isError = model.quantityField.isError,
+            supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
         OutlinedTextField(
-            value = model.lots.value,
-            onValueChange = { model.lots.value = it.trim() },
+            value = model.lotsField.value,
+            onValueChange = { model.lotsField.value = it.trim() },
             label = { Text("Lots") },
-            isError = model.lots.isError,
-            supportingText = model.lots.errorMessage?.let { { Text(it) } },
+            isError = model.lotsField.isError,
+            supportingText = model.lotsField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
@@ -167,8 +167,8 @@ private fun TradeExecutionForm(
             Text("SELL", color = AppColor.LossRed)
 
             Switch(
-                checked = model.isBuy.value,
-                onCheckedChange = { model.isBuy.value = it },
+                checked = model.isBuyField.value,
+                onCheckedChange = { model.isBuyField.value = it },
                 enabled = isSideSelectable,
             )
 
@@ -176,39 +176,38 @@ private fun TradeExecutionForm(
         }
 
         OutlinedTextField(
-            value = model.price.value,
-            onValueChange = { model.price.value = it.trim() },
+            value = model.priceField.value,
+            onValueChange = { model.priceField.value = it.trim() },
             label = { Text("Price") },
-            isError = model.price.isError,
-            supportingText = model.price.errorMessage?.let { { Text(it) } },
+            isError = model.priceField.isError,
+            supportingText = model.priceField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 
         DatePickerField(
-            value = model.date.value,
-            onValidValueChange = { model.date.value = it },
+            value = model.dateField.value,
+            onValidValueChange = { model.dateField.value = it },
             label = { Text("Entry Date") },
-            isError = model.date.isError,
-            supportingText = model.date.errorMessage?.let { { Text(it) } },
+            isError = model.dateField.isError,
+            supportingText = model.dateField.errorMessage?.let { { Text(it) } },
             yearRange = remember {
                 1900..Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
             }
         )
 
         TimeField(
-            value = model.time.value,
-            onValidValueChange = { model.time.value = it },
+            value = model.timeField.value,
+            onValidValueChange = { model.timeField.value = it },
             label = { Text("Entry Time") },
-            isError = model.time.isError,
-            supportingText = model.time.errorMessage?.let { { Text(it) } },
+            isError = model.timeField.isError,
+            supportingText = model.timeField.errorMessage?.let { { Text(it) } },
         )
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = onSaveExecution,
-        ) {
-
-            Text("Add")
-        }
+            enabled = model.validator.isValid,
+            content = { Text("Add") },
+        )
     }
 }
