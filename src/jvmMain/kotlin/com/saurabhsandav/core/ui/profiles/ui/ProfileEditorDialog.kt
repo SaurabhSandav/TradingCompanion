@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -16,9 +17,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.isError
+import com.saurabhsandav.core.ui.common.form2.rememberFormValidator
 import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun ProfileEditorDialog(
@@ -30,7 +33,7 @@ internal fun ProfileEditorDialog(
 
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
 
-    val formValidator = remember { FormValidator() }
+    val formValidator = rememberFormValidator()
     val model = remember {
         formModel?.invoke(formValidator) ?: ProfileFormModel(
             validator = formValidator,
@@ -61,17 +64,17 @@ internal fun ProfileEditorDialog(
 
             OutlinedTextField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
-                value = model.name.value,
-                onValueChange = { model.name.value = it },
+                value = model.nameField.value,
+                onValueChange = { model.nameField.value = it },
                 label = { Text("Name") },
-                isError = model.name.isError,
-                supportingText = model.name.errorMessage?.let { { Text(it) } },
+                isError = model.nameField.isError,
+                supportingText = model.nameField.errorMessage?.let { { Text(it) } },
                 singleLine = true,
             )
 
             OutlinedTextField(
-                value = model.description.value,
-                onValueChange = { model.description.value = it },
+                value = model.descriptionField.value,
+                onValueChange = { model.descriptionField.value = it },
                 label = { Text("Description") },
             )
 
@@ -82,23 +85,26 @@ internal fun ProfileEditorDialog(
                 Text("Training", Modifier.weight(1F))
 
                 Checkbox(
-                    checked = trainingOnly || model.isTraining.value,
-                    onCheckedChange = { model.isTraining.value = it },
+                    checked = trainingOnly || model.isTrainingField.value,
+                    onCheckedChange = { model.isTrainingField.value = it },
                     enabled = !trainingOnly,
                 )
             }
 
+            val coroutineScope = rememberCoroutineScope()
+
             Button(
                 onClick = {
-                    if (formValidator.isValid()) {
-                        onSaveProfile(model)
-                        onCloseRequest()
+                    coroutineScope.launch {
+                        if (formValidator.validate()) {
+                            onSaveProfile(model)
+                            onCloseRequest()
+                        }
                     }
                 },
-            ) {
-
-                Text("Save Profile")
-            }
+                enabled = model.validator.isValid,
+                content = { Text("Save Profile") },
+            )
         }
     }
 }

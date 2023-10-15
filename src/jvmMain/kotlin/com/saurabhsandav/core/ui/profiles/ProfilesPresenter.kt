@@ -79,9 +79,9 @@ internal class ProfilesPresenter(
     private fun onCreateProfile(formModel: ProfileFormModel) = coroutineScope.launchUnit {
 
         tradingProfiles.newProfile(
-            name = formModel.name.value,
-            description = formModel.description.value,
-            isTraining = formModel.isTraining.value,
+            name = formModel.nameField.value,
+            description = formModel.descriptionField.value,
+            isTraining = formModel.isTrainingField.value,
         )
     }
 
@@ -103,9 +103,9 @@ internal class ProfilesPresenter(
 
         tradingProfiles.updateProfile(
             id = id,
-            name = formModel.name.value,
-            description = formModel.description.value,
-            isTraining = formModel.isTraining.value,
+            name = formModel.nameField.value,
+            description = formModel.descriptionField.value,
+            isTraining = formModel.isTrainingField.value,
         )
     }
 

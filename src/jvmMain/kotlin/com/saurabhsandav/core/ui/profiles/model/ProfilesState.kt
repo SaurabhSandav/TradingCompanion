@@ -2,9 +2,8 @@ package com.saurabhsandav.core.ui.profiles.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.fields.switch
-import com.saurabhsandav.core.ui.common.form.fields.textField
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -25,18 +24,15 @@ internal data class ProfilesState(
 
 @Stable
 internal class ProfileFormModel(
-    validator: FormValidator,
+    val validator: FormValidator,
     name: String,
     description: String,
     isTraining: Boolean,
 ) {
 
-    val name = validator.textField(initial = name)
+    val nameField = validator.addField(name) { isRequired() }
 
-    val description = validator.textField(
-        initial = description,
-        isRequired = false,
-    )
+    val descriptionField = validator.addField(description)
 
-    val isTraining = validator.switch(isTraining)
+    val isTrainingField = validator.addField(isTraining)
 }
