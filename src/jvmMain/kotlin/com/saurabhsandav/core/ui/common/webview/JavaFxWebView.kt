@@ -1,13 +1,14 @@
 package com.saurabhsandav.core.ui.common.webview
 
 import androidx.compose.runtime.Stable
-import com.saurabhsandav.core.ui.common.toHexString
+import com.saurabhsandav.core.ui.common.AwtColor
+import com.saurabhsandav.core.ui.common.JFXColor
+import com.saurabhsandav.core.ui.common.toJavaFxColor
 import com.saurabhsandav.core.ui.common.webview.WebView.LoadState
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel
 import javafx.scene.Scene
-import javafx.scene.paint.Color
 import javafx.scene.web.WebEngine
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
@@ -20,7 +21,7 @@ class JavaFxWebView : WebView {
 
     private lateinit var webView: JFXWebView
     private lateinit var engine: WebEngine
-    private var backgroundColor: Color? = null
+    private var backgroundColor: JFXColor? = null
 
     private val isReady = CompletableDeferred<Unit>()
 
@@ -110,13 +111,13 @@ class JavaFxWebView : WebView {
         }
     }
 
-    override suspend fun setBackgroundColor(color: androidx.compose.ui.graphics.Color) {
+    override suspend fun setBackgroundColor(color: AwtColor) {
 
         awaitReady()
 
         runInJavaFxThread {
 
-            backgroundColor = Color.web(color.toHexString())
+            backgroundColor = color.toJavaFxColor()
 
             webView.pageFill = backgroundColor
         }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import kotlinx.coroutines.flow.Flow
 import java.awt.Component
@@ -46,7 +47,7 @@ interface WebView {
 
     suspend fun createJSCallback(jsFuncName: String): JSCallback
 
-    suspend fun setBackgroundColor(color: androidx.compose.ui.graphics.Color)
+    suspend fun setBackgroundColor(color: AwtColor)
 
     enum class LoadState {
         INITIALIZED,

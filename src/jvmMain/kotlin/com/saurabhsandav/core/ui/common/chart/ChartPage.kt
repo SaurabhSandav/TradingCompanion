@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.toAwtColor
 import com.saurabhsandav.core.ui.common.webview.WebView
 
 @Composable
@@ -34,7 +35,7 @@ fun ChartPage(
 
         // Set Material background as page background
         LaunchedEffect(backgroundColor) {
-            state.webView.setBackgroundColor(backgroundColor)
+            state.webView.setBackgroundColor(backgroundColor.toAwtColor())
             state.setPageBackgroundColor(backgroundColor)
         }
 
