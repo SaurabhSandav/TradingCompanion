@@ -199,19 +199,12 @@ internal class ReplaySessionPresenter(
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            initialFormModel = { formValidator ->
-                ReplayOrderFormModel(
-                    validator = formValidator,
-                    instrument = Instrument.Equity,
-                    ticker = stockChart.params.ticker,
-                    quantity = "",
-                    lots = "",
-                    isBuy = true,
-                    price = price,
-                    stop = "",
-                    target = "",
-                )
-            },
+            initialModel = ReplayOrderFormModel.Initial(
+                instrument = Instrument.Equity,
+                ticker = stockChart.params.ticker,
+                isBuy = true,
+                price = price,
+            ),
         )
 
         orderFormWindowsManager.newWindow(params)
@@ -227,19 +220,12 @@ internal class ReplaySessionPresenter(
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
-            initialFormModel = { formValidator ->
-                ReplayOrderFormModel(
-                    validator = formValidator,
-                    instrument = Instrument.Equity,
-                    ticker = stockChart.params.ticker,
-                    quantity = "",
-                    lots = "",
-                    isBuy = false,
-                    price = price,
-                    stop = "",
-                    target = "",
-                )
-            },
+            initialModel = ReplayOrderFormModel.Initial(
+                instrument = Instrument.Equity,
+                ticker = stockChart.params.ticker,
+                isBuy = false,
+                price = price,
+            ),
         )
 
         orderFormWindowsManager.newWindow(params)

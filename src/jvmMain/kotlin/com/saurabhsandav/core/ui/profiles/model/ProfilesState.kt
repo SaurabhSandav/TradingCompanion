@@ -25,14 +25,18 @@ internal data class ProfilesState(
 @Stable
 internal class ProfileFormModel(
     val validator: FormValidator,
-    name: String,
-    description: String,
-    isTraining: Boolean,
+    initial: Initial,
 ) {
 
-    val nameField = validator.addField(name) { isRequired() }
+    val nameField = validator.addField(initial.name) { isRequired() }
 
-    val descriptionField = validator.addField(description)
+    val descriptionField = validator.addField(initial.description)
 
-    val isTrainingField = validator.addField(isTraining)
+    val isTrainingField = validator.addField(initial.isTraining)
+
+    class Initial(
+        val name: String = "",
+        val description: String = "",
+        val isTraining: Boolean = false,
+    )
 }

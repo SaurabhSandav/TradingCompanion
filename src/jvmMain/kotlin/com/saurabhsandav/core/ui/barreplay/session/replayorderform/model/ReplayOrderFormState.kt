@@ -19,43 +19,36 @@ internal data class ReplayOrderFormState(
 @Stable
 internal class ReplayOrderFormModel(
     val validator: FormValidator,
-    instrument: Instrument?,
-    ticker: String?,
-    quantity: String,
-    lots: String,
-    isBuy: Boolean,
-    price: String,
-    stop: String,
-    target: String,
+    initial: Initial,
 ) {
 
-    val instrumentField = validator.addField(instrument) { isRequired() }
+    val instrumentField = validator.addField(initial.instrument) { isRequired() }
 
-    val tickerField = validator.addField(ticker) { isRequired() }
+    val tickerField = validator.addField(initial.ticker) { isRequired() }
 
-    val quantityField = validator.addField(quantity) {
+    val quantityField = validator.addField(initial.quantity) {
         isRequired()
         isInt {
             isPositive()
         }
     }
 
-    val lotsField = validator.addField(lots) {
+    val lotsField = validator.addField(initial.lots) {
         isInt {
             isPositive()
         }
     }
 
-    val isBuyField = validator.addField(isBuy)
+    val isBuyField = validator.addField(initial.isBuy)
 
-    val priceField = validator.addField(price) {
+    val priceField = validator.addField(initial.price) {
         isRequired()
         isBigDecimal {
             isPositive()
         }
     }
 
-    val stop = validator.addField(stop) {
+    val stop = validator.addField(initial.stop) {
         isBigDecimal {
             isPositive()
 
@@ -69,7 +62,7 @@ internal class ReplayOrderFormModel(
         }
     }
 
-    val target = validator.addField(target) {
+    val target = validator.addField(initial.target) {
         isBigDecimal {
             isPositive()
 
@@ -82,4 +75,15 @@ internal class ReplayOrderFormModel(
             )
         }
     }
+
+    class Initial(
+        val instrument: Instrument? = null,
+        val ticker: String? = null,
+        val quantity: String = "",
+        val lots: String = "",
+        val isBuy: Boolean = true,
+        val price: String = "",
+        val stop: String = "",
+        val target: String = "",
+    )
 }

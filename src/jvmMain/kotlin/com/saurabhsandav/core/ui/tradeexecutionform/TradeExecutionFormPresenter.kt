@@ -16,10 +16,6 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Duration.Companion.nanoseconds
 
 @Stable
 internal class TradeExecutionFormPresenter(
@@ -37,7 +33,7 @@ internal class TradeExecutionFormPresenter(
     init {
 
         when (formType) {
-            is New -> new(formType.formModel)
+            is New -> new(formType.initialModel)
             is NewFromExisting -> newFromExisting(formType.id)
             is NewFromExistingInTrade -> newFromExisting(formType.id)
             is AddToTrade -> addToTrade(formType.tradeId)
@@ -97,21 +93,11 @@ internal class TradeExecutionFormPresenter(
         onExecutionSaved?.invoke(executionId)
     }
 
-    private fun new(formModel: ((FormValidator) -> TradeExecutionFormModel)? = null) {
+    private fun new(initialModel: TradeExecutionFormModel.Initial?) {
 
-        this.formModel = formModel?.invoke(formValidator) ?: TradeExecutionFormModel(
+        this.formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = null,
-            ticker = null,
-            quantity = "",
-            lots = "",
-            isBuy = true,
-            price = "",
-            timestamp = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
+            initial = initialModel ?: TradeExecutionFormModel.Initial(),
         )
     }
 
@@ -123,17 +109,14 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = execution.instrument,
-            ticker = execution.ticker,
-            quantity = execution.quantity.toString(),
-            lots = execution.lots?.toString() ?: "",
-            isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toPlainString(),
-            timestamp = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
+            initial = TradeExecutionFormModel.Initial(
+                instrument = execution.instrument,
+                ticker = execution.ticker,
+                quantity = execution.quantity.toString(),
+                lots = execution.lots?.toString() ?: "",
+                isBuy = execution.side == TradeExecutionSide.Buy,
+                price = execution.price.toPlainString(),
+            ),
         )
     }
 
@@ -145,17 +128,11 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = trade.instrument,
-            ticker = trade.ticker,
-            quantity = "",
-            lots = "",
-            isBuy = trade.side == TradeSide.Long,
-            price = "",
-            timestamp = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
+            initial = TradeExecutionFormModel.Initial(
+                instrument = trade.instrument,
+                ticker = trade.ticker,
+                isBuy = trade.side == TradeSide.Long,
+            ),
         )
     }
 
@@ -167,17 +144,12 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = trade.instrument,
-            ticker = trade.ticker,
-            quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
-            lots = "",
-            isBuy = trade.side != TradeSide.Long,
-            price = "",
-            timestamp = run {
-                val currentTime = Clock.System.now()
-                val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-                currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-            },
+            initial = TradeExecutionFormModel.Initial(
+                instrument = trade.instrument,
+                ticker = trade.ticker,
+                quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
+                isBuy = trade.side != TradeSide.Long,
+            ),
         )
     }
 
@@ -189,13 +161,15 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
-            instrument = execution.instrument,
-            ticker = execution.ticker,
-            quantity = execution.quantity.toString(),
-            lots = execution.lots?.toString() ?: "",
-            isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toPlainString(),
-            timestamp = execution.timestamp,
+            initial = TradeExecutionFormModel.Initial(
+                instrument = execution.instrument,
+                ticker = execution.ticker,
+                quantity = execution.quantity.toString(),
+                lots = execution.lots?.toString() ?: "",
+                isBuy = execution.side == TradeExecutionSide.Buy,
+                price = execution.price.toPlainString(),
+                timestamp = execution.timestamp,
+            ),
         )
     }
 }

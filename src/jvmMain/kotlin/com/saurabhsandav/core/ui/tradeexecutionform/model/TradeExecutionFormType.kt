@@ -1,10 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
-import com.saurabhsandav.core.ui.common.form2.FormValidator
-
 internal sealed class TradeExecutionFormType {
 
-    data class New(val formModel: ((FormValidator) -> TradeExecutionFormModel)? = null) : TradeExecutionFormType()
+    data class New(val initialModel: TradeExecutionFormModel.Initial? = null) : TradeExecutionFormType()
 
     data class NewFromExisting(val id: Long) : TradeExecutionFormType()
 

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -88,9 +89,8 @@ internal fun ProfileListItem(
     if (showEditProfileDialog) {
 
         ProfileEditorDialog(
-            formModel = { formValidator ->
-                ProfileFormModel(
-                    validator = formValidator,
+            initialModel = remember {
+                ProfileFormModel.Initial(
                     name = name,
                     description = description,
                     isTraining = isTraining,

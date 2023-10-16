@@ -29,13 +29,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
-import kotlin.time.Duration.Companion.nanoseconds
 
 @Stable
 internal class SizingPresenter(
@@ -145,24 +141,18 @@ internal class SizingPresenter(
             else -> (account.balancePerTrade * account.leverage) / sizingTrade.entry
         }
 
-        val currentTime = Clock.System.now()
-        val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-
         val params = TradeExecutionFormParams(
             id = UUID.randomUUID(),
             profileId = tradingProfiles.currentProfile.first().id,
-            formType = TradeExecutionFormType.New { formValidator ->
-                TradeExecutionFormModel(
-                    validator = formValidator,
+            formType = TradeExecutionFormType.New(
+                initialModel = TradeExecutionFormModel.Initial(
                     instrument = Instrument.Equity,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
-                    lots = "",
                     isBuy = isBuy,
                     price = sizingTrade.entry.toPlainString(),
-                    timestamp = currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault()),
                 )
-            },
+            ),
             onExecutionSaved = { executionId ->
 
                 coroutineScope.launch {

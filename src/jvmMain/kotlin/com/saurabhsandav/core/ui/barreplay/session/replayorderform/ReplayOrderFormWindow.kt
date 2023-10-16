@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayO
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
-import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf
@@ -27,13 +26,13 @@ import java.util.*
 @Composable
 internal fun ReplayOrderFormWindow(
     replayOrdersManager: ReplayOrdersManager,
-    initialFormModel: ((FormValidator) -> ReplayOrderFormModel)? = null,
+    initialModel: ReplayOrderFormModel.Initial?,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember {
-        ReplayOrderFormPresenter(scope, replayOrdersManager, initialFormModel) { onCloseRequest() }
+        ReplayOrderFormPresenter(scope, replayOrdersManager, initialModel) { onCloseRequest() }
     }
     val state by presenter.state.collectAsState()
 

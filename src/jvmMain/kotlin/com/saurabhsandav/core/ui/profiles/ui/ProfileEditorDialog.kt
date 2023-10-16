@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.ui.common.form2.rememberFormValidator
 import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
@@ -25,7 +24,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun ProfileEditorDialog(
-    formModel: ((FormValidator) -> ProfileFormModel)?,
+    initialModel: ProfileFormModel.Initial?,
     onSaveProfile: (ProfileFormModel) -> Unit,
     onCloseRequest: () -> Unit,
     trainingOnly: Boolean,
@@ -35,11 +34,9 @@ internal fun ProfileEditorDialog(
 
     val formValidator = rememberFormValidator()
     val model = remember {
-        formModel?.invoke(formValidator) ?: ProfileFormModel(
+        ProfileFormModel(
             validator = formValidator,
-            name = "",
-            description = "",
-            isTraining = true,
+            initial = initialModel ?: ProfileFormModel.Initial(),
         )
     }
 
@@ -47,7 +44,7 @@ internal fun ProfileEditorDialog(
         onCloseRequest = onCloseRequest,
         state = dialogState,
         title = when {
-            formModel != null -> "Edit Profile"
+            initialModel != null -> "Edit Profile"
             else -> "New Profile"
         },
     ) {

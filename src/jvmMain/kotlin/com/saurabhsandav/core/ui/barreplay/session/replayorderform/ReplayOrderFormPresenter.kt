@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 internal class ReplayOrderFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val replayOrdersManager: ReplayOrdersManager,
-    initialFormModel: ((FormValidator) -> ReplayOrderFormModel)? = null,
+    initialModel: ReplayOrderFormModel.Initial?,
     private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
 ) {
 
@@ -27,16 +27,9 @@ internal class ReplayOrderFormPresenter(
 
     init {
 
-        this.formModel = initialFormModel?.invoke(formValidator) ?: ReplayOrderFormModel(
+        this.formModel = ReplayOrderFormModel(
             validator = formValidator,
-            instrument = null,
-            ticker = null,
-            quantity = "",
-            lots = "",
-            isBuy = true,
-            price = "",
-            stop = "",
-            target = "",
+            initial = initialModel ?: ReplayOrderFormModel.Initial(),
         )
     }
 

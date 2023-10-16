@@ -9,6 +9,7 @@ import com.saurabhsandav.core.ui.common.form2.validations.isInt
 import com.saurabhsandav.core.ui.common.form2.validations.isPositive
 import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 import kotlinx.datetime.*
+import kotlin.time.Duration.Companion.nanoseconds
 
 @Immutable
 internal data class TradeExecutionFormState(
@@ -20,46 +21,40 @@ internal data class TradeExecutionFormState(
 @Stable
 internal class TradeExecutionFormModel(
     val validator: FormValidator,
-    instrument: Instrument?,
-    ticker: String?,
-    quantity: String,
-    lots: String,
-    isBuy: Boolean,
-    price: String,
-    timestamp: LocalDateTime,
+    initial: Initial,
 ) {
 
-    val instrumentField = validator.addField(instrument) { isRequired() }
+    val instrumentField = validator.addField(initial.instrument) { isRequired() }
 
-    val tickerField = validator.addField(ticker) { isRequired() }
+    val tickerField = validator.addField(initial.ticker) { isRequired() }
 
-    val quantityField = validator.addField(quantity) {
+    val quantityField = validator.addField(initial.quantity) {
         isRequired()
         isInt {
             isPositive()
         }
     }
 
-    val lotsField = validator.addField(lots) {
+    val lotsField = validator.addField(initial.lots) {
         isInt {
             isPositive()
         }
     }
 
-    val isBuyField = validator.addField(isBuy)
+    val isBuyField = validator.addField(initial.isBuy)
 
-    val priceField = validator.addField(price) {
+    val priceField = validator.addField(initial.price) {
         isRequired()
         isBigDecimal {
             isPositive()
         }
     }
 
-    val dateField = validator.addField(timestamp.date) {
+    val dateField = validator.addField(initial.timestamp.date) {
         check(this <= currentLocalDateTime().date) { "Cannot be in the future" }
     }
 
-    val timeField = validator.addField(timestamp.time) {
+    val timeField = validator.addField(initial.timestamp.time) {
         check(validated(dateField).atTime(this) < currentLocalDateTime()) { "Cannot be in the future" }
     }
 
@@ -67,4 +62,18 @@ internal class TradeExecutionFormModel(
         get() = dateField.value.atTime(timeField.value)
 
     private fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+    class Initial(
+        val instrument: Instrument? = null,
+        val ticker: String? = null,
+        val quantity: String = "",
+        val lots: String = "",
+        val isBuy: Boolean = true,
+        val price: String = "",
+        val timestamp: LocalDateTime = run {
+            val currentTime = Clock.System.now()
+            val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
+            currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
+        },
+    )
 }

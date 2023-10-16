@@ -165,7 +165,7 @@ private fun ProfilesScreen(
     if (showNewProfileDialog) {
 
         ProfileEditorDialog(
-            formModel = null,
+            initialModel = null,
             onSaveProfile = onCreateProfile,
             onCloseRequest = { showNewProfileDialog = false },
             trainingOnly = trainingOnly,
