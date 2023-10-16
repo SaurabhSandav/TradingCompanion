@@ -10,7 +10,7 @@ import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormState
-import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 

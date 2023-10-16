@@ -8,7 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first

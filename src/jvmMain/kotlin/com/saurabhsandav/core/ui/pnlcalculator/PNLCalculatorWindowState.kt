@@ -5,7 +5,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.*
 import com.saurabhsandav.core.utils.Brokerage
 import com.saurabhsandav.core.utils.brokerage

@@ -7,7 +7,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType

@@ -1,7 +1,7 @@
-package com.saurabhsandav.core.ui.common.form2.validations
+package com.saurabhsandav.core.ui.common.form.validations
 
-import com.saurabhsandav.core.ui.common.form2.Validation
-import com.saurabhsandav.core.ui.common.form2.ValidationScope
+import com.saurabhsandav.core.ui.common.form.Validation
+import com.saurabhsandav.core.ui.common.form.ValidationScope
 
 context(ValidationScope)
 suspend fun String.isInt(

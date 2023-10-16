@@ -4,10 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.form2.FormValidator
-import com.saurabhsandav.core.ui.common.form2.validations.isInt
-import com.saurabhsandav.core.ui.common.form2.validations.isPositive
-import com.saurabhsandav.core.ui.common.form2.validations.isRequired
+import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.validations.isInt
+import com.saurabhsandav.core.ui.common.form.validations.isPositive
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

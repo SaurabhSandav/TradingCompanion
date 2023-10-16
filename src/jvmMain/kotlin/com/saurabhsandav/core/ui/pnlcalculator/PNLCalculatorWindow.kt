@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.form2.isError
+import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
 
 @Composable

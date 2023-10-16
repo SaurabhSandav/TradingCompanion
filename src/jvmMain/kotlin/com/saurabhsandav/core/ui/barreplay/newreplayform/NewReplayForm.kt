@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
-import com.saurabhsandav.core.ui.common.form2.isError
+import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
 import kotlinx.collections.immutable.persistentListOf

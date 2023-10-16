@@ -1,7 +1,7 @@
-package com.saurabhsandav.core.ui.common.form2
+package com.saurabhsandav.core.ui.common.form
 
 import androidx.compose.runtime.*
-import com.saurabhsandav.core.ui.common.form2.ValidationResult.*
+import com.saurabhsandav.core.ui.common.form.ValidationResult.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn

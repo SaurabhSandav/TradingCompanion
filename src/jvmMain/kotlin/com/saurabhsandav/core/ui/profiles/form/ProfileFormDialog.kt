@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.form2.isError
+import com.saurabhsandav.core.ui.common.form.isError
 
 @Composable
 internal fun ProfileFormDialog(

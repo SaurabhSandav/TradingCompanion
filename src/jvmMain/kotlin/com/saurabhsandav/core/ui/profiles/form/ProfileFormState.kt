@@ -2,8 +2,8 @@ package com.saurabhsandav.core.ui.profiles.form
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.saurabhsandav.core.ui.common.form2.FormValidator
-import com.saurabhsandav.core.ui.common.form2.validations.isRequired
+import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
 @Immutable
 internal data class ProfileFormState(

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.common.form2
+package com.saurabhsandav.core.ui.common.form
 
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.utils.newChildScope

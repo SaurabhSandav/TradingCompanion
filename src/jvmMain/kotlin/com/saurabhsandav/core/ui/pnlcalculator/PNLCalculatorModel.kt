@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.pnlcalculator
 
 import androidx.compose.runtime.*
-import com.saurabhsandav.core.ui.common.form2.FormValidator
-import com.saurabhsandav.core.ui.common.form2.validations.isBigDecimal
-import com.saurabhsandav.core.ui.common.form2.validations.isInt
-import com.saurabhsandav.core.ui.common.form2.validations.isPositive
-import com.saurabhsandav.core.ui.common.form2.validations.isRequired
+import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
+import com.saurabhsandav.core.ui.common.form.validations.isInt
+import com.saurabhsandav.core.ui.common.form.validations.isPositive
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
 @Stable
 internal class PNLCalculatorModel(

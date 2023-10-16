@@ -17,7 +17,7 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
-import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
