@@ -18,17 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
+import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
+import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
+import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 
 @Composable
 internal fun ProfileListItem(
-    name: String,
-    description: String,
-    isTraining: Boolean,
+    profile: Profile,
     isCurrent: Boolean,
     onSetCurrentProfile: () -> Unit,
     onDeleteProfile: () -> Unit,
-    onUpdateProfile: (ProfileFormModel) -> Unit,
     onCopyProfile: () -> Unit,
     trainingOnly: Boolean,
 ) {
@@ -42,7 +41,7 @@ internal fun ProfileListItem(
 
             Row {
 
-                Text(name)
+                Text(profile.name)
 
                 AnimatedVisibility(isCurrent) {
 
@@ -56,11 +55,11 @@ internal fun ProfileListItem(
         },
         overlineContent = {
             Text(
-                text = if (isTraining) "TRAINING" else "LIVE",
-                color = if (isTraining) AppColor.LossRed else AppColor.ProfitGreen,
+                text = if (profile.isTraining) "TRAINING" else "LIVE",
+                color = if (profile.isTraining) AppColor.LossRed else AppColor.ProfitGreen,
             )
         },
-        supportingContent = { Text(description) },
+        supportingContent = { Text(profile.description) },
         trailingContent = {
 
             Row {
@@ -88,17 +87,10 @@ internal fun ProfileListItem(
 
     if (showEditProfileDialog) {
 
-        ProfileEditorDialog(
-            initialModel = remember {
-                ProfileFormModel.Initial(
-                    name = name,
-                    description = description,
-                    isTraining = isTraining,
-                )
-            },
-            onSaveProfile = onUpdateProfile,
-            onCloseRequest = { showEditProfileDialog = false },
+        ProfileFormDialog(
+            type = remember { ProfileFormType.Edit(profile.id) },
             trainingOnly = trainingOnly,
+            onCloseRequest = { showEditProfileDialog = false },
         )
     }
 

@@ -17,10 +17,10 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
+import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
+import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
-import com.saurabhsandav.core.ui.profiles.ui.ProfileEditorDialog
 import com.saurabhsandav.core.ui.profiles.ui.ProfileListItem
 import kotlinx.collections.immutable.ImmutableList
 
@@ -42,10 +42,8 @@ internal fun ProfilesWindow(
         ProfilesScreen(
             profiles = state.profiles,
             currentProfileId = state.currentProfile?.id,
-            onCreateProfile = { profileModel -> state.eventSink(CreateProfile(profileModel)) },
             onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
             onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-            onUpdateProfile = { id, profileModel -> state.eventSink(UpdateProfile(id, profileModel)) },
             onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
         )
     }
@@ -91,13 +89,11 @@ internal fun ProfileSwitcher(
             ProfilesScreen(
                 profiles = state.profiles,
                 currentProfileId = state.currentProfile?.id,
-                onCreateProfile = { profileModel -> state.eventSink(CreateProfile(profileModel)) },
                 onSetCurrentProfile = { id ->
                     onSelectProfile(id)
                     showSelectorDialog = false
                 },
                 onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-                onUpdateProfile = { id, profileModel -> state.eventSink(UpdateProfile(id, profileModel)) },
                 onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
                 trainingOnly = trainingOnly,
             )
@@ -109,10 +105,8 @@ internal fun ProfileSwitcher(
 private fun ProfilesScreen(
     profiles: ImmutableList<Profile>,
     currentProfileId: Long?,
-    onCreateProfile: (ProfileFormModel) -> Unit,
     onSetCurrentProfile: (Long) -> Unit,
     onDeleteProfile: (Long) -> Unit,
-    onUpdateProfile: (Long, ProfileFormModel) -> Unit,
     onCopyProfile: (Long) -> Unit,
     trainingOnly: Boolean = false,
 ) {
@@ -141,13 +135,10 @@ private fun ProfilesScreen(
                     key(profile.id) {
 
                         ProfileListItem(
-                            name = profile.name,
-                            description = profile.description,
-                            isTraining = profile.isTraining,
+                            profile = profile,
                             isCurrent = profile.id == currentProfileId,
                             onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
                             onDeleteProfile = { onDeleteProfile(profile.id) },
-                            onUpdateProfile = { profileModel -> onUpdateProfile(profile.id, profileModel) },
                             onCopyProfile = { onCopyProfile(profile.id) },
                             trainingOnly = trainingOnly,
                         )
@@ -164,11 +155,10 @@ private fun ProfilesScreen(
 
     if (showNewProfileDialog) {
 
-        ProfileEditorDialog(
-            initialModel = null,
-            onSaveProfile = onCreateProfile,
-            onCloseRequest = { showNewProfileDialog = false },
+        ProfileFormDialog(
+            type = ProfileFormType.New,
             trainingOnly = trainingOnly,
+            onCloseRequest = { showNewProfileDialog = false },
         )
     }
 }

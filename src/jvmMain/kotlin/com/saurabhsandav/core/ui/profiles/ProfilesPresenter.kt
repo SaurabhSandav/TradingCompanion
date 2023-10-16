@@ -6,7 +6,6 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.ui.profiles.model.ProfileFormModel
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
@@ -41,10 +40,8 @@ internal class ProfilesPresenter(
     private fun onEvent(event: ProfilesEvent) {
 
         when (event) {
-            is CreateProfile -> onCreateProfile(event.formModel)
             is SetCurrentProfile -> onSetCurrentProfile(event.id)
             is DeleteProfile -> onDeleteProfile(event.id)
-            is UpdateProfile -> onUpdateProfile(event.id, event.formModel)
             is CopyProfile -> onCopyProfile(event.id)
         }
     }
@@ -76,15 +73,6 @@ internal class ProfilesPresenter(
         }.collectAsState(null)
     }
 
-    private fun onCreateProfile(formModel: ProfileFormModel) = coroutineScope.launchUnit {
-
-        tradingProfiles.newProfile(
-            name = formModel.nameField.value,
-            description = formModel.descriptionField.value,
-            isTraining = formModel.isTrainingField.value,
-        )
-    }
-
     private fun onSetCurrentProfile(id: Long) = coroutineScope.launchUnit {
         when {
             customSelectionMode -> currentProfileId.value = id
@@ -94,19 +82,6 @@ internal class ProfilesPresenter(
 
     private fun onDeleteProfile(id: Long) = coroutineScope.launchUnit {
         tradingProfiles.deleteProfile(id)
-    }
-
-    private fun onUpdateProfile(
-        id: Long,
-        formModel: ProfileFormModel,
-    ) = coroutineScope.launchUnit {
-
-        tradingProfiles.updateProfile(
-            id = id,
-            name = formModel.nameField.value,
-            description = formModel.descriptionField.value,
-            isTraining = formModel.isTrainingField.value,
-        )
     }
 
     private fun onCopyProfile(id: Long) = coroutineScope.launchUnit {
