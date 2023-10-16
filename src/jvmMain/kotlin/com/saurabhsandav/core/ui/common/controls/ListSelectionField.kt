@@ -17,6 +17,7 @@ fun <T : Any> OutlinedListSelectionField(
     items: ImmutableList<T>,
     itemText: (T) -> String,
     onSelection: (T) -> Unit,
+    modifier: Modifier = Modifier,
     selection: T? = null,
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
@@ -30,6 +31,7 @@ fun <T : Any> OutlinedListSelectionField(
     val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { if (enabled) expanded = it },
     ) {
@@ -108,6 +110,7 @@ fun <T : Any> ListSelectionField(
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
     isError: Boolean = false,
 ) {
 
@@ -116,12 +119,13 @@ fun <T : Any> ListSelectionField(
     val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { if (enabled) expanded = it },
     ) {
 
         TextField(
-            modifier = modifier.menuAnchor().onKeyEvent {
+            modifier = Modifier.menuAnchor().onKeyEvent {
                 when (it.key) {
                     Key.Enter, Key.NumPadEnter -> {
                         expanded = true
@@ -138,9 +142,10 @@ fun <T : Any> ListSelectionField(
             },
             value = selectedItemText,
             onValueChange = {},
+            enabled = enabled,
             readOnly = true,
             label = label,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             supportingText = supportingText,
             isError = isError,
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
