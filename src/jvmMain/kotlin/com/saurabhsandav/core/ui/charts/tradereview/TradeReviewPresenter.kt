@@ -121,7 +121,7 @@ internal class TradeReviewPresenter(
         }
 
         val durationStr = when {
-            exitInstant != null -> flowOf(formatDuration(exitInstant - entryInstant))
+            isClosed -> flowOf(formatDuration(exitInstant!! - entryInstant))
             else -> flow {
                 while (true) {
                     emit(formatDuration(Clock.System.now() - entryInstant))

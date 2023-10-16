@@ -115,7 +115,7 @@ internal class TradePresenter(
                 }
 
                 val durationStr = when {
-                    exitInstant != null -> flowOf(formatDuration(exitInstant - entryInstant))
+                    trade.isClosed -> flowOf(formatDuration(exitInstant!! - entryInstant))
                     else -> flow {
                         while (true) {
                             emit(formatDuration(Clock.System.now() - entryInstant))
