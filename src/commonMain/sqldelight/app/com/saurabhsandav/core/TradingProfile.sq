@@ -5,7 +5,8 @@ id INTEGER NOT NULL PRIMARY KEY,
 name TEXT NOT NULL,
 description TEXT NOT NULL,
 path TEXT NOT NULL UNIQUE,
-isTraining INTEGER AS Boolean NOT NULL
+isTraining INTEGER AS Boolean NOT NULL,
+UNIQUE (name COLLATE NOCASE)
 );
 
 -- Insert default profile. Row will not be duplicated because path is unique
@@ -31,3 +32,18 @@ WHERE id = ?;
 delete:
 DELETE FROM TradingProfile
 WHERE id = ?;
+
+isProfileNameUnique:
+SELECT NOT EXISTS(
+  SELECT id
+  FROM TradingProfile
+  WHERE name = :name COLLATE NOCASE
+);
+
+isProfileNameUniqueIgnoreId:
+SELECT NOT EXISTS(
+  SELECT id
+  FROM TradingProfile
+  WHERE name = :name COLLATE NOCASE
+  AND id != :id
+);

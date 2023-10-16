@@ -21,10 +21,18 @@ sealed class ProfileFormType {
 @Stable
 internal class ProfileFormModel(
     val validator: FormValidator,
+    isProfileNameUnique: suspend (String) -> Boolean,
     initial: Initial,
 ) {
 
-    val nameField = validator.addField(initial.name) { isRequired() }
+    val nameField = validator.addField(initial.name) {
+        isRequired()
+
+        check(
+            value = isProfileNameUnique(this),
+            errorMessage = { "Profile already exists" }
+        )
+    }
 
     val descriptionField = validator.addField(initial.description)
 

@@ -45,6 +45,7 @@ internal class ProfileFormPresenter(
 
             formModel = ProfileFormModel(
                 validator = formValidator,
+                isProfileNameUnique = ::isProfileNameUnique,
                 initial = when (formType) {
                     is ProfileFormType.New -> ProfileFormModel.Initial()
                     is ProfileFormType.Edit -> {
@@ -84,5 +85,9 @@ internal class ProfileFormPresenter(
         }
 
         onCloseRequest()
+    }
+
+    private suspend fun isProfileNameUnique(name: String): Boolean {
+        return tradingProfiles.isProfileNameUnique(name, (formType as? ProfileFormType.Edit)?.id)
     }
 }

@@ -128,6 +128,20 @@ internal class TradingProfiles(
         appPrefs.putLong(PrefKeys.CurrentTradingProfile, id)
     }
 
+    suspend fun isProfileNameUnique(
+        name: String,
+        ignoreProfileId: Long? = null,
+    ): Boolean = withContext(Dispatchers.IO) {
+        return@withContext appDB.tradingProfileQueries
+            .run {
+                when {
+                    ignoreProfileId == null -> isProfileNameUnique(name)
+                    else -> isProfileNameUniqueIgnoreId(name, ignoreProfileId)
+                }
+            }
+            .executeAsOne()
+    }
+
     suspend fun getRecord(id: Long): TradingRecord = recordBuilderMutex.withLock {
 
         records.getOrPut(id) {
