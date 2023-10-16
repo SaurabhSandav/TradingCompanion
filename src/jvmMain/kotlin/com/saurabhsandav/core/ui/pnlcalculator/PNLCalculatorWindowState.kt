@@ -5,10 +5,11 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form2.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.*
 import com.saurabhsandav.core.utils.Brokerage
 import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,11 +36,11 @@ internal fun rememberPNLCalculatorWindowState(
 @Stable
 internal class PNLCalculatorWindowState(
     val params: PNLCalculatorWindowParams,
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
 ) {
 
-    private val formValidator = FormValidator()
+    private val formValidator = FormValidator(coroutineScope)
     private var maxId = 0
 
     var isReady by mutableStateOf(false)
@@ -67,30 +68,30 @@ internal class PNLCalculatorWindowState(
         }
     }
 
-    fun onCalculate() {
+    fun onCalculate() = coroutineScope.launchUnit {
 
-        val side = if (model.isLong.value) "LONG" else "SHORT"
+        val side = if (model.isLongField.value) "LONG" else "SHORT"
 
-        if (!formValidator.isValid() || model.pnlEntries.any {
-                it.quantity == model.quantity.value &&
+        if (!formValidator.validate() || model.pnlEntries.any {
+                it.quantity == model.quantityField.value &&
                         it.side == side &&
-                        it.entry == model.entry.value &&
-                        it.exit == model.exit.value
-            }) return
+                        it.entry == model.entryField.value &&
+                        it.exit == model.exitField.value
+            }) return@launchUnit
 
         val brokerage = brokerage(
-            quantity = model.quantity.value.toBigDecimal(),
-            entry = model.entry.value.toBigDecimal(),
-            exit = model.exit.value.toBigDecimal(),
-            side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+            quantity = model.quantityField.value.toBigDecimal(),
+            entry = model.entryField.value.toBigDecimal(),
+            exit = model.exitField.value.toBigDecimal(),
+            side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
         )
 
         model.pnlEntries += PNLEntry(
             id = maxId++,
             side = side,
-            quantity = model.quantity.value,
-            entry = model.entry.value,
-            exit = model.exit.value,
+            quantity = model.quantityField.value,
+            entry = model.entryField.value,
+            exit = model.exitField.value,
             breakeven = brokerage.breakeven.toPlainString(),
             pnl = brokerage.pnl.toPlainString(),
             isProfitable = brokerage.pnl > BigDecimal.ZERO,
@@ -111,10 +112,10 @@ internal class PNLCalculatorWindowState(
             appModule.appDB.openTradeQueries.getById(id).executeAsOne()
         }
 
-        model.quantity.value = openTrade.quantity
-        model.isLong.value = TradeSide.fromString(openTrade.side) == TradeSide.Long
-        model.entry.value = openTrade.entry
-        model.exit.value = openTrade.target ?: openTrade.stop ?: openTrade.entry
+        model.quantityField.value = openTrade.quantity
+        model.isLongField.value = TradeSide.fromString(openTrade.side) == TradeSide.Long
+        model.entryField.value = openTrade.entry
+        model.exitField.value = openTrade.target ?: openTrade.stop ?: openTrade.entry
 
         model.enableModification = false
 
@@ -124,7 +125,7 @@ internal class PNLCalculatorWindowState(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+                side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -148,7 +149,7 @@ internal class PNLCalculatorWindowState(
                 quantity = openTrade.quantity.toBigDecimal(),
                 entry = openTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+                side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -173,10 +174,10 @@ internal class PNLCalculatorWindowState(
             appModule.appDB.closedTradeQueries.getById(id).executeAsOne()
         }
 
-        model.quantity.value = closedTrade.quantity
-        model.isLong.value = TradeSide.fromString(closedTrade.side) == TradeSide.Long
-        model.entry.value = closedTrade.entry
-        model.exit.value = closedTrade.exit
+        model.quantityField.value = closedTrade.quantity
+        model.isLongField.value = TradeSide.fromString(closedTrade.side) == TradeSide.Long
+        model.entryField.value = closedTrade.entry
+        model.exitField.value = closedTrade.exit
 
         model.enableModification = false
 
@@ -186,7 +187,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+                side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -210,7 +211,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+                side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(
@@ -234,7 +235,7 @@ internal class PNLCalculatorWindowState(
                 quantity = closedTrade.quantity.toBigDecimal(),
                 entry = closedTrade.entry.toBigDecimal(),
                 exit = it.toBigDecimal(),
-                side = if (model.isLong.value) TradeSide.Long else TradeSide.Short,
+                side = if (model.isLongField.value) TradeSide.Long else TradeSide.Short,
             )
 
             model.pnlEntries += PNLEntry(

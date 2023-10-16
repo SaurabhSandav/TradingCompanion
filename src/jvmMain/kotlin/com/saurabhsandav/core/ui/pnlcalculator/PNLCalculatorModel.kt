@@ -1,16 +1,15 @@
 package com.saurabhsandav.core.ui.pnlcalculator
 
 import androidx.compose.runtime.*
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.IsBigDecimal
-import com.saurabhsandav.core.ui.common.form.IsInt
-import com.saurabhsandav.core.ui.common.form.Validation
-import com.saurabhsandav.core.ui.common.form.fields.switch
-import com.saurabhsandav.core.ui.common.form.fields.textField
+import com.saurabhsandav.core.ui.common.form2.FormValidator
+import com.saurabhsandav.core.ui.common.form2.validations.isBigDecimal
+import com.saurabhsandav.core.ui.common.form2.validations.isInt
+import com.saurabhsandav.core.ui.common.form2.validations.isPositive
+import com.saurabhsandav.core.ui.common.form2.validations.isRequired
 
 @Stable
 internal class PNLCalculatorModel(
-    validator: FormValidator,
+    val validator: FormValidator,
     quantity: String,
     isLong: Boolean,
     entry: String,
@@ -19,25 +18,34 @@ internal class PNLCalculatorModel(
 
     var enableModification by mutableStateOf(true)
 
-    val quantity = validator.textField(
-        initial = quantity,
-        validations = setOf(
-            IsInt,
-            Validation("Cannot be 0 or negative") { it.toInt() > 0 },
-        ),
-    )
+    val quantityField = validator.addField(quantity) {
+        isRequired()
+        isInt {
+            isPositive()
+        }
+    }
 
-    val isLong = validator.switch(isLong)
+    val isLongField = validator.addField(isLong)
 
-    val entry = validator.textField(
-        initial = entry,
-        validations = setOf(IsBigDecimal),
-    )
+    val entryField = validator.addField(entry) {
+        isRequired()
+        isBigDecimal {
+            isPositive()
+        }
+    }
 
-    val exit = validator.textField(
-        initial = exit,
-        validations = setOf(IsBigDecimal),
-    )
+    val exitField = validator.addField(exit) {
+        isRequired()
+        isBigDecimal {
+
+            isPositive()
+
+            check(
+                value = validated(entryField).toBigDecimal().compareTo(this) != 0,
+                errorMessage = { "Entry and Exit cannot be the same" },
+            )
+        }
+    }
 
     val pnlEntries = mutableStateListOf<PNLEntry>()
 }

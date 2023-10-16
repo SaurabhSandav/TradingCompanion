@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form2.isError
 import com.saurabhsandav.core.ui.common.table.*
 
 @Composable
@@ -66,8 +66,8 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 Text("Short")
 
                 Switch(
-                    checked = model.isLong.value,
-                    onCheckedChange = { model.isLong.value = it },
+                    checked = model.isLongField.value,
+                    onCheckedChange = { model.isLongField.value = it },
                     enabled = model.enableModification,
                 )
 
@@ -80,36 +80,37 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
             OutlinedTextField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
-                value = model.quantity.value,
-                onValueChange = { model.quantity.value = it.trim() },
+                value = model.quantityField.value,
+                onValueChange = { model.quantityField.value = it.trim() },
                 label = { Text("Quantity") },
-                isError = model.quantity.isError,
-                supportingText = model.quantity.errorMessage?.let { { Text(it) } },
+                isError = model.quantityField.isError,
+                supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 enabled = model.enableModification,
             )
 
             OutlinedTextField(
-                value = model.entry.value,
-                onValueChange = { model.entry.value = it.trim() },
+                value = model.entryField.value,
+                onValueChange = { model.entryField.value = it.trim() },
                 label = { Text("Entry") },
-                isError = model.entry.isError,
-                supportingText = model.entry.errorMessage?.let { { Text(it) } },
+                isError = model.entryField.isError,
+                supportingText = model.entryField.errorMessage?.let { { Text(it) } },
                 singleLine = true,
                 enabled = model.enableModification,
             )
 
             OutlinedTextField(
-                value = model.exit.value,
-                onValueChange = { model.exit.value = it.trim() },
+                value = model.exitField.value,
+                onValueChange = { model.exitField.value = it.trim() },
                 label = { Text("Exit") },
-                isError = model.exit.isError,
-                supportingText = model.exit.errorMessage?.let { { Text(it) } },
+                isError = model.exitField.isError,
+                supportingText = model.exitField.errorMessage?.let { { Text(it) } },
                 singleLine = true,
             )
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = model.validator.isValid,
                 onClick = state::onCalculate,
             ) {
 
