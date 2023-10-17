@@ -126,7 +126,9 @@ internal class AppModule {
         // Create FileLogWriter
         val fileLogWriter = object : LogWriter() {
 
-            private val writer = logFile.outputStream(CREATE, APPEND).bufferedWriter()
+            private val writer by lazy {
+                logFile.outputStream(CREATE, APPEND).bufferedWriter()
+            }
 
             override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
 
