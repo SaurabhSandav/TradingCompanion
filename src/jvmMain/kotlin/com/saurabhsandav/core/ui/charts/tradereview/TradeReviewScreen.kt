@@ -3,7 +3,10 @@ package com.saurabhsandav.core.ui.charts.tradereview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeId
@@ -13,7 +16,8 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
+import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Instant
 
@@ -66,10 +70,21 @@ internal fun TradeReviewScreen(
 
         Row {
 
-            ProfileSwitcher(
+            var profileSwitcherExpanded by state { false }
+
+            ProfileSwitcherBox(
+                expanded = profileSwitcherExpanded,
+                onExpandedChange = { profileSwitcherExpanded = it },
                 selectedProfileId = selectedProfileId,
                 onSelectProfile = onSelectProfile,
-            )
+            ) { profileName ->
+
+                TextButton(
+                    modifier = Modifier.weight(1F),
+                    onClick = { profileSwitcherExpanded = true },
+                    content = { Text("Profile: ${profileName ?: "None"}") },
+                )
+            }
         }
 
         Divider()

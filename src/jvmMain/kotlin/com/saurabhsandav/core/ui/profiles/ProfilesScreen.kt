@@ -8,7 +8,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,11 +50,13 @@ internal fun ProfilesWindow(
 }
 
 @Composable
-internal fun ProfileSwitcher(
+internal fun ProfileSwitcherBox(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     selectedProfileId: ProfileId?,
     onSelectProfile: (ProfileId) -> Unit,
-    modifier: Modifier = Modifier,
     trainingOnly: Boolean = false,
+    content: @Composable (String?) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -65,26 +66,18 @@ internal fun ProfileSwitcher(
     }
     val state by presenter.state.collectAsState()
 
-    var showSelectorDialog by state { false }
-
     LaunchedEffect(selectedProfileId) {
         if (selectedProfileId != null)
             state.eventSink(SetCurrentProfile(selectedProfileId))
     }
 
-    TextButton(
-        modifier = modifier,
-        onClick = { showSelectorDialog = true },
-    ) {
+    content(state.currentProfile?.name)
 
-        Text("Profile: ${state.currentProfile?.name ?: "None"}")
-    }
-
-    if (showSelectorDialog) {
+    if (expanded) {
 
         AppDialogWindow(
             title = "Select Profile",
-            onCloseRequest = { showSelectorDialog = false },
+            onCloseRequest = { onExpandedChange(false) },
         ) {
 
             ProfilesScreen(
@@ -92,7 +85,7 @@ internal fun ProfileSwitcher(
                 currentProfileId = state.currentProfile?.id,
                 onSetCurrentProfile = { id ->
                     onSelectProfile(id)
-                    showSelectorDialog = false
+                    onExpandedChange(false)
                 },
                 onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
                 onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },

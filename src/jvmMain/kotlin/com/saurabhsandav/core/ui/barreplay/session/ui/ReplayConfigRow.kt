@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
+import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
 
 @Composable
 internal fun ReplayConfigRow(
@@ -26,12 +29,22 @@ internal fun ReplayConfigRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
 
-        ProfileSwitcher(
-            modifier = Modifier.weight(1F),
+        var profileSwitcherExpanded by state { false }
+
+        ProfileSwitcherBox(
+            expanded = profileSwitcherExpanded,
+            onExpandedChange = { profileSwitcherExpanded = it },
             selectedProfileId = selectedProfileId,
             onSelectProfile = onSelectProfile,
             trainingOnly = true,
-        )
+        ) { profileName ->
+
+            TextButton(
+                modifier = Modifier.weight(1F),
+                onClick = { profileSwitcherExpanded = true },
+                content = { Text("Profile: ${profileName ?: "None"}") },
+            )
+        }
 
         TextButton(
             modifier = Modifier.weight(1F),
