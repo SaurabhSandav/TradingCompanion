@@ -48,6 +48,11 @@ SELECT *
 FROM Trade
 WHERE id = ?;
 
+getByIds:
+SELECT *
+FROM Trade
+WHERE id IN ?;
+
 getOpen:
 SELECT *
 FROM Trade

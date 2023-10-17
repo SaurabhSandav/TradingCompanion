@@ -10,40 +10,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trades.model.TradeId
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
+import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.MarkedTradeEntry
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-internal fun TradesTable(
-    trades: ImmutableList<TradeEntry>,
-    onMarkTrade: (id: TradeId, isMarked: Boolean) -> Unit,
-    onSelectTrade: (id: TradeId) -> Unit,
-    onOpenDetails: (id: TradeId) -> Unit,
+internal fun MarkedTradesTable(
+    markedTrades: ImmutableList<MarkedTradeEntry>,
+    onUnMarkTrade: (profileTradeId: ProfileTradeId) -> Unit,
+    onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
+    onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeEntry> {
-        addColumn("Mark", width = Fixed(48.dp)) { tradeEntry ->
+    val schema = rememberTableSchema<MarkedTradeEntry> {
+        addColumn("Mark") { tradeEntry ->
             Checkbox(
-                checked = tradeEntry.isMarked,
-                onCheckedChange = { onMarkTrade(tradeEntry.id, it) }
+                checked = true,
+                onCheckedChange = { onUnMarkTrade(tradeEntry.profileTradeId) }
             )
         }
-        addColumnText("Broker", width = Weight(2F)) { it.broker }
-        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
+        addColumnText("Profile") { it.profileName }
+        addColumnText("Broker") { it.broker }
+        addColumnText("Ticker") { it.ticker }
         addColumn("Side") {
             Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
         }
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumnText("Entry Time", width = Weight(2.2F)) { it.entryTime }
-        addColumn("Duration", width = Weight(1.5F)) {
+        addColumn("Duration") {
 
             Text(
                 text = it.duration.collectAsState("").value,
@@ -63,24 +60,24 @@ internal fun TradesTable(
     ) {
 
         rows(
-            items = trades,
-            key = { it.id },
+            items = markedTrades,
+            key = { it.profileTradeId },
         ) { entry ->
 
-            TradeEntry(
+            MarkedTradeEntry(
                 schema = schema,
                 entry = entry,
-                onSelectTrade = { onSelectTrade(entry.id) },
-                onOpenDetails = { onOpenDetails(entry.id) },
+                onSelectTrade = { onSelectTrade(entry.profileTradeId) },
+                onOpenDetails = { onOpenDetails(entry.profileTradeId) },
             )
         }
     }
 }
 
 @Composable
-private fun TradeEntry(
-    schema: TableSchema<TradeEntry>,
-    entry: TradeEntry,
+private fun MarkedTradeEntry(
+    schema: TableSchema<MarkedTradeEntry>,
+    entry: MarkedTradeEntry,
     onSelectTrade: () -> Unit,
     onOpenDetails: () -> Unit,
 ) {

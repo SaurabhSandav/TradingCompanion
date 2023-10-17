@@ -34,6 +34,10 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
+    fun getByIds(ids: List<TradeId>): Flow<List<Trade>> {
+        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
+    }
+
     fun getOpen(): Flow<List<Trade>> {
         return tradesDB.tradeQueries.getOpen().asFlow().mapToList(Dispatchers.IO)
     }

@@ -8,17 +8,19 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
+import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.MarkedTradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -58,6 +60,7 @@ internal class TradeReviewPresenter(
         return@launchMolecule TradeReviewState(
             selectedProfileId = selectedProfileId.collectAsState().value,
             trades = getTrades().value,
+            markedTrades = getMarkedTrades().value,
             eventSink = ::onEvent,
         )
     }
@@ -66,9 +69,10 @@ internal class TradeReviewPresenter(
 
         when (event) {
             is SelectProfile -> onSelectProfile(event.id)
-            is MarkTrade -> onMarkTrade(event.id, event.isMarked)
-            is SelectTrade -> onSelectTrade(event.id)
-            is OpenDetails -> onOpenDetails(event.id)
+            is MarkTrade -> onMarkTrade(event.profileTradeId, event.isMarked)
+            is SelectTrade -> onSelectTrade(event.profileTradeId)
+            is OpenDetails -> onOpenDetails(event.profileTradeId)
+            ClearMarkedTrades -> onClearMarkedTrades()
         }
     }
 
@@ -85,16 +89,32 @@ internal class TradeReviewPresenter(
 
                     val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                    tradingRecord.trades.allTrades.combine(markersProvider.markedTradeIds) { trades, markedTradeIds ->
-                        trades
-                            .map { it.toTradeListEntry(it.id in markedTradeIds) }
-                            .toImmutableList()
-                    }
+                    tradingRecord.trades
+                        .allTrades
+                        .combine(markersProvider.markedProfileTradeIds) { trades, markedProfileTradeIds ->
+                            trades
+                                .map {
+
+                                    val profileTradeId = ProfileTradeId(
+                                        profileId = profile.id,
+                                        tradeId = it.id,
+                                    )
+
+                                    it.toTradeListEntry(
+                                        profileTradeId = profileTradeId,
+                                        isMarked = profileTradeId in markedProfileTradeIds,
+                                    )
+                                }
+                                .toImmutableList()
+                        }
                 }
         }.collectAsState(persistentListOf())
     }
 
-    private fun Trade.toTradeListEntry(isMarked: Boolean): TradeEntry {
+    private fun Trade.toTradeListEntry(
+        profileTradeId: ProfileTradeId,
+        isMarked: Boolean,
+    ): TradeEntry {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -121,8 +141,99 @@ internal class TradeReviewPresenter(
         }
 
         return TradeEntry(
+            profileTradeId = profileTradeId,
             isMarked = isMarked,
-            id = id,
+            broker = "$broker ($instrumentCapitalized)",
+            ticker = ticker,
+            side = side.toString().uppercase(),
+            quantity = when {
+                !isClosed -> "$closedQuantity / $quantity"
+                else -> quantity.toPlainString()
+            },
+            entry = averageEntry.toPlainString(),
+            exit = averageExit?.toPlainString() ?: "",
+            entryTime = TradeDateTimeFormatter.format(
+                ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+            ),
+            duration = durationStr,
+            pnl = pnl.toPlainString(),
+            isProfitable = pnl > BigDecimal.ZERO,
+            netPnl = netPnl.toPlainString(),
+            isNetProfitable = netPnl > BigDecimal.ZERO,
+        )
+    }
+
+    @Composable
+    private fun getMarkedTrades(): State<ImmutableList<MarkedTradeEntry>> {
+        return remember {
+
+            markersProvider.markedProfileTradeIds
+                .flatMapLatest { profileTradeIds ->
+
+                    profileTradeIds
+                        .groupBy(
+                            keySelector = { it.profileId },
+                            valueTransform = { it.tradeId },
+                        )
+                        .map { (profileId, tradeIds) ->
+
+                            val tradingRecord = tradingProfiles.getRecord(profileId)
+
+                            tradingProfiles.getProfile(profileId).flatMapLatest { profile ->
+
+                                tradingRecord.trades
+                                    .getByIds(ids = tradeIds)
+                                    .mapList {
+                                        it.toMarkedTradeListEntry(
+                                            profileId = profileId,
+                                            profileName = profile.name,
+                                        )
+                                    }
+                            }
+                        }
+                        .let { flows ->
+                            when {
+                                flows.isEmpty() -> flowOf(emptyList())
+                                else -> combine(flows) { it.toList().flatten() }
+                            }
+                        }
+                        .map { it.toImmutableList() }
+                }
+        }.collectAsState(persistentListOf())
+    }
+
+    private fun Trade.toMarkedTradeListEntry(
+        profileId: ProfileId,
+        profileName: String,
+    ): MarkedTradeEntry {
+
+        val instrumentCapitalized = instrument.strValue
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+        fun formatDuration(duration: Duration): String {
+
+            val durationSeconds = duration.inWholeSeconds
+
+            return "%02d:%02d:%02d".format(
+                durationSeconds / 3600,
+                (durationSeconds % 3600) / 60,
+                durationSeconds % 60,
+            )
+        }
+
+        val durationStr = when {
+            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
+            else -> flow {
+                while (true) {
+                    emit(formatDuration(Clock.System.now() - entryTimestamp))
+                    delay(1.seconds)
+                }
+            }
+        }
+
+        return MarkedTradeEntry(
+            profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
+            profileName = profileName,
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
@@ -147,28 +258,27 @@ internal class TradeReviewPresenter(
 
         // Save selected profile
         appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id.value)
-
-        // Clear marked trades
-        markersProvider.clearMarkedTrades()
     }
 
-    private fun onMarkTrade(id: TradeId, isMarked: Boolean) {
+    private fun onMarkTrade(
+        profileTradeId: ProfileTradeId,
+        isMarked: Boolean,
+    ) {
 
         when {
-            isMarked -> markersProvider.markTrade(id)
-            else -> markersProvider.unMarkTrade(id)
+            isMarked -> markersProvider.markTrade(profileTradeId)
+            else -> markersProvider.unMarkTrade(profileTradeId)
         }
     }
 
-    private fun onSelectTrade(id: TradeId) = coroutineScope.launchUnit {
+    private fun onSelectTrade(profileTradeId: ProfileTradeId) = coroutineScope.launchUnit {
 
         // Mark selected trade
-        markersProvider.markTrade(id)
+        markersProvider.markTrade(profileTradeId)
 
-        val profileId = selectedProfileId.value ?: error("Trade review profile not set")
-        val tradingRecord = tradingProfiles.getRecord(profileId)
+        val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
 
-        val trade = tradingRecord.trades.getById(id).first()
+        val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
         val start = trade.entryTimestamp
         val end = trade.exitTimestamp
 
@@ -176,13 +286,15 @@ internal class TradeReviewPresenter(
         onOpenChart(trade.ticker, start, end)
     }
 
-    private fun onOpenDetails(id: TradeId) {
-
-        val profileId = selectedProfileId.value ?: error("Trade review profile not set")
+    private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
         tradeContentLauncher.openTrade(
-            profileId = profileId,
-            tradeId = id,
+            profileId = profileTradeId.profileId,
+            tradeId = profileTradeId.tradeId,
         )
+    }
+
+    private fun onClearMarkedTrades() {
+        markersProvider.clearMarkedTrades()
     }
 }
