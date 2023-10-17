@@ -28,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -129,6 +128,12 @@ internal class SizingPresenter(
         }
 
         val spread = (sizingTrade.entry - sizingTrade.stop).abs()
+
+        val target = when {
+            isBuy -> sizingTrade.entry + spread
+            else -> sizingTrade.entry - spread
+        }
+
         val account = appModule.account.first()
 
         val calculatedQuantity = when {
@@ -144,35 +149,17 @@ internal class SizingPresenter(
         val params = TradeExecutionFormParams(
             id = UUID.randomUUID(),
             profileId = tradingProfiles.currentProfile.first().id,
-            formType = TradeExecutionFormType.New(
+            formType = TradeExecutionFormType.NewSized(
                 initialModel = TradeExecutionFormModel.Initial(
                     instrument = Instrument.Equity,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
                     isBuy = isBuy,
                     price = sizingTrade.entry.toPlainString(),
-                )
+                ),
+                stop = sizingTrade.stop,
+                target = target,
             ),
-            onExecutionSaved = { executionId ->
-
-                coroutineScope.launch {
-
-                    // Single execution can close a trade and open a new one.
-                    // Make sure to choose the open trade
-                    val trade = tradingRecord.trades.getTradesForExecution(executionId).first().single { !it.isClosed }
-
-                    // Add stop
-                    tradingRecord.trades.addStop(trade.id, sizingTrade.stop)
-
-                    val target = when (trade.side) {
-                        TradeSide.Long -> sizingTrade.entry + spread
-                        TradeSide.Short -> sizingTrade.entry - spread
-                    }
-
-                    // Add target
-                    tradingRecord.trades.addTarget(trade.id, target)
-                }
-            },
         )
 
         executionFormWindowsManager.newWindow(params)

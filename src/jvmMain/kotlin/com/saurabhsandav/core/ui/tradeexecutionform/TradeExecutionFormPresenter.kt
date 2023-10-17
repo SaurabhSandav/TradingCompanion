@@ -19,12 +19,12 @@ import kotlinx.coroutines.flow.map
 
 @Stable
 internal class TradeExecutionFormPresenter(
+    private val onCloseRequest: () -> Unit,
     private val coroutineScope: CoroutineScope,
     private val profileId: Long,
     private val formType: TradeExecutionFormType,
     private val appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val onExecutionSaved: ((executionId: Long) -> Unit)? = null,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)
@@ -33,9 +33,10 @@ internal class TradeExecutionFormPresenter(
     init {
 
         when (formType) {
-            is New -> new(formType.initialModel)
+            is New -> new()
             is NewFromExisting -> newFromExisting(formType.id)
             is NewFromExistingInTrade -> newFromExisting(formType.id)
+            is NewSized -> newSized(formType.initialModel)
             is AddToTrade -> addToTrade(formType.tradeId)
             is CloseTrade -> closeTrade(formType.tradeId)
             is Edit -> edit(formType.id)
@@ -89,15 +90,28 @@ internal class TradeExecutionFormPresenter(
             )
         }
 
-        // Notify execution saved
-        onExecutionSaved?.invoke(executionId)
+        if (formType is NewSized) {
+
+            // Single execution can close a trade and open a new one.
+            // Make sure to choose the open trade
+            val trade = tradingRecord.trades.getTradesForExecution(executionId).first().single { !it.isClosed }
+
+            // Add stop
+            if (formModel.addStopField.value) tradingRecord.trades.addStop(trade.id, formType.stop)
+
+            // Add target
+            if (formModel.addTargetField.value) tradingRecord.trades.addTarget(trade.id, formType.target)
+        }
+
+        // Close form
+        onCloseRequest()
     }
 
-    private fun new(initialModel: TradeExecutionFormModel.Initial?) {
+    private fun new() {
 
         this.formModel = TradeExecutionFormModel(
             validator = formValidator,
-            initial = initialModel ?: TradeExecutionFormModel.Initial(),
+            initial = TradeExecutionFormModel.Initial(),
         )
     }
 
@@ -117,6 +131,14 @@ internal class TradeExecutionFormPresenter(
                 isBuy = execution.side == TradeExecutionSide.Buy,
                 price = execution.price.toPlainString(),
             ),
+        )
+    }
+
+    private fun newSized(initialModel: TradeExecutionFormModel.Initial) {
+
+        this.formModel = TradeExecutionFormModel(
+            validator = formValidator,
+            initial = initialModel,
         )
     }
 

@@ -34,22 +34,18 @@ import java.util.*
 internal fun TradeExecutionFormWindow(
     profileId: Long,
     formType: TradeExecutionFormType,
-    onExecutionSaved: ((executionId: Long) -> Unit)? = null,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        TradeExecutionFormPresenter(scope, profileId, formType, appModule) { id ->
-            onExecutionSaved?.invoke(id)
-            onCloseRequest()
-        }
+        TradeExecutionFormPresenter(onCloseRequest, scope, profileId, formType, appModule)
     }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
-        size = DpSize(width = 300.dp, height = 600.dp),
+        size = DpSize(width = 300.dp, height = 650.dp),
     )
 
     AppWindow(
@@ -99,7 +95,7 @@ private fun TradeExecutionForm(
             .verticalScroll(rememberScrollState())
             .width(IntrinsicSize.Min)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
 
         val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
@@ -202,6 +198,39 @@ private fun TradeExecutionForm(
             isError = model.timeField.isError,
             supportingText = model.timeField.errorMessage?.let { { Text(it) } },
         )
+
+        if (formType is NewSized) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Text(
+                    text = "Add Stop at ${formType.target.toPlainString()}",
+                    modifier = Modifier.weight(1F),
+                )
+
+                Checkbox(
+                    checked = model.addStopField.value,
+                    onCheckedChange = { model.addStopField.value = it },
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Text(
+                    text = "Add Target at ${formType.target.toPlainString()}",
+                    modifier = Modifier.weight(1F),
+                )
+
+                Checkbox(
+                    checked = model.addTargetField.value,
+                    onCheckedChange = { model.addTargetField.value = it },
+                )
+            }
+        }
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),

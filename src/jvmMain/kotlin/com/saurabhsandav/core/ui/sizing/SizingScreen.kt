@@ -58,7 +58,6 @@ internal fun SizingScreenWindows(
         TradeExecutionFormWindow(
             profileId = window.params.profileId,
             formType = window.params.formType,
-            onExecutionSaved = window.params.onExecutionSaved,
             onCloseRequest = window::close,
         )
     }

@@ -58,10 +58,14 @@ internal class TradeExecutionFormModel(
         check(validated(dateField).atTime(this) < currentLocalDateTime()) { "Cannot be in the future" }
     }
 
+    private fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
     val timestamp: LocalDateTime
         get() = dateField.value.atTime(timeField.value)
 
-    private fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val addStopField = validator.addField(true)
+
+    val addTargetField = validator.addField(true)
 
     class Initial(
         val instrument: Instrument? = null,

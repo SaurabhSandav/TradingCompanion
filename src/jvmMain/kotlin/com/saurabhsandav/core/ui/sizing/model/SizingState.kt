@@ -33,6 +33,5 @@ internal data class SizingState(
         val id: UUID,
         val profileId: Long,
         val formType: TradeExecutionFormType,
-        val onExecutionSaved: (executionId: Long) -> Unit,
     )
 }

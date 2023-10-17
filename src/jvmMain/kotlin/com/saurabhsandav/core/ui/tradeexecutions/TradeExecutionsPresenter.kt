@@ -109,7 +109,7 @@ internal class TradeExecutionsPresenter(
 
         tradeContentLauncher.openExecutionForm(
             profileId = currentProfile.id,
-            formType = TradeExecutionFormType.New(),
+            formType = TradeExecutionFormType.New,
         )
     }
 
