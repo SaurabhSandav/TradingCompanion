@@ -56,8 +56,10 @@ internal data class TradeState(
 
     @Immutable
     internal data class MfeAndMae(
-        val mfePrice: String,
         val maePrice: String,
+        val maePnl: String,
+        val mfePrice: String,
+        val mfePnl: String,
     )
 
     @Immutable

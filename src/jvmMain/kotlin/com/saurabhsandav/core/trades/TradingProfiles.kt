@@ -139,7 +139,6 @@ internal class TradingProfiles(
 
                 TradingRecord(
                     recordPath = profileFilesPath.toString(),
-                    candleRepo = candleRepo,
                 )
             }
         }

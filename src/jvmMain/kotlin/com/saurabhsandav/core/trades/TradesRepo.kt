@@ -4,16 +4,12 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.github.michaelbull.result.get
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
@@ -22,13 +18,11 @@ import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.util.*
 import kotlin.io.path.*
-import kotlin.time.Duration.Companion.minutes
 
 internal class TradesRepo(
     recordPath: String,
     private val tradesDB: TradesDB,
     private val executionsRepo: TradeExecutionsRepo,
-    private val candleRepo: CandleRepository,
 ) {
 
     val attachmentsPath = Path(recordPath, AttachmentFolderName)
@@ -93,47 +87,29 @@ internal class TradesRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    suspend fun generateMfeAndMaeForAllTrades() = withContext(Dispatchers.IO) {
+    fun getWithoutMfeAndMaeBefore(instant: Instant): Flow<List<Trade>> {
+        return tradesDB.tradeQueries
+            .getWithoutMfeAndMaeBeforeTimestamp(instant)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+    }
 
-        val trades = tradesDB.tradeMfeMaeQueries.getIfMfeAndMaeNotGenerated().executeAsList()
+    suspend fun setMfeAndMae(
+        id: TradeId,
+        mfePrice: BigDecimal,
+        mfePnl: BigDecimal,
+        maePrice: BigDecimal,
+        maePnl: BigDecimal,
+    ) = withContext(Dispatchers.IO) {
 
-        trades.forEach { trade ->
-
-            // If candle is not closed, skip calculation
-            if (!trade.isClosed) return@forEach
-
-            val candles = candleRepo.getCandles(
-                ticker = trade.ticker,
-                timeframe = Timeframe.M1,
-                from = trade.entryTimestamp,
-                to = trade.exitTimestamp!!,
-                edgeCandlesInclusive = true,
-            ).get() ?: return@forEach
-
-            // Candles to consider while calculating MFE and MAE
-            val tradeCandles = candles.filter { candle ->
-                // Check if candle inside trade interval OR
-                // Check if entry time inside candle interval
-                candle.openInstant in trade.entryTimestamp..trade.exitTimestamp ||
-                        trade.entryTimestamp in candle.openInstant..(candle.openInstant + 1.minutes)
-            }
-
-            // Save MFE and MAE
-            tradesDB.tradeMfeMaeQueries.insert(
-                tradeId = trade.id,
-                mfePrice = when (trade.side) {
-                    TradeSide.Long -> tradeCandles.maxOf { it.high }
-                    TradeSide.Short -> tradeCandles.minOf { it.low }
-                },
-                maePrice = when (trade.side) {
-                    TradeSide.Long -> tradeCandles.minOf { it.low }
-                    TradeSide.Short -> tradeCandles.maxOf { it.high }
-                },
-            )
-
-            // This logic does not need to run uninterrupted. Let other coroutines a chance to run.
-            yield()
-        }
+        // Save MFE and MAE
+        tradesDB.tradeMfeMaeQueries.insert(
+            tradeId = id,
+            mfePrice = mfePrice,
+            mfePnl = mfePnl,
+            maePrice = maePrice,
+            maePnl = maePnl,
+        )
     }
 
     fun getMfeAndMae(id: TradeId): Flow<TradeMfeMae?> {

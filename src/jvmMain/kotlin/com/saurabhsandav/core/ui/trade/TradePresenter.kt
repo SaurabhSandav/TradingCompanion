@@ -235,14 +235,17 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            tradingRecord.trades.getMfeAndMae(tradeId).map { mfeAndMae ->
+            tradingRecord.trades.getMfeAndMae(tradeId).collect { mfeAndMae ->
 
-                mfeAndMae ?: return@map null
-
-                MfeAndMae(
-                    mfePrice = mfeAndMae.mfePrice.toPlainString(),
-                    maePrice = mfeAndMae.maePrice.toPlainString(),
-                )
+                value = when {
+                    mfeAndMae == null -> null
+                    else -> MfeAndMae(
+                        maePrice = mfeAndMae.maePrice.toPlainString(),
+                        maePnl = mfeAndMae.maePnl.toPlainString(),
+                        mfePrice = mfeAndMae.mfePrice.toPlainString(),
+                        mfePnl = mfeAndMae.mfePnl.toPlainString(),
+                    )
+                }
             }
         }
     }

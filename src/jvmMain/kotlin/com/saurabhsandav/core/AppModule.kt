@@ -174,7 +174,10 @@ internal class AppModule {
     private fun runStartupJobs() {
 
         val startupJobs = listOf(
-            TradeManagementJob(tradingProfiles),
+            TradeManagementJob(
+                tradingProfiles = tradingProfiles,
+                candleRepo = candleRepo,
+            ),
         )
 
         startupJobs.forEach { job ->

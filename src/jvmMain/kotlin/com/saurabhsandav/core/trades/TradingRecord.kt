@@ -3,14 +3,12 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import java.util.*
 
 internal class TradingRecord(
     recordPath: String,
-    candleRepo: CandleRepository,
 ) {
 
     private val tradesDB: TradesDB = run {
@@ -53,7 +51,9 @@ internal class TradingRecord(
             TradeMfeMaeAdapter = TradeMfeMae.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
                 mfePriceAdapter = BigDecimalColumnAdapter,
+                mfePnlAdapter = BigDecimalColumnAdapter,
                 maePriceAdapter = BigDecimalColumnAdapter,
+                maePnlAdapter = BigDecimalColumnAdapter,
             ),
             TradeStopAdapter = TradeStop.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
@@ -93,7 +93,7 @@ internal class TradingRecord(
 
     val executions = TradeExecutionsRepo(tradesDB)
 
-    val trades = TradesRepo(recordPath, tradesDB, executions, candleRepo)
+    val trades = TradesRepo(recordPath, tradesDB, executions)
 
     val sizingTrades = SizingTradesRepo(tradesDB)
 }

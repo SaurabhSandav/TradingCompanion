@@ -71,10 +71,6 @@ internal fun TradeScreen(
 
                         Details(details)
 
-                        if (state.mfeAndMae != null) {
-                            MfeAndMae(state.mfeAndMae)
-                        }
-
                         TradeExecutionsTable(
                             items = state.executions,
                             newExecutionEnabled = state.newExecutionEnabled,
@@ -98,6 +94,10 @@ internal fun TradeScreen(
                             onAddTarget = { state.eventSink(AddTarget(it)) },
                             onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
                         )
+
+                        if (state.mfeAndMae != null) {
+                            MfeAndMae(state.mfeAndMae)
+                        }
 
                         Tags(
                             tags = state.tags,

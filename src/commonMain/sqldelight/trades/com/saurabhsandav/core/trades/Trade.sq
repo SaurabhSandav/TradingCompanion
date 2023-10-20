@@ -81,6 +81,15 @@ AND id IN :ids
 AND datetime(:from) < datetime(entryTimestamp)
 AND datetime(entryTimestamp) < datetime(:to);
 
+getWithoutMfeAndMaeBeforeTimestamp:
+SELECT Trade.*
+FROM Trade
+LEFT JOIN TradeMfeMae
+ON Trade.id = TradeMfeMae.tradeId
+WHERE TradeMfeMae.tradeId IS NULL
+AND Trade.isClosed = TRUE
+AND Trade.entryTimestamp < ?;
+
 delete:
 DELETE FROM Trade
 WHERE id = ?;

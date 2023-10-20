@@ -4,26 +4,21 @@ import java.math.BigDecimal;
 CREATE TABLE IF NOT EXISTS TradeMfeMae (
 tradeId INTEGER AS TradeId NOT NULL UNIQUE,
 mfePrice TEXT AS BigDecimal NOT NULL,
+mfePnl TEXT AS BigDecimal NOT NULL,
 maePrice TEXT AS BigDecimal NOT NULL,
+maePnl TEXT AS BigDecimal NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
 );
 
 insert:
 INSERT OR REPLACE
-INTO TradeMfeMae(tradeId, mfePrice, maePrice)
-VALUES (?, ?, ?);
+INTO TradeMfeMae
+VALUES (?, ?, ?, ?, ?);
 
 getByTrade:
 SELECT *
 FROM TradeMfeMae
 WHERE tradeId = ?;
-
-getIfMfeAndMaeNotGenerated:
-SELECT Trade.*
-FROM Trade
-LEFT JOIN TradeMfeMae
-ON Trade.id = TradeMfeMae.tradeId
-WHERE TradeMfeMae.tradeId IS NULL;
 
 delete:
 DELETE FROM TradeMfeMae
