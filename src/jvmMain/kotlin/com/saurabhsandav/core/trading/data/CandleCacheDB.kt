@@ -84,18 +84,19 @@ internal class CandleCacheDB(
     ): CandleCache.CountRange? {
 
         val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
-        val result =
-            candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds).asFlow().mapToList(Dispatchers.IO).first()
+        val result = candlesQueries.getEpochSecondsAndCountAt(at.epochSeconds)
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .first()
+            ?: return null
 
-        return when {
-            result.size != 2 -> null
-            else -> CandleCache.CountRange(
-                firstCandleInstant = Instant.fromEpochSeconds(result[0].MIN ?: at.epochSeconds),
-                beforeCount = result[0].COUNT,
-                lastCandleInstant = Instant.fromEpochSeconds(result[1].MIN ?: at.epochSeconds),
-                afterCount = result[1].COUNT,
-            )
-        }
+        return CandleCache.CountRange(
+            firstCandleInstant = result.firstCandleEpochSeconds?.let(Instant::fromEpochSeconds),
+            beforeCount = result.beforeCount,
+            lastCandleInstant = result.lastCandleEpochSeconds?.let(Instant::fromEpochSeconds),
+            afterCount = result.afterCount,
+            atCandleExists = result.atCandleExists,
+        )
     }
 
     override suspend fun getBefore(
@@ -113,7 +114,7 @@ internal class CandleCacheDB(
         return candlesQueries.getCountBefore(
             at = at.epochSeconds,
             count = count.toLong(),
-            includeAt = includeAt.toString(),
+            includeAt = includeAt,
         ) { epochSeconds, open, high, low, close, volume ->
             Candle(
                 Instant.fromEpochSeconds(epochSeconds),
@@ -141,7 +142,7 @@ internal class CandleCacheDB(
         return candlesQueries.getCountAfter(
             at = at.epochSeconds,
             count = count.toLong(),
-            includeAt = includeAt.toString(),
+            includeAt = includeAt,
         ) { epochSeconds, open, high, low, close, volume ->
             Candle(
                 Instant.fromEpochSeconds(epochSeconds),

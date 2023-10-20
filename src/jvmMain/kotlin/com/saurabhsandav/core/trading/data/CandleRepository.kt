@@ -160,7 +160,7 @@ internal class CandleRepository(
                 val beforeFillResult = checkAndFillRange(
                     ticker = ticker,
                     timeframe = timeframe,
-                    from = firstCandleInstant - downloadInterval,
+                    from = (firstCandleInstant ?: at) - downloadInterval,
                     to = at,
                 )
                 if (beforeFillResult is Err) return beforeFillResult
@@ -191,7 +191,7 @@ internal class CandleRepository(
                     ticker = ticker,
                     timeframe = timeframe,
                     from = at,
-                    to = lastCandleInstant + downloadInterval,
+                    to = (lastCandleInstant ?: at) + downloadInterval,
                 )
                 if (afterFillResult is Err) return afterFillResult
 

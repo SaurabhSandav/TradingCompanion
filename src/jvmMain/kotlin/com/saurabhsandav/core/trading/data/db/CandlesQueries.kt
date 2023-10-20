@@ -41,30 +41,42 @@ class CandlesQueries(
 
     private fun <T : Any> getEpochSecondsAndCountAt(
         at: Long,
-        mapper: (MIN: Long?, COUNT: Long) -> T,
+        mapper: (
+            beforeCount: Long,
+            afterCount: Long,
+            firstCandleEpochSeconds: Long?,
+            lastCandleEpochSeconds: Long?,
+            atCandleExists: Boolean,
+        ) -> T,
     ): Query<T> = GetEpochSecondsAndCountAtQuery(
         identifier = identifierSeries + Identifier_getEpochSecondsAndCountAt,
         at = at,
     ) { cursor ->
-
         mapper(
-            cursor.getLong(0),
+            cursor.getLong(0)!!,
             cursor.getLong(1)!!,
+            cursor.getLong(2),
+            cursor.getLong(3),
+            cursor.getBoolean(4)!!
         )
     }
 
     fun getEpochSecondsAndCountAt(
         at: Long,
-    ): Query<GetEpochSecondsAndCountAt> = getEpochSecondsAndCountAt(at) { MIN, COUNT ->
-        GetEpochSecondsAndCountAt(
-            MIN,
-            COUNT,
-        )
-    }
+    ): Query<GetEpochSecondsAndCountAt> =
+        getEpochSecondsAndCountAt(at) { beforeCount, afterCount, firstCandleEpochSeconds, lastCandleEpochSeconds, atCandleExists ->
+            GetEpochSecondsAndCountAt(
+                beforeCount,
+                afterCount,
+                firstCandleEpochSeconds,
+                lastCandleEpochSeconds,
+                atCandleExists
+            )
+        }
 
     fun <T : Any> getCountBefore(
         at: Long,
-        includeAt: String?,
+        includeAt: Boolean,
         count: Long,
         mapper: (
             epochSeconds: Long,
@@ -93,7 +105,7 @@ class CandlesQueries(
 
     fun <T : Any> getCountAfter(
         at: Long,
-        includeAt: String?,
+        includeAt: Boolean,
         count: Long,
         mapper: (
             epochSeconds: Long,
@@ -204,21 +216,25 @@ class CandlesQueries(
             driver.executeQuery(
                 identifier = identifier,
                 sql = """
-                    |SELECT * FROM (
-                    |  SELECT MIN(epochSeconds), COUNT(*) FROM $tableName
-                    |  WHERE epochSeconds <= ?
-                    |)
-                    |UNION ALL
-                    |SELECT * FROM (
-                    |  SELECT MAX(epochSeconds), COUNT(*) FROM $tableName
-                    |  WHERE epochSeconds > ?
-                    |)
-                    """.trimMargin(),
+                |SELECT * FROM (
+                |  SELECT COUNT(*) AS beforeCount FROM $tableName WHERE epochSeconds < ?
+                |), (
+                |  SELECT COUNT(*) AS afterCount FROM $tableName WHERE epochSeconds > ?
+                |), (
+                |  SELECT MIN(epochSeconds) AS firstCandleEpochSeconds, MAX(epochSeconds) AS lastCandleEpochSeconds FROM $tableName
+                |), (
+                |  SELECT EXISTS(
+                |    SELECT * FROM $tableName
+                |    WHERE epochSeconds = ?
+                |  ) AS atCandleExists
+                |);
+                """.trimMargin(),
                 mapper = mapper,
-                parameters = 2,
+                parameters = 3,
             ) {
                 bindLong(0, at)
                 bindLong(1, at)
+                bindLong(2, at)
             }
 
         override fun toString(): String = "Candles.sq:getEpochSecondsAndCountAt"
@@ -227,7 +243,7 @@ class CandlesQueries(
     private inner class GetCountBeforeQuery<out T : Any>(
         val identifier: Int,
         val at: Long,
-        val includeAt: String?,
+        val includeAt: Boolean,
         val count: Long,
         mapper: (SqlCursor) -> T,
     ) : Query<T>(mapper) {
@@ -246,7 +262,7 @@ class CandlesQueries(
                 sql = """
                     |SELECT * FROM (
                     |  SELECT * FROM $tableName
-                    |  WHERE epochSeconds < ? OR (LOWER(?) = 'true' AND epochSeconds = ?)
+                    |  WHERE epochSeconds < ? OR (? = TRUE AND epochSeconds = ?)
                     |  ORDER BY epochSeconds DESC
                     |  LIMIT ?
                     |)
@@ -256,7 +272,7 @@ class CandlesQueries(
                 parameters = 4,
             ) {
                 bindLong(0, at)
-                bindString(1, includeAt)
+                bindBoolean(1, includeAt)
                 bindLong(2, at)
                 bindLong(3, count)
             }
@@ -267,7 +283,7 @@ class CandlesQueries(
     private inner class GetCountAfterQuery<out T : Any>(
         val identifier: Int,
         val at: Long,
-        val includeAt: String?,
+        val includeAt: Boolean,
         val count: Long,
         mapper: (SqlCursor) -> T,
     ) : Query<T>(mapper) {
@@ -285,7 +301,7 @@ class CandlesQueries(
                 identifier = identifier,
                 sql = """
                     |SELECT * FROM $tableName
-                    |WHERE epochSeconds > ? OR (LOWER(?) = 'true' AND epochSeconds = ?)
+                    |WHERE epochSeconds > ? OR (? = TRUE AND epochSeconds = ?)
                     |ORDER BY epochSeconds ASC
                     |LIMIT ?
                     """.trimMargin(),
@@ -293,7 +309,7 @@ class CandlesQueries(
                 parameters = 4,
             ) {
                 bindLong(0, at)
-                bindString(1, includeAt)
+                bindBoolean(1, includeAt)
                 bindLong(2, at)
                 bindLong(3, count)
             }
@@ -312,6 +328,9 @@ class CandlesQueries(
 }
 
 data class GetEpochSecondsAndCountAt(
-    val MIN: Long?,
-    val COUNT: Long,
+    val beforeCount: Long,
+    val afterCount: Long,
+    val firstCandleEpochSeconds: Long?,
+    val lastCandleEpochSeconds: Long?,
+    val atCandleExists: Boolean,
 )

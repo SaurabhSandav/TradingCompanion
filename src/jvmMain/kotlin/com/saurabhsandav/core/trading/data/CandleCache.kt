@@ -54,9 +54,10 @@ interface CandleCache {
     )
 
     data class CountRange(
-        val firstCandleInstant: Instant,
         val beforeCount: Long,
-        val lastCandleInstant: Instant,
         val afterCount: Long,
+        val firstCandleInstant: Instant?,
+        val lastCandleInstant: Instant?,
+        val atCandleExists: Boolean,
     )
 }
