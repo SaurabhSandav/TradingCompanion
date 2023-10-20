@@ -39,6 +39,35 @@ class CandlesQueries(
         )
     }
 
+    fun <T : Any> getInRangeEdgeCandlesInclusive(
+        from: Long,
+        to: Long,
+        candleSeconds: Long,
+        mapper: (
+            epochSeconds: Long,
+            open: String,
+            high: String,
+            low: String,
+            close: String,
+            volume: Long,
+        ) -> T,
+    ): Query<T> = GetInRangeEdgeCandlesInclusiveQuery(
+        identifier = identifierSeries + Identifier_getInRangeEdgeCandlesInclusive,
+        from = from,
+        to = to,
+        candleSeconds = candleSeconds,
+    ) { cursor ->
+
+        mapper(
+            cursor.getLong(0)!!,
+            cursor.getString(1)!!,
+            cursor.getString(2)!!,
+            cursor.getString(3)!!,
+            cursor.getString(4)!!,
+            cursor.getLong(5)!!,
+        )
+    }
+
     private fun <T : Any> getEpochSecondsAndCountAt(
         at: Long,
         mapper: (
@@ -198,6 +227,46 @@ class CandlesQueries(
         override fun toString(): String = "Candles.sq:getInRange"
     }
 
+    private inner class GetInRangeEdgeCandlesInclusiveQuery<out T : Any>(
+        val identifier: Int,
+        val from: Long,
+        val to: Long,
+        val candleSeconds: Long,
+        mapper: (SqlCursor) -> T,
+    ) : Query<T>(mapper) {
+
+        override fun addListener(listener: Listener) {
+            driver.addListener(tableName, listener = listener)
+        }
+
+        override fun removeListener(listener: Listener) {
+            driver.removeListener(tableName, listener = listener)
+        }
+
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
+            driver.executeQuery(
+                identifier = identifier,
+                sql = """
+                    |SELECT * FROM $tableName
+                    |WHERE epochSeconds BETWEEN ? AND ?
+                    |OR ? BETWEEN epochSeconds AND (epochSeconds + ?)
+                    |OR ? BETWEEN epochSeconds AND (epochSeconds + ?)
+                    |ORDER BY epochSeconds
+                    """.trimMargin(),
+                mapper = mapper,
+                parameters = 6,
+            ) {
+                bindLong(0, from)
+                bindLong(1, to)
+                bindLong(2, from)
+                bindLong(3, candleSeconds)
+                bindLong(4, to)
+                bindLong(5, candleSeconds)
+            }
+
+        override fun toString(): String = "Candles.sq:getInRangeEdgeCandlesInclusive"
+    }
+
     private inner class GetEpochSecondsAndCountAtQuery<out T : Any>(
         val identifier: Int,
         val at: Long,
@@ -321,9 +390,10 @@ class CandlesQueries(
 
         private const val Identifier_insert = 1
         private const val Identifier_getInRange = 2
-        private const val Identifier_getEpochSecondsAndCountAt = 3
-        private const val Identifier_getCountBefore = 4
-        private const val Identifier_getCountAfter = 5
+        private const val Identifier_getInRangeEdgeCandlesInclusive = 3
+        private const val Identifier_getEpochSecondsAndCountAt = 4
+        private const val Identifier_getCountBefore = 5
+        private const val Identifier_getCountAfter = 6
     }
 }
 

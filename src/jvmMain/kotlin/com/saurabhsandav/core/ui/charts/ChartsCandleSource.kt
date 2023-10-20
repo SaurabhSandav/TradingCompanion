@@ -63,6 +63,7 @@ internal class ChartsCandleSource(
                     timeframe = params.timeframe,
                     from = instant,
                     to = mutableCandleSeries.first().openInstant,
+                    edgeCandlesInclusive = false,
                 )
             }
 

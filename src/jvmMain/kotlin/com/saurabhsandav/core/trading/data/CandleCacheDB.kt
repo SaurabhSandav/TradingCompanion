@@ -58,21 +58,35 @@ internal class CandleCacheDB(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
+        edgeCandlesInclusive: Boolean,
     ): List<Candle> {
 
         val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
-        return candlesQueries.getInRange(
-            from = from.epochSeconds,
-            to = to.epochSeconds,
-        ) { epochSeconds, open, high, low, close, volume ->
-            Candle(
-                Instant.fromEpochSeconds(epochSeconds),
-                open.toBigDecimal(),
-                high.toBigDecimal(),
-                low.toBigDecimal(),
-                close.toBigDecimal(),
-                volume.toBigDecimal(),
+        val mapper: (Long, String, String, String, String, Long) -> Candle =
+            { epochSeconds, open, high, low, close, volume ->
+                Candle(
+                    openInstant = Instant.fromEpochSeconds(epochSeconds),
+                    open = open.toBigDecimal(),
+                    high = high.toBigDecimal(),
+                    low = low.toBigDecimal(),
+                    close = close.toBigDecimal(),
+                    volume = volume.toBigDecimal(),
+                )
+            }
+
+        return when {
+            edgeCandlesInclusive -> candlesQueries.getInRangeEdgeCandlesInclusive(
+                from = from.epochSeconds,
+                to = to.epochSeconds,
+                candleSeconds = timeframe.seconds - 1,
+                mapper = mapper,
+            )
+
+            else -> candlesQueries.getInRange(
+                from = from.epochSeconds,
+                to = to.epochSeconds,
+                mapper = mapper,
             )
         }.asFlow().mapToList(Dispatchers.IO).first()
     }

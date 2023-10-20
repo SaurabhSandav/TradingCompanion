@@ -94,12 +94,12 @@ internal class TradesRepo(
             val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
             val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
 
-            // Get candles for trade. Get a few extra at the beginning, so that we don't miss any candles.
             val candles = candleRepo.getCandles(
                 ticker = trade.ticker,
                 timeframe = Timeframe.M1,
-                from = entryInstant - 2.minutes,
+                from = entryInstant,
                 to = exitInstant,
+                edgeCandlesInclusive = true,
             ).get() ?: return@forEach
 
             // Candles to consider while calculating MFE and MAE

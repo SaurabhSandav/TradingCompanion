@@ -23,6 +23,7 @@ interface CandleCache {
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
+        edgeCandlesInclusive: Boolean,
     ): List<Candle>
 
     suspend fun getCountAt(

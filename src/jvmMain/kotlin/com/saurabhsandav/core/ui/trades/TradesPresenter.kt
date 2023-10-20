@@ -199,6 +199,7 @@ internal class TradesPresenter(
             timeframe = timeframe,
             from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
             to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
+            edgeCandlesInclusive = false,
         )
 
         val candles = when (candlesResult) {
