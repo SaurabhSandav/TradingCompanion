@@ -13,7 +13,7 @@ interface CandleCache {
         to: Instant,
     )
 
-    suspend fun getCachedRange(
+    suspend fun getCheckedRange(
         ticker: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>?

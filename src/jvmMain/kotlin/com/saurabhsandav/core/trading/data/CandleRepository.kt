@@ -8,6 +8,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.*
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 
 internal class CandleRepository(
     private val candleDownloader: CandleDownloader,
@@ -70,15 +71,10 @@ internal class CandleRepository(
         to: Instant,
     ): Result<Unit, Error> {
 
-        val availableRange = candleCache.getCachedRange(ticker, timeframe)
+        val availableRange = candleCache.getCheckedRange(ticker, timeframe)
 
-        // Adjust first and last candle instants to re-download 2/3 candles at edges in case candles were incomplete.
-
-        fun ClosedRange<Instant>.adjustedFirstCandleInstant() =
-            start.plus(timeframe.seconds * 3, DateTimeUnit.SECOND)
-
-        fun ClosedRange<Instant>.adjustedLastCandleInstant() =
-            endInclusive.minus(timeframe.seconds * 3, DateTimeUnit.SECOND)
+        fun ClosedRange<Instant>.startBufferInstant() = start + timeframe.seconds.seconds
+        fun ClosedRange<Instant>.endBufferInstant() = endInclusive - timeframe.seconds.seconds
 
         @Suppress("SpellCheckingInspection")
         val downloadRanges = when {
@@ -87,25 +83,25 @@ internal class CandleRepository(
             // Some candles available
             // ..........F........T..........
             // ................CCCCCCCCC.....
-            from !in availableRange && to in availableRange -> listOf(from..availableRange.adjustedFirstCandleInstant())
+            from !in availableRange && to in availableRange -> listOf(from..availableRange.startBufferInstant())
             // Some candles available
             // ..........F........T..........
             // .....CCCCCCCCC................
-            from in availableRange && to !in availableRange -> listOf(availableRange.adjustedLastCandleInstant()..to)
+            from in availableRange && to !in availableRange -> listOf(availableRange.endBufferInstant()..to)
             // Some candles available between range
             from !in availableRange && to !in availableRange -> {
                 when {
                     // ..........F........T..........
                     // ....CCC.......................
-                    availableRange.endInclusive < from -> listOf(availableRange.adjustedLastCandleInstant()..to)
+                    availableRange.endInclusive < from -> listOf(availableRange.endBufferInstant()..to)
                     // ..........F........T..........
                     // .......................CCC....
-                    availableRange.start > to -> listOf(from..availableRange.adjustedFirstCandleInstant())
+                    availableRange.start > to -> listOf(from..availableRange.startBufferInstant())
                     // ..........F........T..........
                     // .............CCCC.............
                     else -> listOf(
-                        from..availableRange.adjustedFirstCandleInstant(),
-                        availableRange.adjustedLastCandleInstant()..to,
+                        from..availableRange.startBufferInstant(),
+                        availableRange.endBufferInstant()..to,
                     )
                 }
             }
@@ -140,7 +136,12 @@ internal class CandleRepository(
 
         // Check and fill range around $at by default
         // If $at is outside an already cached range, this will fill the gaps between $at and the range.
-        val fillResult = checkAndFillRange(ticker, timeframe, at - downloadInterval, at + downloadInterval)
+        val fillResult = checkAndFillRange(
+            ticker = ticker,
+            timeframe = timeframe,
+            from = at - downloadInterval,
+            to = at + downloadInterval,
+        )
         if (fillResult is Err) return fillResult
 
         val initialCountRange = candleCache.getCountAt(ticker, timeframe, at)!!
@@ -156,7 +157,12 @@ internal class CandleRepository(
                 val firstCandleInstant = currentCountRange.firstCandleInstant
 
                 // Download given interval's worth before the first available candle
-                val beforeFillResult = checkAndFillRange(ticker, timeframe, firstCandleInstant - downloadInterval, at)
+                val beforeFillResult = checkAndFillRange(
+                    ticker = ticker,
+                    timeframe = timeframe,
+                    from = firstCandleInstant - downloadInterval,
+                    to = at,
+                )
                 if (beforeFillResult is Err) return beforeFillResult
 
                 // Count range after download
@@ -181,7 +187,12 @@ internal class CandleRepository(
                 val lastCandleInstant = currentCountRange.lastCandleInstant
 
                 // Download given interval's worth after the last available candle
-                val afterFillResult = checkAndFillRange(ticker, timeframe, at, lastCandleInstant + downloadInterval)
+                val afterFillResult = checkAndFillRange(
+                    ticker = ticker,
+                    timeframe = timeframe,
+                    from = at,
+                    to = lastCandleInstant + downloadInterval,
+                )
                 if (afterFillResult is Err) return afterFillResult
 
                 // Count range after download
@@ -232,8 +243,8 @@ internal class CandleRepository(
                 val today = currentTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
                 val correctedDate = correctedTo.toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-                when (today) {
-                    correctedDate -> today.atStartOfDayIn(TimeZone.currentSystemDefault())
+                when {
+                    today == correctedDate -> today.atStartOfDayIn(TimeZone.currentSystemDefault())
                     else -> correctedTo
                 }
             },

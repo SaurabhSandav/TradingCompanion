@@ -26,7 +26,7 @@ internal class CandleCacheDB(
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
         val checkedRangeQueries = candleDB.checkedRangeQueries
-        val currentRange = getCachedRange(ticker, timeframe)
+        val currentRange = getCheckedRange(ticker, timeframe)
 
         // Expand range on either side
         val minFrom = minOf(from, currentRange?.start ?: from)
@@ -37,7 +37,7 @@ internal class CandleCacheDB(
         checkedRangeQueries.insert(tableName, minFrom, maxTo)
     }
 
-    override suspend fun getCachedRange(
+    override suspend fun getCheckedRange(
         ticker: String,
         timeframe: Timeframe,
     ): ClosedRange<Instant>? {
