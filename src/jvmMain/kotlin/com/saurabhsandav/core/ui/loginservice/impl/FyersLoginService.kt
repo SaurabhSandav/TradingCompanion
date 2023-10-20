@@ -71,20 +71,20 @@ internal class FyersLoginService private constructor(
         when {
             authTokens == null -> loginStage1()
             isLoggedIn(authTokens) -> resultHandle.onSuccess()
-            else -> when (val canRefresh = (Clock.System.now() - authTokens.initialLoginInstant) < 15.days) {
+            else -> when (val canRefresh = (Clock.System.now() - authTokens.initialLoginInstant) < 14.days) {
                 canRefresh -> refreshLogin(authTokens)
                 else -> loginStage1()
             }
         }
     }
 
-    private fun loginStage1() {
+    private fun loginStage1(reLogin: Boolean = false) {
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             error("Launching url in browser not supported")
         }
 
-        loginState = LoginState.InitialLogin
+        loginState = if (reLogin) LoginState.ReLogin else LoginState.InitialLogin
 
         // Launch embedded server to capture redirect url
         serverEngine = embeddedServer(
@@ -178,8 +178,13 @@ internal class FyersLoginService private constructor(
         )
 
         when (refreshResponse.result) {
-            // Refresh failed.
-            null -> onLoginCancelled(refreshResponse.message)
+            // Refresh failed. Login again
+            null -> {
+
+                saveAuthTokensToPrefs(appPrefs, null)
+
+                loginStage1(reLogin = true)
+            }
             // Refresh succeeded. Update access token
             else -> {
 
@@ -192,10 +197,16 @@ internal class FyersLoginService private constructor(
         }
     }
 
-    private fun onLoginCancelled(failureMessage: String? = null) {
+    private fun onLoginCancelled(failureMessage: String? = null) = coroutineScope.launchUnit {
 
         when {
-            failureMessage != null -> resultHandle.onFailure(failureMessage)
+            failureMessage != null -> {
+
+                saveAuthTokensToPrefs(appPrefs, null)
+
+                resultHandle.onFailure(failureMessage)
+            }
+
             else -> resultHandle.onCancel()
         }
     }
@@ -205,12 +216,12 @@ internal class FyersLoginService private constructor(
 
         when (val loginState = loginState) {
             null -> Unit
-            LoginState.InitialLogin -> {
+            LoginState.InitialLogin, LoginState.ReLogin -> {
 
                 AppDialogWindow(
                     onCloseRequest = ::onLoginCancelled,
                     state = rememberDialogState(
-                        width = 200.dp,
+                        width = 300.dp,
                         height = 100.dp,
                     ),
                     title = "Login to Fyers",
@@ -226,7 +237,12 @@ internal class FyersLoginService private constructor(
 
                         CircularProgressIndicator()
 
-                        Text("Awaiting login...")
+                        Text(
+                            text = when (loginState) {
+                                is LoginState.ReLogin -> "Refresh failed. Awaiting login..."
+                                else -> "Awaiting login..."
+                            }
+                        )
                     }
                 }
             }
@@ -295,6 +311,8 @@ internal class FyersLoginService private constructor(
 
         data object InitialLogin : LoginState()
 
+        data object ReLogin : LoginState()
+
         data class RefreshLogin(val pin: CompletableDeferred<String>) : LoginState()
     }
 
@@ -327,11 +345,17 @@ internal class FyersLoginService private constructor(
                 }
         }
 
-        suspend fun saveAuthTokensToPrefs(appPrefs: FlowSettings, authTokens: FyersAuthTokens) {
+        suspend fun saveAuthTokensToPrefs(appPrefs: FlowSettings, authTokens: FyersAuthTokens?) {
 
-            val prefString = Json.encodeToString<FyersAuthTokens>(authTokens)
+            when (authTokens) {
+                null -> appPrefs.remove(PrefKeys.FyersAuthTokens)
+                else -> {
 
-            appPrefs.putString(PrefKeys.FyersAuthTokens, prefString)
+                    val prefString = Json.encodeToString<FyersAuthTokens>(authTokens)
+
+                    appPrefs.putString(PrefKeys.FyersAuthTokens, prefString)
+                }
+            }
         }
     }
 }
