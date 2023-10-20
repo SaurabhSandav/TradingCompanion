@@ -17,6 +17,10 @@ internal class CandleRepository(
 
     fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()
 
+    /**
+     * Get candles for [ticker] and [timeframe] in [from]..[to] interval.
+     * Set [edgeCandlesInclusive] = true to include candles containing [from] and [to].
+     */
     suspend fun getCandles(
         ticker: String,
         timeframe: Timeframe,
@@ -33,6 +37,10 @@ internal class CandleRepository(
         return Ok(candleCache.fetchRange(ticker, timeframe, from, to, edgeCandlesInclusive))
     }
 
+    /**
+     * Get [count] candles after [at] for [ticker] and [timeframe].
+     * Set [includeAt] = true, to include candle with [Candle.openInstant] = [at] in count.
+     */
     suspend fun getCandlesBefore(
         ticker: String,
         timeframe: Timeframe,
@@ -49,6 +57,10 @@ internal class CandleRepository(
         return Ok(candleCache.getBefore(ticker, timeframe, at, count, includeAt))
     }
 
+    /**
+     * Get [count] candles before [at] for [ticker] and [timeframe].
+     * Set [includeAt] = true, to include candle with [Candle.openInstant] = [at] in count.
+     */
     suspend fun getCandlesAfter(
         ticker: String,
         timeframe: Timeframe,
