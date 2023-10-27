@@ -11,14 +11,14 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradesByDay
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesScreen(
-    tradesByDays: ImmutableList<TradesByDay>,
+    trades: ImmutableList<TradeEntry>,
     onOpenDetails: (ProfileTradeId) -> Unit,
     onOpenChart: (ProfileTradeId) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
@@ -34,7 +34,7 @@ internal fun TradesScreen(
     ) {
 
         TradesTable(
-            tradesByDays = tradesByDays,
+            trades = trades,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
         )

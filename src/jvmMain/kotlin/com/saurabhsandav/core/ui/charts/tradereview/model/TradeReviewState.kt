@@ -7,15 +7,9 @@ import kotlinx.coroutines.flow.Flow
 @Immutable
 internal data class TradeReviewState(
     val selectedProfileId: Long?,
-    val tradesByDays: ImmutableList<TradesByDay>,
+    val trades: ImmutableList<TradeEntry>,
     val eventSink: (TradeReviewEvent) -> Unit,
 ) {
-
-    @Immutable
-    data class TradesByDay(
-        val dayHeader: String,
-        val trades: ImmutableList<TradeEntry>,
-    )
 
     @Immutable
     internal data class TradeEntry(

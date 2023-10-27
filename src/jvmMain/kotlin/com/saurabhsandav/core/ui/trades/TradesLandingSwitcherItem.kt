@@ -24,7 +24,7 @@ internal class TradesLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         TradesScreen(
-            tradesByDays = state.tradesByDays,
+            trades = state.trades,
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
             onOpenChart = { state.eventSink(OpenChart(it)) },
             errors = state.errors,

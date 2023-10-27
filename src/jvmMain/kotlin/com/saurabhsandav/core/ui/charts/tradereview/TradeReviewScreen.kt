@@ -8,7 +8,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
+import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.ui.TradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
@@ -42,7 +42,7 @@ internal fun TradeReviewWindow(
         TradeReviewScreen(
             selectedProfileId = state.selectedProfileId,
             onSelectProfile = { id -> state.eventSink(SelectProfile(id)) },
-            tradesByDays = state.tradesByDays,
+            trades = state.trades,
             onMarkTrade = { id, isMarked -> state.eventSink(MarkTrade(id, isMarked)) },
             onSelectTrade = { id -> state.eventSink(SelectTrade(id)) },
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
@@ -54,7 +54,7 @@ internal fun TradeReviewWindow(
 internal fun TradeReviewScreen(
     selectedProfileId: Long?,
     onSelectProfile: (Long) -> Unit,
-    tradesByDays: ImmutableList<TradesByDay>,
+    trades: ImmutableList<TradeEntry>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
     onOpenDetails: (id: Long) -> Unit,
@@ -73,7 +73,7 @@ internal fun TradeReviewScreen(
         Divider()
 
         TradesTable(
-            tradesByDays = tradesByDays,
+            trades = trades,
             onMarkTrade = onMarkTrade,
             onSelectTrade = onSelectTrade,
             onOpenDetails = onOpenDetails,

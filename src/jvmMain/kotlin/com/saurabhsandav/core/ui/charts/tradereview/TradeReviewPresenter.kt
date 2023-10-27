@@ -13,7 +13,6 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
@@ -22,11 +21,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -53,7 +52,7 @@ internal class TradeReviewPresenter(
 
         return@launchMolecule TradeReviewState(
             selectedProfileId = selectedProfileId.collectAsState().value,
-            tradesByDays = getTradesByDays().value,
+            trades = getTrades().value,
             eventSink = ::onEvent,
         )
     }
@@ -69,7 +68,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getTradesByDays(): State<ImmutableList<TradesByDay>> {
+    private fun getTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
 
             selectedProfileId
@@ -83,18 +82,8 @@ internal class TradeReviewPresenter(
 
                     tradingRecord.trades.allTrades.combine(markersProvider.markedTradeIds) { trades, markedTradeIds ->
                         trades
-                            .groupBy { it.entryTimestamp.date }
-                            .map { (date, list) ->
-
-                                TradesByDay(
-                                    dayHeader = DateTimeFormatter
-                                        .ofLocalizedDate(FormatStyle.LONG)
-                                        .format(date.toJavaLocalDate()),
-                                    trades = list
-                                        .map { it.toTradeListEntry(it.id in markedTradeIds) }
-                                        .toImmutableList(),
-                                )
-                            }.toImmutableList()
+                            .map { it.toTradeListEntry(it.id in markedTradeIds) }
+                            .toImmutableList()
                     }
                 }
         }.collectAsState(persistentListOf())

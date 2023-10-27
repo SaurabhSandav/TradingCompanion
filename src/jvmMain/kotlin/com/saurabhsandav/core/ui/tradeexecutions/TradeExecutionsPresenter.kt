@@ -15,7 +15,8 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -24,9 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.toJavaLocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 @Stable
@@ -43,7 +41,7 @@ internal class TradeExecutionsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
-            executionsByDays = getExecutionsByDays().value,
+            executions = getExecutions().value,
             selectionManager = selectionManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
@@ -62,7 +60,7 @@ internal class TradeExecutionsPresenter(
     }
 
     @Composable
-    private fun getExecutionsByDays(): State<ImmutableList<TradeExecutionsByDay>> {
+    private fun getExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
@@ -72,19 +70,9 @@ internal class TradeExecutionsPresenter(
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
                 tradingRecord.executions.allExecutions.map { executions ->
-                    executions.groupBy { it.timestamp.date }
-                        .map { (date, list) ->
-
-                            TradeExecutionsByDay(
-                                dayHeader = DateTimeFormatter
-                                    .ofLocalizedDate(FormatStyle.LONG)
-                                    .format(date.toJavaLocalDate()),
-                                executions = list
-                                    .sortedBy { it.timestamp }
-                                    .map { it.toTradeExecutionListEntry(profile.id) }
-                                    .toImmutableList(),
-                            )
-                        }.toImmutableList()
+                    executions
+                        .map { it.toTradeExecutionListEntry(profile.id) }
+                        .toImmutableList()
                 }
             }
         }.collectAsState(persistentListOf())

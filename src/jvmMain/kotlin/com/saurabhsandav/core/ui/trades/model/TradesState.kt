@@ -8,17 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Immutable
 internal data class TradesState(
-    val tradesByDays: ImmutableList<TradesByDay>,
+    val trades: ImmutableList<TradeEntry>,
     val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
-
-    @Immutable
-    data class TradesByDay(
-        val dayHeader: String,
-        val trades: ImmutableList<TradeEntry>,
-    )
 
     @Immutable
     internal data class TradeEntry(

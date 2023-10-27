@@ -2,25 +2,21 @@ package com.saurabhsandav.core.ui.tradeexecutions.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
-    executionsByDays: ImmutableList<TradeExecutionsByDay>,
+    executions: ImmutableList<TradeExecutionEntry>,
     isMarked: (TradeExecutionEntry) -> Boolean,
     onClickExecution: (TradeExecutionEntry) -> Unit,
     onMarkExecution: (TradeExecutionEntry) -> Unit,
@@ -56,55 +52,21 @@ internal fun TradeExecutionsTable(
         schema = schema,
     ) {
 
-        executionsByDays.forEach { executionsByDay ->
+        rows(
+            items = executions,
+            key = { it.profileTradeExecutionId },
+        ) { entry ->
 
-            stickyHeader {
-
-                DayHeader(
-                    modifier = Modifier.fillParentMaxWidth(),
-                    header = executionsByDay.dayHeader,
-                )
-            }
-
-            rows(
-                items = executionsByDay.executions,
-                key = { it.profileTradeExecutionId },
-            ) { entry ->
-
-                TradeExecutionEntry(
-                    schema = schema,
-                    entry = entry,
-                    onClick = { onClickExecution(entry) },
-                    onLongClick = { onMarkExecution(entry) },
-                    onNewExecution = { onNewExecution(entry.profileTradeExecutionId) },
-                    onEditExecution = { onEditExecution(entry.profileTradeExecutionId) },
-                    onLockExecution = { onLockExecution(entry.profileTradeExecutionId) },
-                    onDeleteExecution = { onDeleteExecution(entry.profileTradeExecutionId) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DayHeader(
-    modifier: Modifier,
-    header: String,
-) {
-
-    Column {
-
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
-        ) {
-
-            Box(
-                modifier = modifier.padding(8.dp),
-                contentAlignment = Alignment.Center,
-                content = { Text(header) },
+            TradeExecutionEntry(
+                schema = schema,
+                entry = entry,
+                onClick = { onClickExecution(entry) },
+                onLongClick = { onMarkExecution(entry) },
+                onNewExecution = { onNewExecution(entry.profileTradeExecutionId) },
+                onEditExecution = { onEditExecution(entry.profileTradeExecutionId) },
+                onLockExecution = { onLockExecution(entry.profileTradeExecutionId) },
+                onDeleteExecution = { onDeleteExecution(entry.profileTradeExecutionId) },
             )
-
-            Divider()
         }
     }
 }

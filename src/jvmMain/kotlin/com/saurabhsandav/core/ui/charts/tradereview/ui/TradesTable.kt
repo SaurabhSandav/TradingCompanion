@@ -2,25 +2,22 @@ package com.saurabhsandav.core.ui.charts.tradereview.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradesByDay
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    tradesByDays: ImmutableList<TradesByDay>,
+    trades: ImmutableList<TradeEntry>,
     onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
     onSelectTrade: (id: Long) -> Unit,
     onOpenDetails: (id: Long) -> Unit,
@@ -60,51 +57,17 @@ internal fun TradesTable(
         schema = schema,
     ) {
 
-        tradesByDays.forEach { tradesByDay ->
+        rows(
+            items = trades,
+            key = { it.id },
+        ) { entry ->
 
-            stickyHeader {
-
-                DayHeader(
-                    modifier = Modifier.fillParentMaxWidth(),
-                    header = tradesByDay.dayHeader,
-                )
-            }
-
-            rows(
-                items = tradesByDay.trades,
-                key = { it.id },
-            ) { entry ->
-
-                TradeEntry(
-                    schema = schema,
-                    entry = entry,
-                    onSelectTrade = { onSelectTrade(entry.id) },
-                    onOpenDetails = { onOpenDetails(entry.id) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DayHeader(
-    modifier: Modifier,
-    header: String,
-) {
-
-    Column {
-
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
-        ) {
-
-            Box(
-                modifier = modifier.padding(8.dp),
-                contentAlignment = Alignment.Center,
-                content = { Text(header) },
+            TradeEntry(
+                schema = schema,
+                entry = entry,
+                onSelectTrade = { onSelectTrade(entry.id) },
+                onOpenDetails = { onOpenDetails(entry.id) },
             )
-
-            Divider()
         }
     }
 }
