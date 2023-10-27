@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.common.table
 
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +16,7 @@ fun <T> DefaultTableHeader(
     Row(
         modifier = modifier.height(64.dp).padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
         schema.columns.forEach { column ->
@@ -47,6 +45,7 @@ fun <T> DefaultTableRow(
             .padding(8.dp)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
         schema.columns.forEach { column ->
