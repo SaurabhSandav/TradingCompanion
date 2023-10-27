@@ -2,13 +2,17 @@ package com.saurabhsandav.core.ui.tradeexecutions.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
@@ -36,6 +40,16 @@ internal fun TradeExecutionsTable(
                 checked = isMarked(entry),
                 onCheckedChange = { onMarkExecution(entry) },
             )
+        }
+        addColumn(width = Fixed(48.dp)) { entry ->
+
+            if (!entry.locked) {
+
+                TooltipArea(
+                    tooltip = { Tooltip("Not locked") },
+                    content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
+                )
+            }
         }
         addColumnText("Broker", width = Weight(2F)) { it.broker }
         addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }

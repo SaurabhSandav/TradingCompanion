@@ -2,10 +2,13 @@ package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,8 +20,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import kotlinx.collections.immutable.ImmutableList
@@ -40,6 +45,16 @@ internal fun TradeExecutionsTable(
     ) {
 
         val schema = rememberTableSchema<TradeState.Execution> {
+            addColumn(width = Fixed(48.dp)) { entry ->
+
+                if (!entry.locked) {
+
+                    TooltipArea(
+                        tooltip = { Tooltip("Not locked") },
+                        content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
+                    )
+                }
+            }
             addColumnText("Quantity") { it.quantity }
             addColumn("Side") {
 
