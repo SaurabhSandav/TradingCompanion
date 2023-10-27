@@ -7,7 +7,9 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.TradeContentLauncher
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.format
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
@@ -23,10 +25,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.path.extension
 import kotlin.time.Duration
@@ -164,8 +167,6 @@ internal class TradePresenter(
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy - HH:mm:ss")
-
             tradingRecord.trades.getExecutionsForTrade(tradeId).collect { executions ->
 
                 value = executions.map { execution ->
@@ -177,7 +178,7 @@ internal class TradePresenter(
                             ?: execution.quantity.toString(),
                         side = execution.side.strValue.uppercase(),
                         price = execution.price.toPlainString(),
-                        timestamp = formatter.format(execution.timestamp.toJavaLocalDateTime()),
+                        timestamp = TradeDateTimeFormatter.format(execution.timestamp),
                         locked = execution.locked,
                     )
                 }.toImmutableList()
@@ -316,17 +317,13 @@ internal class TradePresenter(
             tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
-                    val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss")
-
                     val added = note.added
                         .toLocalDateTime(TimeZone.currentSystemDefault())
-                        .toJavaLocalDateTime()
-                        .let(formatter::format)
+                        .let(TradeDateTimeFormatter::format)
 
                     val lastEdited = note.lastEdited
                         .toLocalDateTime(TimeZone.currentSystemDefault())
-                        .toJavaLocalDateTime()
-                        .let(formatter::format)
+                        .let(TradeDateTimeFormatter::format)
 
                     TradeNote(
                         id = note.id,

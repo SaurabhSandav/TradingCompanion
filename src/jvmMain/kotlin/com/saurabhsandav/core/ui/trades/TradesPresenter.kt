@@ -22,9 +22,11 @@ import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.TradeContentLauncher
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
+import com.saurabhsandav.core.ui.common.format
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
@@ -157,7 +159,7 @@ internal class TradesPresenter(
             },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
-            entryTime = entryTimestamp.time.toString(),
+            entryTime = TradeDateTimeFormatter.format(entryTimestamp),
             duration = durationStr,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,

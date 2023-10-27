@@ -17,7 +17,9 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.common.format
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -30,7 +32,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -134,7 +135,7 @@ internal class ReplaySessionPresenter(
                             is StopMarket -> openOrder.executionType.trigger.toPlainString()
                             is TrailingStop -> openOrder.executionType.trailingStop.toPlainString()
                         },
-                        timestamp = openOrder.createdAt.time.toString(),
+                        timestamp = TradeDateTimeFormatter.format(openOrder.createdAt),
                     )
                 }.toImmutableList()
             }
@@ -259,7 +260,7 @@ internal class ReplaySessionPresenter(
     )
 
     private fun formattedReplayTime(currentInstant: Instant): String {
-        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
-        return DateTimeFormatter.ofPattern("d MMMM, yyyy\nHH:mm:ss").format(localDateTime)
+        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())
+        return DateTimeFormatter.ofPattern("MMM d, yyyy\nHH:mm:ss").format(localDateTime)
     }
 }
