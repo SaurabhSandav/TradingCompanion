@@ -40,12 +40,30 @@ WHERE id = ?;
 getAll:
 SELECT *
 FROM Trade
-ORDER BY datetime(entryTimestamp) DESC, datetime(exitTimestamp) DESC;
+ORDER BY datetime(entryTimestamp) DESC;
 
 getById:
 SELECT *
 FROM Trade
 WHERE id = ?;
+
+getOpen:
+SELECT *
+FROM Trade
+WHERE isClosed = FALSE
+ORDER BY datetime(entryTimestamp) DESC;
+
+getToday:
+SELECT *
+FROM Trade
+WHERE date(entryTimestamp) = date('now')
+ORDER BY datetime(entryTimestamp) DESC;
+
+getBeforeToday:
+SELECT *
+FROM Trade
+WHERE date(entryTimestamp) != date('now')
+ORDER BY datetime(entryTimestamp) DESC;
 
 getByTickerInInterval:
 SELECT *
@@ -61,11 +79,6 @@ WHERE ticker = :ticker
 AND id IN :ids
 AND datetime(:from) < datetime(entryTimestamp)
 AND datetime(entryTimestamp) < datetime(:to);
-
-getOpenTrades:
-SELECT *
-FROM Trade
-WHERE isClosed = FALSE;
 
 delete:
 DELETE FROM Trade

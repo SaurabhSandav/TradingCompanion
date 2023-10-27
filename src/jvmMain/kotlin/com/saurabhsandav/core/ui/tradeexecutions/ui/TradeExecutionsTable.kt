@@ -4,12 +4,14 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
@@ -23,7 +25,8 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
-    executions: ImmutableList<TradeExecutionEntry>,
+    todayExecutions: ImmutableList<TradeExecutionEntry>,
+    pastExecutions: ImmutableList<TradeExecutionEntry>,
     isMarked: (TradeExecutionEntry) -> Boolean,
     onClickExecution: (TradeExecutionEntry) -> Unit,
     onMarkExecution: (TradeExecutionEntry) -> Unit,
@@ -69,9 +72,67 @@ internal fun TradeExecutionsTable(
         schema = schema,
     ) {
 
+        executionRows(
+            executions = todayExecutions,
+            title = "Today",
+            onClickExecution = onClickExecution,
+            onMarkExecution = onMarkExecution,
+            onNewExecution = onNewExecution,
+            onEditExecution = onEditExecution,
+            onLockExecution = onLockExecution,
+            onDeleteExecution = onDeleteExecution,
+        )
+
+        executionRows(
+            executions = pastExecutions,
+            title = "Past",
+            onClickExecution = onClickExecution,
+            onMarkExecution = onMarkExecution,
+            onNewExecution = onNewExecution,
+            onEditExecution = onEditExecution,
+            onLockExecution = onLockExecution,
+            onDeleteExecution = onDeleteExecution,
+        )
+    }
+}
+
+private fun TableScope<TradeExecutionEntry>.executionRows(
+    executions: ImmutableList<TradeExecutionEntry>,
+    title: String,
+    onClickExecution: (TradeExecutionEntry) -> Unit,
+    onMarkExecution: (TradeExecutionEntry) -> Unit,
+    onNewExecution: (ProfileTradeExecutionId) -> Unit,
+    onEditExecution: (ProfileTradeExecutionId) -> Unit,
+    onLockExecution: (ProfileTradeExecutionId) -> Unit,
+    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
+) {
+
+    if (executions.isNotEmpty()) {
+
+        row {
+
+            ListItem(
+                modifier = Modifier.padding(16.dp),
+                headlineContent = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = "${executions.size} Executions",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                },
+            )
+
+            Divider()
+        }
+
         rows(
             items = executions,
-            key = { it.profileTradeExecutionId },
+            key = { entry -> entry.profileTradeExecutionId },
         ) { entry ->
 
             TradeExecutionEntry(

@@ -4,11 +4,15 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
@@ -18,7 +22,9 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    trades: ImmutableList<TradeEntry>,
+    openTrades: ImmutableList<TradeEntry>,
+    todayTrades: ImmutableList<TradeEntry>,
+    pastTrades: ImmutableList<TradeEntry>,
     onOpenDetails: (ProfileTradeId) -> Unit,
     onOpenChart: (ProfileTradeId) -> Unit,
 ) {
@@ -53,9 +59,64 @@ internal fun TradesTable(
         schema = schema,
     ) {
 
+        tradeRows(
+            trades = openTrades,
+            title = "Open",
+            onOpenDetails = onOpenDetails,
+            onOpenChart = onOpenChart,
+            keyPrefix = "open",
+        )
+
+        tradeRows(
+            trades = todayTrades,
+            title = "Today",
+            onOpenDetails = onOpenDetails,
+            onOpenChart = onOpenChart,
+        )
+
+        tradeRows(
+            trades = pastTrades,
+            title = "Past",
+            onOpenDetails = onOpenDetails,
+            onOpenChart = onOpenChart,
+        )
+    }
+}
+
+private fun TableScope<TradeEntry>.tradeRows(
+    trades: ImmutableList<TradeEntry>,
+    title: String,
+    onOpenDetails: (ProfileTradeId) -> Unit,
+    onOpenChart: (ProfileTradeId) -> Unit,
+    keyPrefix: String? = null,
+) {
+
+    if (trades.isNotEmpty()) {
+
+        row {
+
+            ListItem(
+                modifier = Modifier.padding(16.dp),
+                headlineContent = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = "${trades.size} Trades",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                },
+            )
+
+            Divider()
+        }
+
         rows(
             items = trades,
-            key = { it.profileTradeId },
+            key = { entry -> if (keyPrefix != null) keyPrefix + entry.profileTradeId else entry.profileTradeId },
         ) { entry ->
 
             TradeEntry(

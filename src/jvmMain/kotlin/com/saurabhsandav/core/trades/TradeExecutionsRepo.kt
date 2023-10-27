@@ -24,6 +24,14 @@ internal class TradeExecutionsRepo(
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
+    fun getToday(): Flow<List<TradeExecution>> {
+        return tradesDB.tradeExecutionQueries.getToday().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getBeforeToday(): Flow<List<TradeExecution>> {
+        return tradesDB.tradeExecutionQueries.getBeforeToday().asFlow().mapToList(Dispatchers.IO)
+    }
+
     suspend fun new(
         broker: String,
         instrument: Instrument,
@@ -207,7 +215,7 @@ internal class TradeExecutionsRepo(
     private fun consumeExecution(execution: TradeExecution) {
 
         // Currently open trades
-        val openTrades = tradesDB.tradeQueries.getOpenTrades().executeAsList()
+        val openTrades = tradesDB.tradeQueries.getOpen().executeAsList()
         // Trade that will consume this execution
         val openTrade = openTrades.find {
             it.broker == execution.broker && it.instrument == execution.instrument && it.ticker == execution.ticker

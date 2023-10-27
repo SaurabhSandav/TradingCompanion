@@ -41,6 +41,18 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
+    fun getOpen(): Flow<List<Trade>> {
+        return tradesDB.tradeQueries.getOpen().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getToday(): Flow<List<Trade>> {
+        return tradesDB.tradeQueries.getToday().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getBeforeToday(): Flow<List<Trade>> {
+        return tradesDB.tradeQueries.getBeforeToday().asFlow().mapToList(Dispatchers.IO)
+    }
+
     fun getByTickerInInterval(
         ticker: String,
         range: ClosedRange<LocalDateTime>,

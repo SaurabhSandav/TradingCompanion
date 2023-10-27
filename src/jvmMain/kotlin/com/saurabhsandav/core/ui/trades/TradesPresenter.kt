@@ -72,7 +72,9 @@ internal class TradesPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradesState(
-            trades = getTrades().value,
+            openTrades = getOpenTrades().value,
+            todayTrades = getTodayTrades().value,
+            pastTrades = getPastTrades().value,
             chartWindowsManager = chartWindowsManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
@@ -88,7 +90,7 @@ internal class TradesPresenter(
     }
 
     @Composable
-    private fun getTrades(): State<ImmutableList<TradeEntry>> {
+    private fun getOpenTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
@@ -97,7 +99,39 @@ internal class TradesPresenter(
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                tradingRecord.trades.allTrades.map { trades ->
+                tradingRecord.trades.getOpen().map { trades ->
+                    trades
+                        .map { it.toTradeListEntry(profile.id) }
+                        .toImmutableList()
+                }
+            }
+        }.collectAsState(persistentListOf())
+    }
+
+    @Composable
+    private fun getTodayTrades(): State<ImmutableList<TradeEntry>> {
+        return remember {
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.getToday().map { trades ->
+                    trades
+                        .map { it.toTradeListEntry(profile.id) }
+                        .toImmutableList()
+                }
+            }
+        }.collectAsState(persistentListOf())
+    }
+
+    @Composable
+    private fun getPastTrades(): State<ImmutableList<TradeEntry>> {
+        return remember {
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.getBeforeToday().map { trades ->
                     trades
                         .map { it.toTradeListEntry(profile.id) }
                         .toImmutableList()

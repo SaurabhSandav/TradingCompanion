@@ -38,6 +38,18 @@ SELECT *
 FROM TradeExecution
 WHERE id = ?;
 
+getToday:
+SELECT *
+FROM TradeExecution
+WHERE date(timestamp) = date('now')
+ORDER BY datetime(timestamp) DESC;
+
+getBeforeToday:
+SELECT *
+FROM TradeExecution
+WHERE date(timestamp) != date('now')
+ORDER BY datetime(timestamp) DESC;
+
 getByTickerInInterval:
 SELECT *
 FROM TradeExecution

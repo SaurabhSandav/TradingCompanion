@@ -41,7 +41,8 @@ internal class TradeExecutionsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
-            executions = getExecutions().value,
+            todayExecutions = getTodayExecutions().value,
+            pastExecutions = getPastExecutions().value,
             selectionManager = selectionManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
@@ -60,7 +61,7 @@ internal class TradeExecutionsPresenter(
     }
 
     @Composable
-    private fun getExecutions(): State<ImmutableList<TradeExecutionEntry>> {
+    private fun getTodayExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
             tradingProfiles.currentProfile.flatMapLatest { profile ->
 
@@ -69,7 +70,26 @@ internal class TradeExecutionsPresenter(
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                tradingRecord.executions.allExecutions.map { executions ->
+                tradingRecord.executions.getToday().map { executions ->
+                    executions
+                        .map { it.toTradeExecutionListEntry(profile.id) }
+                        .toImmutableList()
+                }
+            }
+        }.collectAsState(persistentListOf())
+    }
+
+    @Composable
+    private fun getPastExecutions(): State<ImmutableList<TradeExecutionEntry>> {
+        return remember {
+            tradingProfiles.currentProfile.flatMapLatest { profile ->
+
+                // Clear execution selection
+                selectionManager.clear()
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.executions.getBeforeToday().map { executions ->
                     executions
                         .map { it.toTradeExecutionListEntry(profile.id) }
                         .toImmutableList()
