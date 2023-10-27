@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import kotlinx.collections.immutable.ImmutableList
@@ -23,16 +24,16 @@ internal fun TradesTable(
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
+        addColumnText("Broker", width = Weight(2F)) { it.broker }
+        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumn("Side") {
             Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
         }
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumnText("Entry Time") { it.entryTime }
-        addColumn("Duration") {
+        addColumnText("Entry Time", width = Weight(2.2F)) { it.entryTime }
+        addColumn("Duration", width = Weight(1.5F)) {
 
             Text(
                 text = it.duration.collectAsState("").value,

@@ -7,9 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
@@ -28,15 +30,15 @@ internal fun TradeExecutionsTable(
 ) {
 
     val schema = rememberTableSchema<TradeExecutionEntry> {
-        addColumn(width = Weight(.5F)) { entry ->
+        addColumn(width = Fixed(48.dp)) { entry ->
 
             Checkbox(
                 checked = isMarked(entry),
                 onCheckedChange = { onMarkExecution(entry) },
             )
         }
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
+        addColumnText("Broker", width = Weight(2F)) { it.broker }
+        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumnText("Quantity") { it.quantity }
         addColumn("Side") { entry ->
 
@@ -46,7 +48,7 @@ internal fun TradeExecutionsTable(
             )
         }
         addColumnText("Price") { it.price }
-        addColumnText("Time") { it.timestamp }
+        addColumnText("Time", width = Weight(2.2F)) { it.timestamp }
     }
 
     LazyTable(

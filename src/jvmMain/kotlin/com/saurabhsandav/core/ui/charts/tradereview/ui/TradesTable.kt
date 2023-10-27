@@ -10,9 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -24,21 +27,21 @@ internal fun TradesTable(
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
-        addColumn("Mark") { tradeEntry ->
+        addColumn("Mark", width = Fixed(48.dp)) { tradeEntry ->
             Checkbox(
                 checked = tradeEntry.isMarked,
                 onCheckedChange = { onMarkTrade(tradeEntry.id, it) }
             )
         }
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
+        addColumnText("Broker", width = Weight(2F)) { it.broker }
+        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumn("Side") {
             Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
         }
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumn("Duration") {
+        addColumn("Duration", width = Weight(1.5F)) {
 
             Text(
                 text = it.duration.collectAsState("").value,

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import kotlinx.collections.immutable.ImmutableList
 
@@ -49,7 +50,7 @@ internal fun TradeExecutionsTable(
                 )
             }
             addColumnText("Price") { it.price }
-            addColumnText("Time") { it.timestamp }
+            addColumnText("Time", width = Weight(2.2F)) { it.timestamp }
         }
 
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {

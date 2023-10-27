@@ -26,8 +26,8 @@ internal fun Details(details: Details) {
     ) {
 
         val schema = rememberTableSchema<Details> {
-            addColumnText("Broker", width = Weight(1.5F)) { it.broker }
-            addColumnText("Ticker") { it.ticker }
+            addColumnText("Broker", width = Weight(2F)) { it.broker }
+            addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
             addColumn("Side") {
 
                 Text(
@@ -39,7 +39,7 @@ internal fun Details(details: Details) {
             addColumnText("Quantity") { it.quantity }
             addColumnText("Avg. Entry") { it.entry }
             addColumnText("Avg. Exit") { it.exit ?: "NA" }
-            addColumn("Duration") {
+            addColumn("Duration", width = Weight(1.5F)) {
 
                 Text(
                     text = it.duration.collectAsState("").value,
