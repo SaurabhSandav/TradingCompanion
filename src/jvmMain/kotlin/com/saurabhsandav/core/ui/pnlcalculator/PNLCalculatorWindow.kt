@@ -21,6 +21,7 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 
 @Composable
 internal fun PNLCalculatorWindow(
@@ -138,7 +139,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 addColumn("Net PNL") {
                     Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                addColumn("", span = .5F) {
+                addColumn(width = Weight(.5F)) {
 
                     val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
 

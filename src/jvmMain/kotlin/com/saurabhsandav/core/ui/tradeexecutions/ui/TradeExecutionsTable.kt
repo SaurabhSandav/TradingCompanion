@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import kotlinx.collections.immutable.ImmutableList
@@ -27,7 +28,7 @@ internal fun TradeExecutionsTable(
 ) {
 
     val schema = rememberTableSchema<TradeExecutionEntry> {
-        addColumn(span = .5F) { entry ->
+        addColumn(width = Weight(.5F)) { entry ->
 
             Checkbox(
                 checked = isMarked(entry),

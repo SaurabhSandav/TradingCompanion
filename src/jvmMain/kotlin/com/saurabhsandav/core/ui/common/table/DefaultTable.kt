@@ -20,7 +20,8 @@ fun <T> DefaultTableHeader(
     ) {
 
         schema.columns.forEach { column ->
-            Box(Modifier.weight(column.span)) {
+
+            Box(column.width.asModifier()) {
                 column.header?.invoke()
             }
         }
@@ -49,7 +50,8 @@ fun <T> DefaultTableRow(
     ) {
 
         schema.columns.forEach { column ->
-            Box(Modifier.weight(column.span)) {
+
+            Box(column.width.asModifier()) {
                 column.content(item)
             }
         }

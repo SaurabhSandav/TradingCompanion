@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 
 interface TableSchema<T> {
 
@@ -12,7 +13,7 @@ interface TableSchema<T> {
 
     fun addColumn(
         header: (@Composable () -> Unit)? = null,
-        span: Float = 1F,
+        width: Column.Width = Weight(1F),
         content: @Composable (T) -> Unit,
     )
 }
@@ -23,13 +24,13 @@ internal class TableSchemaImpl<T> : TableSchema<T> {
 
     override fun addColumn(
         header: (@Composable () -> Unit)?,
-        span: Float,
+        width: Column.Width,
         content: @Composable (T) -> Unit,
     ) {
         columns.add(
             Column(
                 header = header,
-                span = span,
+                width = width,
                 content = content,
             )
         )
@@ -38,7 +39,7 @@ internal class TableSchemaImpl<T> : TableSchema<T> {
 
 fun <T> TableSchema<T>.addColumn(
     headerText: String,
-    span: Float = 1F,
+    width: Column.Width = Weight(1F),
     content: @Composable (T) -> Unit,
 ) {
 
@@ -50,14 +51,14 @@ fun <T> TableSchema<T>.addColumn(
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        span = span,
+        width = width,
         content = content,
     )
 }
 
 fun <T> TableSchema<T>.addColumnText(
     headerText: String,
-    span: Float = 1F,
+    width: Column.Width = Weight(1F),
     contentText: (T) -> String,
 ) {
     addColumn(
@@ -68,7 +69,7 @@ fun <T> TableSchema<T>.addColumnText(
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        span = span,
+        width = width,
         content = {
 
             Text(

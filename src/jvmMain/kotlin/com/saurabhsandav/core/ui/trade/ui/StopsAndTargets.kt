@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
 import com.saurabhsandav.core.ui.common.table.DefaultTableRow
 import com.saurabhsandav.core.ui.common.table.addColumnText
@@ -81,7 +82,7 @@ private fun StopsList(
             addColumnText("Stop") { it.priceText }
             addColumnText("Risk") { it.risk }
             addColumnText("Net Risk") { it.netRisk }
-            addColumn(span = .5f) { stop ->
+            addColumn(width = Weight(.5F)) { stop ->
 
                 DeleteIconButton(
                     deleteTypeText = "Stop @ ${stop.priceText}",
@@ -156,7 +157,7 @@ private fun TargetsList(
             addColumnText("Target") { it.priceText }
             addColumnText("Profit") { it.profit }
             addColumnText("Net Profit") { it.netProfit }
-            addColumn(span = .5f) { target ->
+            addColumn(width = Weight(.5F)) { target ->
 
                 DeleteIconButton(
                     deleteTypeText = "Target @ ${target.priceText}",

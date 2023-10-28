@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details
 
 @Composable
@@ -25,7 +26,7 @@ internal fun Details(details: Details) {
     ) {
 
         val schema = rememberTableSchema<Details> {
-            addColumnText("Broker", span = 1.5F) { it.broker }
+            addColumnText("Broker", width = Weight(1.5F)) { it.broker }
             addColumnText("Ticker") { it.ticker }
             addColumn("Side") {
 
