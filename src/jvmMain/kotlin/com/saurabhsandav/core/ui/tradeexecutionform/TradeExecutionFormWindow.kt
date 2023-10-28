@@ -24,10 +24,10 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormMode
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.nowIn
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 @Composable
@@ -187,7 +187,7 @@ private fun TradeExecutionForm(
             isError = model.dateField.isError,
             supportingText = model.dateField.errorMessage?.let { { Text(it) } },
             yearRange = remember {
-                1900..Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+                1900..Clock.System.nowIn(TimeZone.currentSystemDefault()).year
             }
         )
 

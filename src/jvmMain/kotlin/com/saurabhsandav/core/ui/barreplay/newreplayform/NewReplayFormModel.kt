@@ -8,10 +8,10 @@ import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 class NewReplayFormModel(
     val validator: FormValidator,
@@ -36,7 +36,7 @@ class NewReplayFormModel(
         isRequired()
 
         check(
-            value = this < Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+            value = this < Clock.System.nowIn(TimeZone.currentSystemDefault()),
             errorMessage = { "Cannot be in the future" },
         )
     }

@@ -26,7 +26,6 @@ import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
-import com.saurabhsandav.core.ui.common.format
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
@@ -38,9 +37,7 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
-import com.saurabhsandav.core.utils.PrefDefaults
-import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -208,7 +205,7 @@ internal class TradesPresenter(
         val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
         val executions = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
 
-        val exitDateTime = trade.exitTimestamp ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val exitDateTime = trade.exitTimestamp ?: Clock.System.nowIn(TimeZone.currentSystemDefault())
 
         // Candles range of 1 month before and after trade interval
         val from = trade.entryTimestamp.date - DatePeriod(months = 1)

@@ -8,8 +8,11 @@ import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.datetime.*
-import kotlin.time.Duration.Companion.nanoseconds
+import com.saurabhsandav.core.utils.nowIn
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
 
 @Immutable
 internal data class TradeExecutionFormState(
@@ -58,7 +61,7 @@ internal class TradeExecutionFormModel(
         check(validated(dateField).atTime(this) < currentLocalDateTime()) { "Cannot be in the future" }
     }
 
-    private fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    private fun currentLocalDateTime() = Clock.System.nowIn(TimeZone.currentSystemDefault())
 
     val timestamp: LocalDateTime
         get() = dateField.value.atTime(timeField.value)
@@ -74,10 +77,6 @@ internal class TradeExecutionFormModel(
         val lots: String = "",
         val isBuy: Boolean = true,
         val price: String = "",
-        val timestamp: LocalDateTime = run {
-            val currentTime = Clock.System.now()
-            val currentTimeWithoutNanoseconds = currentTime - currentTime.nanosecondsOfSecond.nanoseconds
-            currentTimeWithoutNanoseconds.toLocalDateTime(TimeZone.currentSystemDefault())
-        },
+        val timestamp: LocalDateTime = Clock.System.nowIn(TimeZone.currentSystemDefault()),
     )
 }

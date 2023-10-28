@@ -7,6 +7,7 @@ import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -54,7 +55,7 @@ internal class TradeExecutionsRepo(
                 lots = lots,
                 side = side,
                 price = price,
-                timestamp = timestamp,
+                timestamp = timestamp.withoutNanoseconds(),
                 locked = locked,
             )
 
@@ -97,7 +98,7 @@ internal class TradeExecutionsRepo(
                 lots = lots,
                 side = side,
                 price = price,
-                timestamp = timestamp,
+                timestamp = timestamp.withoutNanoseconds(),
             )
 
             // Trades to be regenerated
@@ -234,7 +235,7 @@ internal class TradeExecutionsRepo(
                 lots = null,
                 side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
                 averageEntry = execution.price,
-                entryTimestamp = execution.timestamp,
+                entryTimestamp = execution.timestamp.withoutNanoseconds(),
                 averageExit = null,
                 exitTimestamp = null,
                 pnl = BigDecimal.ZERO,
@@ -303,7 +304,7 @@ internal class TradeExecutionsRepo(
                     lots = null,
                     side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
                     averageEntry = execution.price,
-                    entryTimestamp = execution.timestamp,
+                    entryTimestamp = execution.timestamp.withoutNanoseconds(),
                     averageExit = null,
                     exitTimestamp = null,
                     pnl = BigDecimal.ZERO,
@@ -381,9 +382,9 @@ internal class TradeExecutionsRepo(
             lots = if (lots == 0) null else lots,
             side = side,
             averageEntry = averageEntry,
-            entryTimestamp = firstExecution.timestamp,
+            entryTimestamp = firstExecution.timestamp.withoutNanoseconds(),
             averageExit = averageExit,
-            exitTimestamp = exitExecutions.lastOrNull()?.timestamp,
+            exitTimestamp = exitExecutions.lastOrNull()?.timestamp?.withoutNanoseconds(),
             pnl = brokerage?.pnl ?: BigDecimal.ZERO,
             fees = brokerage?.totalCharges ?: BigDecimal.ZERO,
             netPnl = brokerage?.netPNL ?: BigDecimal.ZERO,
@@ -399,9 +400,9 @@ internal class TradeExecutionsRepo(
             lots = lots,
             side = side,
             averageEntry = averageEntry,
-            entryTimestamp = entryTimestamp,
+            entryTimestamp = entryTimestamp.withoutNanoseconds(),
             averageExit = averageExit,
-            exitTimestamp = exitTimestamp,
+            exitTimestamp = exitTimestamp?.withoutNanoseconds(),
             pnl = pnl,
             fees = fees,
             netPnl = netPnl,

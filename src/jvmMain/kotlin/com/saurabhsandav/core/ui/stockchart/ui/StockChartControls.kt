@@ -18,11 +18,11 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.utils.nowIn
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @Composable
 internal fun StockChartControls(
@@ -118,7 +118,7 @@ internal fun StockChartControls(
             Divider()
 
             var goToDate by state {
-                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                Clock.System.nowIn(TimeZone.currentSystemDefault())
             }
 
             DateTimeField(
