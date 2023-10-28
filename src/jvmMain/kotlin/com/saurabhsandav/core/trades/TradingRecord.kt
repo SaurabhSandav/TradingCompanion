@@ -7,7 +7,6 @@ import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
-import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
 import java.util.*
 
@@ -64,8 +63,8 @@ internal class TradingRecord(
                 priceAdapter = BigDecimalColumnAdapter,
             ),
             TradeNoteAdapter = TradeNote.Adapter(
-                addedAdapter = InstantColumnAdapter,
-                lastEditedAdapter = InstantColumnAdapter,
+                addedAdapter = LocalDateTimeColumnAdapter,
+                lastEditedAdapter = LocalDateTimeColumnAdapter,
             ),
         )
     }

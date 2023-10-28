@@ -1,11 +1,11 @@
-import kotlinx.datetime.Instant;
+import kotlinx.datetime.LocalDateTime;
 
 CREATE TABLE IF NOT EXISTS TradeNote (
 id INTEGER NOT NULL PRIMARY KEY,
 tradeId INTEGER NOT NULL,
 note TEXT NOT NULL,
-added INTEGER AS Instant NOT NULL,
-lastEdited INTEGER AS Instant NOT NULL,
+added TEXT AS LocalDateTime NOT NULL,
+lastEdited TEXT AS LocalDateTime,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
 );
 

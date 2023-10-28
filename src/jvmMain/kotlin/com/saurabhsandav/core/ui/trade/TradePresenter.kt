@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.io.path.extension
@@ -317,18 +316,16 @@ internal class TradePresenter(
             tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
-                    val added = note.added
-                        .toLocalDateTime(TimeZone.currentSystemDefault())
-                        .let(TradeDateTimeFormatter::format)
-
-                    val lastEdited = note.lastEdited
-                        .toLocalDateTime(TimeZone.currentSystemDefault())
-                        .let(TradeDateTimeFormatter::format)
+                    val added = TradeDateTimeFormatter.format(note.added)
+                    val lastEdited = note.lastEdited?.let(TradeDateTimeFormatter::format)
 
                     TradeNote(
                         id = note.id,
                         note = note.note,
-                        dateText = "Added $added (Last Edited $lastEdited)",
+                        dateText = when {
+                            lastEdited == null -> "Added $added"
+                            else -> "Added $added (Last Edited $lastEdited)"
+                        },
                     )
                 }
                 .collect { value = it.toImmutableList() }

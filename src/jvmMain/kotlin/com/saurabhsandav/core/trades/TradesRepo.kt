@@ -8,6 +8,8 @@ import com.github.michaelbull.result.get
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
+import com.saurabhsandav.core.utils.nowIn
+import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -418,7 +420,7 @@ internal class TradesRepo(
 
     suspend fun addNote(tradeId: Long, note: String) = withContext(Dispatchers.IO) {
 
-        val now = Clock.System.now()
+        val now = Clock.System.nowIn(TimeZone.currentSystemDefault()).withoutNanoseconds()
 
         tradesDB.tradeNoteQueries.insert(
             tradeId = tradeId,
@@ -433,7 +435,7 @@ internal class TradesRepo(
         tradesDB.tradeNoteQueries.update(
             id = id,
             note = note,
-            lastEdited = Clock.System.now(),
+            lastEdited = Clock.System.nowIn(TimeZone.currentSystemDefault()).withoutNanoseconds(),
         )
     }
 
