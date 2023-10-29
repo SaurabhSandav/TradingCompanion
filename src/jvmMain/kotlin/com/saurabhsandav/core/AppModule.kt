@@ -1,6 +1,5 @@
 package com.saurabhsandav.core
 
-import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.LogWriter
@@ -58,8 +57,6 @@ internal class AppModule {
         AppDB.Schema.create(driver)
         AppDB(
             driver = driver,
-            ClosedTradeAdapter = ClosedTrade.Adapter(IntColumnAdapter),
-            OpenTradeAdapter = OpenTrade.Adapter(IntColumnAdapter),
         )
     }
 
@@ -70,7 +67,7 @@ internal class AppModule {
         )
     }
 
-    val candleDB: CandleDB = run {
+    private val candleDB: CandleDB = run {
         CandleDB.Schema.create(candleDBDriver)
         CandleDB(
             driver = candleDBDriver,
