@@ -28,20 +28,32 @@ internal class TradingProfiles(
     private val records = mutableMapOf<Long, TradingRecord>()
     private val recordBuilderMutex = Mutex()
 
-    val allProfiles = appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+    val allProfiles: Flow<List<TradingProfile>> =
+        appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
-    val currentProfile = appPrefs.getLongOrNullFlow(PrefKeys.CurrentTradingProfile).flatMapLatest { profileId ->
+    val currentProfile: Flow<TradingProfile> = appPrefs
+        .getLongOrNullFlow(PrefKeys.CurrentTradingProfile)
+        .flatMapLatest { profileId ->
 
-        val newProfileId = when (profileId) {
-            // Select first profile from stored profiles
-            null -> allProfiles.first().first().id
+            if (profileId == null) {
+                // Current profile not set. Set first profile (from stored profiles) as current.
+                setCurrentProfile(allProfiles.first().first().id)
+                return@flatMapLatest emptyFlow()
+            }
 
-            // Current profile
-            else -> profileId
+            val profileExists = withContext(Dispatchers.IO) {
+                appDB.tradingProfileQueries.exists(profileId).executeAsOne()
+            }
+
+            if (!profileExists) {
+                // Profile doesn't exist. Set first profile (from stored profiles) as current.
+                setCurrentProfile(allProfiles.first().first().id)
+                return@flatMapLatest emptyFlow()
+            }
+
+            appDB.tradingProfileQueries.get(profileId).asFlow().mapToOne(Dispatchers.IO)
         }
-
-        appDB.tradingProfileQueries.get(newProfileId).asFlow().mapToOne(Dispatchers.IO)
-    }.distinctUntilChanged()
+        .distinctUntilChanged()
 
     val currentRecord = currentProfile.map { getRecord(it.id) }
 

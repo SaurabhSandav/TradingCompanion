@@ -29,6 +29,9 @@ UPDATE TradingProfile
 SET name = ?, description = ?, isTraining = ?
 WHERE id = ?;
 
+exists:
+SELECT EXISTS( SELECT * FROM TradingProfile WHERE id = ? );
+
 delete:
 DELETE FROM TradingProfile
 WHERE id = ?;
