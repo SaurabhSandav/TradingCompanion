@@ -89,7 +89,7 @@ internal class TradesPresenter(
     @Composable
     private fun getOpenTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 // Close all child windows
                 chartWindowsManager.closeAll()
@@ -108,7 +108,7 @@ internal class TradesPresenter(
     @Composable
     private fun getTodayTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -124,7 +124,7 @@ internal class TradesPresenter(
     @Composable
     private fun getPastTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 

@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.tradeexecutions
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -17,6 +18,7 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.format
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -32,6 +34,7 @@ internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
@@ -63,7 +66,7 @@ internal class TradeExecutionsPresenter(
     @Composable
     private fun getTodayExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 // Clear execution selection
                 selectionManager.clear()
@@ -82,7 +85,7 @@ internal class TradeExecutionsPresenter(
     @Composable
     private fun getPastExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 // Clear execution selection
                 selectionManager.clear()
@@ -115,7 +118,7 @@ internal class TradeExecutionsPresenter(
 
     private fun onNewExecution() = coroutineScope.launchUnit {
 
-        val currentProfile = tradingProfiles.currentProfile.first()
+        val currentProfile = appPrefs.getCurrentTradingProfile(tradingProfiles).first()
 
         tradeContentLauncher.openExecutionForm(
             profileId = currentProfile.id,

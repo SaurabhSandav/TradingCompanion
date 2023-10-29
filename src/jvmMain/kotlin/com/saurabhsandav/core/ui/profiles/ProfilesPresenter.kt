@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.profiles
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -10,7 +11,9 @@ import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.putCurrentTradingProfileId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.*
 internal class ProfilesPresenter(
     private val coroutineScope: CoroutineScope,
     appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
     private val customSelectionMode: Boolean = false,
     private val trainingOnly: Boolean = false,
@@ -68,7 +72,7 @@ internal class ProfilesPresenter(
                     }
                 }
 
-                else -> tradingProfiles.currentProfile
+                else -> appPrefs.getCurrentTradingProfile(tradingProfiles)
             }.filterNotNull().map(::toProfileState)
         }.collectAsState(null)
     }
@@ -76,7 +80,7 @@ internal class ProfilesPresenter(
     private fun onSetCurrentProfile(id: Long) = coroutineScope.launchUnit {
         when {
             customSelectionMode -> currentProfileId.value = id
-            else -> tradingProfiles.setCurrentProfile(id)
+            else -> appPrefs.putCurrentTradingProfileId(id)
         }
     }
 

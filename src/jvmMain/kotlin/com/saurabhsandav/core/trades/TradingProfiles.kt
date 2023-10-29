@@ -3,13 +3,13 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -21,7 +21,6 @@ import kotlin.io.path.createDirectories
 internal class TradingProfiles(
     private val appFilesPath: String,
     private val appDB: AppDB,
-    private val appPrefs: FlowSettings,
     private val candleRepo: CandleRepository,
 ) {
 
@@ -30,32 +29,6 @@ internal class TradingProfiles(
 
     val allProfiles: Flow<List<TradingProfile>> =
         appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
-
-    val currentProfile: Flow<TradingProfile> = appPrefs
-        .getLongOrNullFlow(PrefKeys.CurrentTradingProfile)
-        .flatMapLatest { profileId ->
-
-            if (profileId == null) {
-                // Current profile not set. Set first profile (from stored profiles) as current.
-                setCurrentProfile(allProfiles.first().first().id)
-                return@flatMapLatest emptyFlow()
-            }
-
-            val profileExists = withContext(Dispatchers.IO) {
-                appDB.tradingProfileQueries.exists(profileId).executeAsOne()
-            }
-
-            if (!profileExists) {
-                // Profile doesn't exist. Set first profile (from stored profiles) as current.
-                setCurrentProfile(allProfiles.first().first().id)
-                return@flatMapLatest emptyFlow()
-            }
-
-            appDB.tradingProfileQueries.get(profileId).asFlow().mapToOne(Dispatchers.IO)
-        }
-        .distinctUntilChanged()
-
-    val currentRecord = currentProfile.map { getRecord(it.id) }
 
     fun getProfile(id: Long): Flow<TradingProfile> {
         return allProfiles.map { profiles -> profiles.find { it.id == id } ?: error("Profile($id) not found") }
@@ -87,6 +60,10 @@ internal class TradingProfiles(
             // Return TradingProfile
             appDB.tradingProfileQueries.get(id).asFlow().mapToOne(Dispatchers.IO)
         }
+    }
+
+    suspend fun exists(id: Long): Flow<Boolean> = withContext(Dispatchers.IO) {
+        return@withContext appDB.tradingProfileQueries.exists(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
     suspend fun updateProfile(
@@ -134,10 +111,6 @@ internal class TradingProfiles(
 
         // Delete associated files
         profile.filesPath.toFile().deleteRecursively()
-    }
-
-    suspend fun setCurrentProfile(id: Long) = withContext(Dispatchers.IO) {
-        appPrefs.putLong(PrefKeys.CurrentTradingProfile, id)
     }
 
     suspend fun isProfileNameUnique(

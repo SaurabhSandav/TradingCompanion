@@ -99,7 +99,6 @@ internal class AppModule {
     val tradingProfiles = TradingProfiles(
         appFilesPath = AppPaths.getAppDataPath(),
         appDB = appDB,
-        appPrefs = appPrefs,
         candleRepo = candleRepo,
     )
 

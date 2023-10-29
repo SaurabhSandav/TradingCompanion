@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.tags
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.tags.model.TagsEvent
@@ -11,6 +12,7 @@ import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
 import com.saurabhsandav.core.ui.tags.model.TagsState
 import com.saurabhsandav.core.ui.tags.model.TagsState.ProfileTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -25,10 +27,11 @@ import kotlinx.coroutines.flow.stateIn
 internal class TagsPresenter(
     private val coroutineScope: CoroutineScope,
     appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
-    private val currentProfileId = tradingProfiles.currentProfile
+    private val currentProfileId = appPrefs.getCurrentTradingProfile(tradingProfiles)
         .map { it.id }
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
@@ -52,7 +55,7 @@ internal class TagsPresenter(
     @Composable
     private fun getTags(): State<ImmutableList<Tag>> {
         return remember {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 

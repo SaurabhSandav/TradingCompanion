@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -28,41 +29,43 @@ internal class PNLByDayChartStudy(
     private val appModule: AppModule,
 ) : Study {
 
-    private val data = appModule.tradingProfiles.currentProfile.flatMapLatest { profile ->
+    private val data = appModule
+        .appPrefs
+        .getCurrentTradingRecord(appModule.tradingProfiles)
+        .flatMapLatest { record ->
 
-        appModule.tradingProfiles
-            .getRecord(profile.id)
-            .trades
-            .allTrades
-            .map { trades ->
-                trades.filter { it.isClosed }
-                    .asReversed()
-                    .groupingBy { trade -> trade.entryTimestamp.date }
-                    .fold(
-                        initialValueSelector = { _, _ -> BigDecimal.ZERO },
-                        operation = { _, accumulator, trade ->
-                            accumulator + brokerage(
-                                broker = trade.broker,
-                                instrument = trade.instrument,
-                                entry = trade.averageEntry,
-                                exit = trade.averageExit!!,
-                                quantity = trade.quantity,
-                                side = trade.side,
-                            ).netPNL
-                        },
-                    )
-                    .map { (localDate, bigDecimal) ->
-                        LineData(
-                            time = Time.BusinessDay(
-                                year = localDate.year,
-                                month = localDate.monthNumber,
-                                day = localDate.dayOfMonth,
-                            ),
-                            value = bigDecimal,
+            record
+                .trades
+                .allTrades
+                .map { trades ->
+                    trades.filter { it.isClosed }
+                        .asReversed()
+                        .groupingBy { trade -> trade.entryTimestamp.date }
+                        .fold(
+                            initialValueSelector = { _, _ -> BigDecimal.ZERO },
+                            operation = { _, accumulator, trade ->
+                                accumulator + brokerage(
+                                    broker = trade.broker,
+                                    instrument = trade.instrument,
+                                    entry = trade.averageEntry,
+                                    exit = trade.averageExit!!,
+                                    quantity = trade.quantity,
+                                    side = trade.side,
+                                ).netPNL
+                            },
                         )
-                    }
-            }
-    }
+                        .map { (localDate, bigDecimal) ->
+                            LineData(
+                                time = Time.BusinessDay(
+                                    year = localDate.year,
+                                    month = localDate.monthNumber,
+                                    day = localDate.dayOfMonth,
+                                ),
+                                value = bigDecimal,
+                            )
+                        }
+                }
+        }
 
     @Composable
     override fun render() {

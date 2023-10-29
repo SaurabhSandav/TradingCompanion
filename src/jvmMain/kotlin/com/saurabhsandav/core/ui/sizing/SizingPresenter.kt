@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -19,6 +20,8 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
+import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -36,6 +39,7 @@ import java.util.*
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
+    private val appPrefs: FlowSettings = appModule.appPrefs,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
@@ -72,7 +76,7 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         tradingRecord.sizingTrades.new(
             ticker = ticker,
@@ -85,7 +89,7 @@ internal class SizingPresenter(
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         tradingRecord.sizingTrades.updateEntry(
             id = id,
@@ -97,7 +101,7 @@ internal class SizingPresenter(
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         tradingRecord.sizingTrades.updateStop(
             id = id,
@@ -107,14 +111,14 @@ internal class SizingPresenter(
 
     private fun removeTrade(id: Long) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         tradingRecord.sizingTrades.delete(id)
     }
 
     private fun openLiveTrade(id: Long) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.currentRecord.first()
+        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         val sizingTrade = tradingRecord.sizingTrades.getById(id).first()
 
@@ -148,7 +152,7 @@ internal class SizingPresenter(
 
         val params = TradeExecutionFormParams(
             id = UUID.randomUUID(),
-            profileId = tradingProfiles.currentProfile.first().id,
+            profileId = appPrefs.getCurrentTradingProfile(tradingProfiles).first().id,
             formType = TradeExecutionFormType.NewSized(
                 initialModel = TradeExecutionFormModel.Initial(
                     instrument = Instrument.Equity,
@@ -168,7 +172,7 @@ internal class SizingPresenter(
     @Composable
     private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
         return remember(account) {
-            tradingProfiles.currentProfile.flatMapLatest { profile ->
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
                 // Close all child windows
                 executionFormWindowsManager.closeAll()

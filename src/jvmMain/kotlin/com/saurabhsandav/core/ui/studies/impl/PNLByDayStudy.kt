@@ -9,6 +9,7 @@ import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -21,9 +22,9 @@ import java.time.format.FormatStyle
 
 internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
 
-    private val tradesRepo = appModule.tradingProfiles.currentProfile.map { profile ->
-        appModule.tradingProfiles.getRecord(profile.id).trades
-    }
+    private val tradesRepo = appModule.appPrefs
+        .getCurrentTradingRecord(appModule.tradingProfiles)
+        .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Day") { it.day }
