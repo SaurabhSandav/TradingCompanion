@@ -11,13 +11,13 @@ import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
-import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -43,16 +43,7 @@ internal class PNLByDayChartStudy(
                         .groupingBy { trade -> trade.entryTimestamp.date }
                         .fold(
                             initialValueSelector = { _, _ -> BigDecimal.ZERO },
-                            operation = { _, accumulator, trade ->
-                                accumulator + brokerage(
-                                    broker = trade.broker,
-                                    instrument = trade.instrument,
-                                    entry = trade.averageEntry,
-                                    exit = trade.averageExit!!,
-                                    quantity = trade.quantity,
-                                    side = trade.side,
-                                ).netPNL
-                            },
+                            operation = { _, accumulator, trade -> accumulator + trade.brokerageAtExit()!!.netPNL },
                         )
                         .map { (localDate, bigDecimal) ->
                             LineData(

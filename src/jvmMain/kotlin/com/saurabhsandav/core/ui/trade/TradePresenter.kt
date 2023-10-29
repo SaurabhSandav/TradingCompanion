@@ -5,6 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
@@ -15,7 +16,6 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -195,14 +195,7 @@ internal class TradePresenter(
 
                 stops.map { stop ->
 
-                    val brokerage = brokerage(
-                        broker = trade.broker,
-                        instrument = trade.instrument,
-                        entry = trade.averageEntry,
-                        exit = stop.price,
-                        quantity = trade.quantity,
-                        side = trade.side,
-                    )
+                    val brokerage = trade.brokerageAt(stop)
 
                     TradeStop(
                         price = stop.price,
@@ -225,14 +218,7 @@ internal class TradePresenter(
 
                 targets.map { target ->
 
-                    val brokerage = brokerage(
-                        broker = trade.broker,
-                        instrument = trade.instrument,
-                        entry = trade.averageEntry,
-                        exit = target.price,
-                        quantity = trade.quantity,
-                        side = trade.side,
-                    )
+                    val brokerage = trade.brokerageAt(target)
 
                     TradeTarget(
                         price = target.price,
@@ -344,14 +330,7 @@ internal class TradePresenter(
                 !stopIsValid -> null
                 else -> {
 
-                    val brokerage = brokerage(
-                        broker = trade.broker,
-                        instrument = trade.instrument,
-                        entry = trade.averageEntry,
-                        exit = price,
-                        quantity = trade.quantity,
-                        side = trade.side,
-                    )
+                    val brokerage = trade.brokerageAt(price)
 
                     TradeStop(
                         price = price,
@@ -376,14 +355,7 @@ internal class TradePresenter(
                 !targetIsValid -> null
                 else -> {
 
-                    val brokerage = brokerage(
-                        broker = trade.broker,
-                        instrument = trade.instrument,
-                        entry = trade.averageEntry,
-                        exit = price,
-                        quantity = trade.quantity,
-                        side = trade.side,
-                    )
+                    val brokerage = trade.brokerageAt(price)
 
                     TradeTarget(
                         price = price,

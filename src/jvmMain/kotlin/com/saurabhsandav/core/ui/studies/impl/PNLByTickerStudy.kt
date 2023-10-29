@@ -2,13 +2,14 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.trades.brokerageAt
+import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
-import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -48,31 +49,12 @@ internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerSt
 
                     val tickerStats = entries.value.filter { it.isClosed }.map { trade ->
 
-                        val brokerage = brokerage(
-                            broker = trade.broker,
-                            instrument = trade.instrument,
-                            entry = trade.averageEntry,
-                            exit = trade.averageExit!!,
-                            quantity = trade.quantity,
-                            side = trade.side,
-                        )
-
+                        val brokerage = trade.brokerageAtExit()!!
                         val pnlBD = brokerage.pnl
                         val netPnlBD = brokerage.netPNL
 
                         val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-
-                            tradeStops.maxByOrNull { tradeStop ->
-
-                                brokerage(
-                                    broker = trade.broker,
-                                    instrument = trade.instrument,
-                                    entry = trade.averageEntry,
-                                    exit = tradeStop.price,
-                                    quantity = trade.quantity,
-                                    side = trade.side,
-                                ).pnl
-                            }
+                            tradeStops.maxByOrNull { stop -> trade.brokerageAt(stop).pnl }
                         }.first()?.price
 
                         val rValue = when (stop) {

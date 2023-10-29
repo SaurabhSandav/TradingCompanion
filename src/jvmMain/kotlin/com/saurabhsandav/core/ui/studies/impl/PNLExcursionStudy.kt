@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.studies.impl
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.trades.brokerageAt
+import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
@@ -10,7 +12,6 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
-import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -93,15 +94,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
 
             trades.filter { it.isClosed }.map { trade ->
 
-                val brokerage = brokerage(
-                    broker = trade.broker,
-                    instrument = trade.instrument,
-                    entry = trade.averageEntry,
-                    exit = trade.averageExit!!,
-                    quantity = trade.quantity,
-                    side = trade.side,
-                )
-
+                val brokerage = trade.brokerageAtExit()!!
                 val pnlBD = brokerage.pnl
                 val netPnlBD = brokerage.netPNL
 
@@ -109,33 +102,11 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
                     .format(trade.entryTimestamp.toJavaLocalDateTime())
 
                 val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-
-                    tradeStops.maxByOrNull { tradeStop ->
-
-                        brokerage(
-                            broker = trade.broker,
-                            instrument = trade.instrument,
-                            entry = trade.averageEntry,
-                            exit = tradeStop.price,
-                            quantity = trade.quantity,
-                            side = trade.side,
-                        ).pnl
-                    }
+                    tradeStops.maxByOrNull { stop -> trade.brokerageAt(stop).pnl }
                 }.first()?.price
 
                 val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
-
-                    tradeTargets.maxByOrNull { tradeTarget ->
-
-                        brokerage(
-                            broker = trade.broker,
-                            instrument = trade.instrument,
-                            entry = trade.averageEntry,
-                            exit = tradeTarget.price,
-                            quantity = trade.quantity,
-                            side = trade.side,
-                        ).pnl
-                    }
+                    tradeTargets.maxByOrNull { target -> trade.brokerageAt(target).pnl }
                 }.first()?.price
 
                 val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()
@@ -148,7 +119,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
                     stop = stop?.toPlainString() ?: "NA",
                     duration = "$day\n${trade.entryTimestamp.time} ->\n${trade.exitTimestamp?.time}",
                     target = target?.toPlainString() ?: "NA",
-                    exit = trade.averageExit.toPlainString(),
+                    exit = trade.averageExit!!.toPlainString(),
                     pnl = pnlBD.toPlainString(),
                     isProfitable = pnlBD > BigDecimal.ZERO,
                     netPnl = netPnlBD.toPlainString(),
@@ -221,7 +192,7 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         val maePNL: String,
     )
 
-    class Factory(private val appModule: AppModule): Study.Factory<PNLExcursionStudy> {
+    class Factory(private val appModule: AppModule) : Study.Factory<PNLExcursionStudy> {
 
         override val name: String = "PNL Excursion"
 
