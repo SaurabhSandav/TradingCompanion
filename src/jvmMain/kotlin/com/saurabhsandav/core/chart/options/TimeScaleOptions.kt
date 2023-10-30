@@ -9,11 +9,13 @@ class TimeScaleOptions(
     private val timeVisible: Boolean? = null,
     private val secondsVisible: Boolean? = null,
     private val shiftVisibleRangeOnNewBar: Boolean? = null,
+    private val allowShiftVisibleRangeOnWhitespaceReplacement: Boolean? = null,
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
         timeVisible?.let { put("timeVisible", it) }
         secondsVisible?.let { put("secondsVisible", it) }
         shiftVisibleRangeOnNewBar?.let { put("shiftVisibleRangeOnNewBar", it) }
+        allowShiftVisibleRangeOnWhitespaceReplacement?.let { put("allowShiftVisibleRangeOnWhitespaceReplacement", it) }
     }
 }
