@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import kotlinx.collections.immutable.ImmutableList
@@ -36,7 +38,7 @@ internal data class TradesState(
 
     @Immutable
     data class ProfileTradeId(
-        val profileId: Long,
-        val tradeId: Long,
+        val profileId: ProfileId,
+        val tradeId: TradeId,
     )
 }

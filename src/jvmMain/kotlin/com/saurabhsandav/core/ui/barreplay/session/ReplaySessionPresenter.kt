@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
@@ -93,9 +94,10 @@ internal class ReplaySessionPresenter(
     }
 
     @Composable
-    private fun getSelectedProfileId(): Long? {
+    private fun getSelectedProfileId(): ProfileId? {
         return remember {
             appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+                .map { it?.let(::ProfileId) }
                 .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
                 .map { it?.id }
         }.collectAsState(null).value
@@ -181,10 +183,10 @@ internal class ReplaySessionPresenter(
         }
     }
 
-    private fun onSelectProfile(id: Long) = coroutineScope.launchUnit {
+    private fun onSelectProfile(id: ProfileId) = coroutineScope.launchUnit {
 
         // Save selected profile
-        appPrefs.putLong(PrefKeys.ReplayTradingProfile, id)
+        appPrefs.putLong(PrefKeys.ReplayTradingProfile, id.value)
 
         // Close all child windows
         orderFormWindowsManager.closeAll()

@@ -2,9 +2,7 @@ package com.saurabhsandav.core.trades
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
@@ -24,10 +22,12 @@ internal class TradingRecord(
         TradesDB(
             driver = driver,
             SizingTradeAdapter = SizingTrade.Adapter(
+                idAdapter = SizingTradeIdColumnAdapter,
                 entryAdapter = BigDecimalColumnAdapter,
                 stopAdapter = BigDecimalColumnAdapter,
             ),
             TradeAdapter = Trade.Adapter(
+                idAdapter = TradeIdColumnAdapter,
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 closedQuantityAdapter = BigDecimalColumnAdapter,
@@ -41,11 +41,8 @@ internal class TradingRecord(
                 feesAdapter = BigDecimalColumnAdapter,
                 netPnlAdapter = BigDecimalColumnAdapter,
             ),
-            TradeMfeMaeAdapter = TradeMfeMae.Adapter(
-                mfePriceAdapter = BigDecimalColumnAdapter,
-                maePriceAdapter = BigDecimalColumnAdapter,
-            ),
             TradeExecutionAdapter = TradeExecution.Adapter(
+                idAdapter = TradeExecutionIdColumnAdapter,
                 instrumentAdapter = Instrument.ColumnAdapter,
                 quantityAdapter = BigDecimalColumnAdapter,
                 lotsAdapter = IntColumnAdapter,
@@ -53,18 +50,43 @@ internal class TradingRecord(
                 priceAdapter = BigDecimalColumnAdapter,
                 timestampAdapter = LocalDateTimeColumnAdapter,
             ),
-            TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
-                overrideQuantityAdapter = BigDecimalColumnAdapter,
+            TradeMfeMaeAdapter = TradeMfeMae.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
+                mfePriceAdapter = BigDecimalColumnAdapter,
+                maePriceAdapter = BigDecimalColumnAdapter,
             ),
             TradeStopAdapter = TradeStop.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
             ),
             TradeTargetAdapter = TradeTarget.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
             ),
+            TradeAttachmentAdapter = TradeAttachment.Adapter(
+                idAdapter = TradeAttachmentIdColumnAdapter,
+            ),
             TradeNoteAdapter = TradeNote.Adapter(
+                idAdapter = TradeNoteIdColumnAdapter,
+                tradeIdAdapter = TradeIdColumnAdapter,
                 addedAdapter = LocalDateTimeColumnAdapter,
                 lastEditedAdapter = LocalDateTimeColumnAdapter,
+            ),
+            TradeTagAdapter = TradeTag.Adapter(
+                idAdapter = TradeTagIdColumnAdapter,
+            ),
+            TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
+                executionIdAdapter = TradeExecutionIdColumnAdapter,
+                overrideQuantityAdapter = BigDecimalColumnAdapter,
+            ),
+            TradeToAttachmentMapAdapter = TradeToAttachmentMap.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
+                attachmentIdAdapter = TradeAttachmentIdColumnAdapter,
+            ),
+            TradeToTagMapAdapter = TradeToTagMap.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
+                tagIdAdapter = TradeTagIdColumnAdapter,
             ),
         )
     }

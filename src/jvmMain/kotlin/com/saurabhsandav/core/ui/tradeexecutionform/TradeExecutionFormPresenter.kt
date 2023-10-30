@@ -5,8 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
@@ -21,7 +20,7 @@ import kotlinx.coroutines.flow.map
 internal class TradeExecutionFormPresenter(
     private val onCloseRequest: () -> Unit,
     private val coroutineScope: CoroutineScope,
-    private val profileId: Long,
+    private val profileId: ProfileId,
     private val formType: TradeExecutionFormType,
     private val appModule: AppModule,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
@@ -115,7 +114,7 @@ internal class TradeExecutionFormPresenter(
         )
     }
 
-    private fun newFromExisting(id: Long) = coroutineScope.launchUnit {
+    private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -142,7 +141,7 @@ internal class TradeExecutionFormPresenter(
         )
     }
 
-    private fun addToTrade(tradeId: Long) = coroutineScope.launchUnit {
+    private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -158,7 +157,7 @@ internal class TradeExecutionFormPresenter(
         )
     }
 
-    private fun closeTrade(tradeId: Long) = coroutineScope.launchUnit {
+    private fun closeTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -175,7 +174,7 @@ internal class TradeExecutionFormPresenter(
         )
     }
 
-    private fun edit(id: Long) = coroutineScope.launchUnit {
+    private fun edit(id: TradeExecutionId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 

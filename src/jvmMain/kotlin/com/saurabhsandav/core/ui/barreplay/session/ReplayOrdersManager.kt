@@ -8,6 +8,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
@@ -67,7 +68,9 @@ internal class ReplayOrdersManager(
 
             val replaySession = createReplaySession(ticker)
 
-            val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).first()
+            val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+                .first()
+                ?.let(::ProfileId)
                 ?: error("Replay profile not set")
 
             val tradingRecord = tradingProfiles.getRecord(replayProfileId)

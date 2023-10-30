@@ -1,7 +1,9 @@
+import com.saurabhsandav.core.trades.model.TradeAttachmentId;
+import com.saurabhsandav.core.trades.model.TradeId;
 
 CREATE TABLE IF NOT EXISTS TradeToAttachmentMap (
-tradeId INTEGER NOT NULL,
-attachmentId INTEGER NOT NULL,
+tradeId INTEGER AS TradeId NOT NULL,
+attachmentId INTEGER AS TradeAttachmentId NOT NULL,
 name TEXT NOT NULL,
 description TEXT NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,

@@ -1,7 +1,9 @@
+import com.saurabhsandav.core.trades.model.TradeId;
+import com.saurabhsandav.core.trades.model.TradeTagId;
 
 CREATE TABLE IF NOT EXISTS TradeToTagMap (
-tradeId INTEGER NOT NULL,
-tagId INTEGER NOT NULL,
+tradeId INTEGER AS TradeId NOT NULL,
+tagId INTEGER AS TradeTagId NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 FOREIGN KEY(tagId) REFERENCES TradeTag(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, tagId)

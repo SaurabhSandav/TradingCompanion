@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
@@ -52,12 +54,12 @@ internal fun TradeReviewWindow(
 
 @Composable
 internal fun TradeReviewScreen(
-    selectedProfileId: Long?,
-    onSelectProfile: (Long) -> Unit,
+    selectedProfileId: ProfileId?,
+    onSelectProfile: (ProfileId) -> Unit,
     trades: ImmutableList<TradeEntry>,
-    onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
-    onSelectTrade: (id: Long) -> Unit,
-    onOpenDetails: (id: Long) -> Unit,
+    onMarkTrade: (id: TradeId, isMarked: Boolean) -> Unit,
+    onSelectTrade: (id: TradeId) -> Unit,
+    onOpenDetails: (id: TradeId) -> Unit,
 ) {
 
     Column {

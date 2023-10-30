@@ -1,10 +1,10 @@
+import com.saurabhsandav.core.trades.model.TradeExecutionId;
+import com.saurabhsandav.core.trades.model.TradeId;
 import java.math.BigDecimal;
-import kotlin.Boolean;
-import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS TradeToExecutionMap (
-tradeId INTEGER NOT NULL,
-executionId INTEGER NOT NULL,
+tradeId INTEGER AS TradeId NOT NULL,
+executionId INTEGER AS TradeExecutionId NOT NULL,
 overrideQuantity TEXT AS BigDecimal,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 FOREIGN KEY(executionId) REFERENCES TradeExecution(id) ON DELETE CASCADE,

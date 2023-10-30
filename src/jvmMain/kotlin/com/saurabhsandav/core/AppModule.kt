@@ -11,6 +11,7 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
+import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
@@ -57,6 +58,9 @@ internal class AppModule {
         AppDB.Schema.create(driver)
         AppDB(
             driver = driver,
+            TradingProfileAdapter = TradingProfile.Adapter(
+                idAdapter = ProfileIdColumnAdapter,
+            ),
         )
     }
 

@@ -2,6 +2,8 @@ package com.saurabhsandav.core.ui.sizing.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import kotlinx.collections.immutable.ImmutableList
@@ -16,7 +18,7 @@ internal data class SizingState(
 
     @Immutable
     internal data class SizedTrade(
-        val id: Long,
+        val id: SizingTradeId,
         val ticker: String,
         val entry: String,
         val stop: String,
@@ -31,7 +33,7 @@ internal data class SizingState(
     @Immutable
     internal data class TradeExecutionFormParams(
         val id: UUID,
-        val profileId: Long,
+        val profileId: ProfileId,
         val formType: TradeExecutionFormType,
     )
 }

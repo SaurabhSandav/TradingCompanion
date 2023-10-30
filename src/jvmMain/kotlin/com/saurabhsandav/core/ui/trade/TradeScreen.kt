@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
@@ -20,8 +22,8 @@ import com.saurabhsandav.core.ui.trade.ui.*
 
 @Composable
 internal fun TradeWindow(
-    profileId: Long,
-    tradeId: Long,
+    profileId: ProfileId,
+    tradeId: TradeId,
     tradeContentLauncher: TradeContentLauncher,
     onCloseRequest: () -> Unit,
 ) {

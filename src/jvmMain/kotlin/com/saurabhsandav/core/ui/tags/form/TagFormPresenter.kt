@@ -8,6 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 internal class TagFormPresenter(
     private val coroutineScope: CoroutineScope,
-    private val profileId: Long,
+    private val profileId: ProfileId,
     private val formType: TagFormType,
     private val onCloseRequest: () -> Unit,
     appModule: AppModule,

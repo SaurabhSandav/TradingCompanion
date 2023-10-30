@@ -4,10 +4,11 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.model.ProfileId
 import kotlinx.coroutines.flow.*
 
-suspend fun FlowSettings.putCurrentTradingProfileId(id: Long) {
-    putLong(PrefKeys.CurrentTradingProfile, id)
+suspend fun FlowSettings.putCurrentTradingProfileId(id: ProfileId) {
+    putLong(PrefKeys.CurrentTradingProfile, id.value)
 }
 
 internal fun FlowSettings.getCurrentTradingProfile(tradingProfiles: TradingProfiles): Flow<TradingProfile> {
@@ -19,7 +20,9 @@ internal fun FlowSettings.getCurrentTradingProfile(tradingProfiles: TradingProfi
             return@flatMapLatest flowOf(null)
         }
 
-        val profileExists = tradingProfiles.exists(profileId).first()
+        val id = ProfileId(profileId)
+
+        val profileExists = tradingProfiles.exists(id).first()
 
         if (!profileExists) {
             // Profile doesn't exist. Set first profile (from stored profiles) as current.
@@ -27,7 +30,7 @@ internal fun FlowSettings.getCurrentTradingProfile(tradingProfiles: TradingProfi
             return@flatMapLatest flowOf(null)
         }
 
-        tradingProfiles.getProfile(profileId)
+        tradingProfiles.getProfile(id)
     }.filterNotNull()
 }
 

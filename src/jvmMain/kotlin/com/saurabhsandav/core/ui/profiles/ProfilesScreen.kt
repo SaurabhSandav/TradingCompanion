@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
@@ -51,8 +52,8 @@ internal fun ProfilesWindow(
 
 @Composable
 internal fun ProfileSwitcher(
-    selectedProfileId: Long?,
-    onSelectProfile: (Long) -> Unit,
+    selectedProfileId: ProfileId?,
+    onSelectProfile: (ProfileId) -> Unit,
     modifier: Modifier = Modifier,
     trainingOnly: Boolean = false,
 ) {
@@ -104,10 +105,10 @@ internal fun ProfileSwitcher(
 @Composable
 private fun ProfilesScreen(
     profiles: ImmutableList<Profile>,
-    currentProfileId: Long?,
-    onSetCurrentProfile: (Long) -> Unit,
-    onDeleteProfile: (Long) -> Unit,
-    onCopyProfile: (Long) -> Unit,
+    currentProfileId: ProfileId?,
+    onSetCurrentProfile: (ProfileId) -> Unit,
+    onDeleteProfile: (ProfileId) -> Unit,
+    onCopyProfile: (ProfileId) -> Unit,
     trainingOnly: Boolean = false,
 ) {
 

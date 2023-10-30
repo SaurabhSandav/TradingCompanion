@@ -1,4 +1,5 @@
 import com.saurabhsandav.core.trades.model.Instrument;
+import com.saurabhsandav.core.trades.model.TradeId;
 import com.saurabhsandav.core.trades.model.TradeSide;
 import java.math.BigDecimal;
 import kotlin.Boolean;
@@ -6,7 +7,7 @@ import kotlin.Int;
 import kotlinx.datetime.LocalDateTime;
 
 CREATE TABLE IF NOT EXISTS Trade (
-id INTEGER NOT NULL PRIMARY KEY,
+id INTEGER AS TradeId NOT NULL PRIMARY KEY,
 broker TEXT NOT NULL,
 ticker TEXT NOT NULL,
 instrument TEXT AS Instrument NOT NULL,

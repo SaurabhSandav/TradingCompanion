@@ -1,7 +1,8 @@
+import com.saurabhsandav.core.trades.model.ProfileId;
 import kotlin.Boolean;
 
 CREATE TABLE IF NOT EXISTS TradingProfile (
-id INTEGER NOT NULL PRIMARY KEY,
+id INTEGER AS ProfileId NOT NULL PRIMARY KEY,
 name TEXT NOT NULL,
 description TEXT NOT NULL,
 path TEXT NOT NULL UNIQUE,

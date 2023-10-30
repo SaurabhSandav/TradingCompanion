@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.data.CandleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -24,17 +25,17 @@ internal class TradingProfiles(
     private val candleRepo: CandleRepository,
 ) {
 
-    private val records = mutableMapOf<Long, TradingRecord>()
+    private val records = mutableMapOf<ProfileId, TradingRecord>()
     private val recordBuilderMutex = Mutex()
 
     val allProfiles: Flow<List<TradingProfile>> =
         appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
-    fun getProfile(id: Long): Flow<TradingProfile> {
+    fun getProfile(id: ProfileId): Flow<TradingProfile> {
         return allProfiles.map { profiles -> profiles.find { it.id == id } ?: error("Profile($id) not found") }
     }
 
-    fun getProfileOrNull(id: Long): Flow<TradingProfile?> {
+    fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
         return allProfiles.map { profiles -> profiles.find { it.id == id } }
     }
 
@@ -55,19 +56,19 @@ internal class TradingProfiles(
             )
 
             // Get id of last inserted row
-            val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
 
             // Return TradingProfile
             appDB.tradingProfileQueries.get(id).asFlow().mapToOne(Dispatchers.IO)
         }
     }
 
-    suspend fun exists(id: Long): Flow<Boolean> = withContext(Dispatchers.IO) {
+    suspend fun exists(id: ProfileId): Flow<Boolean> = withContext(Dispatchers.IO) {
         return@withContext appDB.tradingProfileQueries.exists(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
     suspend fun updateProfile(
-        id: Long,
+        id: ProfileId,
         name: String,
         description: String,
         isTraining: Boolean,
@@ -82,7 +83,7 @@ internal class TradingProfiles(
     }
 
     suspend fun copyProfile(
-        id: Long,
+        id: ProfileId,
         name: (String) -> String,
     ) = withContext(Dispatchers.IO) {
 
@@ -100,7 +101,7 @@ internal class TradingProfiles(
         profile.filesPath.toFile().copyRecursively(newProfile.filesPath.toFile())
     }
 
-    suspend fun deleteProfile(id: Long) = withContext(Dispatchers.IO) {
+    suspend fun deleteProfile(id: ProfileId) = withContext(Dispatchers.IO) {
 
         // Remove record
         records.remove(id)
@@ -115,7 +116,7 @@ internal class TradingProfiles(
 
     suspend fun isProfileNameUnique(
         name: String,
-        ignoreProfileId: Long? = null,
+        ignoreProfileId: ProfileId? = null,
     ): Boolean = withContext(Dispatchers.IO) {
         return@withContext appDB.tradingProfileQueries
             .run {
@@ -127,7 +128,7 @@ internal class TradingProfiles(
             .executeAsOne()
     }
 
-    suspend fun getRecord(id: Long): TradingRecord = recordBuilderMutex.withLock {
+    suspend fun getRecord(id: ProfileId): TradingRecord = recordBuilderMutex.withLock {
 
         records.getOrPut(id) {
 

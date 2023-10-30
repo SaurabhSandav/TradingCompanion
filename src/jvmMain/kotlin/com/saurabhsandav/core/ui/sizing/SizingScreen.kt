@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
@@ -27,10 +28,10 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun SizingScreen(
     sizedTrades: ImmutableList<SizedTrade>,
-    onUpdateEntry: (id: Long, entry: String) -> Unit,
-    onUpdateStop: (id: Long, stop: String) -> Unit,
-    onOpenLiveTrade: (Long) -> Unit,
-    onDeleteTrade: (Long) -> Unit,
+    onUpdateEntry: (id: SizingTradeId, entry: String) -> Unit,
+    onUpdateStop: (id: SizingTradeId, stop: String) -> Unit,
+    onOpenLiveTrade: (SizingTradeId) -> Unit,
+    onDeleteTrade: (SizingTradeId) -> Unit,
     onAddTrade: (ticker: String) -> Unit,
 ) {
 
@@ -66,10 +67,10 @@ internal fun SizingScreenWindows(
 @Composable
 private fun SizingTradesGrid(
     sizedTrades: ImmutableList<SizedTrade>,
-    onUpdateEntry: (id: Long, entry: String) -> Unit,
-    onUpdateStop: (id: Long, stop: String) -> Unit,
-    onOpenLiveTrade: (Long) -> Unit,
-    onDeleteTrade: (Long) -> Unit,
+    onUpdateEntry: (id: SizingTradeId, entry: String) -> Unit,
+    onUpdateStop: (id: SizingTradeId, stop: String) -> Unit,
+    onOpenLiveTrade: (SizingTradeId) -> Unit,
+    onDeleteTrade: (SizingTradeId) -> Unit,
     onAddTrade: (ticker: String) -> Unit,
 ) {
 

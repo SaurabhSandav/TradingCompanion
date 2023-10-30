@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
@@ -22,8 +23,8 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun Notes(
     notes: ImmutableList<TradeNote>,
     onAddNote: (note: String) -> Unit,
-    onUpdateNote: (id: Long, note: String) -> Unit,
-    onDeleteNote: (id: Long) -> Unit,
+    onUpdateNote: (id: TradeNoteId, note: String) -> Unit,
+    onDeleteNote: (id: TradeNoteId) -> Unit,
 ) {
 
     Column(
@@ -116,7 +117,7 @@ internal fun Notes(
 private fun NoteEditorWindow(
     onSaveNote: (String) -> Unit,
     onCloseRequest: () -> Unit,
-    noteId: Long? = null,
+    noteId: TradeNoteId? = null,
     note: String = "",
 ) {
 

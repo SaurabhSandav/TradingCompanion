@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.collections.immutable.ImmutableList
@@ -28,7 +30,7 @@ internal data class TradeExecutionsState(
 
     @Immutable
     data class ProfileTradeExecutionId(
-        val profileId: Long,
-        val executionId: Long,
+        val profileId: ProfileId,
+        val executionId: TradeExecutionId,
     )
 }

@@ -5,7 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.github.michaelbull.result.get
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.nowIn
@@ -39,7 +39,7 @@ internal class TradesRepo(
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
-    fun getById(id: Long): Flow<Trade> {
+    fun getById(id: TradeId): Flow<Trade> {
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
@@ -71,7 +71,7 @@ internal class TradesRepo(
 
     fun getByTickerAndIdsInInterval(
         ticker: String,
-        ids: List<Long>,
+        ids: List<TradeId>,
         range: ClosedRange<LocalDateTime>,
     ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
@@ -85,11 +85,11 @@ internal class TradesRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    fun getExecutionsForTrade(id: Long): Flow<List<TradeExecution>> {
+    fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
         return executionsRepo.getExecutionsForTrade(id)
     }
 
-    fun getTradesForExecution(executionId: Long): Flow<List<Trade>> {
+    fun getTradesForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {
         return tradesDB.tradeToExecutionMapQueries
             .getTradesByExecution(executionId)
             .asFlow()
@@ -142,15 +142,15 @@ internal class TradesRepo(
         }
     }
 
-    fun getMfeAndMae(id: Long): Flow<TradeMfeMae?> {
+    fun getMfeAndMae(id: TradeId): Flow<TradeMfeMae?> {
         return tradesDB.tradeMfeMaeQueries.getByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
-    fun getStopsForTrade(id: Long): Flow<List<TradeStop>> {
+    fun getStopsForTrade(id: TradeId): Flow<List<TradeStop>> {
         return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
-    suspend fun addStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
 
         val trade = getById(id).first()
 
@@ -168,15 +168,15 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun deleteStop(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
         tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
     }
 
-    fun getTargetsForTrade(id: Long): Flow<List<TradeTarget>> {
+    fun getTargetsForTrade(id: TradeId): Flow<List<TradeTarget>> {
         return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
-    suspend fun addTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun addTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
 
         val trade = getById(id).first()
 
@@ -194,7 +194,7 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun deleteTarget(id: Long, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun deleteTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
     }
 
@@ -202,15 +202,15 @@ internal class TradesRepo(
         return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getTagById(id: Long): Flow<TradeTag> {
+    fun getTagById(id: TradeTagId): Flow<TradeTag> {
         return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
-    fun getTagsForTrade(id: Long): Flow<List<TradeTag>> {
+    fun getTagsForTrade(id: TradeId): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getSuggestedTagsForTrade(tradeId: Long, filter: String): Flow<List<TradeTag>> {
+    fun getSuggestedTagsForTrade(tradeId: TradeId, filter: String): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries
             .getSuggestedTagsForTrade(tradeId, filter)
             .asFlow()
@@ -226,7 +226,7 @@ internal class TradesRepo(
     }
 
     suspend fun updateTag(
-        id: Long,
+        id: TradeTagId,
         name: String,
         description: String,
     ) = withContext(Dispatchers.IO) {
@@ -238,7 +238,7 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun copyTag(id: Long) = withContext(Dispatchers.IO) {
+    suspend fun copyTag(id: TradeTagId) = withContext(Dispatchers.IO) {
 
         // Get tag details to copy
         val tag = tradesDB.tradeTagQueries.getById(id).executeAsOne()
@@ -249,13 +249,13 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun deleteTag(id: Long) = withContext(Dispatchers.IO) {
+    suspend fun deleteTag(id: TradeTagId) = withContext(Dispatchers.IO) {
         tradesDB.tradeTagQueries.delete(id)
     }
 
     suspend fun isTagNameUnique(
         name: String,
-        ignoreTagId: Long? = null,
+        ignoreTagId: TradeTagId? = null,
     ): Boolean = withContext(Dispatchers.IO) {
         return@withContext tradesDB.tradeTagQueries
             .run {
@@ -267,7 +267,7 @@ internal class TradesRepo(
             .executeAsOne()
     }
 
-    suspend fun addTag(tradeId: Long, tagId: Long) = withContext(Dispatchers.IO) {
+    suspend fun addTag(tradeId: TradeId, tagId: TradeTagId) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.insert(
             tradeId = tradeId,
@@ -275,7 +275,7 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun removeTag(tradeId: Long, tagId: Long) = withContext(Dispatchers.IO) {
+    suspend fun removeTag(tradeId: TradeId, tagId: TradeTagId) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.delete(
             tradeId = tradeId,
@@ -283,12 +283,12 @@ internal class TradesRepo(
         )
     }
 
-    fun getAttachmentsForTrade(id: Long): Flow<List<GetAttachmentsByTrade>> {
+    fun getAttachmentsForTrade(id: TradeId): Flow<List<GetAttachmentsByTrade>> {
         return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
     suspend fun addAttachment(
-        tradeId: Long,
+        tradeId: TradeId,
         name: String,
         description: String,
         pathStr: String,
@@ -321,7 +321,7 @@ internal class TradesRepo(
                     )
 
                     // Get id of attachment in DB
-                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeAttachmentId)
                 }
 
                 else -> existingAttachment.id
@@ -368,8 +368,8 @@ internal class TradesRepo(
     }
 
     suspend fun updateAttachment(
-        tradeId: Long,
-        attachmentId: Long,
+        tradeId: TradeId,
+        attachmentId: TradeAttachmentId,
         name: String,
         description: String,
     ) = withContext(Dispatchers.IO) {
@@ -383,8 +383,8 @@ internal class TradesRepo(
     }
 
     suspend fun removeAttachment(
-        tradeId: Long,
-        attachmentId: Long,
+        tradeId: TradeId,
+        attachmentId: TradeAttachmentId,
     ) = withContext(Dispatchers.IO) {
 
         tradesDB.transaction {
@@ -414,11 +414,11 @@ internal class TradesRepo(
         }
     }
 
-    fun getNotesForTrade(id: Long): Flow<List<TradeNote>> {
+    fun getNotesForTrade(id: TradeId): Flow<List<TradeNote>> {
         return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
-    suspend fun addNote(tradeId: Long, note: String) = withContext(Dispatchers.IO) {
+    suspend fun addNote(tradeId: TradeId, note: String) = withContext(Dispatchers.IO) {
 
         val now = Clock.System.nowIn(TimeZone.currentSystemDefault()).withoutNanoseconds()
 
@@ -430,7 +430,7 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun updateNote(id: Long, note: String) = withContext(Dispatchers.IO) {
+    suspend fun updateNote(id: TradeNoteId, note: String) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeNoteQueries.update(
             id = id,
@@ -439,7 +439,7 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun deleteNote(id: Long) = withContext(Dispatchers.IO) {
+    suspend fun deleteNote(id: TradeNoteId) = withContext(Dispatchers.IO) {
         tradesDB.tradeNoteQueries.delete(id)
     }
 

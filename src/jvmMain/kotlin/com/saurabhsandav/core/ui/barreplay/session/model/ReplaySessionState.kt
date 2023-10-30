@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
@@ -13,7 +14,7 @@ import java.util.*
 @Immutable
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
-    val selectedProfileId: Long?,
+    val selectedProfileId: ProfileId?,
     val replayOrderItems: ImmutableList<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo,

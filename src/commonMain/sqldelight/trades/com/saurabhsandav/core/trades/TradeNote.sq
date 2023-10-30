@@ -1,8 +1,10 @@
+import com.saurabhsandav.core.trades.model.TradeId;
+import com.saurabhsandav.core.trades.model.TradeNoteId;
 import kotlinx.datetime.LocalDateTime;
 
 CREATE TABLE IF NOT EXISTS TradeNote (
-id INTEGER NOT NULL PRIMARY KEY,
-tradeId INTEGER NOT NULL,
+id INTEGER AS TradeNoteId NOT NULL PRIMARY KEY,
+tradeId INTEGER AS TradeId NOT NULL,
 note TEXT NOT NULL,
 added TEXT AS LocalDateTime NOT NULL,
 lastEdited TEXT AS LocalDateTime,

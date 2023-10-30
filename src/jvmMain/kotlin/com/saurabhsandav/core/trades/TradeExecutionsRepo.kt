@@ -3,9 +3,7 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,7 @@ internal class TradeExecutionsRepo(
     val allExecutions: Flow<List<TradeExecution>>
         get() = tradesDB.tradeExecutionQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
-    fun getById(id: Long): Flow<TradeExecution> {
+    fun getById(id: TradeExecutionId): Flow<TradeExecution> {
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
@@ -43,7 +41,7 @@ internal class TradeExecutionsRepo(
         price: BigDecimal,
         timestamp: LocalDateTime,
         locked: Boolean,
-    ): Long = withContext(Dispatchers.IO) {
+    ): TradeExecutionId = withContext(Dispatchers.IO) {
         tradesDB.transactionWithResult {
 
             // Insert Trade execution
@@ -60,7 +58,7 @@ internal class TradeExecutionsRepo(
             )
 
             // ID in database of just inserted execution
-            val executionId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            val executionId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeExecutionId)
 
             // Generate Trade
             val execution = tradesDB.tradeExecutionQueries.getById(executionId).executeAsOne()
@@ -71,7 +69,7 @@ internal class TradeExecutionsRepo(
     }
 
     suspend fun edit(
-        id: Long,
+        id: TradeExecutionId,
         broker: String,
         instrument: Instrument,
         ticker: String,
@@ -80,7 +78,7 @@ internal class TradeExecutionsRepo(
         side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: LocalDateTime,
-    ): Long = withContext(Dispatchers.IO) {
+    ): TradeExecutionId = withContext(Dispatchers.IO) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
 
@@ -125,7 +123,7 @@ internal class TradeExecutionsRepo(
         return@withContext id
     }
 
-    suspend fun delete(ids: List<Long>) = withContext(Dispatchers.IO) {
+    suspend fun delete(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
 
         val noneLocked = isLocked(ids).none { it.locked }
 
@@ -169,9 +167,11 @@ internal class TradeExecutionsRepo(
         }
     }
 
-    suspend fun lock(ids: List<Long>) = withContext(Dispatchers.IO) { tradesDB.tradeExecutionQueries.lock(ids) }
+    suspend fun lock(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
+        tradesDB.tradeExecutionQueries.lock(ids)
+    }
 
-    fun getExecutionsForTrade(id: Long): Flow<List<TradeExecution>> {
+    fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
             .getExecutionsByTrade(id, ::toTradeExecution)
             .asFlow()
@@ -194,7 +194,7 @@ internal class TradeExecutionsRepo(
 
     fun getExecutionsByTickerAndTradeIdsInInterval(
         ticker: String,
-        ids: List<Long>,
+        ids: List<TradeId>,
         range: ClosedRange<LocalDateTime>,
     ): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
@@ -209,7 +209,7 @@ internal class TradeExecutionsRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    private suspend fun isLocked(ids: List<Long>) = withContext(Dispatchers.IO) {
+    private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
         tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
 
@@ -245,7 +245,7 @@ internal class TradeExecutionsRepo(
             )
 
             // ID in database of just inserted trade
-            val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+            val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeId)
 
             // Link trade and execution in database
             tradesDB.tradeToExecutionMapQueries.insert(
@@ -314,7 +314,7 @@ internal class TradeExecutionsRepo(
                 )
 
                 // ID in database of just inserted trade
-                val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne()
+                val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeId)
 
                 // Link new trade and current execution, override quantity with remainder quantity after previous trade
                 // consumed some
@@ -373,7 +373,7 @@ internal class TradeExecutionsRepo(
         }
 
         return Trade(
-            id = -1,
+            id = TradeId(-1),
             broker = firstExecution.broker,
             ticker = firstExecution.ticker,
             instrument = firstExecution.instrument,
@@ -392,7 +392,7 @@ internal class TradeExecutionsRepo(
         )
     }
 
-    private fun Trade.updateTradeInDB(tradeId: Long) {
+    private fun Trade.updateTradeInDB(tradeId: TradeId) {
         tradesDB.tradeQueries.update(
             id = tradeId,
             quantity = quantity,
@@ -419,7 +419,7 @@ internal class TradeExecutionsRepo(
     }
 
     private fun toTradeExecution(
-        id: Long,
+        id: TradeExecutionId,
         broker: String,
         instrument: Instrument,
         ticker: String,
@@ -443,7 +443,7 @@ internal class TradeExecutionsRepo(
         locked = locked,
     )
 
-    private fun regenerateSupplementalTradeData(tradeId: Long) {
+    private fun regenerateSupplementalTradeData(tradeId: TradeId) {
 
         // Get newly regenerated trade
         val trade = tradesDB.tradeQueries.getById(tradeId).executeAsOne()

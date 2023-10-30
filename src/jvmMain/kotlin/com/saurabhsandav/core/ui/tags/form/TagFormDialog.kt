@@ -14,12 +14,13 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 
 @Composable
 internal fun TagFormDialog(
-    profileId: Long,
+    profileId: ProfileId,
     type: TagFormType,
     onCloseRequest: () -> Unit,
 ) {

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.tags.form
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
@@ -15,7 +16,7 @@ sealed class TagFormType {
 
     data object New : TagFormType()
 
-    data class Edit(val id: Long) : TagFormType()
+    data class Edit(val id: TradeTagId) : TagFormType()
 }
 
 @Stable

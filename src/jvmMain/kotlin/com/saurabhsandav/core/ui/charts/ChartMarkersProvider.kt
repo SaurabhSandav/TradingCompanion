@@ -4,6 +4,8 @@ import androidx.compose.runtime.Stable
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
@@ -25,7 +27,7 @@ internal class ChartMarkersProvider(
     private val appPrefs: FlowSettings = appModule.appPrefs,
 ) {
 
-    val markedTradeIds = MutableStateFlow<Set<Long>>(persistentSetOf())
+    val markedTradeIds = MutableStateFlow<Set<TradeId>>(persistentSetOf())
 
     fun getMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<SeriesMarker>> {
 
@@ -39,6 +41,7 @@ internal class ChartMarkersProvider(
                 candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
 
         val reviewProfile = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
+            .map { it?.let(::ProfileId) }
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 
@@ -108,11 +111,11 @@ internal class ChartMarkersProvider(
             .flowOn(Dispatchers.IO)
     }
 
-    fun markTrade(id: Long) {
+    fun markTrade(id: TradeId) {
         markedTradeIds.value += id
     }
 
-    fun unMarkTrade(id: Long) {
+    fun unMarkTrade(id: TradeId) {
         markedTradeIds.value -= id
     }
 

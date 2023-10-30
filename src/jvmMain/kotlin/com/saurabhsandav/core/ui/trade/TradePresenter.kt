@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
@@ -36,8 +36,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradePresenter(
-    private val profileId: Long,
-    private val tradeId: Long,
+    private val profileId: ProfileId,
+    private val tradeId: TradeId,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
@@ -430,7 +430,7 @@ internal class TradePresenter(
         )
     }
 
-    private fun onNewExecution(fromExecutionId: Long) {
+    private fun onNewExecution(fromExecutionId: TradeExecutionId) {
 
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
@@ -438,7 +438,7 @@ internal class TradePresenter(
         )
     }
 
-    private fun onEditExecution(executionId: Long) {
+    private fun onEditExecution(executionId: TradeExecutionId) {
 
         tradeContentLauncher.openExecutionForm(
             profileId = profileId,
@@ -446,14 +446,14 @@ internal class TradePresenter(
         )
     }
 
-    private fun onLockExecution(executionId: Long) = coroutineScope.launchUnit {
+    private fun onLockExecution(executionId: TradeExecutionId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.executions.lock(listOf(executionId))
     }
 
-    private fun onDeleteExecution(executionId: Long) = coroutineScope.launchUnit {
+    private fun onDeleteExecution(executionId: TradeExecutionId) = coroutineScope.launchUnit {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -480,12 +480,12 @@ internal class TradePresenter(
         tradingProfiles.getRecord(profileId).trades.deleteTarget(tradeId, price)
     }
 
-    private fun onAddTag(id: Long) = coroutineScope.launchUnit {
+    private fun onAddTag(id: TradeTagId) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.addTag(tradeId, id)
     }
 
-    private fun onRemoveTag(id: Long) = coroutineScope.launchUnit {
+    private fun onRemoveTag(id: TradeTagId) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.removeTag(tradeId, id)
     }
@@ -501,7 +501,7 @@ internal class TradePresenter(
     }
 
     private fun onUpdateAttachment(
-        id: Long,
+        id: TradeAttachmentId,
         formModel: AttachmentFormModel,
     ) = coroutineScope.launchUnit {
 
@@ -513,7 +513,7 @@ internal class TradePresenter(
         )
     }
 
-    private fun onRemoveAttachment(id: Long) = coroutineScope.launchUnit {
+    private fun onRemoveAttachment(id: TradeAttachmentId) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.removeAttachment(tradeId, id)
     }
@@ -523,12 +523,12 @@ internal class TradePresenter(
         tradingProfiles.getRecord(profileId).trades.addNote(tradeId, note)
     }
 
-    private fun onUpdateNote(id: Long, note: String) = coroutineScope.launchUnit {
+    private fun onUpdateNote(id: TradeNoteId, note: String) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.updateNote(id, note)
     }
 
-    private fun onDeleteNote(id: Long) = coroutineScope.launchUnit {
+    private fun onDeleteNote(id: TradeNoteId) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.deleteNote(id)
     }

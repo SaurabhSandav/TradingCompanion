@@ -1,5 +1,9 @@
 package com.saurabhsandav.core.ui.trade.model
 
+import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import java.math.BigDecimal
 
 internal sealed class TradeEvent {
@@ -8,13 +12,13 @@ internal sealed class TradeEvent {
 
     data object CloseTrade : TradeEvent()
 
-    data class NewFromExistingExecution(val fromExecutionId: Long) : TradeEvent()
+    data class NewFromExistingExecution(val fromExecutionId: TradeExecutionId) : TradeEvent()
 
-    data class EditExecution(val executionId: Long) : TradeEvent()
+    data class EditExecution(val executionId: TradeExecutionId) : TradeEvent()
 
-    data class LockExecution(val executionId: Long) : TradeEvent()
+    data class LockExecution(val executionId: TradeExecutionId) : TradeEvent()
 
-    data class DeleteExecution(val executionId: Long) : TradeEvent()
+    data class DeleteExecution(val executionId: TradeExecutionId) : TradeEvent()
 
     data class AddStop(val price: BigDecimal) : TradeEvent()
 
@@ -24,22 +28,22 @@ internal sealed class TradeEvent {
 
     data class DeleteTarget(val price: BigDecimal) : TradeEvent()
 
-    data class AddTag(val id: Long) : TradeEvent()
+    data class AddTag(val id: TradeTagId) : TradeEvent()
 
-    data class RemoveTag(val id: Long) : TradeEvent()
+    data class RemoveTag(val id: TradeTagId) : TradeEvent()
 
     data class AddAttachment(val formModel: AttachmentFormModel) : TradeEvent()
 
     data class UpdateAttachment(
-        val id: Long,
+        val id: TradeAttachmentId,
         val formModel: AttachmentFormModel,
     ) : TradeEvent()
 
-    data class RemoveAttachment(val id: Long) : TradeEvent()
+    data class RemoveAttachment(val id: TradeAttachmentId) : TradeEvent()
 
     data class AddNote(val note: String) : TradeEvent()
 
-    data class UpdateNote(val id: Long, val note: String) : TradeEvent()
+    data class UpdateNote(val id: TradeNoteId, val note: String) : TradeEvent()
 
-    data class DeleteNote(val id: Long) : TradeEvent()
+    data class DeleteNote(val id: TradeNoteId) : TradeEvent()
 }

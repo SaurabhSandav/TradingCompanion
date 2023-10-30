@@ -10,6 +10,7 @@ import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -85,7 +86,7 @@ internal class SizingPresenter(
         )
     }
 
-    private fun updateTradeEntry(id: Long, entry: String) = coroutineScope.launchUnit {
+    private fun updateTradeEntry(id: SizingTradeId, entry: String) = coroutineScope.launchUnit {
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
@@ -97,7 +98,7 @@ internal class SizingPresenter(
         )
     }
 
-    private fun updateTradeStop(id: Long, stop: String) = coroutineScope.launchUnit {
+    private fun updateTradeStop(id: SizingTradeId, stop: String) = coroutineScope.launchUnit {
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
@@ -109,14 +110,14 @@ internal class SizingPresenter(
         )
     }
 
-    private fun removeTrade(id: Long) = coroutineScope.launchUnit {
+    private fun removeTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
         val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 
         tradingRecord.sizingTrades.delete(id)
     }
 
-    private fun openLiveTrade(id: Long) = coroutineScope.launchUnit {
+    private fun openLiveTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
         val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
 

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.trade.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.collections.immutable.ImmutableList
@@ -28,7 +29,7 @@ internal data class TradeState(
 
     @Immutable
     internal data class Details(
-        val id: Long,
+        val id: TradeId,
         val broker: String,
         val ticker: String,
         val side: String,
@@ -45,7 +46,7 @@ internal data class TradeState(
 
     @Immutable
     internal data class Execution(
-        val id: Long,
+        val id: TradeExecutionId,
         val quantity: String,
         val side: String,
         val price: String,
@@ -77,14 +78,14 @@ internal data class TradeState(
 
     @Immutable
     internal data class TradeTag(
-        val id: Long,
+        val id: TradeTagId,
         val name: String,
         val description: String,
     )
 
     @Immutable
     internal data class TradeAttachment(
-        val id: Long,
+        val id: TradeAttachmentId,
         val name: String,
         val description: String?,
         val path: String,
@@ -93,7 +94,7 @@ internal data class TradeState(
 
     @Immutable
     internal data class TradeNote(
-        val id: Long,
+        val id: TradeNoteId,
         val note: String,
         val dateText: String,
     )

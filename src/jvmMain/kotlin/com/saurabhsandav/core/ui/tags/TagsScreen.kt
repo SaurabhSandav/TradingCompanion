@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.TagFormDialog
@@ -57,7 +58,7 @@ internal fun TagsWindow(
 
 @Composable
 private fun TagsScreen(
-    profileId: Long,
+    profileId: ProfileId,
     tags: ImmutableList<Tag>,
     onCopyTag: (ProfileTagId) -> Unit,
     onDeleteTag: (ProfileTagId) -> Unit,

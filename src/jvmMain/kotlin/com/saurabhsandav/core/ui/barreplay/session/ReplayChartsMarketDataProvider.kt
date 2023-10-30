@@ -6,6 +6,7 @@ import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
@@ -134,6 +135,7 @@ internal class ReplayChartsMarketDataProvider(
         }
 
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+            .map { it?.let(::ProfileId) }
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
             .filterNotNull()
 

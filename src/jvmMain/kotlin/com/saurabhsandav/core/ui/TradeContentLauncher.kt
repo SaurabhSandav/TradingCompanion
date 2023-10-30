@@ -2,6 +2,8 @@ package com.saurabhsandav.core.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
@@ -13,7 +15,7 @@ internal class TradeContentLauncher {
     private val tradeWindowsManager = AppWindowsManager<TradeWindowParams>()
 
     fun openExecutionForm(
-        profileId: Long,
+        profileId: ProfileId,
         formType: TradeExecutionFormType,
     ) {
 
@@ -43,8 +45,8 @@ internal class TradeContentLauncher {
     }
 
     fun openTrade(
-        profileId: Long,
-        tradeId: Long,
+        profileId: ProfileId,
+        tradeId: TradeId,
     ) {
 
         val window = tradeWindowsManager.windows.find {
@@ -96,13 +98,13 @@ internal class TradeContentLauncher {
 
     @Immutable
     private data class TradeExecutionFormWindowParams(
-        val profileId: Long,
+        val profileId: ProfileId,
         val formType: TradeExecutionFormType,
     )
 
     @Immutable
     private data class TradeWindowParams(
-        val profileId: Long,
-        val tradeId: Long,
+        val profileId: ProfileId,
+        val tradeId: TradeId,
     )
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
@@ -25,8 +26,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 internal fun Tags(
     tags: ImmutableList<TradeTag>,
     tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
-    onAddTag: (Long) -> Unit,
-    onRemoveTag: (Long) -> Unit,
+    onAddTag: (TradeTagId) -> Unit,
+    onRemoveTag: (TradeTagId) -> Unit,
 ) {
 
     Column(
@@ -90,7 +91,7 @@ internal fun Tags(
 @Composable
 private fun AddTagButton(
     tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
-    onAddTag: (Long) -> Unit,
+    onAddTag: (TradeTagId) -> Unit,
 ) {
 
     var expanded by state { false }

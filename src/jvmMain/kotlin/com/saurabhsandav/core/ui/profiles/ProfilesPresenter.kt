@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
@@ -30,7 +31,7 @@ internal class ProfilesPresenter(
     private val trainingOnly: Boolean = false,
 ) {
 
-    private val currentProfileId = MutableStateFlow<Long?>(null)
+    private val currentProfileId = MutableStateFlow<ProfileId?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -77,18 +78,18 @@ internal class ProfilesPresenter(
         }.collectAsState(null)
     }
 
-    private fun onSetCurrentProfile(id: Long) = coroutineScope.launchUnit {
+    private fun onSetCurrentProfile(id: ProfileId) = coroutineScope.launchUnit {
         when {
             customSelectionMode -> currentProfileId.value = id
             else -> appPrefs.putCurrentTradingProfileId(id)
         }
     }
 
-    private fun onDeleteProfile(id: Long) = coroutineScope.launchUnit {
+    private fun onDeleteProfile(id: ProfileId) = coroutineScope.launchUnit {
         tradingProfiles.deleteProfile(id)
     }
 
-    private fun onCopyProfile(id: Long) = coroutineScope.launchUnit {
+    private fun onCopyProfile(id: ProfileId) = coroutineScope.launchUnit {
 
         tradingProfiles.copyProfile(
             id = id,

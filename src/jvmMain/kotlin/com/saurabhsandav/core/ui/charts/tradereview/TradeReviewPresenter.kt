@@ -7,6 +7,8 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
@@ -46,6 +48,7 @@ internal class TradeReviewPresenter(
 ) {
 
     private val selectedProfileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
+        .map { it?.let(::ProfileId) }
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -139,16 +142,16 @@ internal class TradeReviewPresenter(
         )
     }
 
-    private fun onSelectProfile(id: Long) = coroutineScope.launchUnit {
+    private fun onSelectProfile(id: ProfileId) = coroutineScope.launchUnit {
 
         // Save selected profile
-        appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id)
+        appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id.value)
 
         // Clear marked trades
         markersProvider.clearMarkedTrades()
     }
 
-    private fun onMarkTrade(id: Long, isMarked: Boolean) {
+    private fun onMarkTrade(id: TradeId, isMarked: Boolean) {
 
         when {
             isMarked -> markersProvider.markTrade(id)
@@ -156,7 +159,7 @@ internal class TradeReviewPresenter(
         }
     }
 
-    private fun onSelectTrade(id: Long) = coroutineScope.launchUnit {
+    private fun onSelectTrade(id: TradeId) = coroutineScope.launchUnit {
 
         // Mark selected trade
         markersProvider.markTrade(id)
@@ -172,7 +175,7 @@ internal class TradeReviewPresenter(
         onOpenChart(trade.ticker, start, end)
     }
 
-    private fun onOpenDetails(id: Long) {
+    private fun onOpenDetails(id: TradeId) {
 
         val profileId = selectedProfileId.value ?: error("Trade review profile not set")
 

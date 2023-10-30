@@ -7,12 +7,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcher
 
 @Composable
 internal fun ReplayConfigRow(
-    selectedProfileId: Long?,
-    onSelectProfile: (Long) -> Unit,
+    selectedProfileId: ProfileId?,
+    onSelectProfile: (ProfileId) -> Unit,
     onNewReplay: () -> Unit,
     onResetReplay: () -> Unit,
     replayFullBar: Boolean,

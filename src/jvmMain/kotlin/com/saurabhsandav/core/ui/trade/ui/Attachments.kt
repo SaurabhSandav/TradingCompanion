@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
+import com.saurabhsandav.core.trades.model.TradeAttachmentId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
@@ -32,8 +33,8 @@ import java.io.File
 internal fun Attachments(
     attachments: ImmutableList<TradeAttachment>,
     onAddAttachment: (AttachmentFormModel) -> Unit,
-    onUpdateAttachment: (Long, AttachmentFormModel) -> Unit,
-    onRemoveAttachment: (Long) -> Unit,
+    onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
+    onRemoveAttachment: (TradeAttachmentId) -> Unit,
 ) {
 
     Column(

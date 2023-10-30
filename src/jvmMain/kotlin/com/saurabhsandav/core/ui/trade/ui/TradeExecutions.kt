@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
@@ -34,10 +35,10 @@ internal fun TradeExecutionsTable(
     newExecutionEnabled: Boolean,
     onAddToTrade: () -> Unit,
     onCloseTrade: () -> Unit,
-    onNewFromExistingExecution: (Long) -> Unit,
-    onEditExecution: (Long) -> Unit,
-    onLockExecution: (Long) -> Unit,
-    onDeleteExecution: (Long) -> Unit,
+    onNewFromExistingExecution: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecution: (TradeExecutionId) -> Unit,
+    onDeleteExecution: (TradeExecutionId) -> Unit,
 ) {
 
     Column(

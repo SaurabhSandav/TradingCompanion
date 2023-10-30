@@ -1,12 +1,14 @@
 package com.saurabhsandav.core.ui.charts.tradereview.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
 @Immutable
 internal data class TradeReviewState(
-    val selectedProfileId: Long?,
+    val selectedProfileId: ProfileId?,
     val trades: ImmutableList<TradeEntry>,
     val eventSink: (TradeReviewEvent) -> Unit,
 ) {
@@ -14,7 +16,7 @@ internal data class TradeReviewState(
     @Immutable
     internal data class TradeEntry(
         val isMarked: Boolean,
-        val id: Long,
+        val id: TradeId,
         val broker: String,
         val ticker: String,
         val side: String,

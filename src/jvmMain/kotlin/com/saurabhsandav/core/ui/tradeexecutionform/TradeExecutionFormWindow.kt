@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
@@ -32,7 +33,7 @@ import java.util.*
 
 @Composable
 internal fun TradeExecutionFormWindow(
-    profileId: Long,
+    profileId: ProfileId,
     formType: TradeExecutionFormType,
     onCloseRequest: () -> Unit,
 ) {

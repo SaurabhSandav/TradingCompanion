@@ -12,6 +12,7 @@ import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.MutableCandleSeries
@@ -137,7 +138,7 @@ internal class TradesPresenter(
         }.collectAsState(persistentListOf())
     }
 
-    private fun Trade.toTradeListEntry(profileId: Long): TradeEntry {
+    private fun Trade.toTradeListEntry(profileId: ProfileId): TradeEntry {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

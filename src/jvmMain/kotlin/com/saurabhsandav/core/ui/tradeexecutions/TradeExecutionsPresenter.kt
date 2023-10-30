@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
@@ -101,7 +102,7 @@ internal class TradeExecutionsPresenter(
         }.collectAsState(persistentListOf())
     }
 
-    private fun TradeExecution.toTradeExecutionListEntry(profileId: Long) = TradeExecutionEntry(
+    private fun TradeExecution.toTradeExecutionListEntry(profileId: ProfileId) = TradeExecutionEntry(
         profileTradeExecutionId = ProfileTradeExecutionId(profileId = profileId, executionId = id),
         broker = run {
             val instrumentCapitalized = instrument.strValue

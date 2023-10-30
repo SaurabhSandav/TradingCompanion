@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
@@ -21,9 +22,9 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradesTable(
     trades: ImmutableList<TradeEntry>,
-    onMarkTrade: (id: Long, isMarked: Boolean) -> Unit,
-    onSelectTrade: (id: Long) -> Unit,
-    onOpenDetails: (id: Long) -> Unit,
+    onMarkTrade: (id: TradeId, isMarked: Boolean) -> Unit,
+    onSelectTrade: (id: TradeId) -> Unit,
+    onOpenDetails: (id: TradeId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
