@@ -36,9 +36,7 @@ dependencyResolutionManagement {
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.84.0")
-            version("kotlin", "1.9.20-RC")
-            version("jetbrainsCompose", "1.5.10-rc01")
+            from("com.saurabhsandav:common-versions:0.87.0")
         }
     }
 }

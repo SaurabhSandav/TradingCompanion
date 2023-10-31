@@ -150,7 +150,7 @@ kotlin {
             implementation("com.darkrockstudios:mpfilepicker:2.1.0")
 
             // JCEF
-            implementation("me.friwi:jcefmaven:110.0.25.1")
+            implementation("me.friwi:jcefmaven:116.0.19.1")
         }
 
         jvmTest.dependencies {
