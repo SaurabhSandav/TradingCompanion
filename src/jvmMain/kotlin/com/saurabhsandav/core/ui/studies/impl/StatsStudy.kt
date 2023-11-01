@@ -17,8 +17,6 @@ import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import java.math.BigDecimal
 
 internal class StatsStudy(
@@ -229,12 +227,7 @@ internal class StatsStudy(
 
         val averageHoldingTime = run {
 
-            val holdingTimes = allTrades.map {
-                val entryInstant = it.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-                val exitInstant = it.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
-                exitInstant - entryInstant
-            }
+            val holdingTimes = allTrades.map { it.exitTimestamp!! - it.entryTimestamp }
 
             val averageHoldingTimeSeconds = holdingTimes.sumOf { it.inWholeSeconds } / totalTrades
             averageHoldingTimeSeconds / 60
@@ -249,12 +242,7 @@ internal class StatsStudy(
 
         val averageWinHoldingTime = run {
 
-            val holdingTimes = winTrades.map {
-                val entryInstant = it.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-                val exitInstant = it.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
-                exitInstant - entryInstant
-            }
+            val holdingTimes = winTrades.map { it.exitTimestamp!! - it.entryTimestamp }
 
             val averageHoldingTimeSeconds = holdingTimes.map { it.inWholeSeconds }.average()
             averageHoldingTimeSeconds / 60
@@ -269,12 +257,7 @@ internal class StatsStudy(
 
         val averageLossHoldingTime = run {
 
-            val holdingTimes = lossTrades.map {
-                val entryInstant = it.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-                val exitInstant = it.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
-                exitInstant - entryInstant
-            }
+            val holdingTimes = lossTrades.map { it.exitTimestamp!! - it.entryTimestamp }
 
             val averageHoldingTimeSeconds = holdingTimes.map { it.inWholeSeconds }.average()
             averageHoldingTimeSeconds / 60

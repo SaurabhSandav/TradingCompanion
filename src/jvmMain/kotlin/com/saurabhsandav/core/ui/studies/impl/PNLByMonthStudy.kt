@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -44,7 +46,10 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         tradesRepo.allTrades.map { trades ->
 
             trades
-                .groupBy { trade -> "${trade.entryTimestamp.month} ${trade.entryTimestamp.year}" }
+                .groupBy { trade ->
+                    val ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                    "${ldt.month} ${ldt.year}"
+                }
                 .map { entries ->
 
                     val monthlyStats = entries.value.filter { it.isClosed }.map { trade ->

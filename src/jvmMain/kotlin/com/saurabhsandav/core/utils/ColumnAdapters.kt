@@ -22,3 +22,9 @@ object InstantColumnAdapter : ColumnAdapter<Instant, Long> {
 
     override fun encode(value: Instant): Long = value.epochSeconds
 }
+
+object InstantReadableColumnAdapter : ColumnAdapter<Instant, String> {
+    override fun decode(databaseValue: String): Instant = Instant.parse(databaseValue)
+
+    override fun encode(value: Instant): String = value.toString()
+}

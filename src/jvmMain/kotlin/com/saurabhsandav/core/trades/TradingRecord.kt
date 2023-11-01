@@ -5,7 +5,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
-import com.saurabhsandav.core.utils.LocalDateTimeColumnAdapter
+import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import java.util.*
 
 internal class TradingRecord(
@@ -34,9 +34,9 @@ internal class TradingRecord(
                 lotsAdapter = IntColumnAdapter,
                 sideAdapter = TradeSide.ColumnAdapter,
                 averageEntryAdapter = BigDecimalColumnAdapter,
-                entryTimestampAdapter = LocalDateTimeColumnAdapter,
+                entryTimestampAdapter = InstantReadableColumnAdapter,
                 averageExitAdapter = BigDecimalColumnAdapter,
-                exitTimestampAdapter = LocalDateTimeColumnAdapter,
+                exitTimestampAdapter = InstantReadableColumnAdapter,
                 pnlAdapter = BigDecimalColumnAdapter,
                 feesAdapter = BigDecimalColumnAdapter,
                 netPnlAdapter = BigDecimalColumnAdapter,
@@ -48,7 +48,7 @@ internal class TradingRecord(
                 lotsAdapter = IntColumnAdapter,
                 sideAdapter = TradeExecutionSide.ColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
-                timestampAdapter = LocalDateTimeColumnAdapter,
+                timestampAdapter = InstantReadableColumnAdapter,
             ),
             TradeMfeMaeAdapter = TradeMfeMae.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
@@ -69,8 +69,8 @@ internal class TradingRecord(
             TradeNoteAdapter = TradeNote.Adapter(
                 idAdapter = TradeNoteIdColumnAdapter,
                 tradeIdAdapter = TradeIdColumnAdapter,
-                addedAdapter = LocalDateTimeColumnAdapter,
-                lastEditedAdapter = LocalDateTimeColumnAdapter,
+                addedAdapter = InstantReadableColumnAdapter,
+                lastEditedAdapter = InstantReadableColumnAdapter,
             ),
             TradeTagAdapter = TradeTag.Adapter(
                 idAdapter = TradeTagIdColumnAdapter,

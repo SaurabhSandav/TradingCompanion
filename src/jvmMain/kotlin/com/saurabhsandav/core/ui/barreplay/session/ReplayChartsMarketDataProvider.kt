@@ -29,9 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 
 internal class ReplayChartsMarketDataProvider(
     private val coroutineScope: CoroutineScope,
@@ -143,25 +140,17 @@ internal class ReplayChartsMarketDataProvider(
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-            candleSeries.instantRange.flatMapLatest test@{ instantRange ->
+            candleSeries.instantRange.flatMapLatest instantRange@{ instantRange ->
 
-                instantRange ?: return@test emptyFlow()
+                instantRange ?: return@instantRange emptyFlow()
 
-                val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                        instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
-
-                tradingRecord.executions.getExecutionsByTickerInInterval(
-                    ticker,
-                    ldtRange,
-                )
+                tradingRecord.executions.getExecutionsByTickerInInterval(ticker, instantRange)
             }
         }
             .mapList { execution ->
 
-                val executionInstant = execution.timestamp.toInstant(TimeZone.currentSystemDefault())
-
                 TradeExecutionMarker(
-                    instant = executionInstant.markerTime(),
+                    instant = execution.timestamp.markerTime(),
                     side = execution.side,
                     price = execution.price,
                 )
@@ -171,37 +160,30 @@ internal class ReplayChartsMarketDataProvider(
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-            candleSeries.instantRange.flatMapLatest test@{ instantRange ->
+            candleSeries.instantRange.flatMapLatest instantRange@{ instantRange ->
 
-                instantRange ?: return@test emptyFlow()
+                instantRange ?: return@instantRange emptyFlow()
 
-                val ldtRange = instantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                        instantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
-
-                tradingRecord.trades.getByTickerInInterval(ticker, ldtRange)
+                tradingRecord.trades.getByTickerInInterval(ticker, instantRange)
             }
         }
             .map { trades ->
                 trades.flatMap { trade ->
 
-                    val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-
                     buildList {
 
                         add(
                             TradeMarker(
-                                instant = entryInstant.markerTime(),
+                                instant = trade.entryTimestamp.markerTime(),
                                 isEntry = true,
                             )
                         )
 
                         if (trade.isClosed) {
 
-                            val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
                             add(
                                 TradeMarker(
-                                    instant = exitInstant.markerTime(),
+                                    instant = trade.exitTimestamp!!.markerTime(),
                                     isEntry = false,
                                 )
                             )

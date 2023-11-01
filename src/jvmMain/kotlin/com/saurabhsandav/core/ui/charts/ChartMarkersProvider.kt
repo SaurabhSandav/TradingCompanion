@@ -16,9 +16,6 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 
 @Stable
 internal class ChartMarkersProvider(
@@ -36,9 +33,7 @@ internal class ChartMarkersProvider(
             return candleSeries[markerCandleIndex].openInstant
         }
 
-        val candlesInstantRange = candleSeries.instantRange.value ?: return emptyFlow()
-        val ldtRange = candlesInstantRange.start.toLocalDateTime(TimeZone.currentSystemDefault())..
-                candlesInstantRange.endInclusive.toLocalDateTime(TimeZone.currentSystemDefault())
+        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
         val reviewProfile = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
             .map { it?.let(::ProfileId) }
@@ -54,16 +49,14 @@ internal class ChartMarkersProvider(
                     tradingRecord.executions.getExecutionsByTickerAndTradeIdsInInterval(
                         ticker = ticker,
                         ids = tradeIds.toList(),
-                        range = ldtRange,
+                        range = instantRange,
                     )
                 }
             }
             .mapList { execution ->
 
-                val executionInstant = execution.timestamp.toInstant(TimeZone.currentSystemDefault())
-
                 TradeExecutionMarker(
-                    instant = executionInstant.markerTime(),
+                    instant = execution.timestamp.markerTime(),
                     side = execution.side,
                     price = execution.price,
                 )
@@ -75,30 +68,26 @@ internal class ChartMarkersProvider(
 
                     val tradingRecord = tradingProfiles.getRecord(profile.id)
 
-                    tradingRecord.trades.getByTickerAndIdsInInterval(ticker, tradeIds.toList(), ldtRange)
+                    tradingRecord.trades.getByTickerAndIdsInInterval(ticker, tradeIds.toList(), instantRange)
                 }
             }
             .map { trades ->
                 trades.flatMap { trade ->
 
-                    val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-
                     buildList {
 
                         add(
                             TradeMarker(
-                                instant = entryInstant.markerTime(),
+                                instant = trade.entryTimestamp.markerTime(),
                                 isEntry = true,
                             )
                         )
 
                         if (trade.isClosed) {
 
-                            val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
                             add(
                                 TradeMarker(
-                                    instant = exitInstant.markerTime(),
+                                    instant = trade.exitTimestamp!!.markerTime(),
                                     isEntry = false,
                                 )
                             )

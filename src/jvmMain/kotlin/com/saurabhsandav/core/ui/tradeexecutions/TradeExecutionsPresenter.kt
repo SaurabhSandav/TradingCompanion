@@ -28,6 +28,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 @Stable
@@ -113,7 +115,7 @@ internal class TradeExecutionsPresenter(
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
         side = side.strValue.uppercase(),
         price = price.toPlainString(),
-        timestamp = TradeDateTimeFormatter.format(timestamp),
+        timestamp = TradeDateTimeFormatter.format(timestamp.toLocalDateTime(TimeZone.currentSystemDefault())),
         locked = locked,
     )
 

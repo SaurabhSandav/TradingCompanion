@@ -1,13 +1,13 @@
 import com.saurabhsandav.core.trades.model.TradeId;
 import com.saurabhsandav.core.trades.model.TradeNoteId;
-import kotlinx.datetime.LocalDateTime;
+import kotlinx.datetime.Instant;
 
 CREATE TABLE IF NOT EXISTS TradeNote (
 id INTEGER AS TradeNoteId NOT NULL PRIMARY KEY,
 tradeId INTEGER AS TradeId NOT NULL,
 note TEXT NOT NULL,
-added TEXT AS LocalDateTime NOT NULL,
-lastEdited TEXT AS LocalDateTime,
+added TEXT AS Instant NOT NULL,
+lastEdited TEXT AS Instant,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
 );
 

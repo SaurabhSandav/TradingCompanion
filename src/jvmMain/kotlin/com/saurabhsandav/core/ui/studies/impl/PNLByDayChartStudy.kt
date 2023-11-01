@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
 internal class PNLByDayChartStudy(
@@ -40,7 +42,9 @@ internal class PNLByDayChartStudy(
                 .map { trades ->
                     trades.filter { it.isClosed }
                         .asReversed()
-                        .groupingBy { trade -> trade.entryTimestamp.date }
+                        .groupingBy { trade ->
+                            trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                        }
                         .fold(
                             initialValueSelector = { _, _ -> BigDecimal.ZERO },
                             operation = { _, accumulator, trade -> accumulator + trade.brokerageAtExit()!!.netPNL },

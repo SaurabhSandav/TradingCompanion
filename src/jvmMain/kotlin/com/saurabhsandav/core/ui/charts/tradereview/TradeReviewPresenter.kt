@@ -25,8 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import java.math.BigDecimal
 import java.util.*
 import kotlin.time.Duration
@@ -97,10 +95,6 @@ internal class TradeReviewPresenter(
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-        val timeZone = TimeZone.of("Asia/Kolkata")
-        val entryInstant = entryTimestamp.toInstant(timeZone)
-        val exitInstant = exitTimestamp?.toInstant(timeZone)
-
         fun formatDuration(duration: Duration): String {
 
             val durationSeconds = duration.inWholeSeconds
@@ -113,10 +107,10 @@ internal class TradeReviewPresenter(
         }
 
         val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitInstant!! - entryInstant))
+            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
             else -> flow {
                 while (true) {
-                    emit(formatDuration(Clock.System.now() - entryInstant))
+                    emit(formatDuration(Clock.System.now() - entryTimestamp))
                     delay(1.seconds)
                 }
             }
@@ -168,8 +162,8 @@ internal class TradeReviewPresenter(
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val trade = tradingRecord.trades.getById(id).first()
-        val start = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-        val end = trade.exitTimestamp?.toInstant(TimeZone.currentSystemDefault())
+        val start = trade.entryTimestamp
+        val end = trade.exitTimestamp
 
         // Show trade on chart
         onOpenChart(trade.ticker, start, end)

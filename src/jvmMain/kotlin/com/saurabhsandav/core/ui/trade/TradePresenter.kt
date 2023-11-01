@@ -27,7 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.io.path.extension
@@ -111,10 +111,6 @@ internal class TradePresenter(
                 val instrumentCapitalized = trade.instrument.strValue
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-                val timeZone = TimeZone.of("Asia/Kolkata")
-                val entryInstant = trade.entryTimestamp.toInstant(timeZone)
-                val exitInstant = trade.exitTimestamp?.toInstant(timeZone)
-
                 fun formatDuration(duration: Duration): String {
 
                     val durationSeconds = duration.inWholeSeconds
@@ -127,10 +123,10 @@ internal class TradePresenter(
                 }
 
                 val durationStr = when {
-                    trade.isClosed -> flowOf(formatDuration(exitInstant!! - entryInstant))
+                    trade.isClosed -> flowOf(formatDuration(trade.exitTimestamp!! - trade.entryTimestamp))
                     else -> flow {
                         while (true) {
-                            emit(formatDuration(Clock.System.now() - entryInstant))
+                            emit(formatDuration(Clock.System.now() - trade.entryTimestamp))
                             delay(1.seconds)
                         }
                     }
@@ -177,7 +173,9 @@ internal class TradePresenter(
                             ?: execution.quantity.toString(),
                         side = execution.side.strValue.uppercase(),
                         price = execution.price.toPlainString(),
-                        timestamp = TradeDateTimeFormatter.format(execution.timestamp),
+                        timestamp = TradeDateTimeFormatter.format(
+                            ldt = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                        ),
                         locked = execution.locked,
                     )
                 }.toImmutableList()
@@ -302,8 +300,12 @@ internal class TradePresenter(
             tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
-                    val added = TradeDateTimeFormatter.format(note.added)
-                    val lastEdited = note.lastEdited?.let(TradeDateTimeFormatter::format)
+                    val added = TradeDateTimeFormatter.format(
+                        ldt = note.added.toLocalDateTime(TimeZone.currentSystemDefault())
+                    )
+                    val lastEdited = note.lastEdited
+                        ?.toLocalDateTime(TimeZone.currentSystemDefault())
+                        ?.let(TradeDateTimeFormatter::format)
 
                     TradeNote(
                         id = note.id,

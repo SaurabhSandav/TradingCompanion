@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
 internal class PNLByMonthChartStudy(
@@ -41,9 +43,12 @@ internal class PNLByMonthChartStudy(
                     trades.filter { it.isClosed }
                         .asReversed()
                         .groupingBy { trade ->
+
+                            val ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+
                             LocalDate(
-                                year = trade.entryTimestamp.year,
-                                monthNumber = trade.entryTimestamp.monthNumber,
+                                year = ldt.year,
+                                monthNumber = ldt.monthNumber,
                                 dayOfMonth = 1,
                             )
                         }

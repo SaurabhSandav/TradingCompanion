@@ -45,11 +45,13 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 @Stable
@@ -143,10 +145,6 @@ internal class TradesPresenter(
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-        val timeZone = TimeZone.of("Asia/Kolkata")
-        val entryInstant = entryTimestamp.toInstant(timeZone)
-        val exitInstant = exitTimestamp?.toInstant(timeZone)
-
         fun formatDuration(duration: Duration): String {
 
             val durationSeconds = duration.inWholeSeconds
@@ -159,10 +157,10 @@ internal class TradesPresenter(
         }
 
         val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitInstant!! - entryInstant))
+            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
             else -> flow {
                 while (true) {
-                    emit(formatDuration(Clock.System.now() - entryInstant))
+                    emit(formatDuration(Clock.System.now() - entryTimestamp))
                     delay(1.seconds)
                 }
             }
@@ -179,7 +177,9 @@ internal class TradesPresenter(
             },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
-            entryTime = TradeDateTimeFormatter.format(entryTimestamp),
+            entryTime = TradeDateTimeFormatter.format(
+                ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+            ),
             duration = durationStr,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
@@ -206,11 +206,11 @@ internal class TradesPresenter(
         val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
         val executions = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
 
-        val exitDateTime = trade.exitTimestamp ?: Clock.System.nowIn(TimeZone.currentSystemDefault())
+        val exitDateTime = trade.exitTimestamp ?: Clock.System.now()
 
         // Candles range of 1 month before and after trade interval
-        val from = trade.entryTimestamp.date - DatePeriod(months = 1)
-        val to = exitDateTime.date + DatePeriod(months = 1)
+        val from = trade.entryTimestamp - 30.days
+        val to = exitDateTime + 30.days
         val timeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
             .map(Timeframe::valueOf)
             .first()
@@ -219,8 +219,8 @@ internal class TradesPresenter(
         val candlesResult = candleRepo.getCandles(
             ticker = trade.ticker,
             timeframe = timeframe,
-            from = from.atStartOfDayIn(TimeZone.currentSystemDefault()),
-            to = to.atStartOfDayIn(TimeZone.currentSystemDefault()),
+            from = from,
+            to = to,
             edgeCandlesInclusive = false,
         )
 
@@ -268,8 +268,6 @@ internal class TradesPresenter(
         val volumeData = mutableListOf<HistogramData>()
         val ema9Data = mutableListOf<LineData>()
         val vwapData = mutableListOf<LineData>()
-        val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-        val exitInstant = exitDateTime.toInstant(TimeZone.currentSystemDefault())
         var entryIndex = 0
         var exitIndex = 0
 
@@ -306,20 +304,18 @@ internal class TradesPresenter(
             )
 
             // Find entry candle index
-            if (entryInstant > candle.openInstant)
+            if (trade.entryTimestamp > candle.openInstant)
                 entryIndex = index
 
             // Find exit candle index
-            if (exitInstant > candle.openInstant)
+            if (exitDateTime > candle.openInstant)
                 exitIndex = index
         }
 
         val markers = executions.map { execution ->
 
-            val executionInstant = execution.timestamp.toInstant(TimeZone.currentSystemDefault())
-
             SeriesMarker(
-                time = Time.UTCTimestamp(executionInstant.offsetTimeForChart()),
+                time = Time.UTCTimestamp(execution.timestamp.offsetTimeForChart()),
                 position = when (execution.side) {
                     TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
                     TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar

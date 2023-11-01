@@ -9,7 +9,7 @@ import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
 internal class TradeExecutionsRepo(
@@ -39,7 +39,7 @@ internal class TradeExecutionsRepo(
         lots: Int?,
         side: TradeExecutionSide,
         price: BigDecimal,
-        timestamp: LocalDateTime,
+        timestamp: Instant,
         locked: Boolean,
     ): TradeExecutionId = withContext(Dispatchers.IO) {
         tradesDB.transactionWithResult {
@@ -77,7 +77,7 @@ internal class TradeExecutionsRepo(
         lots: Int?,
         side: TradeExecutionSide,
         price: BigDecimal,
-        timestamp: LocalDateTime,
+        timestamp: Instant,
     ): TradeExecutionId = withContext(Dispatchers.IO) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
@@ -180,7 +180,7 @@ internal class TradeExecutionsRepo(
 
     fun getExecutionsByTickerInInterval(
         ticker: String,
-        range: ClosedRange<LocalDateTime>,
+        range: ClosedRange<Instant>,
     ): Flow<List<TradeExecution>> {
         return tradesDB.tradeExecutionQueries
             .getByTickerInInterval(
@@ -195,7 +195,7 @@ internal class TradeExecutionsRepo(
     fun getExecutionsByTickerAndTradeIdsInInterval(
         ticker: String,
         ids: List<TradeId>,
-        range: ClosedRange<LocalDateTime>,
+        range: ClosedRange<Instant>,
     ): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
             .getExecutionsByTickerAndTradeIdsInInterval(
@@ -427,7 +427,7 @@ internal class TradeExecutionsRepo(
         lots: Int?,
         side: TradeExecutionSide,
         price: BigDecimal,
-        timestamp: LocalDateTime,
+        timestamp: Instant,
         locked: Boolean,
         overrideQuantity: String,
     ) = TradeExecution(

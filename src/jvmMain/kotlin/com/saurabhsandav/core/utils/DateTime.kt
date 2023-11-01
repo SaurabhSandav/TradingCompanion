@@ -2,15 +2,14 @@ package com.saurabhsandav.core.utils
 
 import kotlinx.datetime.*
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.nanoseconds
 
 fun Clock.nowIn(timeZone: TimeZone): LocalDateTime {
     return now().toLocalDateTime(timeZone)
 }
 
-fun LocalDateTime.withoutNanoseconds(): LocalDateTime {
-    return date.atTime(LocalTime(hour = hour, minute = minute, second = second))
-}
+fun Instant.withoutNanoseconds(): Instant = this - nanosecondsOfSecond.nanoseconds
 
-fun DateTimeFormatter.format(dateTime: LocalDateTime): String {
-    return format(dateTime.toJavaLocalDateTime())
+fun DateTimeFormatter.format(ldt: LocalDateTime): String {
+    return format(ldt.toJavaLocalDateTime())
 }

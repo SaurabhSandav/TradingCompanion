@@ -8,7 +8,6 @@ import com.github.michaelbull.result.get
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.utils.nowIn
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -16,9 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import java.nio.file.Path
 import java.security.DigestInputStream
@@ -57,7 +54,7 @@ internal class TradesRepo(
 
     fun getByTickerInInterval(
         ticker: String,
-        range: ClosedRange<LocalDateTime>,
+        range: ClosedRange<Instant>,
     ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
             .getByTickerInInterval(
@@ -72,7 +69,7 @@ internal class TradesRepo(
     fun getByTickerAndIdsInInterval(
         ticker: String,
         ids: List<TradeId>,
-        range: ClosedRange<LocalDateTime>,
+        range: ClosedRange<Instant>,
     ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
             .getByTickerAndIdsInInterval(
@@ -105,14 +102,11 @@ internal class TradesRepo(
             // If candle is not closed, skip calculation
             if (!trade.isClosed) return@forEach
 
-            val entryInstant = trade.entryTimestamp.toInstant(TimeZone.currentSystemDefault())
-            val exitInstant = trade.exitTimestamp!!.toInstant(TimeZone.currentSystemDefault())
-
             val candles = candleRepo.getCandles(
                 ticker = trade.ticker,
                 timeframe = Timeframe.M1,
-                from = entryInstant,
-                to = exitInstant,
+                from = trade.entryTimestamp,
+                to = trade.exitTimestamp!!,
                 edgeCandlesInclusive = true,
             ).get() ?: return@forEach
 
@@ -120,8 +114,8 @@ internal class TradesRepo(
             val tradeCandles = candles.filter { candle ->
                 // Check if candle inside trade interval OR
                 // Check if entry time inside candle interval
-                candle.openInstant in entryInstant..exitInstant ||
-                        entryInstant in candle.openInstant..(candle.openInstant + 1.minutes)
+                candle.openInstant in trade.entryTimestamp..trade.exitTimestamp ||
+                        trade.entryTimestamp in candle.openInstant..(candle.openInstant + 1.minutes)
             }
 
             // Save MFE and MAE
@@ -420,7 +414,7 @@ internal class TradesRepo(
 
     suspend fun addNote(tradeId: TradeId, note: String) = withContext(Dispatchers.IO) {
 
-        val now = Clock.System.nowIn(TimeZone.currentSystemDefault()).withoutNanoseconds()
+        val now = Clock.System.now().withoutNanoseconds()
 
         tradesDB.tradeNoteQueries.insert(
             tradeId = tradeId,
@@ -435,7 +429,7 @@ internal class TradesRepo(
         tradesDB.tradeNoteQueries.update(
             id = id,
             note = note,
-            lastEdited = Clock.System.nowIn(TimeZone.currentSystemDefault()).withoutNanoseconds(),
+            lastEdited = Clock.System.now().withoutNanoseconds(),
         )
     }
 

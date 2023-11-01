@@ -15,6 +15,9 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 @Stable
 internal class TradeExecutionFormPresenter(
@@ -63,6 +66,8 @@ internal class TradeExecutionFormPresenter(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
+        val tz = TimeZone.currentSystemDefault()
+
         val executionId = when (formType) {
             is Edit -> tradingRecord.executions.edit(
                 id = formType.id,
@@ -73,7 +78,7 @@ internal class TradeExecutionFormPresenter(
                 lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.priceField.value.toBigDecimal(),
-                timestamp = formModel.timestamp,
+                timestamp = formModel.timestamp.toInstant(tz),
             )
 
             else -> tradingRecord.executions.new(
@@ -84,7 +89,7 @@ internal class TradeExecutionFormPresenter(
                 lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.priceField.value.toBigDecimal(),
-                timestamp = formModel.timestamp,
+                timestamp = formModel.timestamp.toInstant(tz),
                 locked = false,
             )
         }
@@ -189,7 +194,7 @@ internal class TradeExecutionFormPresenter(
                 lots = execution.lots?.toString() ?: "",
                 isBuy = execution.side == TradeExecutionSide.Buy,
                 price = execution.price.toPlainString(),
-                timestamp = execution.timestamp,
+                timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
             ),
         )
     }

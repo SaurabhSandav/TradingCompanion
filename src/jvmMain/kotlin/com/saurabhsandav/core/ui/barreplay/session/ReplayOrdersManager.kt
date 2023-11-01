@@ -105,7 +105,7 @@ internal class ReplayOrdersManager(
                     lots = closedOrder.params.lots,
                     side = closedOrder.params.side,
                     price = closedOrder.executionPrice,
-                    timestamp = replaySession.replayTime.first().toLocalDateTime(TimeZone.currentSystemDefault()),
+                    timestamp = replaySession.replayTime.first(),
                     locked = false,
                 )
 
@@ -151,8 +151,7 @@ internal class ReplayOrdersManager(
                                     lots = closedStopOrder.params.lots,
                                     side = closedStopOrder.params.side,
                                     price = closedStopOrder.executionPrice,
-                                    timestamp = replaySession.replayTime.first()
-                                        .toLocalDateTime(TimeZone.currentSystemDefault()),
+                                    timestamp = replaySession.replayTime.first(),
                                     locked = false,
                                 )
                             }
@@ -189,8 +188,7 @@ internal class ReplayOrdersManager(
                                     lots = closedTargetOrder.params.lots,
                                     side = closedTargetOrder.params.side,
                                     price = closedTargetOrder.executionPrice,
-                                    timestamp = replaySession.replayTime.first()
-                                        .toLocalDateTime(TimeZone.currentSystemDefault()),
+                                    timestamp = replaySession.replayTime.first(),
                                     locked = false,
                                 )
                             }

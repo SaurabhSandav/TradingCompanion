@@ -4,7 +4,7 @@ import com.saurabhsandav.core.trades.model.TradeSide;
 import java.math.BigDecimal;
 import kotlin.Boolean;
 import kotlin.Int;
-import kotlinx.datetime.LocalDateTime;
+import kotlinx.datetime.Instant;
 
 CREATE TABLE IF NOT EXISTS Trade (
 id INTEGER AS TradeId NOT NULL PRIMARY KEY,
@@ -16,9 +16,9 @@ closedQuantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
 side TEXT AS TradeSide NOT NULL,
 averageEntry TEXT AS BigDecimal NOT NULL,
-entryTimestamp TEXT AS LocalDateTime NOT NULL,
+entryTimestamp TEXT AS Instant NOT NULL,
 averageExit TEXT AS BigDecimal,
-exitTimestamp TEXT AS LocalDateTime,
+exitTimestamp TEXT AS Instant,
 pnl TEXT AS BigDecimal NOT NULL,
 fees TEXT AS BigDecimal NOT NULL,
 netPnl TEXT AS BigDecimal NOT NULL,

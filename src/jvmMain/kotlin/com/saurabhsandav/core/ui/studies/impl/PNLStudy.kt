@@ -10,12 +10,14 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
+import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
@@ -70,8 +72,9 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                     }.setScale(1, RoundingMode.HALF_EVEN)
                 }
 
-                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
-                    .format(trade.entryTimestamp.toJavaLocalDateTime())
+                val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
+                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
 
                 val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
                     tradeTargets.maxByOrNull { target -> trade.brokerageAt(target).pnl }
@@ -83,7 +86,7 @@ internal class PNLStudy(appModule: AppModule) : TableStudy<PNLStudy.Model>() {
                     side = trade.side.strValue.uppercase(),
                     entry = trade.averageEntry.toPlainString(),
                     stop = stop?.toPlainString() ?: "NA",
-                    duration = "$day\n${trade.entryTimestamp.time} ->\n${trade.exitTimestamp?.time}",
+                    duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
                     target = target?.toPlainString() ?: "NA",
                     exit = trade.averageExit!!.toPlainString(),
                     pnl = pnlBD.toPlainString(),
