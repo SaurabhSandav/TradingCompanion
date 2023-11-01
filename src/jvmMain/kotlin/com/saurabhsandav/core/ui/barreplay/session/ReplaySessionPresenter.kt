@@ -137,7 +137,9 @@ internal class ReplaySessionPresenter(
                             is StopMarket -> openOrder.executionType.trigger.toPlainString()
                             is TrailingStop -> openOrder.executionType.trailingStop.toPlainString()
                         },
-                        timestamp = TradeDateTimeFormatter.format(openOrder.createdAt),
+                        timestamp = TradeDateTimeFormatter.format(
+                            ldt = openOrder.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()),
+                        ),
                     )
                 }.toImmutableList()
             }

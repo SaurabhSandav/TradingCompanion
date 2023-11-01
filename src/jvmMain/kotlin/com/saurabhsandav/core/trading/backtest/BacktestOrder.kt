@@ -2,14 +2,14 @@ package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
 sealed class BacktestOrder {
 
     abstract val id: Long
     abstract val params: OrderParams
-    abstract val createdAt: LocalDateTime
+    abstract val createdAt: Instant
     abstract val executionType: OrderExecutionType
 
     data class OrderParams(
@@ -24,7 +24,7 @@ sealed class BacktestOrder {
     data class OpenOrder(
         override val id: Long,
         override val params: OrderParams,
-        override val createdAt: LocalDateTime,
+        override val createdAt: Instant,
         override val executionType: OrderExecutionType,
         val ocoId: Any? = null,
     ) : BacktestOrder() {
@@ -41,21 +41,21 @@ sealed class BacktestOrder {
 
     sealed class ClosedOrder : BacktestOrder() {
 
-        abstract val closedAt: LocalDateTime
+        abstract val closedAt: Instant
 
         data class Canceled(
             override val id: Long,
             override val params: OrderParams,
-            override val createdAt: LocalDateTime,
-            override val closedAt: LocalDateTime,
+            override val createdAt: Instant,
+            override val closedAt: Instant,
             override val executionType: OrderExecutionType,
         ) : ClosedOrder()
 
         data class Executed(
             override val id: Long,
             override val params: OrderParams,
-            override val createdAt: LocalDateTime,
-            override val closedAt: LocalDateTime,
+            override val createdAt: Instant,
+            override val closedAt: Instant,
             override val executionType: OrderExecutionType,
             val executionPrice: BigDecimal,
         ) : ClosedOrder()

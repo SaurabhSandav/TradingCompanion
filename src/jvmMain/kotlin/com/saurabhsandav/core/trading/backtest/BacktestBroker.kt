@@ -6,11 +6,11 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
 class BacktestBroker(
-    private val getCurrentTime: (String) -> LocalDateTime,
+    private val getCurrentTime: (String) -> Instant,
 ) {
 
     private var nextId = 0L

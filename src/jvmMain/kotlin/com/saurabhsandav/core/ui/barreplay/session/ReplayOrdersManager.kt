@@ -24,8 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import kotlin.random.Random
 
@@ -42,10 +40,7 @@ internal class ReplayOrdersManager(
 
     private val replaySeriesCache = mutableMapOf<String, ReplaySeries>()
     private val backtestBroker = BacktestBroker(
-        getCurrentTime = { ticker ->
-            val replaySeries = replaySeriesCache[ticker] ?: error("ReplaySeries not found")
-            replaySeries.replayTime.value.toLocalDateTime(TimeZone.currentSystemDefault())
-        },
+        getCurrentTime = { ticker -> replaySeriesCache[ticker]?.replayTime?.value ?: error("ReplaySeries not found") },
     )
 
     val openOrders = backtestBroker.openOrders
