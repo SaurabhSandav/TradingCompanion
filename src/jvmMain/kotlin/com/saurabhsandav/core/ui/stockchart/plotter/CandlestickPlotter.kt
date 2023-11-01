@@ -9,9 +9,10 @@ import com.saurabhsandav.core.chart.options.common.PriceFormat
 
 class CandlestickPlotter(
     private val chart: IChartApi,
+    override val key: String,
 ) : SeriesPlotter<CandlestickData>(chart) {
 
-    override var name: String = ""
+    override var legendLabel: String = ""
 
     override fun legendText(params: MouseEventParams): String {
         val series = series ?: return ""
@@ -20,19 +21,22 @@ class CandlestickPlotter(
         val high = candlestickSeriesPrices?.high?.toString().orEmpty()
         val low = candlestickSeriesPrices?.low?.toString().orEmpty()
         val close = candlestickSeriesPrices?.close?.toString().orEmpty()
-        return "$name O $open H $high L $low C $close"
+        return "$legendLabel O $open H $high L $low C $close"
     }
 
     override fun createSeries(): ISeriesApi<CandlestickData> {
-        return chart.addCandlestickSeries(
-            name = "candlestickSeries",
-            options = CandlestickStyleOptions(
-                lastValueVisible = false,
-                priceFormat = PriceFormat.BuiltIn(
-                    type = PriceFormat.Type.Price,
-                    minMove = 0.05,
-                ),
+
+        val options = CandlestickStyleOptions(
+            lastValueVisible = false,
+            priceFormat = PriceFormat.BuiltIn(
+                type = PriceFormat.Type.Price,
+                minMove = 0.05,
             ),
+        )
+
+        return chart.addCandlestickSeries(
+            name = key,
+            options = options,
         )
     }
 }

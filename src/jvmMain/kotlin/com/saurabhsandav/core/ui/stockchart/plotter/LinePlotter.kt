@@ -11,13 +11,14 @@ import com.saurabhsandav.core.chart.options.common.LineWidth
 
 class LinePlotter(
     private val chart: IChartApi,
-    override val name: String,
+    override val key: String,
+    override val legendLabel: String,
     private val color: Color? = null,
 ) : SeriesPlotter<LineData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {
         val value = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
-        return "$name $value"
+        return "$legendLabel $value"
     }
 
     override fun createSeries(): ISeriesApi<LineData> {
@@ -32,7 +33,7 @@ class LinePlotter(
         if (color != null) options = options.copy(color = color)
 
         return chart.addLineSeries(
-            name = name,
+            name = key,
             options = options,
         )
     }

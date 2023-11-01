@@ -12,26 +12,29 @@ import com.saurabhsandav.core.chart.options.common.PriceFormat
 
 class VolumePlotter(
     private val chart: IChartApi,
-    override val name: String = "Vol",
+    override val key: String,
+    override val legendLabel: String = "Vol",
 ) : SeriesPlotter<HistogramData>(chart) {
 
     override fun legendText(params: MouseEventParams): String {
         val volume = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
-        return "$name $volume"
+        return "$legendLabel $volume"
     }
 
     override fun createSeries(): ISeriesApi<HistogramData> {
 
-        val series = chart.addHistogramSeries(
-            name = "volumeSeries",
-            options = HistogramStyleOptions(
-                lastValueVisible = false,
-                priceFormat = PriceFormat.BuiltIn(
-                    type = PriceFormat.Type.Volume,
-                ),
-                priceScaleId = "",
-                priceLineVisible = false,
+        val options = HistogramStyleOptions(
+            lastValueVisible = false,
+            priceFormat = PriceFormat.BuiltIn(
+                type = PriceFormat.Type.Volume,
             ),
+            priceScaleId = "",
+            priceLineVisible = false,
+        )
+
+        val series = chart.addHistogramSeries(
+            name = key,
+            options = options,
         )
 
         series.priceScale.applyOptions(

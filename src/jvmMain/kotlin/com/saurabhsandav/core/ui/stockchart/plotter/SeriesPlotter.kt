@@ -14,6 +14,10 @@ abstract class SeriesPlotter<T : SeriesData>(
     private val chart: IChartApi,
 ) {
 
+    abstract val key: String
+
+    abstract val legendLabel: String
+
     private var dataSource: DataSource<T>? = null
 
     var series: ISeriesApi<T>? = null
@@ -21,8 +25,6 @@ abstract class SeriesPlotter<T : SeriesData>(
 
     var isEnabled by mutableStateOf(true)
         private set
-
-    abstract val name: String
 
     abstract fun legendText(params: MouseEventParams): String
 

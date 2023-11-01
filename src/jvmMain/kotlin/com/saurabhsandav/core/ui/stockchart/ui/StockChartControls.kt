@@ -72,7 +72,7 @@ internal fun StockChartControls(
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
 
-                            Text(plotter.name)
+                            Text(plotter.legendLabel)
 
                             Switch(
                                 checked = plotter.isEnabled,

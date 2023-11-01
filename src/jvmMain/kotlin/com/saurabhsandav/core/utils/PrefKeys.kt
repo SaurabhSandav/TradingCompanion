@@ -12,12 +12,5 @@ object PrefKeys {
     const val TradeReviewTradingProfile = "trade_review_trading_profile"
     const val ReplayTradingProfile = "replay_trading_profile"
 
-    const val PlotterCandlesEnabled = "plotter_candles_enabled"
-    const val PlotterVolumeEnabled = "plotter_volume_enabled"
-    const val PlotterVWAPEnabled = "plotter_vwap_enabled"
-    const val PlotterEMA9Enabled = "plotter_ema9_enabled"
-    const val PlotterSMA50Enabled = "plotter_sma50_enabled"
-    const val PlotterSMA100Enabled = "plotter_sma100_enabled"
-    const val PlotterSMA200Enabled = "plotter_sma200_enabled"
     const val MarkersEnabled = "markers_enabled"
 }

@@ -47,13 +47,13 @@ internal class StockChart(
     private val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
-    private val candlestickPlotter = CandlestickPlotter(actualChart)
-    private val volumePlotter = VolumePlotter(actualChart)
-    private val vwapPlotter = LinePlotter(actualChart, "VWAP", Color(0xFFA500))
-    private val ema9Plotter = LinePlotter(actualChart, "EMA (9)")
-    private val sma50Plotter = LinePlotter(actualChart, "SMA (50)", Color(0x0AB210))
-    private val sma100Plotter = LinePlotter(actualChart, "SMA (100)", Color(0xB05F10))
-    private val sma200Plotter = LinePlotter(actualChart, "SMA (200)", Color(0xB00C10))
+    private val candlestickPlotter = CandlestickPlotter(actualChart, "candles")
+    private val volumePlotter = VolumePlotter(actualChart, "volume")
+    private val vwapPlotter = LinePlotter(actualChart, "vwap", "VWAP", Color(0xFFA500))
+    private val ema9Plotter = LinePlotter(actualChart, "ema9", "EMA (9)")
+    private val sma50Plotter = LinePlotter(actualChart, "sma50", "SMA (50)", Color(0x0AB210))
+    private val sma100Plotter = LinePlotter(actualChart, "sma100", "SMA (100)", Color(0xB05F10))
+    private val sma200Plotter = LinePlotter(actualChart, "sma200", "SMA (200)", Color(0xB00C10))
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
@@ -88,13 +88,12 @@ internal class StockChart(
         }.launchIn(coroutineScope)
 
         // Observe plotter enabled prefs
-        observerPlotterIsEnabled(PrefKeys.PlotterCandlesEnabled, candlestickPlotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterVolumeEnabled, volumePlotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterVWAPEnabled, vwapPlotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterEMA9Enabled, ema9Plotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterSMA50Enabled, sma50Plotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterSMA100Enabled, sma100Plotter)
-        observerPlotterIsEnabled(PrefKeys.PlotterSMA200Enabled, sma200Plotter)
+        plotters.forEach { plotter ->
+            appPrefs
+                .getBooleanFlow(plotter.prefKey, true)
+                .onEach(plotter::setIsEnabled)
+                .launchIn(coroutineScope)
+        }
 
         // Set initial StockChartData
         setData(initialData)
@@ -108,7 +107,7 @@ internal class StockChart(
         params = data.params
 
         // Update legend title for candles
-        candlestickPlotter.name = title
+        candlestickPlotter.legendLabel = title
 
         // Cancel CoroutineScope for the previous StockChartData
         dataCoroutineScope.cancel()
@@ -211,19 +210,7 @@ internal class StockChart(
     }
 
     fun setPlotterIsEnabled(plotter: SeriesPlotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
-
-        val prefKey = when (plotter) {
-            candlestickPlotter -> PrefKeys.PlotterCandlesEnabled
-            volumePlotter -> PrefKeys.PlotterVolumeEnabled
-            vwapPlotter -> PrefKeys.PlotterVWAPEnabled
-            ema9Plotter -> PrefKeys.PlotterEMA9Enabled
-            sma50Plotter -> PrefKeys.PlotterSMA50Enabled
-            sma100Plotter -> PrefKeys.PlotterSMA100Enabled
-            sma200Plotter -> PrefKeys.PlotterSMA200Enabled
-            else -> error("Unknown plotter ${plotter.name}")
-        }
-
-        appPrefs.putBoolean(prefKey, isEnabled)
+        appPrefs.putBoolean(plotter.prefKey, isEnabled)
     }
 
     fun setMarkersAreEnabled(isEnabled: Boolean) = coroutineScope.launchUnit {
@@ -373,16 +360,6 @@ internal class StockChart(
             .launchIn(dataCoroutineScope)
     }
 
-    private fun observerPlotterIsEnabled(
-        prefKey: String,
-        plotter: SeriesPlotter<*>,
-    ) {
-        appPrefs
-            .getBooleanFlow(prefKey, true)
-            .onEach(plotter::setIsEnabled)
-            .launchIn(coroutineScope)
-    }
-
     private suspend fun navigateToInterval(interval: ClosedRange<Instant>?) {
 
         // Wait for any loading to finish
@@ -455,6 +432,9 @@ internal class StockChart(
             }
         }
     }
+
+    private val SeriesPlotter<*>.prefKey
+        get() = "plotter_${key}_enabled"
 }
 
 internal const val StockChartLoadMoreThreshold = 50
