@@ -173,7 +173,7 @@ internal class StockChartsState(
         // New StockChart
         val stockChart = StockChart(
             parentScope = coroutineScope,
-            appModule = appModule,
+            appPrefs = appPrefs,
             marketDataProvider = marketDataProvider,
             candleLoader = candleLoader,
             actualChart = actualChart,

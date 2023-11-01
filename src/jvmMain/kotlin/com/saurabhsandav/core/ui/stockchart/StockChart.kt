@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.data.HistogramData
@@ -35,7 +35,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Stable
 internal class StockChart(
     parentScope: CoroutineScope,
-    val appModule: AppModule,
+    val appPrefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
     private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
@@ -62,7 +62,7 @@ internal class StockChart(
     var params by mutableStateOf(initialData.params)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
-    val markersAreEnabled = appModule.appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
+    val markersAreEnabled = appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
 
     init {
 
@@ -223,11 +223,11 @@ internal class StockChart(
             else -> error("Unknown plotter ${plotter.name}")
         }
 
-        appModule.appPrefs.putBoolean(prefKey, isEnabled)
+        appPrefs.putBoolean(prefKey, isEnabled)
     }
 
     fun setMarkersAreEnabled(isEnabled: Boolean) = coroutineScope.launchUnit {
-        appModule.appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
+        appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
     }
 
     suspend fun navigateTo(
@@ -377,7 +377,7 @@ internal class StockChart(
         prefKey: String,
         plotter: SeriesPlotter<*>,
     ) {
-        appModule.appPrefs
+        appPrefs
             .getBooleanFlow(prefKey, true)
             .onEach(plotter::setIsEnabled)
             .launchIn(coroutineScope)
