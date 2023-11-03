@@ -66,7 +66,7 @@ internal class ReplayChartsMarketDataProvider(
         barReplay.removeSeries((candleSource as ReplayCandleSource).replaySeries.await())
     }
 
-    override suspend fun sessionChecker(): SessionChecker = DailySessionChecker
+    override fun sessionChecker(): SessionChecker = DailySessionChecker
 
     private suspend fun buildReplaySeries(params: StockChartParams): ReplaySeries {
 

@@ -39,5 +39,5 @@ internal class ChartsMarketDataProvider(
         return params.ticker != "NIFTY50"
     }
 
-    override suspend fun sessionChecker(): SessionChecker = DailySessionChecker
+    override fun sessionChecker(): SessionChecker = DailySessionChecker
 }

@@ -17,5 +17,5 @@ internal interface MarketDataProvider {
 
     fun releaseCandleSource(candleSource: CandleSource) = Unit
 
-    suspend fun sessionChecker(): SessionChecker
+    fun sessionChecker(): SessionChecker
 }

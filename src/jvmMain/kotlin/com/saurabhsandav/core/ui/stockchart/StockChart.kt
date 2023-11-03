@@ -237,7 +237,7 @@ internal class StockChart(
         actualChart.remove()
     }
 
-    private suspend fun setupCandlesAndIndicators(
+    private fun setupCandlesAndIndicators(
         candleSeries: CandleSeries,
         hasVolume: Boolean,
     ) {
