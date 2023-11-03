@@ -20,7 +20,6 @@ import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.*
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +34,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Stable
 internal class StockChart(
     parentScope: CoroutineScope,
-    val appPrefs: FlowSettings,
+    private val prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
     private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
@@ -62,7 +61,7 @@ internal class StockChart(
     var params by mutableStateOf(initialData.params)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<SeriesPlotter<*>>()
-    val markersAreEnabled = appPrefs.getBooleanFlow(PrefKeys.MarkersEnabled, false)
+    val markersAreEnabled = prefs.getBooleanFlow(PrefMarkersEnabled, false)
 
     init {
 
@@ -89,7 +88,7 @@ internal class StockChart(
 
         // Observe plotter enabled prefs
         plotters.forEach { plotter ->
-            appPrefs
+            prefs
                 .getBooleanFlow(plotter.prefKey, true)
                 .onEach(plotter::setIsEnabled)
                 .launchIn(coroutineScope)
@@ -210,11 +209,11 @@ internal class StockChart(
     }
 
     fun setPlotterIsEnabled(plotter: SeriesPlotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
-        appPrefs.putBoolean(plotter.prefKey, isEnabled)
+        prefs.putBoolean(plotter.prefKey, isEnabled)
     }
 
     fun setMarkersAreEnabled(isEnabled: Boolean) = coroutineScope.launchUnit {
-        appPrefs.putBoolean(PrefKeys.MarkersEnabled, isEnabled)
+        prefs.putBoolean(PrefMarkersEnabled, isEnabled)
     }
 
     suspend fun navigateTo(
@@ -436,6 +435,8 @@ internal class StockChart(
     private val SeriesPlotter<*>.prefKey
         get() = "plotter_${key}_enabled"
 }
+
+private const val PrefMarkersEnabled = "markers_enabled"
 
 internal const val StockChartLoadMoreThreshold = 50
 internal const val StockChartLoadInstantBuffer = 100

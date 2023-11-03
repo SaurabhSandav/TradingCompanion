@@ -2,7 +2,9 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
+import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
@@ -11,10 +13,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebView
-import com.saurabhsandav.core.utils.PrefDefaults
-import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.newChildScope
+import com.saurabhsandav.core.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
@@ -23,6 +22,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import java.util.prefs.Preferences
 
 @Stable
 internal class StockChartsState(
@@ -33,6 +33,9 @@ internal class StockChartsState(
     val appPrefs: FlowSettings = appModule.appPrefs,
     val webViewProvider: () -> WebView = appModule.webViewProvider,
 ) {
+
+    private val chartPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName).node("StockChart"))
+        .toFlowSettings()
 
     private val coroutineScope = parentScope.newChildScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
@@ -173,7 +176,7 @@ internal class StockChartsState(
         // New StockChart
         val stockChart = StockChart(
             parentScope = coroutineScope,
-            appPrefs = appPrefs,
+            prefs = chartPrefs,
             marketDataProvider = marketDataProvider,
             candleLoader = candleLoader,
             actualChart = actualChart,

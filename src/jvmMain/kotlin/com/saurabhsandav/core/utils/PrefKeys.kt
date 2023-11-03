@@ -11,6 +11,4 @@ object PrefKeys {
     const val CurrentTradingProfile = "current_trading_profile"
     const val TradeReviewTradingProfile = "trade_review_trading_profile"
     const val ReplayTradingProfile = "replay_trading_profile"
-
-    const val MarkersEnabled = "markers_enabled"
 }
