@@ -46,13 +46,13 @@ class StockChart(
     private val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
-    private val candlestickPlotter = CandlestickPlotter(actualChart, "candles")
-    private val volumePlotter = VolumePlotter(actualChart, "volume")
-    private val vwapPlotter = LinePlotter(actualChart, "vwap", "VWAP", Color(0xFFA500))
-    private val ema9Plotter = LinePlotter(actualChart, "ema9", "EMA (9)")
-    private val sma50Plotter = LinePlotter(actualChart, "sma50", "SMA (50)", Color(0x0AB210))
-    private val sma100Plotter = LinePlotter(actualChart, "sma100", "SMA (100)", Color(0xB05F10))
-    private val sma200Plotter = LinePlotter(actualChart, "sma200", "SMA (200)", Color(0xB00C10))
+    private val candlestickPlotter = CandlestickPlotter("candles")
+    private val volumePlotter = VolumePlotter("volume")
+    private val vwapPlotter = LinePlotter("vwap", "VWAP", Color(0xFFA500))
+    private val ema9Plotter = LinePlotter("ema9", "EMA (9)")
+    private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color(0x0AB210))
+    private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
+    private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
@@ -76,6 +76,8 @@ class StockChart(
                 sma200Plotter,
             )
         )
+
+        plotters.forEach { plotter -> plotter.onAttach(this) }
 
         actualChart.timeScale.applyOptions(
             TimeScaleOptions(timeVisible = true)
@@ -160,7 +162,7 @@ class StockChart(
                     // If a load is ongoing don't load before/after
                     if (data.loadState.first() == LoadState.Loading) return@onEach
 
-                    val barsInfo = candlestickPlotter.series?.barsInLogicalRange(logicalRange) ?: return@onEach
+                    val barsInfo = candlestickPlotter.series.barsInLogicalRange(logicalRange) ?: return@onEach
 
                     when {
                         // Load more historical data if there are less than a certain no. of bars to the left of the visible area.
@@ -233,8 +235,8 @@ class StockChart(
     fun destroy() {
         coroutineScope.cancel()
         dataCoroutineScope.cancel()
-        plotters.forEach { it.remove() }
         actualChart.remove()
+        plotters.clear()
     }
 
     private fun setupCandlesAndIndicators(

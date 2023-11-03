@@ -1,27 +1,26 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.LineStyleOptions
 import com.saurabhsandav.core.chart.options.common.LineWidth
+import com.saurabhsandav.core.ui.stockchart.StockChart
 
 class LinePlotter(
-    private val chart: IChartApi,
     override val key: String,
     override val legendLabel: String,
     private val color: Color? = null,
-) : SeriesPlotter<LineData>(chart) {
+) : SeriesPlotter<LineData>() {
 
     override fun legendText(params: MouseEventParams): String {
-        val value = series?.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
+        val value = series.let { (params.seriesData[it] as? SingleValueData?)?.value?.toString() }.orEmpty()
         return "$legendLabel $value"
     }
 
-    override fun createSeries(): ISeriesApi<LineData> {
+    override fun createSeries(chart: StockChart): ISeriesApi<LineData> {
 
         var options = LineStyleOptions(
             lineWidth = LineWidth.One,
@@ -32,7 +31,7 @@ class LinePlotter(
 
         if (color != null) options = options.copy(color = color)
 
-        return chart.addLineSeries(
+        return chart.actualChart.addLineSeries(
             name = key,
             options = options,
         )

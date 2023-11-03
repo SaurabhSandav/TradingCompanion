@@ -3,41 +3,40 @@ package com.saurabhsandav.core.ui.stockchart.plotter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
 import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.SeriesOptionsCommon
+import com.saurabhsandav.core.ui.stockchart.StockChart
 
-abstract class SeriesPlotter<T : SeriesData>(
-    private val chart: IChartApi,
-) {
+abstract class SeriesPlotter<T : SeriesData> {
 
     abstract val key: String
 
     abstract val legendLabel: String
 
-    private var dataSource: DataSource<T>? = null
-
-    var series: ISeriesApi<T>? = null
-        private set
-
     var isEnabled by mutableStateOf(true)
         private set
 
+    private var dataSource: DataSource<T>? = null
+
+    private var _series: ISeriesApi<T>? = null
+    val series: ISeriesApi<T>
+        get() = checkNotNull(_series) { "Series not initialized" }
+
+    abstract fun createSeries(chart: StockChart): ISeriesApi<T>
+
     abstract fun legendText(params: MouseEventParams): String
 
-    protected abstract fun createSeries(): ISeriesApi<T>
+    fun onAttach(chart: StockChart) {
+        check(_series == null) { "Plotter already attached" }
+        _series = createSeries(chart)
+    }
 
-    fun remove() {
-
-        val series = series
-
-        if (series != null) {
-            chart.removeSeries(series)
-            this.series = null
-        }
+    fun onDetach(chart: StockChart) {
+        chart.actualChart.removeSeries(series)
+        _series = null
     }
 
     fun setDataSource(source: DataSource<T>?) {
@@ -46,22 +45,15 @@ abstract class SeriesPlotter<T : SeriesData>(
 
     fun setData(range: IntRange) {
 
-        if (series == null) {
-            series = createSeries()
-            setIsEnabled(isEnabled)
-        }
-
         val seriesData = when (val dataSource = dataSource) {
             null -> emptyList()
             else -> range.map(dataSource::getValue)
         }
 
-        series!!.setData(seriesData)
+        series.setData(seriesData)
     }
 
     fun update(index: Int) {
-
-        val series = checkNotNull(series)
 
         dataSource?.let { dataSource ->
             series.update(dataSource.getValue(index))
@@ -69,14 +61,14 @@ abstract class SeriesPlotter<T : SeriesData>(
     }
 
     fun setMarkers(markers: List<SeriesMarker>) {
-        series?.setMarkers(markers)
+        series.setMarkers(markers)
     }
 
     fun setIsEnabled(enabled: Boolean) {
 
         isEnabled = enabled
 
-        series?.applyOptions(SeriesOptionsCommon(visible = enabled))
+        series.applyOptions(SeriesOptionsCommon(visible = enabled))
     }
 
     fun interface DataSource<T> {
