@@ -16,8 +16,15 @@ abstract class SeriesPlotter<T : SeriesData> {
 
     abstract val legendLabel: String
 
-    var isEnabled by mutableStateOf(true)
-        private set
+    private var _isEnabled by mutableStateOf(true)
+    var isEnabled: Boolean
+        get() = _isEnabled
+        set(value) {
+
+            _isEnabled = value
+
+            series.applyOptions(SeriesOptionsCommon(visible = value))
+        }
 
     private var dataSource: DataSource<T>? = null
 
@@ -62,13 +69,6 @@ abstract class SeriesPlotter<T : SeriesData> {
 
     fun setMarkers(markers: List<SeriesMarker>) {
         series.setMarkers(markers)
-    }
-
-    fun setIsEnabled(enabled: Boolean) {
-
-        isEnabled = enabled
-
-        series.applyOptions(SeriesOptionsCommon(visible = enabled))
     }
 
     fun interface DataSource<T> {

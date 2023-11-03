@@ -92,7 +92,7 @@ class StockChart(
         plotters.forEach { plotter ->
             prefs
                 .getBooleanFlow(plotter.prefKey, true)
-                .onEach(plotter::setIsEnabled)
+                .onEach { plotter.isEnabled = it }
                 .launchIn(coroutineScope)
         }
 
