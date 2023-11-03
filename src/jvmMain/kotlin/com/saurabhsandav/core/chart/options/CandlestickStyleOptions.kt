@@ -35,7 +35,7 @@ data class CandlestickStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon(), SeriesOptions, IsJsonElement {
+) : SeriesOptionsCommon(), IsJsonElement {
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
 

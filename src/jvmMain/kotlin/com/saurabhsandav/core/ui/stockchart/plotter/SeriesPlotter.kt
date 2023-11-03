@@ -8,7 +8,7 @@ import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
 import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.chart.misc.MouseEventParams
-import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
+import com.saurabhsandav.core.chart.options.SeriesOptionsCommon
 
 abstract class SeriesPlotter<T : SeriesData>(
     private val chart: IChartApi,
@@ -76,7 +76,7 @@ abstract class SeriesPlotter<T : SeriesData>(
 
         isEnabled = enabled
 
-        series?.applyOptions(CandlestickStyleOptions(visible = enabled))
+        series?.applyOptions(SeriesOptionsCommon(visible = enabled))
     }
 
     fun interface DataSource<T> {

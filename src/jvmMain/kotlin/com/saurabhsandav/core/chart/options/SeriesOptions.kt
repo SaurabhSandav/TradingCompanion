@@ -5,40 +5,29 @@ import com.saurabhsandav.core.chart.options.common.LineStyle
 import com.saurabhsandav.core.chart.options.common.LineWidth
 import com.saurabhsandav.core.chart.options.common.PriceFormat
 import com.saurabhsandav.core.chart.options.common.PriceLineSource
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 interface SeriesOptions : IsJsonElement
 
-abstract class SeriesOptionsCommon {
-
-    abstract val lastValueVisible: Boolean?
-
-    abstract val title: String?
-
-    abstract val priceScaleId: String?
-
-    abstract val visible: Boolean?
-
-    abstract val priceLineVisible: Boolean?
-
-    abstract val priceLineSource: PriceLineSource?
-
-    abstract val priceLineWidth: LineWidth?
-
-    abstract val priceLineColor: String?
-
-    abstract val priceLineStyle: LineStyle?
-
-    abstract val priceFormat: PriceFormat?
-
-    abstract val baseLineVisible: Boolean?
-
-    abstract val baseLineColor: String?
-
-    abstract val baseLineWidth: LineWidth?
-
-    abstract val baseLineStyle: LineStyle?
+open class SeriesOptionsCommon(
+    open val lastValueVisible: Boolean? = null,
+    open val title: String? = null,
+    open val priceScaleId: String? = null,
+    open val visible: Boolean? = null,
+    open val priceLineVisible: Boolean? = null,
+    open val priceLineSource: PriceLineSource? = null,
+    open val priceLineWidth: LineWidth? = null,
+    open val priceLineColor: String? = null,
+    open val priceLineStyle: LineStyle? = null,
+    open val priceFormat: PriceFormat? = null,
+    open val baseLineVisible: Boolean? = null,
+    open val baseLineColor: String? = null,
+    open val baseLineWidth: LineWidth? = null,
+    open val baseLineStyle: LineStyle? = null,
+) : SeriesOptions {
 
     protected fun JsonObjectBuilder.putSeriesOptionsCommonElements() {
         lastValueVisible?.let { put("lastValueVisible", it) }
@@ -55,5 +44,9 @@ abstract class SeriesOptionsCommon {
         baseLineColor?.let { put("baseLineColor", it) }
         baseLineWidth?.let { put("baseLineWidth", it.toJsonElement()) }
         baseLineStyle?.let { put("baseLineStyle", it.toJsonElement()) }
+    }
+
+    override fun toJsonElement(): JsonElement = buildJsonObject {
+        putSeriesOptionsCommonElements()
     }
 }
