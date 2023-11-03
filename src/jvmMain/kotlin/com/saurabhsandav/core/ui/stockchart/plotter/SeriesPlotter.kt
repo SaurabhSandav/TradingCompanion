@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
 import com.saurabhsandav.core.chart.data.SeriesMarker
-import com.saurabhsandav.core.chart.misc.MouseEventParams
 import com.saurabhsandav.core.chart.options.SeriesOptionsCommon
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import kotlinx.coroutines.flow.Flow
 
 abstract class SeriesPlotter<T : SeriesData> {
 
@@ -34,7 +34,7 @@ abstract class SeriesPlotter<T : SeriesData> {
 
     abstract fun createSeries(chart: StockChart): ISeriesApi<T>
 
-    abstract fun legendText(params: MouseEventParams): String
+    abstract fun legendText(chart: StockChart): Flow<String>
 
     fun onAttach(chart: StockChart) {
         check(_series == null) { "Plotter already attached" }

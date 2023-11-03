@@ -16,7 +16,10 @@ import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.trading.isLong
-import com.saurabhsandav.core.ui.common.chart.*
+import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
+import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
+import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
+import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.*
@@ -84,8 +87,10 @@ class StockChart(
         )
 
         // Legend updates
-        actualChart.crosshairMove().onEach { params ->
-            onLegendUpdate(plotters.map { it.legendText(params) })
+        snapshotFlow { plotters }.flatMapLatest {
+            combine(plotters.map { it.legendText(this) }) {
+                onLegendUpdate(it.toList())
+            }
         }.launchIn(coroutineScope)
 
         // Observe plotter enabled prefs
