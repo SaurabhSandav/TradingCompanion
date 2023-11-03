@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Instant
 
-internal interface CandleSource {
+interface CandleSource {
 
     val params: StockChartParams
 

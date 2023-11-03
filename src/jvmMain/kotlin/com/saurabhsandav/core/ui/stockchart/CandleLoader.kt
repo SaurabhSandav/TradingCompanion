@@ -10,7 +10,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
 
-internal class CandleLoader(
+class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
 ) {
 

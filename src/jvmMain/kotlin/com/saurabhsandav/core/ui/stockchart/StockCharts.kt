@@ -18,7 +18,7 @@ import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 
 @Composable
-internal fun StockCharts(
+fun StockCharts(
     state: StockChartsState,
     windowTitle: String,
     onCloseRequest: () -> Unit,

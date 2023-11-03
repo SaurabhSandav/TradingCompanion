@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.options.ChartOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
@@ -25,13 +24,12 @@ import kotlinx.datetime.toInstant
 import java.util.prefs.Preferences
 
 @Stable
-internal class StockChartsState(
+class StockChartsState(
     parentScope: CoroutineScope,
     private val initialParams: StockChartParams,
     val marketDataProvider: MarketDataProvider,
-    private val appModule: AppModule,
-    val appPrefs: FlowSettings = appModule.appPrefs,
-    val webViewProvider: () -> WebView = appModule.webViewProvider,
+    val appPrefs: FlowSettings,
+    val webViewProvider: () -> WebView,
 ) {
 
     private val chartPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName).node("StockChart"))

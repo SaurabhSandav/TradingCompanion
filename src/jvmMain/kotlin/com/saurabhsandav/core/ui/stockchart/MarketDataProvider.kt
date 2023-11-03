@@ -5,7 +5,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.StateFlow
 
-internal interface MarketDataProvider {
+interface MarketDataProvider {
 
     fun symbols(): StateFlow<ImmutableList<String>>
 

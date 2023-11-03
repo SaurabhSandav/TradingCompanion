@@ -11,7 +11,7 @@ import com.saurabhsandav.core.ui.common.webview.WebView
 import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
 
-internal class StockChartWindow(
+class StockChartWindow(
     parentScope: CoroutineScope,
     webView: WebView,
     private val onNewChart: (

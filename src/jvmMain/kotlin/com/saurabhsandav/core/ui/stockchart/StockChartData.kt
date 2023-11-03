@@ -7,7 +7,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-internal class StockChartData(
+class StockChartData(
     val params: StockChartParams,
     val source: CandleSource,
 ) {

@@ -20,7 +20,7 @@ import com.saurabhsandav.core.ui.common.intState
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
-fun StockChartTabRow(
+internal fun StockChartTabRow(
     state: StockChartTabsState,
     onNewWindow: () -> Unit,
 ) {

@@ -53,7 +53,8 @@ internal class ChartsPresenter(
             parentScope = coroutineScope,
             initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
             marketDataProvider = marketDataProvider,
-            appModule = appModule,
+            appPrefs = appModule.appPrefs,
+            webViewProvider = appModule.webViewProvider,
         )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)

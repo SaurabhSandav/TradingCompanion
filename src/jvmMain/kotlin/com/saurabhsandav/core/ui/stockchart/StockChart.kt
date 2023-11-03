@@ -32,7 +32,7 @@ import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
-internal class StockChart(
+class StockChart(
     parentScope: CoroutineScope,
     private val prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
