@@ -63,7 +63,7 @@ class StockChart(
         private set
     var params by mutableStateOf(initialData.params)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
-    val plotters = mutableStateListOf<SeriesPlotter<*>>()
+    val plotters = mutableStateListOf<Plotter<*>>()
     val markersAreEnabled = prefs.getBooleanFlow(PrefMarkersEnabled, false)
 
     init {
@@ -215,7 +215,7 @@ class StockChart(
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
     }
 
-    fun setPlotterIsEnabled(plotter: SeriesPlotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
+    fun setPlotterIsEnabled(plotter: Plotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
         prefs.putBoolean(plotter.prefKey, isEnabled)
     }
 
@@ -439,7 +439,7 @@ class StockChart(
         }
     }
 
-    private val SeriesPlotter<*>.prefKey
+    private val Plotter<*>.prefKey
         get() = "plotter_${key}_enabled"
 }
 

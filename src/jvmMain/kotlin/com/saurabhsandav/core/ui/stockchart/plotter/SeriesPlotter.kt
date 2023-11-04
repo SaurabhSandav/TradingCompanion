@@ -7,17 +7,13 @@ import com.saurabhsandav.core.chart.ISeriesApi
 import com.saurabhsandav.core.chart.data.SeriesData
 import com.saurabhsandav.core.chart.data.SeriesMarker
 import com.saurabhsandav.core.chart.options.SeriesOptionsCommon
+import com.saurabhsandav.core.ui.stockchart.Plotter
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import kotlinx.coroutines.flow.Flow
 
-abstract class SeriesPlotter<T : SeriesData> {
-
-    abstract val key: String
-
-    abstract val legendLabel: String
+abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
 
     private var _isEnabled by mutableStateOf(true)
-    var isEnabled: Boolean
+    override var isEnabled: Boolean
         get() = _isEnabled
         set(value) {
 
@@ -26,31 +22,29 @@ abstract class SeriesPlotter<T : SeriesData> {
             series.applyOptions(SeriesOptionsCommon(visible = value))
         }
 
-    private var dataSource: DataSource<T>? = null
+    private var dataSource: DataSource<D>? = null
 
-    private var _series: ISeriesApi<T>? = null
-    val series: ISeriesApi<T>
+    private var _series: ISeriesApi<D>? = null
+    val series: ISeriesApi<D>
         get() = checkNotNull(_series) { "Series not initialized" }
 
-    abstract fun createSeries(chart: StockChart): ISeriesApi<T>
+    abstract fun createSeries(chart: StockChart): ISeriesApi<D>
 
-    abstract fun legendText(chart: StockChart): Flow<String>
-
-    fun onAttach(chart: StockChart) {
+    override fun onAttach(chart: StockChart) {
         check(_series == null) { "Plotter already attached" }
         _series = createSeries(chart)
     }
 
-    fun onDetach(chart: StockChart) {
+    override fun onDetach(chart: StockChart) {
         chart.actualChart.removeSeries(series)
         _series = null
     }
 
-    fun setDataSource(source: DataSource<T>?) {
+    fun setDataSource(source: DataSource<D>?) {
         dataSource = source
     }
 
-    fun setData(range: IntRange) {
+    override fun setData(range: IntRange) {
 
         val seriesData = when (val dataSource = dataSource) {
             null -> emptyList()
@@ -60,7 +54,7 @@ abstract class SeriesPlotter<T : SeriesData> {
         series.setData(seriesData)
     }
 
-    fun update(index: Int) {
+    override fun update(index: Int) {
 
         dataSource?.let { dataSource ->
             series.update(dataSource.getValue(index))
