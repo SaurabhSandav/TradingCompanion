@@ -156,9 +156,7 @@ internal class ReplaySessionPresenter(
         barReplay.reset()
 
         // Reset candles to initial state
-        coroutineScope.launch {
-            chartsState.charts.forEach { stockChart -> stockChart.refresh() }
-        }
+        chartsState.charts.forEach { stockChart -> stockChart.refresh() }
     }
 
     private fun onAdvanceReplay() {

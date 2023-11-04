@@ -10,9 +10,9 @@ interface Plotter<D> {
 
     var isEnabled: Boolean
 
-    fun setData(range: IntRange)
+    fun setData(data: List<D>)
 
-    fun update(index: Int)
+    fun update(item: D)
 
     fun legendText(chart: StockChart): Flow<String>
 

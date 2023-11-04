@@ -10,6 +10,7 @@ import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
@@ -56,6 +57,8 @@ class StockChart(
     private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color(0x0AB210))
     private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
     private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
+
+    private lateinit var indicators: Indicators
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
@@ -129,10 +132,16 @@ class StockChart(
 
             val candleSeries = data.getCandleSeries()
 
-            // Setup chart
-            setupCandlesAndIndicators(
+            // Don't show time in daily chart
+            val timeScaleOptions = TimeScaleOptions(timeVisible = candleSeries.timeframe != Timeframe.D1)
+            actualChart.timeScale.applyOptions(timeScaleOptions)
+
+            // Setup indicators
+            indicators = Indicators(
                 candleSeries = candleSeries,
+                params = params,
                 hasVolume = marketDataProvider.hasVolume(params),
+                sessionChecker = marketDataProvider.sessionChecker(),
             )
 
             // If no initialVisibleRange provided, show latest 90 candles (with a 10 candle empty area).
@@ -143,7 +152,7 @@ class StockChart(
             } ?: (candleSeries.size - 90F)..(candleSeries.size + 10F)
 
             // Set initial data
-            refresh()
+            setData()
 
             // Set visible range
             actualChart.timeScale.setVisibleLogicalRange(
@@ -152,7 +161,7 @@ class StockChart(
             )
 
             // Set data on future loads
-            candleSeries.modifications.onEach { refresh() }.launchIn(dataCoroutineScope)
+            candleSeries.modifications.onEach { setData() }.launchIn(dataCoroutineScope)
 
             // Load before/after candles if needed
             actualChart.timeScale
@@ -194,22 +203,13 @@ class StockChart(
                 .launchIn(dataCoroutineScope)
 
             // Update chart with live candles
-            candleSeries
-                .live
-                .onEach { candle ->
-                    plotters.forEach {
-                        it.update(candleSeries.indexOf(candle))
-                    }
-                }
-                .launchIn(dataCoroutineScope)
+            candleSeries.live.onEach { update() }.launchIn(dataCoroutineScope)
 
             setupMarkers()
         }
     }
 
-    suspend fun refresh() {
-        plotters.forEach { it.setData(data.getCandleSeries().indices) }
-    }
+    fun refresh() = setData()
 
     fun setDarkMode(isDark: Boolean) {
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
@@ -244,22 +244,11 @@ class StockChart(
         plotters.clear()
     }
 
-    private fun setupCandlesAndIndicators(
-        candleSeries: CandleSeries,
-        hasVolume: Boolean,
-    ) {
+    private fun setData() {
 
-        val closePriceIndicator = ClosePriceIndicator(candleSeries)
-        val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
-        val vwapIndicator = VWAPIndicator(candleSeries, marketDataProvider.sessionChecker())
+        val candleSeries = indicators.candleSeries
 
-        // Don't show time in daily chart
-        val timeScaleOptions = TimeScaleOptions(timeVisible = candleSeries.timeframe != Timeframe.D1)
-        actualChart.timeScale.applyOptions(timeScaleOptions)
-
-        candlestickPlotter.setDataSource { index ->
-
-            val candle = candleSeries[index]
+        candlestickPlotter.setData(candleSeries.map { candle ->
 
             CandlestickData(
                 time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
@@ -268,21 +257,18 @@ class StockChart(
                 low = candle.low,
                 close = candle.close,
             )
-        }
+        })
 
-        ema9Plotter.setDataSource { index ->
+        ema9Plotter.setData(candleSeries.indices.map { index ->
             LineData(
                 time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = ema9Indicator[index].setScale(2, RoundingMode.DOWN),
+                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN),
             )
-        }
+        })
 
-        if (!hasVolume) {
-            volumePlotter.setDataSource(null)
-            vwapPlotter.setDataSource(null)
-        } else {
+        if (indicators.hasVolume) {
 
-            volumePlotter.setDataSource { index ->
+            volumePlotter.setData(candleSeries.indices.map { index ->
 
                 val candle = candleSeries[index]
 
@@ -294,46 +280,139 @@ class StockChart(
                         else -> Color(255, 82, 82)
                     },
                 )
-            }
+            })
+        }
 
-            vwapPlotter.setDataSource { index ->
+        val vwapIndicator = indicators.vwapIndicator
+
+        if (vwapIndicator != null) {
+
+            vwapPlotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                     value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
                 )
-            }
+            })
         }
 
-        if (candleSeries.timeframe != Timeframe.D1) {
-            sma50Plotter.setDataSource(null)
-            sma100Plotter.setDataSource(null)
-            sma200Plotter.setDataSource(null)
-        } else {
+        val sma50Indicator = indicators.sma50Indicator
 
-            val sma50Indicator = SMAIndicator(closePriceIndicator, length = 50)
-            val sma100Indicator = SMAIndicator(closePriceIndicator, length = 100)
-            val sma200Indicator = SMAIndicator(closePriceIndicator, length = 200)
+        if (sma50Indicator != null) {
 
-            sma50Plotter.setDataSource { index ->
+            sma50Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                     value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
-            }
+            })
+        }
 
-            sma100Plotter.setDataSource { index ->
+        val sma100Indicator = indicators.sma100Indicator
+
+        if (sma100Indicator != null) {
+
+            sma100Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                     value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
-            }
+            })
+        }
 
-            sma200Plotter.setDataSource { index ->
+        val sma200Indicator = indicators.sma200Indicator
+
+        if (sma200Indicator != null) {
+
+            sma200Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
                     value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
-            }
+            })
+        }
+    }
+
+    private fun update() {
+
+        val index = indicators.candleSeries.lastIndex
+        val candle = indicators.candleSeries.last()
+
+        val time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart())
+
+        candlestickPlotter.update(
+            CandlestickData(
+                time = time,
+                open = candle.open,
+                high = candle.high,
+                low = candle.low,
+                close = candle.close,
+            )
+        )
+
+        ema9Plotter.update(
+            LineData(
+                time = time,
+                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN),
+            )
+        )
+
+        volumePlotter.update(
+            HistogramData(
+                time = time,
+                value = candle.volume,
+                color = when {
+                    candle.isLong -> Color(0, 150, 136)
+                    else -> Color(255, 82, 82)
+                },
+            )
+        )
+
+        val vwapIndicator = indicators.vwapIndicator
+
+        if (vwapIndicator != null) {
+
+            vwapPlotter.update(
+                LineData(
+                    time = time,
+                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            )
+        }
+
+        val sma50Indicator = indicators.sma50Indicator
+
+        if (sma50Indicator != null) {
+
+            sma50Plotter.update(
+                LineData(
+                    time = time,
+                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            )
+        }
+
+        val sma100Indicator = indicators.sma100Indicator
+
+        if (sma100Indicator != null) {
+
+            sma100Plotter.update(
+                LineData(
+                    time = time,
+                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            )
+        }
+
+        val sma200Indicator = indicators.sma200Indicator
+
+        if (sma200Indicator != null) {
+
+            sma200Plotter.update(
+                LineData(
+                    time = time,
+                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
+                )
+            )
         }
     }
 
@@ -441,6 +520,24 @@ class StockChart(
 
     private val Plotter<*>.prefKey
         get() = "plotter_${key}_enabled"
+
+    private class Indicators(
+        val candleSeries: CandleSeries,
+        val params: StockChartParams,
+        val hasVolume: Boolean,
+        sessionChecker: SessionChecker,
+    ) {
+
+        private val isDaily = params.timeframe == Timeframe.D1
+
+        val closePriceIndicator = ClosePriceIndicator(candleSeries)
+        val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
+        val vwapIndicator = VWAPIndicator(candleSeries, sessionChecker).takeIf { hasVolume }
+
+        val sma50Indicator = SMAIndicator(closePriceIndicator, length = 50).takeIf { isDaily }
+        val sma100Indicator = SMAIndicator(closePriceIndicator, length = 100).takeIf { isDaily }
+        val sma200Indicator = SMAIndicator(closePriceIndicator, length = 200).takeIf { isDaily }
+    }
 }
 
 private const val PrefMarkersEnabled = "markers_enabled"

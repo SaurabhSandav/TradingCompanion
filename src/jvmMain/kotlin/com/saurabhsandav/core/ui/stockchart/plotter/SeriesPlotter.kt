@@ -22,8 +22,6 @@ abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
             series.applyOptions(SeriesOptionsCommon(visible = value))
         }
 
-    private var dataSource: DataSource<D>? = null
-
     private var _series: ISeriesApi<D>? = null
     val series: ISeriesApi<D>
         get() = checkNotNull(_series) { "Series not initialized" }
@@ -40,33 +38,15 @@ abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
         _series = null
     }
 
-    fun setDataSource(source: DataSource<D>?) {
-        dataSource = source
+    override fun setData(data: List<D>) {
+        series.setData(data)
     }
 
-    override fun setData(range: IntRange) {
-
-        val seriesData = when (val dataSource = dataSource) {
-            null -> emptyList()
-            else -> range.map(dataSource::getValue)
-        }
-
-        series.setData(seriesData)
-    }
-
-    override fun update(index: Int) {
-
-        dataSource?.let { dataSource ->
-            series.update(dataSource.getValue(index))
-        }
+    override fun update(item: D) {
+        series.update(item)
     }
 
     fun setMarkers(markers: List<SeriesMarker>) {
         series.setMarkers(markers)
-    }
-
-    fun interface DataSource<T> {
-
-        fun getValue(index: Int): T
     }
 }
