@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.border
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,6 +12,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
@@ -22,8 +24,8 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun Notes(
     notes: ImmutableList<TradeNote>,
-    onAddNote: (note: String) -> Unit,
-    onUpdateNote: (id: TradeNoteId, note: String) -> Unit,
+    onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
+    onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,
 ) {
 
@@ -61,15 +63,22 @@ internal fun Notes(
                     ListItem(
                         modifier = Modifier.fillMaxWidth(),
                         overlineContent = { Text(note.dateText) },
-                        headlineContent = { Text(note.note) },
+                        headlineContent = {
+
+                            when {
+                                note.isMarkdown -> RichText { Markdown(note.noteText) }
+                                else -> Text(note.noteText)
+                            }
+                        },
                     )
 
                     if (showEditDialog) {
 
                         NoteEditorWindow(
                             noteId = note.id,
-                            note = note.note,
-                            onSaveNote = { onUpdateNote(note.id, it) },
+                            noteText = note.noteText,
+                            isMarkdown = note.isMarkdown,
+                            onSaveNote = { noteText, isMarkdown -> onUpdateNote(note.id, noteText, isMarkdown) },
                             onCloseRequest = { showEditDialog = false },
                         )
                     }
@@ -115,10 +124,11 @@ internal fun Notes(
 
 @Composable
 private fun NoteEditorWindow(
-    onSaveNote: (String) -> Unit,
+    onSaveNote: (note: String, isMarkdown: Boolean) -> Unit,
     onCloseRequest: () -> Unit,
     noteId: TradeNoteId? = null,
-    note: String = "",
+    noteText: String = "",
+    isMarkdown: Boolean = false,
 ) {
 
     AppWindow(
@@ -128,22 +138,88 @@ private fun NoteEditorWindow(
 
         Column(Modifier.fillMaxSize()) {
 
-            var text by state { note }
+            var text by state { noteText }
+            var previewMarkdown by state { false }
+            var isMarkdownEdit by state { isMarkdown }
             val initialFocusRequester = remember { FocusRequester() }
 
             LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
 
-            TextField(
-                modifier = Modifier.weight(1F).fillMaxWidth().focusRequester(initialFocusRequester),
-                value = text,
-                onValueChange = { text = it }
-            )
+            Box(Modifier.weight(1F).fillMaxWidth()) {
+
+                Crossfade(previewMarkdown) { previewMarkdown ->
+
+                    when {
+                        previewMarkdown -> {
+
+                            val scrollState = rememberScrollState()
+
+                            RichText(
+                                modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(16.dp),
+                                children = { Markdown(text) }
+                            )
+
+                            VerticalScrollbar(
+                                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                                adapter = rememberScrollbarAdapter(scrollState),
+                            )
+                        }
+
+                        else -> TextField(
+                            modifier = Modifier.fillMaxSize().focusRequester(initialFocusRequester),
+                            value = text,
+                            onValueChange = { text = it }
+                        )
+                    }
+                }
+            }
+
+            Divider()
+
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+                AnimatedVisibility(isMarkdownEdit) {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+
+                        Text("Preview Markdown")
+
+                        Switch(
+                            checked = previewMarkdown,
+                            onCheckedChange = { previewMarkdown = it },
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Text("Markdown")
+
+                    Switch(
+                        checked = isMarkdownEdit,
+                        onCheckedChange = { isMarkdownEdit = it },
+                    )
+                }
+            }
+
+            Divider()
 
             TextButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onCloseRequest()
-                    onSaveNote(text)
+                    onSaveNote(text, isMarkdownEdit)
                 },
                 content = { Text("Save") },
             )

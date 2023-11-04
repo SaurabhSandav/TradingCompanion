@@ -151,6 +151,10 @@ kotlin {
 
             // JCEF
             implementation("me.friwi:jcefmaven:116.0.19.1")
+
+            // compose-richtext
+            implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.17.0")
+            implementation("com.halilibo.compose-richtext:richtext-commonmark:0.17.0")
         }
 
         jvmTest.dependencies {

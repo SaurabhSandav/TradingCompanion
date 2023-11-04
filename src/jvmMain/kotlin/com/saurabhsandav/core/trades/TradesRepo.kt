@@ -412,7 +412,11 @@ internal class TradesRepo(
         return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
-    suspend fun addNote(tradeId: TradeId, note: String) = withContext(Dispatchers.IO) {
+    suspend fun addNote(
+        tradeId: TradeId,
+        note: String,
+        isMarkdown: Boolean,
+    ) = withContext(Dispatchers.IO) {
 
         val now = Clock.System.now().withoutNanoseconds()
 
@@ -421,15 +425,21 @@ internal class TradesRepo(
             note = note,
             added = now,
             lastEdited = now,
+            isMarkdown = isMarkdown,
         )
     }
 
-    suspend fun updateNote(id: TradeNoteId, note: String) = withContext(Dispatchers.IO) {
+    suspend fun updateNote(
+        id: TradeNoteId,
+        note: String,
+        isMarkdown: Boolean,
+    ) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeNoteQueries.update(
             id = id,
             note = note,
             lastEdited = Clock.System.now().withoutNanoseconds(),
+            isMarkdown = isMarkdown,
         )
     }
 

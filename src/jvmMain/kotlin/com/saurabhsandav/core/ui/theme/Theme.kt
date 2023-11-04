@@ -8,7 +8,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.luminance
-
+import com.halilibo.richtext.ui.material3.SetupMaterial3RichText
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -87,6 +87,8 @@ fun AppTheme(
 
     MaterialTheme(
         colorScheme = colors,
-        content = content
-    )
+    ) {
+
+        SetupMaterial3RichText(content)
+    }
 }

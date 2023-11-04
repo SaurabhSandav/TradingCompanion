@@ -95,8 +95,9 @@ internal data class TradeState(
     @Immutable
     internal data class TradeNote(
         val id: TradeNoteId,
-        val note: String,
+        val noteText: String,
         val dateText: String,
+        val isMarkdown: Boolean,
     )
 }
 

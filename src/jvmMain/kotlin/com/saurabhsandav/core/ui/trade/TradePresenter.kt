@@ -96,8 +96,8 @@ internal class TradePresenter(
             is AddAttachment -> onAddAttachment(event.formModel)
             is UpdateAttachment -> onUpdateAttachment(event.id, event.formModel)
             is RemoveAttachment -> onRemoveAttachment(event.id)
-            is AddNote -> onAddNote(event.note)
-            is UpdateNote -> onUpdateNote(event.id, event.note)
+            is AddNote -> onAddNote(event.note, event.isMarkdown)
+            is UpdateNote -> onUpdateNote(event.id, event.note, event.isMarkdown)
             is DeleteNote -> onDeleteNote(event.id)
         }
     }
@@ -309,11 +309,12 @@ internal class TradePresenter(
 
                     TradeNote(
                         id = note.id,
-                        note = note.note,
+                        noteText = note.note,
                         dateText = when {
                             lastEdited == null -> "Added $added"
                             else -> "Added $added (Last Edited $lastEdited)"
                         },
+                        isMarkdown = note.isMarkdown,
                     )
                 }
                 .collect { value = it.toImmutableList() }
@@ -492,14 +493,14 @@ internal class TradePresenter(
         tradingProfiles.getRecord(profileId).trades.removeAttachment(tradeId, id)
     }
 
-    private fun onAddNote(note: String) = coroutineScope.launchUnit {
+    private fun onAddNote(note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
 
-        tradingProfiles.getRecord(profileId).trades.addNote(tradeId, note)
+        tradingProfiles.getRecord(profileId).trades.addNote(tradeId, note, isMarkdown)
     }
 
-    private fun onUpdateNote(id: TradeNoteId, note: String) = coroutineScope.launchUnit {
+    private fun onUpdateNote(id: TradeNoteId, note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
 
-        tradingProfiles.getRecord(profileId).trades.updateNote(id, note)
+        tradingProfiles.getRecord(profileId).trades.updateNote(id, note, isMarkdown)
     }
 
     private fun onDeleteNote(id: TradeNoteId) = coroutineScope.launchUnit {

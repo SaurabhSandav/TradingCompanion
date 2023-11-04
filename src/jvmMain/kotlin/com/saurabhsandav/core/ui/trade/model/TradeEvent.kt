@@ -41,9 +41,16 @@ internal sealed class TradeEvent {
 
     data class RemoveAttachment(val id: TradeAttachmentId) : TradeEvent()
 
-    data class AddNote(val note: String) : TradeEvent()
+    data class AddNote(
+        val note: String,
+        val isMarkdown: Boolean,
+    ) : TradeEvent()
 
-    data class UpdateNote(val id: TradeNoteId, val note: String) : TradeEvent()
+    data class UpdateNote(
+        val id: TradeNoteId,
+        val note: String,
+        val isMarkdown: Boolean,
+    ) : TradeEvent()
 
     data class DeleteNote(val id: TradeNoteId) : TradeEvent()
 }

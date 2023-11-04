@@ -115,8 +115,10 @@ internal fun TradeScreen(
 
                         Notes(
                             notes = state.notes,
-                            onAddNote = { state.eventSink(AddNote(it)) },
-                            onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
+                            onAddNote = { note, isMarkdown -> state.eventSink(AddNote(note, isMarkdown)) },
+                            onUpdateNote = { id, note, isMarkdown ->
+                                state.eventSink(UpdateNote(id, note, isMarkdown))
+                            },
                             onDeleteNote = { state.eventSink(DeleteNote(it)) },
                         )
                     }
