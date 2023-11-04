@@ -199,6 +199,9 @@ internal class FyersLoginService private constructor(
 
     private fun onLoginCancelled(failureMessage: String? = null) = coroutineScope.launchUnit {
 
+        serverEngine?.stop()
+        serverEngine = null
+
         when {
             failureMessage != null -> {
 
