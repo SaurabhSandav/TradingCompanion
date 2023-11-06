@@ -93,7 +93,9 @@ private fun TableScope<TradeEntry>.tradeRows(
 
     if (trades.isNotEmpty()) {
 
-        row {
+        row(
+            contentType = ContentType.Header,
+        ) {
 
             ListItem(
                 modifier = Modifier.padding(16.dp),
@@ -117,6 +119,7 @@ private fun TableScope<TradeEntry>.tradeRows(
         rows(
             items = trades,
             key = { entry -> if (keyPrefix != null) keyPrefix + entry.profileTradeId else entry.profileTradeId },
+            contentType = { ContentType.Entry },
         ) { entry ->
 
             TradeEntry(
@@ -157,4 +160,8 @@ private fun TradeEntry(
             Divider()
         }
     }
+}
+
+private enum class ContentType {
+    Header, Entry;
 }

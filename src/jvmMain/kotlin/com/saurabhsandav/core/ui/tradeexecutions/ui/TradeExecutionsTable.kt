@@ -109,7 +109,9 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
 
     if (executions.isNotEmpty()) {
 
-        row {
+        row(
+            contentType = ContentType.Header,
+        ) {
 
             ListItem(
                 modifier = Modifier.padding(16.dp),
@@ -133,6 +135,7 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
         rows(
             items = executions,
             key = { entry -> entry.profileTradeExecutionId },
+            contentType = { ContentType.Entry },
         ) { entry ->
 
             TradeExecutionEntry(
@@ -241,4 +244,8 @@ private fun ConfirmationDialog(
             }
         },
     )
+}
+
+private enum class ContentType {
+    Header, Entry;
 }
