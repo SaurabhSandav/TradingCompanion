@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 internal class TradeExecutionsRepo(
     private val tradesDB: TradesDB,
@@ -415,7 +416,10 @@ internal class TradeExecutionsRepo(
         val totalQuantity = sumOf { it.quantity }
         val sum: BigDecimal = sumOf { it.price * it.quantity }
 
-        return if (totalQuantity == BigDecimal.ZERO) BigDecimal.ZERO else sum / totalQuantity
+        return when (totalQuantity) {
+            BigDecimal.ZERO -> BigDecimal.ZERO
+            else -> sum.divide(totalQuantity, 2, RoundingMode.HALF_EVEN)
+        }
     }
 
     private fun toTradeExecution(
