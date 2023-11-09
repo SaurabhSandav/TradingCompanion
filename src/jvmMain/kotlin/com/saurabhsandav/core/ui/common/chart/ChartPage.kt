@@ -52,7 +52,7 @@ fun ChartPage(
 @Composable
 private fun WebViewLoadingIndicator(webViewState: WebViewState) {
 
-    var isLoading by state { true }
+    var isLoading by state { false }
 
     if (isLoading) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
