@@ -1,20 +1,31 @@
 package com.saurabhsandav.core.ui.common.webview
 
-import androidx.compose.runtime.Stable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AwtColor
+import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.friwi.jcefmaven.CefAppBuilder
-import org.cef.CefApp
+import me.friwi.jcefmaven.EnumProgress
 import org.cef.OS
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
@@ -24,7 +35,6 @@ import org.cef.callback.CefMenuModel
 import org.cef.callback.CefQueryCallback
 import org.cef.handler.*
 import org.cef.network.CefRequest
-import java.awt.Component
 import java.io.File
 
 @Stable
@@ -32,38 +42,7 @@ class CefWebViewState : WebViewState {
 
     private val jsCallbacks = mutableMapOf<String, CefJSCallback>()
 
-    private val client = CefApp.createClient().apply {
-
-        val msgRouter = CefMessageRouter.create(object : CefMessageRouterHandlerAdapter() {
-            override fun onQuery(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                queryId: Long,
-                request: String,
-                persistent: Boolean,
-                callback: CefQueryCallback,
-            ): Boolean {
-
-                val jsonElement = Json.parseToJsonElement(request)
-
-                val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
-                val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
-
-                jsCallbacks[id]?.mutableSharedFlow?.tryEmit(message)
-
-                callback.success("")
-                return true
-            }
-        })
-
-        addMessageRouter(msgRouter)
-    }
-
-    private val browser = client.createBrowser(
-        /* url = */ null,
-        /* isOffscreenRendered = */ OS.isLinux(),
-        /* isTransparent = */ true,
-    )
+    private lateinit var browser: CefBrowser
 
     private val isReady = CompletableDeferred<Unit>()
 
@@ -79,11 +58,82 @@ class CefWebViewState : WebViewState {
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     override val errors: Flow<Throwable> = _errors.asSharedFlow()
 
-    override val component: Component = browser.uiComponent
+    @Composable
+    override fun WebView(modifier: Modifier) {
 
-    override suspend fun awaitReady() = isReady.await()
+        val initializationProgress by AppCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
 
-    override suspend fun init() {
+        when (initializationProgress.first) {
+            EnumProgress.INITIALIZED -> AppSwingPanel(
+                modifier = modifier,
+                factory = { browser.uiComponent }
+            )
+
+            else -> Column(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+
+                @Suppress("KotlinConstantConditions")
+                val progressText = when (initializationProgress.first) {
+                    EnumProgress.LOCATING -> "Locating WebView"
+                    EnumProgress.DOWNLOADING -> "Downloading WebView"
+                    EnumProgress.EXTRACTING -> "Extracting WebView"
+                    EnumProgress.INSTALL -> "Installing WebView"
+                    EnumProgress.INITIALIZING -> "Initializing WebView"
+                    EnumProgress.INITIALIZED -> "Initialized"
+                }
+
+                Text(progressText)
+
+                LinearProgressIndicator(initializationProgress.second)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            init()
+        }
+    }
+
+    private suspend fun init() {
+
+        val cefApp = withContext(Dispatchers.IO) {
+            AppCefApp.builder.build()
+        }
+
+        val client = cefApp.createClient().apply {
+
+            val msgRouter = CefMessageRouter.create(object : CefMessageRouterHandlerAdapter() {
+                override fun onQuery(
+                    browser: CefBrowser?,
+                    frame: CefFrame?,
+                    queryId: Long,
+                    request: String,
+                    persistent: Boolean,
+                    callback: CefQueryCallback,
+                ): Boolean {
+
+                    val jsonElement = Json.parseToJsonElement(request)
+
+                    val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
+                    val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
+
+                    jsCallbacks[id]?.mutableSharedFlow?.tryEmit(message)
+
+                    callback.success("")
+                    return true
+                }
+            })
+
+            addMessageRouter(msgRouter)
+        }
+
+        browser = client.createBrowser(
+            /* url = */ null,
+            /* isOffscreenRendered = */ OS.isLinux(),
+            /* isTransparent = */ true,
+        )
 
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
             override fun onAfterCreated(browser: CefBrowser?) {
@@ -139,6 +189,8 @@ class CefWebViewState : WebViewState {
             }
         })
     }
+
+    override suspend fun awaitReady() = isReady.await()
 
     override suspend fun load(url: String) {
 
@@ -200,7 +252,16 @@ class CefWebViewState : WebViewState {
     }
 }
 
-val CefApp: CefApp = CefAppBuilder().run {
-    setInstallDir(File(AppPaths.getAppDataPath() + "/jcef-bundle"))
-    build()
+object AppCefApp {
+
+    private val _progress = MutableSharedFlow<Pair<EnumProgress, Float>>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    val progress = _progress.asSharedFlow()
+
+    val builder: CefAppBuilder = CefAppBuilder().apply {
+        setInstallDir(File(AppPaths.getAppDataPath() + "/jcef-bundle"))
+        setProgressHandler { state, percent -> _progress.tryEmit(state to (percent / 100F)) }
+    }
 }

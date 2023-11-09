@@ -1,8 +1,12 @@
 package com.saurabhsandav.core.ui.common.webview
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.JFXColor
+import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.toJavaFxColor
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import javafx.application.Platform
@@ -34,29 +38,38 @@ class JavaFxWebViewState : WebViewState {
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     override val errors: Flow<Throwable> = _errors.asSharedFlow()
 
-    override val component = JFXPanel()
+    private val component = JFXPanel()
 
-    override suspend fun awaitReady() = isReady.await()
+    @Composable
+    override fun WebView(modifier: Modifier) {
 
-    override suspend fun init() {
+        AppSwingPanel(
+            modifier = modifier,
+            factory = { component }
+        )
 
-        check(!isReady.isCompleted) { "WebView already initialized" }
+        LaunchedEffect(Unit) {
 
-        runInJavaFxThread {
+            check(!isReady.isCompleted) { "WebView already initialized" }
 
-            Platform.setImplicitExit(false)
+            runInJavaFxThread {
 
-            component.isFocusable = true
+                Platform.setImplicitExit(false)
 
-            webView = JFXWebView()
+                component.isFocusable = true
 
-            setEngine(webView.engine)
+                webView = JFXWebView()
 
-            webView.isContextMenuEnabled = false
+                setEngine(webView.engine)
 
-            component.scene = Scene(webView)
+                webView.isContextMenuEnabled = false
+
+                component.scene = Scene(webView)
+            }
         }
     }
+
+    override suspend fun awaitReady() = isReady.await()
 
     override suspend fun load(url: String) {
 

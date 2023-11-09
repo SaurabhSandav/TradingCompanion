@@ -1,43 +1,28 @@
 package com.saurabhsandav.core.ui.common.webview
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AwtColor
-import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import kotlinx.coroutines.flow.Flow
-import java.awt.Component
 
 @Composable
 fun WebView(
     webViewState: WebViewState,
     modifier: Modifier = Modifier,
-) {
-
-    AppSwingPanel(
-        modifier = modifier,
-        factory = { webViewState.component }
-    )
-
-    LaunchedEffect(webViewState) {
-
-        webViewState.init()
-    }
-}
+) = webViewState.WebView(modifier)
 
 @Stable
 interface WebViewState {
 
-    val component: Component
+    @Composable
+    fun WebView(modifier: Modifier)
 
     val loadState: Flow<LoadState>
 
     val location: Flow<String>
 
     val errors: Flow<Throwable>
-
-    suspend fun init()
 
     suspend fun awaitReady()
 
