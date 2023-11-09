@@ -12,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.TradeContentLauncher
@@ -49,6 +51,7 @@ internal fun LandingScreen() {
 
         LandingScreen(
             currentScreen = currentScreen,
+            openTradesCount = state.openTradesCount,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
         )
     }
@@ -57,6 +60,7 @@ internal fun LandingScreen() {
 @Composable
 private fun LandingScreen(
     currentScreen: LandingScreen,
+    openTradesCount: Long?,
     onCurrentScreenChange: (LandingScreen) -> Unit,
 ) {
 
@@ -100,11 +104,39 @@ private fun LandingScreen(
             landingItems.forEach { screen ->
 
                 TooltipArea(
-                    tooltip = { Tooltip(screen.title) },
+                    tooltip = {
+
+                        val text = when (screen) {
+                            LandingScreen.Trades -> "${screen.title} - $openTradesCount open trades"
+                            else -> screen.title
+                        }
+
+                        Tooltip(text)
+                    },
                 ) {
 
                     NavigationRailItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                        icon = {
+
+                            BadgedBox(
+                                badge = {
+
+                                    if (screen == LandingScreen.Trades && openTradesCount != null) {
+
+                                        Badge {
+
+                                            Text(
+                                                modifier = Modifier.semantics {
+                                                    contentDescription = "$openTradesCount open trades"
+                                                },
+                                                text = openTradesCount.toString(),
+                                            )
+                                        }
+                                    }
+                                },
+                                content = { Icon(screen.icon, contentDescription = screen.title) },
+                            )
+                        },
                         selected = currentScreen == screen,
                         onClick = { onCurrentScreenChange(screen) }
                     )

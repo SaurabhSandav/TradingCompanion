@@ -54,6 +54,11 @@ FROM Trade
 WHERE isClosed = FALSE
 ORDER BY datetime(entryTimestamp) DESC;
 
+getOpenCount:
+SELECT COUNT(*)
+FROM Trade
+WHERE isClosed = FALSE;
+
 getToday:
 SELECT *
 FROM Trade

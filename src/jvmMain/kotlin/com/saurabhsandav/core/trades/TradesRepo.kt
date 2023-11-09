@@ -38,6 +38,10 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getOpen().asFlow().mapToList(Dispatchers.IO)
     }
 
+    fun getOpenCount(): Flow<Long> {
+        return tradesDB.tradeQueries.getOpenCount().asFlow().mapToOne(Dispatchers.IO)
+    }
+
     fun getToday(): Flow<List<Trade>> {
         return tradesDB.tradeQueries.getToday().asFlow().mapToList(Dispatchers.IO)
     }

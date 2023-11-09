@@ -1,20 +1,21 @@
 package com.saurabhsandav.core.ui.landing
 
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Stable
@@ -22,6 +23,7 @@ internal class LandingPresenter(
     coroutineScope: CoroutineScope,
     appModule: AppModule,
     private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
 
     private var currentScreen by mutableStateOf<LandingScreen?>(null)
@@ -39,6 +41,7 @@ internal class LandingPresenter(
 
         return@launchMolecule LandingState(
             currentScreen = currentScreen,
+            openTradesCount = getOpenTradeCount(),
             eventSink = ::onEvent,
         )
     }
@@ -48,6 +51,19 @@ internal class LandingPresenter(
         when (event) {
             is LandingEvent.ChangeCurrentScreen -> onCurrentScreenChange(event.screen)
         }
+    }
+
+    @Composable
+    private fun getOpenTradeCount(): Long? {
+        return produceState<Long?>(null) {
+
+            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+
+                val tradingRecord = tradingProfiles.getRecord(profile.id)
+
+                tradingRecord.trades.getOpenCount().map { count -> count.takeUnless { it == 0L } }
+            }.collect { value = it }
+        }.value
     }
 
     private fun onCurrentScreenChange(screen: LandingScreen) {
