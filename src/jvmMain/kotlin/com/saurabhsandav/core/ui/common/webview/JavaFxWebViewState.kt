@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.JFXColor
 import com.saurabhsandav.core.ui.common.toJavaFxColor
-import com.saurabhsandav.core.ui.common.webview.WebView.LoadState
+import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.embed.swing.JFXPanel
@@ -17,7 +17,7 @@ import netscape.javascript.JSObject
 import javafx.scene.web.WebView as JFXWebView
 
 @Stable
-class JavaFxWebView : WebView {
+class JavaFxWebViewState : WebViewState {
 
     private lateinit var webView: JFXWebView
     private lateinit var engine: WebEngine
@@ -77,7 +77,7 @@ class JavaFxWebView : WebView {
         runInJavaFxThread { engine.executeScript(script) }
     }
 
-    override suspend fun createJSCallback(jsFuncName: String): WebView.JSCallback {
+    override suspend fun createJSCallback(jsFuncName: String): WebViewState.JSCallback {
 
         awaitReady()
 
@@ -96,7 +96,7 @@ class JavaFxWebView : WebView {
             window.setMember(callbackRef, flow)
         }
 
-        return object : WebView.JSCallback {
+        return object : WebViewState.JSCallback {
 
             override val messages: Flow<String> = flow.asSharedFlow()
 

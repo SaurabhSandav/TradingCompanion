@@ -14,8 +14,8 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
-import com.saurabhsandav.core.ui.common.webview.CefWebView
-import com.saurabhsandav.core.ui.common.webview.JavaFxWebView
+import com.saurabhsandav.core.ui.common.webview.CefWebViewState
+import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.utils.AppPaths
@@ -89,14 +89,14 @@ internal class AppModule {
 
     val appPrefs = _appPrefs.toFlowSettings()
 
-    val webViewProvider = run {
+    val webViewStateProvider = run {
 
         val webViewBackend = _appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name);
 
         {
             when (webViewBackend) {
-                WebViewBackend.JCEF.name -> CefWebView()
-                WebViewBackend.JavaFX.name -> JavaFxWebView()
+                WebViewBackend.JCEF.name -> CefWebViewState()
+                WebViewBackend.JavaFX.name -> JavaFxWebViewState()
                 else -> error("Invalid WebView Backend: $webViewBackend")
             }
         }

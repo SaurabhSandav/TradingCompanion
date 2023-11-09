@@ -11,23 +11,23 @@ import java.awt.Component
 
 @Composable
 fun WebView(
-    webView: WebView,
+    webViewState: WebViewState,
     modifier: Modifier = Modifier,
 ) {
 
     AppSwingPanel(
         modifier = modifier,
-        factory = { webView.component }
+        factory = { webViewState.component }
     )
 
-    LaunchedEffect(webView) {
+    LaunchedEffect(webViewState) {
 
-        webView.init()
+        webViewState.init()
     }
 }
 
 @Stable
-interface WebView {
+interface WebViewState {
 
     val component: Component
 

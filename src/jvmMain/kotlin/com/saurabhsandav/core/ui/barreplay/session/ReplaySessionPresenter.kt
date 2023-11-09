@@ -62,7 +62,7 @@ internal class ReplaySessionPresenter(
             appModule = appModule,
         ),
         appPrefs = appModule.appPrefs,
-        webViewProvider = appModule.webViewProvider,
+        webViewStateProvider = appModule.webViewStateProvider,
     )
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 

@@ -7,13 +7,13 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
-import com.saurabhsandav.core.ui.common.webview.WebView
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
 
 class StockChartWindow(
     parentScope: CoroutineScope,
-    webView: WebView,
+    webViewState: WebViewState,
     private val onNewChart: (
         pagedArrangement: PagedChartArrangement,
         currentStockChart: StockChart?,
@@ -29,7 +29,7 @@ class StockChartWindow(
     val pageState = ChartPageState(
         coroutineScope = coroutineScope,
         arrangement = pagedArrangement,
-        webView = webView,
+        webViewState = webViewState,
     )
     val tabCharts = mutableMapOf<Int, StockChart>()
     val charts

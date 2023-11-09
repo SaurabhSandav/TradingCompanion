@@ -15,6 +15,7 @@ import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toAwtColor
 import com.saurabhsandav.core.ui.common.webview.WebView
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 
 @Composable
 fun ChartPage(
@@ -24,10 +25,10 @@ fun ChartPage(
 
     Column(modifier) {
 
-        WebViewLoadingIndicator(state.webView)
+        WebViewLoadingIndicator(state.webViewState)
 
         WebView(
-            webView = state.webView,
+            webViewState = state.webViewState,
             modifier = Modifier.fillMaxSize(),
         )
 
@@ -35,7 +36,7 @@ fun ChartPage(
 
         // Set Material background as page background
         LaunchedEffect(backgroundColor) {
-            state.webView.setBackgroundColor(backgroundColor.toAwtColor())
+            state.webViewState.setBackgroundColor(backgroundColor.toAwtColor())
             state.setPageBackgroundColor(backgroundColor)
         }
 
@@ -49,7 +50,7 @@ fun ChartPage(
 }
 
 @Composable
-private fun WebViewLoadingIndicator(webView: WebView) {
+private fun WebViewLoadingIndicator(webViewState: WebViewState) {
 
     var isLoading by state { true }
 
@@ -57,9 +58,9 @@ private fun WebViewLoadingIndicator(webView: WebView) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
     }
 
-    LaunchedEffect(webView.loadState) {
-        webView.loadState.collect {
-            isLoading = it != WebView.LoadState.LOADED
+    LaunchedEffect(webViewState.loadState) {
+        webViewState.loadState.collect {
+            isLoading = it != WebViewState.LoadState.LOADED
         }
     }
 }

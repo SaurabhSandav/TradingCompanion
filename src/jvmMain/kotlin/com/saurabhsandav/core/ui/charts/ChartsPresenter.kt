@@ -54,7 +54,7 @@ internal class ChartsPresenter(
             initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
             marketDataProvider = marketDataProvider,
             appPrefs = appModule.appPrefs,
-            webViewProvider = appModule.webViewProvider,
+            webViewStateProvider = appModule.webViewStateProvider,
         )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)

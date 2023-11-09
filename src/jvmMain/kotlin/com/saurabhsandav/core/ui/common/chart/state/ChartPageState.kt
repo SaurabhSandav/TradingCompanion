@@ -6,7 +6,7 @@ import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.toHexString
-import com.saurabhsandav.core.ui.common.webview.WebView
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -15,19 +15,19 @@ import kotlinx.coroutines.launch
 @Stable
 fun ChartPageState(
     coroutineScope: CoroutineScope,
-    webView: WebView,
+    webViewState: WebViewState,
     chart: IChartApi,
 ) = ChartPageState(
     coroutineScope = coroutineScope,
     arrangement = ChartArrangement.single(),
-    webView = webView,
+    webViewState = webViewState,
 ).apply { connect(chart) }
 
 @Stable
 class ChartPageState(
     private val coroutineScope: CoroutineScope,
     private val arrangement: ChartArrangement,
-    val webView: WebView,
+    val webViewState: WebViewState,
 ) {
 
     private val scripts = Channel<String>(Channel.UNLIMITED)
@@ -38,25 +38,25 @@ class ChartPageState(
         coroutineScope.launch {
 
             // Wait for WebView initialization
-            webView.awaitReady()
+            webViewState.awaitReady()
 
             // Start server for serving chart page
             ChartsPageServer.startIfNotStarted()
 
             // Load chart webpage
-            webView.load(ChartsPageServer.getUrl())
+            webViewState.load(ChartsPageServer.getUrl())
 
             // Await page load
-            webView.loadState.first { loadState -> loadState == WebView.LoadState.LOADED }
+            webViewState.loadState.first { loadState -> loadState == WebViewState.LoadState.LOADED }
 
             // Forward callbacks
-            webView.createJSCallback("chartCallback")
+            webViewState.createJSCallback("chartCallback")
                 .messages
                 .onEach(::onCallback)
                 .launchIn(coroutineScope)
 
             // Execute chart scripts
-            merge(arrangement.scripts, scripts.consumeAsFlow()).onEach(webView::executeScript).collect()
+            merge(arrangement.scripts, scripts.consumeAsFlow()).onEach(webViewState::executeScript).collect()
         }
     }
 

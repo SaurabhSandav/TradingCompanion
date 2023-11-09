@@ -72,7 +72,7 @@ internal class PNLByDayChartStudy(
             ChartPageState(
                 coroutineScope = coroutineScope,
                 arrangement = arrangement,
-                webView = appModule.webViewProvider(),
+                webViewState = appModule.webViewStateProvider(),
             )
         }
         val chart = remember {

@@ -48,7 +48,7 @@ internal fun TradeChartWindow(
         val chartPageState = remember {
             ChartPageState(
                 coroutineScope = coroutineScope,
-                webView = appModule.webViewProvider(),
+                webViewState = appModule.webViewStateProvider(),
                 chart = chart,
             )
         }

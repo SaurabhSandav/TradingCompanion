@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.common.webview
 
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.ui.common.AwtColor
-import com.saurabhsandav.core.ui.common.webview.WebView.LoadState
+import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
@@ -28,7 +28,7 @@ import java.awt.Component
 import java.io.File
 
 @Stable
-class CefWebView : WebView {
+class CefWebViewState : WebViewState {
 
     private val jsCallbacks = mutableMapOf<String, CefJSCallback>()
 
@@ -154,7 +154,7 @@ class CefWebView : WebView {
         browser.executeJavaScript(script, null, 0)
     }
 
-    override suspend fun createJSCallback(jsFuncName: String): WebView.JSCallback {
+    override suspend fun createJSCallback(jsFuncName: String): WebViewState.JSCallback {
 
         awaitReady()
 
@@ -194,7 +194,7 @@ class CefWebView : WebView {
 
     private abstract class CefJSCallback(
         val mutableSharedFlow: MutableSharedFlow<String>,
-    ) : WebView.JSCallback {
+    ) : WebViewState.JSCallback {
 
         override val messages: Flow<String> = mutableSharedFlow.asSharedFlow()
     }

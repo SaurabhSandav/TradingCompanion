@@ -11,7 +11,7 @@ import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.Crossh
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
-import com.saurabhsandav.core.ui.common.webview.WebView
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -29,7 +29,7 @@ class StockChartsState(
     private val initialParams: StockChartParams,
     val marketDataProvider: MarketDataProvider,
     val appPrefs: FlowSettings,
-    val webViewProvider: () -> WebView,
+    val webViewStateProvider: () -> WebViewState,
 ) {
 
     private val chartPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName).node("StockChart"))
@@ -61,7 +61,7 @@ class StockChartsState(
 
         val window = StockChartWindow(
             parentScope = coroutineScope,
-            webView = webViewProvider(),
+            webViewState = webViewStateProvider(),
             onNewChart = { arrangement, currentStockChart ->
 
                 newStockChart(
