@@ -42,6 +42,7 @@ internal fun TradesTable(
         addColumnText("Quantity") { it.quantity }
         addColumnText("Avg. Entry") { it.entry }
         addColumnText("Avg. Exit") { it.exit ?: "NA" }
+        addColumnText("Entry Time", width = Weight(2.2F)) { it.entryTime }
         addColumn("Duration", width = Weight(1.5F)) {
 
             Text(

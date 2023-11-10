@@ -23,6 +23,7 @@ internal data class TradeReviewState(
         val quantity: String,
         val entry: String,
         val exit: String?,
+        val entryTime: String,
         val duration: Flow<String>,
         val pnl: String,
         val isProfitable: Boolean,

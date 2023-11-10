@@ -15,7 +15,9 @@ import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -25,6 +27,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.time.Duration
@@ -128,6 +132,9 @@ internal class TradeReviewPresenter(
             },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
+            entryTime = TradeDateTimeFormatter.format(
+                ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+            ),
             duration = durationStr,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
