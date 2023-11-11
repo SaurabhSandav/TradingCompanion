@@ -1,10 +1,9 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
@@ -34,11 +33,5 @@ internal data class TradesState(
         val netPnl: String,
         val isNetProfitable: Boolean,
         val fees: String,
-    )
-
-    @Immutable
-    data class ProfileTradeId(
-        val profileId: ProfileId,
-        val tradeId: TradeId,
     )
 }

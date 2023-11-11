@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ProfileTradeExecutionId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 
 @Composable

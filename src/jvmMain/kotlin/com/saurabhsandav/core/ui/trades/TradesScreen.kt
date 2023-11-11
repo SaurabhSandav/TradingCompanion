@@ -9,8 +9,8 @@ import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
-import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable

@@ -10,8 +10,8 @@ import com.saurabhsandav.core.ui.tags.model.TagsEvent
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.CopyTag
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
 import com.saurabhsandav.core.ui.tags.model.TagsState
-import com.saurabhsandav.core.ui.tags.model.TagsState.ProfileTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList

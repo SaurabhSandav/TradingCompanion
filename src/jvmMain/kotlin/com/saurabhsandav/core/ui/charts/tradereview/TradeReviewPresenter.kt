@@ -9,13 +9,13 @@ import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
-import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.MarkedTradeEntry
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
@@ -288,10 +288,7 @@ internal class TradeReviewPresenter(
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
-        tradeContentLauncher.openTrade(
-            profileId = profileTradeId.profileId,
-            tradeId = profileTradeId.tradeId,
-        )
+        tradeContentLauncher.openTrade(profileTradeId)
     }
 
     private fun onClearMarkedTrades() {

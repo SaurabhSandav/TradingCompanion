@@ -14,6 +14,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.format
@@ -36,13 +37,15 @@ import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradePresenter(
-    private val profileId: ProfileId,
-    private val tradeId: TradeId,
+    profileTradeId: ProfileTradeId,
     private val coroutineScope: CoroutineScope,
     private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
 ) {
+
+    private val profileId = profileTradeId.profileId
+    private val tradeId = profileTradeId.tradeId
 
     private val trade = flow { emitAll(tradingProfiles.getRecord(profileId).trades.getById(tradeId)) }.shareIn(
         scope = coroutineScope,

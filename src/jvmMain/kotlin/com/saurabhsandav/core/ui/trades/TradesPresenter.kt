@@ -29,6 +29,7 @@ import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.trades.model.TradeChartData
 import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
@@ -36,7 +37,6 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
-import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.utils.*
 import kotlinx.collections.immutable.ImmutableList
@@ -191,10 +191,7 @@ internal class TradesPresenter(
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
-        tradeContentLauncher.openTrade(
-            profileId = profileTradeId.profileId,
-            tradeId = profileTradeId.tradeId,
-        )
+        tradeContentLauncher.openTrade(profileTradeId)
     }
 
     private fun onOpenChart(profileTradeId: ProfileTradeId): Unit = coroutineScope.launchUnit {

@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tags.model
 
-import com.saurabhsandav.core.ui.tags.model.TagsState.ProfileTagId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 
 internal sealed class TagsEvent {
 

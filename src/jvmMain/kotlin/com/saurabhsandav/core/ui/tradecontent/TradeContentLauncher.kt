@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.tradecontent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
@@ -12,7 +11,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
-    private val tradeWindowsManager = AppWindowsManager<TradeWindowParams>()
+    private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
 
     fun openExecutionForm(
         profileId: ProfileId,
@@ -44,27 +43,14 @@ internal class TradeContentLauncher {
         }
     }
 
-    fun openTrade(
-        profileId: ProfileId,
-        tradeId: TradeId,
-    ) {
+    fun openTrade(profileTradeId: ProfileTradeId) {
 
-        val window = tradeWindowsManager.windows.find {
-            it.params.profileId == profileId && it.params.tradeId == tradeId
-        }
+        val window = tradeWindowsManager.windows.find { it.params == profileTradeId }
 
         when (window) {
 
             // Open new window
-            null -> {
-
-                val params = TradeWindowParams(
-                    profileId = profileId,
-                    tradeId = tradeId
-                )
-
-                tradeWindowsManager.newWindow(params)
-            }
+            null -> tradeWindowsManager.newWindow(profileTradeId)
 
             // Window already open. Bring to front.
             else -> window.toFront()
@@ -88,8 +74,7 @@ internal class TradeContentLauncher {
         tradeWindowsManager.Windows { window ->
 
             TradeWindow(
-                profileId = window.params.profileId,
-                tradeId = window.params.tradeId,
+                profileTradeId = window.params,
                 tradeContentLauncher = this@TradeContentLauncher,
                 onCloseRequest = window::close,
             )
@@ -100,11 +85,5 @@ internal class TradeContentLauncher {
     private data class TradeExecutionFormWindowParams(
         val profileId: ProfileId,
         val formType: TradeExecutionFormType,
-    )
-
-    @Immutable
-    private data class TradeWindowParams(
-        val profileId: ProfileId,
-        val tradeId: TradeId,
     )
 }

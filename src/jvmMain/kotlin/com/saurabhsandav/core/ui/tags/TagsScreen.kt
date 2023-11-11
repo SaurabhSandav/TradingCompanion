@@ -21,9 +21,9 @@ import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.CopyTag
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
-import com.saurabhsandav.core.ui.tags.model.TagsState.ProfileTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagListItem
+import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

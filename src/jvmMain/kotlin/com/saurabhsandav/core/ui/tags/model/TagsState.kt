@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.tags.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -17,11 +17,5 @@ internal data class TagsState(
         val id: ProfileTagId,
         val name: String,
         val description: String,
-    )
-
-    @Immutable
-    data class ProfileTagId(
-        val profileId: ProfileId,
-        val tagId: TradeTagId,
     )
 }

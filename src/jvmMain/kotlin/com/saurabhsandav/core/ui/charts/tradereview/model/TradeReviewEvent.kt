@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.charts.tradereview.model
 
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 internal sealed class TradeReviewEvent {
 

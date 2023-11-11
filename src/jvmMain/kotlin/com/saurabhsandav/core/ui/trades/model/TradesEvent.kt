@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.trades.model
 
-import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 internal sealed class TradesEvent {
 

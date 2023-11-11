@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.charts.tradereview.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 

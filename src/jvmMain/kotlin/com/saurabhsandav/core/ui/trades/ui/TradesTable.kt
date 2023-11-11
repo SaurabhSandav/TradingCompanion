@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
-import com.saurabhsandav.core.ui.trades.model.TradesState.ProfileTradeId
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import kotlinx.collections.immutable.ImmutableList
 

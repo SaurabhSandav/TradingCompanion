@@ -5,11 +5,12 @@ import com.saurabhsandav.core.chart.data.CandlestickData
 import com.saurabhsandav.core.chart.data.HistogramData
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.SeriesMarker
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal class TradeChartWindowParams(
-    val profileTradeId: TradesState.ProfileTradeId,
+    val profileTradeId: ProfileTradeId,
     val chartData: TradeChartData,
 )
 

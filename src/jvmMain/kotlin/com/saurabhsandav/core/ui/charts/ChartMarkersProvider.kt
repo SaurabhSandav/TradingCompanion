@@ -4,9 +4,9 @@ import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.ui.charts.model.ChartsState.ProfileTradeId
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers
