@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.TradeContentLauncher
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
+import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import kotlinx.coroutines.CoroutineScope
 

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui
+package com.saurabhsandav.core.ui.tradecontent
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
