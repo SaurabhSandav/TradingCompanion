@@ -16,7 +16,7 @@ internal class ChartMarkersProvider(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    internal val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
+    private val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
 
     fun getTradeMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<TradeMarker>> {
 

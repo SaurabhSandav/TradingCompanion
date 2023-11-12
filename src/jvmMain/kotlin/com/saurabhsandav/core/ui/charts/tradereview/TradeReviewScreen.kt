@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.*
 import com.saurabhsandav.core.ui.charts.tradereview.ui.MainTabRow
@@ -23,27 +24,16 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.datetime.Instant
 
 @Composable
 internal fun TradeReviewWindow(
     onCloseRequest: () -> Unit,
-    initialMarkedTrades: ImmutableList<ProfileTradeId>,
-    onOpenChart: (
-        ticker: String,
-        start: Instant,
-        end: Instant?,
-    ) -> Unit,
-    onMarkTrades: (tradeIds: List<ProfileTradeId>) -> Unit,
+    chartsHandle: ChartsHandle,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember {
-        appModule
-            .tradeReviewModule(scope)
-            .presenter(initialMarkedTrades, onOpenChart, onMarkTrades)
-    }
+    val presenter = remember { appModule.tradeReviewModule(scope).presenter(chartsHandle) }
     val state by presenter.state.collectAsState()
 
     AppWindow(

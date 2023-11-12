@@ -21,8 +21,6 @@ import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -61,8 +59,6 @@ internal class ChartsPresenter(
         return@launchMolecule ChartsState(
             chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
             showCandleDataLoginConfirmation = showCandleDataLoginConfirmation,
-            markedTrades = remember { markersProvider.markedTradeIds.map { it.toImmutableList() } }
-                .collectAsState(persistentListOf()).value,
             errors = errors,
             eventSink = ::onEvent,
         )

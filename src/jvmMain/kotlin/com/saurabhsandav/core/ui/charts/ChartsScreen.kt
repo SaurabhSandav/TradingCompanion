@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.*
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDeclined
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -23,6 +24,7 @@ import com.saurabhsandav.core.ui.stockchart.StockCharts
 @Composable
 internal fun ChartsScreen(
     onCloseRequest: () -> Unit,
+    chartsHandle: ChartsHandle,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -30,10 +32,13 @@ internal fun ChartsScreen(
 
     val module = remember { appModule.chartsModule(scope) }
     val presenter = remember { module.presenter() }
-
     val state by presenter.state.collectAsState()
 
     val tradeReviewWindowManager = remember { AppWindowManager() }
+
+    LaunchedEffect(state.eventSink) {
+        chartsHandle.events.collect(state.eventSink)
+    }
 
     val chartsState = state.chartsState
 
@@ -74,9 +79,7 @@ internal fun ChartsScreen(
 
         TradeReviewWindow(
             onCloseRequest = tradeReviewWindowManager::closeWindow,
-            initialMarkedTrades = state.markedTrades,
-            onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
-            onMarkTrades = { tradeIds -> state.eventSink(MarkTrades(tradeIds)) },
+            chartsHandle = chartsHandle,
         )
     }
 

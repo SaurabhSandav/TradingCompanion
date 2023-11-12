@@ -3,8 +3,8 @@ package com.saurabhsandav.core.ui.tradecontent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
-import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
@@ -14,7 +14,7 @@ internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
-    private val chartsWindowManager = AppWindowManager()
+    private val chartsWindowsManager = AppWindowsManager<ChartsHandle>()
 
     fun openExecutionForm(
         profileId: ProfileId,
@@ -61,7 +61,15 @@ internal class TradeContentLauncher {
     }
 
     fun openCharts() {
-        chartsWindowManager.openWindow()
+
+        when (val existingWindow = chartsWindowsManager.windows.singleOrNull()) {
+
+            // Open new window
+            null -> chartsWindowsManager.newWindow(ChartsHandle())
+
+            // Window already open. Bring to front.
+            else -> existingWindow.owner.childrenToFront()
+        }
     }
 
     @Composable
@@ -87,10 +95,11 @@ internal class TradeContentLauncher {
         }
 
         // Charts
-        chartsWindowManager.Window {
+        chartsWindowsManager.Windows { window ->
 
             ChartsScreen(
-                onCloseRequest = chartsWindowManager::closeWindow,
+                onCloseRequest = window::close,
+                chartsHandle = window.params,
             )
         }
     }

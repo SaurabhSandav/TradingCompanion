@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
@@ -26,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -37,13 +37,7 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class TradeReviewPresenter(
     private val coroutineScope: CoroutineScope,
-    initialMarkedTrades: List<ProfileTradeId>,
-    private val onOpenChart: (
-        ticker: String,
-        start: Instant,
-        end: Instant?,
-    ) -> Unit,
-    private val onMarkTrades: (tradeIds: List<ProfileTradeId>) -> Unit,
+    private val chartsHandle: ChartsHandle,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
     private val appPrefs: FlowSettings,
@@ -53,7 +47,7 @@ internal class TradeReviewPresenter(
         .map { it?.let(::ProfileId) }
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
-    private val markedTradeIds = initialMarkedTrades.toMutableStateList()
+    private val markedTradeIds = chartsHandle.markedTradeIds.toMutableStateList()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -270,7 +264,7 @@ internal class TradeReviewPresenter(
             else -> markedTradeIds.remove(profileTradeId)
         }
 
-        onMarkTrades(markedTradeIds)
+        chartsHandle.setMarkedTrades(markedTradeIds)
     }
 
     private fun onSelectTrade(profileTradeId: ProfileTradeId) = coroutineScope.launchUnit {
@@ -278,7 +272,7 @@ internal class TradeReviewPresenter(
         // Mark selected trade
         if (profileTradeId !in markedTradeIds) {
             markedTradeIds.add(profileTradeId)
-            onMarkTrades(markedTradeIds)
+            chartsHandle.setMarkedTrades(markedTradeIds)
         }
 
         val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
@@ -288,7 +282,7 @@ internal class TradeReviewPresenter(
         val end = trade.exitTimestamp
 
         // Show trade on chart
-        onOpenChart(trade.ticker, start, end)
+        chartsHandle.openTicker(trade.ticker, start, end)
     }
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
@@ -298,6 +292,6 @@ internal class TradeReviewPresenter(
 
     private fun onClearMarkedTrades() {
         markedTradeIds.clear()
-        onMarkTrades(markedTradeIds)
+        chartsHandle.setMarkedTrades(markedTradeIds)
     }
 }
