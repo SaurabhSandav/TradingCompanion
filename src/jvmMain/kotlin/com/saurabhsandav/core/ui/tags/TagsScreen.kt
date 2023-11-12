@@ -33,7 +33,7 @@ internal fun TagsWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TagsPresenter(scope, appModule) }
+    val presenter = remember { appModule.tagsModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
     AppWindow(

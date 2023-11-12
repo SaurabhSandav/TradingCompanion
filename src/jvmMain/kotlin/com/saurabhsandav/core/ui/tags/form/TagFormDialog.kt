@@ -27,7 +27,7 @@ internal fun TagFormDialog(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TagFormPresenter(scope, profileId, type, onCloseRequest, appModule) }
+    val presenter = remember { appModule.tagFormModule(scope).presenter(profileId, type, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))

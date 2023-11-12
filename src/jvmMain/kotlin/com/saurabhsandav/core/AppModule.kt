@@ -18,6 +18,8 @@ import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
+import com.saurabhsandav.core.ui.tags.TagsModule
+import com.saurabhsandav.core.ui.tags.form.TagFormModule
 import com.saurabhsandav.core.ui.trade.TradeModule
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
@@ -127,6 +129,14 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val tagsModule = { coroutineScope: CoroutineScope ->
+        TagsModule(this, coroutineScope)
+    }
+
+    val tagFormModule = { coroutineScope: CoroutineScope ->
+        TagFormModule(this, coroutineScope)
+    }
 
     val tradeModule = {
             coroutineScope: CoroutineScope,

@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.tags.model.TagsEvent
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.CopyTag
@@ -26,9 +25,8 @@ import kotlinx.coroutines.flow.stateIn
 @Stable
 internal class TagsPresenter(
     private val coroutineScope: CoroutineScope,
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val currentProfileId = appPrefs.getCurrentTradingProfile(tradingProfiles)
