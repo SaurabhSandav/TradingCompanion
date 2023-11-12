@@ -9,12 +9,14 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradereview.TradeReviewWindow
 
 internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartsWindowsManager = AppWindowsManager<ChartsHandle>()
+    private val tradeReviewWindowsManager = AppWindowsManager<ChartsHandle>()
 
     fun openExecutionForm(
         profileId: ProfileId,
@@ -72,6 +74,28 @@ internal class TradeContentLauncher {
         }
     }
 
+    private fun closeCharts() {
+        chartsWindowsManager.closeAll()
+        tradeReviewWindowsManager.closeAll()
+    }
+
+    fun openTradeReview() {
+
+        openCharts()
+
+        when (val existingWindow = tradeReviewWindowsManager.windows.singleOrNull()) {
+
+            // Open new window
+            null -> {
+                val chartsHandle = chartsWindowsManager.windows.single().params
+                tradeReviewWindowsManager.newWindow(chartsHandle)
+            }
+
+            // Window already open. Bring to front.
+            else -> existingWindow.owner.childrenToFront()
+        }
+    }
+
     @Composable
     fun Windows() {
 
@@ -98,6 +122,16 @@ internal class TradeContentLauncher {
         chartsWindowsManager.Windows { window ->
 
             ChartsScreen(
+                onCloseRequest = ::closeCharts,
+                chartsHandle = window.params,
+                onOpenTradeReview = ::openTradeReview,
+            )
+        }
+
+        // Trade review
+        tradeReviewWindowsManager.Windows { window ->
+
+            TradeReviewWindow(
                 onCloseRequest = window::close,
                 chartsHandle = window.params,
             )

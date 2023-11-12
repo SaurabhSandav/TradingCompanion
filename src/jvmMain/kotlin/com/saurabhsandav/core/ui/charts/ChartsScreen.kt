@@ -17,14 +17,13 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirm
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDeclined
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.stockchart.StockCharts
-import com.saurabhsandav.core.ui.tradereview.TradeReviewWindow
 
 @Composable
 internal fun ChartsScreen(
     onCloseRequest: () -> Unit,
     chartsHandle: ChartsHandle,
+    onOpenTradeReview: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -33,8 +32,6 @@ internal fun ChartsScreen(
     val module = remember { appModule.chartsModule(scope) }
     val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
-
-    val tradeReviewWindowManager = remember { AppWindowManager() }
 
     LaunchedEffect(state.eventSink) {
         chartsHandle.events.collect(state.eventSink)
@@ -67,19 +64,10 @@ internal fun ChartsScreen(
 
                 Button(
                     modifier = Modifier.fillMaxSize(),
-                    onClick = tradeReviewWindowManager::openWindow,
+                    onClick = onOpenTradeReview,
                     content = { Text("Trade Review") },
                 )
             },
-        )
-    }
-
-    // Trade review window
-    tradeReviewWindowManager.Window {
-
-        TradeReviewWindow(
-            onCloseRequest = tradeReviewWindowManager::closeWindow,
-            chartsHandle = chartsHandle,
         )
     }
 
