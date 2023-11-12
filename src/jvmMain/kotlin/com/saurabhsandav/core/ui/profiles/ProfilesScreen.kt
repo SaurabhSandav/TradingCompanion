@@ -31,7 +31,12 @@ internal fun ProfilesWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { ProfilesPresenter(scope, appModule) }
+    val presenter = remember {
+        appModule.profilesModule(scope).presenter(
+            customSelectionMode = false,
+            trainingOnly = false,
+        )
+    }
     val state by presenter.state.collectAsState()
 
     AppWindow(
@@ -62,7 +67,10 @@ internal fun ProfileSwitcherBox(
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        ProfilesPresenter(scope, appModule, customSelectionMode = true, trainingOnly = trainingOnly)
+        appModule.profilesModule(scope).presenter(
+            customSelectionMode = true,
+            trainingOnly = trainingOnly,
+        )
     }
     val state by presenter.state.collectAsState()
 

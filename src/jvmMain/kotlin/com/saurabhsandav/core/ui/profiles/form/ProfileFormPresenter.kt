@@ -6,7 +6,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
@@ -18,8 +17,7 @@ internal class ProfileFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val formType: ProfileFormType,
     private val onCloseRequest: () -> Unit,
-    appModule: AppModule,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)

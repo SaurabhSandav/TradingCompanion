@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -24,11 +23,10 @@ import kotlinx.coroutines.flow.*
 @Stable
 internal class ProfilesPresenter(
     private val coroutineScope: CoroutineScope,
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val customSelectionMode: Boolean = false,
-    private val trainingOnly: Boolean = false,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
+    private val customSelectionMode: Boolean,
+    private val trainingOnly: Boolean,
 ) {
 
     private val currentProfileId = MutableStateFlow<ProfileId?>(null)
@@ -103,4 +101,12 @@ internal class ProfilesPresenter(
         description = profile.description,
         isTraining = profile.isTraining,
     )
+
+    fun interface Factory {
+
+        operator fun invoke(
+            customSelectionMode: Boolean,
+            trainingOnly: Boolean,
+        ): ProfilesPresenter
+    }
 }

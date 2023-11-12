@@ -17,6 +17,8 @@ import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
+import com.saurabhsandav.core.ui.profiles.ProfilesModule
+import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
 import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.sizing.SizingModule
@@ -132,6 +134,14 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val profilesModule = { coroutineScope: CoroutineScope ->
+        ProfilesModule(this, coroutineScope)
+    }
+
+    val profileFormModule = { coroutineScope: CoroutineScope ->
+        ProfileFormModule(this, coroutineScope)
+    }
 
     val settingsModule = { coroutineScope: CoroutineScope ->
         SettingsModule(this, coroutineScope)

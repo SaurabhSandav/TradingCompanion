@@ -23,7 +23,7 @@ internal fun ProfileFormDialog(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { ProfileFormPresenter(scope, type, onCloseRequest, appModule) }
+    val presenter = remember { appModule.profileFormModule(scope).presenter(type, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
