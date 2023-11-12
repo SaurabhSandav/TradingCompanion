@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
-import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
@@ -78,7 +77,6 @@ private fun LandingScreen(
 ) {
 
     val profilesWindowManager = remember { AppWindowManager() }
-    val chartsWindowManager = remember { AppWindowManager() }
     val tagsWindowManager = remember { AppWindowManager() }
     val pnlCalculatorWindowManager = remember { AppWindowManager() }
     val barReplayWindowManager = remember { AppWindowManager() }
@@ -151,7 +149,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
                     selected = false,
-                    onClick = chartsWindowManager::openWindow,
+                    onClick = tradeContentLauncher::openCharts,
                 )
             }
 
@@ -232,14 +230,6 @@ private fun LandingScreen(
 
             ProfilesWindow(
                 onCloseRequest = profilesWindowManager::closeWindow,
-            )
-        }
-
-        chartsWindowManager.Window {
-
-            ChartsScreen(
-
-                onCloseRequest = chartsWindowManager::closeWindow,
             )
         }
 

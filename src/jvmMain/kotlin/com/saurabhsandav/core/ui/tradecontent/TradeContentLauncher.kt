@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.tradecontent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.charts.ChartsScreen
+import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
@@ -12,6 +14,7 @@ internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
+    private val chartsWindowManager = AppWindowManager()
 
     fun openExecutionForm(
         profileId: ProfileId,
@@ -57,6 +60,10 @@ internal class TradeContentLauncher {
         }
     }
 
+    fun openCharts() {
+        chartsWindowManager.openWindow()
+    }
+
     @Composable
     fun Windows() {
 
@@ -76,6 +83,14 @@ internal class TradeContentLauncher {
             TradeWindow(
                 profileTradeId = window.params,
                 onCloseRequest = window::close,
+            )
+        }
+
+        // Charts
+        chartsWindowManager.Window {
+
+            ChartsScreen(
+                onCloseRequest = chartsWindowManager::closeWindow,
             )
         }
     }
