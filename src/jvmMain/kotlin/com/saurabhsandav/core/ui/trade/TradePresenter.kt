@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.trade
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.model.*
@@ -39,9 +38,8 @@ import kotlin.time.Duration.Companion.seconds
 internal class TradePresenter(
     profileTradeId: ProfileTradeId,
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val profileId = profileTradeId.profileId
