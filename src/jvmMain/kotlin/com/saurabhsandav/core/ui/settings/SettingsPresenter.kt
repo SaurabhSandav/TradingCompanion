@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
@@ -25,8 +24,7 @@ import kotlin.system.exitProcess
 @Stable
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val appPrefs: FlowSettings,
 ) {
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {

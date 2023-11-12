@@ -31,7 +31,7 @@ internal fun SettingsWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { SettingsPresenter(scope, appModule) }
+    val presenter = remember { appModule.settingsModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
