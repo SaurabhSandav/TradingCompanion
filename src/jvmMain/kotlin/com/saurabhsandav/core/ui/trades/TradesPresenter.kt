@@ -7,7 +7,6 @@ import app.cash.molecule.launchMolecule
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.chart.data.*
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
@@ -57,13 +56,12 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class TradesPresenter(
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val loginServicesManager: LoginServicesManager = appModule.loginServicesManager,
-    private val fyersApi: FyersApi = appModule.fyersApi,
+    private val appPrefs: FlowSettings,
+    private val candleRepo: CandleRepository,
+    private val tradingProfiles: TradingProfiles,
+    private val loginServicesManager: LoginServicesManager,
+    private val fyersApi: FyersApi,
 ) {
 
     private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()

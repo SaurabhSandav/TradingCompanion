@@ -235,7 +235,8 @@ private fun LandingScreen(
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeExecutions to
                             TradeExecutionsLandingSwitcherItem(scope, appModule, tradeContentLauncher),
-                    LandingScreen.Trades to TradesLandingSwitcherItem(scope, appModule, tradeContentLauncher),
+                    LandingScreen.Trades to
+                            TradesLandingSwitcherItem(appModule.tradesModule(scope, tradeContentLauncher)),
                     LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
                 )
             }

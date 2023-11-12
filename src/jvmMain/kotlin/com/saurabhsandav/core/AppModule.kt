@@ -18,9 +18,12 @@ import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
+import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
+import com.saurabhsandav.core.ui.trades.TradesModule
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.PrefKeys
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
@@ -121,6 +124,13 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val tradesModule = {
+            coroutineScope: CoroutineScope,
+            tradeContentLauncher: TradeContentLauncher,
+        ->
+        TradesModule(this, coroutineScope, tradeContentLauncher)
+    }
 
     init {
 
