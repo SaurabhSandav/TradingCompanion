@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.tradeexecutionform
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
@@ -25,8 +24,7 @@ internal class TradeExecutionFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val formType: TradeExecutionFormType,
-    private val appModule: AppModule,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)

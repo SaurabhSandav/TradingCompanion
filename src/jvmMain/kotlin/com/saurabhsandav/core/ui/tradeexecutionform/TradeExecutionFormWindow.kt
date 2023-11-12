@@ -41,7 +41,7 @@ internal fun TradeExecutionFormWindow(
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        TradeExecutionFormPresenter(onCloseRequest, scope, profileId, formType, appModule)
+        appModule.tradeExecutionFormModule(scope).presenter(onCloseRequest, profileId, formType)
     }
     val state by presenter.state.collectAsState()
 
