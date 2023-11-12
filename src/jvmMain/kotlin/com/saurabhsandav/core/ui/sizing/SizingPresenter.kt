@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
@@ -29,6 +28,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -39,16 +39,16 @@ import java.util.*
 @Stable
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val account: Flow<Account>,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        val account by appModule.account.collectAsState(
+        val account by account.collectAsState(
             Account(
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
@@ -139,7 +139,7 @@ internal class SizingPresenter(
             else -> sizingTrade.entry - spread
         }
 
-        val account = appModule.account.first()
+        val account = account.first()
 
         val calculatedQuantity = when {
             spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO

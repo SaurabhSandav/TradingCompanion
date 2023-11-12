@@ -3,17 +3,14 @@ package com.saurabhsandav.core.ui.sizing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
-import kotlinx.coroutines.CoroutineScope
 
 internal class SizingLandingSwitcherItem(
-    coroutineScope: CoroutineScope,
-    appModule: AppModule,
+    sizingModule: SizingModule,
 ) : LandingSwitcherItem {
 
-    private val presenter = SizingPresenter(coroutineScope, appModule)
+    private val presenter = sizingModule.presenter()
 
     @Composable
     override fun Content() {
