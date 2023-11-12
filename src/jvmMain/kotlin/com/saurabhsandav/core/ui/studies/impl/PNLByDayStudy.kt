@@ -1,7 +1,8 @@
 package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -23,10 +24,13 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Model>() {
+internal class PNLByDayStudy(
+    appPrefs: FlowSettings,
+    tradingProfiles: TradingProfiles,
+) : TableStudy<PNLByDayStudy.Model>() {
 
-    private val tradesRepo = appModule.appPrefs
-        .getCurrentTradingRecord(appModule.tradingProfiles)
+    private val tradesRepo = appPrefs
+        .getCurrentTradingRecord(tradingProfiles)
         .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
@@ -106,10 +110,13 @@ internal class PNLByDayStudy(appModule: AppModule) : TableStudy<PNLByDayStudy.Mo
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLByDayStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+    ) : Study.Factory<PNLByDayStudy> {
 
         override val name: String = "PNL By Day"
 
-        override fun create() = PNLByDayStudy(appModule)
+        override fun create() = PNLByDayStudy(appPrefs, tradingProfiles)
     }
 }

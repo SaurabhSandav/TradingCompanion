@@ -12,23 +12,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 
 internal class StatsStudy(
-    private val appModule: AppModule,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) : Study {
 
     @Composable
     override fun render() {
 
         val generalStats = remember {
-            appModule.appPrefs
-                .getCurrentTradingRecord(appModule.tradingProfiles)
+            appPrefs
+                .getCurrentTradingRecord(tradingProfiles)
                 .flatMapLatest { record ->
                     record.trades.allTrades.map(::calculateGeneralStats)
                 }
@@ -311,10 +313,13 @@ internal class StatsStudy(
         val averageLossHoldingTime: String = "",
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<StatsStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+    ) : Study.Factory<StatsStudy> {
 
         override val name: String = "Stats"
 
-        override fun create() = StatsStudy(appModule)
+        override fun create() = StatsStudy(appPrefs, tradingProfiles)
     }
 }

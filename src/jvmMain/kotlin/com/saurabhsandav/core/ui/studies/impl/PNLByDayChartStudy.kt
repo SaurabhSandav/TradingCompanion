@@ -4,13 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.chart.baselineSeries
 import com.saurabhsandav.core.chart.data.LineData
 import com.saurabhsandav.core.chart.data.SingleValueData
 import com.saurabhsandav.core.chart.data.Time
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
@@ -18,6 +19,7 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.getCurrentTradingRecord
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -28,12 +30,13 @@ import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
 internal class PNLByDayChartStudy(
-    private val appModule: AppModule,
+    appPrefs: FlowSettings,
+    tradingProfiles: TradingProfiles,
+    private val webViewStateProvider: () -> WebViewState,
 ) : Study {
 
-    private val data = appModule
-        .appPrefs
-        .getCurrentTradingRecord(appModule.tradingProfiles)
+    private val data = appPrefs
+        .getCurrentTradingRecord(tradingProfiles)
         .flatMapLatest { record ->
 
             record
@@ -72,7 +75,7 @@ internal class PNLByDayChartStudy(
             ChartPageState(
                 coroutineScope = coroutineScope,
                 arrangement = arrangement,
-                webViewState = appModule.webViewStateProvider(),
+                webViewState = webViewStateProvider(),
             )
         }
         val chart = remember {
@@ -106,10 +109,14 @@ internal class PNLByDayChartStudy(
         }
     }
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLByDayChartStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+        private val webViewStateProvider: () -> WebViewState,
+    ) : Study.Factory<PNLByDayChartStudy> {
 
         override val name: String = "PNL By Day (Chart)"
 
-        override fun create() = PNLByDayChartStudy(appModule)
+        override fun create() = PNLByDayChartStudy(appPrefs, tradingProfiles, webViewStateProvider)
     }
 }

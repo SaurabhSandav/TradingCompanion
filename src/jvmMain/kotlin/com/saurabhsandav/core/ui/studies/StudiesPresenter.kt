@@ -1,39 +1,28 @@
 package com.saurabhsandav.core.ui.studies
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.studies.impl.*
+import com.saurabhsandav.core.ui.studies.impl.Study
 import com.saurabhsandav.core.ui.studies.model.StudiesEvent
 import com.saurabhsandav.core.ui.studies.model.StudiesState
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 
 @Stable
 internal class StudiesPresenter(
     coroutineScope: CoroutineScope,
-    appModule: AppModule,
+    private val studyFactories: List<Study.Factory<out Study>>,
 ) {
-
-    private val studyFactories = persistentListOf(
-        PNLStudy.Factory(appModule),
-        PNLByDayStudy.Factory(appModule),
-        PNLByDayChartStudy.Factory(appModule),
-        PNLByMonthStudy.Factory(appModule),
-        PNLByMonthChartStudy.Factory(appModule),
-        PNLExcursionStudy.Factory(appModule),
-        PNLByTickerStudy.Factory(appModule),
-        StatsStudy.Factory(appModule),
-    )
 
     private val studyWindowsManager = AppWindowsManager<Study.Factory<*>>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule StudiesState(
-            studyFactories = studyFactories,
+            studyFactories = remember { studyFactories.toImmutableList() },
             studyWindowsManager = studyWindowsManager,
             eventSink = ::onEvent,
         )

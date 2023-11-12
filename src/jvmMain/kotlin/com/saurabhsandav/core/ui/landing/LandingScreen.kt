@@ -239,7 +239,7 @@ private fun LandingScreen(
                     LandingScreen.Trades to TradesLandingSwitcherItem(
                         appModule.tradesModule(scope, tradeContentLauncher)
                     ),
-                    LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
+                    LandingScreen.Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope)),
                 )
             }
 

@@ -1,7 +1,8 @@
 package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -20,10 +21,13 @@ import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStudy.Model>() {
+internal class PNLByMonthStudy(
+    appPrefs: FlowSettings,
+    tradingProfiles: TradingProfiles,
+) : TableStudy<PNLByMonthStudy.Model>() {
 
-    private val tradesRepo = appModule.appPrefs
-        .getCurrentTradingRecord(appModule.tradingProfiles)
+    private val tradesRepo = appPrefs
+        .getCurrentTradingRecord(tradingProfiles)
         .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
@@ -104,10 +108,13 @@ internal class PNLByMonthStudy(appModule: AppModule) : TableStudy<PNLByMonthStud
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLByMonthStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+    ) : Study.Factory<PNLByMonthStudy> {
 
         override val name: String = "PNL By Month"
 
-        override fun create() = PNLByMonthStudy(appModule)
+        override fun create() = PNLByMonthStudy(appPrefs, tradingProfiles)
     }
 }

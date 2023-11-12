@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
+import com.saurabhsandav.core.ui.studies.StudiesModule
 import com.saurabhsandav.core.ui.tags.TagsModule
 import com.saurabhsandav.core.ui.tags.form.TagFormModule
 import com.saurabhsandav.core.ui.trade.TradeModule
@@ -129,6 +130,10 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val studiesModule = { coroutineScope: CoroutineScope ->
+        StudiesModule(this, coroutineScope)
+    }
 
     val tagsModule = { coroutineScope: CoroutineScope ->
         TagsModule(this, coroutineScope)

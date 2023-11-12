@@ -1,7 +1,8 @@
 package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -18,10 +19,13 @@ import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerStudy.Model>() {
+internal class PNLByTickerStudy(
+    appPrefs: FlowSettings,
+    tradingProfiles: TradingProfiles,
+) : TableStudy<PNLByTickerStudy.Model>() {
 
-    private val tradesRepo = appModule.appPrefs
-        .getCurrentTradingRecord(appModule.tradingProfiles)
+    private val tradesRepo = appPrefs
+        .getCurrentTradingRecord(tradingProfiles)
         .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
@@ -99,10 +103,13 @@ internal class PNLByTickerStudy(appModule: AppModule) : TableStudy<PNLByTickerSt
         val rValue: String,
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLByTickerStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+    ) : Study.Factory<PNLByTickerStudy> {
 
         override val name: String = "PNL By Ticker"
 
-        override fun create() = PNLByTickerStudy(appModule)
+        override fun create() = PNLByTickerStudy(appPrefs, tradingProfiles)
     }
 }

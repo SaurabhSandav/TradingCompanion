@@ -2,7 +2,8 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
-import com.saurabhsandav.core.AppModule
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -25,10 +26,13 @@ import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursionStudy.Model>() {
+internal class PNLExcursionStudy(
+    appPrefs: FlowSettings,
+    tradingProfiles: TradingProfiles,
+) : TableStudy<PNLExcursionStudy.Model>() {
 
-    private val tradesRepo = appModule.appPrefs
-        .getCurrentTradingRecord(appModule.tradingProfiles)
+    private val tradesRepo = appPrefs
+        .getCurrentTradingRecord(tradingProfiles)
         .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
@@ -195,10 +199,13 @@ internal class PNLExcursionStudy(appModule: AppModule) : TableStudy<PNLExcursion
         val maePNL: String,
     )
 
-    class Factory(private val appModule: AppModule) : Study.Factory<PNLExcursionStudy> {
+    class Factory(
+        private val appPrefs: FlowSettings,
+        private val tradingProfiles: TradingProfiles,
+    ) : Study.Factory<PNLExcursionStudy> {
 
         override val name: String = "PNL Excursion"
 
-        override fun create() = PNLExcursionStudy(appModule)
+        override fun create() = PNLExcursionStudy(appPrefs, tradingProfiles)
     }
 }
