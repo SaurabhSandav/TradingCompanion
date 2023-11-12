@@ -27,14 +27,4 @@ internal class TradesLandingSwitcherItem(
             errors = state.errors,
         )
     }
-
-    @Composable
-    override fun Windows() {
-
-        val state by presenter.state.collectAsState()
-
-        TradesScreenWindows(
-            chartWindowsManager = state.chartWindowsManager,
-        )
-    }
 }

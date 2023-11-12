@@ -1,70 +1,48 @@
 package com.saurabhsandav.core.ui.trades
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.chart.data.*
-import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trading.DailySessionChecker
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.asCandleSeries
-import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
-import com.saurabhsandav.core.trading.indicator.EMAIndicator
-import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
-import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
-import com.saurabhsandav.core.ui.loginservice.ResultHandle
-import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
-import com.saurabhsandav.core.ui.trades.model.TradeChartData
-import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
-import com.saurabhsandav.core.utils.*
+import com.saurabhsandav.core.utils.format
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradesPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val appPrefs: FlowSettings,
-    private val candleRepo: CandleRepository,
     private val tradingProfiles: TradingProfiles,
-    private val loginServicesManager: LoginServicesManager,
-    private val fyersApi: FyersApi,
 ) {
 
-    private val chartWindowsManager = AppWindowsManager<TradeChartWindowParams>()
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -73,7 +51,6 @@ internal class TradesPresenter(
             openTrades = getOpenTrades().value,
             todayTrades = getTodayTrades().value,
             pastTrades = getPastTrades().value,
-            chartWindowsManager = chartWindowsManager,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
@@ -91,9 +68,6 @@ internal class TradesPresenter(
     private fun getOpenTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
             appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
-
-                // Close all child windows
-                chartWindowsManager.closeAll()
 
                 val tradingRecord = tradingProfiles.getRecord(profile.id)
 
@@ -192,157 +166,8 @@ internal class TradesPresenter(
         tradeContentLauncher.openTrade(profileTradeId)
     }
 
-    private fun onOpenChart(profileTradeId: ProfileTradeId): Unit = coroutineScope.launchUnit {
+    private fun onOpenChart(profileTradeId: ProfileTradeId) {
 
-        // Chart window already open
-        if (chartWindowsManager.windows.any { it.params.profileTradeId == profileTradeId }) return@launchUnit
-
-        val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
-        val trade = tradingRecord.trades.getById(profileTradeId.tradeId).first()
-        val executions = tradingRecord.trades.getExecutionsForTrade(profileTradeId.tradeId).first()
-
-        val exitDateTime = trade.exitTimestamp ?: Clock.System.now()
-
-        // Candles range of 1 month before and after trade interval
-        val from = trade.entryTimestamp - 30.days
-        val to = exitDateTime + 30.days
-        val timeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
-            .map(Timeframe::valueOf)
-            .first()
-
-        // Get candles
-        val candlesResult = candleRepo.getCandles(
-            ticker = trade.ticker,
-            timeframe = timeframe,
-            from = from,
-            to = to,
-            edgeCandlesInclusive = false,
-        )
-
-        val candles = when (candlesResult) {
-            is Ok -> MutableCandleSeries(candlesResult.value, timeframe).asCandleSeries()
-            is Err -> when (val error = candlesResult.error) {
-                is CandleRepository.Error.UnknownError -> {
-                    errors += UIErrorMessage(error.message) { errors -= it }
-                    return@launchUnit
-                }
-
-                is CandleRepository.Error.AuthError -> {
-                    errors += UIErrorMessage(
-                        message = "Please login",
-                        actionLabel = "Login",
-                        onActionClick = {
-
-                            loginServicesManager.addService(
-                                serviceBuilder = FyersLoginService.Builder(
-                                    fyersApi = fyersApi,
-                                    appPrefs = appPrefs
-                                ),
-                                resultHandle = ResultHandle(
-                                    onFailure = { message ->
-                                        errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
-                                    },
-                                    onSuccess = { onOpenChart(profileTradeId) },
-                                ),
-                            )
-                        },
-                        withDismissAction = true,
-                        duration = UIErrorMessage.Duration.Indefinite,
-                        onNotified = { errors -= it },
-                    )
-                    return@launchUnit
-                }
-            }
-        }
-
-        // Setup indicators
-        val ema9Indicator = EMAIndicator(ClosePriceIndicator(candles), length = 9)
-        val vwapIndicator = VWAPIndicator(candles, DailySessionChecker)
-
-        val candleData = mutableListOf<CandlestickData>()
-        val volumeData = mutableListOf<HistogramData>()
-        val ema9Data = mutableListOf<LineData>()
-        val vwapData = mutableListOf<LineData>()
-        var entryIndex = 0
-        var exitIndex = 0
-
-        // Populate data
-        candles.forEachIndexed { index, candle ->
-
-            val candleTime = candle.openInstant.offsetTimeForChart()
-
-            candleData += CandlestickData(
-                time = Time.UTCTimestamp(candleTime),
-                open = candle.open,
-                high = candle.high,
-                low = candle.low,
-                close = candle.close,
-            )
-
-            volumeData += HistogramData(
-                time = Time.UTCTimestamp(candleTime),
-                value = candle.volume,
-                color = when {
-                    candle.close < candle.open -> Color(255, 82, 82)
-                    else -> Color(0, 150, 136)
-                },
-            )
-
-            ema9Data += LineData(
-                time = Time.UTCTimestamp(candleTime),
-                value = ema9Indicator[index],
-            )
-
-            vwapData += LineData(
-                time = Time.UTCTimestamp(candleTime),
-                value = vwapIndicator[index],
-            )
-
-            // Find entry candle index
-            if (trade.entryTimestamp > candle.openInstant)
-                entryIndex = index
-
-            // Find exit candle index
-            if (exitDateTime > candle.openInstant)
-                exitIndex = index
-        }
-
-        val markers = executions.map { execution ->
-
-            SeriesMarker(
-                time = Time.UTCTimestamp(execution.timestamp.offsetTimeForChart()),
-                position = when (execution.side) {
-                    TradeExecutionSide.Buy -> SeriesMarkerPosition.BelowBar
-                    TradeExecutionSide.Sell -> SeriesMarkerPosition.AboveBar
-                },
-                shape = when (execution.side) {
-                    TradeExecutionSide.Buy -> SeriesMarkerShape.ArrowUp
-                    TradeExecutionSide.Sell -> SeriesMarkerShape.ArrowDown
-                },
-                color = when (execution.side) {
-                    TradeExecutionSide.Buy -> Color.Green
-                    TradeExecutionSide.Sell -> Color.Red
-                },
-                text = when (execution.side) {
-                    TradeExecutionSide.Buy -> execution.price.toPlainString()
-                    TradeExecutionSide.Sell -> execution.price.toPlainString()
-                },
-            )
-        }
-
-        val params = TradeChartWindowParams(
-            profileTradeId = profileTradeId,
-            chartData = TradeChartData(
-                candleData = candleData.toImmutableList(),
-                volumeData = volumeData.toImmutableList(),
-                ema9Data = ema9Data.toImmutableList(),
-                vwapData = vwapData.toImmutableList(),
-                visibilityIndexRange = (entryIndex - 30)..(exitIndex + 30),
-                markers = markers.toImmutableList(),
-            ),
-        )
-
-        // Open Chart
-        chartWindowsManager.newWindow(params)
+        tradeContentLauncher.openTradeReview(profileTradeId)
     }
 }

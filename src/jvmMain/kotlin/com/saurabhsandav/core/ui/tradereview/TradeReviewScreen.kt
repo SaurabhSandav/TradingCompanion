@@ -29,12 +29,17 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradeReviewWindow(
     onCloseRequest: () -> Unit,
     chartsHandle: ChartsHandle,
+    tradeReviewHandle: TradeReviewHandle,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember { appModule.tradeReviewModule(scope).presenter(chartsHandle) }
     val state by presenter.state.collectAsState()
+
+    LaunchedEffect(state.eventSink) {
+        tradeReviewHandle.events.collect(state.eventSink)
+    }
 
     AppWindow(
         onCloseRequest = onCloseRequest,

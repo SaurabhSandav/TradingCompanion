@@ -7,12 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.ui.trades.model.TradeChartWindowParams
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
-import com.saurabhsandav.core.ui.trades.ui.TradeChartWindow
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import kotlinx.collections.immutable.ImmutableList
 
@@ -48,20 +45,5 @@ internal fun TradesScreen(
 
             ErrorSnackbar(snackbarHostState, errorMessage)
         }
-    }
-}
-
-@Composable
-internal fun TradesScreenWindows(
-    chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
-) {
-
-    // Chart windows
-    chartWindowsManager.Windows { window ->
-
-        TradeChartWindow(
-            onCloseRequest = window::close,
-            chartData = window.params.chartData,
-        )
     }
 }

@@ -14,10 +14,7 @@ internal class TradesModule(
             coroutineScope = coroutineScope,
             tradeContentLauncher = appModule.tradeContentLauncher,
             appPrefs = appModule.appPrefs,
-            candleRepo = appModule.candleRepo,
             tradingProfiles = appModule.tradingProfiles,
-            loginServicesManager = appModule.loginServicesManager,
-            fyersApi = appModule.fyersApi,
         )
     }
 }

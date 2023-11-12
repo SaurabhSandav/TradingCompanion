@@ -9,6 +9,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.ui.tradereview.TradeReviewHandle
 import com.saurabhsandav.core.ui.tradereview.TradeReviewWindow
 
 internal class TradeContentLauncher {
@@ -16,7 +17,7 @@ internal class TradeContentLauncher {
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
     private val chartsWindowsManager = AppWindowsManager<ChartsHandle>()
-    private val tradeReviewWindowsManager = AppWindowsManager<ChartsHandle>()
+    private val tradeReviewWindowsManager = AppWindowsManager<TradeReviewWindowParams>()
 
     fun openExecutionForm(
         profileId: ProfileId,
@@ -79,7 +80,7 @@ internal class TradeContentLauncher {
         tradeReviewWindowsManager.closeAll()
     }
 
-    fun openTradeReview() {
+    fun openTradeReview(tradeId: ProfileTradeId? = null) {
 
         openCharts()
 
@@ -88,11 +89,18 @@ internal class TradeContentLauncher {
             // Open new window
             null -> {
                 val chartsHandle = chartsWindowsManager.windows.single().params
-                tradeReviewWindowsManager.newWindow(chartsHandle)
+                val params = TradeReviewWindowParams(chartsHandle, TradeReviewHandle())
+                tradeReviewWindowsManager.newWindow(params)
             }
 
             // Window already open. Bring to front.
             else -> existingWindow.owner.childrenToFront()
+        }
+
+
+        if (tradeId != null) {
+            val tradeReviewHandle = tradeReviewWindowsManager.windows.single().params.tradeReviewHandle
+            tradeReviewHandle.markTrade(tradeId)
         }
     }
 
@@ -133,7 +141,8 @@ internal class TradeContentLauncher {
 
             TradeReviewWindow(
                 onCloseRequest = window::close,
-                chartsHandle = window.params,
+                chartsHandle = window.params.chartsHandle,
+                tradeReviewHandle = window.params.tradeReviewHandle,
             )
         }
     }
@@ -142,5 +151,11 @@ internal class TradeContentLauncher {
     private data class TradeExecutionFormWindowParams(
         val profileId: ProfileId,
         val formType: TradeExecutionFormType,
+    )
+
+    @Immutable
+    private data class TradeReviewWindowParams(
+        val chartsHandle: ChartsHandle,
+        val tradeReviewHandle: TradeReviewHandle,
     )
 }

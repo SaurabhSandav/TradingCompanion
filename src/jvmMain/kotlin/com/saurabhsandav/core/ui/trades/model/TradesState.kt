@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +11,6 @@ internal data class TradesState(
     val openTrades: ImmutableList<TradeEntry>,
     val todayTrades: ImmutableList<TradeEntry>,
     val pastTrades: ImmutableList<TradeEntry>,
-    val chartWindowsManager: AppWindowsManager<TradeChartWindowParams>,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
