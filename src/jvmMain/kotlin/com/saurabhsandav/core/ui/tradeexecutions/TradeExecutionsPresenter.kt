@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -35,10 +34,9 @@ import java.util.*
 @Stable
 internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val errors = mutableStateListOf<UIErrorMessage>()

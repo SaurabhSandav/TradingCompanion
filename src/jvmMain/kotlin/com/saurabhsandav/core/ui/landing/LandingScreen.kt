@@ -233,10 +233,12 @@ private fun LandingScreen(
                 mapOf(
                     LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(scope, appModule),
-                    LandingScreen.TradeExecutions to
-                            TradeExecutionsLandingSwitcherItem(scope, appModule, tradeContentLauncher),
-                    LandingScreen.Trades to
-                            TradesLandingSwitcherItem(appModule.tradesModule(scope, tradeContentLauncher)),
+                    LandingScreen.TradeExecutions to TradeExecutionsLandingSwitcherItem(
+                        appModule.tradeExecutionsModule(scope, tradeContentLauncher)
+                    ),
+                    LandingScreen.Trades to TradesLandingSwitcherItem(
+                        appModule.tradesModule(scope, tradeContentLauncher)
+                    ),
                     LandingScreen.Studies to StudiesLandingSwitcherItem(scope, appModule),
                 )
             }
