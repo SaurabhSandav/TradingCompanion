@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.pnlcalculator
 
 import androidx.compose.runtime.*
-import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.form.FormValidator
@@ -20,13 +18,11 @@ internal fun rememberPNLCalculatorWindowState(
 ): PNLCalculatorWindowState {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
 
     return remember {
         PNLCalculatorWindowState(
             params = params,
             coroutineScope = scope,
-            appModule = appModule,
         )
     }
 }
@@ -35,7 +31,6 @@ internal fun rememberPNLCalculatorWindowState(
 internal class PNLCalculatorWindowState(
     val params: PNLCalculatorWindowParams,
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)
