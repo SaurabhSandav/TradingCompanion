@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview
+package com.saurabhsandav.core.ui.tradereview
 
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.charts.ChartsHandle

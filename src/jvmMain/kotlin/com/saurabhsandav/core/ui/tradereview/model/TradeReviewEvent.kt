@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview.model
+package com.saurabhsandav.core.ui.tradereview.model
 
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId

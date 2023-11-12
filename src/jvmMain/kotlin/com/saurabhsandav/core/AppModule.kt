@@ -17,7 +17,6 @@ import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.account.AccountModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
-import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.landing.LandingModule
@@ -37,6 +36,7 @@ import com.saurabhsandav.core.ui.trade.TradeModule
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
+import com.saurabhsandav.core.ui.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.trades.TradesModule
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter

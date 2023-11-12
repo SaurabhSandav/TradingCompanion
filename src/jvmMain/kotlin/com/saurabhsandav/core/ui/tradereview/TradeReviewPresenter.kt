@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview
+package com.saurabhsandav.core.ui.tradereview
 
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
@@ -8,14 +8,14 @@ import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.MarkedTradeEntry
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeEntry
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit

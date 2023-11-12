@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview
+package com.saurabhsandav.core.ui.tradereview
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -15,14 +15,14 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.*
-import com.saurabhsandav.core.ui.charts.tradereview.ui.MainTabRow
-import com.saurabhsandav.core.ui.charts.tradereview.ui.MarkedTradesTable
-import com.saurabhsandav.core.ui.charts.tradereview.ui.ProfileTradesTable
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
+import com.saurabhsandav.core.ui.tradereview.ui.MainTabRow
+import com.saurabhsandav.core.ui.tradereview.ui.MarkedTradesTable
+import com.saurabhsandav.core.ui.tradereview.ui.ProfileTradesTable
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

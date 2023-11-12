@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview.ui
+package com.saurabhsandav.core.ui.tradereview.ui
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
@@ -12,9 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
 
 @Composable
 internal fun MainTabRow(

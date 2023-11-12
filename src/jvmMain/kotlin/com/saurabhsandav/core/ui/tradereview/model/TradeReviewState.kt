@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview.model
+package com.saurabhsandav.core.ui.tradereview.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId

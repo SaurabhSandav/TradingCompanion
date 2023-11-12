@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.charts.tradereview.ui
+package com.saurabhsandav.core.ui.tradereview.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
@@ -11,12 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState.TradeEntry
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeEntry
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

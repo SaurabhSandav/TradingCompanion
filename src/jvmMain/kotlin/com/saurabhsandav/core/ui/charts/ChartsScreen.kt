@@ -15,11 +15,11 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDeclined
-import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.stockchart.StockCharts
+import com.saurabhsandav.core.ui.tradereview.TradeReviewWindow
 
 @Composable
 internal fun ChartsScreen(
