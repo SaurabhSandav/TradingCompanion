@@ -16,6 +16,7 @@ import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
+import com.saurabhsandav.core.ui.landing.LandingModule
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.profiles.ProfilesModule
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
@@ -134,6 +135,10 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val landingModule = { coroutineScope: CoroutineScope ->
+        LandingModule(this, coroutineScope)
+    }
 
     val profilesModule = { coroutineScope: CoroutineScope ->
         ProfilesModule(this, coroutineScope)

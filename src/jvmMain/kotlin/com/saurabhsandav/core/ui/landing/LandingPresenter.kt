@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState
@@ -21,9 +20,8 @@ import kotlinx.coroutines.launch
 @Stable
 internal class LandingPresenter(
     coroutineScope: CoroutineScope,
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private var currentScreen by mutableStateOf<LandingScreen?>(null)
