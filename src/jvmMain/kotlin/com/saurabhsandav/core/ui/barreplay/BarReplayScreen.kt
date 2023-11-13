@@ -22,7 +22,7 @@ internal fun BarReplayWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { BarReplayPresenter(scope, appModule) }
+    val presenter = remember { appModule.barReplayModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(

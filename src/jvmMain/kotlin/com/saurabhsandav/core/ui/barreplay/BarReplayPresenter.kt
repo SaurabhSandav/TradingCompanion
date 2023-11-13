@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.*
@@ -35,8 +34,7 @@ import kotlin.time.Duration.Companion.days
 @Stable
 internal class BarReplayPresenter(
     private val coroutineScope: CoroutineScope,
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val appPrefs: FlowSettings,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)
