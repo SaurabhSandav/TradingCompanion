@@ -127,7 +127,7 @@ class StockChartsState(
         val window = windows.first { stockChart in it.charts }
 
         // Bring window to front
-        window.appWindowState.toFront()
+        window.toFront()
 
         // Select tab
         window.tabCharts.forEach { (tabId, chart) ->

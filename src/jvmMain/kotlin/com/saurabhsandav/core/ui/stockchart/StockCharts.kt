@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -37,9 +36,7 @@ fun StockCharts(
                 onPreviewKeyEvent = { keyEvent -> chartKeyboardShortcuts(keyEvent, chartWindow.tabsState) },
             ) {
 
-                val appWindowState = LocalAppWindowState.current
-
-                SideEffect { chartWindow.appWindowState = appWindowState }
+                chartWindow.appWindowState = LocalAppWindowState.current
 
                 Column {
 

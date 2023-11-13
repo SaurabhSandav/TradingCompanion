@@ -23,7 +23,7 @@ class StockChartWindow(
 ) {
 
     val coroutineScope = parentScope.newChildScope()
-    lateinit var appWindowState: AppWindowState
+    internal var appWindowState: AppWindowState? = null
 
     val pagedArrangement = ChartArrangement.paged()
     val pageState = ChartPageState(
@@ -54,6 +54,14 @@ class StockChartWindow(
 
         // Open a new tab for queued chart
         tabsState.newTab()
+    }
+
+    fun toFront() {
+        appWindowState?.toFront()
+    }
+
+    fun toBack() {
+        appWindowState?.toBack()
     }
 
     private fun onNewTab(tabId: Int) {
