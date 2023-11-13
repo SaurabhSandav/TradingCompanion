@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -39,7 +38,6 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class TradeReviewPresenter(
     private val coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
     private val onOpenChart: (
         ticker: String,
         start: Instant,
@@ -47,8 +45,8 @@ internal class TradeReviewPresenter(
     ) -> Unit,
     private val markersProvider: ChartMarkersProvider,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
+    private val tradingProfiles: TradingProfiles,
+    private val appPrefs: FlowSettings,
 ) {
 
     private val selectedProfileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)

@@ -15,6 +15,7 @@ import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.charts.ChartsModule
+import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.landing.LandingModule
@@ -142,6 +143,10 @@ internal class AppModule {
 
     val chartsModule = { coroutineScope: CoroutineScope ->
         ChartsModule(this, coroutineScope)
+    }
+
+    val tradeReviewModule = { coroutineScope: CoroutineScope ->
+        TradeReviewModule(this, coroutineScope)
     }
 
     val landingModule = { coroutineScope: CoroutineScope ->
