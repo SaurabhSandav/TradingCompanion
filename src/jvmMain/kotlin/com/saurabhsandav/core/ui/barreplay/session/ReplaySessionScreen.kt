@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.ReplayOrderFormWindow
@@ -13,19 +13,13 @@ import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayOrdersTable
 
 @Composable
 internal fun ReplaySessionScreen(
+    barReplayModule: BarReplayModule,
     onNewReplay: () -> Unit,
     replayParams: ReplayParams,
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember {
-        ReplaySessionPresenter(
-            coroutineScope = scope,
-            replayParams = replayParams,
-            appModule = appModule
-        )
-    }
+    val presenter = remember { barReplayModule.replaySessionModule(scope, replayParams).presenter() }
     val state by presenter.state.collectAsState()
 
     Column {

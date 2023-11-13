@@ -4,7 +4,6 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.*
@@ -33,10 +32,9 @@ internal class ReplayChartsMarketDataProvider(
     private val coroutineScope: CoroutineScope,
     private val replayParams: BarReplayState.ReplayParams,
     private val barReplay: BarReplay,
-    private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val candleRepo: CandleRepository = appModule.candleRepo,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val appPrefs: FlowSettings,
+    private val candleRepo: CandleRepository,
+    private val tradingProfiles: TradingProfiles,
 ) : MarketDataProvider {
 
     override fun symbols(): StateFlow<ImmutableList<String>> {

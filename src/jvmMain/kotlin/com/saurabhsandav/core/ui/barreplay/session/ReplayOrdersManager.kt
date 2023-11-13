@@ -5,7 +5,6 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -32,10 +31,9 @@ internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
     private val replayParams: ReplayParams,
     private val barReplay: BarReplay,
-    private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
-    private val candleRepo: CandleRepository = appModule.candleRepo,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
+    private val candleRepo: CandleRepository,
 ) {
 
     private val replaySeriesCache = mutableMapOf<String, ReplaySeries>()

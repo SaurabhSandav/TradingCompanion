@@ -4,13 +4,11 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
-import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
@@ -42,31 +40,18 @@ import kotlin.time.Duration.Companion.seconds
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
     replayParams: ReplayParams,
-    private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    stockChartsStateFactory: (StockChartParams) -> StockChartsState,
+    private val barReplay: BarReplay,
+    val replayOrdersManager: ReplayOrdersManager,
+    private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val barReplay = BarReplay(
-        timeframe = replayParams.baseTimeframe,
-        candleUpdateType = if (replayParams.replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
-    )
     private var autoNextJob: Job? = null
-    private val chartsState = StockChartsState(
-        parentScope = coroutineScope,
-        initialParams = StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe),
-        marketDataProvider = ReplayChartsMarketDataProvider(
-            coroutineScope = coroutineScope,
-            replayParams = replayParams,
-            barReplay = barReplay,
-            appModule = appModule,
-        ),
-        appPrefs = appModule.appPrefs,
-        webViewStateProvider = appModule.webViewStateProvider,
+    private val chartsState = stockChartsStateFactory(
+        StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe)
     )
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
-
-    val replayOrdersManager = ReplayOrdersManager(coroutineScope, replayParams, barReplay, appModule)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 

@@ -22,7 +22,8 @@ internal fun BarReplayWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.barReplayModule(scope).presenter() }
+    val module = remember { appModule.barReplayModule(scope) }
+    val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(
@@ -45,6 +46,7 @@ internal fun BarReplayWindow(
                 )
 
                 is ReplayStarted -> ReplaySessionScreen(
+                    barReplayModule = module,
                     onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
                     replayParams = replayState.replayParams,
                 )
