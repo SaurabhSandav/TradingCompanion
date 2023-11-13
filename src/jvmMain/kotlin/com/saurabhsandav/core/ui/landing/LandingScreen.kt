@@ -231,7 +231,7 @@ private fun LandingScreen(
 
             val switcherItems = remember {
                 mapOf(
-                    LandingScreen.Account to AccountLandingSwitcherItem(scope, appModule),
+                    LandingScreen.Account to AccountLandingSwitcherItem(appModule.accountModule(scope)),
                     LandingScreen.TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope)),
                     LandingScreen.TradeExecutions to TradeExecutionsLandingSwitcherItem(
                         appModule.tradeExecutionsModule(scope, tradeContentLauncher)

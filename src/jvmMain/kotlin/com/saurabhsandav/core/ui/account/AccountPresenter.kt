@@ -8,7 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -19,13 +19,13 @@ import kotlinx.coroutines.flow.map
 @Stable
 internal class AccountPresenter(
     coroutineScope: CoroutineScope,
-    private val appModule: AppModule,
+    appDB: AppDB,
 ) {
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         val transactions by remember {
-            appModule.appDB.accountTransactionQueries
+            appDB.accountTransactionQueries
                 .getAll()
                 .asFlow()
                 .mapToList(Dispatchers.IO)

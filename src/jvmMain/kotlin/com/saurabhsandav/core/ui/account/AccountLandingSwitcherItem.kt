@@ -3,16 +3,13 @@ package com.saurabhsandav.core.ui.account
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import kotlinx.coroutines.CoroutineScope
 
 internal class AccountLandingSwitcherItem(
-    coroutineScope: CoroutineScope,
-    appModule: AppModule,
+    accountModule: AccountModule,
 ) : LandingSwitcherItem {
 
-    private val presenter = AccountPresenter(coroutineScope, appModule)
+    private val presenter = accountModule.presenter()
 
     @Composable
     override fun Content() {

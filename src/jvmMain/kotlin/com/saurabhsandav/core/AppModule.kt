@@ -14,6 +14,7 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
+import com.saurabhsandav.core.ui.account.AccountModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewModule
@@ -141,6 +142,10 @@ internal class AppModule {
         appDB = appDB,
         candleRepo = candleRepo,
     )
+
+    val accountModule = { coroutineScope: CoroutineScope ->
+        AccountModule(this, coroutineScope)
+    }
 
     val barReplayModule = { coroutineScope: CoroutineScope ->
         BarReplayModule(this, coroutineScope)
