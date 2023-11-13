@@ -147,6 +147,8 @@ internal class AppModule {
         candleRepo = candleRepo,
     )
 
+    val tradeContentLauncher = TradeContentLauncher()
+
     val accountModule = { coroutineScope: CoroutineScope ->
         AccountModule(this, coroutineScope)
     }
@@ -195,29 +197,20 @@ internal class AppModule {
         TagFormModule(this, coroutineScope)
     }
 
-    val tradeModule = {
-            coroutineScope: CoroutineScope,
-            tradeContentLauncher: TradeContentLauncher,
-        ->
-        TradeModule(this, coroutineScope, tradeContentLauncher)
+    val tradeModule = { coroutineScope: CoroutineScope ->
+        TradeModule(this, coroutineScope)
     }
 
     val tradeExecutionFormModule = { coroutineScope: CoroutineScope ->
         TradeExecutionFormModule(this, coroutineScope)
     }
 
-    val tradeExecutionsModule = {
-            coroutineScope: CoroutineScope,
-            tradeContentLauncher: TradeContentLauncher,
-        ->
-        TradeExecutionsModule(this, coroutineScope, tradeContentLauncher)
+    val tradeExecutionsModule = { coroutineScope: CoroutineScope ->
+        TradeExecutionsModule(this, coroutineScope)
     }
 
-    val tradesModule = {
-            coroutineScope: CoroutineScope,
-            tradeContentLauncher: TradeContentLauncher,
-        ->
-        TradesModule(this, coroutineScope, tradeContentLauncher)
+    val tradesModule = { coroutineScope: CoroutineScope ->
+        TradesModule(this, coroutineScope)
     }
 
     val stockChartsState = {

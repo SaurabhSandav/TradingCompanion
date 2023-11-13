@@ -22,11 +22,9 @@ import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.stockchart.StockCharts
-import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 
 @Composable
 internal fun ChartsScreen(
-    tradeContentLauncher: TradeContentLauncher,
     onCloseRequest: () -> Unit,
 ) {
 
@@ -87,7 +85,6 @@ internal fun ChartsScreen(
                 onCloseRequest = { showTradeReviewWindow = false },
                 onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
                 markersProvider = module.markersProvider,
-                tradeContentLauncher = tradeContentLauncher,
             )
         }
     }

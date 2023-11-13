@@ -45,11 +45,23 @@ internal fun LandingScreen() {
     val presenter = remember { appModule.landingModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
+    val switcherItems = remember {
+        mapOf(
+            LandingScreen.Account to AccountLandingSwitcherItem(appModule.accountModule(scope)),
+            LandingScreen.TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope)),
+            LandingScreen.TradeExecutions to TradeExecutionsLandingSwitcherItem(appModule.tradeExecutionsModule(scope)),
+            LandingScreen.Trades to TradesLandingSwitcherItem(appModule.tradesModule(scope)),
+            LandingScreen.Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope)),
+        )
+    }
+
     val currentScreen = state.currentScreen
 
     if (currentScreen != null) {
 
         LandingScreen(
+            switcherItems = switcherItems,
+            tradeContentLauncher = appModule.tradeContentLauncher,
             currentScreen = currentScreen,
             openTradesCount = state.openTradesCount,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
@@ -59,6 +71,8 @@ internal fun LandingScreen() {
 
 @Composable
 private fun LandingScreen(
+    switcherItems: Map<LandingScreen, LandingSwitcherItem>,
+    tradeContentLauncher: TradeContentLauncher,
     currentScreen: LandingScreen,
     openTradesCount: Long?,
     onCurrentScreenChange: (LandingScreen) -> Unit,
@@ -216,8 +230,6 @@ private fun LandingScreen(
             }
         }
 
-        val tradeContentLauncher = remember { TradeContentLauncher() }
-
         // Trade content windows
         WindowsOnlyLayout {
 
@@ -225,23 +237,6 @@ private fun LandingScreen(
         }
 
         Box(Modifier.fillMaxSize()) {
-
-            val appModule = LocalAppModule.current
-            val scope = rememberCoroutineScope()
-
-            val switcherItems = remember {
-                mapOf(
-                    LandingScreen.Account to AccountLandingSwitcherItem(appModule.accountModule(scope)),
-                    LandingScreen.TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope)),
-                    LandingScreen.TradeExecutions to TradeExecutionsLandingSwitcherItem(
-                        appModule.tradeExecutionsModule(scope, tradeContentLauncher)
-                    ),
-                    LandingScreen.Trades to TradesLandingSwitcherItem(
-                        appModule.tradesModule(scope, tradeContentLauncher)
-                    ),
-                    LandingScreen.Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope)),
-                )
-            }
 
             // Main content of currently selected switcher item
             AnimatedContent(currentScreen) { targetState ->
@@ -277,7 +272,6 @@ private fun LandingScreen(
             AppWindowOwner(chartsWindowOwner) {
 
                 ChartsScreen(
-                    tradeContentLauncher = tradeContentLauncher,
                     onCloseRequest = { showChartsWindow = false },
                 )
             }

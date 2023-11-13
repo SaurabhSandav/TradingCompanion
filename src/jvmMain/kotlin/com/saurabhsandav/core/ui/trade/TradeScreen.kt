@@ -19,18 +19,16 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.ui.*
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 
 @Composable
 internal fun TradeWindow(
     profileTradeId: ProfileTradeId,
-    tradeContentLauncher: TradeContentLauncher,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradeModule(scope, tradeContentLauncher).presenter(profileTradeId) }
+    val presenter = remember { appModule.tradeModule(scope).presenter(profileTradeId) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberWindowState(

@@ -36,13 +36,12 @@ internal fun TradeReviewWindow(
         end: Instant?,
     ) -> Unit,
     markersProvider: ChartMarkersProvider,
-    tradeContentLauncher: TradeContentLauncher,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
     val presenter = remember {
-        appModule.tradeReviewModule(scope).presenter(onOpenChart, markersProvider, tradeContentLauncher)
+        appModule.tradeReviewModule(scope).presenter(onOpenChart, markersProvider)
     }
     val state by presenter.state.collectAsState()
 

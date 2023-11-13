@@ -75,7 +75,6 @@ internal class TradeContentLauncher {
 
             TradeWindow(
                 profileTradeId = window.params,
-                tradeContentLauncher = this@TradeContentLauncher,
                 onCloseRequest = window::close,
             )
         }
