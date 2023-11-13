@@ -33,8 +33,8 @@ internal fun ChartsScreen(
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
 
-    val markersProvider = remember { ChartMarkersProvider(appModule) }
-    val presenter = remember { ChartsPresenter(scope, markersProvider, appModule) }
+    val module = remember { appModule.chartsModule(scope) }
+    val presenter = remember { module.presenter() }
 
     val state by presenter.state.collectAsState()
 
@@ -86,7 +86,7 @@ internal fun ChartsScreen(
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
                 onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
-                markersProvider = markersProvider,
+                markersProvider = module.markersProvider,
                 tradeContentLauncher = tradeContentLauncher,
             )
         }

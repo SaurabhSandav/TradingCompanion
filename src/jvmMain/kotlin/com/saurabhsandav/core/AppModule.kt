@@ -14,6 +14,7 @@ import com.saurabhsandav.core.trades.model.Account
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
+import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.landing.LandingModule
@@ -23,6 +24,9 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
 import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.sizing.SizingModule
+import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.studies.StudiesModule
 import com.saurabhsandav.core.ui.tags.TagsModule
 import com.saurabhsandav.core.ui.tags.form.TagFormModule
@@ -136,6 +140,10 @@ internal class AppModule {
         candleRepo = candleRepo,
     )
 
+    val chartsModule = { coroutineScope: CoroutineScope ->
+        ChartsModule(this, coroutineScope)
+    }
+
     val landingModule = { coroutineScope: CoroutineScope ->
         LandingModule(this, coroutineScope)
     }
@@ -191,6 +199,21 @@ internal class AppModule {
             tradeContentLauncher: TradeContentLauncher,
         ->
         TradesModule(this, coroutineScope, tradeContentLauncher)
+    }
+
+    val stockChartsState = {
+            coroutineScope: CoroutineScope,
+            initialParams: StockChartParams,
+            marketDataProvider: MarketDataProvider,
+        ->
+
+        StockChartsState(
+            parentScope = coroutineScope,
+            initialParams = initialParams,
+            marketDataProvider = marketDataProvider,
+            appPrefs = appPrefs,
+            webViewStateProvider = webViewStateProvider,
+        )
     }
 
     init {

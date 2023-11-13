@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.runtime.Stable
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
@@ -15,8 +14,7 @@ import kotlinx.datetime.Instant
 
 @Stable
 internal class ChartMarkersProvider(
-    private val appModule: AppModule,
-    private val tradingProfiles: TradingProfiles = appModule.tradingProfiles,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private val _markedProfileTradeIds = MutableStateFlow<Set<ProfileTradeId>>(persistentSetOf())

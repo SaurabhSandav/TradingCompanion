@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
@@ -15,8 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 internal class ChartsMarketDataProvider(
     private val markersProvider: ChartMarkersProvider,
-    private val appModule: AppModule,
-    private val candleRepo: CandleRepository = appModule.candleRepo,
+    private val candleRepo: CandleRepository,
 ) : MarketDataProvider {
 
     override fun symbols(): StateFlow<ImmutableList<String>> {

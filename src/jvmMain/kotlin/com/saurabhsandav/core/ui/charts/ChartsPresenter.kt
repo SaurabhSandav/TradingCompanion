@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -31,31 +30,20 @@ import kotlinx.datetime.Instant
 @Stable
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
-    markersProvider: ChartMarkersProvider,
-    private val appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val loginServicesManager: LoginServicesManager = appModule.loginServicesManager,
-    private val fyersApi: FyersApi = appModule.fyersApi,
-    private val candleRepo: CandleRepository = appModule.candleRepo,
+    stockChartsStateFactory: (StockChartParams) -> StockChartsState,
+    private val appPrefs: FlowSettings,
+    private val loginServicesManager: LoginServicesManager,
+    private val fyersApi: FyersApi,
+    private val candleRepo: CandleRepository,
 ) {
 
-    private val marketDataProvider = ChartsMarketDataProvider(
-        markersProvider = markersProvider,
-        appModule = appModule,
-    )
     private val chartsState = coroutineScope.async {
 
         val defaultTimeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
             .map(Timeframe::valueOf)
             .first()
 
-        StockChartsState(
-            parentScope = coroutineScope,
-            initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
-            marketDataProvider = marketDataProvider,
-            appPrefs = appModule.appPrefs,
-            webViewStateProvider = appModule.webViewStateProvider,
-        )
+        stockChartsStateFactory(StockChartParams(NIFTY50.first(), defaultTimeframe))
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)
     private val errors = mutableStateListOf<UIErrorMessage>()
