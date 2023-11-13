@@ -408,7 +408,7 @@ internal class TradesRepo(
             tradeId = tradeId,
             note = note,
             added = now,
-            lastEdited = now,
+            lastEdited = null,
             isMarkdown = isMarkdown,
         )
     }
