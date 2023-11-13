@@ -130,7 +130,10 @@ internal class AppModule {
     private val candleQueriesCollection = CandleQueriesCollection(driver = candleDBDriver)
 
     val candleRepo = CandleRepository(
-        candleDownloader = FyersCandleDownloader(this),
+        candleDownloader = FyersCandleDownloader(
+            appPrefs = appPrefs,
+            fyersApi = fyersApi,
+        ),
         candleCache = CandleCacheDB(
             candleDB = candleDB,
             candleQueriesCollection = candleQueriesCollection,

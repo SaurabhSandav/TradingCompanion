@@ -6,7 +6,6 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.binding.binding
 import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.fyers_api.model.CandleResolution
 import com.saurabhsandav.core.fyers_api.model.DateFormat
@@ -23,9 +22,8 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 internal class FyersCandleDownloader(
-    appModule: AppModule,
-    private val appPrefs: FlowSettings = appModule.appPrefs,
-    private val fyersApi: FyersApi = appModule.fyersApi,
+    private val appPrefs: FlowSettings,
+    private val fyersApi: FyersApi,
 ) : CandleDownloader {
 
     override fun isLoggedIn(): Flow<Boolean> {
