@@ -17,7 +17,7 @@ internal class StudiesPresenter(
     private val studyFactories: List<Study.Factory<out Study>>,
 ) {
 
-    private val studyWindowsManager = AppWindowsManager<Study.Factory<*>>()
+    val studyWindowsManager = AppWindowsManager<Study.Factory<*>>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 

@@ -26,10 +26,8 @@ internal class StudiesLandingSwitcherItem(
     @Composable
     override fun Windows() {
 
-        val state by presenter.state.collectAsState()
-
         StudiesScreenWindows(
-            studyWindowsManager = state.studyWindowsManager,
+            studyWindowsManager = presenter.studyWindowsManager,
         )
     }
 }

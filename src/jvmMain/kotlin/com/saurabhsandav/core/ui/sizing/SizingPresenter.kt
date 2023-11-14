@@ -44,7 +44,7 @@ internal class SizingPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
+    val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 

@@ -30,10 +30,8 @@ internal class SizingLandingSwitcherItem(
     @Composable
     override fun Windows() {
 
-        val state by presenter.state.collectAsState()
-
         SizingScreenWindows(
-            executionFormWindowsManager = state.executionFormWindowsManager,
+            executionFormWindowsManager = presenter.executionFormWindowsManager,
         )
     }
 }
