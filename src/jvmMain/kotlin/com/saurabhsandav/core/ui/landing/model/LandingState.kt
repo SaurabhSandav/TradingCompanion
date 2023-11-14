@@ -21,6 +21,7 @@ internal data class LandingState(
         TradeSizing("Trade Sizing", Icons.Filled.Straighten),
         TradeExecutions("Trade Executions", Icons.Filled.FolderOpen),
         Trades("Trades", Icons.Filled.Folder),
+        Reviews("Reviews", Icons.Filled.RateReview),
         Studies("Studies", Icons.Filled.FactCheck);
 
         companion object {
@@ -30,6 +31,7 @@ internal data class LandingState(
                 TradeSizing,
                 TradeExecutions,
                 Trades,
+                Reviews,
                 Studies,
             )
         }

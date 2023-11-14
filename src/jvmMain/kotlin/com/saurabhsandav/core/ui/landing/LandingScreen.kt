@@ -27,6 +27,7 @@ import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
+import com.saurabhsandav.core.ui.reviews.ReviewsLandingSwitcherItem
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
@@ -49,6 +50,7 @@ internal fun LandingScreen() {
             LandingScreen.TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope)),
             LandingScreen.TradeExecutions to TradeExecutionsLandingSwitcherItem(appModule.tradeExecutionsModule(scope)),
             LandingScreen.Trades to TradesLandingSwitcherItem(appModule.tradesModule(scope)),
+            LandingScreen.Reviews to ReviewsLandingSwitcherItem(appModule.reviewsModule(scope)),
             LandingScreen.Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope)),
         )
     }

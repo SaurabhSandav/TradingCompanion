@@ -88,6 +88,10 @@ internal class TradingRecord(
                 tradeIdAdapter = TradeIdColumnAdapter,
                 tagIdAdapter = TradeTagIdColumnAdapter,
             ),
+            ReviewAdapter = Review.Adapter(
+                idAdapter = ReviewIdColumnAdapter,
+                tradeIdsAdapter = TradeIdListColumnAdapter,
+            )
         )
     }
 

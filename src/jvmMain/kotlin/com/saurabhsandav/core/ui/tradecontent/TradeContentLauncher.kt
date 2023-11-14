@@ -6,6 +6,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.review.ReviewWindow
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -16,6 +17,7 @@ internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
+    private val reviewWindowsManager = AppWindowsManager<ProfileReviewId>()
     private val chartsWindowsManager = AppWindowsManager<ChartsHandle>()
     private val tradeReviewWindowsManager = AppWindowsManager<TradeReviewWindowParams>()
 
@@ -57,6 +59,20 @@ internal class TradeContentLauncher {
 
             // Open new window
             null -> tradeWindowsManager.newWindow(profileTradeId)
+
+            // Window already open. Bring to front.
+            else -> window.toFront()
+        }
+    }
+
+    fun openReview(profileReviewId: ProfileReviewId) {
+
+        val window = reviewWindowsManager.windows.find { it.params == profileReviewId }
+
+        when (window) {
+
+            // Open new window
+            null -> reviewWindowsManager.newWindow(profileReviewId)
 
             // Window already open. Bring to front.
             else -> window.toFront()
@@ -122,6 +138,15 @@ internal class TradeContentLauncher {
 
             TradeWindow(
                 profileTradeId = window.params,
+                onCloseRequest = window::close,
+            )
+        }
+
+        // Review windows
+        reviewWindowsManager.Windows { window ->
+
+            ReviewWindow(
+                profileReviewId = window.params,
                 onCloseRequest = window::close,
             )
         }

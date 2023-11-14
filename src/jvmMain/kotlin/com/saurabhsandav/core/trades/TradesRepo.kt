@@ -9,6 +9,7 @@ import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -29,6 +30,18 @@ internal class TradesRepo(
 
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+
+    fun exists(id: Long): Flow<Boolean> {
+        return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun exists(ids: List<Long>): Flow<Map<Long, Boolean>> {
+        return tradesDB.tradeQueries
+            .getExistingIds(ids.map(::TradeId))
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { existingIds -> ids.associateWith { id -> TradeId(id) in existingIds } }
+    }
 
     fun getById(id: TradeId): Flow<Trade> {
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
@@ -429,6 +442,70 @@ internal class TradesRepo(
 
     suspend fun deleteNote(id: TradeNoteId) = withContext(Dispatchers.IO) {
         tradesDB.tradeNoteQueries.delete(id)
+    }
+
+    val allReviews: Flow<List<Review>>
+        get() = tradesDB.reviewQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+
+    fun getReviewById(id: ReviewId): Flow<Review> {
+        return tradesDB.reviewQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun reviewExists(id: Long): Flow<Boolean> {
+        return tradesDB.reviewQueries.exists(ReviewId(id)).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    suspend fun createReview(
+        title: String,
+        tradeIds: List<TradeId>,
+        review: String,
+        isMarkdown: Boolean,
+    ): ReviewId = withContext(Dispatchers.IO) {
+
+        return@withContext tradesDB.transactionWithResult {
+
+            tradesDB.reviewQueries.insert(
+                title = title,
+                tradeIds = tradeIds,
+                review = review,
+                isMarkdown = isMarkdown,
+            )
+
+            tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ReviewId)
+        }
+    }
+
+    suspend fun setReviewTitle(
+        id: ReviewId,
+        title: String,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.reviewQueries.setTitle(
+            id = id,
+            title = title,
+        )
+    }
+
+    suspend fun toggleReviewIsMarkdown(id: ReviewId) = withContext(Dispatchers.IO) {
+
+        tradesDB.reviewQueries.toggleMarkdown(id = id)
+    }
+
+    suspend fun updateReview(
+        id: ReviewId,
+        review: String,
+        tradeIds: List<TradeId>,
+    ) = withContext(Dispatchers.IO) {
+
+        tradesDB.reviewQueries.update(
+            id = id,
+            review = review,
+            tradeIds = tradeIds,
+        )
+    }
+
+    suspend fun deleteReview(id: ReviewId) = withContext(Dispatchers.IO) {
+        tradesDB.reviewQueries.delete(id)
     }
 
     companion object {

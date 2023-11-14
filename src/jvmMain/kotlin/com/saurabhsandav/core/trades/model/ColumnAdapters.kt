@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trades.model
 
 import app.cash.sqldelight.ColumnAdapter
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 object ProfileIdColumnAdapter : ColumnAdapter<ProfileId, Long> {
     override fun decode(databaseValue: Long): ProfileId = ProfileId(databaseValue)
@@ -39,4 +41,16 @@ object TradeTagIdColumnAdapter : ColumnAdapter<TradeTagId, Long> {
 
     override fun decode(databaseValue: Long): TradeTagId = TradeTagId(databaseValue)
     override fun encode(value: TradeTagId): Long = value.value
+}
+
+object ReviewIdColumnAdapter : ColumnAdapter<ReviewId, Long> {
+
+    override fun decode(databaseValue: Long): ReviewId = ReviewId(databaseValue)
+    override fun encode(value: ReviewId): Long = value.value
+}
+
+object TradeIdListColumnAdapter : ColumnAdapter<List<TradeId>, String> {
+
+    override fun decode(databaseValue: String): List<TradeId> = Json.decodeFromString(databaseValue)
+    override fun encode(value: List<TradeId>): String = Json.encodeToString(value)
 }

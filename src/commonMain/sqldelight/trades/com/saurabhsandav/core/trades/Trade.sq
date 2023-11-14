@@ -38,6 +38,12 @@ SET quantity = ?, closedQuantity = ?, lots = ?, side = ?, averageEntry = ?, entr
 exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
 WHERE id = ?;
 
+exists:
+SELECT EXISTS(SELECT * FROM Trade WHERE id = ?);
+
+getExistingIds:
+SELECT id FROM Trade WHERE id IN ?;
+
 getAll:
 SELECT *
 FROM Trade

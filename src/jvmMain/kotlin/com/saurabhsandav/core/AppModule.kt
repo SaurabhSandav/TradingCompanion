@@ -23,6 +23,8 @@ import com.saurabhsandav.core.ui.landing.LandingModule
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.profiles.ProfilesModule
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
+import com.saurabhsandav.core.ui.review.ReviewModule
+import com.saurabhsandav.core.ui.reviews.ReviewsModule
 import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.sizing.SizingModule
@@ -33,6 +35,7 @@ import com.saurabhsandav.core.ui.studies.StudiesModule
 import com.saurabhsandav.core.ui.tags.TagsModule
 import com.saurabhsandav.core.ui.tags.form.TagFormModule
 import com.saurabhsandav.core.ui.trade.TradeModule
+import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
@@ -174,6 +177,17 @@ internal class AppModule {
 
     val profileFormModule = { coroutineScope: CoroutineScope ->
         ProfileFormModule(this, coroutineScope)
+    }
+
+    val reviewsModule = { coroutineScope: CoroutineScope ->
+        ReviewsModule(this, coroutineScope)
+    }
+
+    val reviewModule = {
+            coroutineScope: CoroutineScope,
+            profileReviewId: ProfileReviewId,
+        ->
+        ReviewModule(this, coroutineScope, profileReviewId)
     }
 
     val settingsModule = { coroutineScope: CoroutineScope ->
