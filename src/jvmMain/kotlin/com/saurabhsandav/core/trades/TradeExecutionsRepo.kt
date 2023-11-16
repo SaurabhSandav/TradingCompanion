@@ -50,10 +50,10 @@ internal class TradeExecutionsRepo(
                 broker = broker,
                 instrument = instrument,
                 ticker = ticker,
-                quantity = quantity,
+                quantity = quantity.stripTrailingZeros(),
                 lots = lots,
                 side = side,
-                price = price,
+                price = price.stripTrailingZeros(),
                 timestamp = timestamp.withoutNanoseconds(),
                 locked = locked,
             )
@@ -93,10 +93,10 @@ internal class TradeExecutionsRepo(
                 broker = broker,
                 instrument = instrument,
                 ticker = ticker,
-                quantity = quantity,
+                quantity = quantity.stripTrailingZeros(),
                 lots = lots,
                 side = side,
-                price = price,
+                price = price.stripTrailingZeros(),
                 timestamp = timestamp.withoutNanoseconds(),
             )
 
@@ -231,11 +231,11 @@ internal class TradeExecutionsRepo(
                 broker = execution.broker,
                 ticker = execution.ticker,
                 instrument = execution.instrument,
-                quantity = execution.quantity,
+                quantity = execution.quantity.stripTrailingZeros(),
                 closedQuantity = BigDecimal.ZERO,
                 lots = null,
                 side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
-                averageEntry = execution.price,
+                averageEntry = execution.price.stripTrailingZeros(),
                 entryTimestamp = execution.timestamp.withoutNanoseconds(),
                 averageExit = null,
                 exitTimestamp = null,
@@ -289,7 +289,7 @@ internal class TradeExecutionsRepo(
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
                     executionId = execution.id,
-                    overrideQuantity = execution.quantity + currentOpenQuantity,
+                    overrideQuantity = (execution.quantity + currentOpenQuantity).stripTrailingZeros(),
                 )
 
                 // Quantity for new trade
@@ -300,11 +300,11 @@ internal class TradeExecutionsRepo(
                     broker = execution.broker,
                     ticker = execution.ticker,
                     instrument = execution.instrument,
-                    quantity = overrideQuantity,
+                    quantity = overrideQuantity.stripTrailingZeros(),
                     closedQuantity = BigDecimal.ZERO,
                     lots = null,
                     side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
-                    averageEntry = execution.price,
+                    averageEntry = execution.price.stripTrailingZeros(),
                     entryTimestamp = execution.timestamp.withoutNanoseconds(),
                     averageExit = null,
                     exitTimestamp = null,
@@ -322,7 +322,7 @@ internal class TradeExecutionsRepo(
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = tradeId,
                     executionId = execution.id,
-                    overrideQuantity = overrideQuantity,
+                    overrideQuantity = overrideQuantity.stripTrailingZeros(),
                 )
             } else {
 
@@ -394,19 +394,20 @@ internal class TradeExecutionsRepo(
     }
 
     private fun Trade.updateTradeInDB(tradeId: TradeId) {
+
         tradesDB.tradeQueries.update(
             id = tradeId,
-            quantity = quantity,
-            closedQuantity = closedQuantity,
+            quantity = quantity.stripTrailingZeros(),
+            closedQuantity = closedQuantity.stripTrailingZeros(),
             lots = lots,
             side = side,
-            averageEntry = averageEntry,
+            averageEntry = averageEntry.stripTrailingZeros(),
             entryTimestamp = entryTimestamp.withoutNanoseconds(),
-            averageExit = averageExit,
+            averageExit = averageExit?.stripTrailingZeros(),
             exitTimestamp = exitTimestamp?.withoutNanoseconds(),
-            pnl = pnl,
-            fees = fees,
-            netPnl = netPnl,
+            pnl = pnl.stripTrailingZeros(),
+            fees = fees.stripTrailingZeros(),
+            netPnl = netPnl.stripTrailingZeros(),
             isClosed = isClosed,
         )
     }
@@ -463,7 +464,7 @@ internal class TradeExecutionsRepo(
 
             tradesDB.tradeStopQueries.insert(
                 tradeId = trade.id,
-                price = stop.price,
+                price = stop.price.stripTrailingZeros(),
             )
         }
 
@@ -478,7 +479,7 @@ internal class TradeExecutionsRepo(
 
             tradesDB.tradeTargetQueries.insert(
                 tradeId = trade.id,
-                price = target.price,
+                price = target.price.stripTrailingZeros(),
             )
         }
 

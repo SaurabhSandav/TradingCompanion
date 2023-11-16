@@ -113,10 +113,10 @@ internal class TradesRepo(
         // Save MFE and MAE
         tradesDB.tradeMfeMaeQueries.insert(
             tradeId = id,
-            mfePrice = mfePrice,
-            mfePnl = mfePnl,
-            maePrice = maePrice,
-            maePnl = maePnl,
+            mfePrice = mfePrice.stripTrailingZeros(),
+            mfePnl = mfePnl.stripTrailingZeros(),
+            maePrice = maePrice.stripTrailingZeros(),
+            maePnl = maePnl.stripTrailingZeros(),
         )
     }
 
@@ -142,7 +142,7 @@ internal class TradesRepo(
         // Insert into DB
         tradesDB.tradeStopQueries.insert(
             tradeId = id,
-            price = price,
+            price = price.stripTrailingZeros(),
         )
     }
 
@@ -168,7 +168,7 @@ internal class TradesRepo(
         // Insert into DB
         tradesDB.tradeTargetQueries.insert(
             tradeId = id,
-            price = price,
+            price = price.stripTrailingZeros(),
         )
     }
 
