@@ -69,6 +69,8 @@ internal class FyersLoginService private constructor(
             return fyersApi.getProfile(authTokens.accessToken).statusCode != HttpStatusCode.Unauthorized
         }
 
+        Logger.d(DebugTag) { "Checking login status" }
+
         when {
             authTokens == null -> loginStage1()
             isLoggedIn(authTokens) -> resultHandle.onSuccess()
@@ -80,6 +82,8 @@ internal class FyersLoginService private constructor(
     }
 
     private fun loginStage1(reLogin: Boolean = false) {
+
+        Logger.d(DebugTag) { "Initiating stage 1 (Login to Fyers website)" }
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             error("Launching url in browser not supported")
@@ -135,18 +139,23 @@ internal class FyersLoginService private constructor(
             }
         }.start(wait = false)
 
-        Logger.d { "Initialized Charts page at http://127.0.0.1:$PORT" }
+        Logger.d(DebugTag) { "Launched redirect capture page at http://127.0.0.1:$PORT" }
 
         // Generate login url
         val loginUrl = fyersApi.getLoginURL(redirectUrl = "http://127.0.0.1:$PORT")
 
         // Launch login url in browser
         coroutineScope.launch(Dispatchers.IO) {
+
+            Logger.d(DebugTag) { "Launched Fyers login page in browser" }
+
             Desktop.getDesktop().browse(URI(loginUrl))
         }
     }
 
     private fun loginStage2(redirectUrl: String) = coroutineScope.launchUnit {
+
+        Logger.d(DebugTag) { "Initiating login stage 2 (Login Validation)" }
 
         val response = fyersApi.validateLogin(redirectUrl)
 
@@ -163,11 +172,15 @@ internal class FyersLoginService private constructor(
                 saveAuthTokensToPrefs(appPrefs, authTokens)
 
                 resultHandle.onSuccess()
+
+                Logger.d(DebugTag) { "Login successful" }
             }
         }
     }
 
     private fun refreshLogin(authTokens: FyersAuthTokens) = coroutineScope.launchUnit {
+
+        Logger.d(DebugTag) { "Refresh login. Awaiting Pin..." }
 
         val pin = CompletableDeferred<String>()
 
@@ -185,6 +198,8 @@ internal class FyersLoginService private constructor(
                 saveAuthTokensToPrefs(appPrefs, null)
 
                 loginStage1(reLogin = true)
+
+                Logger.d(DebugTag) { "Refresh login failed" }
             }
             // Refresh succeeded. Update access token
             else -> {
@@ -194,6 +209,8 @@ internal class FyersLoginService private constructor(
                 saveAuthTokensToPrefs(appPrefs, refreshedAuthTokens)
 
                 resultHandle.onSuccess()
+
+                Logger.d(DebugTag) { "Refresh login successful" }
             }
         }
     }
@@ -202,6 +219,8 @@ internal class FyersLoginService private constructor(
 
         serverEngine?.stop()
         serverEngine = null
+
+        Logger.d(DebugTag) { if (failureMessage == null) "Login Cancelled" else "Login failed" }
 
         when {
             failureMessage != null -> {
@@ -342,6 +361,7 @@ internal class FyersLoginService private constructor(
     companion object {
 
         private const val PORT = 57108
+        private const val DebugTag = "Fyers Login"
 
         fun getAuthTokensFromPrefs(appPrefs: FlowSettings): Flow<FyersAuthTokens?> {
             return appPrefs.getStringOrNullFlow(PrefKeys.FyersAuthTokens)
