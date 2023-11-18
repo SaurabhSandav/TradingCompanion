@@ -15,26 +15,32 @@ import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import io.ktor.http.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 
 internal class FyersCandleDownloader(
+    coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
     private val fyersApi: FyersApi,
 ) : CandleDownloader {
 
-    override fun isLoggedIn(): Flow<Boolean> {
-        return FyersLoginService.getAuthTokensFromPrefs(appPrefs).map { authTokens ->
+    private val isLoggedIn = FyersLoginService.getAuthTokensFromPrefs(appPrefs)
+        .map { authTokens ->
             if (authTokens == null) return@map false
 
             // Check if access token expired
             val profileResult = fyersApi.getProfile(authTokens.accessToken)
             profileResult.statusCode != HttpStatusCode.Unauthorized
         }
-    }
+        .shareIn(
+            scope = coroutineScope,
+            started = SharingStarted.Lazily,
+            replay = 1,
+        )
+
+    override fun isLoggedIn(): Flow<Boolean> = isLoggedIn
 
     override suspend fun download(
         ticker: String,

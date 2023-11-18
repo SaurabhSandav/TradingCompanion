@@ -131,6 +131,7 @@ internal class AppModule {
 
     val candleRepo = CandleRepository(
         candleDownloader = FyersCandleDownloader(
+            coroutineScope = appScope,
             appPrefs = appPrefs,
             fyersApi = fyersApi,
         ),
