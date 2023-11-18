@@ -47,7 +47,7 @@ internal class TradeManagementJob(
                 from = entryInstant,
                 to = exitInstant,
                 edgeCandlesInclusive = true,
-            ).get() ?: return@forEach
+            ).get().takeIf { it?.isNotEmpty() == true } ?: return@forEach
 
             val mfePrice = when (trade.side) {
                 TradeSide.Long -> tradeCandles.maxOf { it.high }
