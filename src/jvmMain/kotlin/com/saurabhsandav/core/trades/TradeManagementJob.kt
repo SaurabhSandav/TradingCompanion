@@ -6,10 +6,12 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.StartupJob
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlinx.datetime.*
+import kotlin.time.Duration.Companion.minutes
 
 internal class TradeManagementJob(
     private val tradingProfiles: TradingProfiles,
@@ -17,6 +19,9 @@ internal class TradeManagementJob(
 ) : StartupJob {
 
     override suspend fun run() {
+
+        // Don't start right away after app launch
+        delay(1.minutes)
 
         tradingProfiles.allProfiles.first().forEach { profile ->
             generateMfeAndMae(
