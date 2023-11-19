@@ -3,9 +3,9 @@ package com.saurabhsandav.core.ui.common.form
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.form.ValidationResult.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 interface FormField<T> : MutableState<T> {
 
@@ -45,14 +45,16 @@ internal class FormFieldImpl<T> internal constructor(
 
     init {
 
-        // Validate on every value change
-        snapshotFlow { value }
-            .drop(1) // Don't validate initial value
-            .onEach {
-                forceValidate()
-                dependents.forEach { (it as FormFieldImpl).forceValidate() }
-            }
-            .launchIn(coroutineScope)
+        coroutineScope.launch {
+
+            // Validate on every value change
+            snapshotFlow { value }
+                .drop(1) // Don't validate initial value
+                .collectLatest {
+                    forceValidate()
+                    dependents.forEach { (it as FormFieldImpl).forceValidate() }
+                }
+        }
     }
 
     override suspend fun validate(): Boolean {
