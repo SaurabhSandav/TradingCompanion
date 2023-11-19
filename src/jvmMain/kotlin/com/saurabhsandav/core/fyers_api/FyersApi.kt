@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.fyers_api
 
 import BuildKonfig
-import com.github.michaelbull.result.get
-import com.github.michaelbull.result.runCatching
 import com.saurabhsandav.core.fyers_api.model.CandleResolution
 import com.saurabhsandav.core.fyers_api.model.DateFormat
 import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
@@ -13,14 +11,10 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import korlibs.crypto.sha256
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 class FyersApi {
 
@@ -64,7 +58,7 @@ class FyersApi {
             setBody(requestBody)
         }
 
-        return response.decodeToFyersResponse()
+        return response.body()
     }
 
     suspend fun refreshLogin(
@@ -87,7 +81,7 @@ class FyersApi {
             setBody(requestBody)
         }
 
-        return response.decodeToFyersResponse()
+        return response.body()
     }
 
     suspend fun getProfile(
@@ -101,7 +95,7 @@ class FyersApi {
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
         }
 
-        return response.decodeToFyersResponse()
+        return response.body()
     }
 
     suspend fun getHistoricalCandles(
@@ -126,7 +120,7 @@ class FyersApi {
             parameter("cont_flag", "")
         }
 
-        return response.decodeToFyersResponse()
+        return response.body()
     }
 
     suspend fun getQuotes(
@@ -142,19 +136,6 @@ class FyersApi {
             parameter("symbols", symbols.joinToString(","))
         }
 
-        return response.decodeToFyersResponse()
-    }
-
-    private suspend inline fun <reified T> HttpResponse.decodeToFyersResponse(): FyersResponse<T> {
-
-        val jsonObject = json.parseToJsonElement(bodyAsText()).jsonObject
-
-        return FyersResponse(
-            s = jsonObject["s"]?.jsonPrimitive?.content,
-            code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
-            message = jsonObject["message"]?.jsonPrimitive?.content,
-            statusCode = status,
-            result = runCatching<T> { body() }.get(),
-        )
+        return response.body()
     }
 }

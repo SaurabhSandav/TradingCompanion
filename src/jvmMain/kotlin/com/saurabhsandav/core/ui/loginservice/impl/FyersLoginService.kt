@@ -16,6 +16,7 @@ import androidx.compose.ui.window.rememberDialogState
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.fyers_api.model.response.isAuthError
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.loginservice.LoginService
@@ -66,7 +67,7 @@ internal class FyersLoginService private constructor(
         val authTokens = getAuthTokensFromPrefs(appPrefs).first()
 
         suspend fun isLoggedIn(authTokens: FyersAuthTokens): Boolean {
-            return fyersApi.getProfile(authTokens.accessToken).statusCode != HttpStatusCode.Unauthorized
+            return !fyersApi.getProfile(authTokens.accessToken).isAuthError
         }
 
         Logger.d(DebugTag) { "Checking login status" }

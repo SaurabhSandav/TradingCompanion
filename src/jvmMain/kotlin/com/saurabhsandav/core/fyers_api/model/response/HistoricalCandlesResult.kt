@@ -8,4 +8,7 @@ data class HistoricalCandlesResult(
 
     @SerialName("candles")
     val candles: List<List<String>>,
+
+    @SerialName("nextTime")
+    val nextTime: Long? = null,
 )

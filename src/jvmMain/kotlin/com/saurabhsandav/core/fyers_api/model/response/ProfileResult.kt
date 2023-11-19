@@ -6,36 +6,44 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProfileResult(
 
-    @SerialName("name")
-    var name: String,
+    @SerialName("data")
+    var data: Profile,
+) {
 
-    @SerialName("image")
-    var image: String,
+    @Serializable
+    data class Profile(
 
-    @SerialName("display_name")
-    var displayName: String,
+        @SerialName("name")
+        var name: String,
 
-    @SerialName("email_id")
-    var emailId: String,
+        @SerialName("image")
+        var image: String?,
 
-    @SerialName("PAN")
-    var pan: String,
+        @SerialName("display_name")
+        var displayName: String?,
 
-    @SerialName("fy_id")
-    var fyId: String,
+        @SerialName("email_id")
+        var emailId: String,
 
-    @SerialName("pin_change_date")
-    var pinChangeDate: String,
+        @SerialName("PAN")
+        var pan: String,
 
-    @SerialName("mobile_number")
-    var mobileNumber: String,
+        @SerialName("fy_id")
+        var fyId: String,
 
-    @SerialName("totp")
-    var totp: Boolean,
+        @SerialName("pin_change_date")
+        var pinChangeDate: String,
 
-    @SerialName("pwd_change_date")
-    var pwdChangeDate: String,
+        @SerialName("mobile_number")
+        var mobileNumber: String,
 
-    @SerialName("pwd_to_expire")
-    var pwdToExpire: Int,
-)
+        @SerialName("totp")
+        var totp: Boolean,
+
+        @SerialName("pwd_change_date")
+        var pwdChangeDate: String,
+
+        @SerialName("pwd_to_expire")
+        var pwdToExpire: Int,
+    )
+}
