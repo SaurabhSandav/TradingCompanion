@@ -15,23 +15,29 @@ internal fun FlowSettings.getCurrentTradingProfile(tradingProfiles: TradingProfi
     return getLongOrNullFlow(PrefKeys.CurrentTradingProfile).flatMapLatest { profileId ->
 
         if (profileId == null) {
-            // Current profile not set. Set first profile (from stored profiles) as current.
-            putCurrentTradingProfileId(tradingProfiles.allProfiles.first().first().id)
-            return@flatMapLatest flowOf(null)
+
+            // Current profile not set. Set default profile as current.
+            putCurrentTradingProfileId(tradingProfiles.getDefaultProfile().first().id)
+
+            // Return empty flow. New emission from prefs will follow.
+            return@flatMapLatest emptyFlow()
         }
 
         val id = ProfileId(profileId)
 
-        val profileExists = tradingProfiles.exists(id).first()
+        val profileExists = tradingProfiles.exists(id)
 
         if (!profileExists) {
-            // Profile doesn't exist. Set first profile (from stored profiles) as current.
+
+            // Profile doesn't exist. Set default profile as current.
             putCurrentTradingProfileId(tradingProfiles.allProfiles.first().first().id)
-            return@flatMapLatest flowOf(null)
+
+            // Return empty flow. New emission from prefs will follow.
+            return@flatMapLatest emptyFlow()
         }
 
         tradingProfiles.getProfile(id)
-    }.filterNotNull()
+    }
 }
 
 internal fun FlowSettings.getCurrentTradingRecord(

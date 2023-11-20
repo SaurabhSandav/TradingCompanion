@@ -38,6 +38,10 @@ internal class TradingProfiles(
         return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
+    fun getDefaultProfile(): Flow<TradingProfile> {
+        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(Dispatchers.IO)
+    }
+
     suspend fun newProfile(
         name: String,
         description: String,
@@ -62,8 +66,8 @@ internal class TradingProfiles(
         }
     }
 
-    suspend fun exists(id: ProfileId): Flow<Boolean> = withContext(Dispatchers.IO) {
-        return@withContext appDB.tradingProfileQueries.exists(id).asFlow().mapToOne(Dispatchers.IO)
+    suspend fun exists(id: ProfileId): Boolean = withContext(Dispatchers.IO) {
+        return@withContext appDB.tradingProfileQueries.exists(id).executeAsOne()
     }
 
     suspend fun updateProfile(

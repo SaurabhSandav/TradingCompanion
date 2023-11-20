@@ -25,6 +25,9 @@ WHERE id = ?;
 getAll:
 SELECT * FROM TradingProfile;
 
+getDefault:
+SELECT * FROM TradingProfile LIMIT 1;
+
 update:
 UPDATE TradingProfile
 SET name = ?, description = ?, isTraining = ?
