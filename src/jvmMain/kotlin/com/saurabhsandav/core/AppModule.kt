@@ -144,7 +144,6 @@ internal class AppModule {
     val tradingProfiles = TradingProfiles(
         appFilesPath = AppPaths.getAppDataPath(),
         appDB = appDB,
-        candleRepo = candleRepo,
     )
 
     val tradeContentLauncher = TradeContentLauncher()

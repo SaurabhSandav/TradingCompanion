@@ -3,10 +3,10 @@ package com.saurabhsandav.core.trades
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trading.data.CandleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,6 @@ import kotlin.io.path.createDirectories
 internal class TradingProfiles(
     private val appFilesPath: String,
     private val appDB: AppDB,
-    private val candleRepo: CandleRepository,
 ) {
 
     private val records = mutableMapOf<ProfileId, TradingRecord>()
@@ -32,11 +31,11 @@ internal class TradingProfiles(
         appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
     fun getProfile(id: ProfileId): Flow<TradingProfile> {
-        return allProfiles.map { profiles -> profiles.find { it.id == id } ?: error("Profile($id) not found") }
+        return getProfileOrNull(id).map { it ?: error("Profile($id) not found") }
     }
 
     fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
-        return allProfiles.map { profiles -> profiles.find { it.id == id } }
+        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     suspend fun newProfile(
