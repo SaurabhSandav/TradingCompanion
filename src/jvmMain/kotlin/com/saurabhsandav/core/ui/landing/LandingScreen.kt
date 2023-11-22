@@ -21,8 +21,7 @@ import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
-import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
@@ -78,23 +77,12 @@ private fun LandingScreen(
     onCurrentScreenChange: (LandingScreen) -> Unit,
 ) {
 
-    var showProfilesWindow by state { false }
-    val profilesWindowOwner = remember { AppWindowOwner() }
-
-    var showChartsWindow by state { false }
-    val chartsWindowOwner = remember { AppWindowOwner() }
-
-    var showTagsWindow by state { false }
-    val tagsWindowOwner = remember { AppWindowOwner() }
-
-    var showPNLCalculatorWindow by state { false }
-    val pnlCalculatorWindowOwner = remember { AppWindowOwner() }
-
-    var showBarReplayWindow by state { false }
-    val barReplayWindowOwner = remember { AppWindowOwner() }
-
-    var showSettingsWindow by state { false }
-    val settingsWindowOwner = remember { AppWindowOwner() }
+    val profilesWindowManager = remember { AppWindowManager() }
+    val chartsWindowManager = remember { AppWindowManager() }
+    val tagsWindowManager = remember { AppWindowManager() }
+    val pnlCalculatorWindowManager = remember { AppWindowManager() }
+    val barReplayWindowManager = remember { AppWindowManager() }
+    val settingsWindowManager = remember { AppWindowManager() }
 
     Row {
 
@@ -105,10 +93,7 @@ private fun LandingScreen(
             NavigationRailItem(
                 icon = { Icon(Icons.Default.AccountBox, contentDescription = "Profiles") },
                 selected = false,
-                onClick = {
-                    showProfilesWindow = true
-                    profilesWindowOwner.childrenToFront()
-                }
+                onClick = profilesWindowManager::openWindow,
             )
 
             Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
@@ -166,10 +151,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
                     selected = false,
-                    onClick = {
-                        showChartsWindow = true
-                        chartsWindowOwner.childrenToFront()
-                    }
+                    onClick = chartsWindowManager::openWindow,
                 )
             }
 
@@ -180,10 +162,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Default.Label, contentDescription = "Tags") },
                     selected = false,
-                    onClick = {
-                        showTagsWindow = true
-                        tagsWindowOwner.childrenToFront()
-                    }
+                    onClick = tagsWindowManager::openWindow,
                 )
             }
 
@@ -194,10 +173,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Calculate, contentDescription = "PNL Calculator") },
                     selected = false,
-                    onClick = {
-                        showPNLCalculatorWindow = true
-                        pnlCalculatorWindowOwner.childrenToFront()
-                    }
+                    onClick = pnlCalculatorWindowManager::openWindow,
                 )
             }
 
@@ -208,10 +184,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
                     selected = false,
-                    onClick = {
-                        showBarReplayWindow = true
-                        barReplayWindowOwner.childrenToFront()
-                    }
+                    onClick = barReplayWindowManager::openWindow,
                 )
             }
 
@@ -222,10 +195,7 @@ private fun LandingScreen(
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
                     selected = false,
-                    onClick = {
-                        showSettingsWindow = true
-                        settingsWindowOwner.childrenToFront()
-                    }
+                    onClick = settingsWindowManager::openWindow,
                 )
             }
         }
@@ -257,69 +227,53 @@ private fun LandingScreen(
             }
         }
 
-        if (showProfilesWindow) {
 
-            profilesWindowOwner.Window {
+        profilesWindowManager.Window {
 
-                ProfilesWindow(
-                    onCloseRequest = { showProfilesWindow = false },
-                )
-            }
+            ProfilesWindow(
+                onCloseRequest = profilesWindowManager::closeWindow,
+            )
         }
 
-        if (showChartsWindow) {
+        chartsWindowManager.Window {
 
-            chartsWindowOwner.Window {
+            ChartsScreen(
 
-                ChartsScreen(
-                    onCloseRequest = { showChartsWindow = false },
-                )
-            }
+                onCloseRequest = chartsWindowManager::closeWindow,
+            )
         }
 
-        if (showTagsWindow) {
+        tagsWindowManager.Window {
 
-            tagsWindowOwner.Window {
-
-                TagsWindow(
-                    onCloseRequest = { showTagsWindow = false },
-                )
-            }
+            TagsWindow(
+                onCloseRequest = tagsWindowManager::closeWindow,
+            )
         }
 
-        if (showPNLCalculatorWindow) {
+        pnlCalculatorWindowManager.Window {
 
-            pnlCalculatorWindowOwner.Window {
-
-                PNLCalculatorWindow(
-                    state = rememberPNLCalculatorWindowState(
-                        params = PNLCalculatorWindowParams(
-                            operationType = PNLCalculatorWindowParams.OperationType.New,
-                            onCloseRequest = { showPNLCalculatorWindow = false },
-                        )
+            PNLCalculatorWindow(
+                state = rememberPNLCalculatorWindowState(
+                    params = PNLCalculatorWindowParams(
+                        operationType = PNLCalculatorWindowParams.OperationType.New,
+                        onCloseRequest = pnlCalculatorWindowManager::closeWindow,
                     )
                 )
-            }
+            )
         }
 
-        if (showBarReplayWindow) {
+        barReplayWindowManager.Window {
 
-            barReplayWindowOwner.Window {
-
-                BarReplayWindow(
-                    onCloseRequest = { showBarReplayWindow = false },
-                )
-            }
+            BarReplayWindow(
+                onCloseRequest = barReplayWindowManager::closeWindow,
+            )
         }
 
-        if (showSettingsWindow) {
+        settingsWindowManager.Window {
 
-            settingsWindowOwner.Window {
-
-                SettingsWindow(
-                    onCloseRequest = { showSettingsWindow = false },
-                )
-            }
+            SettingsWindow(
+                onCloseRequest = settingsWindowManager::closeWindow,
+            )
         }
     }
 }

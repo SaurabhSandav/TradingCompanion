@@ -19,8 +19,7 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
-import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 
 @Composable
@@ -36,8 +35,7 @@ internal fun ChartsScreen(
 
     val state by presenter.state.collectAsState()
 
-    var showTradeReviewWindow by state { false }
-    val tradeReviewWindowOwner = remember { AppWindowOwner() }
+    val tradeReviewWindowManager = remember { AppWindowManager() }
 
     val chartsState = state.chartsState
 
@@ -66,10 +64,7 @@ internal fun ChartsScreen(
 
                 Button(
                     modifier = Modifier.fillMaxSize(),
-                    onClick = {
-                        showTradeReviewWindow = true
-                        tradeReviewWindowOwner.childrenToFront()
-                    },
+                    onClick = tradeReviewWindowManager::openWindow,
                     content = { Text("Trade Review") },
                 )
             },
@@ -77,16 +72,13 @@ internal fun ChartsScreen(
     }
 
     // Trade review window
-    if (showTradeReviewWindow) {
+    tradeReviewWindowManager.Window {
 
-        tradeReviewWindowOwner.Window {
-
-            TradeReviewWindow(
-                onCloseRequest = { showTradeReviewWindow = false },
-                onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
-                markersProvider = module.markersProvider,
-            )
-        }
+        TradeReviewWindow(
+            onCloseRequest = tradeReviewWindowManager::closeWindow,
+            onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
+            markersProvider = module.markersProvider,
+        )
     }
 
     // Login confirmation dialog

@@ -16,7 +16,7 @@ import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
+import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
 import kotlinx.collections.immutable.ImmutableList
@@ -96,28 +96,21 @@ internal fun Notes(
             Divider()
         }
 
-        var showAddWindow by state { false }
-        val addWindowOwner = remember { AppWindowOwner() }
+        val addWindowManager = remember { AppWindowManager() }
 
         TextButton(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                showAddWindow = true
-                addWindowOwner.childrenToFront()
-            },
+            onClick = addWindowManager::openWindow,
             shape = RectangleShape,
             content = { Text("Add Note") },
         )
 
-        if (showAddWindow) {
+        addWindowManager.Window {
 
-            addWindowOwner.Window {
-
-                NoteEditorWindow(
-                    onCloseRequest = { showAddWindow = false },
-                    onSaveNote = onAddNote,
-                )
-            }
+            NoteEditorWindow(
+                onCloseRequest = addWindowManager::closeWindow,
+                onSaveNote = onAddNote,
+            )
         }
     }
 }
