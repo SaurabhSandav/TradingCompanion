@@ -164,6 +164,10 @@ kotlin {
             // compose-richtext
             implementation("com.halilibo.compose-richtext:richtext-ui-material3:1.0.0-alpha01")
             implementation("com.halilibo.compose-richtext:richtext-commonmark:1.0.0-alpha01")
+
+            // Paging
+            implementation("app.cash.paging:paging-common:3.3.0-alpha02-0.5.1")
+            implementation("app.cash.paging:paging-compose-common:3.3.0-alpha02-0.5.1")
         }
 
         jvmTest.dependencies {
