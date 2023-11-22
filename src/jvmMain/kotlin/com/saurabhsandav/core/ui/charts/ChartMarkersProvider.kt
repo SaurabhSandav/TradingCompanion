@@ -7,7 +7,6 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
@@ -17,14 +16,13 @@ internal class ChartMarkersProvider(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val _markedProfileTradeIds = MutableStateFlow<Set<ProfileTradeId>>(persistentSetOf())
-    val markedProfileTradeIds = _markedProfileTradeIds.asStateFlow()
+    internal val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
 
     fun getTradeMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<TradeMarker>> {
 
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
-        return markedProfileTradeIds.flatMapLatest { profileTradeIds ->
+        return markedTradeIds.flatMapLatest { profileTradeIds ->
 
             val tradeIdsByProfileIds = profileTradeIds.groupBy(
                 keySelector = { it.profileId },
@@ -83,7 +81,7 @@ internal class ChartMarkersProvider(
 
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
-        return markedProfileTradeIds.flatMapLatest { profileTradeIds ->
+        return markedTradeIds.flatMapLatest { profileTradeIds ->
 
             val tradeIdsByProfileIds = profileTradeIds.groupBy(
                 keySelector = { it.profileId },
@@ -123,15 +121,7 @@ internal class ChartMarkersProvider(
         return candleSeries[markerCandleIndex].openInstant
     }
 
-    fun markTrade(profileTradeId: ProfileTradeId) {
-        _markedProfileTradeIds.value += profileTradeId
-    }
-
-    fun unMarkTrade(profileTradeId: ProfileTradeId) {
-        _markedProfileTradeIds.value -= profileTradeId
-    }
-
-    fun clearMarkedTrades() {
-        _markedProfileTradeIds.value = emptySet()
+    fun setMarkedTrades(ids: List<ProfileTradeId>) {
+        markedTradeIds.value = ids.toList()
     }
 }

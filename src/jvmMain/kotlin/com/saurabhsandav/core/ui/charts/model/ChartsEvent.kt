@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.charts.model
 
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.datetime.Instant
 
 internal sealed class ChartsEvent {
@@ -9,6 +10,8 @@ internal sealed class ChartsEvent {
         val start: Instant,
         val end: Instant?,
     ) : ChartsEvent()
+
+    data class MarkTrades(val tradeIds: List<ProfileTradeId>) : ChartsEvent()
 
     data object CandleDataLoginConfirmed : ChartsEvent()
 

@@ -16,10 +16,13 @@ import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -31,6 +34,7 @@ import kotlinx.datetime.Instant
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     stockChartsStateFactory: (StockChartParams) -> StockChartsState,
+    private val markersProvider: ChartMarkersProvider,
     private val appPrefs: FlowSettings,
     private val loginServicesManager: LoginServicesManager,
     private val fyersApi: FyersApi,
@@ -57,6 +61,8 @@ internal class ChartsPresenter(
         return@launchMolecule ChartsState(
             chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
             showCandleDataLoginConfirmation = showCandleDataLoginConfirmation,
+            markedTrades = remember { markersProvider.markedTradeIds.map { it.toImmutableList() } }
+                .collectAsState(persistentListOf()).value,
             errors = errors,
             eventSink = ::onEvent,
         )
@@ -66,6 +72,7 @@ internal class ChartsPresenter(
 
         when (event) {
             is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
+            is MarkTrades -> onMarkTrades(event.tradeIds)
             CandleDataLoginConfirmed -> onCandleDataLoginConfirmed()
             CandleDataLoginDeclined -> onCandleDataLoginDeclined()
         }
@@ -118,6 +125,10 @@ internal class ChartsPresenter(
                 coroutineScope.launch { stockChart.navigateTo(start, end) }
             }
         }
+    }
+
+    private fun onMarkTrades(tradeIds: List<ProfileTradeId>) {
+        markersProvider.setMarkedTrades(tradeIds)
     }
 
     private fun onCandleDataLoginConfirmed() {

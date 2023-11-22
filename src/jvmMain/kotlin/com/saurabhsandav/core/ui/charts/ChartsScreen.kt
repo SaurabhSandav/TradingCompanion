@@ -13,9 +13,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.TradeReviewWindow
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -76,8 +74,9 @@ internal fun ChartsScreen(
 
         TradeReviewWindow(
             onCloseRequest = tradeReviewWindowManager::closeWindow,
+            initialMarkedTrades = state.markedTrades,
             onOpenChart = { ticker, start, end -> state.eventSink(OpenChart(ticker, start, end)) },
-            markersProvider = module.markersProvider,
+            onMarkTrades = { tradeIds -> state.eventSink(MarkTrades(tradeIds)) },
         )
     }
 
@@ -86,7 +85,7 @@ internal fun ChartsScreen(
 
         FetchCandleDataLoginConfirmationDialog(
             onConfirm = { state.eventSink(CandleDataLoginConfirmed) },
-            onDismissRequest = { state.eventSink(ChartsEvent.CandleDataLoginDeclined) },
+            onDismissRequest = { state.eventSink(CandleDataLoginDeclined) },
         )
     }
 }

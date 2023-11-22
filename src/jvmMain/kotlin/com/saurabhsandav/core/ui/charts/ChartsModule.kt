@@ -9,7 +9,7 @@ internal class ChartsModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val markersProvider = ChartMarkersProvider(
+    private val markersProvider = ChartMarkersProvider(
         tradingProfiles = appModule.tradingProfiles,
     )
 
@@ -25,6 +25,7 @@ internal class ChartsModule(
             stockChartsStateFactory = { initialParams: StockChartParams ->
                 appModule.stockChartsState(coroutineScope, initialParams, marketDataProvider)
             },
+            markersProvider = markersProvider,
             appPrefs = appModule.appPrefs,
             loginServicesManager = appModule.loginServicesManager,
             fyersApi = appModule.fyersApi,

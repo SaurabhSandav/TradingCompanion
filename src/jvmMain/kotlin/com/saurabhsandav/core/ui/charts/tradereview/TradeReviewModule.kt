@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.charts.tradereview
 
 import com.saurabhsandav.core.AppModule
-import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Instant
 
@@ -11,18 +11,20 @@ internal class TradeReviewModule(
 ) {
 
     val presenter = {
+            initialMarkedTrades: List<ProfileTradeId>,
             onOpenChart: (
                 ticker: String,
                 start: Instant,
                 end: Instant?,
             ) -> Unit,
-            markersProvider: ChartMarkersProvider,
+            onMarkTrades: (tradeIds: List<ProfileTradeId>) -> Unit,
         ->
 
         TradeReviewPresenter(
             coroutineScope = coroutineScope,
+            initialMarkedTrades = initialMarkedTrades,
             onOpenChart = onOpenChart,
-            markersProvider = markersProvider,
+            onMarkTrades = onMarkTrades,
             tradeContentLauncher = appModule.tradeContentLauncher,
             tradingProfiles = appModule.tradingProfiles,
             appPrefs = appModule.appPrefs,

@@ -7,7 +7,6 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.charts.ChartMarkersProvider
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.charts.tradereview.model.TradeReviewState
@@ -38,12 +37,13 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class TradeReviewPresenter(
     private val coroutineScope: CoroutineScope,
+    initialMarkedTrades: List<ProfileTradeId>,
     private val onOpenChart: (
         ticker: String,
         start: Instant,
         end: Instant?,
     ) -> Unit,
-    private val markersProvider: ChartMarkersProvider,
+    private val onMarkTrades: (tradeIds: List<ProfileTradeId>) -> Unit,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
     private val appPrefs: FlowSettings,
@@ -52,6 +52,8 @@ internal class TradeReviewPresenter(
     private val selectedProfileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
         .map { it?.let(::ProfileId) }
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
+
+    private val markedTradeIds = initialMarkedTrades.toMutableStateList()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -89,7 +91,7 @@ internal class TradeReviewPresenter(
 
                     tradingRecord.trades
                         .allTrades
-                        .combine(markersProvider.markedProfileTradeIds) { trades, markedProfileTradeIds ->
+                        .combine(snapshotFlow { markedTradeIds.toList() }) { trades, markedProfileTradeIds ->
                             trades
                                 .map {
 
@@ -165,7 +167,7 @@ internal class TradeReviewPresenter(
     private fun getMarkedTrades(): State<ImmutableList<MarkedTradeEntry>> {
         return remember {
 
-            markersProvider.markedProfileTradeIds
+            snapshotFlow { markedTradeIds.toList() }
                 .flatMapLatest { profileTradeIds ->
 
                     profileTradeIds
@@ -264,15 +266,20 @@ internal class TradeReviewPresenter(
     ) {
 
         when {
-            isMarked -> markersProvider.markTrade(profileTradeId)
-            else -> markersProvider.unMarkTrade(profileTradeId)
+            isMarked -> if (profileTradeId !in markedTradeIds) markedTradeIds.add(profileTradeId)
+            else -> markedTradeIds.remove(profileTradeId)
         }
+
+        onMarkTrades(markedTradeIds)
     }
 
     private fun onSelectTrade(profileTradeId: ProfileTradeId) = coroutineScope.launchUnit {
 
         // Mark selected trade
-        markersProvider.markTrade(profileTradeId)
+        if (profileTradeId !in markedTradeIds) {
+            markedTradeIds.add(profileTradeId)
+            onMarkTrades(markedTradeIds)
+        }
 
         val tradingRecord = tradingProfiles.getRecord(profileTradeId.profileId)
 
@@ -290,6 +297,7 @@ internal class TradeReviewPresenter(
     }
 
     private fun onClearMarkedTrades() {
-        markersProvider.clearMarkedTrades()
+        markedTradeIds.clear()
+        onMarkTrades(markedTradeIds)
     }
 }
