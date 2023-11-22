@@ -21,7 +21,7 @@ class LoginServicesManager {
 
             key(holder) {
 
-                AppWindowOwner(holder.owner) {
+                holder.owner.Window {
 
                     holder.service.Windows()
                 }

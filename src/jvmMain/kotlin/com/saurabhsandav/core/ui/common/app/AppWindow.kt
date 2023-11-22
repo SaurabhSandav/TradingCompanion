@@ -159,22 +159,21 @@ class AppWindowState(
 
 val LocalAppWindowState = staticCompositionLocalOf<AppWindowState> { error("AppWindowState not set") }
 
-@Composable
-fun AppWindowOwner(
-    state: AppWindowOwner,
-    content: @Composable () -> Unit,
-) {
-
-    CompositionLocalProvider(
-        LocalAppWindowOwner provides state,
-        content = content,
-    )
-}
-
 @Stable
 class AppWindowOwner {
 
     private val children = mutableListOf<AppWindowState>()
+
+    @Composable
+    fun Window(
+        content: @Composable () -> Unit,
+    ) {
+
+        CompositionLocalProvider(
+            LocalAppWindowOwner provides this,
+            content = content,
+        )
+    }
 
     fun childrenToFront() {
         children.forEach { it.toFront() }

@@ -111,7 +111,7 @@ internal fun Notes(
 
         if (showAddWindow) {
 
-            AppWindowOwner(addWindowOwner) {
+            addWindowOwner.Window {
 
                 NoteEditorWindow(
                     onCloseRequest = { showAddWindow = false },

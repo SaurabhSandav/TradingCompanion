@@ -259,7 +259,7 @@ private fun LandingScreen(
 
         if (showProfilesWindow) {
 
-            AppWindowOwner(profilesWindowOwner) {
+            profilesWindowOwner.Window {
 
                 ProfilesWindow(
                     onCloseRequest = { showProfilesWindow = false },
@@ -269,7 +269,7 @@ private fun LandingScreen(
 
         if (showChartsWindow) {
 
-            AppWindowOwner(chartsWindowOwner) {
+            chartsWindowOwner.Window {
 
                 ChartsScreen(
                     onCloseRequest = { showChartsWindow = false },
@@ -279,7 +279,7 @@ private fun LandingScreen(
 
         if (showTagsWindow) {
 
-            AppWindowOwner(tagsWindowOwner) {
+            tagsWindowOwner.Window {
 
                 TagsWindow(
                     onCloseRequest = { showTagsWindow = false },
@@ -289,7 +289,7 @@ private fun LandingScreen(
 
         if (showPNLCalculatorWindow) {
 
-            AppWindowOwner(pnlCalculatorWindowOwner) {
+            pnlCalculatorWindowOwner.Window {
 
                 PNLCalculatorWindow(
                     state = rememberPNLCalculatorWindowState(
@@ -304,7 +304,7 @@ private fun LandingScreen(
 
         if (showBarReplayWindow) {
 
-            AppWindowOwner(barReplayWindowOwner) {
+            barReplayWindowOwner.Window {
 
                 BarReplayWindow(
                     onCloseRequest = { showBarReplayWindow = false },
@@ -314,7 +314,7 @@ private fun LandingScreen(
 
         if (showSettingsWindow) {
 
-            AppWindowOwner(settingsWindowOwner) {
+            settingsWindowOwner.Window {
 
                 SettingsWindow(
                     onCloseRequest = { showSettingsWindow = false },

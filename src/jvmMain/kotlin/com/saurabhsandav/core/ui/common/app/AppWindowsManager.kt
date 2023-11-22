@@ -18,7 +18,7 @@ internal class AppWindowsManager<T> {
 
             key(window) {
 
-                AppWindowOwner(window.owner) {
+                window.owner.Window {
 
                     content(window)
                 }

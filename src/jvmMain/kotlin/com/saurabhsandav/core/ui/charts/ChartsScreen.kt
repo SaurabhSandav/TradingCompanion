@@ -79,7 +79,7 @@ internal fun ChartsScreen(
     // Trade review window
     if (showTradeReviewWindow) {
 
-        AppWindowOwner(tradeReviewWindowOwner) {
+        tradeReviewWindowOwner.Window {
 
             TradeReviewWindow(
                 onCloseRequest = { showTradeReviewWindow = false },
