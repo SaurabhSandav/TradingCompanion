@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Stable
 internal class TradePresenter(
-    profileTradeId: ProfileTradeId,
+    private val profileTradeId: ProfileTradeId,
     private val coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -82,12 +82,13 @@ internal class TradePresenter(
     private fun onEvent(event: TradeEvent) {
 
         when (event) {
-            is AddToTrade -> onAddToTrade()
-            is CloseTrade -> onCloseTrade()
+            AddToTrade -> onAddToTrade()
+            CloseTrade -> onCloseTrade()
             is NewFromExistingExecution -> onNewExecution(event.fromExecutionId)
             is EditExecution -> onEditExecution(event.executionId)
             is LockExecution -> onLockExecution(event.executionId)
             is DeleteExecution -> onDeleteExecution(event.executionId)
+            OpenChart -> onOpenChart()
             is AddStop -> onAddStop(event.price)
             is DeleteStop -> onDeleteStop(event.price)
             is AddTarget -> onAddTarget(event.price)
@@ -437,6 +438,11 @@ internal class TradePresenter(
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.executions.delete(listOf(executionId))
+    }
+
+    private fun onOpenChart() {
+
+        tradeContentLauncher.openTradeReview(profileTradeId)
     }
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {

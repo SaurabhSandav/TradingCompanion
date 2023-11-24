@@ -6,7 +6,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,6 +80,12 @@ internal fun TradeScreen(
                             onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
                             onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
                             onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
+                        )
+
+                        FilledTonalButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { state.eventSink(OpenChart) },
+                            content = { Text("Chart") },
                         )
 
                         StopsAndTargets(

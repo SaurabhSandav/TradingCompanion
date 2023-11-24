@@ -20,6 +20,8 @@ internal sealed class TradeEvent {
 
     data class DeleteExecution(val executionId: TradeExecutionId) : TradeEvent()
 
+    data object OpenChart : TradeEvent()
+
     data class AddStop(val price: BigDecimal) : TradeEvent()
 
     data class DeleteStop(val price: BigDecimal) : TradeEvent()
