@@ -13,6 +13,8 @@ internal class SettingsModule(
         SettingsPresenter(
             coroutineScope = coroutineScope,
             appPrefs = appModule.appPrefs,
+            backupManager = appModule.backupManager,
+            restoreScheduler = appModule.restoreScheduler,
         )
     }
 }

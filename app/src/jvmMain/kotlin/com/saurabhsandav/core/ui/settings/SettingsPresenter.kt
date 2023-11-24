@@ -1,11 +1,12 @@
 package com.saurabhsandav.core.ui.settings
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.backup.BackupEvent
+import com.saurabhsandav.core.backup.BackupManager
+import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
@@ -18,12 +19,17 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import java.io.File
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
+    private val backupManager: BackupManager,
+    private val restoreScheduler: RestoreScheduler,
 ) {
+
+    private var backupProgress by mutableStateOf<String?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -56,6 +62,7 @@ internal class SettingsPresenter(
             densityFraction = densityFraction,
             defaultTimeframe = defaultTimeframe,
             webViewBackend = webViewBackend,
+            backupProgress = backupProgress,
             eventSink = ::onEvent,
         )
     }
@@ -68,6 +75,8 @@ internal class SettingsPresenter(
             is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
             is ChangeDefaultTimeframe -> onDefaultTimeframeChange(event.timeframe)
             is ChangeWebViewBackend -> onWebViewBackendChange(event.webViewBackend)
+            is Backup -> onBackup(event.toDirPath)
+            is Restore -> onRestore(event.archivePath)
         }
     }
 
@@ -94,6 +103,22 @@ internal class SettingsPresenter(
         restartApplication()
     }
 
+    private fun onBackup(toDirPath: String) = coroutineScope.launchUnit {
+
+        backupManager.backup(Path(toDirPath)) { event ->
+
+            backupProgress = when (event) {
+                BackupEvent.GeneratingArchive -> "Generating Archive"
+                BackupEvent.SavingArchive -> "Saving Archive"
+                BackupEvent.Finished -> null
+            }
+        }
+    }
+
+    private fun onRestore(archivePath: String) {
+        restoreScheduler.schedule(Path(archivePath))
+    }
+
     private fun restartApplication() {
 
         val javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java"
@@ -102,15 +127,8 @@ internal class SettingsPresenter(
         // If file is not a jar file, this could be a debugging session. Force user to restart manually by crashing app.
         if (!currentJar.name.endsWith(".jar")) error("App jar file not found. Restart manually")
 
-        // Build command: $javaBin -jar $currentJar
-        val command = ArrayList<String>().apply {
-            add(javaBin)
-            add("-jar")
-            add(currentJar.path)
-        }
-
-        // Execute command
-        ProcessBuilder(command).start()
+        // Execute command: $javaBin -jar $currentJar
+        ProcessBuilder(javaBin, "-jar", currentJar.path).start()
 
         // Exit current App instance
         exitProcess(0)

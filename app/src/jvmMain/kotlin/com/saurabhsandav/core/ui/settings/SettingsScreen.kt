@@ -4,12 +4,15 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -21,6 +24,9 @@ import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.theme.dimens
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.core.pickFile
 
 @Composable
 internal fun SettingsWindow(
@@ -48,6 +54,9 @@ internal fun SettingsWindow(
             onDefaultTimeframeChange = { state.eventSink(ChangeDefaultTimeframe(it)) },
             webViewBackend = state.webViewBackend,
             onWebViewBackendChange = { state.eventSink(ChangeWebViewBackend(it)) },
+            backupProgress = state.backupProgress,
+            onBackup = { toDirPath -> state.eventSink(Backup(toDirPath)) },
+            onRestore = { archivePath -> state.eventSink(Restore(archivePath)) },
         )
     }
 }
@@ -64,6 +73,9 @@ internal fun SettingsScreen(
     onDefaultTimeframeChange: (Timeframe) -> Unit,
     webViewBackend: WebViewBackend,
     onWebViewBackendChange: (WebViewBackend) -> Unit,
+    backupProgress: String?,
+    onBackup: (toDirPath: String) -> Unit,
+    onRestore: (archivePath: String) -> Unit,
 ) {
 
     Box {
@@ -100,6 +112,12 @@ internal fun SettingsScreen(
                 items = remember { enumValues<WebViewBackend>().toList() },
                 selectedItem = webViewBackend,
                 onWebViewBackendChange = onWebViewBackendChange,
+            )
+
+            BackupPreference(
+                backupProgress = backupProgress,
+                onBackup = onBackup,
+                onRestore = onRestore,
             )
         }
 
@@ -265,5 +283,99 @@ private fun WebViewBackendPreference(
                 newBackend = null
             },
         )
+    }
+}
+
+@Composable
+internal fun BackupPreference(
+    backupProgress: String?,
+    onBackup: (toDirPath: String) -> Unit,
+    onRestore: (archivePath: String) -> Unit,
+) {
+
+    Preference(
+        headlineContent = { Text("Backup") },
+        trailingContent = {
+
+            Row(
+                modifier = Modifier.wrapContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+            ) {
+
+                var showDirSelector by state { false }
+
+                Button(
+                    onClick = { showDirSelector = true },
+                    content = { Text("Backup") },
+                )
+
+                LaunchedEffect(showDirSelector) {
+
+                    if (!showDirSelector) return@LaunchedEffect
+
+                    val dir = FileKit.pickDirectory("Backup to")?.path
+
+                    if (dir != null) onBackup(dir)
+
+                    showDirSelector = false
+                }
+
+                var showFileSelector by state { false }
+                var file by state<String?> { null }
+
+                Button(
+                    onClick = { showFileSelector = true },
+                    content = { Text("Restore") },
+                )
+
+                LaunchedEffect(showFileSelector) {
+
+                    if (!showFileSelector) return@LaunchedEffect
+
+                    file = FileKit.pickFile(
+                        type = PickerType.File(listOf("zip")),
+                        title = "Restore from",
+                    )?.path
+
+                    showFileSelector = false
+                }
+
+                @Suppress("LocalVariableName")
+                val file_ = file
+                if (file_ != null) {
+
+                    ConfirmationDialog(
+                        text = "Are you sure you want to restore this backup? (App will restart)",
+                        onDismiss = { file = null },
+                        onConfirm = {
+                            onRestore(file_)
+                            file = null
+                        },
+                    )
+                }
+            }
+        }
+    )
+
+    if (backupProgress != null) {
+
+        Dialog(onDismissRequest = {}) {
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+            ) {
+
+                Row(
+                    modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+                ) {
+
+                    Text(backupProgress)
+
+                    CircularProgressIndicator()
+                }
+            }
+        }
     }
 }

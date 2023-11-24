@@ -9,6 +9,7 @@ internal data class SettingsState(
     val densityFraction: Float,
     val defaultTimeframe: Timeframe,
     val webViewBackend: WebViewBackend,
+    val backupProgress: String?,
     val eventSink: (SettingsEvent) -> Unit,
 )
 
