@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.utils
 
 import net.harawata.appdirs.AppDirsFactory
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -22,6 +23,8 @@ interface AppPaths {
 
     val candlesDBPath: Path
         get() = appDataPath.resolve("Candles.db")
+
+    fun createTempDirectory(prefix: String): Path
 
     companion object {
 
@@ -45,4 +48,8 @@ private class AppPathsImpl : AppPaths {
 
             return Path(pathStr).also { it.createDirectories() }
         }
+
+    override fun createTempDirectory(prefix: String): Path {
+        return Files.createTempDirectory(prefix)
+    }
 }
