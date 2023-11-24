@@ -55,7 +55,7 @@ class StockChart(
     private val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
-    private val candlestickPlotter = CandlestickPlotter("candles")
+    internal val candlestickPlotter = CandlestickPlotter("candles")
     private val volumePlotter = VolumePlotter("volume")
     private val vwapPlotter = LinePlotter("vwap", "VWAP", Color(0xFFA500))
     private val ema9Plotter = LinePlotter("ema9", "EMA (9)")

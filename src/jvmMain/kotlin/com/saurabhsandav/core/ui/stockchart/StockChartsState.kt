@@ -10,6 +10,7 @@ import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
+import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.*
@@ -235,6 +236,39 @@ class StockChartsState(
                             to = logicalRange.to + syncOffset,
                         )
                     }
+            }
+            .launchIn(coroutineScope)
+
+        // Sync crosshair position across charts
+        actualChart
+            .crosshairMove()
+            .onEach { mouseEventParams ->
+
+                // If chart is not active (user hasn't interacted), skip sync
+                if (lastActiveChart.value != stockChart) return@onEach
+
+                if (mouseEventParams.logical == null) {
+                    // Crosshair doesn't exist on current chart. Clear cross-hairs on other charts
+                    charts.forEach { chart -> chart.actualChart.clearCrosshairPosition() }
+                } else {
+
+                    // Update crosshair on all other charts with same timeframe
+                    charts
+                        .filter { filterStockChart ->
+                            // Select charts with same timeframe, ignore current chart
+                            stockChart.params.timeframe == filterStockChart.params.timeframe &&
+                                    filterStockChart != stockChart
+                        }
+                        .forEach { chart ->
+
+                            // Set crosshair without price component
+                            chart.actualChart.setCrosshairPosition(
+                                price = 0,
+                                horizontalPosition = mouseEventParams.time ?: return@forEach,
+                                seriesApi = chart.candlestickPlotter.series,
+                            )
+                        }
+                }
             }
             .launchIn(coroutineScope)
 
