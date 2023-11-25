@@ -73,6 +73,7 @@ kotlin {
                 listOf(
                     "kotlin.contracts.ExperimentalContracts",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "kotlinx.coroutines.FlowPreview",
                     "androidx.compose.foundation.ExperimentalFoundationApi",
                     "androidx.compose.foundation.layout.ExperimentalLayoutApi",
                     "androidx.compose.ui.ExperimentalComposeUiApi",

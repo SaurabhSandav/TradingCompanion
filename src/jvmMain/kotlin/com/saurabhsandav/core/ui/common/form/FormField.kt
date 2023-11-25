@@ -4,8 +4,10 @@ import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.form.ValidationResult.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 interface FormField<T> : MutableState<T> {
 
@@ -41,15 +43,22 @@ internal class FormFieldImpl<T> internal constructor(
         private set
 
     private val _value = mutableStateOf(initial)
-    override var value: T by _value
+    override var value: T
+        get() = _value.value
+        set(value) {
+            _value.value = value
+            // isValid is stale after value change.
+            isUpToDate = false
+        }
 
     init {
 
         coroutineScope.launch {
 
-            // Validate on every value change
+            // Validate on value change
             snapshotFlow { value }
                 .drop(1) // Don't validate initial value
+                .debounce(400.milliseconds)
                 .collectLatest {
                     forceValidate()
                     dependents.forEach { (it as FormFieldImpl).forceValidate() }
