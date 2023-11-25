@@ -3,9 +3,7 @@ package com.saurabhsandav.core.ui.common.form
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.common.form.ValidationResult.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -16,10 +14,6 @@ interface FormField<T> : MutableState<T> {
     val isValid: Boolean
 
     suspend fun validate(): Boolean
-
-    fun registerDependent(field: FormField<*>)
-
-    fun unregisterDependent(field: FormField<*>)
 }
 
 inline val FormField<*>.isError: Boolean
@@ -33,8 +27,7 @@ internal class FormFieldImpl<T> internal constructor(
 
     // When no Validation is provided, isUpToDate is always true.
     private var isUpToDate = validation == null
-    private val dependents = mutableSetOf<FormField<*>>()
-    private var dependencies = setOf<FormField<*>>()
+    private var dependencies = mutableStateListOf<FormField<*>>()
 
     override var errorMessage: String? by mutableStateOf(null)
         private set
@@ -59,10 +52,22 @@ internal class FormFieldImpl<T> internal constructor(
             snapshotFlow { value }
                 .drop(1) // Don't validate initial value
                 .debounce(400.milliseconds)
-                .collectLatest {
-                    forceValidate()
-                    dependents.forEach { (it as FormFieldImpl).forceValidate() }
+                .collectLatest { forceValidate() }
+        }
+
+        coroutineScope.launch {
+
+            // Validate on dependency value change
+            snapshotFlow { dependencies.toList() }
+                .flatMapLatest { fields ->
+
+                    combineTransform(
+                        flows = fields.map { field -> snapshotFlow { field.value } },
+                        transform = { emit(Unit) },
+                    )
                 }
+                .debounce(400.milliseconds)
+                .collectLatest { forceValidate() }
         }
     }
 
@@ -96,9 +101,8 @@ internal class FormFieldImpl<T> internal constructor(
         this.errorMessage = errorMessage
 
         // Update dependencies
-        dependencies.forEach { it.unregisterDependent(this) }
-        dependencies = receiver.dependencies
-        dependencies.forEach { it.registerDependent(this) }
+        dependencies.clear()
+        dependencies.addAll(receiver.dependencies)
 
         isUpToDate = true
 
@@ -113,12 +117,4 @@ internal class FormFieldImpl<T> internal constructor(
     override fun component1(): T = _value.component1()
 
     override fun component2(): (T) -> Unit = _value.component2()
-
-    override fun registerDependent(field: FormField<*>) {
-        dependents.add(field)
-    }
-
-    override fun unregisterDependent(field: FormField<*>) {
-        dependents.remove(field)
-    }
 }
