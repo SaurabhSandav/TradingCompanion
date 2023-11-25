@@ -73,11 +73,7 @@ internal class FormFieldImpl<T> internal constructor(
                 }
             }
         } catch (ex: Exception) {
-
-            when (ex) {
-                ValidationException, DependencyValidationException -> Unit
-                else -> throw ex
-            }
+            if (ex !is ValidationException) throw ex
         }
 
         val result = receiver.result

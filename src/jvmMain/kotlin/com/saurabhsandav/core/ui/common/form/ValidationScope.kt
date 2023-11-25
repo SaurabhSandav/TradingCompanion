@@ -44,7 +44,7 @@ internal class ValidationScopeImpl : ValidationScope {
 
             result = ValidationResult.DependencyInvalid
 
-            throw DependencyValidationException
+            throw ValidationException
         }
 
         return formField.value
@@ -54,9 +54,4 @@ internal class ValidationScopeImpl : ValidationScope {
 internal object ValidationException : CancellationException(null as String?) {
 
     private fun readResolve(): Any = ValidationException
-}
-
-internal object DependencyValidationException : CancellationException(null as String?) {
-
-    private fun readResolve(): Any = DependencyValidationException
 }
