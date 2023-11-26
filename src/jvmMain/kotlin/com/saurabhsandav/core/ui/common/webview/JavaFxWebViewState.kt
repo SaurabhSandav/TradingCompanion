@@ -56,7 +56,7 @@ class JavaFxWebViewState : WebViewState {
 
                 Platform.setImplicitExit(false)
 
-                component.isFocusable = true
+                component.isFocusable = false
 
                 webView = JFXWebView()
 
