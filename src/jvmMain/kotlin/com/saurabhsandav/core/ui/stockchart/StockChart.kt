@@ -31,8 +31,11 @@ import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
@@ -365,16 +368,19 @@ class StockChart(
             )
         )
 
-        volumePlotter.update(
-            HistogramData(
-                time = time,
-                value = candle.volume,
-                color = when {
-                    candle.isLong -> Color(0, 150, 136)
-                    else -> Color(255, 82, 82)
-                },
+        if (indicators.hasVolume) {
+
+            volumePlotter.update(
+                HistogramData(
+                    time = time,
+                    value = candle.volume,
+                    color = when {
+                        candle.isLong -> Color(0, 150, 136)
+                        else -> Color(255, 82, 82)
+                    },
+                )
             )
-        )
+        }
 
         val vwapIndicator = indicators.vwapIndicator
 
