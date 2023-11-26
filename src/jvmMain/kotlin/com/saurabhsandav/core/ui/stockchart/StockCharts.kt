@@ -83,36 +83,22 @@ fun StockCharts(
 private fun chartKeyboardShortcuts(
     keyEvent: KeyEvent,
     tabsState: StockChartTabsState,
-): Boolean = when {
-    keyEvent.isCtrlPressed &&
-            keyEvent.key == Key.Tab &&
-            keyEvent.type == KeyEventType.KeyUp -> {
+): Boolean {
 
-        when {
+    val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
+
+    if (!defaultCondition) return false
+
+    when (keyEvent.key) {
+        Key.Tab -> when {
             keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
             else -> tabsState.selectNextTab()
         }
 
-        true
+        Key.T -> tabsState.newTab()
+        Key.W -> tabsState.closeCurrentTab()
+        else -> return false
     }
 
-    keyEvent.isCtrlPressed &&
-            keyEvent.key == Key.T &&
-            keyEvent.type == KeyEventType.KeyUp -> {
-
-        tabsState.newTab()
-
-        true
-    }
-
-    keyEvent.isCtrlPressed &&
-            keyEvent.key == Key.W &&
-            keyEvent.type == KeyEventType.KeyUp -> {
-
-        tabsState.closeCurrentTab()
-
-        true
-    }
-
-    else -> false
+    return true
 }
