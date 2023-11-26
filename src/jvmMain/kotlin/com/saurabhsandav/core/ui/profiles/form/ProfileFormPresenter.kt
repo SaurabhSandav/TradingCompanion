@@ -15,8 +15,9 @@ import kotlinx.coroutines.launch
 
 internal class ProfileFormPresenter(
     private val coroutineScope: CoroutineScope,
-    private val formType: ProfileFormType,
     private val onCloseRequest: () -> Unit,
+    private val formType: ProfileFormType,
+    private val trainingOnly: Boolean,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -45,7 +46,7 @@ internal class ProfileFormPresenter(
                 validator = formValidator,
                 isProfileNameUnique = ::isProfileNameUnique,
                 initial = when (formType) {
-                    is ProfileFormType.New -> ProfileFormModel.Initial()
+                    is ProfileFormType.New -> ProfileFormModel.Initial(isTraining = trainingOnly)
                     is ProfileFormType.Edit -> {
 
                         val profile = tradingProfiles.getProfile(formType.id).first()

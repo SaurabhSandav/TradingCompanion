@@ -9,14 +9,16 @@ internal class ProfileFormModule(
 ) {
 
     val presenter = {
-            formType: ProfileFormType,
             onCloseRequest: () -> Unit,
+            formType: ProfileFormType,
+            trainingOnly: Boolean,
         ->
 
         ProfileFormPresenter(
             coroutineScope = coroutineScope,
-            formType = formType,
             onCloseRequest = onCloseRequest,
+            formType = formType,
+            trainingOnly = trainingOnly,
             tradingProfiles = appModule.tradingProfiles,
         )
     }
