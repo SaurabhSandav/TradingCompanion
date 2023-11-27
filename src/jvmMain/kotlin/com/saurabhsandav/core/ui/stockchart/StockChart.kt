@@ -293,7 +293,7 @@ class StockChart(
                     },
                 )
             })
-        }
+        } else volumePlotter.setData(emptyList())
 
         val vwapIndicator = indicators.vwapIndicator
 
@@ -305,7 +305,7 @@ class StockChart(
                     value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
                 )
             })
-        }
+        } else vwapPlotter.setData(emptyList())
 
         val sma50Indicator = indicators.sma50Indicator
 
@@ -317,7 +317,7 @@ class StockChart(
                     value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
             })
-        }
+        } else sma50Plotter.setData(emptyList())
 
         val sma100Indicator = indicators.sma100Indicator
 
@@ -329,7 +329,7 @@ class StockChart(
                     value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
             })
-        }
+        } else sma100Plotter.setData(emptyList())
 
         val sma200Indicator = indicators.sma200Indicator
 
@@ -341,7 +341,7 @@ class StockChart(
                     value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
                 )
             })
-        }
+        } else sma200Plotter.setData(emptyList())
     }
 
     private fun update() {
