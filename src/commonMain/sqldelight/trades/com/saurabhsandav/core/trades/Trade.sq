@@ -51,7 +51,8 @@ WHERE id = ?;
 getByIds:
 SELECT *
 FROM Trade
-WHERE id IN ?;
+WHERE id IN ?
+ORDER BY datetime(entryTimestamp) DESC;
 
 getOpen:
 SELECT *
