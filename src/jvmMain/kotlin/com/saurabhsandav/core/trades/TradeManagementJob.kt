@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trades
 
+import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
+import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -24,22 +26,24 @@ internal class TradeManagementJob(
         delay(1.minutes)
 
         tradingProfiles.allProfiles.first().forEach { profile ->
-            generateMfeAndMae(
-                tradesRepo = tradingProfiles.getRecord(profile.id).trades,
-                candleRepo = candleRepo,
-            )
+            generateMfeAndMae(profile)
         }
     }
 
     private suspend fun generateMfeAndMae(
-        tradesRepo: TradesRepo,
-        candleRepo: CandleRepository,
+        profile: TradingProfile,
     ) = withContext(Dispatchers.IO) {
+
+        Logger.d(DebugTag) { "Generating MFE/MAE for profile - ${profile.name}" }
+
+        val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
         val instant = Clock.System.todayIn(TimeZone.currentSystemDefault())
             .atTime(LocalTime(0, 0))
             .toInstant(TimeZone.currentSystemDefault())
         val trades = tradesRepo.getWithoutMfeAndMaeBefore(instant).first()
+
+        if (trades.isEmpty()) Logger.d(DebugTag) { "No Trades found for profile - ${profile.name}" }
 
         trades.forEach { trade ->
 
@@ -52,7 +56,12 @@ internal class TradeManagementJob(
                 from = entryInstant,
                 to = exitInstant,
                 edgeCandlesInclusive = true,
-            ).get().takeIf { it?.isNotEmpty() == true } ?: return@forEach
+            ).get()
+
+            if (tradeCandles.isNullOrEmpty()) {
+                Logger.d(DebugTag) { "No candles found for Trade#(${trade.id})" }
+                return@forEach
+            }
 
             val mfePrice = when (trade.side) {
                 TradeSide.Long -> tradeCandles.maxOf { it.high }
@@ -63,6 +72,8 @@ internal class TradeManagementJob(
                 TradeSide.Long -> tradeCandles.minOf { it.low }
                 TradeSide.Short -> tradeCandles.maxOf { it.high }
             }
+
+            Logger.d(DebugTag) { "Saving MFE/MAE for Trade#(${trade.id}) (Candles found - ${tradeCandles.size})" }
 
             // Save MFE and MAE
             tradesRepo.setMfeAndMae(
@@ -82,5 +93,10 @@ internal class TradeManagementJob(
             // This logic does not need to run uninterrupted. Let other coroutines a chance to run.
             yield()
         }
+    }
+
+    companion object {
+
+        private const val DebugTag = "MfeMaeGeneration"
     }
 }
