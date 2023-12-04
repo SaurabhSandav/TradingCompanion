@@ -9,6 +9,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.tags.form.TagFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -31,8 +32,8 @@ internal class TagFormPresenter(
         return@launchMolecule TagFormState(
             title = remember {
                 when (formType) {
-                    is TagFormType.New -> "New Tag"
-                    is TagFormType.Edit -> "Edit Tag"
+                    is New, is NewFromExisting -> "New Tag"
+                    is Edit -> "Edit Tag"
                 }
             },
             formModel = formModel,
@@ -47,8 +48,19 @@ internal class TagFormPresenter(
                 validator = formValidator,
                 isTagNameUnique = ::isTagNameUnique,
                 initial = when (formType) {
-                    is TagFormType.New -> TagFormModel.Initial()
-                    is TagFormType.Edit -> {
+                    is New -> TagFormModel.Initial()
+                    is NewFromExisting -> {
+
+                        val tradingRecord = tradingProfiles.getRecord(profileId)
+                        val tag = tradingRecord.trades.getTagById(formType.id).first()
+
+                        TagFormModel.Initial(
+                            name = tag.name,
+                            description = tag.description,
+                        )
+                    }
+
+                    is Edit -> {
 
                         val tradingRecord = tradingProfiles.getRecord(profileId)
                         val tag = tradingRecord.trades.getTagById(formType.id).first()
@@ -72,12 +84,12 @@ internal class TagFormPresenter(
         val formModel = checkNotNull(formModel)
 
         when (formType) {
-            is TagFormType.New -> trades.createTag(
+            is New, is NewFromExisting -> trades.createTag(
                 name = formModel.nameField.value,
                 description = formModel.descriptionField.value,
             )
 
-            is TagFormType.Edit -> trades.updateTag(
+            is Edit -> trades.updateTag(
                 id = formType.id,
                 name = formModel.nameField.value,
                 description = formModel.descriptionField.value,
@@ -89,6 +101,6 @@ internal class TagFormPresenter(
 
     private suspend fun isTagNameUnique(name: String): Boolean {
         val trades = tradingProfiles.getRecord(profileId).trades
-        return trades.isTagNameUnique(name, (formType as? TagFormType.Edit)?.id)
+        return trades.isTagNameUnique(name, (formType as? Edit)?.id)
     }
 }

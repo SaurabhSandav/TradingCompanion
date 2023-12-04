@@ -19,7 +19,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.TagFormType
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.CopyTag
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagListItem
@@ -48,7 +47,6 @@ internal fun TagsWindow(
                 else -> TagsScreen(
                     profileId = profileId,
                     tags = state.tags,
-                    onCopyTag = { id -> state.eventSink(CopyTag(id)) },
                     onDeleteTag = { id -> state.eventSink(DeleteTag(id)) },
                 )
             }
@@ -60,7 +58,6 @@ internal fun TagsWindow(
 private fun TagsScreen(
     profileId: ProfileId,
     tags: ImmutableList<Tag>,
-    onCopyTag: (ProfileTagId) -> Unit,
     onDeleteTag: (ProfileTagId) -> Unit,
 ) {
 
@@ -89,7 +86,6 @@ private fun TagsScreen(
 
                         TagListItem(
                             tag = tag,
-                            onCopy = { onCopyTag(tag.id) },
                             onDelete = { onDeleteTag(tag.id) },
                         )
                     }

@@ -6,7 +6,6 @@ import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.tags.model.TagsEvent
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.CopyTag
 import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
 import com.saurabhsandav.core.ui.tags.model.TagsState
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
@@ -45,7 +44,6 @@ internal class TagsPresenter(
     private fun onEvent(event: TagsEvent) {
 
         when (event) {
-            is CopyTag -> onCopyTag(event.profileTagId)
             is DeleteTag -> onDeleteTag(event.profileTagId)
         }
     }
@@ -72,13 +70,6 @@ internal class TagsPresenter(
                 }
             }
         }.collectAsState(persistentListOf())
-    }
-
-    private fun onCopyTag(profileTagId: ProfileTagId) = coroutineScope.launchUnit {
-
-        val tradingRecord = tradingProfiles.getRecord(profileTagId.profileId)
-
-        tradingRecord.trades.copyTag(profileTagId.tagId)
     }
 
     private fun onDeleteTag(profileTagId: ProfileTagId) = coroutineScope.launchUnit {

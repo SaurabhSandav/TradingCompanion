@@ -2,9 +2,9 @@ package com.saurabhsandav.core.ui.tags.ui
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,10 +18,10 @@ import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 @Composable
 internal fun TagListItem(
     tag: Tag,
-    onCopy: () -> Unit,
     onDelete: () -> Unit,
 ) {
 
+    var showNewDialog by state { false }
     var showEditDialog by state { false }
     var showDeleteConfirmationDialog by state { false }
 
@@ -32,9 +32,9 @@ internal fun TagListItem(
 
             Row {
 
-                IconButton(onClick = onCopy) {
+                IconButton(onClick = { showNewDialog = true }) {
 
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                    Icon(Icons.Default.NewLabel, contentDescription = "New")
                 }
 
                 IconButton(onClick = { showEditDialog = true }) {
@@ -56,6 +56,15 @@ internal fun TagListItem(
             profileId = tag.id.profileId,
             type = remember { TagFormType.Edit(tag.id.tagId) },
             onCloseRequest = { showEditDialog = false },
+        )
+    }
+
+    if (showNewDialog) {
+
+        TagFormDialog(
+            profileId = tag.id.profileId,
+            type = remember { TagFormType.NewFromExisting(tag.id.tagId) },
+            onCloseRequest = { showNewDialog = false },
         )
     }
 

@@ -229,17 +229,6 @@ internal class TradesRepo(
         )
     }
 
-    suspend fun copyTag(id: TradeTagId) = withContext(Dispatchers.IO) {
-
-        // Get tag details to copy
-        val tag = tradesDB.tradeTagQueries.getById(id).executeAsOne()
-
-        tradesDB.tradeTagQueries.insert(
-            name = tag.name,
-            description = tag.description,
-        )
-    }
-
     suspend fun deleteTag(id: TradeTagId) = withContext(Dispatchers.IO) {
         tradesDB.tradeTagQueries.delete(id)
     }
