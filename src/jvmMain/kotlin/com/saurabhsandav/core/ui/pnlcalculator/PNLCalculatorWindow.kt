@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
@@ -143,13 +144,15 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
                     val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
 
-                    IconButton(
-                        onClick = { state.onRemoveCalculation(it.id) },
+                    IconButtonWithTooltip(
                         modifier = Modifier.alpha(alpha),
+                        onClick = { state.onRemoveCalculation(it.id) },
+                        tooltipText = "Close",
                         enabled = it.isRemovable,
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    }
+                        content = {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        },
+                    )
                 }
             }
 

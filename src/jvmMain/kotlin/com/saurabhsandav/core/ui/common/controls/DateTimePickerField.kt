@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.*
@@ -139,17 +140,22 @@ fun DateTimePickerField(
             },
             toggle = {
 
-                IconButton(onClick = { showingPicker = !showingPicker }) {
-                    val icon = when {
-                        showingPicker -> Icons.Outlined.Keyboard
-                        else -> Icons.Outlined.Schedule
-                    }
+                val hint = when {
+                    showingPicker -> "Switch to Text Input"
+                    else -> "Switch to Picker Input"
+                }
+
+                IconButtonWithTooltip(
+                    onClick = { showingPicker = !showingPicker },
+                    tooltipText = hint,
+                ) {
+
                     Icon(
-                        imageVector = icon,
-                        contentDescription = when {
-                            showingPicker -> "Switch to Text Input"
-                            else -> "Switch to Touch Input"
-                        }
+                        imageVector = when {
+                            showingPicker -> Icons.Outlined.Keyboard
+                            else -> Icons.Outlined.Schedule
+                        },
+                        contentDescription = hint
                     )
                 }
             }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
@@ -64,22 +65,31 @@ internal fun ProfileListItem(
 
             Row {
 
-                IconButton(onClick = onCopyProfile) {
+                IconButtonWithTooltip(
+                    onClick = onCopyProfile,
+                    tooltipText = "Copy",
+                    content = {
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                    },
+                )
 
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
-                }
-
-                IconButton(onClick = { showEditProfileDialog = true }) {
-
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-                }
+                IconButtonWithTooltip(
+                    onClick = { showEditProfileDialog = true },
+                    tooltipText = "Edit",
+                    content = {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    },
+                )
 
                 AnimatedVisibility(!isCurrent) {
 
-                    IconButton(onClick = { showDeleteConfirmationDialog = true }) {
-
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    }
+                    IconButtonWithTooltip(
+                        onClick = { showDeleteConfirmationDialog = true },
+                        tooltipText = "Delete",
+                        content = {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        },
+                    )
                 }
             }
         },

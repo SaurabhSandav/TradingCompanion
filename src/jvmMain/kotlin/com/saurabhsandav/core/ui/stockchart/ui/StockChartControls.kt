@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
@@ -156,9 +157,10 @@ private fun CollapsiblePane(
     ) { isCollapsedAC ->
 
         when {
-            isCollapsedAC -> IconButton(
+            isCollapsedAC -> IconButtonWithTooltip(
                 modifier = Modifier.width(56.dp).fillMaxHeight().clickable(onClick = onExpandRequest),
                 onClick = onExpandRequest,
+                tooltipText = "Open controls",
                 content = {
                     Icon(Icons.Default.ChevronRight, contentDescription = "Open controls")
                 }

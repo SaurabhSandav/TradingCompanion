@@ -16,6 +16,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 
 @Composable
@@ -81,8 +82,9 @@ internal fun ReviewTopAppBar(
         },
         actions = {
 
-            IconButton(
+            IconButtonWithTooltip(
                 onClick = onToggleMarkdown,
+                tooltipText = "Toggle Markdown",
             ) {
 
                 when {
@@ -91,8 +93,9 @@ internal fun ReviewTopAppBar(
                 }
             }
 
-            IconButton(
+            IconButtonWithTooltip(
                 onClick = onToggleEditReview,
+                tooltipText = "Edit Review",
             ) {
 
                 Icon(
@@ -104,8 +107,9 @@ internal fun ReviewTopAppBar(
                 )
             }
 
-            IconButton(
+            IconButtonWithTooltip(
                 onClick = onSaveReview,
+                tooltipText = "Save Review",
                 enabled = canSaveReview,
             ) {
                 Icon(Icons.Default.Save, contentDescription = "Save Review")

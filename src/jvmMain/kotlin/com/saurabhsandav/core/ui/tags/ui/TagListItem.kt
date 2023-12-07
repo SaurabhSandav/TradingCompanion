@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.TagFormType
@@ -32,20 +33,29 @@ internal fun TagListItem(
 
             Row {
 
-                IconButton(onClick = { showNewDialog = true }) {
+                IconButtonWithTooltip(
+                    onClick = { showNewDialog = true },
+                    tooltipText = "New",
+                    content = {
+                        Icon(Icons.Default.NewLabel, contentDescription = "New")
+                    },
+                )
 
-                    Icon(Icons.Default.NewLabel, contentDescription = "New")
-                }
+                IconButtonWithTooltip(
+                    onClick = { showEditDialog = true },
+                    tooltipText = "Edit",
+                    content = {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    },
+                )
 
-                IconButton(onClick = { showEditDialog = true }) {
-
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-                }
-
-                IconButton(onClick = { showDeleteConfirmationDialog = true }) {
-
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                }
+                IconButtonWithTooltip(
+                    onClick = { showDeleteConfirmationDialog = true },
+                    tooltipText = "Delete",
+                    content = {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    },
+                )
             }
         },
     )

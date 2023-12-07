@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.intState
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
@@ -79,43 +80,49 @@ private fun StockChartTabControlsRow(
     onNewWindow: () -> Unit,
 ) {
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = state::newTab,
+        tooltipText = "New Tab",
         content = {
             Icon(Icons.Default.Add, contentDescription = "New Tab")
         }
     )
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = state::selectPreviousTab,
+        tooltipText = "Previous tab",
         content = {
             Icon(Icons.Default.ArrowBack, contentDescription = "Previous tab")
         }
     )
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = state::selectNextTab,
+        tooltipText = "Next tab",
         content = {
             Icon(Icons.Default.ArrowForward, contentDescription = "Next tab")
         }
     )
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = state::moveTabBackward,
+        tooltipText = "Move tab backward",
         content = {
             Icon(Icons.Default.FastRewind, contentDescription = "Move tab backward")
         }
     )
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = state::moveTabForward,
+        tooltipText = "Move tab forward",
         content = {
             Icon(Icons.Default.FastForward, contentDescription = "Move tab forward")
         }
     )
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = onNewWindow,
+        tooltipText = "New window",
         content = {
             Icon(Icons.Default.OpenInBrowser, contentDescription = "New window")
         }
@@ -146,9 +153,13 @@ private fun ChartTab(
 
                 AnimatedVisibility(isCloseable) {
 
-                    IconButton(onClick = onCloseChart) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    }
+                    IconButtonWithTooltip(
+                        onClick = onCloseChart,
+                        tooltipText = "Close",
+                        content = {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        },
+                    )
                 }
             }
         }

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
@@ -110,22 +111,21 @@ internal fun AttachmentItem(
 
             Row {
 
-                IconButton(
+                IconButtonWithTooltip(
                     onClick = { showEditDialog = true },
-                ) {
+                    tooltipText = "Edit attachment",
+                    content = {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit attachment")
+                    },
+                )
 
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit attachment"
-                    )
-                }
-
-                IconButton(
+                IconButtonWithTooltip(
                     onClick = { showRemoveConfirmationDialog = true },
-                ) {
-
-                    Icon(Icons.Default.Close, contentDescription = "Remove attachment")
-                }
+                    tooltipText = "Remove attachment",
+                    content = {
+                        Icon(Icons.Default.Close, contentDescription = "Remove attachment")
+                    },
+                )
             }
         },
     )

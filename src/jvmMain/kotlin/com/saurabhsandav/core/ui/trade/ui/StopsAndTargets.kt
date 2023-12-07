@@ -18,6 +18,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
@@ -223,12 +224,13 @@ private fun DeleteIconButton(
 
     var showDeleteConfirmationDialog by state { false }
 
-    IconButton(
+    IconButtonWithTooltip(
         onClick = { showDeleteConfirmationDialog = true },
-    ) {
-
-        Icon(Icons.Default.Close, contentDescription = "Delete $deleteTypeText")
-    }
+        tooltipText = "Delete $deleteTypeText",
+        content = {
+            Icon(Icons.Default.Close, contentDescription = "Delete $deleteTypeText")
+        },
+    )
 
     if (showDeleteConfirmationDialog) {
 
@@ -306,8 +308,9 @@ private fun <T : Any> AddValueForm(
 
                     Box(Modifier.weight(.5F)) {
 
-                        IconButton(
+                        IconButtonWithTooltip(
                             onClick = addValueState::hideAddForm,
+                            tooltipText = "Cancel",
                             content = { Icon(Icons.Default.Close, contentDescription = "Cancel") },
                         )
                     }

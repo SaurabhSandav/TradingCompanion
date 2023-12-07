@@ -3,7 +3,10 @@ package com.saurabhsandav.core.ui.tradereview.ui
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
@@ -55,7 +59,10 @@ internal fun MainTabRow(
 
                         SideEffect { currentProfileName = profileName }
 
-                        IconButton(onClick = { profileSwitcherExpanded = true }) {
+                        IconButtonWithTooltip(
+                            onClick = { profileSwitcherExpanded = true },
+                            tooltipText = "Open Profile switcher",
+                        ) {
 
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,

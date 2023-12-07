@@ -14,6 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
@@ -66,7 +67,10 @@ internal fun Tags(
                             label = { Text(tag.name) },
                             trailingIcon = {
 
-                                IconButton(onClick = { onRemoveTag(tag.id) }) {
+                                IconButtonWithTooltip(
+                                    onClick = { onRemoveTag(tag.id) },
+                                    tooltipText = "Delete Tag",
+                                ) {
 
                                     Icon(
                                         modifier = Modifier.size(InputChipDefaults.IconSize),
@@ -101,13 +105,13 @@ private fun AddTagButton(
         contentAlignment = Alignment.Center,
     ) {
 
-        IconButton(onClick = { expanded = true }) {
-
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Tag",
-            )
-        }
+        IconButtonWithTooltip(
+            onClick = { expanded = true },
+            tooltipText = "Add Tag",
+            content = {
+                Icon(Icons.Default.Add, contentDescription = "Add Tag")
+            },
+        )
 
         DropdownMenu(
             expanded = expanded,

@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
@@ -45,10 +46,13 @@ internal fun TradeExecutionsSelectionBar(
                 var showLockConfirmationDialog by state { false }
                 var showDeleteConfirmationDialog by state { false }
 
-                IconButton(onClick = selectionManager::clear) {
-
-                    Icon(Icons.Default.Close, contentDescription = "Clear selection")
-                }
+                IconButtonWithTooltip(
+                    onClick = selectionManager::clear,
+                    tooltipText = "Clear selection",
+                    content = {
+                        Icon(Icons.Default.Close, contentDescription = "Clear selection")
+                    },
+                )
 
                 VerticalDivider()
 
