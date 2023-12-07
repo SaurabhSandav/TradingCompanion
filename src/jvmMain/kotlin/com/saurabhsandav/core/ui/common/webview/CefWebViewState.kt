@@ -61,38 +61,41 @@ class CefWebViewState : WebViewState {
     @Composable
     override fun WebView(modifier: Modifier) {
 
-        val initializationProgress by AppCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
-
-        when (initializationProgress.first) {
-            EnumProgress.INITIALIZED -> AppSwingPanel(
-                modifier = modifier,
-                factory = { browser.uiComponent }
-            )
-
-            else -> Column(
-                modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-
-                @Suppress("KotlinConstantConditions")
-                val progressText = when (initializationProgress.first) {
-                    EnumProgress.LOCATING -> "Locating WebView"
-                    EnumProgress.DOWNLOADING -> "Downloading WebView"
-                    EnumProgress.EXTRACTING -> "Extracting WebView"
-                    EnumProgress.INSTALL -> "Installing WebView"
-                    EnumProgress.INITIALIZING -> "Initializing WebView"
-                    EnumProgress.INITIALIZED -> "Initialized"
-                }
-
-                Text(progressText)
-
-                LinearProgressIndicator(initializationProgress.second)
-            }
+        val isReady by produceState(false) {
+            init()
+            value = true
         }
 
-        LaunchedEffect(Unit) {
-            init()
+        when {
+            isReady -> AppSwingPanel(
+                modifier = modifier,
+                factory = { browser.uiComponent },
+            )
+
+            else -> {
+
+                val initializationProgress by AppCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
+
+                Column(
+                    modifier = modifier,
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+
+                    val progressText = when (initializationProgress.first) {
+                        EnumProgress.LOCATING -> "Locating WebView"
+                        EnumProgress.DOWNLOADING -> "Downloading WebView"
+                        EnumProgress.EXTRACTING -> "Extracting WebView"
+                        EnumProgress.INSTALL -> "Installing WebView"
+                        EnumProgress.INITIALIZING -> "Initializing WebView"
+                        EnumProgress.INITIALIZED -> "Initialized"
+                    }
+
+                    Text(progressText)
+
+                    LinearProgressIndicator(initializationProgress.second)
+                }
+            }
         }
     }
 
@@ -128,12 +131,6 @@ class CefWebViewState : WebViewState {
 
             addMessageRouter(msgRouter)
         }
-
-        browser = client.createBrowser(
-            /* url = */ null,
-            /* isOffscreenRendered = */ OS.isLinux(),
-            /* isTransparent = */ true,
-        )
 
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
             override fun onAfterCreated(browser: CefBrowser?) {
@@ -188,6 +185,12 @@ class CefWebViewState : WebViewState {
                 if (!_loadState.tryEmit(loadState)) error("Could not emit WebView load state")
             }
         })
+
+        browser = client.createBrowser(
+            /* url = */ null,
+            /* isOffscreenRendered = */ OS.isLinux(),
+            /* isTransparent = */ true,
+        )
     }
 
     override suspend fun awaitReady() = isReady.await()
