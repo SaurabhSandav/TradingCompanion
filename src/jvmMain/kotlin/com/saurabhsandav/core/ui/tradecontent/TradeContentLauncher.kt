@@ -110,7 +110,7 @@ internal class TradeContentLauncher {
             }
 
             // Window already open. Bring to front.
-            else -> existingWindow.owner.childrenToFront()
+            else -> if (tradeId == null) existingWindow.owner.childrenToFront()
         }
 
 
