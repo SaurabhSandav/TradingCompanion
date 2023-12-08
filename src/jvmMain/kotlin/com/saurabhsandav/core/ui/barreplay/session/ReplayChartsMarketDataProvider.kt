@@ -142,12 +142,8 @@ internal class ReplayChartsMarketDataProvider(
 
                     trades.filter { it.isClosed }.mapNotNull { trade ->
 
-                        val stop = tradingRecord.trades.getStopsForTrade(trade.id).first().maxByOrNull {
-                            (trade.averageEntry - it.price).abs()
-                        } ?: return@mapNotNull null
-                        val target = tradingRecord.trades.getTargetsForTrade(trade.id).first().maxByOrNull {
-                            (trade.averageEntry - it.price).abs()
-                        } ?: return@mapNotNull null
+                        val stop = tradingRecord.trades.getPrimaryStop(trade.id).first() ?: return@mapNotNull null
+                        val target = tradingRecord.trades.getPrimaryTarget(trade.id).first() ?: return@mapNotNull null
 
                         TradeMarker(
                             entryPrice = trade.averageEntry,

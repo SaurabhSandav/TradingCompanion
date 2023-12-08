@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.studies.impl
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -106,13 +105,8 @@ internal class PNLExcursionStudy(
                 val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
                 val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
 
-                val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                    tradeStops.maxByOrNull { stop -> trade.brokerageAt(stop).pnl }
-                }.first()?.price
-
-                val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
-                    tradeTargets.maxByOrNull { target -> trade.brokerageAt(target).pnl }
-                }.first()?.price
+                val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price
+                val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
 
                 val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()
 

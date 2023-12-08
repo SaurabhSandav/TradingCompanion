@@ -19,6 +19,18 @@ FROM TradeStop
 WHERE tradeId = ?
 ORDER BY rowid ASC;
 
+getPrimaryStopByTrade:
+SELECT TradeStop.*
+FROM TradeStop
+INNER JOIN Trade ON TradeStop.tradeId = Trade.id
+WHERE Trade.id = ?
+ORDER BY
+  CASE
+    WHEN Trade.side = 'long' THEN CAST(TradeStop.price AS REAL)
+    ELSE -1.0 * CAST(TradeStop.price AS REAL)
+  END
+LIMIT 1;
+
 delete:
 DELETE FROM TradeStop
 WHERE tradeId = ? AND price = ?;

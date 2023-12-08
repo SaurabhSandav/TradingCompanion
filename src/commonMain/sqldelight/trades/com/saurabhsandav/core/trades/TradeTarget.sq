@@ -19,6 +19,18 @@ FROM TradeTarget
 WHERE tradeId = ?
 ORDER BY rowid ASC;
 
+getPrimaryTargetByTrade:
+SELECT TradeTarget.*
+FROM TradeTarget
+INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
+WHERE Trade.id = ?
+ORDER BY
+  CASE
+    WHEN Trade.side = 'long' THEN -1.0 * CAST(TradeTarget.price AS REAL)
+    ELSE CAST(TradeTarget.price AS REAL)
+  END
+LIMIT 1;
+
 delete:
 DELETE FROM TradeTarget
 WHERE tradeId = ? AND price = ?;

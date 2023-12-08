@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -55,11 +54,7 @@ internal class PNLByTickerStudy(
                         val pnlBD = brokerage.pnl
                         val netPnlBD = brokerage.netPNL
 
-                        val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                            tradeStops.maxByOrNull { stop -> trade.brokerageAt(stop).pnl }
-                        }.first()?.price
-
-                        val rValue = when (stop) {
+                        val rValue = when (val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price) {
                             null -> null
                             else -> when (trade.side) {
                                 TradeSide.Long -> pnlBD / ((trade.averageEntry - stop) * trade.quantity)

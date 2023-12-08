@@ -141,6 +141,10 @@ internal class TradesRepo(
         return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
 
+    fun getPrimaryStop(id: TradeId): Flow<TradeStop?> {
+        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+    }
+
     suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
 
         val trade = getById(id).first()
@@ -165,6 +169,10 @@ internal class TradesRepo(
 
     fun getTargetsForTrade(id: TradeId): Flow<List<TradeTarget>> {
         return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getPrimaryTarget(id: TradeId): Flow<TradeTarget?> {
+        return tradesDB.tradeTargetQueries.getPrimaryTargetByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     suspend fun addTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {

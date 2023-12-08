@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeSide
@@ -62,9 +61,7 @@ internal class PNLStudy(
                 val pnlBD = brokerage.pnl
                 val netPnlBD = brokerage.netPNL
 
-                val stop = tradesRepo.getStopsForTrade(trade.id).map { tradeStops ->
-                    tradeStops.maxByOrNull { stop -> trade.brokerageAt(stop).pnl }
-                }.first()?.price
+                val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price
 
                 val rValue = when (stop) {
                     null -> null
@@ -78,9 +75,7 @@ internal class PNLStudy(
                 val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
                 val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
 
-                val target = tradesRepo.getTargetsForTrade(trade.id).map { tradeTargets ->
-                    tradeTargets.maxByOrNull { target -> trade.brokerageAt(target).pnl }
-                }.first()?.price
+                val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
 
                 Model(
                     ticker = trade.ticker,

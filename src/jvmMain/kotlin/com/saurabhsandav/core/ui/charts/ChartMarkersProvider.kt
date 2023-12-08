@@ -39,16 +39,14 @@ internal class ChartMarkersProvider(
 
                                 val stop = tradingRecord
                                     .trades
-                                    .getStopsForTrade(trade.id)
+                                    .getPrimaryStop(trade.id)
                                     .first()
-                                    .maxByOrNull { (trade.averageEntry - it.price).abs() }
                                     ?: return@mapNotNull null
 
                                 val target = tradingRecord
                                     .trades
-                                    .getTargetsForTrade(trade.id)
+                                    .getPrimaryTarget(trade.id)
                                     .first()
-                                    .maxByOrNull { (trade.averageEntry - it.price).abs() }
                                     ?: return@mapNotNull null
 
                                 TradeMarker(
