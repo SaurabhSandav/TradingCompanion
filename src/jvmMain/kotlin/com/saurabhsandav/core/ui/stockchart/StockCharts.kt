@@ -22,6 +22,7 @@ fun StockCharts(
     windowTitle: String,
     onCloseRequest: () -> Unit,
     snackbarHost: @Composable ColumnScope.() -> Unit = {},
+    customShortcuts: ((KeyEvent) -> Boolean)? = null,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
@@ -33,7 +34,13 @@ fun StockCharts(
                 title = windowTitle,
                 onCloseRequest = { if (!state.closeWindow(chartWindow)) onCloseRequest() },
                 state = rememberWindowState(placement = WindowPlacement.Maximized),
-                onPreviewKeyEvent = { keyEvent -> chartKeyboardShortcuts(keyEvent, chartWindow.tabsState) },
+                onPreviewKeyEvent = { keyEvent ->
+
+                    when {
+                        chartKeyboardShortcuts(keyEvent, chartWindow.tabsState) -> true
+                        else -> customShortcuts?.invoke(keyEvent) ?: false
+                    }
+                },
             ) {
 
                 chartWindow.appWindowState = LocalAppWindowState.current

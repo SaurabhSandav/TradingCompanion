@@ -5,11 +5,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayChartInfo
 import com.saurabhsandav.core.ui.stockchart.StockChart
@@ -31,10 +32,25 @@ internal fun ReplayCharts(
     onSell: (StockChart) -> Unit,
 ) {
 
+    val isAutoNextEnabledUpdated by rememberUpdatedState(isAutoNextEnabled)
+
     StockCharts(
         state = chartsState,
         windowTitle = "Bar Replay Charts",
         onCloseRequest = onCloseRequest,
+        customShortcuts = customShortCuts@{ keyEvent ->
+
+            if (keyEvent.type != KeyEventType.KeyDown) return@customShortCuts false
+
+            when (keyEvent.key) {
+                Key.A -> onAdvanceReplay()
+                Key.S -> onAdvanceReplayByBar()
+                Key.D -> onIsAutoNextEnabledChange(!isAutoNextEnabledUpdated)
+                else -> return@customShortCuts false
+            }
+
+            return@customShortCuts true
+        },
     ) { stockChart ->
 
         val currentChartInfo = remember(chartInfo) { chartInfo(stockChart) }
