@@ -53,8 +53,11 @@ internal class ReplayChartsMarketDataProvider(
         return ReplayCandleSource(
             params = params,
             replaySeriesFactory = { buildReplaySeries(params) },
-            getTradeMarkers = { candleSeries -> getTradeMarkers(params.ticker, candleSeries) },
-            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.ticker, candleSeries) },
+            getTradeMarkers = { emptyFlow() },
+            getTradeExecutionMarkers = { emptyFlow() },
+            // TODO Disabled until markers are made individually mark-able
+//            getTradeMarkers = { candleSeries -> getTradeMarkers(params.ticker, candleSeries) },
+//            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.ticker, candleSeries) },
         )
     }
 
