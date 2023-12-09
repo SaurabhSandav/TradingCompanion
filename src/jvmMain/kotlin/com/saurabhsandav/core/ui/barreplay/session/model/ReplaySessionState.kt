@@ -18,6 +18,7 @@ internal data class ReplaySessionState(
     val replayOrderItems: ImmutableList<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo,
+    val isAutoNextEnabled: Boolean,
     val eventSink: (ReplaySessionEvent) -> Unit,
 ) {
 

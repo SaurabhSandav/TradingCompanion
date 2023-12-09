@@ -49,6 +49,7 @@ internal fun ReplaySessionScreen(
         onAdvanceReplay = { state.eventSink(AdvanceReplay) },
         replayFullBar = replayParams.replayFullBar,
         onAdvanceReplayByBar = { state.eventSink(AdvanceReplayByBar) },
+        isAutoNextEnabled = state.isAutoNextEnabled,
         onIsAutoNextEnabledChange = { state.eventSink(SetIsAutoNextEnabled(it)) },
         isTradingEnabled = state.selectedProfileId != null,
         onBuy = { stockChart -> state.eventSink(Buy(stockChart)) },

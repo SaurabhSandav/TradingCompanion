@@ -47,7 +47,7 @@ internal class ReplaySessionPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private var autoNextJob: Job? = null
+    private var autoNextJob by mutableStateOf<Job?>(null)
     private val chartsState = stockChartsStateFactory(
         StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe)
     )
@@ -61,6 +61,7 @@ internal class ReplaySessionPresenter(
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
+            isAutoNextEnabled = autoNextJob != null,
             eventSink = ::onEvent,
         )
     }
@@ -155,11 +156,18 @@ internal class ReplaySessionPresenter(
     private fun onSetIsAutoNextEnabled(isAutoNextEnabled: Boolean) {
 
         autoNextJob = when {
-            isAutoNextEnabled -> coroutineScope.launch {
-                while (isActive) {
-                    delay(1.seconds)
-                    barReplay.advance()
+            // Don't create new job if one already exists
+            isAutoNextEnabled -> when {
+                autoNextJob == null -> {
+                    coroutineScope.launch {
+                        while (isActive) {
+                            delay(1.seconds)
+                            barReplay.advance()
+                        }
+                    }
                 }
+
+                else -> autoNextJob
             }
 
             else -> {
