@@ -9,8 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -24,6 +26,7 @@ internal fun TradesTable(
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
+        addColumnText("ID", width = Fixed(48.dp)) { it.profileTradeId.tradeId.toString() }
         addColumnText("Broker", width = Weight(2F)) { it.broker }
         addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumn("Side") {

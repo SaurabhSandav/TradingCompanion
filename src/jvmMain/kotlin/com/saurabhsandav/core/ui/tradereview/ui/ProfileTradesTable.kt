@@ -34,6 +34,7 @@ internal fun ProfileTradesTable(
                 onCheckedChange = { onMarkTrade(tradeEntry.profileTradeId, it) }
             )
         }
+        addColumnText("ID", width = Fixed(48.dp)) { it.profileTradeId.tradeId.toString() }
         addColumnText("Broker", width = Weight(2F)) { it.broker }
         addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumn("Side") {
