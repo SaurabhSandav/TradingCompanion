@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
@@ -196,9 +195,8 @@ internal class ReplaySessionPresenter(
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
+            stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel.Initial(
-                instrument = Instrument.Equity,
-                ticker = stockChart.params.ticker,
                 isBuy = true,
                 price = price,
             ),
@@ -217,9 +215,8 @@ internal class ReplaySessionPresenter(
 
         val params = OrderFormParams(
             id = UUID.randomUUID(),
+            stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel.Initial(
-                instrument = Instrument.Equity,
-                ticker = stockChart.params.ticker,
                 isBuy = false,
                 price = price,
             ),

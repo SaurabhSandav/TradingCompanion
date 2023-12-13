@@ -11,6 +11,7 @@ import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormState
 import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 
@@ -18,8 +19,9 @@ import kotlinx.coroutines.CoroutineScope
 internal class ReplayOrderFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val replayOrdersManager: ReplayOrdersManager,
+    private val stockChartParams: StockChartParams,
     initialModel: ReplayOrderFormModel.Initial?,
-    private val onOrderSaved: ((orderId: Long) -> Unit)? = null,
+    private val onOrderSaved: () -> Unit,
 ) {
 
     private val formValidator = FormValidator(coroutineScope)
@@ -37,6 +39,7 @@ internal class ReplayOrderFormPresenter(
 
         return@launchMolecule ReplayOrderFormState(
             title = "New Order",
+            ticker = stockChartParams.ticker,
             formModel = formModel,
             onSaveOrder = ::onSaveOrder,
         )
@@ -48,12 +51,9 @@ internal class ReplayOrderFormPresenter(
 
         val formModel = requireNotNull(formModel)
 
-        val orderId = replayOrdersManager.newOrder(
-            broker = "Finvasia",
-            instrument = formModel.instrumentField.value!!,
-            ticker = formModel.tickerField.value!!,
+        replayOrdersManager.newOrder(
+            stockChartParams = stockChartParams,
             quantity = formModel.quantityField.value.toBigDecimal(),
-            lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
             side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
             price = formModel.priceField.value.toBigDecimal(),
             stop = formModel.stop.value.toBigDecimalOrNull(),
@@ -61,6 +61,6 @@ internal class ReplayOrderFormPresenter(
         )
 
         // Notify order saved
-        onOrderSaved?.invoke(orderId)
+        onOrderSaved.invoke()
     }
 }

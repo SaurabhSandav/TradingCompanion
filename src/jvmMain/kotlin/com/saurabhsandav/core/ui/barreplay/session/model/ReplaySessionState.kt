@@ -5,6 +5,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +38,7 @@ internal data class ReplaySessionState(
     @Immutable
     internal data class OrderFormParams(
         val id: UUID,
+        val stockChartParams: StockChartParams,
         val initialModel: ReplayOrderFormModel.Initial?,
     )
 

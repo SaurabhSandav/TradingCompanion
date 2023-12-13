@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.barreplay.session.replayorderform.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isInt
@@ -12,6 +11,7 @@ import com.saurabhsandav.core.ui.common.form.validations.isRequired
 @Immutable
 internal data class ReplayOrderFormState(
     val title: String,
+    val ticker: String,
     val formModel: ReplayOrderFormModel?,
     val onSaveOrder: () -> Unit,
 )
@@ -22,18 +22,8 @@ internal class ReplayOrderFormModel(
     initial: Initial,
 ) {
 
-    val instrumentField = validator.addField(initial.instrument) { isRequired() }
-
-    val tickerField = validator.addField(initial.ticker) { isRequired() }
-
     val quantityField = validator.addField(initial.quantity) {
         isRequired()
-        isInt {
-            isPositive()
-        }
-    }
-
-    val lotsField = validator.addField(initial.lots) {
         isInt {
             isPositive()
         }
@@ -77,10 +67,7 @@ internal class ReplayOrderFormModel(
     }
 
     class Initial(
-        val instrument: Instrument? = null,
-        val ticker: String? = null,
         val quantity: String = "",
-        val lots: String = "",
         val isBuy: Boolean = true,
         val price: String = "",
         val stop: String = "",

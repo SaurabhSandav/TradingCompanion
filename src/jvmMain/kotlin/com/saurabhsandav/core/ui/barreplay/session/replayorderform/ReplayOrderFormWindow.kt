@@ -12,31 +12,28 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberWindowState
-import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.utils.NIFTY50
-import kotlinx.collections.immutable.persistentListOf
-import java.util.*
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 
 @Composable
 internal fun ReplayOrderFormWindow(
     replayOrdersManager: ReplayOrdersManager,
+    stockChartParams: StockChartParams,
     initialModel: ReplayOrderFormModel.Initial?,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember {
-        ReplayOrderFormPresenter(scope, replayOrdersManager, initialModel) { onCloseRequest() }
+        ReplayOrderFormPresenter(scope, replayOrdersManager, stockChartParams, initialModel, onCloseRequest)
     }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 550.dp))
+    val windowState = rememberWindowState(size = DpSize(width = 300.dp, height = 450.dp))
 
     AppWindow(
         onCloseRequest = onCloseRequest,
@@ -50,6 +47,7 @@ internal fun ReplayOrderFormWindow(
 
             when {
                 formModel != null -> ReplayOrderForm(
+                    ticker = state.ticker,
                     model = formModel,
                     onSaveOrder = { state.onSaveOrder() },
                 )
@@ -62,6 +60,7 @@ internal fun ReplayOrderFormWindow(
 
 @Composable
 private fun ReplayOrderForm(
+    ticker: String,
     model: ReplayOrderFormModel,
     onSaveOrder: () -> Unit,
 ) {
@@ -74,50 +73,24 @@ private fun ReplayOrderForm(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
 
+        OutlinedTextField(
+            value = ticker,
+            onValueChange = { },
+            label = { Text("Ticker") },
+            readOnly = true,
+        )
+
         val initialFocusRequester = remember { FocusRequester() }
 
         LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
 
-        OutlinedListSelectionField(
-            modifier = Modifier.focusRequester(initialFocusRequester),
-            items = remember { persistentListOf(*enumValues<Instrument>()) },
-            itemText = {
-                it.strValue.replaceFirstChar { char ->
-                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
-                }
-            },
-            onSelection = { model.instrumentField.value = it },
-            selection = model.instrumentField.value,
-            label = { Text("Instrument") },
-            isError = model.instrumentField.isError,
-            supportingText = model.instrumentField.errorMessage?.let { { Text(it) } },
-        )
-
-        OutlinedListSelectionField(
-            items = NIFTY50,
-            itemText = { it },
-            onSelection = { model.tickerField.value = it },
-            selection = model.tickerField.value,
-            label = { Text("Ticker") },
-            isError = model.tickerField.isError,
-            supportingText = model.tickerField.errorMessage?.let { { Text(it) } },
-        )
-
         OutlinedTextField(
+            modifier = Modifier.focusRequester(initialFocusRequester),
             value = model.quantityField.value,
             onValueChange = { model.quantityField.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = model.lotsField.value,
-            onValueChange = { model.lotsField.value = it.trim() },
-            label = { Text("Lots") },
-            isError = model.lotsField.isError,
-            supportingText = model.lotsField.errorMessage?.let { { Text(it) } },
             singleLine = true,
         )
 

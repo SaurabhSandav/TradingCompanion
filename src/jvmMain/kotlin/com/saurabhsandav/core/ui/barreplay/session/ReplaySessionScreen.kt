@@ -61,6 +61,7 @@ internal fun ReplaySessionScreen(
 
         ReplayOrderFormWindow(
             replayOrdersManager = presenter.replayOrdersManager,
+            stockChartParams = window.params.stockChartParams,
             initialModel = window.params.initialModel,
             onCloseRequest = window::close,
         )

@@ -18,6 +18,7 @@ import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -44,11 +45,8 @@ internal class ReplayOrdersManager(
     val openOrders = backtestBroker.openOrders
 
     fun newOrder(
-        broker: String,
-        instrument: Instrument,
-        ticker: String,
+        stockChartParams: StockChartParams,
         quantity: BigDecimal,
-        lots: Int?,
         side: TradeExecutionSide,
         price: BigDecimal,
         stop: BigDecimal?,
@@ -59,7 +57,7 @@ internal class ReplayOrdersManager(
 
         coroutineScope.launch {
 
-            val replaySession = createReplaySession(ticker)
+            val replaySession = createReplaySession(stockChartParams.ticker)
 
             val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
                 .first()
@@ -69,11 +67,11 @@ internal class ReplayOrdersManager(
             val tradingRecord = tradingProfiles.getRecord(replayProfileId)
 
             val orderParams = OrderParams(
-                broker = broker,
-                instrument = instrument,
-                ticker = ticker,
+                broker = "Finvasia",
+                instrument = Instrument.Equity,
+                ticker = stockChartParams.ticker,
                 quantity = quantity,
-                lots = lots,
+                lots = null,
                 side = side,
             )
 
