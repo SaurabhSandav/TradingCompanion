@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -18,9 +17,7 @@ internal class ChartMarkersProvider(
 
     private val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
 
-    fun getTradeMarkers(ticker: String, candleSeries: CandleSeries): Flow<List<TradeMarker>> {
-
-        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
+    fun getTradeMarkers(ticker: String, instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
 
         return markedTradeIds.flatMapLatest { profileTradeIds ->
 
@@ -57,8 +54,8 @@ internal class ChartMarkersProvider(
                                 TradeMarker(
                                     entryPrice = trade.averageEntry,
                                     exitPrice = trade.averageExit!!,
-                                    entryInstant = trade.entryTimestamp.markerTime(candleSeries),
-                                    exitInstant = trade.exitTimestamp!!.markerTime(candleSeries),
+                                    entryInstant = trade.entryTimestamp,
+                                    exitInstant = trade.exitTimestamp!!,
                                     stopPrice = stop.price,
                                     targetPrice = target.price,
                                 )
@@ -76,10 +73,8 @@ internal class ChartMarkersProvider(
 
     fun getTradeExecutionMarkers(
         ticker: String,
-        candleSeries: CandleSeries,
+        instantRange: ClosedRange<Instant>,
     ): Flow<List<TradeExecutionMarker>> {
-
-        val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
         return markedTradeIds.flatMapLatest { profileTradeIds ->
 
@@ -108,17 +103,12 @@ internal class ChartMarkersProvider(
                 .mapList { execution ->
 
                     TradeExecutionMarker(
-                        instant = execution.timestamp.markerTime(candleSeries),
+                        instant = execution.timestamp,
                         side = execution.side,
                         price = execution.price,
                     )
                 }
         }.flowOn(Dispatchers.IO)
-    }
-
-    private fun Instant.markerTime(candleSeries: CandleSeries): Instant {
-        val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
-        return candleSeries[markerCandleIndex].openInstant
     }
 
     fun setMarkedTrades(ids: List<ProfileTradeId>) {

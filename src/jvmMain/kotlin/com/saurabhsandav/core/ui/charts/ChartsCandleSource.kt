@@ -21,8 +21,8 @@ import kotlinx.datetime.Instant
 internal class ChartsCandleSource(
     override val params: StockChartParams,
     private val candleRepo: CandleRepository,
-    private val getTradeMarkers: (CandleSeries) -> Flow<List<TradeMarker>>,
-    private val getTradeExecutionMarkers: (CandleSeries) -> Flow<List<TradeExecutionMarker>>,
+    private val getTradeMarkers: (ClosedRange<Instant>) -> Flow<List<TradeMarker>>,
+    private val getTradeExecutionMarkers: (ClosedRange<Instant>) -> Flow<List<TradeExecutionMarker>>,
 ) : CandleSource {
 
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
@@ -106,9 +106,13 @@ internal class ChartsCandleSource(
         mutableCandleSeries.prependCandles(oldCandles)
     }
 
-    override fun getTradeMarkers(): Flow<List<TradeMarker>> = getTradeMarkers(candleSeries)
+    override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
+        return getTradeMarkers.invoke(instantRange)
+    }
 
-    override fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = getTradeExecutionMarkers(candleSeries)
+    override fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> {
+        return getTradeExecutionMarkers.invoke(instantRange)
+    }
 
     private suspend fun getCandles(
         request: suspend () -> Result<List<Candle>, CandleRepository.Error>,

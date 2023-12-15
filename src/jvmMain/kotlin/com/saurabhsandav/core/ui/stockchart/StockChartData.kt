@@ -7,6 +7,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.datetime.Instant
 
 class StockChartData(
     val params: StockChartParams,
@@ -18,9 +19,13 @@ class StockChartData(
 
     suspend fun getCandleSeries(): CandleSeries = source.getCandleSeries()
 
-    fun getTradeMarkers(): Flow<List<TradeMarker>> = source.getTradeMarkers()
+    fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
+        return source.getTradeMarkers(instantRange)
+    }
 
-    fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = source.getTradeExecutionMarkers()
+    fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> {
+        return source.getTradeExecutionMarkers(instantRange)
+    }
 
     fun destroy() {
         coroutineScope.cancel()

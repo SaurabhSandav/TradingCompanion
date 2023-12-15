@@ -445,18 +445,28 @@ class StockChart(
 
         // Trade execution markers
         candleSeries.instantRange
-            .flatMapLatest { data.getTradeExecutionMarkers() }
+            .flatMapLatest { instantRange ->
+                when (instantRange) {
+                    null -> flowOf(emptyList())
+                    else -> data.getTradeExecutionMarkers(instantRange)
+                }
+            }
             .onEach { markers ->
-                val actualMarkers = markers.map { it.toActualMarker() }
+                val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
                 tradeExecutionMarkers.setExecutions(actualMarkers)
             }
             .launchIn(dataCoroutineScope)
 
         // Trade execution markers
         candleSeries.instantRange
-            .flatMapLatest { data.getTradeMarkers() }
+            .flatMapLatest { instantRange ->
+                when (instantRange) {
+                    null -> flowOf(emptyList())
+                    else -> data.getTradeMarkers(instantRange)
+                }
+            }
             .onEach { markers ->
-                val actualMarkers = markers.map { it.toActualMarker() }
+                val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
                 tradeMarkers.setTrades(actualMarkers)
             }
             .launchIn(dataCoroutineScope)

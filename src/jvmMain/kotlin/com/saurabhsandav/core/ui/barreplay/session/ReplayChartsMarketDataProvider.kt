@@ -26,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Instant
 
 internal class ReplayChartsMarketDataProvider(
     private val coroutineScope: CoroutineScope,
@@ -127,11 +126,6 @@ internal class ReplayChartsMarketDataProvider(
         candleSeries: CandleSeries,
     ): Flow<List<TradeMarker>> {
 
-        fun Instant.markerTime(): Instant {
-            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
-            return candleSeries[markerCandleIndex].openInstant
-        }
-
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
@@ -159,8 +153,8 @@ internal class ReplayChartsMarketDataProvider(
                         TradeMarker(
                             entryPrice = trade.averageEntry,
                             exitPrice = trade.averageExit!!,
-                            entryInstant = trade.entryTimestamp.markerTime(),
-                            exitInstant = trade.exitTimestamp!!.markerTime(),
+                            entryInstant = trade.entryTimestamp,
+                            exitInstant = trade.exitTimestamp!!,
                             stopPrice = stop.price,
                             targetPrice = target.price,
                         )
@@ -173,11 +167,6 @@ internal class ReplayChartsMarketDataProvider(
         ticker: String,
         candleSeries: CandleSeries,
     ): Flow<List<TradeExecutionMarker>> {
-
-        fun Instant.markerTime(): Instant {
-            val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
-            return candleSeries[markerCandleIndex].openInstant
-        }
 
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
@@ -195,7 +184,7 @@ internal class ReplayChartsMarketDataProvider(
                 .mapList { execution ->
 
                     TradeExecutionMarker(
-                        instant = execution.timestamp.markerTime(),
+                        instant = execution.timestamp,
                         side = execution.side,
                         price = execution.price,
                     )

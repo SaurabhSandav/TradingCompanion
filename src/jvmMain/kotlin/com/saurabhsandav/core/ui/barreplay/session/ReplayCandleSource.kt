@@ -10,12 +10,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.datetime.Instant
 
 internal class ReplayCandleSource(
     override val params: StockChartParams,
     private val replaySeriesFactory: suspend () -> ReplaySeries,
-    private val getTradeMarkers: (CandleSeries) -> Flow<List<TradeMarker>>,
-    private val getTradeExecutionMarkers: (CandleSeries) -> Flow<List<TradeExecutionMarker>>,
+    private val getTradeMarkers: (ClosedRange<Instant>) -> Flow<List<TradeMarker>>,
+    private val getTradeExecutionMarkers: (ClosedRange<Instant>) -> Flow<List<TradeExecutionMarker>>,
 ) : CandleSource {
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
@@ -29,11 +30,11 @@ internal class ReplayCandleSource(
         }
     }
 
-    override fun getTradeMarkers(): Flow<List<TradeMarker>> {
-        return flow { emitAll(getTradeMarkers(replaySeries.await())) }
+    override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
+        return flow { emitAll(getTradeMarkers.invoke(instantRange)) }
     }
 
-    override fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> {
-        return flow { emitAll(getTradeExecutionMarkers(replaySeries.await())) }
+    override fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> {
+        return flow { emitAll(getTradeExecutionMarkers.invoke(instantRange)) }
     }
 }

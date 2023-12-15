@@ -29,7 +29,7 @@ interface CandleSource {
 
     suspend fun onLoadAfter() = Unit
 
-    fun getTradeMarkers(): Flow<List<TradeMarker>> = emptyFlow()
+    fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> = emptyFlow()
 
-    fun getTradeExecutionMarkers(): Flow<List<TradeExecutionMarker>> = emptyFlow()
+    fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> = emptyFlow()
 }
