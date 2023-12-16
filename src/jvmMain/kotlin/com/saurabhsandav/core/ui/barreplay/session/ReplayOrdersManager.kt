@@ -57,7 +57,8 @@ internal class ReplayOrdersManager(
 
         coroutineScope.launch {
 
-            val replaySession = createReplaySession(stockChartParams.ticker)
+            // Used by BacktestBroker getCurrentTime
+            createReplaySession(stockChartParams.ticker)
 
             val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
                 .first()
@@ -96,7 +97,7 @@ internal class ReplayOrdersManager(
                     lots = closedOrder.params.lots,
                     side = closedOrder.params.side,
                     price = closedOrder.executionPrice,
-                    timestamp = replaySession.replayTime.first(),
+                    timestamp = closedOrder.closedAt,
                     locked = false,
                 )
 
@@ -142,7 +143,7 @@ internal class ReplayOrdersManager(
                                     lots = closedStopOrder.params.lots,
                                     side = closedStopOrder.params.side,
                                     price = closedStopOrder.executionPrice,
-                                    timestamp = replaySession.replayTime.first(),
+                                    timestamp = closedStopOrder.closedAt,
                                     locked = false,
                                 )
                             }
@@ -179,7 +180,7 @@ internal class ReplayOrdersManager(
                                     lots = closedTargetOrder.params.lots,
                                     side = closedTargetOrder.params.side,
                                     price = closedTargetOrder.executionPrice,
-                                    timestamp = replaySession.replayTime.first(),
+                                    timestamp = closedTargetOrder.closedAt,
                                     locked = false,
                                 )
                             }
