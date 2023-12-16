@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trading.indicator.base
 
 import com.saurabhsandav.core.trading.Indicator
+import com.saurabhsandav.core.utils.removeFirst
+import com.saurabhsandav.core.utils.removeLast
 
 class IndicatorCache<T> internal constructor(val key: Indicator.CacheKey?) {
 
@@ -20,8 +22,12 @@ class IndicatorCache<T> internal constructor(val key: Indicator.CacheKey?) {
         cache[index] = value
     }
 
-    internal fun removeAt(index: Int) {
-        if (index in cache.indices) cache.removeAt(index)
+    internal fun removeFirst(n: Int = 1) {
+        cache.removeFirst(n)
+    }
+
+    internal fun removeLast(n: Int = 1) {
+        cache.removeLast(n)
     }
 
     internal fun clear() {

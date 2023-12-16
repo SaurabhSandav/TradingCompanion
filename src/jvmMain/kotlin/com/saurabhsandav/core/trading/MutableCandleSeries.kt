@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trading
 
 import com.saurabhsandav.core.trading.indicator.base.IndicatorCache
+import com.saurabhsandav.core.utils.removeFirst
+import com.saurabhsandav.core.utils.removeLast
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 import java.math.MathContext
@@ -132,7 +134,7 @@ private class MutableCandleSeriesImpl(
                 // drop first candle and first indicator cache values
                 if (list.size > maxCandleCount) {
                     list.removeFirst()
-                    indicatorCaches.forEach { it.removeAt(0) }
+                    indicatorCaches.forEach { it.removeFirst() }
                 }
             }
         }
@@ -194,14 +196,11 @@ private class MutableCandleSeriesImpl(
 
         val prevInstantRange = instantRange.value
 
-        repeat(n) {
+        // Drop cached indicators values
+        indicatorCaches.forEach { it.removeFirst(n) }
 
-            // Drop cached indicators values
-            indicatorCaches.forEach { it.removeAt(0) }
-
-            // Remove first candle
-            list.removeFirst()
-        }
+        // Remove candles
+        list.removeFirst(n)
 
         // Update instant range
         _instantRange.value = when {
@@ -218,14 +217,11 @@ private class MutableCandleSeriesImpl(
 
         val prevInstantRange = instantRange.value
 
-        repeat(n) {
+        // Drop cached indicators values
+        indicatorCaches.forEach { it.removeLast(n) }
 
-            // Drop cached indicators values at index
-            indicatorCaches.forEach { it.removeAt(list.lastIndex) }
-
-            // Remove last candle
-            list.removeLast()
-        }
+        // Remove candles
+        list.removeLast(n)
 
         // Update instant range
         _instantRange.value = when {
