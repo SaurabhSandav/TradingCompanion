@@ -18,6 +18,8 @@ interface MutableCandleSeries : CandleSeries {
 
     fun removeLast(n: Int = 1)
 
+    fun clear()
+
     companion object {
 
         operator fun invoke(
@@ -234,6 +236,23 @@ private class MutableCandleSeriesImpl(
         // Notify modification
         val newInstantRange = instantRange.value
         _modifications.tryEmit(prevInstantRange to newInstantRange)
+    }
+
+    override fun clear() {
+
+        val prevInstantRange = instantRange.value
+
+        // Clear cached indicators
+        indicatorCaches.forEach { it.clear() }
+
+        // Remove all candles
+        list.clear()
+
+        // Update instant range
+        _instantRange.value = null
+
+        // Notify modification
+        _modifications.tryEmit(prevInstantRange to null)
     }
 
     override fun <T> getIndicatorCache(key: Indicator.CacheKey?): IndicatorCache<T> {
