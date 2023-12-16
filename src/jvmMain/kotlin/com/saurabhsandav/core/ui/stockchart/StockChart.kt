@@ -444,13 +444,7 @@ class StockChart(
             .launchIn(dataCoroutineScope)
 
         // Trade execution markers
-        candleSeries.instantRange
-            .flatMapLatest { instantRange ->
-                when (instantRange) {
-                    null -> flowOf(emptyList())
-                    else -> data.getTradeExecutionMarkers(instantRange)
-                }
-            }
+        data.tradeExecutionMarkers
             .onEach { markers ->
                 val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
                 tradeExecutionMarkers.setExecutions(actualMarkers)
@@ -458,13 +452,7 @@ class StockChart(
             .launchIn(dataCoroutineScope)
 
         // Trade execution markers
-        candleSeries.instantRange
-            .flatMapLatest { instantRange ->
-                when (instantRange) {
-                    null -> flowOf(emptyList())
-                    else -> data.getTradeMarkers(instantRange)
-                }
-            }
+        data.tradeMarkers
             .onEach { markers ->
                 val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
                 tradeMarkers.setTrades(actualMarkers)
