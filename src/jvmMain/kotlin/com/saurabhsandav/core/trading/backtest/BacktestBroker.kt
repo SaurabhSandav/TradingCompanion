@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
-class BacktestBroker(
-    private val getCurrentTime: (String) -> Instant,
-) {
+class BacktestBroker {
 
     private var nextId = 0L
 
@@ -24,6 +22,7 @@ class BacktestBroker(
     val closedOrders = _closedOrders.asStateFlow()
 
     fun newOrder(
+        instant: Instant,
         params: OrderParams,
         executionType: OrderExecutionType,
         ocoId: Any? = null,
@@ -33,7 +32,7 @@ class BacktestBroker(
             id = nextId++,
             params = params,
             executionType = executionType,
-            createdAt = getCurrentTime(params.ticker),
+            createdAt = instant,
             ocoId = ocoId,
         )
 
@@ -43,14 +42,17 @@ class BacktestBroker(
         return openOrder
     }
 
-    fun cancelOrder(openOrder: OpenOrder) {
+    fun cancelOrder(
+        instant: Instant,
+        openOrder: OpenOrder,
+    ) {
 
         val canceledOrder = ClosedOrder.Canceled(
             id = openOrder.id,
             params = openOrder.params,
             executionType = openOrder.executionType,
             createdAt = openOrder.createdAt,
-            closedAt = getCurrentTime(openOrder.params.ticker),
+            closedAt = instant,
         )
 
         // Order is not open anymore
@@ -62,6 +64,7 @@ class BacktestBroker(
 
     fun newPrice(
         ticker: String,
+        instant: Instant,
         prevPrice: BigDecimal,
         newPrice: BigDecimal,
     ) {
@@ -69,7 +72,7 @@ class BacktestBroker(
         // Create copy of open orders to allow removing orders from original list during iteration.
         _openOrders.value
             .filter { it.params.ticker == ticker }
-            .forEach { openOrder -> executeOrderIfEligible(openOrder, prevPrice, newPrice) }
+            .forEach { openOrder -> executeOrderIfEligible(instant, openOrder, prevPrice, newPrice) }
     }
 
     fun reset() {
@@ -78,6 +81,7 @@ class BacktestBroker(
     }
 
     private fun executeOrderIfEligible(
+        instant: Instant,
         openOrder: OpenOrder,
         prevPrice: BigDecimal,
         newPrice: BigDecimal,
@@ -94,7 +98,7 @@ class BacktestBroker(
                 params = openOrder.params,
                 executionType = openOrder.executionType,
                 createdAt = openOrder.createdAt,
-                closedAt = getCurrentTime(openOrder.params.ticker),
+                closedAt = instant,
                 executionPrice = when (openOrder.executionType) {
                     is Limit -> openOrder.executionType.price
                     is Market -> newPrice
@@ -121,7 +125,7 @@ class BacktestBroker(
                         params = openOCOOrder.params,
                         executionType = openOCOOrder.executionType,
                         createdAt = openOCOOrder.createdAt,
-                        closedAt = getCurrentTime(openOrder.params.ticker),
+                        closedAt = instant,
                     )
 
                     // Order is closed
@@ -133,6 +137,7 @@ class BacktestBroker(
 
 fun BacktestBroker.newCandle(
     ticker: String,
+    instant: Instant,
     prevCandle: Candle,
     newCandle: Candle,
     replayOHLC: Boolean,
@@ -146,12 +151,12 @@ fun BacktestBroker.newCandle(
                 else -> newCandle.low to newCandle.high
             }
 
-            newPrice(ticker, prevCandle.close, newCandle.open)
-            newPrice(ticker, prevCandle.open, extreme1)
-            newPrice(ticker, extreme1, extreme2)
-            newPrice(ticker, extreme2, newCandle.close)
+            newPrice(ticker, instant, prevCandle.close, newCandle.open)
+            newPrice(ticker, instant, prevCandle.open, extreme1)
+            newPrice(ticker, instant, extreme1, extreme2)
+            newPrice(ticker, instant, extreme2, newCandle.close)
         }
 
-        else -> newPrice(ticker, prevCandle.close, newCandle.close)
+        else -> newPrice(ticker, instant, prevCandle.close, newCandle.close)
     }
 }

@@ -42,9 +42,7 @@ internal class ReplayOrdersManager(
 ) {
 
     private val replaySeriesCache = mutableMapOf<String, ReplaySeries>()
-    private val backtestBroker = BacktestBroker(
-        getCurrentTime = { ticker -> replaySeriesCache[ticker]?.replayTime?.value ?: error("ReplaySeries not found") },
-    )
+    private val backtestBroker = BacktestBroker()
 
     val openOrders = backtestBroker.openOrders
 
@@ -61,8 +59,7 @@ internal class ReplayOrdersManager(
 
         coroutineScope.launch {
 
-            // Used by BacktestBroker getCurrentTime
-            createReplaySession(stockChartParams.ticker)
+            val replaySeries = createReplaySeries(stockChartParams.ticker)
 
             val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
                 .first()
@@ -81,6 +78,7 @@ internal class ReplayOrdersManager(
             )
 
             val openOrder = backtestBroker.newOrder(
+                instant = replaySeries.replayTime.value,
                 params = orderParams,
                 executionType = OrderExecutionType.Limit(price = price),
             )
@@ -124,6 +122,7 @@ internal class ReplayOrdersManager(
 
                         // Send stop order to broker
                         val openStopOrder = backtestBroker.newOrder(
+                            instant = replaySeries.replayTime.value,
                             params = positionCloseParams,
                             executionType = OrderExecutionType.StopMarket(trigger = stop),
                         )
@@ -161,6 +160,7 @@ internal class ReplayOrdersManager(
 
                         // Send target order to broker
                         val openTargetOrder = backtestBroker.newOrder(
+                            instant = replaySeries.replayTime.value,
                             params = positionCloseParams,
                             executionType = OrderExecutionType.Limit(price = target),
                         )
@@ -198,11 +198,17 @@ internal class ReplayOrdersManager(
     }
 
     fun cancelOrder(id: Long) {
+
         val orderToRemove = openOrders.value.find { it.id == id } ?: error("Replay order($id) not found")
-        backtestBroker.cancelOrder(orderToRemove)
+        val replaySeries = replaySeriesCache[orderToRemove.params.ticker] ?: error("ReplaySeries not found")
+
+        backtestBroker.cancelOrder(
+            instant = replaySeries.replayTime.value,
+            openOrder = orderToRemove,
+        )
     }
 
-    private suspend fun createReplaySession(ticker: String): ReplaySeries = replaySeriesCache.getOrPut(ticker) {
+    private suspend fun createReplaySeries(ticker: String): ReplaySeries = replaySeriesCache.getOrPut(ticker) {
 
         val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
 
@@ -220,6 +226,7 @@ internal class ReplayOrdersManager(
 
                 backtestBroker.newCandle(
                     ticker = ticker,
+                    instant = replaySeries.replayTime.value,
                     prevCandle = prevCandle,
                     newCandle = newCandle,
                     replayOHLC = replayParams.replayFullBar,
