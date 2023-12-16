@@ -9,11 +9,15 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trading.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.ClosedOrder
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.OrderParams
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType
+import com.saurabhsandav.core.trading.backtest.newCandle
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -214,22 +218,12 @@ internal class ReplayOrdersManager(
             .filterNotNull()
             .onEach { (prevCandle, newCandle) ->
 
-                when {
-                    replayParams.replayFullBar -> {
-
-                        val (extreme1, extreme2) = when {
-                            newCandle.isLong -> newCandle.low to newCandle.high
-                            else -> newCandle.low to newCandle.high
-                        }
-
-                        backtestBroker.newPrice(ticker, prevCandle.close, newCandle.open)
-                        backtestBroker.newPrice(ticker, prevCandle.open, extreme1)
-                        backtestBroker.newPrice(ticker, extreme1, extreme2)
-                        backtestBroker.newPrice(ticker, extreme2, newCandle.close)
-                    }
-
-                    else -> backtestBroker.newPrice(ticker, prevCandle.close, newCandle.close)
-                }
+                backtestBroker.newCandle(
+                    ticker = ticker,
+                    prevCandle = prevCandle,
+                    newCandle = newCandle,
+                    replayOHLC = replayParams.replayFullBar,
+                )
             }
             .launchIn(coroutineScope)
 

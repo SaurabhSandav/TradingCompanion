@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.trading.backtest
 
+import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.*
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
+import com.saurabhsandav.core.trading.isLong
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +42,6 @@ class BacktestBroker(
 
         return openOrder
     }
-
 
     fun cancelOrder(openOrder: OpenOrder) {
 
@@ -127,5 +128,30 @@ class BacktestBroker(
                     _closedOrders.update { it.add(canceledOrder) }
                 }
         }
+    }
+}
+
+fun BacktestBroker.newCandle(
+    ticker: String,
+    prevCandle: Candle,
+    newCandle: Candle,
+    replayOHLC: Boolean,
+) {
+
+    when {
+        replayOHLC -> {
+
+            val (extreme1, extreme2) = when {
+                newCandle.isLong -> newCandle.low to newCandle.high
+                else -> newCandle.low to newCandle.high
+            }
+
+            newPrice(ticker, prevCandle.close, newCandle.open)
+            newPrice(ticker, prevCandle.open, extreme1)
+            newPrice(ticker, extreme1, extreme2)
+            newPrice(ticker, extreme2, newCandle.close)
+        }
+
+        else -> newPrice(ticker, prevCandle.close, newCandle.close)
     }
 }
