@@ -24,10 +24,8 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import kotlin.random.Random
 
@@ -41,8 +39,27 @@ internal class ReplayOrdersManager(
     private val candleRepo: CandleRepository,
 ) {
 
-    private val replaySeriesCache = mutableMapOf<String, ReplaySeries>()
+    private val replaySeriesAndScopeCache = mutableMapOf<String, ReplaySeriesAndScope>()
     private val backtestBroker = BacktestBroker()
+
+    init {
+
+        // Un-cache unused ReplaySeries
+        backtestBroker.closedOrders
+            .map { orders -> orders.map { it.params.ticker }.distinct() }
+            .onEach { tickers ->
+
+                val tickersToUnCache = replaySeriesAndScopeCache.keys - tickers.toSet()
+
+                tickersToUnCache.forEach { ticker ->
+                    val cacheEntry = replaySeriesAndScopeCache[ticker]!!
+                    barReplay.removeSeries(cacheEntry.replaySeries)
+                    cacheEntry.scope.cancel()
+                    replaySeriesAndScopeCache.remove(ticker)
+                }
+            }
+            .launchIn(coroutineScope)
+    }
 
     val openOrders = backtestBroker.openOrders
 
@@ -200,7 +217,8 @@ internal class ReplayOrdersManager(
     fun cancelOrder(id: Long) {
 
         val orderToRemove = openOrders.value.find { it.id == id } ?: error("Replay order($id) not found")
-        val replaySeries = replaySeriesCache[orderToRemove.params.ticker] ?: error("ReplaySeries not found")
+        val replaySeries = replaySeriesAndScopeCache[orderToRemove.params.ticker]
+            ?.replaySeries ?: error("ReplaySeries not found")
 
         backtestBroker.cancelOrder(
             instant = replaySeries.replayTime.value,
@@ -208,7 +226,7 @@ internal class ReplayOrdersManager(
         )
     }
 
-    private suspend fun createReplaySeries(ticker: String): ReplaySeries = replaySeriesCache.getOrPut(ticker) {
+    private suspend fun createReplaySeries(ticker: String): ReplaySeries = replaySeriesAndScopeCache.getOrPut(ticker) {
 
         val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
 
@@ -217,6 +235,9 @@ internal class ReplayOrdersManager(
             initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayParams.replayFrom },
         )
 
+        val scope = MainScope()
+
+        // Send price updates to BacktestBroker
         replaySeries.live
             .runningFold<Candle, Pair<Candle, Candle>?>(null) { accumulator, new ->
                 (accumulator?.second ?: new) to new
@@ -232,10 +253,10 @@ internal class ReplayOrdersManager(
                     replayOHLC = replayParams.replayFullBar,
                 )
             }
-            .launchIn(coroutineScope)
+            .launchIn(scope)
 
-        replaySeries
-    }
+        ReplaySeriesAndScope(replaySeries, scope)
+    }.replaySeries
 
     private suspend fun getCandleSeries(
         ticker: String,
@@ -275,4 +296,9 @@ internal class ReplayOrdersManager(
             }
         }
     }
+
+    private class ReplaySeriesAndScope(
+        val replaySeries: ReplaySeries,
+        val scope: CoroutineScope,
+    )
 }
