@@ -14,12 +14,20 @@ group = "com.saurabhsandav.apps"
 version = "1.0-SNAPSHOT"
 
 configurations.all {
+
     resolutionStrategy.dependencySubstitution {
         substitute(module("org.jetbrains.compose.material:material"))
             .using(module("org.jetbrains.compose.material3:material3:${libs.versions.jetbrainsCompose}"))
             .because("Material 3 is newer")
     }
 }
+
+// Workaround for https://github.com/touchlab/Kermit/issues/383
+configurations
+    .matching { it.name.endsWith("TestRuntimeClasspath") }
+    .configureEach {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-test-junit")
+    }
 
 kotlin {
 
