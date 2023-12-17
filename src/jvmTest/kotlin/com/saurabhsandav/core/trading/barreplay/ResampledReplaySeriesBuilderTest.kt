@@ -101,8 +101,6 @@ class ResampledReplaySeriesBuilderTest {
         sut.addCandle(0)
         sut.addCandle(1)
         sut.addCandle(2)
-        sut.addCandle(3, BarReplay.CandleState.Open)
-        sut.addCandle(3, BarReplay.CandleState.Extreme1)
         sut.addCandle(3, candleState)
 
         assertEquals(inputSeries[9].atState(candleState), sut.replaySeries.last())

@@ -106,7 +106,7 @@ internal class ResampledReplaySeriesBuilder(
                 currentTimeframeCandleIndex++
 
                 // Candle as-is with openInstant adjusted
-                inputCandle.atState(BarReplay.CandleState.Open).withTimeframeOpenInstant()
+                inputCandle.atState(candleState).withTimeframeOpenInstant()
             }
 
             // New candle from inputSeries is resampled into previously added candle
