@@ -45,7 +45,10 @@ internal fun App(onCloseRequest: () -> Unit) {
     var showExitConfirmationDialog by state { false }
 
     AppWindow(
-        onCloseRequest = { showExitConfirmationDialog = true },
+        onCloseRequest = {
+            windowState.toFront()
+            showExitConfirmationDialog = true
+        },
         state = windowState,
     ) {
 
