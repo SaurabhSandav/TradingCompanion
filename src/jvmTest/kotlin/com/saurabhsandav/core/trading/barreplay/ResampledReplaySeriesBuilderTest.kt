@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.asCandleSeries
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import kotlin.test.Test
@@ -17,7 +20,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         assertEquals(timeframeSeries[1], sut.replaySeries.last())
@@ -37,7 +39,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 4,
             currentOffset = 0,
             currentCandleState = candleState,
-            sessionChecker = DailySessionChecker,
         )
 
         assertEquals(inputSeries[3].atState(candleState), sut.replaySeries.last().copy(volume = BigDecimal.ZERO))
@@ -55,7 +56,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 7,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         assertEquals(inputSeries[6], sut.replaySeries.last())
@@ -73,7 +73,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         sut.addCandle(0)
@@ -97,7 +96,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         sut.addCandle(0)
@@ -122,7 +120,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         sut.addCandle(0)
@@ -144,7 +141,6 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
             currentOffset = 0,
             currentCandleState = BarReplay.CandleState.Close,
-            sessionChecker = DailySessionChecker,
         )
 
         sut.addCandle(0, BarReplay.CandleState.Open)

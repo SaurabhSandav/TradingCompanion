@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 
 class BarReplay(
@@ -36,7 +35,6 @@ class BarReplay(
                 currentOffset = offset,
                 currentCandleState = candleState,
                 timeframeSeries = timeframeSeries,
-                sessionChecker = DailySessionChecker,
             )
         }
 
