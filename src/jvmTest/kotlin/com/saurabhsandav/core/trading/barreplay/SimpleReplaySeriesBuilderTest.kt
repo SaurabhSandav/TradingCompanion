@@ -17,8 +17,6 @@ class SimpleReplaySeriesBuilderTest {
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         assertEquals(inputSeries[0], sut.replaySeries.last())
@@ -33,8 +31,6 @@ class SimpleReplaySeriesBuilderTest {
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0)
@@ -55,8 +51,6 @@ class SimpleReplaySeriesBuilderTest {
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0, candleState)
@@ -73,8 +67,6 @@ class SimpleReplaySeriesBuilderTest {
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0)
@@ -93,8 +85,6 @@ class SimpleReplaySeriesBuilderTest {
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0, BarReplay.CandleState.Open)

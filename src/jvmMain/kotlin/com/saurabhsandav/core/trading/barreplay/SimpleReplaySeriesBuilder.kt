@@ -10,23 +10,14 @@ import kotlinx.coroutines.flow.update
 internal class SimpleReplaySeriesBuilder(
     private val inputSeries: CandleSeries,
     private val initialIndex: Int,
-    currentOffset: Int,
-    private val currentCandleState: BarReplay.CandleState,
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries = MutableCandleSeries(
-        initial = inputSeries.subList(0, toIndexExclusive = initialIndex + currentOffset),
+        initial = inputSeries.subList(0, toIndexExclusive = initialIndex),
         timeframe = inputSeries.timeframe,
     )
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
-    private val _candleState = MutableStateFlow(currentCandleState)
-
-    init {
-
-        // If candle is not closed, a new partially formed candle needs to be added.
-        if (currentCandleState != BarReplay.CandleState.Close)
-            addCandle(currentOffset, currentCandleState)
-    }
+    private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
 
     override val replaySeries: ReplaySeries = ReplaySeries(
         replaySeries = _replaySeries,
@@ -73,6 +64,6 @@ internal class SimpleReplaySeriesBuilder(
         _replayTime.update { _replaySeries.last().openInstant }
 
         // Update candle state
-        _candleState.update { currentCandleState }
+        _candleState.update { BarReplay.CandleState.Close }
     }
 }

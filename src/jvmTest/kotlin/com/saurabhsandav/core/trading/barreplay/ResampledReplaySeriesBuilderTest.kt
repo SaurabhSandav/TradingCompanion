@@ -5,7 +5,6 @@ import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
 import kotlinx.datetime.Instant
-import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,8 +17,6 @@ class ResampledReplaySeriesBuilderTest {
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 6,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         assertEquals(timeframeSeries[1], sut.replaySeries.last())
@@ -29,33 +26,12 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun init_not_closed() {
-
-        val candleState = BarReplay.CandleState.Extreme2
-
-        val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 4,
-            currentOffset = 0,
-            currentCandleState = candleState,
-        )
-
-        assertEquals(inputSeries[3].atState(candleState), sut.replaySeries.last().copy(volume = BigDecimal.ZERO))
-        assertEquals(2, sut.replaySeries.size)
-        assertEquals(inputSeries[4].openInstant, sut.replaySeries.replayTime.value)
-        assertEquals(candleState, sut.replaySeries.candleState.value)
-    }
-
-    @Test
     fun init_partial() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 7,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         assertEquals(inputSeries[6], sut.replaySeries.last())
@@ -71,8 +47,6 @@ class ResampledReplaySeriesBuilderTest {
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 6,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0)
@@ -94,8 +68,6 @@ class ResampledReplaySeriesBuilderTest {
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 6,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0)
@@ -116,8 +88,6 @@ class ResampledReplaySeriesBuilderTest {
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 6,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0)
@@ -137,8 +107,6 @@ class ResampledReplaySeriesBuilderTest {
             inputSeries = inputSeries,
             timeframeSeries = timeframeSeries,
             initialIndex = 6,
-            currentOffset = 0,
-            currentCandleState = BarReplay.CandleState.Close,
         )
 
         sut.addCandle(0, BarReplay.CandleState.Open)

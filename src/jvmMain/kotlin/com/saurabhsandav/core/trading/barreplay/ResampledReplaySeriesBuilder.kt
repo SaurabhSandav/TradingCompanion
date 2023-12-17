@@ -15,25 +15,25 @@ import kotlinx.datetime.Instant
 internal class ResampledReplaySeriesBuilder(
     private val inputSeries: CandleSeries,
     private val initialIndex: Int,
-    currentOffset: Int,
-    private val currentCandleState: BarReplay.CandleState,
     private val timeframeSeries: CandleSeries,
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries: MutableCandleSeries
+    private val initialTimeframeCandleIndex: Int
     private var currentTimeframeCandleIndex: Int
     private val _replayTime: MutableStateFlow<Instant>
-    private val _candleState = MutableStateFlow(currentCandleState)
+    private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
 
     init {
 
-        val currentIndex = initialIndex - 1 + currentOffset
+        val currentIndex = initialIndex - 1
 
         // Find timeframe candle index that corresponds to current replay time
-        currentTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[currentIndex])
+        initialTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[currentIndex])
+        currentTimeframeCandleIndex = initialTimeframeCandleIndex
 
         // Last candle is resampled from inputSeries to make it more accurate to current replay state
-        val resampledCandle = resampleCandleAt(offset = currentOffset)
+        val resampledCandle = resampledInitialTimeframeCandle()
 
         // Init replay series
         _replaySeries = MutableCandleSeries(
@@ -43,10 +43,6 @@ internal class ResampledReplaySeriesBuilder(
 
         // Set initial time
         _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
-
-        // If candle is not closed, a new partially formed candle needs to be added.
-        if (currentCandleState != BarReplay.CandleState.Close)
-            addCandle(currentOffset, currentCandleState)
     }
 
     override val replaySeries: ReplaySeries = ReplaySeries(
@@ -128,18 +124,14 @@ internal class ResampledReplaySeriesBuilder(
 
     override fun reset() {
 
-        currentTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[initialIndex - 1])
+        // Reset currentTimeframeCandleIndex to initial
+        currentTimeframeCandleIndex = initialTimeframeCandleIndex
 
-        // Get timeframe candle before last
-        val timeframeCandle = timeframeSeries[currentTimeframeCandleIndex - 1]
-
-        // Remove all candles not included in initial interval
-        while (_replaySeries.lastOrNull() != timeframeCandle) {
-            _replaySeries.removeLast()
-        }
+        // Reset ReplaySeries to initial state
+        _replaySeries.removeLast(_replaySeries.size - currentTimeframeCandleIndex)
 
         // Last candle is resampled from inputSeries to make it more accurate to current replay state
-        val resampledCandle = resampleCandleAt(offset = 0)
+        val resampledCandle = resampledInitialTimeframeCandle()
 
         // Add resampled candle
         _replaySeries.addLiveCandle(resampledCandle)
@@ -148,7 +140,7 @@ internal class ResampledReplaySeriesBuilder(
         _replayTime.update { resampledCandle.openInstant }
 
         // Update candle state
-        _candleState.update { currentCandleState }
+        _candleState.update { BarReplay.CandleState.Close }
     }
 
     /**
@@ -171,9 +163,9 @@ internal class ResampledReplaySeriesBuilder(
         return copy(openInstant = timeframeSeries[currentTimeframeCandleIndex].openInstant)
     }
 
-    private fun resampleCandleAt(offset: Int): Candle {
+    private fun resampledInitialTimeframeCandle(): Candle {
 
-        val currentIndex = initialIndex - 1 + offset
+        val currentIndex = initialIndex - 1
         val timeframeCandle = timeframeSeries[currentTimeframeCandleIndex]
 
         // From a list of already replayed candles, find index of candle which marks the start of the current candle

@@ -25,18 +25,17 @@ class BarReplay(
             null -> SimpleReplaySeriesBuilder(
                 inputSeries = inputSeries,
                 initialIndex = initialIndex,
-                currentOffset = offset,
-                currentCandleState = candleState,
             )
 
             else -> ResampledReplaySeriesBuilder(
                 inputSeries = inputSeries,
                 initialIndex = initialIndex,
-                currentOffset = offset,
-                currentCandleState = candleState,
                 timeframeSeries = timeframeSeries,
             )
         }
+
+        val currentOffset = offset - 1
+        if (currentOffset >= 0) replaySeriesBuilder.skipTo(currentOffset, candleState)
 
         replaySeriesBuilders.add(replaySeriesBuilder)
 
@@ -101,6 +100,21 @@ class BarReplay(
             Extreme1 -> Extreme2
             Extreme2 -> Close
             Close -> Open
+        }
+    }
+
+    private fun ReplaySeriesBuilder.skipTo(offset: Int, candleState: CandleState) {
+
+        repeat(times = offset + 1) { currentOffset ->
+
+            when {
+                // If last offset and candle not closed, add partial candle.
+                currentOffset == offset && candleState != CandleState.Close -> {
+                    addCandle(currentOffset, candleState)
+                }
+
+                else -> addCandle(currentOffset)
+            }
         }
     }
 }
