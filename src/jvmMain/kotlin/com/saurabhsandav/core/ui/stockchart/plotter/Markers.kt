@@ -5,6 +5,8 @@ import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.indexOr
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
@@ -48,6 +50,9 @@ class TradeMarker(
 }
 
 private fun Instant.markerTime(candleSeries: CandleSeries): Instant {
-    val markerCandleIndex = candleSeries.indexOfLast { it.openInstant <= this }
+
+    val searchResult = candleSeries.binarySearchByAsResult(this) { it.openInstant }
+    val markerCandleIndex = searchResult.indexOr { naturalIndex -> naturalIndex - 1 }
+
     return candleSeries[markerCandleIndex].openInstant
 }

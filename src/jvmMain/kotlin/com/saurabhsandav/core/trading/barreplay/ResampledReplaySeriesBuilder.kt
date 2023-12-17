@@ -3,6 +3,8 @@ package com.saurabhsandav.core.trading.barreplay
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.core.utils.subList
 import com.saurabhsandav.core.utils.subListInclusive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -154,7 +156,9 @@ internal class ResampledReplaySeriesBuilder(
      */
     private fun findTimeframeCandleIndex(candle: Candle): Int {
         // If candle.openInstant is less than the current timeframeCandle.openInstant, we want the previous candle.
-        return timeframeSeries.indexOfFirst { timeframeCandle -> candle.openInstant < timeframeCandle.openInstant } - 1
+        return timeframeSeries
+            .binarySearchByAsResult(candle.openInstant) { it.openInstant }
+            .indexOr { naturalIndex -> naturalIndex - 1 }
     }
 
     /**
@@ -174,8 +178,9 @@ internal class ResampledReplaySeriesBuilder(
 
         // From a list of already replayed candles, find index of candle which marks the start of the current candle
         // in the given timeframe.
-        val currentResampleCandleStartIndex = inputSeries.subListInclusive(0, currentIndex)
-            .indexOfLast { it.openInstant < timeframeCandle.openInstant } + 1
+        val currentResampleCandleStartIndex = inputSeries
+            .binarySearchByAsResult(timeframeCandle.openInstant, toIndex = currentIndex + 1) { it.openInstant }
+            .indexOr { naturalIndex -> naturalIndex - 1 }
 
         // Resample
         return inputSeries.subListInclusive(currentResampleCandleStartIndex, currentIndex)

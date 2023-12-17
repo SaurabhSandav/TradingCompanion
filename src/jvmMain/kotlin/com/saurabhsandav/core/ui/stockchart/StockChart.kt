@@ -29,8 +29,8 @@ import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
-import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.newChildScope
+import com.saurabhsandav.core.utils.*
+import com.saurabhsandav.core.utils.BinarySearchResult.NotFound
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -476,7 +476,7 @@ class StockChart(
             null -> null
 
             // Find candle indices
-            else -> {
+            else -> run {
 
                 // Load data for specified interval
                 candleLoader.load(
@@ -485,19 +485,20 @@ class StockChart(
                     to = interval.endInclusive,
                 )
 
-                val startCandleIndex = candleSeries.indexOfFirst { it.openInstant > interval.start }
+                val startIndexResult = candleSeries.binarySearchByAsResult(interval.start) { it.openInstant }
 
                 // If start instant is not in current candle range, navigate to the latest candles
-                if (startCandleIndex == -1) null else {
+                if (startIndexResult is NotFound && startIndexResult.isOutsideRange) return@run null
 
-                    val endCandleIndex = candleSeries.indexOfFirst { it.openInstant > interval.endInclusive }
+                val startIndex = startIndexResult.indexOr { naturalIndex -> naturalIndex - 1 }
+                val endIndexResult = candleSeries.binarySearchByAsResult(interval.endInclusive) { it.openInstant }
 
-                    when {
-                        endCandleIndex != -1 -> startCandleIndex..endCandleIndex
-                        // If end instant is not in current candle range, navigate to the start candle
-                        else -> startCandleIndex..startCandleIndex
-                    }
+                // If end instant is not in current candle range, navigate to the start candle
+                if (endIndexResult is NotFound && endIndexResult.isOutsideRange) {
+                    return@run startIndex..startIndex
                 }
+
+                return@run startIndex..endIndexResult.indexOrNaturalIndex
             }
         }
 

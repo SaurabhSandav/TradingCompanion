@@ -16,10 +16,7 @@ import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
-import com.saurabhsandav.core.utils.NIFTY50
-import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.core.utils.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
@@ -74,7 +71,9 @@ internal class ReplayChartsMarketDataProvider(
 
         return barReplay.newSeries(
             inputSeries = candleSeries,
-            initialIndex = candleSeries.indexOfFirst { it.openInstant >= replayParams.replayFrom },
+            initialIndex = candleSeries
+                .binarySearchByAsResult(replayParams.replayFrom) { it.openInstant }
+                .indexOrNaturalIndex,
             timeframeSeries = when (replayParams.baseTimeframe) {
                 params.timeframe -> null
                 else -> getCandleSeries(params.ticker, params.timeframe)
