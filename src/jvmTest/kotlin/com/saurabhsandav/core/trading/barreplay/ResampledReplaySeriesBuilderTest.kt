@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.*
 import kotlinx.datetime.Instant
+import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,6 +24,26 @@ class ResampledReplaySeriesBuilderTest {
         assertEquals(2, sut.replaySeries.size)
         assertEquals(timeframeSeries[1].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun init_not_closed() {
+
+        val candleState = BarReplay.CandleState.Extreme2
+
+        val sut = ResampledReplaySeriesBuilder(
+            inputSeries = inputSeries,
+            timeframeSeries = timeframeSeries,
+            initialIndex = 4,
+            currentOffset = 0,
+            currentCandleState = candleState,
+            sessionChecker = DailySessionChecker,
+        )
+
+        assertEquals(inputSeries[3].atState(candleState), sut.replaySeries.last().copy(volume = BigDecimal.ZERO))
+        assertEquals(2, sut.replaySeries.size)
+        assertEquals(inputSeries[4].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(candleState, sut.replaySeries.candleState.value)
     }
 
     @Test

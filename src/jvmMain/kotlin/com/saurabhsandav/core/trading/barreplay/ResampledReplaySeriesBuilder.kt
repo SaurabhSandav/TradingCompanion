@@ -38,12 +38,12 @@ internal class ResampledReplaySeriesBuilder(
             timeframe = timeframeSeries.timeframe,
         )
 
+        // Set initial time
+        _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
+
         // If candle is not closed, a new partially formed candle needs to be added.
         if (currentCandleState != BarReplay.CandleState.Close)
             addCandle(currentOffset, currentCandleState)
-
-        // Set initial time
-        _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
     }
 
     override val replaySeries: ReplaySeries = ReplaySeries(
