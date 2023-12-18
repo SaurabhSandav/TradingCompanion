@@ -1,11 +1,13 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.indexOr
+import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -21,13 +23,63 @@ internal class ReplayCandleSource(
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
 
-    override suspend fun getCandleSeries(): CandleSeries = replaySeries.await()
+    override suspend fun onLoad(interval: ClosedRange<Instant>): CandleSource.Result {
 
-    override suspend fun onLoad() {
+        val replaySeries = replaySeries.await()
+
+        val fromIndex = replaySeries
+            .binarySearchByAsResult(interval.start) { it.openInstant }
+            .indexOrNaturalIndex
+        val lastIndex = replaySeries
+            .binarySearchByAsResult(interval.endInclusive) { it.openInstant }
+            .indexOr { naturalIndex -> naturalIndex - 1 }
+            .coerceAtMost(replaySeries.lastIndex)
+        val toIndex = lastIndex + 1
+
+        return CandleSource.Result(
+            candles = replaySeries.subList(fromIndex, toIndex),
+            live = replaySeries.live.takeIf { toIndex == replaySeries.size },
+        )
+    }
+
+    override suspend fun onLoadBefore(
+        before: Instant,
+        count: Int,
+    ): CandleSource.Result {
 
         if (!replaySeries.isCompleted) {
             replaySeries.complete(replaySeriesFactory())
         }
+
+        val replaySeries = replaySeries.await()
+
+        val lastIndex = replaySeries
+            .binarySearchByAsResult(before) { it.openInstant }
+            .indexOr { naturalIndex -> naturalIndex - 1 }
+            .coerceAtMost(replaySeries.lastIndex)
+        val fromIndex = (lastIndex - count).coerceAtLeast(0)
+        val toIndex = lastIndex + 1
+
+        return CandleSource.Result(
+            candles = replaySeries.subList(fromIndex, toIndex),
+            live = replaySeries.live.takeIf { toIndex == replaySeries.size },
+        )
+    }
+
+    override suspend fun onLoadAfter(
+        after: Instant,
+        count: Int,
+    ): CandleSource.Result {
+
+        val replaySeries = replaySeries.await()
+
+        val fromIndex = replaySeries.binarySearchByAsResult(after) { it.openInstant }.indexOrNaturalIndex
+        val toIndex = (fromIndex + count + 1).coerceAtMost(replaySeries.size)
+
+        return CandleSource.Result(
+            candles = replaySeries.subList(fromIndex, toIndex),
+            live = replaySeries.live.takeIf { toIndex == replaySeries.size },
+        )
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {

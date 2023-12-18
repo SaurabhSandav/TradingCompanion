@@ -4,6 +4,7 @@ import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
+import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.coroutines.CoroutineScope
@@ -42,11 +43,15 @@ internal class ReplaySessionModule(
         ReplaySessionPresenter(
             coroutineScope = coroutineScope,
             replayParams = replayParams,
-            stockChartsStateFactory = { initialParams: StockChartParams ->
+            stockChartsStateFactory = {
+                    initialParams: StockChartParams,
+                    loadConfig: LoadConfig,
+                ->
 
                 appModule.stockChartsState(
                     coroutineScope = coroutineScope,
                     initialParams = initialParams,
+                    loadConfig = loadConfig,
                     marketDataProvider = marketDataProvider,
                 )
             },
@@ -62,5 +67,6 @@ fun interface StockChartsStateFactory {
 
     operator fun invoke(
         initialParams: StockChartParams,
+        loadConfig: LoadConfig,
     ): StockChartsState
 }

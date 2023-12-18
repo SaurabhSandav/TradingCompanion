@@ -8,7 +8,6 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
-import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
@@ -17,6 +16,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
@@ -48,6 +48,7 @@ internal class ReplaySessionPresenter(
     private var autoNextJob by mutableStateOf<Job?>(null)
     private val chartsState = stockChartsStateFactory(
         initialParams = StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe),
+        loadConfig = LoadConfig(initialLoadBefore = replayParams.replayFrom),
     )
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 
@@ -140,7 +141,7 @@ internal class ReplaySessionPresenter(
         barReplay.reset()
 
         // Reset candles to initial state
-        chartsState.charts.forEach { stockChart -> stockChart.refresh() }
+        chartsState.reset()
     }
 
     private fun onAdvanceReplay() {
@@ -187,7 +188,7 @@ internal class ReplaySessionPresenter(
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {
 
         val price = stockChart.data
-            .getCandleSeries()
+            .candleSeries
             .last()
             .close
             .toPlainString()
@@ -207,7 +208,7 @@ internal class ReplaySessionPresenter(
     private fun onSell(stockChart: StockChart) = coroutineScope.launchUnit {
 
         val price = stockChart.data
-            .getCandleSeries()
+            .candleSeries
             .last()
             .close
             .toPlainString()
@@ -232,8 +233,10 @@ internal class ReplaySessionPresenter(
         replayTime = flow {
 
             val replayTimeFlow = stockChart.data
-                .getCandleSeries()
-                .let { it as ReplaySeries }
+                .source
+                .let { it as ReplayCandleSource }
+                .replaySeries
+                .await()
                 .replayTime
                 .map(::formattedReplayTime)
 
@@ -242,8 +245,10 @@ internal class ReplaySessionPresenter(
         candleState = flow {
 
             val candleStateFlow = stockChart.data
-                .getCandleSeries()
-                .let { it as ReplaySeries }
+                .source
+                .let { it as ReplayCandleSource }
+                .replaySeries
+                .await()
                 .candleState
                 .map { it.name }
 

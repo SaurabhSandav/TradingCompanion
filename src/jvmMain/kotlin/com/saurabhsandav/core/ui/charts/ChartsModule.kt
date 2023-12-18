@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.coroutines.CoroutineScope
@@ -23,11 +24,15 @@ internal class ChartsModule(
 
         ChartsPresenter(
             coroutineScope = coroutineScope,
-            stockChartsStateFactory = { initialParams: StockChartParams ->
+            stockChartsStateFactory = {
+                    initialParams: StockChartParams,
+                    loadConfig: LoadConfig,
+                ->
 
                 appModule.stockChartsState(
                     coroutineScope = coroutineScope,
                     initialParams = initialParams,
+                    loadConfig = loadConfig,
                     marketDataProvider = marketDataProvider,
                 )
             },
@@ -44,5 +49,6 @@ fun interface StockChartsStateFactory {
 
     operator fun invoke(
         initialParams: StockChartParams,
+        loadConfig: LoadConfig,
     ): StockChartsState
 }

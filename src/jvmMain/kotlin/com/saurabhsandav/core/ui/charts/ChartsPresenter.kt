@@ -14,6 +14,7 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
+import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -26,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @Stable
@@ -47,6 +49,7 @@ internal class ChartsPresenter(
 
         stockChartsStateFactory(
             initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
+            loadConfig = LoadConfig(initialLoadBefore = Clock.System.now()),
         )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)

@@ -142,7 +142,7 @@ class StockChart(
             // Wait for first load
             data.loadState.first { loadState -> loadState == LoadState.Loaded }
 
-            val candleSeries = data.getCandleSeries()
+            val candleSeries = data.candleSeries
 
             // Don't show time in daily chart
             val timeScaleOptions = TimeScaleOptions(timeVisible = candleSeries.timeframe != Timeframe.D1)
@@ -220,8 +220,6 @@ class StockChart(
             setupMarkers()
         }
     }
-
-    fun refresh() = setData()
 
     fun setDarkMode(isDark: Boolean) {
         actualChart.applyOptions(if (isDark) ChartDarkModeOptions else ChartLightModeOptions)
@@ -431,9 +429,9 @@ class StockChart(
         }
     }
 
-    private suspend fun setupMarkers() {
+    private fun setupMarkers() {
 
-        val candleSeries = data.getCandleSeries()
+        val candleSeries = data.candleSeries
 
         // Session markers
         generateSessionStartInstants(candleSeries)
@@ -465,7 +463,7 @@ class StockChart(
         // Wait for any loading to finish
         data.loadState.first { loadState -> loadState == LoadState.Loaded }
 
-        val candleSeries = data.getCandleSeries()
+        val candleSeries = data.candleSeries
 
         // No candles loaded, nothing to do
         if (candleSeries.isEmpty()) return
@@ -481,8 +479,7 @@ class StockChart(
                 // Load data for specified interval
                 candleLoader.load(
                     params = params,
-                    instant = interval.start,
-                    to = interval.endInclusive,
+                    interval = interval,
                 )
 
                 val startIndexResult = candleSeries.binarySearchByAsResult(interval.start) { it.openInstant }
@@ -556,4 +553,3 @@ class StockChart(
 private const val PrefMarkersEnabled = "markers_enabled"
 
 internal const val StockChartLoadMoreThreshold = 50
-internal const val StockChartLoadInstantBuffer = 100

@@ -3,9 +3,6 @@ package com.saurabhsandav.core.ui.charts
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
@@ -14,7 +11,6 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 internal class ChartsCandleSource(
@@ -24,85 +20,52 @@ internal class ChartsCandleSource(
     private val getTradeExecutionMarkers: (ClosedRange<Instant>) -> Flow<List<TradeExecutionMarker>>,
 ) : CandleSource {
 
-    private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
-    private val candleSeries: CandleSeries = mutableCandleSeries.asCandleSeries()
+    override suspend fun onLoad(interval: ClosedRange<Instant>): CandleSource.Result {
 
-    override suspend fun getCandleSeries(): CandleSeries = candleSeries
+        val candles = unwrap {
 
-    override suspend fun onLoad() {
+            candleRepo.getCandles(
+                ticker = params.ticker,
+                timeframe = params.timeframe,
+                from = interval.start,
+                to = interval.endInclusive,
+                includeFromCandle = false,
+            )
+        }.first()
+
+        return CandleSource.Result(candles)
+    }
+
+    override suspend fun onLoadBefore(before: Instant, count: Int): CandleSource.Result {
 
         val candles = unwrap {
 
             candleRepo.getCandlesBefore(
                 ticker = params.ticker,
                 timeframe = params.timeframe,
-                at = Clock.System.now(),
-                count = ChartsCandleLoadCount,
+                at = before,
+                count = count,
                 includeAt = true,
             )
         }.first()
 
-        // Append candles
-        mutableCandleSeries.appendCandles(candles)
+        return CandleSource.Result(candles)
     }
 
-    override suspend fun onLoad(
-        instant: Instant,
-        to: Instant?,
-        bufferCount: Int?,
-    ) {
+    override suspend fun onLoadAfter(after: Instant, count: Int): CandleSource.Result {
 
-        val firstCandleInstant = candleSeries.firstOrNull()?.openInstant
-        val isBefore = firstCandleInstant != null && instant < firstCandleInstant
+        val candles = unwrap {
 
-        if (isBefore) {
-
-            val intervalCandles = unwrap {
-
-                candleRepo.getCandles(
-                    ticker = params.ticker,
-                    timeframe = params.timeframe,
-                    from = instant,
-                    to = mutableCandleSeries.first().openInstant,
-                    includeFromCandle = false,
-                )
-            }.first()
-
-            if (intervalCandles.isNotEmpty()) {
-
-                val bufferCandles = when {
-                    bufferCount == null -> emptyList()
-                    else -> unwrap {
-
-                        candleRepo.getCandlesBefore(
-                            ticker = params.ticker,
-                            timeframe = params.timeframe,
-                            at = intervalCandles.first().openInstant,
-                            count = bufferCount,
-                            includeAt = false,
-                        )
-                    }.first()
-                }
-
-                mutableCandleSeries.prependCandles(bufferCandles + intervalCandles)
-            }
-        }
-    }
-
-    override suspend fun onLoadBefore() {
-
-        val oldCandles = unwrap {
-
-            candleRepo.getCandlesBefore(
+            candleRepo.getCandlesAfter(
                 ticker = params.ticker,
                 timeframe = params.timeframe,
-                at = mutableCandleSeries.first().openInstant,
-                count = ChartsCandleLoadCount,
-                includeAt = false,
+                at = after,
+                count = count,
+                includeAt = true,
             )
         }.first()
 
-        mutableCandleSeries.prependCandles(oldCandles)
+        return CandleSource.Result(candles)
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
@@ -136,5 +99,3 @@ internal class ChartsCandleSource(
         }
     }
 }
-
-private const val ChartsCandleLoadCount = 500
