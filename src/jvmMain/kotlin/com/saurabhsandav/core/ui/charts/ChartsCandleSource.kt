@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.charts
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.asCandleSeries
@@ -32,7 +31,7 @@ internal class ChartsCandleSource(
 
     override suspend fun onLoad() {
 
-        val candles = getCandles {
+        val candles = unwrap {
 
             candleRepo.getCandlesBefore(
                 ticker = params.ticker,
@@ -41,7 +40,7 @@ internal class ChartsCandleSource(
                 count = ChartsCandleLoadCount,
                 includeAt = true,
             )
-        }
+        }.first()
 
         // Append candles
         mutableCandleSeries.appendCandles(candles)
@@ -58,7 +57,7 @@ internal class ChartsCandleSource(
 
         if (isBefore) {
 
-            val intervalCandles = getCandles {
+            val intervalCandles = unwrap {
 
                 candleRepo.getCandles(
                     ticker = params.ticker,
@@ -67,13 +66,13 @@ internal class ChartsCandleSource(
                     to = mutableCandleSeries.first().openInstant,
                     edgeCandlesInclusive = false,
                 )
-            }
+            }.first()
 
             if (intervalCandles.isNotEmpty()) {
 
                 val bufferCandles = when {
                     bufferCount == null -> emptyList()
-                    else -> getCandles {
+                    else -> unwrap {
 
                         candleRepo.getCandlesBefore(
                             ticker = params.ticker,
@@ -82,7 +81,7 @@ internal class ChartsCandleSource(
                             count = bufferCount,
                             includeAt = false,
                         )
-                    }
+                    }.first()
                 }
 
                 mutableCandleSeries.prependCandles(bufferCandles + intervalCandles)
@@ -92,7 +91,7 @@ internal class ChartsCandleSource(
 
     override suspend fun onLoadBefore() {
 
-        val oldCandles = getCandles {
+        val oldCandles = unwrap {
 
             candleRepo.getCandlesBefore(
                 ticker = params.ticker,
@@ -101,7 +100,7 @@ internal class ChartsCandleSource(
                 count = ChartsCandleLoadCount,
                 includeAt = false,
             )
-        }
+        }.first()
 
         mutableCandleSeries.prependCandles(oldCandles)
     }
@@ -114,23 +113,23 @@ internal class ChartsCandleSource(
         return getTradeExecutionMarkers.invoke(instantRange)
     }
 
-    private suspend fun getCandles(
-        request: suspend () -> Result<List<Candle>, CandleRepository.Error>,
-    ): List<Candle> {
+    private suspend fun <T> unwrap(
+        request: suspend () -> Result<T, CandleRepository.Error>,
+    ): T {
 
         // Suspend until logged in
         candleRepo.isLoggedIn().first { it }
 
         // Retry until request successful
-        val candlesResult = retryIOResult(
+        val result = retryIOResult(
             initialDelay = 1000,
             maxDelay = 10000,
             block = request,
         )
 
-        return when (candlesResult) {
-            is Ok -> candlesResult.value
-            is Err -> when (val error = candlesResult.error) {
+        return when (result) {
+            is Ok -> result.value
+            is Err -> when (val error = result.error) {
                 is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }

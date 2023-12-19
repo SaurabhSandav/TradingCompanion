@@ -56,7 +56,7 @@ internal class TradeManagementJob(
                 from = entryInstant,
                 to = exitInstant,
                 edgeCandlesInclusive = true,
-            ).get()
+            ).get()?.first()
 
             if (tradeCandles.isNullOrEmpty()) {
                 Logger.d(DebugTag) { "No candles found for Trade#(${trade.id})" }

@@ -27,7 +27,7 @@ internal class CandleRepository(
         from: Instant,
         to: Instant,
         edgeCandlesInclusive: Boolean,
-    ): Result<List<Candle>, Error> {
+    ): Result<Flow<List<Candle>>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
         val fillResult = checkAndFillRange(ticker, timeframe, from, to)
@@ -47,7 +47,7 @@ internal class CandleRepository(
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): Result<List<Candle>, Error> {
+    ): Result<Flow<List<Candle>>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
         val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, count, 0)
@@ -67,7 +67,7 @@ internal class CandleRepository(
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): Result<List<Candle>, Error> {
+    ): Result<Flow<List<Candle>>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
         val fillResult = checkAndFillRangeByCount(ticker, timeframe, at, 0, count)

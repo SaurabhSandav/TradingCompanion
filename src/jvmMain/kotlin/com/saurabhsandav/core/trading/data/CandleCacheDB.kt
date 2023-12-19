@@ -7,7 +7,10 @@ import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 
@@ -53,13 +56,13 @@ internal class CandleCacheDB(
             .first()
     }
 
-    override suspend fun fetchRange(
+    override fun fetchRange(
         ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
         edgeCandlesInclusive: Boolean,
-    ): List<Candle> {
+    ): Flow<List<Candle>> = flow {
 
         val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
@@ -75,7 +78,7 @@ internal class CandleCacheDB(
                 )
             }
 
-        return when {
+        val flow = when {
             edgeCandlesInclusive -> candlesQueries.getInRangeEdgeCandlesInclusive(
                 from = from.epochSeconds,
                 to = to.epochSeconds,
@@ -88,7 +91,9 @@ internal class CandleCacheDB(
                 to = to.epochSeconds,
                 mapper = mapper,
             )
-        }.asFlow().mapToList(Dispatchers.IO).first()
+        }.asFlow().mapToList(Dispatchers.IO)
+
+        emitAll(flow)
     }
 
     override suspend fun getCountAt(
@@ -113,60 +118,70 @@ internal class CandleCacheDB(
         )
     }
 
-    override suspend fun getBefore(
+    override fun getBefore(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): List<Candle> {
+    ): Flow<List<Candle>> {
 
         require(count > 0) { "CandleCacheDB: count should be greater than 0" }
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+        return flow {
 
-        return candlesQueries.getCountBefore(
-            at = at.epochSeconds,
-            count = count.toLong(),
-            includeAt = includeAt,
-        ) { epochSeconds, open, high, low, close, volume ->
-            Candle(
-                Instant.fromEpochSeconds(epochSeconds),
-                open.toBigDecimal(),
-                high.toBigDecimal(),
-                low.toBigDecimal(),
-                close.toBigDecimal(),
-                volume.toBigDecimal(),
-            )
-        }.asFlow().mapToList(Dispatchers.IO).first()
+            val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+
+            val flow = candlesQueries.getCountBefore(
+                at = at.epochSeconds,
+                count = count.toLong(),
+                includeAt = includeAt,
+            ) { epochSeconds, open, high, low, close, volume ->
+                Candle(
+                    Instant.fromEpochSeconds(epochSeconds),
+                    open.toBigDecimal(),
+                    high.toBigDecimal(),
+                    low.toBigDecimal(),
+                    close.toBigDecimal(),
+                    volume.toBigDecimal(),
+                )
+            }.asFlow().mapToList(Dispatchers.IO)
+
+            emitAll(flow)
+        }
     }
 
-    override suspend fun getAfter(
+    override fun getAfter(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): List<Candle> {
+    ): Flow<List<Candle>> {
 
         require(count > 0) { "CandleCacheDB: count should be greater than 0" }
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+        return flow {
 
-        return candlesQueries.getCountAfter(
-            at = at.epochSeconds,
-            count = count.toLong(),
-            includeAt = includeAt,
-        ) { epochSeconds, open, high, low, close, volume ->
-            Candle(
-                Instant.fromEpochSeconds(epochSeconds),
-                open.toBigDecimal(),
-                high.toBigDecimal(),
-                low.toBigDecimal(),
-                close.toBigDecimal(),
-                volume.toBigDecimal(),
-            )
-        }.asFlow().mapToList(Dispatchers.IO).first()
+            val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+
+            val flow = candlesQueries.getCountAfter(
+                at = at.epochSeconds,
+                count = count.toLong(),
+                includeAt = includeAt,
+            ) { epochSeconds, open, high, low, close, volume ->
+                Candle(
+                    Instant.fromEpochSeconds(epochSeconds),
+                    open.toBigDecimal(),
+                    high.toBigDecimal(),
+                    low.toBigDecimal(),
+                    close.toBigDecimal(),
+                    volume.toBigDecimal(),
+                )
+            }.asFlow().mapToList(Dispatchers.IO)
+
+            emitAll(flow)
+        }
     }
 
     override suspend fun save(

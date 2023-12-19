@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading.data
 
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 
 interface CandleCache {
@@ -18,13 +19,13 @@ interface CandleCache {
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
 
-    suspend fun fetchRange(
+    fun fetchRange(
         ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
         edgeCandlesInclusive: Boolean,
-    ): List<Candle>
+    ): Flow<List<Candle>>
 
     suspend fun getCountAt(
         ticker: String,
@@ -32,21 +33,21 @@ interface CandleCache {
         at: Instant,
     ): CountRange?
 
-    suspend fun getBefore(
+    fun getBefore(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): List<Candle>
+    ): Flow<List<Candle>>
 
-    suspend fun getAfter(
+    fun getAfter(
         ticker: String,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
         includeAt: Boolean,
-    ): List<Candle>
+    ): Flow<List<Candle>>
 
     suspend fun save(
         ticker: String,

@@ -95,7 +95,7 @@ internal class ReplayChartsMarketDataProvider(
                     at = replayParams.replayFrom,
                     count = replayParams.candlesBefore,
                     includeAt = true,
-                ).bind()
+                ).bind().first()
             }
 
             val candlesAfter = async {
@@ -105,7 +105,7 @@ internal class ReplayChartsMarketDataProvider(
                     from = replayParams.replayFrom,
                     to = replayParams.dataTo,
                     edgeCandlesInclusive = false,
-                ).bind()
+                ).bind().first()
             }
 
             candlesBefore.await() + candlesAfter.await()
