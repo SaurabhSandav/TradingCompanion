@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading.data
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
@@ -54,6 +55,22 @@ internal class CandleCacheDB(
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .first()
+    }
+
+    override fun getCountInRange(
+        ticker: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    ): Flow<Long> = flow {
+
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+
+        val flow = candlesQueries.getCountInRange(from.epochSeconds, to.epochSeconds)
+            .asFlow()
+            .mapToOne(Dispatchers.IO)
+
+        emitAll(flow)
     }
 
     override fun fetchRange(

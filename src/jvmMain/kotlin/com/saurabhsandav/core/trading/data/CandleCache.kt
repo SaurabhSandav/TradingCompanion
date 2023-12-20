@@ -19,6 +19,13 @@ interface CandleCache {
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
 
+    fun getCountInRange(
+        ticker: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    ): Flow<Long>
+
     fun fetchRange(
         ticker: String,
         timeframe: Timeframe,

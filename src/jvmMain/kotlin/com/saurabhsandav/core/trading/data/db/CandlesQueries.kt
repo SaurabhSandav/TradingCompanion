@@ -12,6 +12,17 @@ class CandlesQueries(
     private val identifierSeries: Int,
 ) : TransacterImpl(driver) {
 
+    fun getCountInRange(
+        from: Long,
+        to: Long,
+    ): Query<Long> = GetCountInRangeQuery(
+        identifier = identifierSeries + Identifier_getCountInRange,
+        from = from,
+        to = to,
+    ) { cursor ->
+        cursor.getLong(0)!!
+    }
+
     fun <T : Any> getInRange(
         from: Long,
         to: Long,
@@ -192,6 +203,38 @@ class CandlesQueries(
         notifyQueries(identifier) { emit ->
             emit(tableName)
         }
+    }
+
+    private inner class GetCountInRangeQuery<out T : Any>(
+        val identifier: Int,
+        val from: Long,
+        val to: Long,
+        mapper: (SqlCursor) -> T,
+    ) : Query<T>(mapper) {
+
+        override fun addListener(listener: Listener) {
+            driver.addListener(tableName, listener = listener)
+        }
+
+        override fun removeListener(listener: Listener) {
+            driver.removeListener(tableName, listener = listener)
+        }
+
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
+            driver.executeQuery(
+                identifier = identifier,
+                sql = """
+                    |SELECT COUNT(*) FROM $tableName
+                    |WHERE epochSeconds BETWEEN ? AND ?
+                    """.trimMargin(),
+                mapper = mapper,
+                parameters = 2,
+            ) {
+                bindLong(0, from)
+                bindLong(1, to)
+            }
+
+        override fun toString(): String = "Candles.sq:getInRange"
     }
 
     private inner class GetInRangeQuery<out T : Any>(
@@ -389,11 +432,12 @@ class CandlesQueries(
     companion object {
 
         private const val Identifier_insert = 1
-        private const val Identifier_getInRange = 2
-        private const val Identifier_getInRangeEdgeCandlesInclusive = 3
-        private const val Identifier_getEpochSecondsAndCountAt = 4
-        private const val Identifier_getCountBefore = 5
-        private const val Identifier_getCountAfter = 6
+        private const val Identifier_getCountInRange = 2
+        private const val Identifier_getInRange = 3
+        private const val Identifier_getInRangeEdgeCandlesInclusive = 4
+        private const val Identifier_getEpochSecondsAndCountAt = 5
+        private const val Identifier_getCountBefore = 6
+        private const val Identifier_getCountAfter = 7
     }
 }
 

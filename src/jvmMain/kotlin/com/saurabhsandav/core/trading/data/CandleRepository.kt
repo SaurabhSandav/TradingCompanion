@@ -17,6 +17,21 @@ internal class CandleRepository(
 
     fun isLoggedIn(): Flow<Boolean> = candleDownloader.isLoggedIn()
 
+    suspend fun getCountInRange(
+        ticker: String,
+        timeframe: Timeframe,
+        from: Instant,
+        to: Instant,
+    ): Result<Flow<Long>, Error> {
+
+        // Download entire range / Fill gaps at ends of cached range (if necessary)
+        val fillResult = checkAndFillRange(ticker, timeframe, from, to)
+        if (fillResult is Err) return fillResult
+
+        // Fetch and return candles
+        return Ok(candleCache.getCountInRange(ticker, timeframe, from, to))
+    }
+
     /**
      * Get candles for [ticker] and [timeframe] in [from]..[to] interval.
      * Set [edgeCandlesInclusive] = true to include candles containing [from] and [to].
