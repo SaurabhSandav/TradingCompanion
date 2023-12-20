@@ -5,6 +5,7 @@ import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.coroutines.CoroutineScope
 
 internal class ReplaySessionModule(
@@ -27,6 +28,15 @@ internal class ReplaySessionModule(
         candleRepo = appModule.candleRepo,
     )
 
+    private val marketDataProvider = ReplayChartsMarketDataProvider(
+        coroutineScope = coroutineScope,
+        replayParams = replayParams,
+        barReplay = barReplay,
+        appPrefs = appModule.appPrefs,
+        candleRepo = appModule.candleRepo,
+        tradingProfiles = appModule.tradingProfiles,
+    )
+
     val presenter = {
 
         ReplaySessionPresenter(
@@ -37,14 +47,7 @@ internal class ReplaySessionModule(
                 appModule.stockChartsState(
                     coroutineScope = coroutineScope,
                     initialParams = initialParams,
-                    marketDataProvider = ReplayChartsMarketDataProvider(
-                        coroutineScope = coroutineScope,
-                        replayParams = replayParams,
-                        barReplay = barReplay,
-                        appPrefs = appModule.appPrefs,
-                        candleRepo = appModule.candleRepo,
-                        tradingProfiles = appModule.tradingProfiles,
-                    )
+                    marketDataProvider = marketDataProvider,
                 )
             },
             barReplay = barReplay,
@@ -53,4 +56,11 @@ internal class ReplaySessionModule(
             tradingProfiles = appModule.tradingProfiles,
         )
     }
+}
+
+fun interface StockChartsStateFactory {
+
+    operator fun invoke(
+        initialParams: StockChartParams,
+    ): StockChartsState
 }

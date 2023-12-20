@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.coroutines.CoroutineScope
 
 internal class ChartsModule(
@@ -37,4 +38,11 @@ internal class ChartsModule(
             candleRepo = appModule.candleRepo,
         )
     }
+}
+
+fun interface StockChartsStateFactory {
+
+    operator fun invoke(
+        initialParams: StockChartParams,
+    ): StockChartsState
 }

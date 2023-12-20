@@ -19,7 +19,6 @@ import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
@@ -39,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
     replayParams: ReplayParams,
-    stockChartsStateFactory: (StockChartParams) -> StockChartsState,
+    stockChartsStateFactory: StockChartsStateFactory,
     private val barReplay: BarReplay,
     val replayOrdersManager: ReplayOrdersManager,
     private val appPrefs: FlowSettings,
@@ -48,7 +47,7 @@ internal class ReplaySessionPresenter(
 
     private var autoNextJob by mutableStateOf<Job?>(null)
     private val chartsState = stockChartsStateFactory(
-        StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe)
+        initialParams = StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe),
     )
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 

@@ -31,7 +31,7 @@ import kotlinx.datetime.Instant
 @Stable
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
-    stockChartsStateFactory: (StockChartParams) -> StockChartsState,
+    stockChartsStateFactory: StockChartsStateFactory,
     private val markersProvider: ChartMarkersProvider,
     private val appPrefs: FlowSettings,
     private val loginServicesManager: LoginServicesManager,
@@ -45,7 +45,9 @@ internal class ChartsPresenter(
             .map(Timeframe::valueOf)
             .first()
 
-        stockChartsStateFactory(StockChartParams(NIFTY50.first(), defaultTimeframe))
+        stockChartsStateFactory(
+            initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
+        )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)
     private val errors = mutableStateListOf<UIErrorMessage>()
