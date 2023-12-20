@@ -23,7 +23,12 @@ internal class ChartsModule(
         ChartsPresenter(
             coroutineScope = coroutineScope,
             stockChartsStateFactory = { initialParams: StockChartParams ->
-                appModule.stockChartsState(coroutineScope, initialParams, marketDataProvider)
+
+                appModule.stockChartsState(
+                    coroutineScope = coroutineScope,
+                    initialParams = initialParams,
+                    marketDataProvider = marketDataProvider,
+                )
             },
             markersProvider = markersProvider,
             appPrefs = appModule.appPrefs,

@@ -31,6 +31,7 @@ import com.saurabhsandav.core.ui.sizing.SizingModule
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
 import com.saurabhsandav.core.ui.studies.StudiesModule
 import com.saurabhsandav.core.ui.tags.TagsModule
 import com.saurabhsandav.core.ui.tags.form.TagFormModule
@@ -226,7 +227,7 @@ internal class AppModule {
         TradesModule(this, coroutineScope)
     }
 
-    val stockChartsState = {
+    val stockChartsState = StockChartsStateFactory {
             coroutineScope: CoroutineScope,
             initialParams: StockChartParams,
             marketDataProvider: MarketDataProvider,

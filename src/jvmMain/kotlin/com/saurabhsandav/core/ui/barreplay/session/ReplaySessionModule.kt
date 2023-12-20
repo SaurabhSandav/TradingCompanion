@@ -33,10 +33,11 @@ internal class ReplaySessionModule(
             coroutineScope = coroutineScope,
             replayParams = replayParams,
             stockChartsStateFactory = { initialParams: StockChartParams ->
+
                 appModule.stockChartsState(
-                    coroutineScope,
-                    initialParams,
-                    ReplayChartsMarketDataProvider(
+                    coroutineScope = coroutineScope,
+                    initialParams = initialParams,
+                    marketDataProvider = ReplayChartsMarketDataProvider(
                         coroutineScope = coroutineScope,
                         replayParams = replayParams,
                         barReplay = barReplay,
