@@ -13,6 +13,7 @@ import kotlinx.datetime.Instant
 class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
     private val loadConfig: LoadConfig,
+    private val onCandlesLoaded: (StockChartParams) -> Unit,
 ) {
 
     private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
@@ -371,6 +372,8 @@ class CandleLoader(
         coroutineScope.launch { block() }.join()
 
         loadState.emit(LoadState.Loaded)
+
+        onCandlesLoaded(params)
     }
 
     private class LoadedPages(initialPage: ClosedRange<Instant>) {

@@ -48,6 +48,7 @@ class StockChartsState(
     private val candleLoader = CandleLoader(
         marketDataProvider = marketDataProvider,
         loadConfig = loadConfig,
+        onCandlesLoaded = ::onCandlesLoaded,
     )
 
     init {
@@ -293,6 +294,12 @@ class StockChartsState(
         // Release StockChartData if unused
         if (!charts.any { it.params == prevParams })
             candleLoader.releaseStockChartData(prevParams)
+    }
+
+    private fun onCandlesLoaded(params: StockChartParams) {
+        charts
+            .filter { stockChart -> stockChart.params == params }
+            .forEach { stockChart -> stockChart.setData() }
     }
 
     private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {

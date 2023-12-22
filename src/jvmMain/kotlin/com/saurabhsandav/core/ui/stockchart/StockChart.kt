@@ -66,7 +66,7 @@ class StockChart(
     private val tradeExecutionMarkers = TradeExecutionMarkers()
     private val tradeMarkers = TradeMarkers()
 
-    private lateinit var indicators: Indicators
+    private var indicators: Indicators? = null
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
 
@@ -172,9 +172,6 @@ class StockChart(
                 to = finalVisibleRange.endInclusive,
             )
 
-            // Set data on future loads
-            candleSeries.modifications.onEach { setData() }.launchIn(dataCoroutineScope)
-
             // Load before/after candles if needed
             actualChart.timeScale
                 .visibleLogicalRangeChange()
@@ -254,8 +251,9 @@ class StockChart(
         plotters.clear()
     }
 
-    private fun setData() {
+    internal fun setData() {
 
+        val indicators = indicators ?: return
         val candleSeries = indicators.candleSeries
 
         candlestickPlotter.setData(candleSeries.map { candle ->
@@ -344,6 +342,7 @@ class StockChart(
 
     private fun update() {
 
+        val indicators = requireNotNull(indicators)
         val index = indicators.candleSeries.lastIndex
         val candle = indicators.candleSeries.last()
 
