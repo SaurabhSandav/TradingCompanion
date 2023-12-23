@@ -12,7 +12,7 @@ import kotlinx.datetime.Instant
 
 class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
-    private val loadConfig: LoadConfig,
+    val loadConfig: LoadConfig,
     private val onCandlesLoaded: (StockChartParams) -> Unit,
 ) {
 

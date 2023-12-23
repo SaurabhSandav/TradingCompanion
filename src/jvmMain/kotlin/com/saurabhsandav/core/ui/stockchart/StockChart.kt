@@ -189,7 +189,7 @@ class StockChart(
 
                     when {
                         // Load more historical data if there are less than a certain no. of bars to the left of the visible area.
-                        barsInfo.barsBefore < StockChartLoadMoreThreshold -> {
+                        barsInfo.barsBefore < candleLoader.loadConfig.loadMoreThreshold -> {
 
                             // Load
                             candleLoader.loadBefore(params)
@@ -199,7 +199,7 @@ class StockChart(
                         }
 
                         // Load more new data if there are less than a certain no. of bars to the right of the visible area.
-                        barsInfo.barsAfter < StockChartLoadMoreThreshold -> {
+                        barsInfo.barsAfter < candleLoader.loadConfig.loadMoreThreshold -> {
 
                             // Load
                             candleLoader.loadAfter(params)
@@ -550,5 +550,3 @@ class StockChart(
 }
 
 private const val PrefMarkersEnabled = "markers_enabled"
-
-internal const val StockChartLoadMoreThreshold = 50
