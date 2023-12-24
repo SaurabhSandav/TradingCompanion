@@ -5,8 +5,6 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
-import com.saurabhsandav.core.utils.subList
-import com.saurabhsandav.core.utils.subListInclusive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,7 +35,7 @@ internal class ResampledReplaySeriesBuilder(
 
         // Init replay series
         _replaySeries = MutableCandleSeries(
-            initial = timeframeSeries.subList(0, toIndexExclusive = currentTimeframeCandleIndex) + resampledCandle,
+            initial = timeframeSeries.subList(0, currentTimeframeCandleIndex) + resampledCandle,
             timeframe = timeframeSeries.timeframe,
         )
 
@@ -175,7 +173,7 @@ internal class ResampledReplaySeriesBuilder(
             .indexOr { naturalIndex -> naturalIndex - 1 }
 
         // Resample
-        return inputSeries.subListInclusive(currentResampleCandleStartIndex, currentIndex)
+        return inputSeries.subList(currentResampleCandleStartIndex, currentIndex + 1)
             .reduce { resampledCandle, newCandle -> resampledCandle.resample(newCandle) }
             .withTimeframeOpenInstant()
     }

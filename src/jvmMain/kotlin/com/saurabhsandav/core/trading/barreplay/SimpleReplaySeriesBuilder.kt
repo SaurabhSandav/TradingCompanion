@@ -2,7 +2,6 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.utils.subList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -13,7 +12,7 @@ internal class SimpleReplaySeriesBuilder(
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries = MutableCandleSeries(
-        initial = inputSeries.subList(0, toIndexExclusive = initialIndex),
+        initial = inputSeries.subList(0, initialIndex),
         timeframe = inputSeries.timeframe,
     )
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
