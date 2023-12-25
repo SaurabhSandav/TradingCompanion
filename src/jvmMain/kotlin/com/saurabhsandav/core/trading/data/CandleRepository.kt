@@ -34,14 +34,14 @@ internal class CandleRepository(
 
     /**
      * Get candles for [ticker] and [timeframe] in [from]..[to] interval.
-     * Set [edgeCandlesInclusive] = true to include candles containing [from] and [to].
+     * Set [includeFromCandle] = true to include candle containing [from].
      */
     suspend fun getCandles(
         ticker: String,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-        edgeCandlesInclusive: Boolean,
+        includeFromCandle: Boolean,
     ): Result<Flow<List<Candle>>, Error> {
 
         // Download entire range / Fill gaps at ends of cached range (if necessary)
@@ -49,7 +49,7 @@ internal class CandleRepository(
         if (fillResult is Err) return fillResult
 
         // Fetch and return candles
-        return Ok(candleCache.fetchRange(ticker, timeframe, from, to, edgeCandlesInclusive))
+        return Ok(candleCache.fetchRange(ticker, timeframe, from, to, includeFromCandle))
     }
 
     /**

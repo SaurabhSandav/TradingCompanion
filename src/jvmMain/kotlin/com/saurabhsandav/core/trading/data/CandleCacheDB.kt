@@ -78,7 +78,7 @@ internal class CandleCacheDB(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-        edgeCandlesInclusive: Boolean,
+        includeFromCandle: Boolean,
     ): Flow<List<Candle>> = flow {
 
         val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
@@ -96,7 +96,7 @@ internal class CandleCacheDB(
             }
 
         val flow = when {
-            edgeCandlesInclusive -> candlesQueries.getInRangeEdgeCandlesInclusive(
+            includeFromCandle -> candlesQueries.getInRangeFromCandleInclusive(
                 from = from.epochSeconds,
                 to = to.epochSeconds,
                 candleSeconds = timeframe.seconds - 1,

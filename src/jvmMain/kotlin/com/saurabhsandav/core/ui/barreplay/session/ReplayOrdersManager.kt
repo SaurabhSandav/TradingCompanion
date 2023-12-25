@@ -285,7 +285,7 @@ internal class ReplayOrdersManager(
                     timeframe = timeframe,
                     from = replayParams.replayFrom,
                     to = replayParams.dataTo,
-                    edgeCandlesInclusive = false,
+                    includeFromCandle = false,
                 ).bind().first()
             }
 

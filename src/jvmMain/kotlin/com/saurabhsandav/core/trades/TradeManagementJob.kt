@@ -55,7 +55,7 @@ internal class TradeManagementJob(
                 timeframe = Timeframe.M1,
                 from = entryInstant,
                 to = exitInstant,
-                edgeCandlesInclusive = true,
+                includeFromCandle = true,
             ).get()?.first()
 
             if (tradeCandles.isNullOrEmpty()) {

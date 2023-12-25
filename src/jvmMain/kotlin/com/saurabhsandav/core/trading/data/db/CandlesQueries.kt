@@ -50,7 +50,7 @@ class CandlesQueries(
         )
     }
 
-    fun <T : Any> getInRangeEdgeCandlesInclusive(
+    fun <T : Any> getInRangeFromCandleInclusive(
         from: Long,
         to: Long,
         candleSeconds: Long,
@@ -62,8 +62,8 @@ class CandlesQueries(
             close: String,
             volume: Long,
         ) -> T,
-    ): Query<T> = GetInRangeEdgeCandlesInclusiveQuery(
-        identifier = identifierSeries + Identifier_getInRangeEdgeCandlesInclusive,
+    ): Query<T> = GetInRangeFromCandleInclusiveQuery(
+        identifier = identifierSeries + Identifier_getInRangeFromCandleInclusive,
         from = from,
         to = to,
         candleSeconds = candleSeconds,
@@ -270,7 +270,7 @@ class CandlesQueries(
         override fun toString(): String = "Candles.sq:getInRange"
     }
 
-    private inner class GetInRangeEdgeCandlesInclusiveQuery<out T : Any>(
+    private inner class GetInRangeFromCandleInclusiveQuery<out T : Any>(
         val identifier: Int,
         val from: Long,
         val to: Long,
@@ -293,7 +293,6 @@ class CandlesQueries(
                     |SELECT * FROM $tableName
                     |WHERE epochSeconds BETWEEN ? AND ?
                     |OR ? BETWEEN epochSeconds AND (epochSeconds + ?)
-                    |OR ? BETWEEN epochSeconds AND (epochSeconds + ?)
                     |ORDER BY epochSeconds
                     """.trimMargin(),
                 mapper = mapper,
@@ -303,8 +302,6 @@ class CandlesQueries(
                 bindLong(1, to)
                 bindLong(2, from)
                 bindLong(3, candleSeconds)
-                bindLong(4, to)
-                bindLong(5, candleSeconds)
             }
 
         override fun toString(): String = "Candles.sq:getInRangeEdgeCandlesInclusive"
@@ -434,7 +431,7 @@ class CandlesQueries(
         private const val Identifier_insert = 1
         private const val Identifier_getCountInRange = 2
         private const val Identifier_getInRange = 3
-        private const val Identifier_getInRangeEdgeCandlesInclusive = 4
+        private const val Identifier_getInRangeFromCandleInclusive = 4
         private const val Identifier_getEpochSecondsAndCountAt = 5
         private const val Identifier_getCountBefore = 6
         private const val Identifier_getCountAfter = 7

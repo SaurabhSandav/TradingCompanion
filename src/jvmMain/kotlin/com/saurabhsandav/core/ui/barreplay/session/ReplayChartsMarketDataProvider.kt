@@ -104,7 +104,7 @@ internal class ReplayChartsMarketDataProvider(
                     timeframe = timeframe,
                     from = replayParams.replayFrom,
                     to = replayParams.dataTo,
-                    edgeCandlesInclusive = false,
+                    includeFromCandle = false,
                 ).bind().first()
             }
 
