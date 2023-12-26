@@ -3,16 +3,16 @@ package com.saurabhsandav.core.ui.landing
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.ui.LandingScreen
+import kotlinx.coroutines.flow.map
 
 @Composable
 internal fun LandingWindow(
@@ -25,9 +25,15 @@ internal fun LandingWindow(
     onOpenSettings: () -> Unit,
 ) {
 
+    val appModule = LocalAppModule.current
+    val profileName by remember {
+        appModule.tradingProfiles.getProfile(profileId).map { "${it.name} - " }
+    }.collectAsState("")
+
     val windowState = rememberAppWindowState(
         windowState = rememberWindowState(placement = WindowPlacement.Maximized),
         defaultTitle = "Trading Companion",
+        titleTransform = { title -> "$profileName$title" },
     )
 
     var showExitConfirmationDialog by state { false }

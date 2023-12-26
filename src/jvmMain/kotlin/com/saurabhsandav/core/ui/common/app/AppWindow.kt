@@ -86,7 +86,8 @@ fun AppWindow(
 fun rememberAppWindowState(
     windowState: WindowState = rememberWindowState(),
     defaultTitle: String? = null,
-): AppWindowState = remember { AppWindowState(windowState, defaultTitle) }
+    titleTransform: ((String) -> String)? = null,
+): AppWindowState = remember { AppWindowState(windowState, defaultTitle, titleTransform) }
 
 @Composable
 fun WindowTitle(title: String) {
@@ -106,6 +107,7 @@ fun WindowTitle(title: String) {
 class AppWindowState(
     windowState: WindowState,
     private val defaultTitle: String? = null,
+    private val titleTransform: ((String) -> String)? = null,
 ) : WindowState by windowState {
 
     private var window: ComposeWindow? = null
@@ -145,7 +147,9 @@ class AppWindowState(
 
     private fun updateTitle() {
         val newTitle = titles.lastOrNull()?.second ?: defaultTitle
-        if (newTitle != null) window?.title = newTitle
+        if (newTitle != null) {
+            window?.title = titleTransform?.invoke(newTitle) ?: newTitle
+        }
     }
 
     fun toFront() {
