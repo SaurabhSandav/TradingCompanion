@@ -5,6 +5,7 @@ import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.asCandleSeries
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -29,26 +30,22 @@ class StockChartData(
 
     val tradeMarkers: Flow<List<TradeMarker>> = flow {
 
-        val flow = candleSeries.instantRange.flatMapLatest { instantRange ->
+        candleSeries.instantRange.flatMapLatest { instantRange ->
             when (instantRange) {
                 null -> flowOf(emptyList())
                 else -> source.getTradeMarkers(instantRange)
             }
-        }
-
-        emitAll(flow)
+        }.emitInto(this)
     }
 
     val tradeExecutionMarkers: Flow<List<TradeExecutionMarker>> = flow {
 
-        val flow = candleSeries.instantRange.flatMapLatest { instantRange ->
+        candleSeries.instantRange.flatMapLatest { instantRange ->
             when (instantRange) {
                 null -> flowOf(emptyList())
                 else -> source.getTradeExecutionMarkers(instantRange)
             }
-        }
-
-        emitAll(flow)
+        }.emitInto(this)
     }
 
     fun reset() {

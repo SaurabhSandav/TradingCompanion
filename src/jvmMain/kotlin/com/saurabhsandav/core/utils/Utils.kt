@@ -2,6 +2,8 @@ package com.saurabhsandav.core.utils
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.transform
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -33,5 +35,7 @@ fun CoroutineScope.launchUnit(
 ) {
     launch(context, start, block)
 }
+
+suspend inline fun <T> Flow<T>.emitInto(collector: FlowCollector<T>) = collector.emitAll(this)
 
 fun CoroutineScope.newChildScope(): CoroutineScope = this + Job(parent = coroutineContext[Job])

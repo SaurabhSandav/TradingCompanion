@@ -6,11 +6,11 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Instant
 
@@ -83,10 +83,10 @@ internal class ReplayCandleSource(
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
-        return flow { emitAll(getTradeMarkers.invoke(instantRange)) }
+        return flow { getTradeMarkers.invoke(instantRange).emitInto(this) }
     }
 
     override fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> {
-        return flow { emitAll(getTradeExecutionMarkers.invoke(instantRange)) }
+        return flow { getTradeExecutionMarkers.invoke(instantRange).emitInto(this) }
     }
 }

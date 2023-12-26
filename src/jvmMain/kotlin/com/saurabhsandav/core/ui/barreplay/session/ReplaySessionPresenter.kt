@@ -20,13 +20,17 @@ import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -232,27 +236,25 @@ internal class ReplaySessionPresenter(
     private fun getChartInfo(stockChart: StockChart) = ReplayChartInfo(
         replayTime = flow {
 
-            val replayTimeFlow = stockChart.data
+            stockChart.data
                 .source
                 .let { it as ReplayCandleSource }
                 .replaySeries
                 .await()
                 .replayTime
                 .map(::formattedReplayTime)
-
-            emitAll(replayTimeFlow)
+                .emitInto(this)
         },
         candleState = flow {
 
-            val candleStateFlow = stockChart.data
+            stockChart.data
                 .source
                 .let { it as ReplayCandleSource }
                 .replaySeries
                 .await()
                 .candleState
                 .map { it.name }
-
-            emitAll(candleStateFlow)
+                .emitInto(this)
         },
     )
 

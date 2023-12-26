@@ -19,6 +19,7 @@ import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -45,8 +46,10 @@ internal class ReviewPresenter(
 ) {
 
     private val review = flow {
-        val tradingRecord = tradingProfiles.getRecord(profileReviewId.profileId)
-        emitAll(tradingRecord.trades.getReviewById(profileReviewId.reviewId))
+        tradingProfiles.getRecord(profileReviewId.profileId)
+            .trades
+            .getReviewById(profileReviewId.reviewId)
+            .emitInto(this)
     }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {

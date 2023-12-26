@@ -28,7 +28,10 @@ import com.saurabhsandav.core.ui.common.table.rememberTableSchema
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -383,10 +386,8 @@ private class AddValueState<T : Any>(
     var priceText by mutableStateOf("")
     var isError by mutableStateOf(false)
 
-    val previewValue = flow {
-        emitAll(
-            snapshotFlow { priceText }.flatMapLatest { it.toBigDecimalOrNull()?.let(preview) ?: emptyFlow() }
-        )
+    val previewValue = snapshotFlow { priceText }.flatMapLatest {
+        it.toBigDecimalOrNull()?.let(preview) ?: emptyFlow()
     }
 
     fun showAddForm() {

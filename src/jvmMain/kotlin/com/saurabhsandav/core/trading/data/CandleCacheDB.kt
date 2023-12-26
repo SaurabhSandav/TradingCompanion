@@ -7,9 +7,9 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
+import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -64,13 +64,12 @@ internal class CandleCacheDB(
         to: Instant,
     ): Flow<Long> = flow {
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
-
-        val flow = candlesQueries.getCountInRange(from.epochSeconds, to.epochSeconds)
+        candleQueriesCollection
+            .get(ticker, timeframe)
+            .getCountInRange(from.epochSeconds, to.epochSeconds)
             .asFlow()
             .mapToOne(Dispatchers.IO)
-
-        emitAll(flow)
+            .emitInto(this)
     }
 
     override fun fetchRange(
@@ -95,7 +94,7 @@ internal class CandleCacheDB(
                 )
             }
 
-        val flow = when {
+        when {
             includeFromCandle -> candlesQueries.getInRangeFromCandleInclusive(
                 from = from.epochSeconds,
                 to = to.epochSeconds,
@@ -108,9 +107,7 @@ internal class CandleCacheDB(
                 to = to.epochSeconds,
                 mapper = mapper,
             )
-        }.asFlow().mapToList(Dispatchers.IO)
-
-        emitAll(flow)
+        }.asFlow().mapToList(Dispatchers.IO).emitInto(this)
     }
 
     override suspend fun getCountAt(
@@ -149,7 +146,7 @@ internal class CandleCacheDB(
 
             val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
-            val flow = candlesQueries.getCountBefore(
+            candlesQueries.getCountBefore(
                 at = at.epochSeconds,
                 count = count.toLong(),
                 includeAt = includeAt,
@@ -162,9 +159,7 @@ internal class CandleCacheDB(
                     close.toBigDecimal(),
                     volume.toBigDecimal(),
                 )
-            }.asFlow().mapToList(Dispatchers.IO)
-
-            emitAll(flow)
+            }.asFlow().mapToList(Dispatchers.IO).emitInto(this)
         }
     }
 
@@ -182,7 +177,7 @@ internal class CandleCacheDB(
 
             val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
 
-            val flow = candlesQueries.getCountAfter(
+            candlesQueries.getCountAfter(
                 at = at.epochSeconds,
                 count = count.toLong(),
                 includeAt = includeAt,
@@ -195,9 +190,7 @@ internal class CandleCacheDB(
                     close.toBigDecimal(),
                     volume.toBigDecimal(),
                 )
-            }.asFlow().mapToList(Dispatchers.IO)
-
-            emitAll(flow)
+            }.asFlow().mapToList(Dispatchers.IO).emitInto(this)
         }
     }
 

@@ -16,6 +16,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -45,7 +46,7 @@ internal class TradePresenter(
     private val profileId = profileTradeId.profileId
     private val tradeId = profileTradeId.tradeId
 
-    private val trade = flow { emitAll(tradingProfiles.getRecord(profileId).trades.getById(tradeId)) }.shareIn(
+    private val trade = flow { tradingProfiles.getRecord(profileId).trades.getById(tradeId).emitInto(this) }.shareIn(
         scope = coroutineScope,
         started = SharingStarted.Eagerly,
         replay = 1,
@@ -391,7 +392,7 @@ internal class TradePresenter(
                 )
             }
             .map { it.toImmutableList() }
-            .let { emitAll(it) }
+            .emitInto(this)
     }
 
     private fun onAddToTrade() {
