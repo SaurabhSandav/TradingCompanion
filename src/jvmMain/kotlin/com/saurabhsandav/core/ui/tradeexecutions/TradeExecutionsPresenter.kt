@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.tradeexecutions
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -17,15 +16,14 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
-import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -34,8 +32,8 @@ import java.util.*
 @Stable
 internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
+    private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -67,18 +65,19 @@ internal class TradeExecutionsPresenter(
     @Composable
     private fun getTodayExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
-                // Clear execution selection
-                selectionManager.clear()
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.executions.getToday().map { executions ->
-                    executions
-                        .map { it.toTradeExecutionListEntry(profile.id) }
-                        .toImmutableList()
-                }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .executions
+                    .getToday()
+                    .map { executions ->
+                        executions
+                            .map { it.toTradeExecutionListEntry() }
+                            .toImmutableList()
+                    }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf())
     }
@@ -86,23 +85,24 @@ internal class TradeExecutionsPresenter(
     @Composable
     private fun getPastExecutions(): State<ImmutableList<TradeExecutionEntry>> {
         return remember {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
 
-                // Clear execution selection
-                selectionManager.clear()
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.executions.getBeforeToday().map { executions ->
-                    executions
-                        .map { it.toTradeExecutionListEntry(profile.id) }
-                        .toImmutableList()
-                }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .executions
+                    .getBeforeToday()
+                    .map { executions ->
+                        executions
+                            .map { it.toTradeExecutionListEntry() }
+                            .toImmutableList()
+                    }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf())
     }
 
-    private fun TradeExecution.toTradeExecutionListEntry(profileId: ProfileId) = TradeExecutionEntry(
+    private fun TradeExecution.toTradeExecutionListEntry() = TradeExecutionEntry(
         profileTradeExecutionId = ProfileTradeExecutionId(profileId = profileId, executionId = id),
         broker = run {
             val instrumentCapitalized = instrument.strValue
@@ -117,12 +117,10 @@ internal class TradeExecutionsPresenter(
         locked = locked,
     )
 
-    private fun onNewExecution() = coroutineScope.launchUnit {
-
-        val currentProfile = appPrefs.getCurrentTradingProfile(tradingProfiles).first()
+    private fun onNewExecution() {
 
         tradeContentLauncher.openExecutionForm(
-            profileId = currentProfile.id,
+            profileId = profileId,
             formType = TradeExecutionFormType.New,
         )
     }

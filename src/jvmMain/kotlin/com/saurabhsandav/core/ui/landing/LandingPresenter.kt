@@ -5,21 +5,23 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.getCurrentTradingProfile
+import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Stable
 internal class LandingPresenter(
     coroutineScope: CoroutineScope,
+    private val profileId: ProfileId,
     private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
@@ -55,11 +57,14 @@ internal class LandingPresenter(
     private fun getOpenTradeCount(): Long? {
         return produceState<Long?>(null) {
 
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.trades.getOpenCount().map { count -> count.takeUnless { it == 0L } }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .trades
+                    .getOpenCount()
+                    .map { count -> count.takeUnless { it == 0L } }
+                    .emitInto(this)
             }.collect { value = it }
         }.value
     }

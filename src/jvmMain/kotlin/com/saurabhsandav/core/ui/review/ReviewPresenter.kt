@@ -8,7 +8,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
@@ -91,7 +90,7 @@ internal class ReviewPresenter(
                     tradingRecord.trades
                         .getByIds(ids = review.tradeIds)
                         .mapList { trade ->
-                            trade.toTradeListEntry(profileReviewId.profileId)
+                            trade.toTradeListEntry()
                         }
                         .map { it.toImmutableList() }
                 }
@@ -99,7 +98,7 @@ internal class ReviewPresenter(
         }.value
     }
 
-    private fun Trade.toTradeListEntry(profileId: ProfileId): TradeEntry {
+    private fun Trade.toTradeListEntry(): TradeEntry {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -126,7 +125,7 @@ internal class ReviewPresenter(
         }
 
         return TradeEntry(
-            profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
+            profileTradeId = ProfileTradeId(profileId = profileReviewId.profileId, tradeId = id),
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),

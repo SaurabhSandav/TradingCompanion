@@ -3,9 +3,11 @@ package com.saurabhsandav.core.utils
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.TradingRecord
 import com.saurabhsandav.core.trades.model.ProfileId
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 
 suspend fun FlowSettings.putCurrentTradingProfileId(id: ProfileId) {
     putLong(PrefKeys.CurrentTradingProfile, id.value)
@@ -38,10 +40,4 @@ internal fun FlowSettings.getCurrentTradingProfile(tradingProfiles: TradingProfi
 
         tradingProfiles.getProfile(id)
     }
-}
-
-internal fun FlowSettings.getCurrentTradingRecord(
-    tradingProfiles: TradingProfiles,
-): Flow<TradingRecord> {
-    return getCurrentTradingProfile(tradingProfiles).map { tradingProfiles.getRecord(it.id) }
 }

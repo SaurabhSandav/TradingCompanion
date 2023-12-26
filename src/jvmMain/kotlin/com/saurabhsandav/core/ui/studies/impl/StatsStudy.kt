@@ -12,16 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.utils.getCurrentTradingRecord
-import kotlinx.coroutines.flow.flatMapLatest
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.utils.emitInto
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 
 internal class StatsStudy(
-    private val appPrefs: FlowSettings,
+    private val profileId: ProfileId,
     private val tradingProfiles: TradingProfiles,
 ) : Study {
 
@@ -29,11 +29,9 @@ internal class StatsStudy(
     override fun render() {
 
         val generalStats = remember {
-            appPrefs
-                .getCurrentTradingRecord(tradingProfiles)
-                .flatMapLatest { record ->
-                    record.trades.allTrades.map(::calculateGeneralStats)
-                }
+            flow {
+                tradingProfiles.getRecord(profileId).trades.allTrades.map(::calculateGeneralStats).emitInto(this)
+            }
         }.collectAsState(null).value
 
         Box {
@@ -314,12 +312,12 @@ internal class StatsStudy(
     )
 
     class Factory(
-        private val appPrefs: FlowSettings,
+        private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
     ) : Study.Factory<StatsStudy> {
 
         override val name: String = "Stats"
 
-        override fun create() = StatsStudy(appPrefs, tradingProfiles)
+        override fun create() = StatsStudy(profileId, tradingProfiles)
     }
 }

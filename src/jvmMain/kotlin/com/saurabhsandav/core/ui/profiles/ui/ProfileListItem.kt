@@ -5,10 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +23,7 @@ import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 @Composable
 internal fun ProfileListItem(
     profile: Profile,
+    onSelectProfile: () -> Unit,
     isCurrent: Boolean,
     onSetCurrentProfile: () -> Unit,
     onDeleteProfile: () -> Unit,
@@ -37,7 +35,7 @@ internal fun ProfileListItem(
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable(onClick = onSetCurrentProfile),
+        modifier = Modifier.clickable(onClick = onSelectProfile),
         headlineContent = {
 
             Row {
@@ -64,6 +62,17 @@ internal fun ProfileListItem(
         trailingContent = {
 
             Row {
+
+                if (!isCurrent) {
+
+                    IconButtonWithTooltip(
+                        onClick = onSetCurrentProfile,
+                        tooltipText = "Set Current",
+                        content = {
+                            Icon(Icons.Default.Check, contentDescription = "Set Current")
+                        },
+                    )
+                }
 
                 IconButtonWithTooltip(
                     onClick = onCopyProfile,

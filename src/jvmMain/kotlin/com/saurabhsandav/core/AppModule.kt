@@ -11,6 +11,7 @@ import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
@@ -165,8 +166,11 @@ internal class AppModule {
         TradeReviewModule(this, coroutineScope)
     }
 
-    val landingModule = { coroutineScope: CoroutineScope ->
-        LandingModule(this, coroutineScope)
+    val landingModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        LandingModule(this, coroutineScope, profileId)
     }
 
     val profilesModule = { coroutineScope: CoroutineScope ->
@@ -177,8 +181,11 @@ internal class AppModule {
         ProfileFormModule(this, coroutineScope)
     }
 
-    val reviewsModule = { coroutineScope: CoroutineScope ->
-        ReviewsModule(this, coroutineScope)
+    val reviewsModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        ReviewsModule(this, coroutineScope, profileId)
     }
 
     val reviewModule = {
@@ -192,16 +199,25 @@ internal class AppModule {
         SettingsModule(this, coroutineScope)
     }
 
-    val sizingModule = { coroutineScope: CoroutineScope ->
-        SizingModule(this, coroutineScope)
+    val sizingModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        SizingModule(this, coroutineScope, profileId)
     }
 
-    val studiesModule = { coroutineScope: CoroutineScope ->
-        StudiesModule(this, coroutineScope)
+    val studiesModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        StudiesModule(this, coroutineScope, profileId)
     }
 
-    val tagsModule = { coroutineScope: CoroutineScope ->
-        TagsModule(this, coroutineScope)
+    val tagsModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        TagsModule(this, coroutineScope, profileId)
     }
 
     val tagFormModule = { coroutineScope: CoroutineScope ->
@@ -216,12 +232,18 @@ internal class AppModule {
         TradeExecutionFormModule(this, coroutineScope)
     }
 
-    val tradeExecutionsModule = { coroutineScope: CoroutineScope ->
-        TradeExecutionsModule(this, coroutineScope)
+    val tradeExecutionsModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        TradeExecutionsModule(this, coroutineScope, profileId)
     }
 
-    val tradesModule = { coroutineScope: CoroutineScope ->
-        TradesModule(this, coroutineScope)
+    val tradesModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        TradesModule(this, coroutineScope, profileId)
     }
 
     val stockChartsState = StockChartsStateFactory {

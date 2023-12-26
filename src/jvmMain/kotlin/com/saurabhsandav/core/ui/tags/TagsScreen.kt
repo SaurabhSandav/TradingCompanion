@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,11 +27,12 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TagsWindow(
     onCloseRequest: () -> Unit,
+    profileId: ProfileId,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tagsModule(scope).presenter() }
+    val presenter = remember { appModule.tagsModule(scope, profileId).presenter() }
     val state by presenter.state.collectAsState()
 
     AppWindow(
@@ -42,14 +42,11 @@ internal fun TagsWindow(
 
         Box(Modifier.wrapContentSize()) {
 
-            when (val profileId = state.profileId) {
-                null -> CircularProgressIndicator()
-                else -> TagsScreen(
-                    profileId = profileId,
-                    tags = state.tags,
-                    onDeleteTag = { id -> state.eventSink(DeleteTag(id)) },
-                )
-            }
+            TagsScreen(
+                profileId = profileId,
+                tags = state.tags,
+                onDeleteTag = { id -> state.eventSink(DeleteTag(id)) },
+            )
         }
     }
 }

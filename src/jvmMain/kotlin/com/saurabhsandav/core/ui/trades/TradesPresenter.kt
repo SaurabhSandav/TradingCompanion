@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.trades
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -16,14 +15,13 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
-import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -38,8 +36,8 @@ import kotlin.time.Duration.Companion.seconds
 @Stable
 internal class TradesPresenter(
     coroutineScope: CoroutineScope,
+    private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -67,15 +65,18 @@ internal class TradesPresenter(
     @Composable
     private fun getOpenTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.trades.getOpen().map { trades ->
-                    trades
-                        .map { it.toTradeListEntry(profile.id) }
-                        .toImmutableList()
-                }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .trades
+                    .getOpen()
+                    .map { trades ->
+                        trades
+                            .map { it.toTradeListEntry() }
+                            .toImmutableList()
+                    }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf())
     }
@@ -83,15 +84,18 @@ internal class TradesPresenter(
     @Composable
     private fun getTodayTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.trades.getToday().map { trades ->
-                    trades
-                        .map { it.toTradeListEntry(profile.id) }
-                        .toImmutableList()
-                }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .trades
+                    .getToday()
+                    .map { trades ->
+                        trades
+                            .map { it.toTradeListEntry() }
+                            .toImmutableList()
+                    }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf())
     }
@@ -99,20 +103,23 @@ internal class TradesPresenter(
     @Composable
     private fun getPastTrades(): State<ImmutableList<TradeEntry>> {
         return remember {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+            flow {
 
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.trades.getBeforeToday().map { trades ->
-                    trades
-                        .map { it.toTradeListEntry(profile.id) }
-                        .toImmutableList()
-                }
+                tradingProfiles
+                    .getRecord(profileId)
+                    .trades
+                    .getBeforeToday()
+                    .map { trades ->
+                        trades
+                            .map { it.toTradeListEntry() }
+                            .toImmutableList()
+                    }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf())
     }
 
-    private fun Trade.toTradeListEntry(profileId: ProfileId): TradeEntry {
+    private fun Trade.toTradeListEntry(): TradeEntry {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

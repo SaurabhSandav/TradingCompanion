@@ -27,6 +27,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun ProfilesWindow(
     onCloseRequest: () -> Unit,
+    onSelectProfile: (ProfileId) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -46,6 +47,7 @@ internal fun ProfilesWindow(
 
         ProfilesScreen(
             profiles = state.profiles,
+            onSelectProfile = onSelectProfile,
             currentProfileId = state.currentProfile?.id,
             onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
             onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
@@ -90,6 +92,10 @@ internal fun ProfileSwitcherBox(
 
             ProfilesScreen(
                 profiles = state.profiles,
+                onSelectProfile = { id ->
+                    onSelectProfile(id)
+                    onExpandedChange(false)
+                },
                 currentProfileId = state.currentProfile?.id,
                 onSetCurrentProfile = { id ->
                     onSelectProfile(id)
@@ -106,6 +112,7 @@ internal fun ProfileSwitcherBox(
 @Composable
 private fun ProfilesScreen(
     profiles: ImmutableList<Profile>,
+    onSelectProfile: (ProfileId) -> Unit,
     currentProfileId: ProfileId?,
     onSetCurrentProfile: (ProfileId) -> Unit,
     onDeleteProfile: (ProfileId) -> Unit,
@@ -138,6 +145,7 @@ private fun ProfilesScreen(
 
                         ProfileListItem(
                             profile = profile,
+                            onSelectProfile = { onSelectProfile(profile.id) },
                             isCurrent = profile.id == currentProfileId,
                             onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
                             onDeleteProfile = { onDeleteProfile(profile.id) },

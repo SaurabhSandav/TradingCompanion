@@ -1,19 +1,24 @@
 package com.saurabhsandav.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material3.*
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.runtime.*
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
-import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
-import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.landing.LandingScreen
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
+import com.saurabhsandav.core.ui.common.app.AppWindowManager
+import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.landing.LandingWindow
+import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
+import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
+import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
+import com.saurabhsandav.core.ui.profiles.ProfilesWindow
+import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.getCurrentTradingProfile
+import kotlinx.coroutines.flow.first
 
 fun main() = application {
 
@@ -37,71 +42,99 @@ fun main() = application {
 @Preview
 internal fun App(onCloseRequest: () -> Unit) {
 
-    val windowState = rememberAppWindowState(
-        windowState = rememberWindowState(placement = WindowPlacement.Maximized),
-        defaultTitle = "Trading Companion",
-    )
+    val appModule = LocalAppModule.current
+    val useDarkTheme by remember {
+        appModule.appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
+    }.collectAsState(PrefDefaults.DarkModeEnabled)
 
-    var showExitConfirmationDialog by state { false }
+    AppTheme(useDarkTheme = useDarkTheme) {
 
-    AppWindow(
-        onCloseRequest = {
-            windowState.toFront()
-            showExitConfirmationDialog = true
-        },
-        state = windowState,
-    ) {
+        val landingWindowsManager = remember { AppWindowsManager<ProfileId>() }
+        val profilesWindowManager = remember { AppWindowManager() }
+        val pnlCalculatorWindowManager = remember { AppWindowManager() }
+        val barReplayWindowManager = remember { AppWindowManager() }
+        val settingsWindowManager = remember { AppWindowManager() }
 
-        val appModule = LocalAppModule.current
-        val useDarkTheme by remember {
-            appModule.appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
-        }.collectAsState(PrefDefaults.DarkModeEnabled)
+        landingWindowsManager.Windows { window ->
 
-        AppTheme(useDarkTheme = useDarkTheme) {
+            LandingWindow(
+                onCloseRequest = {
 
-            Surface {
+                    when {
+                        landingWindowsManager.windows.size == 1 -> onCloseRequest()
+                        else -> window.close()
+                    }
+                },
+                closeExitsApp = landingWindowsManager.windows.size == 1,
+                profileId = window.params,
+                onOpenProfiles = profilesWindowManager::openWindow,
+                onOpenPnlCalculator = pnlCalculatorWindowManager::openWindow,
+                onOpenBarReplay = barReplayWindowManager::openWindow,
+                onOpenSettings = settingsWindowManager::openWindow,
+            )
+        }
 
-                LandingScreen()
+        LaunchedEffect(landingWindowsManager) {
 
-                WindowsOnlyLayout {
+            landingWindowsManager.newWindow(
+                params = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id,
+            )
+        }
 
-                    appModule.loginServicesManager.Windows()
-                }
+        // Trade content windows
+        appModule.tradeContentLauncher.Windows()
 
-                if (showExitConfirmationDialog) {
+        // Login windows
+        appModule.loginServicesManager.Windows()
 
-                    ExitConfirmationDialog(
-                        onDismiss = { showExitConfirmationDialog = false },
-                        onConfirm = onCloseRequest,
+        // Profiles
+        profilesWindowManager.Window {
+
+            ProfilesWindow(
+                onCloseRequest = profilesWindowManager::closeWindow,
+                onSelectProfile = { profileId ->
+
+                    when (val landingWindow = landingWindowsManager.windows.find { it.params == profileId }) {
+
+                        // Open new window
+                        null -> landingWindowsManager.newWindow(profileId)
+
+                        // Window already open. Bring to front.
+                        else -> landingWindow.toFront()
+                    }
+                },
+            )
+        }
+
+        // PNL Calculator
+        pnlCalculatorWindowManager.Window {
+
+            PNLCalculatorWindow(
+                state = rememberPNLCalculatorWindowState(
+                    params = PNLCalculatorWindowParams(
+                        operationType = PNLCalculatorWindowParams.OperationType.New,
+                        onCloseRequest = pnlCalculatorWindowManager::closeWindow,
                     )
-                }
-            }
+                )
+            )
+        }
+
+        // Bar Replay
+        barReplayWindowManager.Window {
+
+            BarReplayWindow(
+                onCloseRequest = barReplayWindowManager::closeWindow,
+            )
+        }
+
+        // Settings
+        settingsWindowManager.Window {
+
+            SettingsWindow(
+                onCloseRequest = settingsWindowManager::closeWindow,
+            )
         }
     }
-}
-
-@Composable
-private fun ExitConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = {
-            Text("Are you sure you want to exit?")
-        },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }
 
 internal val LocalDensityFraction = staticCompositionLocalOf { PrefDefaults.DensityFraction }

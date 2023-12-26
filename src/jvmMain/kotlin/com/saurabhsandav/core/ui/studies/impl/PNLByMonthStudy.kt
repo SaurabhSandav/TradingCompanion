@@ -1,20 +1,20 @@
 package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.material3.Text
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.brokerageAtExit
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
-import com.saurabhsandav.core.utils.getCurrentTradingRecord
+import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -22,13 +22,9 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 internal class PNLByMonthStudy(
-    appPrefs: FlowSettings,
+    profileId: ProfileId,
     tradingProfiles: TradingProfiles,
 ) : TableStudy<PNLByMonthStudy.Model>() {
-
-    private val tradesRepo = appPrefs
-        .getCurrentTradingRecord(tradingProfiles)
-        .map { record -> record.trades }
 
     override val schema: TableSchema<Model> = tableSchema {
         addColumnText("Month") { it.month }
@@ -45,7 +41,9 @@ internal class PNLByMonthStudy(
         }
     }
 
-    override val data: Flow<List<Model>> = tradesRepo.flatMapLatest { tradesRepo ->
+    override val data: Flow<List<Model>> = flow {
+
+        val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
         tradesRepo.allTrades.map { trades ->
 
@@ -94,7 +92,7 @@ internal class PNLByMonthStudy(
                         rValue = "${rValue}R",
                     )
                 }
-        }
+        }.emitInto(this)
     }
 
     data class Model(
@@ -109,12 +107,12 @@ internal class PNLByMonthStudy(
     )
 
     class Factory(
-        private val appPrefs: FlowSettings,
+        private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
     ) : Study.Factory<PNLByMonthStudy> {
 
         override val name: String = "PNL By Month"
 
-        override fun create() = PNLByMonthStudy(appPrefs, tradingProfiles)
+        override fun create() = PNLByMonthStudy(profileId, tradingProfiles)
     }
 }

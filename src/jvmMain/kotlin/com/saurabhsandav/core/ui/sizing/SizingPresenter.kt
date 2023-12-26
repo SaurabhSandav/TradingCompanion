@@ -4,13 +4,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.SizingTrade
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.Account
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.SizingTradeId
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
@@ -20,8 +16,7 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import com.saurabhsandav.core.utils.getCurrentTradingProfile
-import com.saurabhsandav.core.utils.getCurrentTradingRecord
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.collections.immutable.ImmutableList
@@ -30,7 +25,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -39,8 +34,8 @@ import java.util.*
 @Stable
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
+    private val profileId: ProfileId,
     private val account: Flow<Account>,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -77,7 +72,7 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.sizingTrades.new(
             ticker = ticker,
@@ -90,7 +85,7 @@ internal class SizingPresenter(
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.sizingTrades.updateEntry(
             id = id,
@@ -102,7 +97,7 @@ internal class SizingPresenter(
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.sizingTrades.updateStop(
             id = id,
@@ -112,14 +107,14 @@ internal class SizingPresenter(
 
     private fun removeTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         tradingRecord.sizingTrades.delete(id)
     }
 
     private fun openLiveTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = appPrefs.getCurrentTradingRecord(tradingProfiles).first()
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         val sizingTrade = tradingRecord.sizingTrades.getById(id).first()
 
@@ -153,7 +148,7 @@ internal class SizingPresenter(
 
         val params = TradeExecutionFormParams(
             id = UUID.randomUUID(),
-            profileId = appPrefs.getCurrentTradingProfile(tradingProfiles).first().id,
+            profileId = profileId,
             formType = TradeExecutionFormType.NewSized(
                 initialModel = TradeExecutionFormModel.Initial(
                     instrument = Instrument.Equity,
@@ -173,17 +168,15 @@ internal class SizingPresenter(
     @Composable
     private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
         return remember(account) {
-            appPrefs.getCurrentTradingProfile(tradingProfiles).flatMapLatest { profile ->
+            flow {
 
-                // Close all child windows
-                executionFormWindowsManager.closeAll()
-
-                val tradingRecord = tradingProfiles.getRecord(profile.id)
-
-                tradingRecord.sizingTrades
+                tradingProfiles
+                    .getRecord(profileId)
+                    .sizingTrades
                     .allTrades
                     .mapList { sizingTrade -> sizingTrade.size(account) }
                     .map { it.toImmutableList() }
+                    .emitInto(this)
             }
         }.collectAsState(persistentListOf()).value
     }

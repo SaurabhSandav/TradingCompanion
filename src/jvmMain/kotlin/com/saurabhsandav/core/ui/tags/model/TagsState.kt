@@ -1,13 +1,11 @@
 package com.saurabhsandav.core.ui.tags.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TagsState(
-    val profileId: ProfileId?,
     val tags: ImmutableList<Tag>,
     val eventSink: (TagsEvent) -> Unit,
 ) {
