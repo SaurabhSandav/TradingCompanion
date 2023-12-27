@@ -1,28 +1,19 @@
 package com.saurabhsandav.core.ui.landing
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
-import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.core.ui.landing.ui.LandingNavigationRail
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
 import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
@@ -72,10 +63,10 @@ internal fun LandingScreen() {
 @Composable
 private fun LandingScreen(
     switcherItems: Map<LandingScreen, LandingSwitcherItem>,
-    tradeContentLauncher: TradeContentLauncher,
     currentScreen: LandingScreen,
-    openTradesCount: Long?,
     onCurrentScreenChange: (LandingScreen) -> Unit,
+    tradeContentLauncher: TradeContentLauncher,
+    openTradesCount: Long?,
 ) {
 
     val profilesWindowManager = remember { AppWindowManager() }
@@ -86,119 +77,17 @@ private fun LandingScreen(
 
     Row {
 
-        NavigationRail(
-            containerColor = MaterialTheme.colorScheme.inverseOnSurface
-        ) {
-
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.AccountBox, contentDescription = "Profiles") },
-                selected = false,
-                onClick = profilesWindowManager::openWindow,
-            )
-
-            Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
-
-            val landingItems = remember { enumValues<LandingScreen>() }
-
-            landingItems.forEach { screen ->
-
-                TooltipArea(
-                    tooltip = {
-
-                        val text = when (screen) {
-                            LandingScreen.Trades -> "${screen.title} - $openTradesCount open trades"
-                            else -> screen.title
-                        }
-
-                        Tooltip(text)
-                    },
-                ) {
-
-                    NavigationRailItem(
-                        icon = {
-
-                            BadgedBox(
-                                badge = {
-
-                                    if (screen == LandingScreen.Trades && openTradesCount != null) {
-
-                                        Badge {
-
-                                            Text(
-                                                modifier = Modifier.semantics {
-                                                    contentDescription = "$openTradesCount open trades"
-                                                },
-                                                text = openTradesCount.toString(),
-                                            )
-                                        }
-                                    }
-                                },
-                                content = { Icon(screen.icon, contentDescription = screen.title) },
-                            )
-                        },
-                        selected = currentScreen == screen,
-                        onClick = { onCurrentScreenChange(screen) }
-                    )
-                }
-            }
-
-            Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
-
-            TooltipArea(
-                tooltip = { Tooltip("Charts") },
-            ) {
-
-                NavigationRailItem(
-                    icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
-                    selected = false,
-                    onClick = tradeContentLauncher::openCharts,
-                )
-            }
-
-            TooltipArea(
-                tooltip = { Tooltip("Tags") },
-            ) {
-
-                NavigationRailItem(
-                    icon = { Icon(Icons.Default.Label, contentDescription = "Tags") },
-                    selected = false,
-                    onClick = tagsWindowManager::openWindow,
-                )
-            }
-
-            TooltipArea(
-                tooltip = { Tooltip("PNL Calculator") },
-            ) {
-
-                NavigationRailItem(
-                    icon = { Icon(Icons.Filled.Calculate, contentDescription = "PNL Calculator") },
-                    selected = false,
-                    onClick = pnlCalculatorWindowManager::openWindow,
-                )
-            }
-
-            TooltipArea(
-                tooltip = { Tooltip("Bar Replay") },
-            ) {
-
-                NavigationRailItem(
-                    icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
-                    selected = false,
-                    onClick = barReplayWindowManager::openWindow,
-                )
-            }
-
-            TooltipArea(
-                tooltip = { Tooltip("Settings") },
-            ) {
-
-                NavigationRailItem(
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-                    selected = false,
-                    onClick = settingsWindowManager::openWindow,
-                )
-            }
-        }
+        LandingNavigationRail(
+            currentScreen = currentScreen,
+            onCurrentScreenChange = onCurrentScreenChange,
+            tradeContentLauncher = tradeContentLauncher,
+            openTradesCount = openTradesCount,
+            onOpenProfiles = profilesWindowManager::openWindow,
+            onOpenTags = tagsWindowManager::openWindow,
+            onOpenPnlCalculator = pnlCalculatorWindowManager::openWindow,
+            onOpenBarReplay = barReplayWindowManager::openWindow,
+            onOpenSettings = settingsWindowManager::openWindow,
+        )
 
         // Trade content windows
         WindowsOnlyLayout {
@@ -226,7 +115,6 @@ private fun LandingScreen(
                 }
             }
         }
-
 
         profilesWindowManager.Window {
 
