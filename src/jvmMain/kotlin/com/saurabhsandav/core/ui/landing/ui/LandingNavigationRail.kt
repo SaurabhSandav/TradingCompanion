@@ -22,8 +22,8 @@ internal fun LandingNavigationRail(
     onCurrentScreenChange: (LandingState.LandingScreen) -> Unit,
     tradeContentLauncher: TradeContentLauncher,
     openTradesCount: Long?,
-    onOpenProfiles: () -> Unit,
     onOpenTags: () -> Unit,
+    onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -32,14 +32,6 @@ internal fun LandingNavigationRail(
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.inverseOnSurface
     ) {
-
-        NavigationRailItem(
-            icon = { Icon(Icons.Default.AccountBox, contentDescription = "Profiles") },
-            selected = false,
-            onClick = onOpenProfiles,
-        )
-
-        Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
         val landingItems = remember { enumValues<LandingState.LandingScreen>() }
 
@@ -88,17 +80,6 @@ internal fun LandingNavigationRail(
         Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
         TooltipArea(
-            tooltip = { Tooltip("Charts") },
-        ) {
-
-            NavigationRailItem(
-                icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
-                selected = false,
-                onClick = tradeContentLauncher::openCharts,
-            )
-        }
-
-        TooltipArea(
             tooltip = { Tooltip("Tags") },
         ) {
 
@@ -106,6 +87,25 @@ internal fun LandingNavigationRail(
                 icon = { Icon(Icons.Default.Label, contentDescription = "Tags") },
                 selected = false,
                 onClick = onOpenTags,
+            )
+        }
+
+        Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
+
+        NavigationRailItem(
+            icon = { Icon(Icons.Default.SwitchAccount, contentDescription = "Profiles") },
+            selected = false,
+            onClick = onOpenProfiles,
+        )
+
+        TooltipArea(
+            tooltip = { Tooltip("Charts") },
+        ) {
+
+            NavigationRailItem(
+                icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
+                selected = false,
+                onClick = tradeContentLauncher::openCharts,
             )
         }
 

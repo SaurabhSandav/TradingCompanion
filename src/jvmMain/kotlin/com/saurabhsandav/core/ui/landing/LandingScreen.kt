@@ -69,8 +69,8 @@ private fun LandingScreen(
     openTradesCount: Long?,
 ) {
 
-    val profilesWindowManager = remember { AppWindowManager() }
     val tagsWindowManager = remember { AppWindowManager() }
+    val profilesWindowManager = remember { AppWindowManager() }
     val pnlCalculatorWindowManager = remember { AppWindowManager() }
     val barReplayWindowManager = remember { AppWindowManager() }
     val settingsWindowManager = remember { AppWindowManager() }
@@ -82,8 +82,8 @@ private fun LandingScreen(
             onCurrentScreenChange = onCurrentScreenChange,
             tradeContentLauncher = tradeContentLauncher,
             openTradesCount = openTradesCount,
-            onOpenProfiles = profilesWindowManager::openWindow,
             onOpenTags = tagsWindowManager::openWindow,
+            onOpenProfiles = profilesWindowManager::openWindow,
             onOpenPnlCalculator = pnlCalculatorWindowManager::openWindow,
             onOpenBarReplay = barReplayWindowManager::openWindow,
             onOpenSettings = settingsWindowManager::openWindow,
@@ -116,17 +116,17 @@ private fun LandingScreen(
             }
         }
 
-        profilesWindowManager.Window {
-
-            ProfilesWindow(
-                onCloseRequest = profilesWindowManager::closeWindow,
-            )
-        }
-
         tagsWindowManager.Window {
 
             TagsWindow(
                 onCloseRequest = tagsWindowManager::closeWindow,
+            )
+        }
+
+        profilesWindowManager.Window {
+
+            ProfilesWindow(
+                onCloseRequest = profilesWindowManager::closeWindow,
             )
         }
 
