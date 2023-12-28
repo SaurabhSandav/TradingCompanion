@@ -13,13 +13,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import kotlinx.collections.immutable.ImmutableList
 
@@ -30,10 +30,10 @@ internal fun TradeExecutionsTable(
     isMarked: (TradeExecutionEntry) -> Boolean,
     onClickExecution: (TradeExecutionEntry) -> Unit,
     onMarkExecution: (TradeExecutionEntry) -> Unit,
-    onNewExecution: (ProfileTradeExecutionId) -> Unit,
-    onEditExecution: (ProfileTradeExecutionId) -> Unit,
-    onLockExecution: (ProfileTradeExecutionId) -> Unit,
-    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
+    onNewExecution: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecution: (TradeExecutionId) -> Unit,
+    onDeleteExecution: (TradeExecutionId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeExecutionEntry> {
@@ -101,10 +101,10 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
     title: String,
     onClickExecution: (TradeExecutionEntry) -> Unit,
     onMarkExecution: (TradeExecutionEntry) -> Unit,
-    onNewExecution: (ProfileTradeExecutionId) -> Unit,
-    onEditExecution: (ProfileTradeExecutionId) -> Unit,
-    onLockExecution: (ProfileTradeExecutionId) -> Unit,
-    onDeleteExecution: (ProfileTradeExecutionId) -> Unit,
+    onNewExecution: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecution: (TradeExecutionId) -> Unit,
+    onDeleteExecution: (TradeExecutionId) -> Unit,
 ) {
 
     if (executions.isNotEmpty()) {
@@ -134,7 +134,7 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
 
         rows(
             items = executions,
-            key = { entry -> entry.profileTradeExecutionId },
+            key = { entry -> entry.id },
             contentType = { ContentType.Entry },
         ) { entry ->
 
@@ -143,10 +143,10 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
                 entry = entry,
                 onClick = { onClickExecution(entry) },
                 onLongClick = { onMarkExecution(entry) },
-                onNewExecution = { onNewExecution(entry.profileTradeExecutionId) },
-                onEditExecution = { onEditExecution(entry.profileTradeExecutionId) },
-                onLockExecution = { onLockExecution(entry.profileTradeExecutionId) },
-                onDeleteExecution = { onDeleteExecution(entry.profileTradeExecutionId) },
+                onNewExecution = { onNewExecution(entry.id) },
+                onEditExecution = { onEditExecution(entry.id) },
+                onLockExecution = { onLockExecution(entry.id) },
+                onDeleteExecution = { onDeleteExecution(entry.id) },
             )
         }
     }

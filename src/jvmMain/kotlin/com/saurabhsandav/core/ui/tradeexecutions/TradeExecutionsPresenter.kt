@@ -6,10 +6,10 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
@@ -55,8 +55,8 @@ internal class TradeExecutionsPresenter(
 
         when (event) {
             NewExecution -> onNewExecution()
-            is NewExecutionFromExisting -> onNewExecutionFromExisting(event.profileTradeExecutionId)
-            is EditExecution -> onEditExecution(event.profileTradeExecutionId)
+            is NewExecutionFromExisting -> onNewExecutionFromExisting(event.id)
+            is EditExecution -> onEditExecution(event.id)
             is LockExecutions -> onLockExecutions(event.ids)
             is DeleteExecutions -> onDeleteExecutions(event.ids)
         }
@@ -103,7 +103,7 @@ internal class TradeExecutionsPresenter(
     }
 
     private fun TradeExecution.toTradeExecutionListEntry() = TradeExecutionEntry(
-        profileTradeExecutionId = ProfileTradeExecutionId(profileId = profileId, executionId = id),
+        id = id,
         broker = run {
             val instrumentCapitalized = instrument.strValue
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -125,39 +125,33 @@ internal class TradeExecutionsPresenter(
         )
     }
 
-    private fun onNewExecutionFromExisting(profileTradeExecutionId: ProfileTradeExecutionId) {
+    private fun onNewExecutionFromExisting(id: TradeExecutionId) {
 
         tradeContentLauncher.openExecutionForm(
-            profileId = profileTradeExecutionId.profileId,
-            formType = TradeExecutionFormType.NewFromExisting(profileTradeExecutionId.executionId),
+            profileId = profileId,
+            formType = TradeExecutionFormType.NewFromExisting(id),
         )
     }
 
-    private fun onEditExecution(profileTradeExecutionId: ProfileTradeExecutionId) {
+    private fun onEditExecution(id: TradeExecutionId) {
 
         tradeContentLauncher.openExecutionForm(
-            profileId = profileTradeExecutionId.profileId,
-            formType = TradeExecutionFormType.Edit(profileTradeExecutionId.executionId),
+            profileId = profileId,
+            formType = TradeExecutionFormType.Edit(id),
         )
     }
 
-    private fun onLockExecutions(ids: List<ProfileTradeExecutionId>) = coroutineScope.launchUnit {
+    private fun onLockExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            val tradingRecord = tradingProfiles.getRecord(profileId)
-
-            tradingRecord.executions.lock(ids.map { it.executionId })
-        }
+        tradingRecord.executions.lock(ids)
     }
 
-    private fun onDeleteExecutions(ids: List<ProfileTradeExecutionId>) = coroutineScope.launchUnit {
+    private fun onDeleteExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        ids.groupBy { it.profileId }.forEach { (profileId, ids) ->
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
-            val tradingRecord = tradingProfiles.getRecord(profileId)
-
-            tradingRecord.executions.delete(ids.map { it.executionId })
-        }
+        tradingRecord.executions.delete(ids)
     }
 }

@@ -15,18 +15,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 
 @Composable
 internal fun TradeExecutionsSelectionBar(
     selectionManager: SelectionManager<TradeExecutionEntry>,
-    onLockExecutions: (List<ProfileTradeExecutionId>) -> Unit,
-    onDeleteExecutions: (List<ProfileTradeExecutionId>) -> Unit,
+    onLockExecutions: (List<TradeExecutionId>) -> Unit,
+    onDeleteExecutions: (List<TradeExecutionId>) -> Unit,
 ) {
 
     AnimatedVisibility(
@@ -84,7 +84,7 @@ internal fun TradeExecutionsSelectionBar(
                         onDismiss = { showLockConfirmationDialog = false },
                         onConfirm = {
                             showLockConfirmationDialog = false
-                            onLockExecutions(selectionManager.selection.map { it.profileTradeExecutionId })
+                            onLockExecutions(selectionManager.selection.map { it.id })
                             selectionManager.clear()
                         },
                     )
@@ -96,7 +96,7 @@ internal fun TradeExecutionsSelectionBar(
                         confirmationRequestText = "Are you sure you want to delete the executions?",
                         onDismiss = { showDeleteConfirmationDialog = false },
                         onConfirm = {
-                            onDeleteExecutions(selectionManager.selection.map { it.profileTradeExecutionId })
+                            onDeleteExecutions(selectionManager.selection.map { it.id })
                             selectionManager.clear()
                         },
                     )

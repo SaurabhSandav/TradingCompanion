@@ -8,6 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.*
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState
@@ -43,8 +44,8 @@ internal class ReviewsPresenter(
 
         when (event) {
             NewReview -> onNewReview()
-            is OpenReview -> onOpenReview(event.profileReviewId)
-            is DeleteReview -> onDeleteReview(event.profileReviewId)
+            is OpenReview -> onOpenReview(event.id)
+            is DeleteReview -> onDeleteReview(event.id)
         }
     }
 
@@ -62,10 +63,7 @@ internal class ReviewsPresenter(
                             .map { review ->
 
                                 Review(
-                                    profileReviewId = ProfileReviewId(
-                                        profileId = profileId,
-                                        reviewId = review.id,
-                                    ),
+                                    id = review.id,
                                     title = review.title,
                                 )
                             }
@@ -95,15 +93,15 @@ internal class ReviewsPresenter(
         tradeContentLauncher.openReview(profileReviewId)
     }
 
-    private fun onOpenReview(profileReviewId: ProfileReviewId) {
+    private fun onOpenReview(id: ReviewId) {
 
-        tradeContentLauncher.openReview(profileReviewId)
+        tradeContentLauncher.openReview(ProfileReviewId(profileId = profileId, reviewId = id))
     }
 
-    private fun onDeleteReview(profileReviewId: ProfileReviewId) = coroutineScope.launchUnit {
+    private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        val record = tradingProfiles.getRecord(profileReviewId.profileId)
+        val record = tradingProfiles.getRecord(profileId)
 
-        record.trades.deleteReview(profileReviewId.reviewId)
+        record.trades.deleteReview(id)
     }
 }

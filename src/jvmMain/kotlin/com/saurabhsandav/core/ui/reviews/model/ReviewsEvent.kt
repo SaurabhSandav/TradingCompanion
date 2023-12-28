@@ -1,12 +1,12 @@
 package com.saurabhsandav.core.ui.reviews.model
 
-import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
+import com.saurabhsandav.core.trades.model.ReviewId
 
 internal sealed class ReviewsEvent {
 
     data object NewReview : ReviewsEvent()
 
-    data class OpenReview(val profileReviewId: ProfileReviewId) : ReviewsEvent()
+    data class OpenReview(val id: ReviewId) : ReviewsEvent()
 
-    data class DeleteReview(val profileReviewId: ProfileReviewId) : ReviewsEvent()
+    data class DeleteReview(val id: ReviewId) : ReviewsEvent()
 }

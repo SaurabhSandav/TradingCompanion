@@ -5,10 +5,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import kotlinx.collections.immutable.ImmutableList
@@ -18,8 +18,8 @@ internal fun TradesScreen(
     openTrades: ImmutableList<TradeEntry>,
     todayTrades: ImmutableList<TradeEntry>,
     pastTrades: ImmutableList<TradeEntry>,
-    onOpenDetails: (ProfileTradeId) -> Unit,
-    onOpenChart: (ProfileTradeId) -> Unit,
+    onOpenDetails: (TradeId) -> Unit,
+    onOpenChart: (TradeId) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
 ) {
 

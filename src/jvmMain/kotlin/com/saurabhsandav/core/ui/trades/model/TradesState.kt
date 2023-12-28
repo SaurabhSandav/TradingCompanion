@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +17,7 @@ internal data class TradesState(
 
     @Immutable
     internal data class TradeEntry(
-        val profileTradeId: ProfileTradeId,
+        val id: TradeId,
         val broker: String,
         val ticker: String,
         val side: String,

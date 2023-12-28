@@ -5,11 +5,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsSelectionBar
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsTable
@@ -21,10 +21,10 @@ internal fun TradeExecutionsScreen(
     todayExecutions: ImmutableList<TradeExecutionEntry>,
     pastExecutions: ImmutableList<TradeExecutionEntry>,
     selectionManager: SelectionManager<TradeExecutionEntry>,
-    onNewExecutionFromExisting: (ProfileTradeExecutionId) -> Unit,
-    onEditExecution: (ProfileTradeExecutionId) -> Unit,
-    onLockExecutions: (List<ProfileTradeExecutionId>) -> Unit,
-    onDeleteExecutions: (List<ProfileTradeExecutionId>) -> Unit,
+    onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecutions: (List<TradeExecutionId>) -> Unit,
+    onDeleteExecutions: (List<TradeExecutionId>) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
 ) {
 
@@ -54,8 +54,8 @@ internal fun TradeExecutionsScreen(
                 onMarkExecution = { entry -> selectionManager.multiSelect(entry) },
                 onNewExecution = onNewExecutionFromExisting,
                 onEditExecution = onEditExecution,
-                onLockExecution = { profileExecutionId -> onLockExecutions(listOf(profileExecutionId)) },
-                onDeleteExecution = { profileExecutionId -> onDeleteExecutions(listOf(profileExecutionId)) },
+                onLockExecution = { id -> onLockExecutions(listOf(id)) },
+                onDeleteExecution = { id -> onDeleteExecutions(listOf(id)) },
             )
 
             // Errors

@@ -6,6 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -57,8 +58,8 @@ internal class TradesPresenter(
     private fun onEvent(event: TradesEvent) {
 
         when (event) {
-            is OpenDetails -> onOpenDetails(event.profileTradeId)
-            is OpenChart -> onOpenChart(event.profileTradeId)
+            is OpenDetails -> onOpenDetails(event.id)
+            is OpenChart -> onOpenChart(event.id)
         }
     }
 
@@ -146,7 +147,7 @@ internal class TradesPresenter(
         }
 
         return TradeEntry(
-            profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
+            id = id,
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
@@ -168,13 +169,13 @@ internal class TradesPresenter(
         )
     }
 
-    private fun onOpenDetails(profileTradeId: ProfileTradeId) {
+    private fun onOpenDetails(id: TradeId) {
 
-        tradeContentLauncher.openTrade(profileTradeId)
+        tradeContentLauncher.openTrade(ProfileTradeId(profileId = profileId, tradeId = id))
     }
 
-    private fun onOpenChart(profileTradeId: ProfileTradeId) {
+    private fun onOpenChart(id: TradeId) {
 
-        tradeContentLauncher.openTradeReview(profileTradeId)
+        tradeContentLauncher.openTradeReview(ProfileTradeId(profileId = profileId, tradeId = id))
     }
 }

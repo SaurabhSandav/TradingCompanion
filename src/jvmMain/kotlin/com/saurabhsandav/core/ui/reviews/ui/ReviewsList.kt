@@ -10,29 +10,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
-import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewsList(
     reviews: ImmutableList<Review>,
-    onOpenReview: (ProfileReviewId) -> Unit,
-    onDeleteReview: (ProfileReviewId) -> Unit,
+    onOpenReview: (ReviewId) -> Unit,
+    onDeleteReview: (ReviewId) -> Unit,
 ) {
 
     LazyColumn {
 
         items(
             items = reviews,
-            key = { it.profileReviewId },
+            key = { it.id },
         ) { review ->
 
             ReviewItem(
                 review = review,
-                onOpenReview = { onOpenReview(review.profileReviewId) },
-                onDeleteReview = { onDeleteReview(review.profileReviewId) },
+                onOpenReview = { onOpenReview(review.id) },
+                onDeleteReview = { onDeleteReview(review.id) },
             )
         }
     }

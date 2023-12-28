@@ -13,11 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import kotlinx.collections.immutable.ImmutableList
 
@@ -26,12 +26,12 @@ internal fun TradesTable(
     openTrades: ImmutableList<TradeEntry>,
     todayTrades: ImmutableList<TradeEntry>,
     pastTrades: ImmutableList<TradeEntry>,
-    onOpenDetails: (ProfileTradeId) -> Unit,
-    onOpenChart: (ProfileTradeId) -> Unit,
+    onOpenDetails: (TradeId) -> Unit,
+    onOpenChart: (TradeId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
-        addColumnText("ID", width = Fixed(48.dp)) { it.profileTradeId.tradeId.toString() }
+        addColumnText("ID", width = Fixed(48.dp)) { it.id.toString() }
         addColumnText("Broker", width = Weight(2F)) { it.broker }
         addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
         addColumn("Side") {
@@ -88,8 +88,8 @@ internal fun TradesTable(
 private fun TableScope<TradeEntry>.tradeRows(
     trades: ImmutableList<TradeEntry>,
     title: String,
-    onOpenDetails: (ProfileTradeId) -> Unit,
-    onOpenChart: (ProfileTradeId) -> Unit,
+    onOpenDetails: (TradeId) -> Unit,
+    onOpenChart: (TradeId) -> Unit,
     keyPrefix: String? = null,
 ) {
 
@@ -120,15 +120,15 @@ private fun TableScope<TradeEntry>.tradeRows(
 
         rows(
             items = trades,
-            key = { entry -> if (keyPrefix != null) keyPrefix + entry.profileTradeId else entry.profileTradeId },
+            key = { entry -> if (keyPrefix != null) keyPrefix + entry.id else entry.id },
             contentType = { ContentType.Entry },
         ) { entry ->
 
             TradeEntry(
                 schema = schema,
                 entry = entry,
-                onOpenDetails = { onOpenDetails(entry.profileTradeId) },
-                onOpenChart = { onOpenChart(entry.profileTradeId) },
+                onOpenDetails = { onOpenDetails(entry.id) },
+                onOpenChart = { onOpenChart(entry.id) },
             )
         }
     }

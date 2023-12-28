@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
 import androidx.compose.runtime.Immutable
+import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.tradecontent.ProfileTradeExecutionId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -17,7 +17,7 @@ internal data class TradeExecutionsState(
 
     @Immutable
     internal data class TradeExecutionEntry(
-        val profileTradeExecutionId: ProfileTradeExecutionId,
+        val id: TradeExecutionId,
         val broker: String,
         val ticker: String,
         val quantity: String,

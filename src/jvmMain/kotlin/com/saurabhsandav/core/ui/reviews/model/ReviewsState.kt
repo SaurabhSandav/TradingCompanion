@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.reviews.model
 
 import androidx.compose.runtime.Immutable
-import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
+import com.saurabhsandav.core.trades.model.ReviewId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -12,7 +12,7 @@ internal data class ReviewsState(
 
     @Immutable
     internal data class Review(
-        val profileReviewId: ProfileReviewId,
+        val id: ReviewId,
         val title: String,
     )
 }
