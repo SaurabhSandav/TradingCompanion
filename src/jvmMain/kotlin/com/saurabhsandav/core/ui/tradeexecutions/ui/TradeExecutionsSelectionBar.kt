@@ -30,7 +30,7 @@ internal fun TradeExecutionsSelectionBar(
 ) {
 
     AnimatedVisibility(
-        visible = selectionManager.inMultiSelectMode,
+        visible = selectionManager.selection.isNotEmpty(),
         enter = fadeIn() + expandVertically(),
         exit = shrinkVertically() + fadeOut(),
     ) {

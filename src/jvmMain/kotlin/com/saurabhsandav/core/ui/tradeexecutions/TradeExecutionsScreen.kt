@@ -50,8 +50,14 @@ internal fun TradeExecutionsScreen(
                 todayExecutions = todayExecutions,
                 pastExecutions = pastExecutions,
                 isMarked = { entry -> entry in selectionManager.selection },
-                onClickExecution = { entry -> selectionManager.select(entry) },
-                onMarkExecution = { entry -> selectionManager.multiSelect(entry) },
+                onClickExecution = { entry ->
+
+                    // Ignore if not in selection mode
+                    if (selectionManager.selection.isNotEmpty()) {
+                        selectionManager.select(entry)
+                    }
+                },
+                onMarkExecution = selectionManager::select,
                 onNewExecution = onNewExecutionFromExisting,
                 onEditExecution = onEditExecution,
                 onLockExecution = { id -> onLockExecutions(listOf(id)) },
