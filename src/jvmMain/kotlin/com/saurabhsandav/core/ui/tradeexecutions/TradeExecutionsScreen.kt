@@ -20,7 +20,8 @@ internal fun TradeExecutionsScreen(
     onNewExecution: () -> Unit,
     todayExecutions: ImmutableList<TradeExecutionEntry>,
     pastExecutions: ImmutableList<TradeExecutionEntry>,
-    selectionManager: SelectionManager<TradeExecutionEntry>,
+    selectionManager: SelectionManager<TradeExecutionId>,
+    canSelectionLock: Boolean,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecutions: (List<TradeExecutionId>) -> Unit,
@@ -49,12 +50,12 @@ internal fun TradeExecutionsScreen(
             TradeExecutionsTable(
                 todayExecutions = todayExecutions,
                 pastExecutions = pastExecutions,
-                isMarked = { entry -> entry in selectionManager.selection },
-                onClickExecution = { entry ->
+                isMarked = { id -> id in selectionManager.selection },
+                onClickExecution = { id ->
 
                     // Ignore if not in selection mode
                     if (selectionManager.selection.isNotEmpty()) {
-                        selectionManager.select(entry)
+                        selectionManager.select(id)
                     }
                 },
                 onMarkExecution = selectionManager::select,
@@ -73,6 +74,7 @@ internal fun TradeExecutionsScreen(
 
         TradeExecutionsSelectionBar(
             selectionManager = selectionManager,
+            canSelectionLock = canSelectionLock,
             onLockExecutions = onLockExecutions,
             onDeleteExecutions = onDeleteExecutions,
         )

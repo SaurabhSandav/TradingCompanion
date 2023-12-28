@@ -23,8 +23,10 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.*
@@ -38,7 +40,8 @@ internal class TradeExecutionsPresenter(
 ) {
 
     private val errors = mutableStateListOf<UIErrorMessage>()
-    private val selectionManager = SelectionManager<TradeExecutionEntry>()
+    private val selectionManager = SelectionManager<TradeExecutionId>()
+    private var canSelectionLock by mutableStateOf(false)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -46,6 +49,7 @@ internal class TradeExecutionsPresenter(
             todayExecutions = getTodayExecutions().value,
             pastExecutions = getPastExecutions().value,
             selectionManager = selectionManager,
+            canSelectionLock = canSelectionLock,
             errors = remember(errors) { errors.toImmutableList() },
             eventSink = ::onEvent,
         )
@@ -59,6 +63,20 @@ internal class TradeExecutionsPresenter(
             is EditExecution -> onEditExecution(event.id)
             is LockExecutions -> onLockExecutions(event.ids)
             is DeleteExecutions -> onDeleteExecutions(event.ids)
+        }
+    }
+
+    init {
+
+        coroutineScope.launch {
+
+            val executionsRepo = tradingProfiles.getRecord(profileId).executions
+
+            snapshotFlow { selectionManager.selection.toList() }
+                .flatMapLatest(executionsRepo::getByIds)
+                .collect { executions ->
+                    canSelectionLock = executions.any { !it.locked }
+                }
         }
     }
 

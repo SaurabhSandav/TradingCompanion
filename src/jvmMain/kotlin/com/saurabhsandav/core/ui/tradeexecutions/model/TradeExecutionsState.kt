@@ -10,7 +10,8 @@ import kotlinx.collections.immutable.ImmutableList
 internal data class TradeExecutionsState(
     val todayExecutions: ImmutableList<TradeExecutionEntry>,
     val pastExecutions: ImmutableList<TradeExecutionEntry>,
-    val selectionManager: SelectionManager<TradeExecutionEntry>,
+    val selectionManager: SelectionManager<TradeExecutionId>,
+    val canSelectionLock: Boolean,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {

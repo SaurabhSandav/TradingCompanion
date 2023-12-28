@@ -24,6 +24,10 @@ internal class TradeExecutionsRepo(
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
+    fun getByIds(ids: List<TradeExecutionId>): Flow<List<TradeExecution>> {
+        return tradesDB.tradeExecutionQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
+    }
+
     fun getToday(): Flow<List<TradeExecution>> {
         return tradesDB.tradeExecutionQueries.getToday().asFlow().mapToList(Dispatchers.IO)
     }

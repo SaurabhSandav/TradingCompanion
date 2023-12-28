@@ -27,9 +27,9 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradeExecutionsTable(
     todayExecutions: ImmutableList<TradeExecutionEntry>,
     pastExecutions: ImmutableList<TradeExecutionEntry>,
-    isMarked: (TradeExecutionEntry) -> Boolean,
-    onClickExecution: (TradeExecutionEntry) -> Unit,
-    onMarkExecution: (TradeExecutionEntry) -> Unit,
+    isMarked: (TradeExecutionId) -> Boolean,
+    onClickExecution: (TradeExecutionId) -> Unit,
+    onMarkExecution: (TradeExecutionId) -> Unit,
     onNewExecution: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
@@ -40,8 +40,8 @@ internal fun TradeExecutionsTable(
         addColumn(width = Fixed(48.dp)) { entry ->
 
             Checkbox(
-                checked = isMarked(entry),
-                onCheckedChange = { onMarkExecution(entry) },
+                checked = isMarked(entry.id),
+                onCheckedChange = { onMarkExecution(entry.id) },
             )
         }
         addColumn(width = Fixed(48.dp)) { entry ->
@@ -99,8 +99,8 @@ internal fun TradeExecutionsTable(
 private fun TableScope<TradeExecutionEntry>.executionRows(
     executions: ImmutableList<TradeExecutionEntry>,
     title: String,
-    onClickExecution: (TradeExecutionEntry) -> Unit,
-    onMarkExecution: (TradeExecutionEntry) -> Unit,
+    onClickExecution: (TradeExecutionId) -> Unit,
+    onMarkExecution: (TradeExecutionId) -> Unit,
     onNewExecution: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
@@ -141,8 +141,8 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
             TradeExecutionEntry(
                 schema = schema,
                 entry = entry,
-                onClick = { onClickExecution(entry) },
-                onLongClick = { onMarkExecution(entry) },
+                onClick = { onClickExecution(entry.id) },
+                onLongClick = { onMarkExecution(entry.id) },
                 onNewExecution = { onNewExecution(entry.id) },
                 onEditExecution = { onEditExecution(entry.id) },
                 onLockExecution = { onLockExecution(entry.id) },

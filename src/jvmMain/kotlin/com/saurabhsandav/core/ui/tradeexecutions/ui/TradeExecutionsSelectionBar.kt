@@ -18,13 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SelectionManager
-import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 
 @Composable
 internal fun TradeExecutionsSelectionBar(
-    selectionManager: SelectionManager<TradeExecutionEntry>,
+    selectionManager: SelectionManager<TradeExecutionId>,
+    canSelectionLock: Boolean,
     onLockExecutions: (List<TradeExecutionId>) -> Unit,
     onDeleteExecutions: (List<TradeExecutionId>) -> Unit,
 ) {
@@ -60,9 +59,7 @@ internal fun TradeExecutionsSelectionBar(
 
                 VerticalDivider()
 
-                val allLocked by derivedState { selectionManager.selection.all { it.locked } }
-
-                AnimatedVisibility(!allLocked) {
+                AnimatedVisibility(canSelectionLock) {
 
                     TextButton(onClick = { showLockConfirmationDialog = true }) {
 
@@ -84,7 +81,7 @@ internal fun TradeExecutionsSelectionBar(
                         onDismiss = { showLockConfirmationDialog = false },
                         onConfirm = {
                             showLockConfirmationDialog = false
-                            onLockExecutions(selectionManager.selection.map { it.id })
+                            onLockExecutions(selectionManager.selection.toList())
                             selectionManager.clear()
                         },
                     )
@@ -96,7 +93,7 @@ internal fun TradeExecutionsSelectionBar(
                         confirmationRequestText = "Are you sure you want to delete the executions?",
                         onDismiss = { showDeleteConfirmationDialog = false },
                         onConfirm = {
-                            onDeleteExecutions(selectionManager.selection.map { it.id })
+                            onDeleteExecutions(selectionManager.selection.toList())
                             selectionManager.clear()
                         },
                     )
