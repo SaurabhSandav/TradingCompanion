@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
@@ -26,12 +24,7 @@ internal fun BarReplayWindow(
     val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(
-        placement = WindowPlacement.Maximized,
-    )
-
     AppWindow(
-        state = windowState,
         title = "Bar Replay",
         onCloseRequest = onCloseRequest,
     ) {

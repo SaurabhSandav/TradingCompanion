@@ -10,8 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -34,12 +32,7 @@ internal fun SettingsWindow(
     val presenter = remember { appModule.settingsModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(
-        placement = WindowPlacement.Maximized,
-    )
-
     AppWindow(
-        state = windowState,
         title = "Settings",
         onCloseRequest = onCloseRequest,
     ) {

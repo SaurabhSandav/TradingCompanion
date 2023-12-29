@@ -5,7 +5,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -31,7 +30,7 @@ internal fun LandingWindow(
     }.collectAsState("")
 
     val windowState = rememberAppWindowState(
-        windowState = rememberWindowState(placement = WindowPlacement.Maximized),
+        defaultPlacement = WindowPlacement.Maximized,
         defaultTitle = "Trading Companion",
         titleTransform = { title -> "$profileName$title" },
     )

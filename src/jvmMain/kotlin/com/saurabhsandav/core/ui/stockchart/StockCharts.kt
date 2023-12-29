@@ -9,9 +9,9 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
@@ -33,7 +33,7 @@ fun StockCharts(
             AppWindow(
                 title = windowTitle,
                 onCloseRequest = { if (!state.closeWindow(chartWindow)) onCloseRequest() },
-                state = rememberWindowState(placement = WindowPlacement.Maximized),
+                state = rememberAppWindowState(defaultPlacement = WindowPlacement.Maximized),
                 onPreviewKeyEvent = { keyEvent ->
 
                     when {

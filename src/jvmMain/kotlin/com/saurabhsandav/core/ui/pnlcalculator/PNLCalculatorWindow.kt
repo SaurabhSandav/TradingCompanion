@@ -16,10 +16,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
@@ -29,7 +29,7 @@ internal fun PNLCalculatorWindow(
     state: PNLCalculatorWindowState,
 ) {
 
-    val windowState = rememberWindowState(size = DpSize(width = 1150.dp, height = 600.dp))
+    val windowState = rememberAppWindowState(size = DpSize(width = 1150.dp, height = 600.dp))
 
     AppWindow(
         onCloseRequest = state.params.onCloseRequest,

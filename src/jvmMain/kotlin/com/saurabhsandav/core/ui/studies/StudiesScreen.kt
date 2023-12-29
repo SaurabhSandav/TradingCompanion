@@ -16,10 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.studies.impl.Study
 import kotlinx.collections.immutable.ImmutableList
 
@@ -80,7 +80,7 @@ private fun StudyWindow(
 
     AppWindow(
         onCloseRequest = onCloseRequest,
-        state = rememberWindowState(placement = WindowPlacement.Maximized),
+        state = rememberAppWindowState(defaultPlacement = WindowPlacement.Maximized),
         title = studyFactory.name,
     ) {
 

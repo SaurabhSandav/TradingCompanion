@@ -9,16 +9,19 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalDensityFraction
+import kotlinx.coroutines.flow.drop
 
 @Composable
 fun AppWindow(
     onCloseRequest: () -> Unit,
-    state: WindowState = rememberWindowState(),
+    state: AppWindowState = rememberAppWindowState(),
     visible: Boolean = true,
     title: String = "Untitled",
     icon: Painter? = null,
@@ -84,10 +87,36 @@ fun AppWindow(
 
 @Composable
 fun rememberAppWindowState(
-    windowState: WindowState = rememberWindowState(),
+    defaultPlacement: WindowPlacement? = null,
+    forceDefaultPlacement: Boolean = false,
+    size: DpSize = DpSize(800.dp, 600.dp),
     defaultTitle: String? = null,
     titleTransform: ((String) -> String)? = null,
-): AppWindowState = remember { AppWindowState(windowState, defaultTitle, titleTransform) }
+): AppWindowState {
+
+    val windowConfig = LocalAppWindowConfig.current
+
+    val state = remember {
+
+        AppWindowState(
+            windowState = WindowState(
+                placement = when {
+                    forceDefaultPlacement -> defaultPlacement
+                    else -> windowConfig.windowPlacement ?: defaultPlacement
+                } ?: WindowPlacement.Floating,
+                size = size,
+            ),
+            defaultTitle = defaultTitle,
+            titleTransform = titleTransform,
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.placement }.drop(1).collect { windowConfig.windowPlacement = it }
+    }
+
+    return state
+}
 
 @Composable
 fun WindowTitle(title: String) {

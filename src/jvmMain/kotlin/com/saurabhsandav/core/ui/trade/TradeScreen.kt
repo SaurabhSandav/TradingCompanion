@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.rememberWindowState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.ui.*
@@ -33,8 +33,8 @@ internal fun TradeWindow(
     val presenter = remember { appModule.tradeModule(scope).presenter(profileTradeId) }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberWindowState(
-        placement = WindowPlacement.Maximized,
+    val windowState = rememberAppWindowState(
+        defaultPlacement = WindowPlacement.Maximized,
     )
 
     AppWindow(

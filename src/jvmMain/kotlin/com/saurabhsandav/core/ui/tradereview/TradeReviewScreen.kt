@@ -12,10 +12,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
@@ -42,6 +44,10 @@ internal fun TradeReviewWindow(
     }
 
     AppWindow(
+        state = rememberAppWindowState(
+            defaultPlacement = WindowPlacement.Floating,
+            forceDefaultPlacement = true,
+        ),
         onCloseRequest = onCloseRequest,
         title = "Trade Review",
     ) {
