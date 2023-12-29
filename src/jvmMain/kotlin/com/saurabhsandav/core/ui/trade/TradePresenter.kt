@@ -3,10 +3,8 @@ package com.saurabhsandav.core.ui.trade
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAt
+import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
@@ -14,6 +12,11 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
+import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -70,7 +73,7 @@ internal class TradePresenter(
             previewStop = ::previewStop,
             targets = getTradeTargets().value,
             previewTarget = ::previewTarget,
-            mfeAndMae = getMfeAndMae().value,
+            excursions = getExcursions().value,
             tags = getTradeTags().value,
             tagSuggestions = ::tagSuggestions,
             attachments = getTradeAttachments().value,
@@ -242,21 +245,32 @@ internal class TradePresenter(
     }
 
     @Composable
-    private fun getMfeAndMae(): State<MfeAndMae?> {
-        return produceState<MfeAndMae?>(null) {
+    private fun getExcursions(): State<Excursions?> {
+        return produceState<Excursions?>(null) {
 
-            val tradingRecord = tradingProfiles.getRecord(profileId)
+            val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-            tradingRecord.trades.getMfeAndMae(tradeId).collect { mfeAndMae ->
+            tradesRepo.getExcursions(tradeId).collectLatest { excursions ->
 
-                value = when {
-                    mfeAndMae == null -> null
-                    else -> MfeAndMae(
-                        maePrice = mfeAndMae.maePrice.toPlainString(),
-                        maePnl = mfeAndMae.maePnl.toPlainString(),
-                        mfePrice = mfeAndMae.mfePrice.toPlainString(),
-                        mfePnl = mfeAndMae.mfePnl.toPlainString(),
-                    )
+                if (excursions == null) {
+                    value = null
+                    return@collectLatest
+                }
+
+                trade.collectLatest { trade ->
+
+                    tradesRepo.getPrimaryStop(tradeId).collect { stop ->
+
+                        fun buildExcursionString(inTrade: Boolean, isMae: Boolean): String =
+                            trade.buildExcursionString(stop, excursions, inTrade = inTrade, isMae = isMae)
+
+                        value = Excursions(
+                            maeInTrade = buildExcursionString(inTrade = true, isMae = true),
+                            maeInSession = buildExcursionString(inTrade = false, isMae = true),
+                            mfeInTrade = buildExcursionString(inTrade = true, isMae = false),
+                            mfeInSession = buildExcursionString(inTrade = false, isMae = false),
+                        )
+                    }
                 }
             }
         }
@@ -526,5 +540,60 @@ internal class TradePresenter(
     private fun onDeleteNote(id: TradeNoteId) = coroutineScope.launchUnit {
 
         tradingProfiles.getRecord(profileId).trades.deleteNote(id)
+    }
+
+    private fun Trade.buildExcursionString(
+        stop: com.saurabhsandav.core.trades.TradeStop?,
+        excursions: TradeExcursions,
+        inTrade: Boolean,
+        isMae: Boolean,
+    ): String {
+
+        fun Trade.getRString(pnl: BigDecimal): String {
+
+            stop ?: return ""
+
+            val rValueStr = rValueAt(stop = stop, pnl = pnl).toPlainString()
+
+            return " | ${rValueStr}R"
+        }
+
+        val price = when {
+            isMae -> when {
+                inTrade -> excursions.tradeMaePrice
+                else -> excursions.sessionMaePrice
+            }
+
+            else -> when {
+                inTrade -> excursions.tradeMfePrice
+                else -> excursions.sessionMfePrice
+            }
+        }
+
+        val pnl = when {
+            isMae -> when {
+                inTrade -> excursions.tradeMaePnl
+                else -> excursions.sessionMaePnl
+            }
+
+            else -> when {
+                inTrade -> excursions.tradeMfePnl
+                else -> excursions.sessionMfePnl
+            }
+        }
+
+        val rStr = when {
+            isMae -> when {
+                inTrade -> getRString(excursions.tradeMaePnl)
+                else -> getRString(excursions.sessionMaePnl)
+            }
+
+            else -> when {
+                inTrade -> getRString(excursions.tradeMfePnl)
+                else -> getRString(excursions.sessionMfePnl)
+            }
+        }
+
+        return "${price.toPlainString()} | ${pnl.toPlainString()}$rStr"
     }
 }

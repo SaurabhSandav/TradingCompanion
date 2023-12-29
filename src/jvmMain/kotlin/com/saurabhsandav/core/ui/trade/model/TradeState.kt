@@ -19,7 +19,7 @@ internal data class TradeState(
     val previewStop: (BigDecimal) -> Flow<TradeStop?>,
     val targets: ImmutableList<TradeTarget>,
     val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
-    val mfeAndMae: MfeAndMae?,
+    val excursions: Excursions?,
     val notes: ImmutableList<TradeNote>,
     val tags: ImmutableList<TradeTag>,
     val tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
@@ -55,11 +55,11 @@ internal data class TradeState(
     )
 
     @Immutable
-    internal data class MfeAndMae(
-        val maePrice: String,
-        val maePnl: String,
-        val mfePrice: String,
-        val mfePnl: String,
+    internal data class Excursions(
+        val maeInTrade: String,
+        val mfeInTrade: String,
+        val maeInSession: String,
+        val mfeInSession: String,
     )
 
     @Immutable

@@ -108,33 +108,41 @@ internal class TradesRepo(
             .mapToList(Dispatchers.IO)
     }
 
-    fun getWithoutMfeAndMaeBefore(instant: Instant): Flow<List<Trade>> {
+    fun getWithoutExcursionsBefore(instant: Instant): Flow<List<Trade>> {
         return tradesDB.tradeQueries
-            .getWithoutMfeAndMaeBeforeTimestamp(instant)
+            .getWithoutExcursionsBeforeTimestamp(instant)
             .asFlow()
             .mapToList(Dispatchers.IO)
     }
 
-    suspend fun setMfeAndMae(
+    suspend fun setExcursions(
         id: TradeId,
-        mfePrice: BigDecimal,
-        mfePnl: BigDecimal,
-        maePrice: BigDecimal,
-        maePnl: BigDecimal,
+        tradeMfePrice: BigDecimal,
+        tradeMfePnl: BigDecimal,
+        tradeMaePrice: BigDecimal,
+        tradeMaePnl: BigDecimal,
+        sessionMfePrice: BigDecimal,
+        sessionMfePnl: BigDecimal,
+        sessionMaePrice: BigDecimal,
+        sessionMaePnl: BigDecimal,
     ) = withContext(Dispatchers.IO) {
 
-        // Save MFE and MAE
-        tradesDB.tradeMfeMaeQueries.insert(
+        // Save Excursions
+        tradesDB.tradeExcursionsQueries.insert(
             tradeId = id,
-            mfePrice = mfePrice.stripTrailingZeros(),
-            mfePnl = mfePnl.stripTrailingZeros(),
-            maePrice = maePrice.stripTrailingZeros(),
-            maePnl = maePnl.stripTrailingZeros(),
+            tradeMfePrice = tradeMfePrice.stripTrailingZeros(),
+            tradeMfePnl = tradeMfePnl.stripTrailingZeros(),
+            tradeMaePrice = tradeMaePrice.stripTrailingZeros(),
+            tradeMaePnl = tradeMaePnl.stripTrailingZeros(),
+            sessionMfePrice = sessionMfePrice.stripTrailingZeros(),
+            sessionMfePnl = sessionMfePnl.stripTrailingZeros(),
+            sessionMaePrice = sessionMaePrice.stripTrailingZeros(),
+            sessionMaePnl = sessionMaePnl.stripTrailingZeros(),
         )
     }
 
-    fun getMfeAndMae(id: TradeId): Flow<TradeMfeMae?> {
-        return tradesDB.tradeMfeMaeQueries.getByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+    fun getExcursions(id: TradeId): Flow<TradeExcursions?> {
+        return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     fun getStopsForTrade(id: TradeId): Flow<List<TradeStop>> {
@@ -161,10 +169,18 @@ internal class TradesRepo(
             tradeId = id,
             price = price.stripTrailingZeros(),
         )
+
+        // Delete Excursions. Excursions use primary stop to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
     }
 
     suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+
+        // Delete stop
         tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
+
+        // Delete Excursions. Excursions use primary stop to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
     }
 
     fun getTargetsForTrade(id: TradeId): Flow<List<TradeTarget>> {
@@ -191,10 +207,18 @@ internal class TradesRepo(
             tradeId = id,
             price = price.stripTrailingZeros(),
         )
+
+        // Delete Excursions. Excursions use primary target to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
     }
 
     suspend fun deleteTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+
+        // Delete target
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
+
+        // Delete Excursions. Excursions use primary target to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
     }
 
     fun getAllTags(): Flow<List<TradeTag>> {

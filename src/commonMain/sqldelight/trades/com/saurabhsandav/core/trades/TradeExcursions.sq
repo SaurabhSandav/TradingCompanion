@@ -1,0 +1,29 @@
+import com.saurabhsandav.core.trades.model.TradeId;
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS TradeExcursions (
+tradeId INTEGER AS TradeId NOT NULL UNIQUE,
+tradeMfePrice TEXT AS BigDecimal NOT NULL,
+tradeMfePnl TEXT AS BigDecimal NOT NULL,
+tradeMaePrice TEXT AS BigDecimal NOT NULL,
+tradeMaePnl TEXT AS BigDecimal NOT NULL,
+sessionMfePrice TEXT AS BigDecimal NOT NULL,
+sessionMfePnl TEXT AS BigDecimal NOT NULL,
+sessionMaePrice TEXT AS BigDecimal NOT NULL,
+sessionMaePnl TEXT AS BigDecimal NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
+);
+
+insert:
+INSERT OR REPLACE
+INTO TradeExcursions
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getByTrade:
+SELECT *
+FROM TradeExcursions
+WHERE tradeId = ?;
+
+delete:
+DELETE FROM TradeExcursions
+WHERE tradeId = ?;

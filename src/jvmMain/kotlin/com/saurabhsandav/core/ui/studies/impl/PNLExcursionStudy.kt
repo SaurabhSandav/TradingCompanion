@@ -2,9 +2,12 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.table.TableSchema
@@ -36,54 +39,31 @@ internal class PNLExcursionStudy(
         }
         addColumnText("Entry") { it.entry }
         addColumnText("Stop") { it.stop }
-        addColumnText("Duration") { it.duration }
         addColumnText("Target") { it.target }
+        addColumnText("Duration") { it.duration }
         addColumnText("Exit") { it.exit }
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
         }
-        addColumn("Net PNL") {
-            Text(it.netPnl, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
         addColumn(
             header = {
 
                 TooltipArea(
-                    tooltip = { Tooltip("Maximum Favorable Excursion") },
-                    content = { Text("MFE") },
+                    tooltip = { Tooltip("Excursions In Trade") },
+                    content = { Text("In Trade") },
                 )
             },
-            content = { Text(it.maxFavorableExcursion) }
+            content = { Text(it.inTrade) }
         )
         addColumn(
             header = {
 
                 TooltipArea(
-                    tooltip = { Tooltip("Maximum Favorable Excursion PNL") },
-                    content = { Text("MFE PNL") },
+                    tooltip = { Tooltip("Excursions In Session") },
+                    content = { Text("In Session") },
                 )
             },
-            content = { Text(text = it.mfePNL, color = AppColor.ProfitGreen) }
-        )
-        addColumn(
-            header = {
-
-                TooltipArea(
-                    tooltip = { Tooltip("Maximum Adverse Excursion") },
-                    content = { Text("MAE") },
-                )
-            },
-            content = { Text(it.maxAdverseExcursion) }
-        )
-        addColumn(
-            header = {
-
-                TooltipArea(
-                    tooltip = { Tooltip("Maximum Adverse Excursion PNL") },
-                    content = { Text("MAE PNL") },
-                )
-            },
-            content = { Text(text = it.maePNL, color = AppColor.LossRed) }
+            content = { Text(it.inSession) }
         )
     }
 
@@ -97,7 +77,6 @@ internal class PNLExcursionStudy(
 
                 val brokerage = trade.brokerageAtExit()!!
                 val pnlBD = brokerage.pnl
-                val netPnlBD = brokerage.netPNL
 
                 val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
                 val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -106,7 +85,10 @@ internal class PNLExcursionStudy(
                 val stop = tradesRepo.getPrimaryStop(trade.id).first()
                 val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
 
-                val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()
+                val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
+                val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+
+                val excursions = tradesRepo.getExcursions(trade.id).first()
 
                 Model(
                     ticker = trade.ticker,
@@ -117,42 +99,76 @@ internal class PNLExcursionStudy(
                     duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
                     target = target?.toPlainString() ?: "NA",
                     exit = trade.averageExit!!.toPlainString(),
-                    pnl = pnlBD.toPlainString(),
+                    pnl = "${pnlBD.toPlainString()}${rValueStr}",
                     isProfitable = pnlBD > BigDecimal.ZERO,
-                    netPnl = netPnlBD.toPlainString(),
-                    isNetProfitable = netPnlBD > BigDecimal.ZERO,
-                    maxFavorableExcursion = mfeAndMae?.mfePrice?.toPlainString() ?: "NA",
-                    mfePNL = mfeAndMae?.mfePrice?.let { mfePrice ->
-                        trade.buildPNLString(
-                            stop = stop,
-                            exit = mfePrice,
-                        )
-                    }.orEmpty(),
-                    maxAdverseExcursion = mfeAndMae?.maePrice?.toPlainString() ?: "NA",
-                    maePNL = mfeAndMae?.maePrice?.let { maePrice ->
-                        trade.buildPNLString(
-                            stop = stop,
-                            exit = maePrice,
-                        )
-                    }.orEmpty(),
+                    inTrade = trade.buildExcursionString(stop, excursions, true),
+                    inSession = trade.buildExcursionString(stop, excursions, false),
                 )
             }
         }.emitInto(this)
     }
 
-    private fun Trade.buildPNLString(
+    private fun Trade.buildExcursionString(
         stop: TradeStop?,
-        exit: BigDecimal,
-    ): String {
+        excursions: TradeExcursions?,
+        inTrade: Boolean,
+    ): AnnotatedString {
 
-        val pnl = when (side) {
-            TradeSide.Long -> (exit - averageEntry) * quantity
-            TradeSide.Short -> (averageEntry - exit) * quantity
+        excursions ?: return AnnotatedString("NA")
+
+        val maePrice = when {
+            inTrade -> excursions.tradeMaePrice
+            else -> excursions.sessionMaePrice
         }
 
-        val rValue = stop?.let { rValueAt(pnl = pnl, stop = it) }?.toPlainString()
+        val mfePrice = when {
+            inTrade -> excursions.tradeMfePrice
+            else -> excursions.sessionMfePrice
+        }
 
-        return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()
+        val maePnl = when {
+            inTrade -> excursions.tradeMaePnl
+            else -> excursions.sessionMaePnl
+        }
+
+        val mfePnl = when {
+            inTrade -> excursions.tradeMfePnl
+            else -> excursions.sessionMfePnl
+        }
+
+        val maeRStr = when {
+            inTrade -> getRString(excursions.tradeMaePnl, stop)
+            else -> getRString(excursions.sessionMaePnl, stop)
+        }
+
+        val mfeRStr = when {
+            inTrade -> getRString(excursions.tradeMfePnl, stop)
+            else -> getRString(excursions.sessionMfePnl, stop)
+        }
+
+        return buildAnnotatedString {
+            withStyle(SpanStyle(color = AppColor.LossRed)) {
+                appendLine("MAE: $maePrice | $maePnl$maeRStr")
+            }
+            withStyle(SpanStyle(color = AppColor.ProfitGreen)) {
+                appendLine("MFE: $mfePrice | $mfePnl$mfeRStr")
+            }
+        }
+    }
+
+    private fun Trade.getRString(
+        pnl: BigDecimal,
+        stop: TradeStop?,
+    ): String {
+
+        stop ?: return ""
+
+        val rValueStr = rValueAt(
+            stop = stop,
+            pnl = pnl,
+        ).toString()
+
+        return " | ${rValueStr}R"
     }
 
     data class Model(
@@ -161,17 +177,13 @@ internal class PNLExcursionStudy(
         val side: String,
         val entry: String,
         val stop: String,
-        val duration: String,
         val target: String,
+        val duration: String,
         val exit: String,
         val pnl: String,
         val isProfitable: Boolean,
-        val netPnl: String,
-        val isNetProfitable: Boolean,
-        val maxFavorableExcursion: String,
-        val mfePNL: String,
-        val maxAdverseExcursion: String,
-        val maePNL: String,
+        val inTrade: AnnotatedString,
+        val inSession: AnnotatedString,
     )
 
     class Factory(

@@ -487,7 +487,7 @@ internal class TradeExecutionsRepo(
             )
         }
 
-        // Remove MFE and MAE from DB
-        tradesDB.tradeMfeMaeQueries.delete(trade.id)
+        // Remove Excursions from DB
+        tradesDB.tradeExcursionsQueries.delete(trade.id)
     }
 }

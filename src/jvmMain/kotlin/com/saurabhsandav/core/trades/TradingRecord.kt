@@ -48,13 +48,6 @@ internal class TradingRecord(
                 priceAdapter = BigDecimalColumnAdapter,
                 timestampAdapter = InstantReadableColumnAdapter,
             ),
-            TradeMfeMaeAdapter = TradeMfeMae.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                mfePriceAdapter = BigDecimalColumnAdapter,
-                mfePnlAdapter = BigDecimalColumnAdapter,
-                maePriceAdapter = BigDecimalColumnAdapter,
-                maePnlAdapter = BigDecimalColumnAdapter,
-            ),
             TradeStopAdapter = TradeStop.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
@@ -91,7 +84,18 @@ internal class TradingRecord(
             ReviewAdapter = Review.Adapter(
                 idAdapter = ReviewIdColumnAdapter,
                 tradeIdsAdapter = TradeIdListColumnAdapter,
-            )
+            ),
+            TradeExcursionsAdapter = TradeExcursions.Adapter(
+                tradeIdAdapter = TradeIdColumnAdapter,
+                tradeMfePriceAdapter = BigDecimalColumnAdapter,
+                tradeMfePnlAdapter = BigDecimalColumnAdapter,
+                tradeMaePriceAdapter = BigDecimalColumnAdapter,
+                tradeMaePnlAdapter = BigDecimalColumnAdapter,
+                sessionMfePriceAdapter = BigDecimalColumnAdapter,
+                sessionMfePnlAdapter = BigDecimalColumnAdapter,
+                sessionMaePriceAdapter = BigDecimalColumnAdapter,
+                sessionMaePnlAdapter = BigDecimalColumnAdapter,
+            ),
         )
     }
 

@@ -14,10 +14,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.trade.model.TradeState.MfeAndMae
+import com.saurabhsandav.core.ui.trade.model.TradeState.Excursions
 
 @Composable
-internal fun MfeAndMae(mfeAndMae: MfeAndMae) {
+internal fun Excursions(excursions: Excursions) {
 
     Column(
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -27,46 +27,28 @@ internal fun MfeAndMae(mfeAndMae: MfeAndMae) {
 
             // Header
             Row(
-                modifier = Modifier.height(64.dp).padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Text(
-                    modifier = Modifier.weight(1F),
-                    text = "Maximum Adverse Excursion",
-                )
-
-                Text(
-                    modifier = Modifier.weight(1F),
-                    text = "Maximum Favorable Excursion",
-                )
-            }
-
-            Divider()
-
-            Row(
                 modifier = Modifier.height(48.dp).padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = "Price",
+                    text = "Trade MAE",
                 )
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = "PNL",
+                    text = "Session MAE",
                 )
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = "Price",
+                    text = "Trade MFE",
                 )
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = "PNL",
+                    text = "Session MFE",
                 )
             }
 
@@ -81,23 +63,25 @@ internal fun MfeAndMae(mfeAndMae: MfeAndMae) {
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = mfeAndMae.maePrice,
-                )
-
-                Text(
-                    modifier = Modifier.weight(1F),
-                    text = mfeAndMae.maePnl,
+                    text = excursions.maeInTrade,
                     color = AppColor.LossRed,
                 )
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = mfeAndMae.mfePrice,
+                    text = excursions.maeInSession,
+                    color = AppColor.LossRed,
                 )
 
                 Text(
                     modifier = Modifier.weight(1F),
-                    text = mfeAndMae.mfePnl,
+                    text = excursions.mfeInTrade,
+                    color = AppColor.ProfitGreen,
+                )
+
+                Text(
+                    modifier = Modifier.weight(1F),
+                    text = excursions.mfeInSession,
                     color = AppColor.ProfitGreen,
                 )
             }

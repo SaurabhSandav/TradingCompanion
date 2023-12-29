@@ -99,8 +99,8 @@ internal fun TradeScreen(
                             onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
                         )
 
-                        if (state.mfeAndMae != null) {
-                            MfeAndMae(state.mfeAndMae)
+                        if (state.excursions != null) {
+                            Excursions(state.excursions)
                         }
 
                         Tags(
