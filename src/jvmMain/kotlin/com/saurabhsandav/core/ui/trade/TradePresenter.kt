@@ -6,6 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAt
 import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
@@ -109,7 +110,9 @@ internal class TradePresenter(
     private fun getTradeDetail(): State<Details?> {
         return produceState<Details?>(null) {
 
-            trade.collect { trade ->
+            val record = tradingProfiles.getRecord(profileId)
+
+            trade.collectLatest { trade ->
 
                 val instrumentCapitalized = trade.instrument.strValue
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -135,26 +138,32 @@ internal class TradePresenter(
                     }
                 }
 
-                value = Details(
-                    id = trade.id,
-                    broker = "${trade.broker} ($instrumentCapitalized)",
-                    ticker = trade.ticker,
-                    side = trade.side.toString().uppercase(),
-                    quantity = when {
-                        !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"
-                        else -> trade.quantity.toPlainString()
-                    },
-                    entry = trade.averageEntry.toPlainString(),
-                    exit = trade.averageExit?.toPlainString() ?: "",
-                    duration = durationStr,
-                    pnl = trade.pnl.toPlainString(),
-                    isProfitable = trade.pnl > BigDecimal.ZERO,
-                    netPnl = trade.netPnl.toPlainString(),
-                    isNetProfitable = trade.netPnl > BigDecimal.ZERO,
-                    fees = trade.fees.toPlainString(),
-                )
-
                 newExecutionEnabled = !trade.isClosed
+
+                record.trades.getPrimaryStop(trade.id).collect { stop ->
+
+                    val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
+                    val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+
+                    value = Details(
+                        id = trade.id,
+                        broker = "${trade.broker} ($instrumentCapitalized)",
+                        ticker = trade.ticker,
+                        side = trade.side.toString().uppercase(),
+                        quantity = when {
+                            !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"
+                            else -> trade.quantity.toPlainString()
+                        },
+                        entry = trade.averageEntry.toPlainString(),
+                        exit = trade.averageExit?.toPlainString() ?: "",
+                        duration = durationStr,
+                        pnl = "${trade.pnl.toPlainString()}${rValueStr}",
+                        isProfitable = trade.pnl > BigDecimal.ZERO,
+                        netPnl = trade.netPnl.toPlainString(),
+                        isNetProfitable = trade.netPnl > BigDecimal.ZERO,
+                        fees = trade.fees.toPlainString(),
+                    )
+                }
             }
         }
     }

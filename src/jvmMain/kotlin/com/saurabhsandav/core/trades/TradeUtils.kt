@@ -25,6 +25,6 @@ fun Trade.rValueAt(
     pnl: BigDecimal,
     stop: TradeStop,
 ): BigDecimal = when (side) {
-    TradeSide.Long -> pnl / ((averageEntry - stop.price) * quantity)
-    TradeSide.Short -> pnl / ((stop.price - averageEntry) * quantity)
-}.setScale(1, RoundingMode.HALF_EVEN)
+    TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
+    TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
+}.setScale(1, RoundingMode.HALF_EVEN).stripTrailingZeros()
