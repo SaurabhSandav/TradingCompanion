@@ -4,7 +4,7 @@ import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 internal class PNLByTickerStudy(
     profileId: ProfileId,
@@ -54,13 +53,8 @@ internal class PNLByTickerStudy(
                         val pnlBD = brokerage.pnl
                         val netPnlBD = brokerage.netPNL
 
-                        val rValue = when (val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price) {
-                            null -> null
-                            else -> when (trade.side) {
-                                TradeSide.Long -> pnlBD / ((trade.averageEntry - stop) * trade.quantity)
-                                TradeSide.Short -> pnlBD / ((stop - trade.averageEntry) * trade.quantity)
-                            }.setScale(1, RoundingMode.HALF_EVEN)
-                        }
+                        val stop = tradesRepo.getPrimaryStop(trade.id).first()
+                        val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
 
                         Triple(pnlBD, netPnlBD, rValue)
                     }

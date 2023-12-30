@@ -2,8 +2,7 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.material3.Text
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAtExit
+import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.ui.common.AppColor
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -105,7 +103,7 @@ internal class PNLExcursionStudy(
                 val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
                 val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
 
-                val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price
+                val stop = tradesRepo.getPrimaryStop(trade.id).first()
                 val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
 
                 val mfeAndMae = tradesRepo.getMfeAndMae(trade.id).first()
@@ -115,7 +113,7 @@ internal class PNLExcursionStudy(
                     quantity = trade.quantity.toPlainString(),
                     side = trade.side.strValue.uppercase(),
                     entry = trade.averageEntry.toPlainString(),
-                    stop = stop?.toPlainString() ?: "NA",
+                    stop = stop?.price?.toPlainString() ?: "NA",
                     duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
                     target = target?.toPlainString() ?: "NA",
                     exit = trade.averageExit!!.toPlainString(),
@@ -125,20 +123,14 @@ internal class PNLExcursionStudy(
                     isNetProfitable = netPnlBD > BigDecimal.ZERO,
                     maxFavorableExcursion = mfeAndMae?.mfePrice?.toPlainString() ?: "NA",
                     mfePNL = mfeAndMae?.mfePrice?.let { mfePrice ->
-                        buildPNLString(
-                            side = trade.side,
-                            quantity = trade.quantity,
-                            entry = trade.averageEntry,
+                        trade.buildPNLString(
                             stop = stop,
                             exit = mfePrice,
                         )
                     }.orEmpty(),
                     maxAdverseExcursion = mfeAndMae?.maePrice?.toPlainString() ?: "NA",
                     maePNL = mfeAndMae?.maePrice?.let { maePrice ->
-                        buildPNLString(
-                            side = trade.side,
-                            quantity = trade.quantity,
-                            entry = trade.averageEntry,
+                        trade.buildPNLString(
                             stop = stop,
                             exit = maePrice,
                         )
@@ -148,26 +140,17 @@ internal class PNLExcursionStudy(
         }.emitInto(this)
     }
 
-    private fun buildPNLString(
-        side: TradeSide,
-        quantity: BigDecimal,
-        entry: BigDecimal,
-        stop: BigDecimal?,
+    private fun Trade.buildPNLString(
+        stop: TradeStop?,
         exit: BigDecimal,
     ): String {
 
         val pnl = when (side) {
-            TradeSide.Long -> (exit - entry) * quantity
-            TradeSide.Short -> (entry - exit) * quantity
+            TradeSide.Long -> (exit - averageEntry) * quantity
+            TradeSide.Short -> (averageEntry - exit) * quantity
         }
 
-        val rValue = when (stop) {
-            null -> null
-            else -> when (side) {
-                TradeSide.Long -> pnl / ((entry - stop) * quantity)
-                TradeSide.Short -> pnl / ((stop - entry) * quantity)
-            }.setScale(1, RoundingMode.HALF_EVEN).toPlainString()
-        }
+        val rValue = stop?.let { rValueAt(pnl = pnl, stop = it) }?.toPlainString()
 
         return pnl.toPlainString() + rValue?.let { " (${it}R)" }.orEmpty()
     }

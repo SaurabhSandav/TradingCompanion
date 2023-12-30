@@ -4,7 +4,7 @@ import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.addColumn
@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -61,15 +60,8 @@ internal class PNLStudy(
                 val pnlBD = brokerage.pnl
                 val netPnlBD = brokerage.netPNL
 
-                val stop = tradesRepo.getPrimaryStop(trade.id).first()?.price
-
-                val rValue = when (stop) {
-                    null -> null
-                    else -> when (trade.side) {
-                        TradeSide.Long -> pnlBD / ((trade.averageEntry - stop) * trade.quantity)
-                        TradeSide.Short -> pnlBD / ((stop - trade.averageEntry) * trade.quantity)
-                    }.setScale(1, RoundingMode.HALF_EVEN)
-                }
+                val stop = tradesRepo.getPrimaryStop(trade.id).first()
+                val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
 
                 val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
                 val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -82,7 +74,7 @@ internal class PNLStudy(
                     quantity = trade.quantity.toPlainString(),
                     side = trade.side.strValue.uppercase(),
                     entry = trade.averageEntry.toPlainString(),
-                    stop = stop?.toPlainString() ?: "NA",
+                    stop = stop?.price?.toPlainString() ?: "NA",
                     duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
                     target = target?.toPlainString() ?: "NA",
                     exit = trade.averageExit!!.toPlainString(),

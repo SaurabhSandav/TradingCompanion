@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.trades
 
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.utils.Brokerage
 import com.saurabhsandav.core.utils.brokerage
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 fun Trade.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
     broker = broker,
@@ -18,3 +20,11 @@ fun Trade.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)
 fun Trade.brokerageAt(stop: TradeStop): Brokerage = brokerageAt(stop.price)
 
 fun Trade.brokerageAt(target: TradeTarget): Brokerage = brokerageAt(target.price)
+
+fun Trade.rValueAt(
+    pnl: BigDecimal,
+    stop: TradeStop,
+): BigDecimal = when (side) {
+    TradeSide.Long -> pnl / ((averageEntry - stop.price) * quantity)
+    TradeSide.Short -> pnl / ((stop.price - averageEntry) * quantity)
+}.setScale(1, RoundingMode.HALF_EVEN)
