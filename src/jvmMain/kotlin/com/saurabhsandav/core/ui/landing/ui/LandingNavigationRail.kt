@@ -40,8 +40,9 @@ internal fun LandingNavigationRail(
             TooltipArea(
                 tooltip = {
 
-                    val text = when (screen) {
-                        LandingState.LandingScreen.Trades -> "${screen.title} - $openTradesCount open trades"
+                    val text = when {
+                        screen == LandingState.LandingScreen.Trades
+                                && openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
                         else -> screen.title
                     }
 
