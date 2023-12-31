@@ -21,6 +21,7 @@ internal class TradesLandingSwitcherItem(
         TradesScreen(
             openTrades = state.openTrades,
             todayTrades = state.todayTrades,
+            todayStats = state.todayStats,
             pastTrades = state.pastTrades,
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
             onOpenChart = { state.eventSink(OpenChart(it)) },

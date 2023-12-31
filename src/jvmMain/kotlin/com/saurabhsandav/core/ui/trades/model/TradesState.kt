@@ -10,10 +10,19 @@ import kotlinx.coroutines.flow.Flow
 internal data class TradesState(
     val openTrades: ImmutableList<TradeEntry>,
     val todayTrades: ImmutableList<TradeEntry>,
+    val todayStats: Stats?,
     val pastTrades: ImmutableList<TradeEntry>,
     val errors: ImmutableList<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
+
+    @Immutable
+    internal data class Stats(
+        val pnl: String,
+        val isProfitable: Boolean,
+        val netPnl: String,
+        val isNetProfitable: Boolean,
+    )
 
     @Immutable
     internal data class TradeEntry(

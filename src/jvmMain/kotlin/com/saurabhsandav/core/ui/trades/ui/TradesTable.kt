@@ -2,15 +2,14 @@ package com.saurabhsandav.core.ui.trades.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeId
@@ -18,6 +17,7 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import kotlinx.collections.immutable.ImmutableList
 
@@ -25,6 +25,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradesTable(
     openTrades: ImmutableList<TradeEntry>,
     todayTrades: ImmutableList<TradeEntry>,
+    todayStats: Stats?,
     pastTrades: ImmutableList<TradeEntry>,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
@@ -74,6 +75,7 @@ internal fun TradesTable(
             title = "Today",
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
+            stats = todayStats,
         )
 
         tradeRows(
@@ -90,6 +92,7 @@ private fun TableScope<TradeEntry>.tradeRows(
     title: String,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
+    stats: Stats? = null,
     keyPrefix: String? = null,
 ) {
 
@@ -113,6 +116,7 @@ private fun TableScope<TradeEntry>.tradeRows(
                         style = MaterialTheme.typography.labelLarge,
                     )
                 },
+                trailingContent = stats?.let { { StatsHeaderItem(it) } },
             )
 
             Divider()
@@ -160,6 +164,49 @@ private fun TradeEntry(
             )
 
             Divider()
+        }
+    }
+}
+
+@Composable
+private fun StatsHeaderItem(stats: Stats) {
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(32.dp),
+    ) {
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            Text(
+                text = stats.pnl,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (stats.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+            )
+
+            Text(
+                text = "PNL",
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            Text(
+                text = stats.netPnl,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (stats.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+            )
+
+            Text(
+                text = "Net PNL",
+                style = MaterialTheme.typography.labelLarge,
+            )
         }
     }
 }

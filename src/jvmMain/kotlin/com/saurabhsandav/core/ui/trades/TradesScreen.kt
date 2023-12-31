@@ -9,6 +9,7 @@ import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
+import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import kotlinx.collections.immutable.ImmutableList
@@ -17,6 +18,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun TradesScreen(
     openTrades: ImmutableList<TradeEntry>,
     todayTrades: ImmutableList<TradeEntry>,
+    todayStats: TradesState.Stats?,
     pastTrades: ImmutableList<TradeEntry>,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
@@ -35,6 +37,7 @@ internal fun TradesScreen(
         TradesTable(
             openTrades = openTrades,
             todayTrades = todayTrades,
+            todayStats = todayStats,
             pastTrades = pastTrades,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
