@@ -16,6 +16,8 @@ class StartupManager(
     init {
         setupLogging()
         runStartupJobs()
+
+        TradeSimulator(this).run()
     }
 
     private fun setupLogging() {
