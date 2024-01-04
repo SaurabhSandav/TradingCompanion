@@ -45,6 +45,7 @@ internal class TradePresenter(
     private val coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
+    private val excursionsGenerator: TradeExcursionsGenerator,
 ) {
 
     private val profileId = profileTradeId.profileId
@@ -250,29 +251,24 @@ internal class TradePresenter(
 
             val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-            tradesRepo.getExcursions(tradeId).collectLatest { excursions ->
+            combine(
+                tradesRepo.getExcursions(tradeId),
+                trade,
+                tradesRepo.getPrimaryStop(tradeId),
+                tradesRepo.getPrimaryTarget(tradeId),
+            ) { savedExcursions, trade, stop, target ->
 
-                if (excursions == null) {
-                    value = null
-                    return@collectLatest
-                }
+                val excursions = savedExcursions
+                    ?: excursionsGenerator.getExcursions(trade, stop, target)
+                    ?: return@combine null
 
-                trade.collectLatest { trade ->
-
-                    tradesRepo.getPrimaryStop(tradeId).collect { stop ->
-
-                        fun buildExcursionString(inTrade: Boolean, isMae: Boolean): String =
-                            trade.buildExcursionString(stop, excursions, inTrade = inTrade, isMae = isMae)
-
-                        value = Excursions(
-                            maeInTrade = buildExcursionString(inTrade = true, isMae = true),
-                            maeInSession = buildExcursionString(inTrade = false, isMae = true),
-                            mfeInTrade = buildExcursionString(inTrade = true, isMae = false),
-                            mfeInSession = buildExcursionString(inTrade = false, isMae = false),
-                        )
-                    }
-                }
-            }
+                Excursions(
+                    maeInTrade = trade.buildExcursionString(stop, excursions, inTrade = true, isMae = true),
+                    maeInSession = trade.buildExcursionString(stop, excursions, inTrade = false, isMae = true),
+                    mfeInTrade = trade.buildExcursionString(stop, excursions, inTrade = true, isMae = false),
+                    mfeInSession = trade.buildExcursionString(stop, excursions, inTrade = false, isMae = false),
+                )
+            }.collect { excursions -> value = excursions }
         }
     }
 

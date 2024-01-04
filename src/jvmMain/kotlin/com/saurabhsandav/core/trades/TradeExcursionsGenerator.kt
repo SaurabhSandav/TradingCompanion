@@ -1,0 +1,147 @@
+package com.saurabhsandav.core.trades
+
+import co.touchlab.kermit.Logger
+import com.github.michaelbull.result.get
+import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.data.CandleRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.*
+import java.math.BigDecimal
+
+internal class TradeExcursionsGenerator(
+    private val tradingProfiles: TradingProfiles,
+    private val candleRepo: CandleRepository,
+) {
+
+    suspend fun generateExcursions() = withContext(Dispatchers.IO) {
+
+        // Generate excursions
+        tradingProfiles.allProfiles.first().forEach { profile ->
+
+            Logger.d(DebugTag) { "Generating Excursions for profile - ${profile.name}" }
+
+            val tradesRepo = tradingProfiles.getRecord(profile.id).trades
+
+            val instant = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                .atTime(LocalTime(0, 0))
+                .toInstant(TimeZone.currentSystemDefault())
+            val trades = tradesRepo.getWithoutExcursionsBefore(instant).first()
+
+            if (trades.isEmpty()) {
+                Logger.d(DebugTag) { "No Trades found for profile - ${profile.name}" }
+            } else {
+
+                trades.forEach { trade ->
+
+                    val excursions = getExcursions(
+                        trade = trade,
+                        stop = tradesRepo.getPrimaryStop(trade.id).first(),
+                        target = tradesRepo.getPrimaryTarget(trade.id).first(),
+                    )
+
+                    if (excursions != null) {
+
+                        Logger.d(DebugTag) { "Saving Excursions for Trade#(${trade.id})" }
+
+                        // Save Excursions
+                        tradesRepo.setExcursions(
+                            id = excursions.tradeId,
+                            tradeMfePrice = excursions.tradeMfePrice,
+                            tradeMfePnl = excursions.tradeMfePnl,
+                            tradeMaePrice = excursions.tradeMaePrice,
+                            tradeMaePnl = excursions.tradeMaePnl,
+                            sessionMfePrice = excursions.sessionMfePrice,
+                            sessionMfePnl = excursions.sessionMfePnl,
+                            sessionMaePrice = excursions.sessionMaePrice,
+                            sessionMaePnl = excursions.sessionMaePnl,
+                        )
+                    }
+                }
+
+                Logger.d(DebugTag) { "Finished generating Excursions for profile - ${profile.name}" }
+            }
+        }
+    }
+
+    suspend fun getExcursions(
+        trade: Trade,
+        stop: TradeStop?,
+        target: TradeTarget?,
+    ): TradeExcursions? = withContext(Dispatchers.IO) {
+
+        val exitInstant = trade.exitTimestamp ?: return@withContext null
+
+        // TODO: End of session is currently hardcoded to end of day.
+        //  Should be replaced with a proper customizable way to detect end of session.
+        //  Any solution should also handle trades which are open across sessions.
+        val endOfSessionInstant = exitInstant
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
+            .plus(DatePeriod(days = 1))
+            .atStartOfDayIn(TimeZone.currentSystemDefault())
+
+        val candles = candleRepo.getCandles(
+            ticker = trade.ticker,
+            timeframe = Timeframe.M1,
+            from = trade.entryTimestamp,
+            to = endOfSessionInstant,
+            includeFromCandle = true,
+        ).get()?.first()
+
+        if (candles.isNullOrEmpty()) {
+            Logger.d(DebugTag) { "No candles found for Trade#(${trade.id})" }
+            return@withContext null
+        }
+
+        val tradeCandles = candles.dropLastWhile { it.openInstant > exitInstant }
+
+        // Max favourable price in trade
+        val tradeMfePrice = when (trade.side) {
+            TradeSide.Long -> tradeCandles.maxOf { it.high }
+            TradeSide.Short -> tradeCandles.minOf { it.low }
+        }
+
+        // Max unfavourable price in trade
+        val tradeMaePrice = when (trade.side) {
+            TradeSide.Long -> tradeCandles.minOf { it.low }
+            TradeSide.Short -> tradeCandles.maxOf { it.high }
+        }
+
+        // Max favourable price before stop
+        val sessionMfePrice = when (trade.side) {
+            TradeSide.Long -> candles.takeWhile { stop == null || it.low > stop.price }.maxOfOrNull { it.high }
+            TradeSide.Short -> candles.takeWhile { stop == null || it.high < stop.price }.minOfOrNull { it.low }
+        } ?: tradeMfePrice
+
+        // Max unfavourable price before target
+        val sessionMaePrice = when (trade.side) {
+            TradeSide.Long -> candles.takeWhile { target == null || it.high < target.price }.minOfOrNull { it.low }
+            TradeSide.Short -> candles.takeWhile { target == null || it.low > target.price }.maxOfOrNull { it.high }
+        } ?: tradeMaePrice
+
+        fun Trade.calculatePnl(price: BigDecimal): BigDecimal = when (side) {
+            TradeSide.Long -> (price - averageEntry) * quantity
+            TradeSide.Short -> (averageEntry - price) * quantity
+        }.stripTrailingZeros()
+
+        return@withContext TradeExcursions(
+            tradeId = trade.id,
+            tradeMfePrice = tradeMfePrice.stripTrailingZeros(),
+            tradeMfePnl = trade.calculatePnl(tradeMfePrice),
+            tradeMaePrice = tradeMaePrice.stripTrailingZeros(),
+            tradeMaePnl = trade.calculatePnl(tradeMaePrice),
+            sessionMfePrice = sessionMfePrice.stripTrailingZeros(),
+            sessionMfePnl = trade.calculatePnl(sessionMfePrice),
+            sessionMaePrice = sessionMaePrice.stripTrailingZeros(),
+            sessionMaePnl = trade.calculatePnl(sessionMaePrice),
+        )
+    }
+
+    companion object {
+
+        private const val DebugTag = "ExcursionsGeneration"
+    }
+}

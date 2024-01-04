@@ -8,6 +8,7 @@ import co.touchlab.kermit.Severity
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
+import com.saurabhsandav.core.trades.TradeExcursionsGenerator
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
@@ -147,6 +148,8 @@ internal class AppModule {
         appFilesPath = AppPaths.getAppDataPath(),
         appDB = appDB,
     )
+
+    val tradeExcursionsGenerator = TradeExcursionsGenerator(tradingProfiles, candleRepo)
 
     val tradeContentLauncher = TradeContentLauncher()
 
@@ -316,8 +319,7 @@ internal class AppModule {
 
         val startupJobs = listOf(
             TradeManagementJob(
-                tradingProfiles = tradingProfiles,
-                candleRepo = candleRepo,
+                excursionsGenerator = tradeExcursionsGenerator,
             ),
         )
 

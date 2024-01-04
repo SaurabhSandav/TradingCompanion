@@ -16,6 +16,7 @@ internal class TradeModule(
             coroutineScope = coroutineScope,
             tradeContentLauncher = appModule.tradeContentLauncher,
             tradingProfiles = appModule.tradingProfiles,
+            excursionsGenerator = appModule.tradeExcursionsGenerator,
         )
     }
 }
