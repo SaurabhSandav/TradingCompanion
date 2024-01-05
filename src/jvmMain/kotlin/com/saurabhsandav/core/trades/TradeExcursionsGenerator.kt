@@ -98,6 +98,14 @@ internal class TradeExcursionsGenerator(
 
         val tradeCandles = candles.dropLastWhile { it.openInstant > exitInstant }
 
+        // TODO: Add ability to have different square off times based on broker, instrument, exchange.
+        //  Also, ignore if not an intra day trade.
+        // Drop candles after square-off time
+        val squareOffRange = LocalTime(hour = 15, minute = 21)..LocalTime(hour = 15, minute = 30)
+        val sessionCandles = candles.dropLastWhile {
+            it.openInstant.toLocalDateTime(TimeZone.currentSystemDefault()).time in squareOffRange
+        }
+
         // Max favourable price in trade
         val tradeMfePrice = when (trade.side) {
             TradeSide.Long -> tradeCandles.maxOf { it.high }
@@ -112,14 +120,17 @@ internal class TradeExcursionsGenerator(
 
         // Max favourable price before stop
         val sessionMfePrice = when (trade.side) {
-            TradeSide.Long -> candles.takeWhile { stop == null || it.low > stop.price }.maxOfOrNull { it.high }
-            TradeSide.Short -> candles.takeWhile { stop == null || it.high < stop.price }.minOfOrNull { it.low }
+            TradeSide.Long -> sessionCandles.takeWhile { stop == null || it.low > stop.price }.maxOfOrNull { it.high }
+            TradeSide.Short -> sessionCandles.takeWhile { stop == null || it.high < stop.price }.minOfOrNull { it.low }
         } ?: tradeMfePrice
 
         // Max unfavourable price before target
         val sessionMaePrice = when (trade.side) {
-            TradeSide.Long -> candles.takeWhile { target == null || it.high < target.price }.minOfOrNull { it.low }
-            TradeSide.Short -> candles.takeWhile { target == null || it.low > target.price }.maxOfOrNull { it.high }
+            TradeSide.Long -> sessionCandles.takeWhile { target == null || it.high < target.price }
+                .minOfOrNull { it.low }
+
+            TradeSide.Short -> sessionCandles.takeWhile { target == null || it.low > target.price }
+                .maxOfOrNull { it.high }
         } ?: tradeMaePrice
 
         fun Trade.calculatePnl(price: BigDecimal): BigDecimal = when (side) {
