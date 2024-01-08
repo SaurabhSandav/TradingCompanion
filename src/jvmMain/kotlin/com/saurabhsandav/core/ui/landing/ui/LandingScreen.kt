@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -101,10 +102,15 @@ private fun LandingScreen(
         // Main content
         Box(Modifier.fillMaxSize()) {
 
-            // Main content of currently selected switcher item
-            AnimatedContent(currentScreen) { targetState ->
+            val saveableStateHolder = rememberSaveableStateHolder()
 
-                remember(targetState) { switcherItems.getValue(targetState) }.Content()
+            // Main content of currently selected switcher item
+            AnimatedContent(currentScreen) { screen ->
+
+                saveableStateHolder.SaveableStateProvider(screen) {
+
+                    remember(screen) { switcherItems.getValue(screen) }.Content()
+                }
             }
 
             // Windows of all switcher items

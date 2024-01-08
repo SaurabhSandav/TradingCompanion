@@ -11,6 +11,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
@@ -104,22 +105,27 @@ internal fun TradeReviewScreen(
         },
     ) { paddingValues ->
 
+        val saveableStateHolder = rememberSaveableStateHolder()
+
         Crossfade(selectedTab, Modifier.padding(paddingValues)) { tab ->
 
-            when (tab) {
-                Tab.Profile -> ProfileTradesTable(
-                    trades = trades,
-                    onMarkTrade = onMarkTrade,
-                    onSelectTrade = onSelectTrade,
-                    onOpenDetails = onOpenDetails,
-                )
+            saveableStateHolder.SaveableStateProvider(tab) {
 
-                Tab.Marked -> MarkedTradesTable(
-                    markedTrades = markedTrades,
-                    onUnMarkTrade = { profileTradeId -> onMarkTrade(profileTradeId, false) },
-                    onSelectTrade = onSelectTrade,
-                    onOpenDetails = onOpenDetails,
-                )
+                when (tab) {
+                    Tab.Profile -> ProfileTradesTable(
+                        trades = trades,
+                        onMarkTrade = onMarkTrade,
+                        onSelectTrade = onSelectTrade,
+                        onOpenDetails = onOpenDetails,
+                    )
+
+                    Tab.Marked -> MarkedTradesTable(
+                        markedTrades = markedTrades,
+                        onUnMarkTrade = { profileTradeId -> onMarkTrade(profileTradeId, false) },
+                        onSelectTrade = onSelectTrade,
+                        onOpenDetails = onOpenDetails,
+                    )
+                }
             }
         }
     }

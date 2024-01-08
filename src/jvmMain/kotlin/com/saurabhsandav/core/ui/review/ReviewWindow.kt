@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -125,23 +126,28 @@ private fun ReviewScreen(
                 )
             }
 
+            val saveableStateHolder = rememberSaveableStateHolder()
+
             Crossfade(selectedTab) { tab ->
 
-                when (tab) {
-                    Tab.Review -> ReviewEditable(
-                        isMarkdown = isMarkdown,
-                        edit = isReviewEditMode,
-                        review = review,
-                        onReviewChange = onReviewChange,
-                        onSaveReview = onSaveReview,
-                        onMarkdownLinkClicked = onMarkdownLinkClicked,
-                    )
+                saveableStateHolder.SaveableStateProvider(tab) {
 
-                    Tab.Trades -> TradesTable(
-                        trades = trades,
-                        onOpenDetails = onOpenDetails,
-                        onOpenChart = onOpenChart,
-                    )
+                    when (tab) {
+                        Tab.Review -> ReviewEditable(
+                            isMarkdown = isMarkdown,
+                            edit = isReviewEditMode,
+                            review = review,
+                            onReviewChange = onReviewChange,
+                            onSaveReview = onSaveReview,
+                            onMarkdownLinkClicked = onMarkdownLinkClicked,
+                        )
+
+                        Tab.Trades -> TradesTable(
+                            trades = trades,
+                            onOpenDetails = onOpenDetails,
+                            onOpenChart = onOpenChart,
+                        )
+                    }
                 }
             }
         }

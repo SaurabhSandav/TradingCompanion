@@ -12,20 +12,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.string.RichTextStringStyle
+import com.saurabhsandav.core.ui.common.saveableState
 
 @Composable
 internal fun ReviewEditable(
@@ -40,6 +40,7 @@ internal fun ReviewEditable(
     Box {
 
         val scrollState = rememberScrollState()
+        var textFieldValue by saveableState(stateSaver = TextFieldValue.Saver) { TextFieldValue(review) }
 
         Crossfade(edit) { editTarget ->
 
@@ -71,15 +72,18 @@ internal fun ReviewEditable(
                                     else -> false
                                 }
                             },
-                        value = review,
-                        onValueChange = onReviewChange,
+                        value = textFieldValue.copy(text = review),
+                        onValueChange = {
+                            textFieldValue = it
+                            onReviewChange(it.text)
+                        },
                     )
                 }
 
                 isMarkdown -> RichText(
                     modifier = modifier,
-                    // Temporary style. Built-in styling for link is terrible in dark mode.
-                    // Replace if library updated with better defaults
+                    // TODO Temporary style. Built-in styling for link is terrible in dark mode.
+                    //  Replace if library updated with better defaults
                     style = RichTextStyle(
                         stringStyle = RichTextStringStyle(
                             linkStyle = SpanStyle(color = MaterialTheme.colorScheme.inversePrimary),
