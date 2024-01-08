@@ -115,17 +115,24 @@ internal class ChartsPresenter(
         chartParams.forEach { params ->
 
             // Get existing chart for params or create a new one
-            val stockChart = chartsState.charts.firstOrNull { it.params == params } ?: chartsState.newChart(params)
+            val chartExists = chartsState.charts.any { it.params == params }
 
-            if (params == tickerDTParams) {
+            if (!chartExists) chartsState.newChart(params)
+        }
+
+        // Navigate to specified interval, 1 ticker chart for every timeframe. Rest will automatically sync.
+        chartsState.charts
+            .filter { stockChart -> stockChart.params.ticker == ticker }
+            .groupBy { it.params.timeframe }
+            .mapValues { it.value.first() }
+            .values
+            .forEach { stockChart ->
 
                 // Bring default timeframe chart for ticker to front
-                chartsState.bringToFront(stockChart)
+                if (stockChart.params == tickerDTParams) chartsState.bringToFront(stockChart)
 
-                // Navigate default timeframe chart to specified interval
                 coroutineScope.launch { stockChart.navigateTo(start, end) }
             }
-        }
     }
 
     private fun onMarkTrades(tradeIds: List<ProfileTradeId>) {
