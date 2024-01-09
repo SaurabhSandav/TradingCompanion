@@ -14,9 +14,11 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewsScreen(
-    reviews: ImmutableList<Review>,
+    pinnedReviews: ImmutableList<Review>,
+    unPinnedReviews: ImmutableList<Review>,
     onNewReview: () -> Unit,
     onOpenReview: (ReviewId) -> Unit,
+    onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
 ) {
 
@@ -36,8 +38,10 @@ internal fun ReviewsScreen(
         ) {
 
             ReviewsList(
-                reviews = reviews,
+                pinnedReviews = pinnedReviews,
+                unPinnedReviews = unPinnedReviews,
                 onOpenReview = onOpenReview,
+                onTogglePinReview = onTogglePinReview,
                 onDeleteReview = onDeleteReview,
             )
         }

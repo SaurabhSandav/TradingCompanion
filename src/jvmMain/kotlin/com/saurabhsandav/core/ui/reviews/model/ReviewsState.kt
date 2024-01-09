@@ -6,7 +6,8 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class ReviewsState(
-    val reviews: ImmutableList<Review>,
+    val pinnedReviews: ImmutableList<Review>,
+    val unPinnedReviews: ImmutableList<Review>,
     val eventSink: (ReviewsEvent) -> Unit,
 ) {
 

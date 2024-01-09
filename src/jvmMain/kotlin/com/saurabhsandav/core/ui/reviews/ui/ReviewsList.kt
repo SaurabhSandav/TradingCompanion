@@ -3,13 +3,16 @@ package com.saurabhsandav.core.ui.reviews.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
@@ -17,22 +20,76 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewsList(
-    reviews: ImmutableList<Review>,
+    pinnedReviews: ImmutableList<Review>,
+    unPinnedReviews: ImmutableList<Review>,
     onOpenReview: (ReviewId) -> Unit,
+    onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
 ) {
 
     LazyColumn {
 
+        reviews(
+            isPinned = true,
+            reviews = pinnedReviews,
+            onOpenReview = onOpenReview,
+            onTogglePinReview = onTogglePinReview,
+            onDeleteReview = onDeleteReview,
+        )
+
+        reviews(
+            isPinned = false,
+            reviews = unPinnedReviews,
+            onOpenReview = onOpenReview,
+            onTogglePinReview = onTogglePinReview,
+            onDeleteReview = onDeleteReview,
+        )
+    }
+}
+
+private fun LazyListScope.reviews(
+    isPinned: Boolean,
+    reviews: ImmutableList<Review>,
+    onOpenReview: (ReviewId) -> Unit,
+    onTogglePinReview: (ReviewId) -> Unit,
+    onDeleteReview: (ReviewId) -> Unit,
+) {
+
+    if (reviews.isNotEmpty()) {
+
+        item(
+            contentType = ContentType.Header,
+        ) {
+
+            ListItem(
+                modifier = Modifier.padding(8.dp),
+                headlineContent = {
+                    Text(
+                        text = if (isPinned) "Pinned" else "Unpinned",
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = "${reviews.size} Reviews",
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                },
+            )
+        }
+
         items(
             items = reviews,
             key = { it.id },
+            contentType = { ContentType.Review },
         ) { review ->
 
             ReviewItem(
                 review = review,
-                onOpenReview = { onOpenReview(review.id) },
-                onDeleteReview = { onDeleteReview(review.id) },
+                onOpen = { onOpenReview(review.id) },
+                isPinned = isPinned,
+                onTogglePin = { onTogglePinReview(review.id) },
+                onDelete = { onDeleteReview(review.id) },
             )
         }
     }
@@ -41,21 +98,24 @@ internal fun ReviewsList(
 @Composable
 private fun ReviewItem(
     review: Review,
-    onOpenReview: () -> Unit,
-    onDeleteReview: () -> Unit,
+    onOpen: () -> Unit,
+    isPinned: Boolean,
+    onTogglePin: () -> Unit,
+    onDelete: () -> Unit,
 ) {
 
     var showDeleteConfirmationDialog by state { false }
 
     ContextMenuArea(items = {
         listOf(
-            ContextMenuItem("Open", onOpenReview),
+            ContextMenuItem("Open", onOpen),
+            ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
             ContextMenuItem("Delete") { showDeleteConfirmationDialog = true }
         )
     }) {
 
         ListItem(
-            modifier = Modifier.clickable(onClick = onOpenReview),
+            modifier = Modifier.clickable(onClick = onOpen),
             headlineContent = { Text(review.title) },
         )
 
@@ -66,7 +126,7 @@ private fun ReviewItem(
 
         DeleteConfirmationDialog(
             onDismiss = { showDeleteConfirmationDialog = false },
-            onConfirm = onDeleteReview,
+            onConfirm = onDelete,
         )
     }
 }
@@ -93,4 +153,8 @@ private fun DeleteConfirmationDialog(
             }
         },
     )
+}
+
+private enum class ContentType {
+    Header, Review;
 }

@@ -8,5 +8,7 @@ internal sealed class ReviewsEvent {
 
     data class OpenReview(val id: ReviewId) : ReviewsEvent()
 
+    data class TogglePinReview(val id: ReviewId) : ReviewsEvent()
+
     data class DeleteReview(val id: ReviewId) : ReviewsEvent()
 }

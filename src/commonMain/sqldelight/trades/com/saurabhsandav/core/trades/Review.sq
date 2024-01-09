@@ -8,7 +8,8 @@ id INTEGER AS ReviewId NOT NULL PRIMARY KEY,
 title TEXT NOT NULL,
 tradeIds TEXT AS List<TradeId> NOT NULL,
 review TEXT NOT NULL,
-isMarkdown INTEGER AS Boolean NOT NULL
+isMarkdown INTEGER AS Boolean NOT NULL,
+isPinned INTEGER AS Boolean NOT NULL DEFAULT FALSE
 );
 
 insert:
@@ -29,6 +30,11 @@ UPDATE Review
 SET isMarkdown = CASE WHEN isMarkdown IS TRUE THEN FALSE ELSE TRUE END
 WHERE id = ?;
 
+toggleIsPinned:
+UPDATE Review
+SET isPinned = CASE WHEN isPinned IS TRUE THEN FALSE ELSE TRUE END
+WHERE id = ?;
+
 update:
 UPDATE Review
 SET review = ?, tradeIds = ?
@@ -40,6 +46,12 @@ WHERE id = ?;
 
 getAll:
 SELECT * FROM Review;
+
+getPinned:
+SELECT * FROM Review WHERE isPinned = TRUE;
+
+getUnPinned:
+SELECT * FROM Review WHERE isPinned = FALSE;
 
 getById:
 SELECT *

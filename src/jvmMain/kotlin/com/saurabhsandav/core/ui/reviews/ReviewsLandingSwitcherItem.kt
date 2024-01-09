@@ -18,9 +18,11 @@ internal class ReviewsLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         ReviewsScreen(
-            reviews = state.reviews,
+            pinnedReviews = state.pinnedReviews,
+            unPinnedReviews = state.unPinnedReviews,
             onNewReview = { state.eventSink(NewReview) },
             onOpenReview = { id -> state.eventSink(OpenReview(id)) },
+            onTogglePinReview = { id -> state.eventSink(TogglePinReview(id)) },
             onDeleteReview = { id -> state.eventSink(DeleteReview(id)) },
         )
     }

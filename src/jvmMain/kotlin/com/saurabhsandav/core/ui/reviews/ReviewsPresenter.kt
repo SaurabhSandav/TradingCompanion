@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.trades.TradesRepo
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ReviewId
@@ -21,6 +22,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -35,7 +37,8 @@ internal class ReviewsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule ReviewsState(
-            reviews = getReviews(),
+            pinnedReviews = getPinnedReviews(),
+            unPinnedReviews = getUnpinnedReviews(),
             eventSink = ::onEvent,
         )
     }
@@ -45,19 +48,28 @@ internal class ReviewsPresenter(
         when (event) {
             NewReview -> onNewReview()
             is OpenReview -> onOpenReview(event.id)
+            is TogglePinReview -> onTogglePinReview(event.id)
             is DeleteReview -> onDeleteReview(event.id)
         }
     }
 
     @Composable
-    private fun getReviews(): ImmutableList<Review> {
+    private fun getPinnedReviews(): ImmutableList<Review> = getReviews { getPinnedReviews() }
+
+    @Composable
+    private fun getUnpinnedReviews(): ImmutableList<Review> = getReviews { getUnPinnedReviews() }
+
+    @Composable
+    private fun getReviews(
+        query: TradesRepo.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
+    ): ImmutableList<Review> {
         return remember {
             flow {
 
                 tradingProfiles
                     .getRecord(profileId)
                     .trades
-                    .allReviews
+                    .query()
                     .map { reviews ->
                         reviews
                             .map { review ->
@@ -96,6 +108,13 @@ internal class ReviewsPresenter(
     private fun onOpenReview(id: ReviewId) {
 
         tradeContentLauncher.openReview(ProfileReviewId(profileId = profileId, reviewId = id))
+    }
+
+    private fun onTogglePinReview(id: ReviewId) = coroutineScope.launchUnit {
+
+        val record = tradingProfiles.getRecord(profileId)
+
+        record.trades.togglePinReview(id)
     }
 
     private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {

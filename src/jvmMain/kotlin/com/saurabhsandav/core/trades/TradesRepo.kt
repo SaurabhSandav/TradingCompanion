@@ -465,8 +465,13 @@ internal class TradesRepo(
         tradesDB.tradeNoteQueries.delete(id)
     }
 
-    val allReviews: Flow<List<Review>>
-        get() = tradesDB.reviewQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+    fun getPinnedReviews(): Flow<List<Review>> {
+        return tradesDB.reviewQueries.getPinned().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getUnPinnedReviews(): Flow<List<Review>> {
+        return tradesDB.reviewQueries.getUnPinned().asFlow().mapToList(Dispatchers.IO)
+    }
 
     fun getReviewById(id: ReviewId): Flow<Review> {
         return tradesDB.reviewQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
@@ -523,6 +528,10 @@ internal class TradesRepo(
             review = review,
             tradeIds = tradeIds,
         )
+    }
+
+    suspend fun togglePinReview(id: ReviewId) = withContext(Dispatchers.IO) {
+        tradesDB.reviewQueries.toggleIsPinned(id)
     }
 
     suspend fun deleteReview(id: ReviewId) = withContext(Dispatchers.IO) {
