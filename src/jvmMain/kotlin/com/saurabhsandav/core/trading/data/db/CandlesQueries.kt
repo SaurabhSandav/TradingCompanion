@@ -296,7 +296,7 @@ class CandlesQueries(
                     |ORDER BY epochSeconds
                     """.trimMargin(),
                 mapper = mapper,
-                parameters = 6,
+                parameters = 4,
             ) {
                 bindLong(0, from)
                 bindLong(1, to)
