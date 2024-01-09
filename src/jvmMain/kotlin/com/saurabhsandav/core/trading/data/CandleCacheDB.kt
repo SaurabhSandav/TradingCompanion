@@ -215,4 +215,18 @@ internal class CandleCacheDB(
             }
         }
     }
+
+    override suspend fun delete(
+        ticker: String,
+        timeframe: Timeframe,
+        interval: ClosedRange<Instant>,
+    ) {
+
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+
+        candlesQueries.delete(
+            from = interval.start,
+            to = interval.endInclusive,
+        )
+    }
 }

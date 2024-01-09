@@ -62,6 +62,12 @@ interface CandleCache {
         candles: List<Candle>,
     )
 
+    suspend fun delete(
+        ticker: String,
+        timeframe: Timeframe,
+        interval: ClosedRange<Instant>,
+    )
+
     data class CountRange(
         val beforeCount: Long,
         val afterCount: Long,

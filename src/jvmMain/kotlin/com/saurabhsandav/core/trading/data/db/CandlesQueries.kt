@@ -5,6 +5,7 @@ import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.db.SqlDriver
+import kotlinx.datetime.Instant
 
 class CandlesQueries(
     driver: SqlDriver,
@@ -198,6 +199,30 @@ class CandlesQueries(
             bindString(3, low)
             bindString(4, close)
             bindLong(5, volume)
+        }
+
+        notifyQueries(identifier) { emit ->
+            emit(tableName)
+        }
+    }
+
+    fun delete(
+        from: Instant,
+        to: Instant,
+    ) {
+
+        val identifier = identifierSeries + Identifier_delete
+
+        driver.execute(
+            identifier = identifier,
+            sql = """
+                |DELETE FROM $tableName WHERE epochSeconds BETWEEN ? AND ?
+                """.trimMargin(),
+            parameters = 2,
+        ) {
+
+            bindLong(0, from.epochSeconds)
+            bindLong(1, to.epochSeconds)
         }
 
         notifyQueries(identifier) { emit ->
@@ -429,12 +454,13 @@ class CandlesQueries(
     companion object {
 
         private const val Identifier_insert = 1
-        private const val Identifier_getCountInRange = 2
-        private const val Identifier_getInRange = 3
-        private const val Identifier_getInRangeFromCandleInclusive = 4
-        private const val Identifier_getEpochSecondsAndCountAt = 5
-        private const val Identifier_getCountBefore = 6
-        private const val Identifier_getCountAfter = 7
+        private const val Identifier_delete = 2
+        private const val Identifier_getCountInRange = 3
+        private const val Identifier_getInRange = 4
+        private const val Identifier_getInRangeFromCandleInclusive = 5
+        private const val Identifier_getEpochSecondsAndCountAt = 6
+        private const val Identifier_getCountBefore = 7
+        private const val Identifier_getCountAfter = 8
     }
 }
 
