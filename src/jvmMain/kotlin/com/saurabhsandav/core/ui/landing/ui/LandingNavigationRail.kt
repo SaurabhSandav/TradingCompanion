@@ -22,7 +22,6 @@ internal fun LandingNavigationRail(
     onCurrentScreenChange: (LandingState.LandingScreen) -> Unit,
     tradeContentLauncher: TradeContentLauncher,
     openTradesCount: Long?,
-    onOpenTags: () -> Unit,
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
@@ -76,19 +75,6 @@ internal fun LandingNavigationRail(
                     onClick = { onCurrentScreenChange(screen) }
                 )
             }
-        }
-
-        Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
-
-        TooltipArea(
-            tooltip = { Tooltip("Tags") },
-        ) {
-
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Label, contentDescription = "Tags") },
-                selected = false,
-                onClick = onOpenTags,
-            )
         }
 
         Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))

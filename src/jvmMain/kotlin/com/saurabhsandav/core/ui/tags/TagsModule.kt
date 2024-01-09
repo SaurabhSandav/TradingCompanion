@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 internal class TagsModule(
     appModule: AppModule,
     coroutineScope: CoroutineScope,
-    profileId: ProfileId,
+    val profileId: ProfileId,
 ) {
 
     val presenter = {

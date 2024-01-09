@@ -11,7 +11,6 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
-import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
@@ -19,7 +18,7 @@ import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.*
 import com.saurabhsandav.core.ui.reviews.ReviewsLandingSwitcherItem
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
-import com.saurabhsandav.core.ui.tags.TagsWindow
+import com.saurabhsandav.core.ui.tags.TagsLandingSwitcherItem
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
@@ -44,6 +43,7 @@ internal fun LandingScreen(
             TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope, profileId)),
             TradeExecutions to TradeExecutionsLandingSwitcherItem(appModule.tradeExecutionsModule(scope, profileId)),
             Trades to TradesLandingSwitcherItem(appModule.tradesModule(scope, profileId)),
+            Tags to TagsLandingSwitcherItem(appModule.tagsModule(scope, profileId)),
             Reviews to ReviewsLandingSwitcherItem(appModule.reviewsModule(scope, profileId)),
             Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope, profileId)),
         )
@@ -54,7 +54,6 @@ internal fun LandingScreen(
     if (currentScreen != null) {
 
         LandingScreen(
-            profileId = profileId,
             switcherItems = switcherItems,
             currentScreen = currentScreen,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
@@ -70,7 +69,6 @@ internal fun LandingScreen(
 
 @Composable
 private fun LandingScreen(
-    profileId: ProfileId,
     switcherItems: Map<LandingScreen, LandingSwitcherItem>,
     currentScreen: LandingScreen,
     onCurrentScreenChange: (LandingScreen) -> Unit,
@@ -82,8 +80,6 @@ private fun LandingScreen(
     onOpenSettings: () -> Unit,
 ) {
 
-    val tagsWindowManager = remember { AppWindowManager() }
-
     Row {
 
         // Navigation Rail
@@ -92,7 +88,6 @@ private fun LandingScreen(
             onCurrentScreenChange = onCurrentScreenChange,
             tradeContentLauncher = tradeContentLauncher,
             openTradesCount = openTradesCount,
-            onOpenTags = tagsWindowManager::openWindow,
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,
             onOpenBarReplay = onOpenBarReplay,
@@ -124,15 +119,6 @@ private fun LandingScreen(
                     }
                 }
             }
-        }
-
-        // Tags
-        tagsWindowManager.Window {
-
-            TagsWindow(
-                onCloseRequest = tagsWindowManager::closeWindow,
-                profileId = profileId,
-            )
         }
     }
 }

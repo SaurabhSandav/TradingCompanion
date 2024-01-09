@@ -25,34 +25,7 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-internal fun TagsWindow(
-    onCloseRequest: () -> Unit,
-    profileId: ProfileId,
-) {
-
-    val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tagsModule(scope, profileId).presenter() }
-    val state by presenter.state.collectAsState()
-
-    AppWindow(
-        title = "Tags",
-        onCloseRequest = onCloseRequest,
-    ) {
-
-        Box(Modifier.wrapContentSize()) {
-
-            TagsScreen(
-                profileId = profileId,
-                tags = state.tags,
-                onDeleteTag = { id -> state.eventSink(DeleteTag(id)) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun TagsScreen(
+fun TagsScreen(
     profileId: ProfileId,
     tags: ImmutableList<Tag>,
     onDeleteTag: (ProfileTagId) -> Unit,
@@ -73,7 +46,7 @@ private fun TagsScreen(
             val scrollState = rememberScrollState()
 
             Column(
-                modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
+                modifier = Modifier.verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
 

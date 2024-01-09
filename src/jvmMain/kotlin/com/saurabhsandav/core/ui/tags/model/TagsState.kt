@@ -5,7 +5,7 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-internal data class TagsState(
+data class TagsState(
     val tags: ImmutableList<Tag>,
     val eventSink: (TagsEvent) -> Unit,
 ) {
