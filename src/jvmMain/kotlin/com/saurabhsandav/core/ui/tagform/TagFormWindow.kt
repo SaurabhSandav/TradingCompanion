@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags.form
+package com.saurabhsandav.core.ui.tagform
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -12,29 +12,31 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.tagform.model.TagFormModel
+import com.saurabhsandav.core.ui.tagform.model.TagFormType
 
 @Composable
-internal fun TagFormDialog(
+fun TagFormWindow(
     profileId: ProfileId,
-    type: TagFormType,
+    formType: TagFormType,
     onCloseRequest: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tagFormModule(scope).presenter(profileId, type, onCloseRequest) }
+    val presenter = remember { appModule.tagFormModule(scope).presenter(profileId, formType, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
-    val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
+    val windowState = rememberAppWindowState(size = DpSize(width = 250.dp, height = 300.dp))
 
-    AppDialogWindow(
+    AppWindow(
         onCloseRequest = onCloseRequest,
-        state = dialogState,
+        state = windowState,
         title = state.title,
     ) {
 

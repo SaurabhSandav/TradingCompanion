@@ -32,8 +32,8 @@ import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.sizing.SizingModule
 import com.saurabhsandav.core.ui.stockchart.*
 import com.saurabhsandav.core.ui.studies.StudiesModule
+import com.saurabhsandav.core.ui.tagform.TagFormModule
 import com.saurabhsandav.core.ui.tags.TagsModule
-import com.saurabhsandav.core.ui.tags.form.TagFormModule
 import com.saurabhsandav.core.ui.trade.TradeModule
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher

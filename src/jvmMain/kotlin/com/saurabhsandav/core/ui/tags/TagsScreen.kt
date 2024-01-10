@@ -12,32 +12,26 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tags.form.TagFormDialog
-import com.saurabhsandav.core.ui.tags.form.TagFormType
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagListItem
-import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun TagsScreen(
-    profileId: ProfileId,
     tags: ImmutableList<Tag>,
-    onDeleteTag: (ProfileTagId) -> Unit,
+    onNewTag: () -> Unit,
+    onNewTagFromExisting: (TradeTagId) -> Unit,
+    onEditTag: (TradeTagId) -> Unit,
+    onDeleteTag: (TradeTagId) -> Unit,
 ) {
-
-    var showNewTagDialog by state { false }
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { showNewTagDialog = true }) {
+            ExtendedFloatingActionButton(onClick = onNewTag) {
                 Text(text = "New Tag")
             }
         },
@@ -59,6 +53,8 @@ fun TagsScreen(
 
                     TagListItem(
                         tag = tag,
+                        onNewTag = { onNewTagFromExisting(tag.id) },
+                        onEditTag = { onEditTag(tag.id) },
                         onDelete = { onDeleteTag(tag.id) },
                     )
                 }
@@ -69,14 +65,5 @@ fun TagsScreen(
                 adapter = rememberScrollbarAdapter(lazyListState)
             )
         }
-    }
-
-    if (showNewTagDialog) {
-
-        TagFormDialog(
-            profileId = profileId,
-            type = TagFormType.New,
-            onCloseRequest = { showNewTagDialog = false },
-        )
     }
 }

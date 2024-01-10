@@ -8,22 +8,19 @@ import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tags.form.TagFormDialog
-import com.saurabhsandav.core.ui.tags.form.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 
 @Composable
 internal fun TagListItem(
     tag: Tag,
+    onNewTag: () -> Unit,
+    onEditTag: () -> Unit,
     onDelete: () -> Unit,
 ) {
 
-    var showNewDialog by state { false }
-    var showEditDialog by state { false }
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
@@ -34,7 +31,7 @@ internal fun TagListItem(
             Row {
 
                 IconButtonWithTooltip(
-                    onClick = { showNewDialog = true },
+                    onClick = onNewTag,
                     tooltipText = "New",
                     content = {
                         Icon(Icons.Default.NewLabel, contentDescription = "New")
@@ -42,7 +39,7 @@ internal fun TagListItem(
                 )
 
                 IconButtonWithTooltip(
-                    onClick = { showEditDialog = true },
+                    onClick = onEditTag,
                     tooltipText = "Edit",
                     content = {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
@@ -59,24 +56,6 @@ internal fun TagListItem(
             }
         },
     )
-
-    if (showEditDialog) {
-
-        TagFormDialog(
-            profileId = tag.id.profileId,
-            type = remember { TagFormType.Edit(tag.id.tagId) },
-            onCloseRequest = { showEditDialog = false },
-        )
-    }
-
-    if (showNewDialog) {
-
-        TagFormDialog(
-            profileId = tag.id.profileId,
-            type = remember { TagFormType.NewFromExisting(tag.id.tagId) },
-            onCloseRequest = { showNewDialog = false },
-        )
-    }
 
     if (showDeleteConfirmationDialog) {
 

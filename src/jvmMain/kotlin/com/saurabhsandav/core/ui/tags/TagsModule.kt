@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 internal class TagsModule(
     appModule: AppModule,
     coroutineScope: CoroutineScope,
-    val profileId: ProfileId,
+    profileId: ProfileId,
 ) {
 
     val presenter = {
@@ -15,6 +15,7 @@ internal class TagsModule(
         TagsPresenter(
             coroutineScope = coroutineScope,
             profileId = profileId,
+            tradeContentLauncher = appModule.tradeContentLauncher,
             tradingProfiles = appModule.tradingProfiles,
         )
     }

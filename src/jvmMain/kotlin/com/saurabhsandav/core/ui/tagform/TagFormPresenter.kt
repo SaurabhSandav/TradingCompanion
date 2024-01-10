@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags.form
+package com.saurabhsandav.core.ui.tagform
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,7 +9,10 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.tags.form.TagFormType.*
+import com.saurabhsandav.core.ui.tagform.model.TagFormModel
+import com.saurabhsandav.core.ui.tagform.model.TagFormState
+import com.saurabhsandav.core.ui.tagform.model.TagFormType
+import com.saurabhsandav.core.ui.tagform.model.TagFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first

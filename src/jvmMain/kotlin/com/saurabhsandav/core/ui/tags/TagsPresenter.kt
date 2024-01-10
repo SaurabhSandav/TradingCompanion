@@ -5,11 +5,13 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.tagform.model.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TagsEvent
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
+import com.saurabhsandav.core.ui.tags.model.TagsEvent.*
 import com.saurabhsandav.core.ui.tags.model.TagsState
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
-import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
+import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.map
 internal class TagsPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
+    private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -37,7 +40,10 @@ internal class TagsPresenter(
     private fun onEvent(event: TagsEvent) {
 
         when (event) {
-            is DeleteTag -> onDeleteTag(event.profileTagId)
+            NewTag -> onNewTag()
+            is NewTagFromExisting -> onNewTagFromExisting(event.id)
+            is EditTag -> onEditTag(event.id)
+            is DeleteTag -> onDeleteTag(event.id)
         }
     }
 
@@ -54,10 +60,7 @@ internal class TagsPresenter(
                         tags.map { tag ->
 
                             Tag(
-                                id = ProfileTagId(
-                                    profileId = profileId,
-                                    tagId = tag.id,
-                                ),
+                                id = tag.id,
                                 name = tag.name,
                                 description = tag.description,
                             )
@@ -68,10 +71,34 @@ internal class TagsPresenter(
         }.collectAsState(persistentListOf())
     }
 
-    private fun onDeleteTag(profileTagId: ProfileTagId) = coroutineScope.launchUnit {
+    private fun onNewTag() {
 
-        val tradingRecord = tradingProfiles.getRecord(profileTagId.profileId)
+        tradeContentLauncher.openTagForm(
+            profileId = profileId,
+            formType = TagFormType.New,
+        )
+    }
 
-        tradingRecord.trades.deleteTag(profileTagId.tagId)
+    private fun onNewTagFromExisting(id: TradeTagId) {
+
+        tradeContentLauncher.openTagForm(
+            profileId = profileId,
+            formType = TagFormType.NewFromExisting(id),
+        )
+    }
+
+    private fun onEditTag(id: TradeTagId) {
+
+        tradeContentLauncher.openTagForm(
+            profileId = profileId,
+            formType = TagFormType.Edit(id),
+        )
+    }
+
+    private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        tradingRecord.trades.deleteTag(id)
     }
 }
