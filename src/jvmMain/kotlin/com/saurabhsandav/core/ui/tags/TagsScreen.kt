@@ -1,24 +1,26 @@
 package com.saurabhsandav.core.ui.tags
 
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.TagFormType
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.DeleteTag
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagListItem
 import com.saurabhsandav.core.ui.tradecontent.ProfileTagId
@@ -43,28 +45,28 @@ fun TagsScreen(
 
         Box {
 
-            val scrollState = rememberScrollState()
+            val lazyListState = rememberLazyListState()
 
-            Column(
-                modifier = Modifier.verticalScroll(scrollState),
+            LazyColumn(
+                state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
 
-                tags.forEach { tag ->
+                items(
+                    items = tags,
+                    key = { it.id },
+                ) { tag ->
 
-                    key(tag.id) {
-
-                        TagListItem(
-                            tag = tag,
-                            onDelete = { onDeleteTag(tag.id) },
-                        )
-                    }
+                    TagListItem(
+                        tag = tag,
+                        onDelete = { onDeleteTag(tag.id) },
+                    )
                 }
             }
 
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(scrollState)
+                adapter = rememberScrollbarAdapter(lazyListState)
             )
         }
     }
