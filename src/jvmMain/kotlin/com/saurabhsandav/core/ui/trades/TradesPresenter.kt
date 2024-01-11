@@ -6,8 +6,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.common.UIErrorMessage
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
@@ -74,7 +74,7 @@ internal class TradesPresenter(
             val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
             tradesRepo
-                .getToday()
+                .getFiltered(filter = TradeFilter { isToday() })
                 .flatMapLatest { trades ->
 
                     val flows = trades
@@ -116,51 +116,34 @@ internal class TradesPresenter(
 
     @Composable
     private fun getOpenTrades(): State<ImmutableList<TradeEntry>> {
-        return remember {
-            flow {
-
-                tradingProfiles
-                    .getRecord(profileId)
-                    .trades
-                    .getOpen()
-                    .map { trades ->
-                        trades
-                            .map { it.toTradeListEntry() }
-                            .toImmutableList()
-                    }
-                    .emitInto(this)
-            }
-        }.collectAsState(persistentListOf())
+        return getTrades { isOpen() }
     }
 
     @Composable
     private fun getTodayTrades(): State<ImmutableList<TradeEntry>> {
-        return remember {
-            flow {
-
-                tradingProfiles
-                    .getRecord(profileId)
-                    .trades
-                    .getToday()
-                    .map { trades ->
-                        trades
-                            .map { it.toTradeListEntry() }
-                            .toImmutableList()
-                    }
-                    .emitInto(this)
-            }
-        }.collectAsState(persistentListOf())
+        return getTrades {
+            isClosed()
+            isToday()
+        }
     }
 
     @Composable
     private fun getPastTrades(): State<ImmutableList<TradeEntry>> {
+        return getTrades {
+            isClosed()
+            isBeforeToday()
+        }
+    }
+
+    @Composable
+    private fun getTrades(filterTransform: TradeFilterScope.() -> Unit): State<ImmutableList<TradeEntry>> {
         return remember {
             flow {
 
                 tradingProfiles
                     .getRecord(profileId)
                     .trades
-                    .getBeforeToday()
+                    .getFiltered(TradeFilter(filterTransform))
                     .map { trades ->
                         trades
                             .map { it.toTradeListEntry() }
@@ -228,5 +211,21 @@ internal class TradesPresenter(
     private fun onOpenChart(id: TradeId) {
 
         tradeContentLauncher.openTradeReview(ProfileTradeId(profileId = profileId, tradeId = id))
+    }
+
+    private fun TradeFilterScope.isToday() {
+
+        val tz = TimeZone.currentSystemDefault()
+        val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
+
+        instantRange(from = startOfToday)
+    }
+
+    private fun TradeFilterScope.isBeforeToday() {
+
+        val tz = TimeZone.currentSystemDefault()
+        val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
+
+        instantRange(to = startOfToday)
     }
 }

@@ -51,20 +51,19 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getOpen(): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getOpen().asFlow().mapToList(Dispatchers.IO)
+    fun getFiltered(filter: TradeFilter): Flow<List<Trade>> {
+
+        val query = tradesDB.tradeQueries.getFiltered(
+            isClosed = filter.isClosed,
+            from = filter.instantFrom?.toString(),
+            to = filter.instantTo?.toString(),
+        )
+
+        return query.asFlow().mapToList(Dispatchers.IO)
     }
 
     fun getOpenCount(): Flow<Long> {
         return tradesDB.tradeQueries.getOpenCount().asFlow().mapToOne(Dispatchers.IO)
-    }
-
-    fun getToday(): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getToday().asFlow().mapToList(Dispatchers.IO)
-    }
-
-    fun getBeforeToday(): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getBeforeToday().asFlow().mapToList(Dispatchers.IO)
     }
 
     fun getByTickerInInterval(

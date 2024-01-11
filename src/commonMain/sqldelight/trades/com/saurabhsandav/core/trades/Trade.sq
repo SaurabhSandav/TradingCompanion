@@ -60,6 +60,15 @@ FROM Trade
 WHERE id IN ?
 ORDER BY datetime(entryTimestamp) DESC;
 
+getFiltered:
+SELECT *
+FROM Trade
+WHERE
+(:isClosed IS NULL OR isClosed = :isClosed)
+AND (:from IS NULL OR datetime(:from) <= datetime(entryTimestamp))
+AND (:to IS NULL OR datetime(entryTimestamp) <= datetime(:to))
+ORDER BY datetime(entryTimestamp) DESC;
+
 getOpen:
 SELECT *
 FROM Trade
@@ -70,18 +79,6 @@ getOpenCount:
 SELECT COUNT(*)
 FROM Trade
 WHERE isClosed = FALSE;
-
-getToday:
-SELECT *
-FROM Trade
-WHERE date(entryTimestamp) = date('now')
-ORDER BY datetime(entryTimestamp) DESC;
-
-getBeforeToday:
-SELECT *
-FROM Trade
-WHERE date(entryTimestamp) != date('now')
-ORDER BY datetime(entryTimestamp) DESC;
 
 getByTickerInInterval:
 SELECT *
