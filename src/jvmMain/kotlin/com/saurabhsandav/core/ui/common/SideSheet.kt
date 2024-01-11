@@ -20,6 +20,7 @@ fun SideSheetHost(
     sheetState: SideSheetState,
     sheet: @Composable () -> Unit,
     onDismissSheet: () -> Unit,
+    modifier: Modifier = Modifier,
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit,
 ) {
@@ -41,6 +42,7 @@ fun SideSheetHost(
     }
 
     Layout(
+        modifier = modifier,
         contents = buildList {
 
             add(content)

@@ -1,0 +1,45 @@
+package com.saurabhsandav.core.ui.tradereview.ui
+
+import androidx.compose.animation.Crossfade
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
+import kotlinx.collections.immutable.ImmutableList
+
+@Composable
+internal fun TradesTableSwitcher(
+    selectedTab: Tab,
+    trades: ImmutableList<TradeEntry>,
+    markedTrades: ImmutableList<MarkedTradeEntry>,
+    onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
+    onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
+    onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
+    onFilter: () -> Unit,
+) {
+
+    val saveableStateHolder = rememberSaveableStateHolder()
+
+    Crossfade(selectedTab) { tab ->
+
+        saveableStateHolder.SaveableStateProvider(tab) {
+
+            when (tab) {
+                Tab.Profile -> ProfileTradesTable(
+                    trades = trades,
+                    onMarkTrade = onMarkTrade,
+                    onSelectTrade = onSelectTrade,
+                    onOpenDetails = onOpenDetails,
+                    onFilter = onFilter,
+                )
+
+                Tab.Marked -> MarkedTradesTable(
+                    markedTrades = markedTrades,
+                    onUnMarkTrade = { profileTradeId -> onMarkTrade(profileTradeId, false) },
+                    onSelectTrade = onSelectTrade,
+                    onOpenDetails = onOpenDetails,
+                )
+            }
+        }
+    }
+}

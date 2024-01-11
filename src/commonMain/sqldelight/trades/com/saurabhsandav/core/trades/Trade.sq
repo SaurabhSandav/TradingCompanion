@@ -65,6 +65,7 @@ SELECT *
 FROM Trade
 WHERE
 (:isClosed IS NULL OR isClosed = :isClosed)
+AND (:side IS NULL OR side = :side)
 AND (:from IS NULL OR datetime(:from) <= datetime(entryTimestamp))
 AND (:to IS NULL OR datetime(entryTimestamp) <= datetime(:to))
 ORDER BY datetime(entryTimestamp) DESC;

@@ -4,11 +4,11 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
@@ -25,6 +25,7 @@ internal fun ProfileTradesTable(
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
+    onFilter: () -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
@@ -61,6 +62,24 @@ internal fun ProfileTradesTable(
 
     LazyTable(
         schema = schema,
+        headerContent = {
+
+            Column {
+
+                DefaultTableHeader(schema)
+
+                Divider()
+
+                OutlinedButton(
+                    modifier = Modifier.align(Alignment.End).padding(16.dp),
+                    onClick = onFilter,
+                    shape = MaterialTheme.shapes.small,
+                    content = { Text("Filter") },
+                )
+
+                Divider()
+            }
+        },
     ) {
 
         rows(

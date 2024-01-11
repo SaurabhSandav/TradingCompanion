@@ -16,15 +16,18 @@ import androidx.compose.ui.Modifier
 internal fun <T> LazyTable(
     schema: TableSchema<T>,
     modifier: Modifier = Modifier,
-    headerContent: @Composable () -> Unit = { DefaultTableHeader(schema) },
+    headerContent: @Composable () -> Unit = {
+
+        DefaultTableHeader(schema)
+
+        Divider()
+    },
     content: TableScope<T>.() -> Unit,
 ) {
 
     Column(modifier = modifier) {
 
         headerContent()
-
-        Divider()
 
         Box {
 

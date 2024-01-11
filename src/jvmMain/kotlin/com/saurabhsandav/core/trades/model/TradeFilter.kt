@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 
 data class TradeFilter internal constructor(
     val isClosed: Boolean? = null,
+    val side: TradeSide? = null,
     val instantFrom: Instant? = null,
     val instantTo: Instant? = null,
 ) {
@@ -41,6 +42,14 @@ fun TradeFilterScope.isClosed() {
 
 fun TradeFilterScope.isOpen() {
     transform { it.copy(isClosed = false) }
+}
+
+fun TradeFilterScope.isLong() {
+    transform { it.copy(side = TradeSide.Long) }
+}
+
+fun TradeFilterScope.isShort() {
+    transform { it.copy(side = TradeSide.Short) }
 }
 
 fun TradeFilterScope.instantRange(

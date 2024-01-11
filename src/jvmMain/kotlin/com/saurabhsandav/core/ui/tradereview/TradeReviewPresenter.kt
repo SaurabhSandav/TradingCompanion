@@ -7,6 +7,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -48,6 +49,7 @@ internal class TradeReviewPresenter(
         .stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     private val markedTradeIds = chartsHandle.markedTradeIds.toMutableStateList()
+    private val tradeFilter = MutableStateFlow(TradeFilter())
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -67,6 +69,7 @@ internal class TradeReviewPresenter(
             is SelectTrade -> onSelectTrade(event.profileTradeId)
             is OpenDetails -> onOpenDetails(event.profileTradeId)
             ClearMarkedTrades -> onClearMarkedTrades()
+            is ApplyFilter -> onApplyFilter(event.tradeFilter)
         }
     }
 
@@ -81,10 +84,10 @@ internal class TradeReviewPresenter(
                 .filterNotNull()
                 .flatMapLatest { profile ->
 
-                    val tradingRecord = tradingProfiles.getRecord(profile.id)
+                    val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
-                    tradingRecord.trades
-                        .allTrades
+                    tradeFilter
+                        .flatMapLatest(tradesRepo::getFiltered)
                         .combine(snapshotFlow { markedTradeIds.toList() }) { trades, markedProfileTradeIds ->
                             trades
                                 .map {
@@ -293,5 +296,9 @@ internal class TradeReviewPresenter(
     private fun onClearMarkedTrades() {
         markedTradeIds.clear()
         chartsHandle.setMarkedTrades(markedTradeIds)
+    }
+
+    private fun onApplyFilter(newTradeFilter: TradeFilter) {
+        tradeFilter.value = newTradeFilter
     }
 }

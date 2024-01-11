@@ -41,6 +41,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
 import com.saurabhsandav.core.ui.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.trades.TradesModule
+import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterModule
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.PrefKeys
@@ -247,6 +248,10 @@ internal class AppModule {
             profileId: ProfileId,
         ->
         TradesModule(this, coroutineScope, profileId)
+    }
+
+    val tradesFilterModule = { coroutineScope: CoroutineScope ->
+        TradesFilterModule(coroutineScope)
     }
 
     val stockChartsState = StockChartsStateFactory {

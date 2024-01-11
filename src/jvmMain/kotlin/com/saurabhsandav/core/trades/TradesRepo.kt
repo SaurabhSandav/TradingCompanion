@@ -55,6 +55,7 @@ internal class TradesRepo(
 
         val query = tradesDB.tradeQueries.getFiltered(
             isClosed = filter.isClosed,
+            side = filter.side,
             from = filter.instantFrom?.toString(),
             to = filter.instantTo?.toString(),
         )

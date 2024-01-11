@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradereview.model
 
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 internal sealed class TradeReviewEvent {
@@ -17,4 +18,6 @@ internal sealed class TradeReviewEvent {
     data class OpenDetails(val profileTradeId: ProfileTradeId) : TradeReviewEvent()
 
     data object ClearMarkedTrades : TradeReviewEvent()
+
+    data class ApplyFilter(val tradeFilter: TradeFilter) : TradeReviewEvent()
 }
