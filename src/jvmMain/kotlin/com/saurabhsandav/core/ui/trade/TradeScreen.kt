@@ -15,12 +15,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
+import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
-import com.saurabhsandav.core.ui.trade.model.TradeState
+import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.trade.ui.*
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
+import java.math.BigDecimal
 
 @Composable
 internal fun TradeWindow(
@@ -43,20 +51,84 @@ internal fun TradeWindow(
         onCloseRequest = onCloseRequest,
     ) {
 
-        TradeScreen(state)
+        TradeScreen(
+            details = state.details,
+            executions = state.executions,
+            newExecutionEnabled = state.newExecutionEnabled,
+            onAddToTrade = { state.eventSink(AddToTrade) },
+            onCloseTrade = { state.eventSink(CloseTrade) },
+            onNewFromExistingExecution = { fromExecutionId ->
+                state.eventSink(NewFromExistingExecution(fromExecutionId))
+            },
+            onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
+            onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
+            onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
+            onOpenChart = { state.eventSink(OpenChart) },
+            stops = state.stops,
+            previewStop = state.previewStop,
+            onAddStop = { state.eventSink(AddStop(it)) },
+            onDeleteStop = { state.eventSink(DeleteStop(it)) },
+            targets = state.targets,
+            previewTarget = state.previewTarget,
+            onAddTarget = { state.eventSink(AddTarget(it)) },
+            onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
+            excursions = state.excursions,
+            tags = state.tags,
+            tagSuggestions = state.tagSuggestions,
+            onAddTag = { id -> state.eventSink(AddTag(id)) },
+            onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
+            attachments = state.attachments,
+            onAddAttachment = { formModel -> state.eventSink(AddAttachment(formModel)) },
+            onUpdateAttachment = { id, formModel -> state.eventSink(UpdateAttachment(id, formModel)) },
+            onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
+            notes = state.notes,
+            onAddNote = { note, isMarkdown -> state.eventSink(AddNote(note, isMarkdown)) },
+            onUpdateNote = { id, note, isMarkdown -> state.eventSink(UpdateNote(id, note, isMarkdown)) },
+            onDeleteNote = { state.eventSink(DeleteNote(it)) },
+        )
     }
 }
 
 @Composable
 internal fun TradeScreen(
-    state: TradeState,
+    details: Details?,
+    executions: ImmutableList<Execution>,
+    newExecutionEnabled: Boolean,
+    onAddToTrade: () -> Unit,
+    onCloseTrade: () -> Unit,
+    onNewFromExistingExecution: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecution: (TradeExecutionId) -> Unit,
+    onDeleteExecution: (TradeExecutionId) -> Unit,
+    onOpenChart: () -> Unit,
+    stops: ImmutableList<TradeStop>,
+    previewStop: (BigDecimal) -> Flow<TradeStop?>,
+    onAddStop: (BigDecimal) -> Unit,
+    onDeleteStop: (BigDecimal) -> Unit,
+    targets: ImmutableList<TradeTarget>,
+    previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
+    onAddTarget: (BigDecimal) -> Unit,
+    onDeleteTarget: (BigDecimal) -> Unit,
+    excursions: Excursions?,
+    tags: ImmutableList<TradeTag>,
+    tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    onAddTag: (TradeTagId) -> Unit,
+    onRemoveTag: (TradeTagId) -> Unit,
+    attachments: ImmutableList<TradeAttachment>,
+    onAddAttachment: (AttachmentFormModel) -> Unit,
+    onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
+    onRemoveAttachment: (TradeAttachmentId) -> Unit,
+    notes: ImmutableList<TradeNote>,
+    onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
+    onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
+    onDeleteNote: (id: TradeNoteId) -> Unit,
 ) {
 
     Scaffold {
 
         Box(Modifier.fillMaxSize()) {
 
-            when (val details = state.details) {
+            when (details) {
                 null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 else -> {
 
@@ -70,60 +142,56 @@ internal fun TradeScreen(
                         Details(details)
 
                         TradeExecutionsTable(
-                            items = state.executions,
-                            newExecutionEnabled = state.newExecutionEnabled,
-                            onAddToTrade = { state.eventSink(AddToTrade) },
-                            onCloseTrade = { state.eventSink(CloseTrade) },
-                            onNewFromExistingExecution = { fromExecutionId ->
-                                state.eventSink(NewFromExistingExecution(fromExecutionId))
-                            },
-                            onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
-                            onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
-                            onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
+                            items = executions,
+                            newExecutionEnabled = newExecutionEnabled,
+                            onAddToTrade = onAddToTrade,
+                            onCloseTrade = onCloseTrade,
+                            onNewFromExistingExecution = onNewFromExistingExecution,
+                            onEditExecution = onEditExecution,
+                            onLockExecution = onLockExecution,
+                            onDeleteExecution = onDeleteExecution,
                         )
 
                         FilledTonalButton(
                             modifier = Modifier.fillMaxWidth(),
-                            onClick = { state.eventSink(OpenChart) },
+                            onClick = onOpenChart,
                             content = { Text("Chart") },
                         )
 
                         StopsAndTargets(
-                            stops = state.stops,
-                            previewStop = state.previewStop,
-                            onAddStop = { state.eventSink(AddStop(it)) },
-                            onDeleteStop = { state.eventSink(DeleteStop(it)) },
-                            targets = state.targets,
-                            previewTarget = state.previewTarget,
-                            onAddTarget = { state.eventSink(AddTarget(it)) },
-                            onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
+                            stops = stops,
+                            previewStop = previewStop,
+                            onAddStop = onAddStop,
+                            onDeleteStop = onDeleteStop,
+                            targets = targets,
+                            previewTarget = previewTarget,
+                            onAddTarget = onAddTarget,
+                            onDeleteTarget = onDeleteTarget,
                         )
 
-                        if (state.excursions != null) {
-                            Excursions(state.excursions)
+                        if (excursions != null) {
+                            Excursions(excursions)
                         }
 
                         Tags(
-                            tags = state.tags,
-                            tagSuggestions = state.tagSuggestions,
-                            onAddTag = { id -> state.eventSink(AddTag(id)) },
-                            onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
+                            tags = tags,
+                            tagSuggestions = tagSuggestions,
+                            onAddTag = onAddTag,
+                            onRemoveTag = onRemoveTag,
                         )
 
                         Attachments(
-                            attachments = state.attachments,
-                            onAddAttachment = { formModel -> state.eventSink(AddAttachment(formModel)) },
-                            onUpdateAttachment = { id, formModel -> state.eventSink(UpdateAttachment(id, formModel)) },
-                            onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
+                            attachments = attachments,
+                            onAddAttachment = onAddAttachment,
+                            onUpdateAttachment = onUpdateAttachment,
+                            onRemoveAttachment = onRemoveAttachment,
                         )
 
                         Notes(
-                            notes = state.notes,
-                            onAddNote = { note, isMarkdown -> state.eventSink(AddNote(note, isMarkdown)) },
-                            onUpdateNote = { id, note, isMarkdown ->
-                                state.eventSink(UpdateNote(id, note, isMarkdown))
-                            },
-                            onDeleteNote = { state.eventSink(DeleteNote(it)) },
+                            notes = notes,
+                            onAddNote = onAddNote,
+                            onUpdateNote = onUpdateNote,
+                            onDeleteNote = onDeleteNote,
                         )
                     }
 
