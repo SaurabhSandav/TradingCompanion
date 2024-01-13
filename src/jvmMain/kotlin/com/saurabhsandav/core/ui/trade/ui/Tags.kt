@@ -1,11 +1,7 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,8 +10,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
+import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
+import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
 import kotlinx.collections.immutable.ImmutableList
@@ -47,47 +44,28 @@ internal fun Tags(
 
         Divider()
 
-        FlowRow(
+        ChipsSelectorBox(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.Center,
+            addButton = {
+
+                AddTagButton(
+                    tagSuggestions = tagSuggestions,
+                    onAddTag = onAddTag
+                )
+            },
         ) {
 
             tags.forEach { tag ->
 
                 key(tag.id) {
 
-                    TooltipArea(
-                        tooltip = { Tooltip(tag.description) },
-                    ) {
-
-                        InputChip(
-                            selected = false,
-                            onClick = {},
-                            label = { Text(tag.name) },
-                            trailingIcon = {
-
-                                IconButtonWithTooltip(
-                                    onClick = { onRemoveTag(tag.id) },
-                                    tooltipText = "Delete Tag",
-                                ) {
-
-                                    Icon(
-                                        modifier = Modifier.size(InputChipDefaults.IconSize),
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Delete Tag",
-                                    )
-                                }
-                            },
-                        )
-                    }
+                    ChipsSelectorSelectedItem(
+                        name = tag.name,
+                        description = tag.description,
+                        onRemove = { onRemoveTag(tag.id) },
+                    )
                 }
             }
-
-            AddTagButton(
-                tagSuggestions = tagSuggestions,
-                onAddTag = onAddTag,
-            )
         }
     }
 }
@@ -105,12 +83,8 @@ private fun AddTagButton(
         contentAlignment = Alignment.Center,
     ) {
 
-        IconButtonWithTooltip(
-            onClick = { expanded = true },
-            tooltipText = "Add Tag",
-            content = {
-                Icon(Icons.Default.Add, contentDescription = "Add Tag")
-            },
+        ChipsSelectorAddButton(
+            onAdd = { expanded = true },
         )
 
         DropdownMenu(
