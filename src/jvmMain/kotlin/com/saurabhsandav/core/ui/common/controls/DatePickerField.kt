@@ -15,19 +15,20 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun DatePickerField(
-    value: LocalDate,
+    value: LocalDate?,
     onValidValueChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
+    format: String = DatePattern,
     yearRange: IntRange = DatePickerDefaults.YearRange,
 ) {
 
-    val formatter = remember { DateTimeFormatter.ofPattern(DatePattern) }
+    val formatter = remember(format) { DateTimeFormatter.ofPattern(format) }
     val valueUpdated by rememberUpdatedState(value)
-    val dateText by derivedState { formatter.format(valueUpdated.toJavaLocalDate()) }
+    val dateText by derivedState { valueUpdated?.toJavaLocalDate()?.let(formatter::format) ?: "" }
     var showDialog by state { false }
 
     OutlinedTextField(
@@ -51,7 +52,7 @@ fun DatePickerField(
     if (showDialog) {
 
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = remember { value.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds() },
+            initialSelectedDateMillis = remember { value?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds() },
             yearRange = yearRange,
         )
         val confirmEnabled by derivedState { datePickerState.selectedDateMillis != null }

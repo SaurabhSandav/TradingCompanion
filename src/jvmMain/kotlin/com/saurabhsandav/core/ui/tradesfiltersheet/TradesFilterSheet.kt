@@ -15,10 +15,7 @@ import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
-import com.saurabhsandav.core.ui.tradesfiltersheet.ui.NotesFilterItem
-import com.saurabhsandav.core.ui.tradesfiltersheet.ui.OpenClosedFilterItem
-import com.saurabhsandav.core.ui.tradesfiltersheet.ui.PnlFilterItem
-import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SideFilterItem
+import com.saurabhsandav.core.ui.tradesfiltersheet.ui.*
 
 @Composable
 internal fun TradesFilterSheet(
@@ -40,6 +37,8 @@ internal fun TradesFilterSheet(
         onOpenClosedChange = { state.eventSink(FilterOpenClosed(it)) },
         side = state.filterConfig.side,
         onSideChange = { state.eventSink(FilterSide(it)) },
+        dateInterval = state.filterConfig.dateInterval,
+        onDateIntervalChange = { state.eventSink(FilterDateInterval(it)) },
         pnl = state.filterConfig.pnl,
         onPnlChange = { state.eventSink(FilterPnl(it)) },
         filterByNetPnl = state.filterConfig.filterByNetPnl,
@@ -57,6 +56,8 @@ private fun TradesFilterSheet(
     onOpenClosedChange: (OpenClosed) -> Unit,
     side: Side,
     onSideChange: (Side) -> Unit,
+    dateInterval: DateInterval,
+    onDateIntervalChange: (DateInterval) -> Unit,
     pnl: PNL,
     onPnlChange: (PNL) -> Unit,
     filterByNetPnl: Boolean,
@@ -76,6 +77,10 @@ private fun TradesFilterSheet(
             Divider()
 
             SideFilterItem(side, onSideChange)
+
+            Divider()
+
+            DateIntervalFilterItem(dateInterval, onDateIntervalChange)
 
             Divider()
 

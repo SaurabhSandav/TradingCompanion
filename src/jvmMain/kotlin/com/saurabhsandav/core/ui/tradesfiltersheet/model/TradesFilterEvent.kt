@@ -10,6 +10,8 @@ internal sealed class TradesFilterEvent {
 
     data class FilterSide(val side: Side) : TradesFilterEvent()
 
+    data class FilterDateInterval(val dateInterval: DateInterval) : TradesFilterEvent()
+
     data class FilterPnl(val pnl: PNL) : TradesFilterEvent()
 
     data class FilterByNetPnl(val isEnabled: Boolean) : TradesFilterEvent()

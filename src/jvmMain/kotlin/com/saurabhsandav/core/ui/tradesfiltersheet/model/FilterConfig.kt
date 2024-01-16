@@ -3,12 +3,14 @@ package com.saurabhsandav.core.ui.tradesfiltersheet.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.autoSaver
 import com.saurabhsandav.core.trades.model.*
+import kotlinx.datetime.*
 import java.math.BigDecimal
 
 @Immutable
 data class FilterConfig(
     val openClosed: OpenClosed = OpenClosed.All,
     val side: Side = Side.All,
+    val dateInterval: DateInterval = DateInterval.All,
     val pnl: PNL = PNL.All,
     val filterByNetPnl: Boolean = false,
     val notes: Notes = Notes.All,
@@ -26,6 +28,38 @@ data class FilterConfig(
             Side.All -> Unit
             Side.Long -> isLong()
             Side.Short -> isShort()
+        }
+
+        when (dateInterval) {
+            DateInterval.All -> Unit
+            is DateInterval.Custom -> with(dateInterval) {
+
+                if (from == null || to == null || from <= to) {
+
+                    val tz = TimeZone.currentSystemDefault()
+
+                    instantRange(
+                        from = from?.atStartOfDayIn(tz),
+                        to = to?.plus(DatePeriod(days = 1))?.atStartOfDayIn(tz),
+                    )
+                }
+            }
+
+            else -> {
+
+                val tz = TimeZone.currentSystemDefault()
+                val today = Clock.System.now().toLocalDateTime(tz).date
+
+                val todayOffset = when (dateInterval) {
+                    DateInterval.Today -> DatePeriod()
+                    DateInterval.ThisWeek -> DatePeriod(days = today.dayOfWeek.isoDayNumber - 1)
+                    DateInterval.ThisMonth -> DatePeriod(days = today.dayOfMonth - 1)
+                    DateInterval.ThisYear -> DatePeriod(months = today.monthNumber - 1, days = today.dayOfMonth - 1)
+                    else -> error("DateInterval should've already been handled.")
+                }
+
+                instantRange(from = today.minus(todayOffset).atStartOfDayIn(tz))
+            }
         }
 
         when (pnl) {
@@ -49,6 +83,20 @@ data class FilterConfig(
     enum class OpenClosed { All, Open, Closed }
 
     enum class Side { All, Long, Short }
+
+    sealed class DateInterval {
+
+        data object All : DateInterval()
+        data object Today : DateInterval()
+        data object ThisWeek : DateInterval()
+        data object ThisMonth : DateInterval()
+        data object ThisYear : DateInterval()
+
+        data class Custom(
+            val from: LocalDate? = null,
+            val to: LocalDate? = null,
+        ) : DateInterval()
+    }
 
     sealed class PNL {
 

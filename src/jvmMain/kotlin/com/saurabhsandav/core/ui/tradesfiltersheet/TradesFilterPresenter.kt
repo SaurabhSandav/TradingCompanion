@@ -38,6 +38,7 @@ internal class TradesFilterPresenter(
             is SetFilter -> onSetFilter(event.filterConfig)
             is FilterOpenClosed -> onFilterOpenClosed(event.openClosed)
             is FilterSide -> onFilterSide(event.side)
+            is FilterDateInterval -> onFilterDateInterval(event.dateInterval)
             is FilterPnl -> onFilterPnl(event.pnl)
             is FilterByNetPnl -> onFilterByNetPnl(event.isEnabled)
             is FilterNotes -> onFilterNotes(event.notes)
@@ -56,6 +57,10 @@ internal class TradesFilterPresenter(
 
     private fun onFilterSide(side: Side) {
         filterConfig = filterConfig.copy(side = side)
+    }
+
+    private fun onFilterDateInterval(dateInterval: DateInterval) {
+        filterConfig = filterConfig.copy(dateInterval = dateInterval)
     }
 
     private fun onFilterPnl(pnl: PNL) {
