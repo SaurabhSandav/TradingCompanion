@@ -14,6 +14,8 @@ internal sealed class TradesFilterEvent {
 
     data class FilterByNetPnl(val isEnabled: Boolean) : TradesFilterEvent()
 
+    data class FilterNotes(val notes: Notes) : TradesFilterEvent()
+
     data object ResetFilter : TradesFilterEvent()
 
     data object ApplyFilter : TradesFilterEvent()

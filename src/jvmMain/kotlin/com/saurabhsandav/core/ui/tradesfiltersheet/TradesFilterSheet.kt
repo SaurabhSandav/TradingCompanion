@@ -15,6 +15,7 @@ import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
+import com.saurabhsandav.core.ui.tradesfiltersheet.ui.NotesFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.OpenClosedFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.PnlFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SideFilterItem
@@ -43,6 +44,8 @@ internal fun TradesFilterSheet(
         onPnlChange = { state.eventSink(FilterPnl(it)) },
         filterByNetPnl = state.filterConfig.filterByNetPnl,
         onFilterByNetPnlChange = { state.eventSink(FilterByNetPnl(it)) },
+        notes = state.filterConfig.notes,
+        onNotesChange = { state.eventSink(FilterNotes(it)) },
         onReset = { state.eventSink(ResetFilter) },
         onApply = { state.eventSink(ApplyFilter) },
     )
@@ -58,6 +61,8 @@ private fun TradesFilterSheet(
     onPnlChange: (PNL) -> Unit,
     filterByNetPnl: Boolean,
     onFilterByNetPnlChange: (Boolean) -> Unit,
+    notes: Notes,
+    onNotesChange: (Notes) -> Unit,
     onReset: () -> Unit,
     onApply: () -> Unit,
 ) {
@@ -75,6 +80,10 @@ private fun TradesFilterSheet(
             Divider()
 
             PnlFilterItem(pnl, onPnlChange, filterByNetPnl, onFilterByNetPnlChange)
+
+            Divider()
+
+            NotesFilterItem(notes, onNotesChange)
 
             Spacer(Modifier.weight(1F))
 

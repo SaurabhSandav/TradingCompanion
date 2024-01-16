@@ -63,6 +63,7 @@ internal class TradesRepo(
             pnlFrom = filter.pnlFrom?.toDouble(),
             pnlTo = filter.pnlTo?.toDouble(),
             filterByNetPnl = filter.filterByNetPnl.toLong(),
+            hasNotes = filter.hasNotes?.toLong(),
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)

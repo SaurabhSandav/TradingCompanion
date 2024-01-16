@@ -11,6 +11,7 @@ data class TradeFilter internal constructor(
     val pnlFrom: BigDecimal? = null,
     val pnlTo: BigDecimal? = null,
     val filterByNetPnl: Boolean = false,
+    val hasNotes: Boolean? = null,
 ) {
 
     companion object {
@@ -54,6 +55,14 @@ fun TradeFilterScope.isLong() {
 
 fun TradeFilterScope.isShort() {
     transform { it.copy(side = TradeSide.Short) }
+}
+
+fun TradeFilterScope.hasNotes() {
+    transform { it.copy(hasNotes = true) }
+}
+
+fun TradeFilterScope.noNotes() {
+    transform { it.copy(hasNotes = false) }
 }
 
 fun TradeFilterScope.instantRange(

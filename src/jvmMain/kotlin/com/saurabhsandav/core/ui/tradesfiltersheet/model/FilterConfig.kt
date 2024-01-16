@@ -11,6 +11,7 @@ data class FilterConfig(
     val side: Side = Side.All,
     val pnl: PNL = PNL.All,
     val filterByNetPnl: Boolean = false,
+    val notes: Notes = Notes.All,
 ) {
 
     fun toTradeFilter(): TradeFilter = TradeFilter {
@@ -37,6 +38,12 @@ data class FilterConfig(
                     pnlRange(from = from, to = to, filterByNetPnl = filterByNetPnl)
             }
         }
+
+        when (notes) {
+            Notes.All -> Unit
+            Notes.HasNotes -> hasNotes()
+            Notes.NoNotes -> noNotes()
+        }
     }
 
     enum class OpenClosed { All, Open, Closed }
@@ -55,6 +62,8 @@ data class FilterConfig(
             val to: BigDecimal? = null,
         ) : PNL()
     }
+
+    enum class Notes { All, HasNotes, NoNotes }
 
     companion object {
 

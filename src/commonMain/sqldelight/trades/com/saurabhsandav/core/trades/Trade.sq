@@ -70,6 +70,13 @@ AND (:from IS NULL OR datetime(:from) <= datetime(entryTimestamp))
 AND (:to IS NULL OR datetime(entryTimestamp) <= datetime(:to))
 AND (:pnlFrom IS NULL OR :pnlFrom <= CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL))
 AND (:pnlTo IS NULL OR CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL) <= :pnlTo)
+AND (:hasNotes IS NULL OR
+  IIF(
+    :hasNotes = TRUE,
+    id IN (SELECT DISTINCT tradeId FROM TradeNote),
+    id NOT IN (SELECT DISTINCT tradeId FROM TradeNote)
+  )
+)
 ORDER BY datetime(entryTimestamp) DESC;
 
 getOpen:

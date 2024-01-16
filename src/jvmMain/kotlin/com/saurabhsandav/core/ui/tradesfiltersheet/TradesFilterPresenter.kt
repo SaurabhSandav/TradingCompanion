@@ -40,6 +40,7 @@ internal class TradesFilterPresenter(
             is FilterSide -> onFilterSide(event.side)
             is FilterPnl -> onFilterPnl(event.pnl)
             is FilterByNetPnl -> onFilterByNetPnl(event.isEnabled)
+            is FilterNotes -> onFilterNotes(event.notes)
             ResetFilter -> onResetFilter()
             ApplyFilter -> onApplyFilter()
         }
@@ -63,6 +64,10 @@ internal class TradesFilterPresenter(
 
     private fun onFilterByNetPnl(isEnabled: Boolean) {
         filterConfig = filterConfig.copy(filterByNetPnl = isEnabled)
+    }
+
+    private fun onFilterNotes(notes: Notes) {
+        filterConfig = filterConfig.copy(notes = notes)
     }
 
     private fun onResetFilter() {
