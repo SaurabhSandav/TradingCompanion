@@ -8,8 +8,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
@@ -39,6 +38,8 @@ internal class TradesFilterPresenter(
             is SetFilter -> onSetFilter(event.filterConfig)
             is FilterOpenClosed -> onFilterOpenClosed(event.openClosed)
             is FilterSide -> onFilterSide(event.side)
+            is FilterPnl -> onFilterPnl(event.pnl)
+            is FilterByNetPnl -> onFilterByNetPnl(event.isEnabled)
             ResetFilter -> onResetFilter()
             ApplyFilter -> onApplyFilter()
         }
@@ -54,6 +55,14 @@ internal class TradesFilterPresenter(
 
     private fun onFilterSide(side: Side) {
         filterConfig = filterConfig.copy(side = side)
+    }
+
+    private fun onFilterPnl(pnl: PNL) {
+        filterConfig = filterConfig.copy(pnl = pnl)
+    }
+
+    private fun onFilterByNetPnl(isEnabled: Boolean) {
+        filterConfig = filterConfig.copy(filterByNetPnl = isEnabled)
     }
 
     private fun onResetFilter() {

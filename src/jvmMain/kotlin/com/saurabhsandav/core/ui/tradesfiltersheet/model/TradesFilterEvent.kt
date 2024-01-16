@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 
 internal sealed class TradesFilterEvent {
 
@@ -10,6 +9,10 @@ internal sealed class TradesFilterEvent {
     data class FilterOpenClosed(val openClosed: OpenClosed) : TradesFilterEvent()
 
     data class FilterSide(val side: Side) : TradesFilterEvent()
+
+    data class FilterPnl(val pnl: PNL) : TradesFilterEvent()
+
+    data class FilterByNetPnl(val isEnabled: Boolean) : TradesFilterEvent()
 
     data object ResetFilter : TradesFilterEvent()
 

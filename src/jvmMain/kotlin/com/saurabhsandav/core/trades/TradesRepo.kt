@@ -53,11 +53,16 @@ internal class TradesRepo(
 
     fun getFiltered(filter: TradeFilter): Flow<List<Trade>> {
 
+        fun Boolean.toLong() = if (this) 1L else 0L
+
         val query = tradesDB.tradeQueries.getFiltered(
             isClosed = filter.isClosed,
             side = filter.side,
             from = filter.instantFrom?.toString(),
             to = filter.instantTo?.toString(),
+            pnlFrom = filter.pnlFrom?.toDouble(),
+            pnlTo = filter.pnlTo?.toDouble(),
+            filterByNetPnl = filter.filterByNetPnl.toLong(),
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)

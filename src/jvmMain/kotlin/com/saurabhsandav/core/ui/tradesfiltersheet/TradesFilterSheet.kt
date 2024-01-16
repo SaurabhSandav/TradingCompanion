@@ -13,10 +13,10 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.OpenClosedFilterItem
+import com.saurabhsandav.core.ui.tradesfiltersheet.ui.PnlFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SideFilterItem
 
 @Composable
@@ -39,6 +39,10 @@ internal fun TradesFilterSheet(
         onOpenClosedChange = { state.eventSink(FilterOpenClosed(it)) },
         side = state.filterConfig.side,
         onSideChange = { state.eventSink(FilterSide(it)) },
+        pnl = state.filterConfig.pnl,
+        onPnlChange = { state.eventSink(FilterPnl(it)) },
+        filterByNetPnl = state.filterConfig.filterByNetPnl,
+        onFilterByNetPnlChange = { state.eventSink(FilterByNetPnl(it)) },
         onReset = { state.eventSink(ResetFilter) },
         onApply = { state.eventSink(ApplyFilter) },
     )
@@ -50,6 +54,10 @@ private fun TradesFilterSheet(
     onOpenClosedChange: (OpenClosed) -> Unit,
     side: Side,
     onSideChange: (Side) -> Unit,
+    pnl: PNL,
+    onPnlChange: (PNL) -> Unit,
+    filterByNetPnl: Boolean,
+    onFilterByNetPnlChange: (Boolean) -> Unit,
     onReset: () -> Unit,
     onApply: () -> Unit,
 ) {
@@ -63,6 +71,10 @@ private fun TradesFilterSheet(
             Divider()
 
             SideFilterItem(side, onSideChange)
+
+            Divider()
+
+            PnlFilterItem(pnl, onPnlChange, filterByNetPnl, onFilterByNetPnlChange)
 
             Spacer(Modifier.weight(1F))
 

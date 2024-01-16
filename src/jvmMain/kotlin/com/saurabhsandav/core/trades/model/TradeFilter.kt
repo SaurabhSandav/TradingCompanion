@@ -1,12 +1,16 @@
 package com.saurabhsandav.core.trades.model
 
 import kotlinx.datetime.Instant
+import java.math.BigDecimal
 
 data class TradeFilter internal constructor(
     val isClosed: Boolean? = null,
     val side: TradeSide? = null,
     val instantFrom: Instant? = null,
     val instantTo: Instant? = null,
+    val pnlFrom: BigDecimal? = null,
+    val pnlTo: BigDecimal? = null,
+    val filterByNetPnl: Boolean = false,
 ) {
 
     companion object {
@@ -57,4 +61,12 @@ fun TradeFilterScope.instantRange(
     to: Instant? = null,
 ) {
     transform { it.copy(instantFrom = from, instantTo = to) }
+}
+
+fun TradeFilterScope.pnlRange(
+    from: BigDecimal? = null,
+    to: BigDecimal? = null,
+    filterByNetPnl: Boolean = false,
+) {
+    transform { it.copy(pnlFrom = from, pnlTo = to, filterByNetPnl = filterByNetPnl) }
 }
