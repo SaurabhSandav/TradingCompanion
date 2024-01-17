@@ -11,6 +11,7 @@ data class FilterConfig(
     val openClosed: OpenClosed = OpenClosed.All,
     val side: Side = Side.All,
     val dateInterval: DateInterval = DateInterval.All,
+    val timeInterval: TimeInterval = TimeInterval.All,
     val pnl: PNL = PNL.All,
     val filterByNetPnl: Boolean = false,
     val notes: Notes = Notes.All,
@@ -62,6 +63,15 @@ data class FilterConfig(
             }
         }
 
+        when (timeInterval) {
+            TimeInterval.All -> Unit
+            is TimeInterval.Custom -> with(timeInterval) {
+
+                if (from == null || to == null || from <= to)
+                    timeRange(from = from, to = to)
+            }
+        }
+
         when (pnl) {
             PNL.All -> Unit
             PNL.Breakeven -> pnlRange(from = BigDecimal.ZERO, to = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
@@ -96,6 +106,16 @@ data class FilterConfig(
             val from: LocalDate? = null,
             val to: LocalDate? = null,
         ) : DateInterval()
+    }
+
+    sealed class TimeInterval {
+
+        data object All : TimeInterval()
+
+        data class Custom(
+            val from: LocalTime? = null,
+            val to: LocalTime? = null,
+        ) : TimeInterval()
     }
 
     sealed class PNL {

@@ -11,12 +11,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlinx.datetime.*
+import kotlinx.datetime.TimeZone
 import java.math.BigDecimal
 import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.path.*
 
@@ -55,11 +56,21 @@ internal class TradesRepo(
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
+        fun LocalTime.simpleString(): String {
+            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
+            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
+            return formatter.format(offsetTime.toJavaLocalTime())
+        }
+
         val query = tradesDB.tradeQueries.getFiltered(
             isClosed = filter.isClosed,
             side = filter.side,
             from = filter.instantFrom?.toString(),
             to = filter.instantTo?.toString(),
+            timeFrom = filter.timeFrom?.simpleString(),
+            timeTo = filter.timeTo?.simpleString(),
             pnlFrom = filter.pnlFrom?.toDouble(),
             pnlTo = filter.pnlTo?.toDouble(),
             filterByNetPnl = filter.filterByNetPnl.toLong(),

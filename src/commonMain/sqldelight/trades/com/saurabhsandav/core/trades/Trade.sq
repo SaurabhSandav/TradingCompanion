@@ -68,6 +68,8 @@ WHERE
 AND (:side IS NULL OR side = :side)
 AND (:from IS NULL OR datetime(:from) <= datetime(entryTimestamp))
 AND (:to IS NULL OR datetime(entryTimestamp) <= datetime(:to))
+AND (:timeFrom IS NULL OR time(:timeFrom) <= time(entryTimestamp))
+AND (:timeTo IS NULL OR time(entryTimestamp) <= time(:timeTo))
 AND (:pnlFrom IS NULL OR :pnlFrom <= CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL))
 AND (:pnlTo IS NULL OR CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL) <= :pnlTo)
 AND (:hasNotes IS NULL OR

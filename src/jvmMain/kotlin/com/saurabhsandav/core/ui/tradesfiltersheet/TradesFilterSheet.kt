@@ -39,6 +39,8 @@ internal fun TradesFilterSheet(
         onSideChange = { state.eventSink(FilterSide(it)) },
         dateInterval = state.filterConfig.dateInterval,
         onDateIntervalChange = { state.eventSink(FilterDateInterval(it)) },
+        timeInterval = state.filterConfig.timeInterval,
+        onTimeIntervalChange = { state.eventSink(FilterTimeInterval(it)) },
         pnl = state.filterConfig.pnl,
         onPnlChange = { state.eventSink(FilterPnl(it)) },
         filterByNetPnl = state.filterConfig.filterByNetPnl,
@@ -58,6 +60,8 @@ private fun TradesFilterSheet(
     onSideChange: (Side) -> Unit,
     dateInterval: DateInterval,
     onDateIntervalChange: (DateInterval) -> Unit,
+    timeInterval: TimeInterval,
+    onTimeIntervalChange: (TimeInterval) -> Unit,
     pnl: PNL,
     onPnlChange: (PNL) -> Unit,
     filterByNetPnl: Boolean,
@@ -81,6 +85,10 @@ private fun TradesFilterSheet(
             Divider()
 
             DateIntervalFilterItem(dateInterval, onDateIntervalChange)
+
+            Divider()
+
+            TimeIntervalFilterItem(timeInterval, onTimeIntervalChange)
 
             Divider()
 

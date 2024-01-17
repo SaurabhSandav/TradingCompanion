@@ -17,17 +17,18 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun TimeField(
-    value: LocalTime,
+    value: LocalTime?,
     onValidValueChange: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
 ) {
 
     val formatter = remember { DateTimeFormatter.ofPattern(TimePattern) }
-    var timeText by state(value) { formatter.format(value.toJavaLocalTime()) }
+    var timeText by state(value) { value?.toJavaLocalTime()?.let(formatter::format) ?: "" }
     var isTimeValid by state { true }
 
     OutlinedTextField(
@@ -56,6 +57,7 @@ fun TimeField(
         },
         enabled = enabled,
         label = label,
+        trailingIcon = trailingIcon,
         supportingText = supportingText,
         isError = isError || !isTimeValid,
         singleLine = true,
