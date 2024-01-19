@@ -18,6 +18,7 @@ internal fun TradesScreen(
     tradesList: TradesList,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
+    onSetFocusModeEnabled: (Boolean) -> Unit,
     errors: ImmutableList<UIErrorMessage>,
 ) {
 
@@ -34,6 +35,7 @@ internal fun TradesScreen(
             tradesList = tradesList,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
+            onSetFocusModeEnabled = onSetFocusModeEnabled,
         )
 
         // Errors

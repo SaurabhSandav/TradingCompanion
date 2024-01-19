@@ -13,8 +13,7 @@ import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.utils.format
@@ -41,6 +40,7 @@ internal class TradesPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
+    private val isFocusModeEnabled = MutableStateFlow(true)
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -57,6 +57,7 @@ internal class TradesPresenter(
         when (event) {
             is OpenDetails -> onOpenDetails(event.id)
             is OpenChart -> onOpenChart(event.id)
+            is SetFocusModeEnabled -> onSetFocusModeEnabled(event.isEnabled)
         }
     }
 
@@ -64,7 +65,7 @@ internal class TradesPresenter(
     private fun getTradesList(): TradesList {
 
         val initial = remember {
-            TradesList(
+            TradesList.Focused(
                 openTrades = persistentListOf(),
                 todayTrades = persistentListOf(),
                 todayStats = null,
@@ -72,7 +73,7 @@ internal class TradesPresenter(
             )
         }
 
-        return produceState(initial) {
+        return produceState<TradesList>(initial) {
 
             val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
@@ -80,37 +81,49 @@ internal class TradesPresenter(
                 return map { it.toTradeListEntry() }.toImmutableList()
             }
 
-            fun List<Trade>.subListOrEmpty(from: Int = 0, to: Int = size): List<Trade> {
-                return if (to <= from) emptyList() else subList(from, to)
-            }
+            isFocusModeEnabled.flatMapLatest { focusMode ->
 
-            tradesRepo
-                .getFiltered(
-                    filter = TradeFilter(),
-                    sort = TradeSort.OpenDescEntryDesc,
-                )
-                .flatMapLatest { trades ->
+                fun List<Trade>.subListOrEmpty(from: Int = 0, to: Int = size): List<Trade> {
+                    return if (to <= from) emptyList() else subList(from, to)
+                }
 
-                    val firstClosedTradeIndex = trades.indexOfFirst { it.isClosed }
+                if (focusMode) {
 
-                    val firstNotTodayTradeIndex = trades.subListOrEmpty(from = firstClosedTradeIndex).run {
-                        val tz = TimeZone.currentSystemDefault()
-                        val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
-                        firstClosedTradeIndex + indexOfFirst { it.entryTimestamp < startOfToday }
-                    }
-
-                    val todayTrades = trades.subListOrEmpty(firstClosedTradeIndex, firstNotTodayTradeIndex)
-
-                    todayTrades.generateStats(tradesRepo).map { todayStats ->
-
-                        TradesList(
-                            openTrades = trades.subListOrEmpty(to = firstClosedTradeIndex).toTradeListEntries(),
-                            todayTrades = todayTrades.toTradeListEntries(),
-                            todayStats = todayStats,
-                            pastTrades = trades.subListOrEmpty(from = firstNotTodayTradeIndex).toTradeListEntries(),
+                    tradesRepo
+                        .getFiltered(
+                            filter = TradeFilter(),
+                            sort = TradeSort.OpenDescEntryDesc,
                         )
-                    }
-                }.collect { value = it }
+                        .flatMapLatest { trades ->
+
+                            val firstClosedTradeIndex = trades.indexOfFirst { it.isClosed }
+
+                            val firstNotTodayTradeIndex = trades.subListOrEmpty(from = firstClosedTradeIndex).run {
+                                val tz = TimeZone.currentSystemDefault()
+                                val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
+                                firstClosedTradeIndex + indexOfFirst { it.entryTimestamp < startOfToday }
+                            }
+
+                            val todayTrades = trades.subListOrEmpty(firstClosedTradeIndex, firstNotTodayTradeIndex)
+
+                            todayTrades.generateStats(tradesRepo).map { todayStats ->
+
+                                TradesList.Focused(
+                                    openTrades = trades.subListOrEmpty(to = firstClosedTradeIndex).toTradeListEntries(),
+                                    todayTrades = todayTrades.toTradeListEntries(),
+                                    todayStats = todayStats,
+                                    pastTrades = trades.subListOrEmpty(from = firstNotTodayTradeIndex)
+                                        .toTradeListEntries(),
+                                )
+                            }
+                        }
+                } else {
+                    tradesRepo
+                        .getFiltered(filter = TradeFilter())
+                        .map { trades -> TradesList.All(trades = trades.toTradeListEntries()) }
+                }
+
+            }.collect { value = it }
         }.value
     }
 
@@ -209,5 +222,9 @@ internal class TradesPresenter(
     private fun onOpenChart(id: TradeId) {
 
         tradeContentLauncher.openTradeReview(ProfileTradeId(profileId = profileId, tradeId = id))
+    }
+
+    private fun onSetFocusModeEnabled(isEnabled: Boolean) {
+        isFocusModeEnabled.value = isEnabled
     }
 }

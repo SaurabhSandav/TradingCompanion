@@ -14,12 +14,21 @@ internal data class TradesState(
 ) {
 
     @Immutable
-    internal data class TradesList(
-        val openTrades: ImmutableList<TradeEntry>,
-        val todayTrades: ImmutableList<TradeEntry>,
-        val todayStats: Stats?,
-        val pastTrades: ImmutableList<TradeEntry>,
-    )
+    sealed class TradesList {
+
+        @Immutable
+        data class All(
+            val trades: ImmutableList<TradeEntry>,
+        ) : TradesList()
+
+        @Immutable
+        data class Focused(
+            val openTrades: ImmutableList<TradeEntry>,
+            val todayTrades: ImmutableList<TradeEntry>,
+            val todayStats: Stats?,
+            val pastTrades: ImmutableList<TradeEntry>,
+        ) : TradesList()
+    }
 
     @Immutable
     internal data class Stats(

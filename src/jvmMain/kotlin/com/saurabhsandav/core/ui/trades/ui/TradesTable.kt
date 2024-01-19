@@ -3,10 +3,7 @@ package com.saurabhsandav.core.ui.trades.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -25,6 +22,7 @@ internal fun TradesTable(
     tradesList: TradesList,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
+    onSetFocusModeEnabled: (Boolean) -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
@@ -56,29 +54,68 @@ internal fun TradesTable(
 
     LazyTable(
         schema = schema,
+        headerContent = {
+
+            Column {
+
+                DefaultTableHeader(schema)
+
+                Divider()
+
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Text("Focus")
+
+                    Switch(
+                        checked = tradesList is TradesList.Focused,
+                        onCheckedChange = onSetFocusModeEnabled,
+                    )
+                }
+
+                Divider()
+            }
+        },
     ) {
 
-        tradeRows(
-            trades = tradesList.openTrades,
-            title = "Open",
-            onOpenDetails = onOpenDetails,
-            onOpenChart = onOpenChart,
-        )
+        when (tradesList) {
+            is TradesList.All ->
 
-        tradeRows(
-            trades = tradesList.todayTrades,
-            title = "Today",
-            onOpenDetails = onOpenDetails,
-            onOpenChart = onOpenChart,
-            stats = tradesList.todayStats,
-        )
+                tradeRows(
+                    trades = tradesList.trades,
+                    title = "All",
+                    onOpenDetails = onOpenDetails,
+                    onOpenChart = onOpenChart,
+                )
 
-        tradeRows(
-            trades = tradesList.pastTrades,
-            title = "Past",
-            onOpenDetails = onOpenDetails,
-            onOpenChart = onOpenChart,
-        )
+            is TradesList.Focused -> {
+
+                tradeRows(
+                    trades = tradesList.openTrades,
+                    title = "Open",
+                    onOpenDetails = onOpenDetails,
+                    onOpenChart = onOpenChart,
+                )
+
+                tradeRows(
+                    trades = tradesList.todayTrades,
+                    title = "Today",
+                    onOpenDetails = onOpenDetails,
+                    onOpenChart = onOpenChart,
+                    stats = tradesList.todayStats,
+                )
+
+                tradeRows(
+                    trades = tradesList.pastTrades,
+                    title = "Past",
+                    onOpenDetails = onOpenDetails,
+                    onOpenChart = onOpenChart,
+                )
+            }
+        }
     }
 }
 

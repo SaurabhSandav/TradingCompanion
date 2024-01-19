@@ -4,8 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 
 internal class TradesLandingSwitcherItem(
     tradesModule: TradesModule,
@@ -22,6 +21,7 @@ internal class TradesLandingSwitcherItem(
             tradesList = state.tradesList,
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
             onOpenChart = { state.eventSink(OpenChart(it)) },
+            onSetFocusModeEnabled = { state.eventSink(SetFocusModeEnabled(it)) },
             errors = state.errors,
         )
     }
