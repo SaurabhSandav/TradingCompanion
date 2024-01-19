@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.*
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -59,6 +60,10 @@ internal fun TradesFilterSheet(
         onRemoveTag = { state.eventSink(RemoveTag(it)) },
         matchAllTags = state.filterConfig.matchAllTags,
         onMatchAllTagsChange = { state.eventSink(SetMatchAllTagsEnabled(it)) },
+        selectedTickers = remember(state.filterConfig.tickers) { state.filterConfig.tickers.toImmutableList() },
+        tickerSuggestions = state.tickerSuggestions,
+        onAddTicker = { state.eventSink(AddTicker(it)) },
+        onRemoveTicker = { state.eventSink(RemoveTicker(it)) },
         onReset = { state.eventSink(ResetFilter) },
         onApply = { state.eventSink(ApplyFilter) },
     )
@@ -86,6 +91,10 @@ private fun TradesFilterSheet(
     onRemoveTag: (TradeTagId) -> Unit,
     matchAllTags: Boolean,
     onMatchAllTagsChange: (Boolean) -> Unit,
+    selectedTickers: ImmutableList<String>,
+    tickerSuggestions: (String) -> Flow<ImmutableList<String>>,
+    onAddTicker: (String) -> Unit,
+    onRemoveTicker: (String) -> Unit,
     onReset: () -> Unit,
     onApply: () -> Unit,
 ) {
@@ -125,6 +134,15 @@ private fun TradesFilterSheet(
                 onRemoveTag = onRemoveTag,
                 matchAllTags = matchAllTags,
                 onMatchAllTagsChange = onMatchAllTagsChange,
+            )
+
+            Divider()
+
+            TickersFilterItem(
+                selectedTickers = selectedTickers,
+                tickerSuggestions = tickerSuggestions,
+                onAddTicker = onAddTicker,
+                onRemoveTicker = onRemoveTicker,
             )
 
             Spacer(Modifier.weight(1F))

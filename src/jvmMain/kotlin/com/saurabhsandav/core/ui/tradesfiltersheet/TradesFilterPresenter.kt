@@ -40,6 +40,7 @@ internal class TradesFilterPresenter(
             filterConfig = filterConfig,
             selectedTags = getSelectedTags(),
             tagSuggestions = ::tagSuggestions,
+            tickerSuggestions = ::tickerSuggestions,
             eventSink = ::onEvent,
         )
     }
@@ -60,6 +61,8 @@ internal class TradesFilterPresenter(
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
             is SetMatchAllTagsEnabled -> onSetMatchAllTagsEnabled(event.isEnabled)
+            is AddTicker -> onAddTicker(event.ticker)
+            is RemoveTicker -> onRemoveTicker(event.ticker)
             ResetFilter -> onResetFilter()
             ApplyFilter -> onApplyFilter()
         }
@@ -116,6 +119,21 @@ internal class TradesFilterPresenter(
             .emitInto(this)
     }
 
+    private fun tickerSuggestions(filterQuery: String): Flow<ImmutableList<String>> = flow {
+
+        val tradesRepo = tradingProfiles.getRecord(profileId).trades
+
+        snapshotFlow { filterConfig.tickers }
+            .flatMapLatest { tickers ->
+                tradesRepo.getSuggestedTickers(
+                    query = filterQuery,
+                    ignore = tickers,
+                )
+            }
+            .map { it.toImmutableList() }
+            .emitInto(this)
+    }
+
     private fun onSetFilter(filterConfig: FilterConfig) {
         this.filterConfig = filterConfig
     }
@@ -158,6 +176,14 @@ internal class TradesFilterPresenter(
 
     private fun onSetMatchAllTagsEnabled(isEnabled: Boolean) {
         filterConfig = filterConfig.copy(matchAllTags = isEnabled)
+    }
+
+    private fun onAddTicker(ticker: String) {
+        filterConfig = filterConfig.copy(tickers = filterConfig.tickers + ticker)
+    }
+
+    private fun onRemoveTicker(ticker: String) {
+        filterConfig = filterConfig.copy(tickers = filterConfig.tickers - ticker)
     }
 
     private fun onResetFilter() {

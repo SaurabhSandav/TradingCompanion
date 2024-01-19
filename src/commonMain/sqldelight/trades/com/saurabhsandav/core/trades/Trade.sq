@@ -88,6 +88,7 @@ AND (:tagsCount IS NULL OR id IN
     HAVING :tagsCount = -1 OR COUNT(*) = :tagsCount
   )
 )
+AND (:tickersCount <= 0 OR ticker IN :tickers)
 ORDER BY datetime(entryTimestamp) DESC;
 
 getOpen:
@@ -124,6 +125,13 @@ ON Trade.id = TradeExcursions.tradeId
 WHERE TradeExcursions.tradeId IS NULL
 AND Trade.isClosed = TRUE
 AND Trade.entryTimestamp < ?;
+
+getSuggestedTickers:
+SELECT DISTINCT ticker
+FROM Trade
+WHERE
+ticker NOT IN :ignore
+AND ticker LIKE '%' || :query || '%';
 
 delete:
 DELETE FROM Trade

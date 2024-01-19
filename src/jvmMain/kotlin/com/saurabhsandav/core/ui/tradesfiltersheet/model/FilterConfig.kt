@@ -17,6 +17,7 @@ data class FilterConfig(
     val notes: Notes = Notes.All,
     val tags: List<TradeTagId> = emptyList(),
     val matchAllTags: Boolean = false,
+    val tickers: List<String> = emptyList(),
 ) {
 
     fun toTradeFilter(): TradeFilter = TradeFilter {
@@ -92,6 +93,8 @@ data class FilterConfig(
         }
 
         tags(tags, matchAllTags)
+
+        tickers(tickers)
     }
 
     enum class OpenClosed { All, Open, Closed }

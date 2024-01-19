@@ -27,6 +27,10 @@ internal sealed class TradesFilterEvent {
 
     data class SetMatchAllTagsEnabled(val isEnabled: Boolean) : TradesFilterEvent()
 
+    data class AddTicker(val ticker: String) : TradesFilterEvent()
+
+    data class RemoveTicker(val ticker: String) : TradesFilterEvent()
+
     data object ResetFilter : TradesFilterEvent()
 
     data object ApplyFilter : TradesFilterEvent()

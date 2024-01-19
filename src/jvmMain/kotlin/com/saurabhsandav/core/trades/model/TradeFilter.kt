@@ -17,6 +17,7 @@ data class TradeFilter internal constructor(
     val hasNotes: Boolean? = null,
     val tags: List<TradeTagId> = emptyList(),
     val matchAllTags: Boolean = false,
+    val tickers: List<String> = emptyList(),
 ) {
 
     companion object {
@@ -97,4 +98,10 @@ fun TradeFilterScope.tags(
     matchAllTags: Boolean = false,
 ) {
     transform { it.copy(tags = tags, matchAllTags = matchAllTags) }
+}
+
+fun TradeFilterScope.tickers(
+    tickers: List<String> = emptyList(),
+) {
+    transform { it.copy(tickers = tickers) }
 }

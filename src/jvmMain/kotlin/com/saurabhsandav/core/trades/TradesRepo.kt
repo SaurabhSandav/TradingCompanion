@@ -81,6 +81,8 @@ internal class TradesRepo(
                 filter.matchAllTags -> filter.tags.size.toLong()
                 else -> -1
             },
+            tickers = filter.tickers,
+            tickersCount = filter.tickers.size.toLong(),
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)
@@ -118,6 +120,13 @@ internal class TradesRepo(
             )
             .asFlow()
             .mapToList(Dispatchers.IO)
+    }
+
+    fun getSuggestedTickers(
+        query: String,
+        ignore: List<String>,
+    ): Flow<List<String>> {
+        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(Dispatchers.IO)
     }
 
     fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
