@@ -7,7 +7,7 @@ import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 
 internal class TradesLandingSwitcherItem(
-    tradesModule: TradesModule,
+    private val tradesModule: TradesModule,
 ) : LandingSwitcherItem {
 
     private val presenter = tradesModule.presenter()
@@ -18,10 +18,12 @@ internal class TradesLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         TradesScreen(
+            profileId = tradesModule.profileId,
             tradesList = state.tradesList,
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
             onOpenChart = { state.eventSink(OpenChart(it)) },
             onSetFocusModeEnabled = { state.eventSink(SetFocusModeEnabled(it)) },
+            onApplyFilter = { state.eventSink(ApplyFilter(it)) },
             errors = state.errors,
         )
     }

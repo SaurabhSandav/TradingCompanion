@@ -19,6 +19,7 @@ internal data class TradesState(
         @Immutable
         data class All(
             val trades: ImmutableList<TradeEntry>,
+            val isFiltered: Boolean,
         ) : TradesList()
 
         @Immutable

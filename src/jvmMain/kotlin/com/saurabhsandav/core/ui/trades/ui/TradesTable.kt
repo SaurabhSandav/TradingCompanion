@@ -23,6 +23,7 @@ internal fun TradesTable(
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
+    onFilter: () -> Unit,
 ) {
 
     val schema = rememberTableSchema<TradeEntry> {
@@ -74,6 +75,14 @@ internal fun TradesTable(
                         checked = tradesList is TradesList.Focused,
                         onCheckedChange = onSetFocusModeEnabled,
                     )
+
+                    Spacer(Modifier.weight(1F))
+
+                    OutlinedButton(
+                        onClick = onFilter,
+                        shape = MaterialTheme.shapes.small,
+                        content = { Text("Filter") },
+                    )
                 }
 
                 Divider()
@@ -86,7 +95,7 @@ internal fun TradesTable(
 
                 tradeRows(
                     trades = tradesList.trades,
-                    title = "All",
+                    title = if (tradesList.isFiltered) "Filtered" else "All",
                     onOpenDetails = onOpenDetails,
                     onOpenChart = onOpenChart,
                 )

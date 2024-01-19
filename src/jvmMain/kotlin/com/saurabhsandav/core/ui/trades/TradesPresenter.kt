@@ -41,6 +41,7 @@ internal class TradesPresenter(
 ) {
 
     private val isFocusModeEnabled = MutableStateFlow(true)
+    private val tradeFilter = MutableStateFlow(TradeFilter())
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -58,6 +59,7 @@ internal class TradesPresenter(
             is OpenDetails -> onOpenDetails(event.id)
             is OpenChart -> onOpenChart(event.id)
             is SetFocusModeEnabled -> onSetFocusModeEnabled(event.isEnabled)
+            is ApplyFilter -> onApplyFilter(event.tradeFilter)
         }
     }
 
@@ -80,6 +82,8 @@ internal class TradesPresenter(
             fun List<Trade>.toTradeListEntries(): ImmutableList<TradeEntry> {
                 return map { it.toTradeListEntry() }.toImmutableList()
             }
+
+            val defaultFilter = TradeFilter()
 
             isFocusModeEnabled.flatMapLatest { focusMode ->
 
@@ -118,9 +122,13 @@ internal class TradesPresenter(
                             }
                         }
                 } else {
-                    tradesRepo
-                        .getFiltered(filter = TradeFilter())
-                        .map { trades -> TradesList.All(trades = trades.toTradeListEntries()) }
+                    tradeFilter.flatMapLatest { filter -> tradesRepo.getFiltered(filter = filter) }
+                        .map { trades ->
+                            TradesList.All(
+                                trades = trades.toTradeListEntries(),
+                                isFiltered = tradeFilter.value != defaultFilter,
+                            )
+                        }
                 }
 
             }.collect { value = it }
@@ -226,5 +234,11 @@ internal class TradesPresenter(
 
     private fun onSetFocusModeEnabled(isEnabled: Boolean) {
         isFocusModeEnabled.value = isEnabled
+        if (isEnabled) tradeFilter.value = TradeFilter()
+    }
+
+    private fun onApplyFilter(newTradeFilter: TradeFilter) {
+        isFocusModeEnabled.value = false
+        tradeFilter.value = newTradeFilter
     }
 }
