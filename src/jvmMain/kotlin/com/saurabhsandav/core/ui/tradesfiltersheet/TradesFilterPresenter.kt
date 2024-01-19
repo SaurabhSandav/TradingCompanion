@@ -1,23 +1,35 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.trades.TradingProfiles
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
+import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.core.utils.mapList
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 internal class TradesFilterPresenter(
     coroutineScope: CoroutineScope,
+    private val profileId: ProfileId,
     initialFilterConfig: FilterConfig,
     private val onFilterChange: (FilterConfig) -> Unit,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private var filterConfig by mutableStateOf(initialFilterConfig)
@@ -26,6 +38,8 @@ internal class TradesFilterPresenter(
 
         return@launchMolecule TradesFilterState(
             filterConfig = filterConfig,
+            selectedTags = getSelectedTags(),
+            tagSuggestions = ::tagSuggestions,
             eventSink = ::onEvent,
         )
     }
@@ -43,9 +57,63 @@ internal class TradesFilterPresenter(
             is FilterPnl -> onFilterPnl(event.pnl)
             is FilterByNetPnl -> onFilterByNetPnl(event.isEnabled)
             is FilterNotes -> onFilterNotes(event.notes)
+            is AddTag -> onAddTag(event.id)
+            is RemoveTag -> onRemoveTag(event.id)
+            is SetMatchAllTagsEnabled -> onSetMatchAllTagsEnabled(event.isEnabled)
             ResetFilter -> onResetFilter()
             ApplyFilter -> onApplyFilter()
         }
+    }
+
+    @Composable
+    private fun getSelectedTags(): ImmutableList<TradeTag>? {
+
+        // Information of whether a filter is enabled is required when first composing UI.
+        // Sending an empty list followed by the actual fetch means the UI initially thinks there are no tags selected.
+        // Send a null initially if tags not selected. In this case, an empty list will signify tags are loading.
+        val initial: ImmutableList<TradeTag>? = remember {
+            if (filterConfig.tags.isEmpty()) null else persistentListOf()
+        }
+
+        return produceState(initial) {
+
+            val tradesRepo = tradingProfiles.getRecord(profileId).trades
+
+            snapshotFlow { filterConfig.tags }
+                .flatMapLatest(tradesRepo::getTagsByIds)
+                .mapList { tag ->
+
+                    TradeTag(
+                        id = tag.id,
+                        name = tag.name,
+                        description = tag.description,
+                    )
+                }
+                .collect { value = it.toImmutableList() }
+        }.value
+    }
+
+    private fun tagSuggestions(filterQuery: String): Flow<ImmutableList<TradeTag>> = flow {
+
+        val tradesRepo = tradingProfiles.getRecord(profileId).trades
+
+        snapshotFlow { filterConfig.tags }
+            .flatMapLatest { tagIds ->
+                tradesRepo.getSuggestedTags(
+                    query = filterQuery,
+                    ignoreIds = tagIds,
+                )
+            }
+            .mapList { tag ->
+
+                TradeTag(
+                    id = tag.id,
+                    name = tag.name,
+                    description = tag.description,
+                )
+            }
+            .map { it.toImmutableList() }
+            .emitInto(this)
     }
 
     private fun onSetFilter(filterConfig: FilterConfig) {
@@ -78,6 +146,18 @@ internal class TradesFilterPresenter(
 
     private fun onFilterNotes(notes: Notes) {
         filterConfig = filterConfig.copy(notes = notes)
+    }
+
+    private fun onAddTag(id: TradeTagId) {
+        filterConfig = filterConfig.copy(tags = filterConfig.tags + id)
+    }
+
+    private fun onRemoveTag(id: TradeTagId) {
+        filterConfig = filterConfig.copy(tags = filterConfig.tags - id)
+    }
+
+    private fun onSetMatchAllTagsEnabled(isEnabled: Boolean) {
+        filterConfig = filterConfig.copy(matchAllTags = isEnabled)
     }
 
     private fun onResetFilter() {

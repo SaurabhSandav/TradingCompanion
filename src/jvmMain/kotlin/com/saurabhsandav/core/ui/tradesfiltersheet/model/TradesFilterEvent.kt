@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 
 internal sealed class TradesFilterEvent {
@@ -19,6 +20,12 @@ internal sealed class TradesFilterEvent {
     data class FilterByNetPnl(val isEnabled: Boolean) : TradesFilterEvent()
 
     data class FilterNotes(val notes: Notes) : TradesFilterEvent()
+
+    data class AddTag(val id: TradeTagId) : TradesFilterEvent()
+
+    data class RemoveTag(val id: TradeTagId) : TradesFilterEvent()
+
+    data class SetMatchAllTagsEnabled(val isEnabled: Boolean) : TradesFilterEvent()
 
     data object ResetFilter : TradesFilterEvent()
 

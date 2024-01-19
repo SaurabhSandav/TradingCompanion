@@ -15,6 +15,8 @@ data class FilterConfig(
     val pnl: PNL = PNL.All,
     val filterByNetPnl: Boolean = false,
     val notes: Notes = Notes.All,
+    val tags: List<TradeTagId> = emptyList(),
+    val matchAllTags: Boolean = false,
 ) {
 
     fun toTradeFilter(): TradeFilter = TradeFilter {
@@ -88,6 +90,8 @@ data class FilterConfig(
             Notes.HasNotes -> hasNotes()
             Notes.NoNotes -> noNotes()
         }
+
+        tags(tags, matchAllTags)
     }
 
     enum class OpenClosed { All, Open, Closed }

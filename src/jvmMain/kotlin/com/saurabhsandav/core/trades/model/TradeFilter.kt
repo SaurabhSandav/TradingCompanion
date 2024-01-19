@@ -15,6 +15,8 @@ data class TradeFilter internal constructor(
     val pnlTo: BigDecimal? = null,
     val filterByNetPnl: Boolean = false,
     val hasNotes: Boolean? = null,
+    val tags: List<TradeTagId> = emptyList(),
+    val matchAllTags: Boolean = false,
 ) {
 
     companion object {
@@ -88,4 +90,11 @@ fun TradeFilterScope.pnlRange(
     filterByNetPnl: Boolean = false,
 ) {
     transform { it.copy(pnlFrom = from, pnlTo = to, filterByNetPnl = filterByNetPnl) }
+}
+
+fun TradeFilterScope.tags(
+    tags: List<TradeTagId> = emptyList(),
+    matchAllTags: Boolean = false,
+) {
+    transform { it.copy(tags = tags, matchAllTags = matchAllTags) }
 }

@@ -119,14 +119,18 @@ internal fun TradeReviewScreen(
             sheetState = sheetState,
             sheet = {
 
-                TradesFilterSheet(
-                    filter = filterConfig,
-                    onFilterChange = {
-                        filterConfig = it
-                        onApplyFilter(it.toTradeFilter())
-                        onDismissSheet()
-                    }
-                )
+                if (selectedProfileId != null) {
+
+                    TradesFilterSheet(
+                        profileId = selectedProfileId,
+                        filter = filterConfig,
+                        onFilterChange = {
+                            filterConfig = it
+                            onApplyFilter(it.toTradeFilter())
+                            onDismissSheet()
+                        }
+                    )
+                }
             },
             onDismissSheet = onDismissSheet,
         ) {
@@ -138,6 +142,7 @@ internal fun TradeReviewScreen(
                 onMarkTrade = onMarkTrade,
                 onSelectTrade = onSelectTrade,
                 onOpenDetails = onOpenDetails,
+                isFilterEnabled = selectedProfileId != null,
                 onFilter = { sheetState = SideSheetState.Open },
             )
         }

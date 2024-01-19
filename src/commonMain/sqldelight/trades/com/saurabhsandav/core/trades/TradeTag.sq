@@ -22,6 +22,16 @@ SELECT * FROM TradeTag;
 getById:
 SELECT * FROM TradeTag WHERE id = ?;
 
+getAllByIds:
+SELECT * FROM TradeTag WHERE id IN ?;
+
+getSuggestedTags:
+SELECT *
+FROM TradeTag
+WHERE
+id NOT IN :ignore
+AND name LIKE '%' || :query || '%';
+
 delete:
 DELETE FROM TradeTag
 WHERE id = ?;

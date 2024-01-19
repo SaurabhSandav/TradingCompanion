@@ -25,6 +25,7 @@ internal fun ProfileTradesTable(
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
+    isFilterEnabled: Boolean,
     onFilter: () -> Unit,
 ) {
 
@@ -74,6 +75,7 @@ internal fun ProfileTradesTable(
                     modifier = Modifier.align(Alignment.End).padding(16.dp),
                     onClick = onFilter,
                     shape = MaterialTheme.shapes.small,
+                    enabled = isFilterEnabled,
                     content = { Text("Filter") },
                 )
 

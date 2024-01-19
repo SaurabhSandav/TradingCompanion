@@ -75,6 +75,12 @@ internal class TradesRepo(
             pnlTo = filter.pnlTo?.toDouble(),
             filterByNetPnl = filter.filterByNetPnl.toLong(),
             hasNotes = filter.hasNotes?.toLong(),
+            tags = filter.tags,
+            tagsCount = when {
+                filter.tags.isEmpty() -> null
+                filter.matchAllTags -> filter.tags.size.toLong()
+                else -> -1
+            },
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)
@@ -244,6 +250,17 @@ internal class TradesRepo(
 
     fun getTagById(id: TradeTagId): Flow<TradeTag> {
         return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getTagsByIds(ids: List<TradeTagId>): Flow<List<TradeTag>> {
+        return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getSuggestedTags(
+        ignoreIds: List<TradeTagId>,
+        query: String,
+    ): Flow<List<TradeTag>> {
+        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, query).asFlow().mapToList(Dispatchers.IO)
     }
 
     fun getTagsForTrade(id: TradeId): Flow<List<TradeTag>> {

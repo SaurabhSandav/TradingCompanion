@@ -79,6 +79,15 @@ AND (:hasNotes IS NULL OR
     id NOT IN (SELECT DISTINCT tradeId FROM TradeNote)
   )
 )
+AND (:tagsCount IS NULL OR id IN
+  (
+    SELECT tradeId
+    FROM TradeToTagMap
+    WHERE tagId IN :tags
+    GROUP BY tradeId
+    HAVING :tagsCount = -1 OR COUNT(*) = :tagsCount
+  )
+)
 ORDER BY datetime(entryTimestamp) DESC;
 
 getOpen:

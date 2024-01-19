@@ -11,21 +11,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.*
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradesFilterSheet(
+    profileId: ProfileId,
     filter: FilterConfig,
     onFilterChange: (FilterConfig) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradesFilterModule(scope).presenter(filter, onFilterChange) }
+    val presenter = remember { appModule.tradesFilterModule(scope, profileId).presenter(filter, onFilterChange) }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(filter) {
@@ -47,6 +53,12 @@ internal fun TradesFilterSheet(
         onFilterByNetPnlChange = { state.eventSink(FilterByNetPnl(it)) },
         notes = state.filterConfig.notes,
         onNotesChange = { state.eventSink(FilterNotes(it)) },
+        selectedTags = state.selectedTags,
+        tagSuggestions = state.tagSuggestions,
+        onAddTag = { state.eventSink(AddTag(it)) },
+        onRemoveTag = { state.eventSink(RemoveTag(it)) },
+        matchAllTags = state.filterConfig.matchAllTags,
+        onMatchAllTagsChange = { state.eventSink(SetMatchAllTagsEnabled(it)) },
         onReset = { state.eventSink(ResetFilter) },
         onApply = { state.eventSink(ApplyFilter) },
     )
@@ -68,6 +80,12 @@ private fun TradesFilterSheet(
     onFilterByNetPnlChange: (Boolean) -> Unit,
     notes: Notes,
     onNotesChange: (Notes) -> Unit,
+    selectedTags: ImmutableList<TradeTag>?,
+    tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    onAddTag: (TradeTagId) -> Unit,
+    onRemoveTag: (TradeTagId) -> Unit,
+    matchAllTags: Boolean,
+    onMatchAllTagsChange: (Boolean) -> Unit,
     onReset: () -> Unit,
     onApply: () -> Unit,
 ) {
@@ -97,6 +115,17 @@ private fun TradesFilterSheet(
             Divider()
 
             NotesFilterItem(notes, onNotesChange)
+
+            Divider()
+
+            TagsFilterItem(
+                selectedTags = selectedTags,
+                tagSuggestions = tagSuggestions,
+                onAddTag = onAddTag,
+                onRemoveTag = onRemoveTag,
+                matchAllTags = matchAllTags,
+                onMatchAllTagsChange = onMatchAllTagsChange,
+            )
 
             Spacer(Modifier.weight(1F))
 

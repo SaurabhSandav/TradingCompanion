@@ -250,8 +250,11 @@ internal class AppModule {
         TradesModule(this, coroutineScope, profileId)
     }
 
-    val tradesFilterModule = { coroutineScope: CoroutineScope ->
-        TradesFilterModule(coroutineScope)
+    val tradesFilterModule = {
+            coroutineScope: CoroutineScope,
+            profileId: ProfileId,
+        ->
+        TradesFilterModule(this, coroutineScope, profileId)
     }
 
     val stockChartsState = StockChartsStateFactory {
