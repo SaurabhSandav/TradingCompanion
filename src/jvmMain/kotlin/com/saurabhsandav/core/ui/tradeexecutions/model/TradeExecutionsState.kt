@@ -1,30 +1,35 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
+import app.cash.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
+import kotlinx.coroutines.flow.Flow
 
 internal data class TradeExecutionsState(
-    val executionsList: ExecutionsList,
+    val executionEntries: Flow<PagingData<TradeExecutionEntry>>,
     val selectionManager: SelectionManager<TradeExecutionId>,
     val canSelectionLock: Boolean,
     val errors: List<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {
 
-    internal data class ExecutionsList(
-        val todayExecutions: List<TradeExecutionEntry>,
-        val pastExecutions: List<TradeExecutionEntry>,
-    )
+    internal sealed class TradeExecutionEntry {
 
-    internal data class TradeExecutionEntry(
-        val id: TradeExecutionId,
-        val broker: String,
-        val ticker: String,
-        val quantity: String,
-        val side: String,
-        val price: String,
-        val timestamp: String,
-        val locked: Boolean,
-    )
+        data class Section(
+            val isToday: Boolean,
+            val count: Flow<Long>,
+        ) : TradeExecutionEntry()
+
+        data class Item(
+            val id: TradeExecutionId,
+            val broker: String,
+            val ticker: String,
+            val quantity: String,
+            val side: String,
+            val price: String,
+            val timestamp: String,
+            val locked: Boolean,
+        ) : TradeExecutionEntry()
+    }
 }

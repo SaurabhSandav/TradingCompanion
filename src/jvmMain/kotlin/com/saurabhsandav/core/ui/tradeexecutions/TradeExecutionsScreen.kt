@@ -5,19 +5,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import app.cash.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsSelectionBar
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsTable
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradeExecutionsScreen(
     onNewExecution: () -> Unit,
-    executionsList: ExecutionsList,
+    executionEntries: Flow<PagingData<TradeExecutionEntry>>,
     selectionManager: SelectionManager<TradeExecutionId>,
     canSelectionLock: Boolean,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
@@ -46,7 +48,7 @@ internal fun TradeExecutionsScreen(
         ) {
 
             TradeExecutionsTable(
-                executionsList = executionsList,
+                executionEntries = executionEntries,
                 isMarked = { id -> id in selectionManager.selection },
                 onClickExecution = { id ->
 

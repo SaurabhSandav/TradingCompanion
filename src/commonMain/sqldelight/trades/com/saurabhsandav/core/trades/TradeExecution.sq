@@ -29,11 +29,6 @@ UPDATE TradeExecution
 SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
-getAll:
-SELECT *
-FROM TradeExecution
-ORDER BY datetime(timestamp) DESC, id DESC;
-
 getById:
 SELECT *
 FROM TradeExecution
@@ -43,6 +38,26 @@ getByIds:
 SELECT *
 FROM TradeExecution
 WHERE id IN ?;
+
+getTodayCount:
+SELECT count(*)
+FROM TradeExecution
+WHERE date(timestamp) = date('now');
+
+getBeforeTodayCount:
+SELECT count(*)
+FROM TradeExecution
+WHERE date(timestamp) != date('now');
+
+getAllCount:
+SELECT count(*)
+FROM TradeExecution;
+
+getAllPaged:
+SELECT *
+FROM TradeExecution
+ORDER BY datetime(timestamp) DESC, id DESC
+LIMIT :limit OFFSET :offset;
 
 getByTickerInInterval:
 SELECT *

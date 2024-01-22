@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.tradeexecutions
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import app.cash.paging.*
 import com.saurabhsandav.core.trades.TradeExecution
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -15,12 +16,15 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -42,7 +46,7 @@ internal class TradeExecutionsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
-            executionsList = getExecutionsList(),
+            executionEntries = getExecutionEntries(),
             selectionManager = selectionManager,
             canSelectionLock = canSelectionLock,
             errors = errors,
@@ -76,45 +80,64 @@ internal class TradeExecutionsPresenter(
     }
 
     @Composable
-    private fun getExecutionsList(): ExecutionsList {
+    private fun getExecutionEntries(): Flow<PagingData<TradeExecutionEntry>> = remember {
+        flow {
 
-        val initial = remember {
-            ExecutionsList(
-                todayExecutions = emptyList(),
-                pastExecutions = emptyList(),
+            val executionsRepo = tradingProfiles.getRecord(profileId).executions
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 70,
+                    enablePlaceholders = false,
+                    maxSize = 300,
+                ),
+                pagingSourceFactory = executionsRepo::getAllPagingSource,
             )
-        }
 
-        return produceState(initial) {
+            pager
+                .flow
+                .map { pagingData ->
 
-            fun List<TradeExecution>.transform(from: Int = 0, to: Int = size): List<TradeExecutionEntry> {
-                val fromC = from.coerceAtLeast(0)
-                val toC = to.coerceAtMost(size)
-                if (toC <= fromC) return emptyList()
-                return subList(fromC, toC).map { it.toTradeExecutionListEntry() }
-            }
+                    val tz = TimeZone.currentSystemDefault()
+                    val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
 
-            tradingProfiles
-                .getRecord(profileId)
-                .executions
-                .allExecutions
-                .collect { executions ->
+                    @Suppress("UNCHECKED_CAST")
+                    pagingData
+                        .insertSeparators { before, after ->
 
-                    val firstNotTodayTradeIndex = run {
-                        val tz = TimeZone.currentSystemDefault()
-                        val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
-                        executions.indexOfFirst { it.timestamp < startOfToday }
-                    }
+                            when {
+                                // If before is the last execution
+                                after == null -> null
 
-                    value = ExecutionsList(
-                        todayExecutions = executions.transform(to = firstNotTodayTradeIndex),
-                        pastExecutions = executions.transform(from = firstNotTodayTradeIndex),
-                    )
+                                // If first execution is from today
+                                before == null && after.timestamp >= startOfToday -> TradeExecutionEntry.Section(
+                                    isToday = true,
+                                    count = executionsRepo.getTodayCount(),
+                                )
+
+                                // If either after is first execution or before is from today
+                                // And after is from before today
+                                (before == null || before.timestamp >= startOfToday)
+                                        && after.timestamp < startOfToday -> TradeExecutionEntry.Section(
+                                    isToday = false,
+                                    count = executionsRepo.getBeforeTodayCount(),
+                                )
+
+                                else -> null
+                            }
+                        }
+                        .map { executionOrEntry ->
+                            when (executionOrEntry) {
+                                is TradeExecution -> executionOrEntry.toTradeExecutionEntryItem()
+                                else -> executionOrEntry
+                            }
+                        } as PagingData<TradeExecutionEntry>
                 }
-        }.value
+                .emitInto(this)
+        }
     }
 
-    private fun TradeExecution.toTradeExecutionListEntry() = TradeExecutionEntry(
+    private fun TradeExecution.toTradeExecutionEntryItem() = TradeExecutionEntry.Item(
         id = id,
         broker = run {
             val instrumentCapitalized = instrument.strValue

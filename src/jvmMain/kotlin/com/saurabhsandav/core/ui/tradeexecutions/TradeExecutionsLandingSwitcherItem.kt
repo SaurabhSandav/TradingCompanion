@@ -19,7 +19,7 @@ internal class TradeExecutionsLandingSwitcherItem(
 
         TradeExecutionsScreen(
             onNewExecution = { state.eventSink(NewExecution) },
-            executionsList = state.executionsList,
+            executionEntries = state.executionEntries,
             selectionManager = state.selectionManager,
             canSelectionLock = state.canSelectionLock,
             onNewExecutionFromExisting = { state.eventSink(NewExecutionFromExisting(it)) },

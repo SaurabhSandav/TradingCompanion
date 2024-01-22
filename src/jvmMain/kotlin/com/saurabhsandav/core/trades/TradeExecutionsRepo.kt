@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.trades
 
+import app.cash.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import com.saurabhsandav.core.paging_sqldelight.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
@@ -17,9 +19,6 @@ internal class TradeExecutionsRepo(
     private val tradesDB: TradesDB,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
-
-    val allExecutions: Flow<List<TradeExecution>>
-        get() = tradesDB.tradeExecutionQueries.getAll().asFlow().mapToList(Dispatchers.IO)
 
     fun getById(id: TradeExecutionId): Flow<TradeExecution> {
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
@@ -180,6 +179,27 @@ internal class TradeExecutionsRepo(
     suspend fun lock(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
         tradesDB.tradeExecutionQueries.lock(ids)
     }
+
+    fun getTodayCount(): Flow<Long> {
+        return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getBeforeTodayCount(): Flow<Long> {
+        return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getAllPagingSource(): PagingSource<Int, TradeExecution> = QueryPagingSource(
+        countQuery = tradesDB.tradeExecutionQueries.getAllCount(),
+        transacter = tradesDB.tradeExecutionQueries,
+        context = Dispatchers.IO,
+        queryProvider = { limit, offset ->
+
+            tradesDB.tradeExecutionQueries.getAllPaged(
+                limit = limit,
+                offset = offset,
+            )
+        },
+    )
 
     fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
