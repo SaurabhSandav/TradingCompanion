@@ -11,6 +11,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -47,6 +48,8 @@ internal fun TradeExecutionFormWindow(
 
     val windowState = rememberAppWindowState(
         size = DpSize(width = 300.dp, height = 650.dp),
+        preferredPlacement = WindowPlacement.Floating,
+        forcePreferredPlacement = true,
     )
 
     AppWindow(

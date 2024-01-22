@@ -11,6 +11,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.AppColor
@@ -33,7 +34,11 @@ internal fun ReplayOrderFormWindow(
     }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberAppWindowState(size = DpSize(width = 300.dp, height = 450.dp))
+    val windowState = rememberAppWindowState(
+        size = DpSize(width = 300.dp, height = 450.dp),
+        preferredPlacement = WindowPlacement.Floating,
+        forcePreferredPlacement = true,
+    )
 
     AppWindow(
         onCloseRequest = onCloseRequest,

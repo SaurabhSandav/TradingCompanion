@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -32,7 +33,11 @@ fun TagFormWindow(
     val presenter = remember { appModule.tagFormModule(scope).presenter(profileId, formType, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberAppWindowState(size = DpSize(width = 250.dp, height = 300.dp))
+    val windowState = rememberAppWindowState(
+        size = DpSize(width = 250.dp, height = 300.dp),
+        preferredPlacement = WindowPlacement.Floating,
+        forcePreferredPlacement = true,
+    )
 
     AppWindow(
         onCloseRequest = onCloseRequest,

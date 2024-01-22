@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -29,7 +30,11 @@ internal fun PNLCalculatorWindow(
     state: PNLCalculatorWindowState,
 ) {
 
-    val windowState = rememberAppWindowState(size = DpSize(width = 1150.dp, height = 600.dp))
+    val windowState = rememberAppWindowState(
+        size = DpSize(width = 1150.dp, height = 600.dp),
+        preferredPlacement = WindowPlacement.Floating,
+        forcePreferredPlacement = true,
+    )
 
     AppWindow(
         onCloseRequest = state.params.onCloseRequest,

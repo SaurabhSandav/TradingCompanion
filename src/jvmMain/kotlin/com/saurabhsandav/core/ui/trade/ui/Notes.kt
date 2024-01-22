@@ -12,11 +12,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
+import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
 import kotlinx.collections.immutable.ImmutableList
@@ -124,8 +126,14 @@ private fun NoteEditorWindow(
     isMarkdown: Boolean = false,
 ) {
 
+    val windowState = rememberAppWindowState(
+        preferredPlacement = WindowPlacement.Floating,
+        forcePreferredPlacement = true,
+    )
+
     AppWindow(
         onCloseRequest = onCloseRequest,
+        state = windowState,
         title = if (noteId != null) "Edit note ($noteId)" else "Add note",
     ) {
 
