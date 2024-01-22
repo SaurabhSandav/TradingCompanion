@@ -58,6 +58,7 @@ fun TimeField(
         label = label,
         supportingText = supportingText,
         isError = isError || !isTimeValid,
+        singleLine = true,
         visualTransformation = {
 
             var out = ""

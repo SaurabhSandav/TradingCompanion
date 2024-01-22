@@ -42,6 +42,7 @@ fun DatePickerField(
         onValueChange = {},
         enabled = enabled,
         readOnly = true,
+        singleLine = true,
         label = label,
         supportingText = supportingText,
         isError = isError,
