@@ -18,6 +18,9 @@ internal class TradeExcursionsGenerator(
 
     suspend fun generateExcursions() = withContext(Dispatchers.IO) {
 
+        // Suspend until logged in
+        candleRepo.isLoggedIn().first { it }
+
         // Generate excursions
         tradingProfiles.allProfiles.first().forEach { profile ->
 
