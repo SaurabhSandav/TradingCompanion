@@ -42,7 +42,7 @@ internal fun TradeWindow(
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
-        defaultPlacement = WindowPlacement.Maximized,
+        preferredPlacement = WindowPlacement.Maximized,
     )
 
     AppWindow(

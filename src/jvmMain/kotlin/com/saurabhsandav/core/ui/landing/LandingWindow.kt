@@ -30,7 +30,7 @@ internal fun LandingWindow(
     }.collectAsState("")
 
     val windowState = rememberAppWindowState(
-        defaultPlacement = WindowPlacement.Maximized,
+        preferredPlacement = WindowPlacement.Maximized,
         defaultTitle = "Trading Companion",
         titleTransform = { title -> "$profileName$title" },
     )

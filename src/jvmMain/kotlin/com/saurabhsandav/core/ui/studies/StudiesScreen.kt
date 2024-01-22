@@ -80,7 +80,7 @@ private fun StudyWindow(
 
     AppWindow(
         onCloseRequest = onCloseRequest,
-        state = rememberAppWindowState(defaultPlacement = WindowPlacement.Maximized),
+        state = rememberAppWindowState(preferredPlacement = WindowPlacement.Maximized),
         title = studyFactory.name,
     ) {
 

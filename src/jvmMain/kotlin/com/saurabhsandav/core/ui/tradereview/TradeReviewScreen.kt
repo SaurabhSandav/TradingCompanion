@@ -46,8 +46,8 @@ internal fun TradeReviewWindow(
 
     AppWindow(
         state = rememberAppWindowState(
-            defaultPlacement = WindowPlacement.Floating,
-            forceDefaultPlacement = true,
+            preferredPlacement = WindowPlacement.Floating,
+            forcePreferredPlacement = true,
         ),
         onCloseRequest = onCloseRequest,
         title = "Trade Review",

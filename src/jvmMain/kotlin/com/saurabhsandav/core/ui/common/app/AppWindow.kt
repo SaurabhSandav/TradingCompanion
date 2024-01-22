@@ -87,8 +87,8 @@ fun AppWindow(
 
 @Composable
 fun rememberAppWindowState(
-    defaultPlacement: WindowPlacement? = null,
-    forceDefaultPlacement: Boolean = false,
+    preferredPlacement: WindowPlacement? = null,
+    forcePreferredPlacement: Boolean = false,
     size: DpSize = DpSize(800.dp, 600.dp),
     defaultTitle: String? = null,
     titleTransform: ((String) -> String)? = null,
@@ -101,8 +101,8 @@ fun rememberAppWindowState(
         AppWindowState(
             windowState = WindowState(
                 placement = when {
-                    forceDefaultPlacement -> defaultPlacement
-                    else -> windowConfig.windowPlacement ?: defaultPlacement
+                    forcePreferredPlacement -> preferredPlacement
+                    else -> windowConfig.windowPlacement ?: preferredPlacement
                 } ?: WindowPlacement.Floating,
                 size = size,
             ),

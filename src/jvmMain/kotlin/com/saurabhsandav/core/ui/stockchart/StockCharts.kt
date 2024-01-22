@@ -33,7 +33,7 @@ fun StockCharts(
             AppWindow(
                 title = windowTitle,
                 onCloseRequest = { if (!state.closeWindow(chartWindow)) onCloseRequest() },
-                state = rememberAppWindowState(defaultPlacement = WindowPlacement.Maximized),
+                state = rememberAppWindowState(preferredPlacement = WindowPlacement.Maximized),
                 onPreviewKeyEvent = { keyEvent ->
 
                     when {
