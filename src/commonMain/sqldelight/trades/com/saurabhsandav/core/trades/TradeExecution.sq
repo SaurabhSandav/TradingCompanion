@@ -32,7 +32,7 @@ WHERE id = ?;
 getAll:
 SELECT *
 FROM TradeExecution
-ORDER BY date(timestamp) DESC, time(timestamp) DESC;
+ORDER BY datetime(timestamp) DESC;
 
 getById:
 SELECT *
@@ -43,18 +43,6 @@ getByIds:
 SELECT *
 FROM TradeExecution
 WHERE id IN ?;
-
-getToday:
-SELECT *
-FROM TradeExecution
-WHERE date(timestamp) = date('now')
-ORDER BY datetime(timestamp) DESC;
-
-getBeforeToday:
-SELECT *
-FROM TradeExecution
-WHERE date(timestamp) != date('now')
-ORDER BY datetime(timestamp) DESC;
 
 getByTickerInInterval:
 SELECT *

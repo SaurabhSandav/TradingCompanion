@@ -20,13 +20,13 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
-    todayExecutions: ImmutableList<TradeExecutionEntry>,
-    pastExecutions: ImmutableList<TradeExecutionEntry>,
+    executionsList: ExecutionsList,
     isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
@@ -73,7 +73,7 @@ internal fun TradeExecutionsTable(
     ) {
 
         executionRows(
-            executions = todayExecutions,
+            executions = executionsList.todayExecutions,
             title = "Today",
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,
@@ -84,7 +84,7 @@ internal fun TradeExecutionsTable(
         )
 
         executionRows(
-            executions = pastExecutions,
+            executions = executionsList.pastExecutions,
             title = "Past",
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,

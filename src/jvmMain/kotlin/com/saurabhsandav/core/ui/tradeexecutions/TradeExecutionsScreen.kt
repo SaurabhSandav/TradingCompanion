@@ -10,7 +10,7 @@ import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsSelectionBar
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsTable
 import kotlinx.collections.immutable.ImmutableList
@@ -18,8 +18,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 internal fun TradeExecutionsScreen(
     onNewExecution: () -> Unit,
-    todayExecutions: ImmutableList<TradeExecutionEntry>,
-    pastExecutions: ImmutableList<TradeExecutionEntry>,
+    executionsList: ExecutionsList,
     selectionManager: SelectionManager<TradeExecutionId>,
     canSelectionLock: Boolean,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
@@ -48,8 +47,7 @@ internal fun TradeExecutionsScreen(
         ) {
 
             TradeExecutionsTable(
-                todayExecutions = todayExecutions,
-                pastExecutions = pastExecutions,
+                executionsList = executionsList,
                 isMarked = { id -> id in selectionManager.selection },
                 onClickExecution = { id ->
 

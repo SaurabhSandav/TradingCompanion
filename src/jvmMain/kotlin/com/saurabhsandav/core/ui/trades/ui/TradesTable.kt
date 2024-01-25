@@ -17,16 +17,12 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
-import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    openTrades: ImmutableList<TradeEntry>,
-    todayTrades: ImmutableList<TradeEntry>,
-    todayStats: Stats?,
-    pastTrades: ImmutableList<TradeEntry>,
+    tradesList: TradesList,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
 ) {
@@ -63,23 +59,22 @@ internal fun TradesTable(
     ) {
 
         tradeRows(
-            trades = openTrades,
+            trades = tradesList.openTrades,
             title = "Open",
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
-            keyPrefix = "open",
         )
 
         tradeRows(
-            trades = todayTrades,
+            trades = tradesList.todayTrades,
             title = "Today",
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
-            stats = todayStats,
+            stats = tradesList.todayStats,
         )
 
         tradeRows(
-            trades = pastTrades,
+            trades = tradesList.pastTrades,
             title = "Past",
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
@@ -93,7 +88,6 @@ private fun TableScope<TradeEntry>.tradeRows(
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
     stats: Stats? = null,
-    keyPrefix: String? = null,
 ) {
 
     if (trades.isNotEmpty()) {
@@ -124,7 +118,7 @@ private fun TableScope<TradeEntry>.tradeRows(
 
         rows(
             items = trades,
-            key = { entry -> if (keyPrefix != null) keyPrefix + entry.id else entry.id },
+            key = { entry -> entry.id },
             contentType = { ContentType.Entry },
         ) { entry ->
 

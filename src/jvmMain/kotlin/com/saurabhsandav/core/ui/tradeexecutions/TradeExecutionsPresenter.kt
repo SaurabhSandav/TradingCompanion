@@ -15,8 +15,8 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
-import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.collections.immutable.ImmutableList
@@ -24,10 +24,10 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
@@ -46,8 +46,7 @@ internal class TradeExecutionsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
-            todayExecutions = getTodayExecutions().value,
-            pastExecutions = getPastExecutions().value,
+            executionsList = getExecutionsList(),
             selectionManager = selectionManager,
             canSelectionLock = canSelectionLock,
             errors = remember(errors) { errors.toImmutableList() },
@@ -81,43 +80,40 @@ internal class TradeExecutionsPresenter(
     }
 
     @Composable
-    private fun getTodayExecutions(): State<ImmutableList<TradeExecutionEntry>> {
-        return remember {
+    private fun getExecutionsList(): ExecutionsList {
 
-            flow {
+        val initial = remember {
+            ExecutionsList(
+                todayExecutions = persistentListOf(),
+                pastExecutions = persistentListOf(),
+            )
+        }
 
-                tradingProfiles
-                    .getRecord(profileId)
-                    .executions
-                    .getToday()
-                    .map { executions ->
-                        executions
-                            .map { it.toTradeExecutionListEntry() }
-                            .toImmutableList()
-                    }
-                    .emitInto(this)
+        return produceState(initial) {
+
+            fun List<TradeExecution>.transform(from: Int = 0, to: Int = size): ImmutableList<TradeExecutionEntry> {
+                if (to <= from) return persistentListOf()
+                return subList(from, to).map { it.toTradeExecutionListEntry() }.toImmutableList()
             }
-        }.collectAsState(persistentListOf())
-    }
 
-    @Composable
-    private fun getPastExecutions(): State<ImmutableList<TradeExecutionEntry>> {
-        return remember {
+            tradingProfiles
+                .getRecord(profileId)
+                .executions
+                .allExecutions
+                .collect { executions ->
 
-            flow {
-
-                tradingProfiles
-                    .getRecord(profileId)
-                    .executions
-                    .getBeforeToday()
-                    .map { executions ->
-                        executions
-                            .map { it.toTradeExecutionListEntry() }
-                            .toImmutableList()
+                    val firstNotTodayTradeIndex = run {
+                        val tz = TimeZone.currentSystemDefault()
+                        val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
+                        executions.indexOfFirst { it.timestamp < startOfToday }
                     }
-                    .emitInto(this)
-            }
-        }.collectAsState(persistentListOf())
+
+                    value = ExecutionsList(
+                        todayExecutions = executions.transform(to = firstNotTodayTradeIndex),
+                        pastExecutions = executions.transform(from = firstNotTodayTradeIndex),
+                    )
+                }
+        }.value
     }
 
     private fun TradeExecution.toTradeExecutionListEntry() = TradeExecutionEntry(

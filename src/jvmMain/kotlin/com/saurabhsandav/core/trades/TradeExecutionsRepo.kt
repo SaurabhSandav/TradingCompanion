@@ -28,14 +28,6 @@ internal class TradeExecutionsRepo(
         return tradesDB.tradeExecutionQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getToday(): Flow<List<TradeExecution>> {
-        return tradesDB.tradeExecutionQueries.getToday().asFlow().mapToList(Dispatchers.IO)
-    }
-
-    fun getBeforeToday(): Flow<List<TradeExecution>> {
-        return tradesDB.tradeExecutionQueries.getBeforeToday().asFlow().mapToList(Dispatchers.IO)
-    }
-
     suspend fun new(
         broker: String,
         instrument: Instrument,

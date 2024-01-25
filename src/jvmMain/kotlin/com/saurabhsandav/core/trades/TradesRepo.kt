@@ -52,7 +52,10 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getFiltered(filter: TradeFilter): Flow<List<Trade>> {
+    fun getFiltered(
+        filter: TradeFilter,
+        sort: TradeSort = TradeSort.EntryDesc,
+    ): Flow<List<Trade>> {
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
@@ -83,6 +86,7 @@ internal class TradesRepo(
             },
             tickers = filter.tickers,
             tickersCount = filter.tickers.size.toLong(),
+            sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)

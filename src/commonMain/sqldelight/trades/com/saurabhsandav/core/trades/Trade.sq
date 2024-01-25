@@ -89,7 +89,9 @@ AND (:tagsCount IS NULL OR id IN
   )
 )
 AND (:tickersCount <= 0 OR ticker IN :tickers)
-ORDER BY datetime(entryTimestamp) DESC;
+ORDER BY
+IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
+datetime(entryTimestamp) DESC;
 
 getOpen:
 SELECT *
