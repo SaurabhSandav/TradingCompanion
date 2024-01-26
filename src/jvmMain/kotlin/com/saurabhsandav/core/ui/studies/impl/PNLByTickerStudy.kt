@@ -11,10 +11,7 @@ import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import java.math.BigDecimal
 
 internal class PNLByTickerStudy(
@@ -41,41 +38,47 @@ internal class PNLByTickerStudy(
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.map { trades ->
+        tradesRepo.allTrades.flatMapLatest { trades ->
 
             trades
                 .groupBy { it.ticker }
-                .map { entries ->
+                .map { (ticker, tradesByTicker) ->
 
-                    val tickerStats = entries.value.filter { it.isClosed }.map { trade ->
+                    val closedTrades = tradesByTicker.filter { it.isClosed }
+                    val closedTradesIds = closedTrades.map { it.id }
 
-                        val brokerage = trade.brokerageAtExit()!!
-                        val pnlBD = brokerage.pnl
-                        val netPnlBD = brokerage.netPNL
+                    tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
 
-                        val stop = tradesRepo.getPrimaryStop(trade.id).first()
-                        val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+                        val tickerStats = closedTrades.filter { it.isClosed }.map { trade ->
 
-                        Triple(pnlBD, netPnlBD, rValue)
+                            val brokerage = trade.brokerageAtExit()!!
+                            val pnlBD = brokerage.pnl
+                            val netPnlBD = brokerage.netPNL
+
+                            val stop = stops.find { it.tradeId == trade.id }
+                            val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+
+                            Triple(pnlBD, netPnlBD, rValue)
+                        }
+
+                        val pnl = tickerStats.sumOf { it.first }
+                        val netPnl = tickerStats.sumOf { it.second }
+                        val rValue = tickerStats.mapNotNull { it.third }.sumOf { it }
+
+                        Model(
+                            ticker = ticker,
+                            noOfTrades = tradesByTicker.size.toString(),
+                            pnl = pnl.toPlainString(),
+                            isProfitable = pnl > BigDecimal.ZERO,
+                            netPnl = netPnl.toPlainString(),
+                            isNetProfitable = netPnl > BigDecimal.ZERO,
+                            fees = (pnl - netPnl).toPlainString(),
+                            rValue = "${rValue}R",
+                        )
                     }
-
-                    val pnl = tickerStats.sumOf { it.first }
-                    val netPnl = tickerStats.sumOf { it.second }
-                    val rValue = tickerStats.mapNotNull { it.third }.sumOf { it }
-
-                    val noOfTrades = entries.value.size
-
-                    Model(
-                        ticker = entries.key,
-                        noOfTrades = noOfTrades.toString(),
-                        pnl = pnl.toPlainString(),
-                        isProfitable = pnl > BigDecimal.ZERO,
-                        netPnl = netPnl.toPlainString(),
-                        isNetProfitable = netPnl > BigDecimal.ZERO,
-                        fees = (pnl - netPnl).toPlainString(),
-                        rValue = "${rValue}R",
-                    )
-                }.sortedByDescending { it.noOfTrades.toInt() }
+                }.let { flows ->
+                    combine(flows) { models -> models.asList().sortedByDescending { it.noOfTrades.toInt() } }
+                }
         }.emitInto(this)
     }
 

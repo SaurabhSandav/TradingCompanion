@@ -16,10 +16,7 @@ import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -71,39 +68,48 @@ internal class PNLExcursionStudy(
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.map { trades ->
+        tradesRepo.allTrades.flatMapLatest { trades ->
 
-            trades.filter { it.isClosed }.map { trade ->
+            val closedTrades = trades.filter { it.isClosed }
+            val closedTradesIds = closedTrades.map { it.id }
 
-                val brokerage = trade.brokerageAtExit()!!
-                val pnlBD = brokerage.pnl
+            combine(
+                tradesRepo.getPrimaryStops(closedTradesIds),
+                tradesRepo.getPrimaryTargets(closedTradesIds),
+            ) { stops, targets ->
 
-                val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
-                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
+                closedTrades.map { trade ->
 
-                val stop = tradesRepo.getPrimaryStop(trade.id).first()
-                val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
+                    val brokerage = trade.brokerageAtExit()!!
+                    val pnlBD = brokerage.pnl
 
-                val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
-                val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+                    val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                    val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
+                    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
 
-                val excursions = tradesRepo.getExcursions(trade.id).first()
+                    val stop = stops.find { it.tradeId == trade.id }
+                    val target = targets.find { it.tradeId == trade.id }?.price
 
-                Model(
-                    ticker = trade.ticker,
-                    quantity = trade.quantity.toPlainString(),
-                    side = trade.side.strValue.uppercase(),
-                    entry = trade.averageEntry.toPlainString(),
-                    stop = stop?.price?.toPlainString() ?: "NA",
-                    duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
-                    target = target?.toPlainString() ?: "NA",
-                    exit = trade.averageExit!!.toPlainString(),
-                    pnl = "${pnlBD.toPlainString()}${rValueStr}",
-                    isProfitable = pnlBD > BigDecimal.ZERO,
-                    inTrade = trade.buildExcursionString(stop, excursions, true),
-                    inSession = trade.buildExcursionString(stop, excursions, false),
-                )
+                    val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
+                    val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+
+                    val excursions = tradesRepo.getExcursions(trade.id).first()
+
+                    Model(
+                        ticker = trade.ticker,
+                        quantity = trade.quantity.toPlainString(),
+                        side = trade.side.strValue.uppercase(),
+                        entry = trade.averageEntry.toPlainString(),
+                        stop = stop?.price?.toPlainString() ?: "NA",
+                        duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
+                        target = target?.toPlainString() ?: "NA",
+                        exit = trade.averageExit!!.toPlainString(),
+                        pnl = "${pnlBD.toPlainString()}${rValueStr}",
+                        isProfitable = pnlBD > BigDecimal.ZERO,
+                        inTrade = trade.buildExcursionString(stop, excursions, true),
+                        inSession = trade.buildExcursionString(stop, excursions, false),
+                    )
+                }
             }
         }.emitInto(this)
     }

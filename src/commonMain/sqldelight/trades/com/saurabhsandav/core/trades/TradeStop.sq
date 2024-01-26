@@ -24,12 +24,16 @@ SELECT TradeStop.*
 FROM TradeStop
 INNER JOIN Trade ON TradeStop.tradeId = Trade.id
 WHERE Trade.id = ?
-ORDER BY
-  CASE
-    WHEN Trade.side = 'long' THEN CAST(TradeStop.price AS REAL)
-    ELSE -1.0 * CAST(TradeStop.price AS REAL)
-  END
+ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL)
 LIMIT 1;
+
+getPrimaryStopsByTrades:
+SELECT TradeStop.*
+FROM TradeStop
+INNER JOIN Trade ON TradeStop.tradeId = Trade.id
+WHERE Trade.id IN ?
+GROUP BY TradeStop.tradeId
+HAVING MIN(IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL));
 
 delete:
 DELETE FROM TradeStop

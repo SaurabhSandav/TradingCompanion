@@ -29,34 +29,34 @@ internal class ChartMarkersProvider(
             tradeIdsByProfileIds
                 .map { (profileId, tradeIds) ->
 
-                    val tradingRecord = tradingProfiles.getRecord(profileId)
+                    val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-                    tradingRecord.trades
+                    tradesRepo
                         .getByTickerAndIdsInInterval(ticker, tradeIds, instantRange)
-                        .map { trades ->
+                        .flatMapLatest { trades ->
 
-                            trades.filter { it.isClosed }.mapNotNull { trade ->
+                            val closedTrades = trades.filter { it.isClosed }
+                            val closedTradesIds = closedTrades.map { it.id }
 
-                                val stop = tradingRecord
-                                    .trades
-                                    .getPrimaryStop(trade.id)
-                                    .first()
-                                    ?: return@mapNotNull null
+                            combine(
+                                tradesRepo.getPrimaryStops(closedTradesIds),
+                                tradesRepo.getPrimaryTargets(closedTradesIds),
+                            ) { stops, targets ->
 
-                                val target = tradingRecord
-                                    .trades
-                                    .getPrimaryTarget(trade.id)
-                                    .first()
-                                    ?: return@mapNotNull null
+                                closedTrades.mapNotNull { trade ->
 
-                                TradeMarker(
-                                    entryPrice = trade.averageEntry,
-                                    exitPrice = trade.averageExit!!,
-                                    entryInstant = trade.entryTimestamp,
-                                    exitInstant = trade.exitTimestamp!!,
-                                    stopPrice = stop.price,
-                                    targetPrice = target.price,
-                                )
+                                    val stop = stops.find { it.tradeId == trade.id } ?: return@mapNotNull null
+                                    val target = targets.find { it.tradeId == trade.id } ?: return@mapNotNull null
+
+                                    TradeMarker(
+                                        entryPrice = trade.averageEntry,
+                                        exitPrice = trade.averageExit!!,
+                                        entryInstant = trade.entryTimestamp,
+                                        exitInstant = trade.exitTimestamp!!,
+                                        stopPrice = stop.price,
+                                        targetPrice = target.price,
+                                    )
+                                }
                             }
                         }
                 }

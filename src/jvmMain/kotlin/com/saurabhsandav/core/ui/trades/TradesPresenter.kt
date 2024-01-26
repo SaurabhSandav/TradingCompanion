@@ -137,18 +137,14 @@ internal class TradesPresenter(
 
     private fun List<Trade>.generateStats(tradesRepo: TradesRepo): Flow<Stats?> {
 
-        val flows = filter { it.isClosed }.map { trade ->
-            tradesRepo.getPrimaryStop(trade.id).map { stop -> trade to stop }
-        }
+        val closedTrades = filter { it.isClosed }.ifEmpty { return flowOf(null) }
+        val closedTradesIds = closedTrades.map { it.id }
 
-        if (flows.isEmpty()) return flowOf(null)
+        return tradesRepo.getPrimaryStops(closedTradesIds).map { tradeStops ->
 
-        return combine(flows) { tradeAndStopList ->
+            val stats = closedTrades.map { trade ->
 
-            val stats = tradeAndStopList.filter { it.first.isClosed }.map { tradeAndStop ->
-
-                val trade = tradeAndStop.first
-                val stop = tradeAndStop.second
+                val stop = tradeStops.find { it.tradeId == trade.id }
 
                 val brokerage = trade.brokerageAtExit()!!
                 val rValue = stop?.let { trade.rValueAt(pnl = brokerage.pnl, stop = it) }

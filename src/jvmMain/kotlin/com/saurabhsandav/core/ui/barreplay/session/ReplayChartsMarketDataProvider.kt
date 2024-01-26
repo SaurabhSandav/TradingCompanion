@@ -134,25 +134,34 @@ internal class ReplayChartsMarketDataProvider(
 
         return replayProfile.flatMapLatest { profile ->
 
-            val tradingRecord = tradingProfiles.getRecord(profile.id)
+            val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
-            tradingRecord.trades
+            tradesRepo
                 .getByTickerInInterval(ticker, instantRange)
-                .map { trades ->
+                .flatMapLatest { trades ->
 
-                    trades.filter { it.isClosed }.mapNotNull { trade ->
+                    val closedTrades = trades.filter { it.isClosed }
+                    val closedTradesIds = closedTrades.map { it.id }
 
-                        val stop = tradingRecord.trades.getPrimaryStop(trade.id).first() ?: return@mapNotNull null
-                        val target = tradingRecord.trades.getPrimaryTarget(trade.id).first() ?: return@mapNotNull null
+                    combine(
+                        tradesRepo.getPrimaryStops(closedTradesIds),
+                        tradesRepo.getPrimaryTargets(closedTradesIds),
+                    ) { stops, targets ->
 
-                        TradeMarker(
-                            entryPrice = trade.averageEntry,
-                            exitPrice = trade.averageExit!!,
-                            entryInstant = trade.entryTimestamp,
-                            exitInstant = trade.exitTimestamp!!,
-                            stopPrice = stop.price,
-                            targetPrice = target.price,
-                        )
+                        closedTrades.mapNotNull { trade ->
+
+                            val stop = stops.find { it.tradeId == trade.id } ?: return@mapNotNull null
+                            val target = targets.find { it.tradeId == trade.id } ?: return@mapNotNull null
+
+                            TradeMarker(
+                                entryPrice = trade.averageEntry,
+                                exitPrice = trade.averageExit!!,
+                                entryInstant = trade.entryTimestamp,
+                                exitInstant = trade.exitTimestamp!!,
+                                stopPrice = stop.price,
+                                targetPrice = target.price,
+                            )
+                        }
                     }
                 }
         }.flowOn(Dispatchers.IO)

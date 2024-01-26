@@ -11,10 +11,7 @@ import com.saurabhsandav.core.ui.common.table.addColumn
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
@@ -46,43 +43,47 @@ internal class PNLByDayStudy(
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.map { trades ->
+        tradesRepo.allTrades.flatMapLatest { trades ->
 
             trades
                 .groupBy { it.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date }
-                .map { entries ->
+                .map { (date, tradesByDay) ->
 
-                    val dailyStats = entries.value.filter { it.isClosed }.map { trade ->
+                    val closedTrades = tradesByDay.filter { it.isClosed }
+                    val closedTradesIds = closedTrades.map { it.id }
 
-                        val brokerage = trade.brokerageAtExit()!!
-                        val pnlBD = brokerage.pnl
-                        val netPnlBD = brokerage.netPNL
+                    tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
 
-                        val stop = tradesRepo.getPrimaryStop(trade.id).first()
-                        val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+                        val dailyStats = closedTrades.map { trade ->
 
-                        Triple(pnlBD, netPnlBD, rValue)
+                            val brokerage = trade.brokerageAtExit()!!
+                            val pnlBD = brokerage.pnl
+                            val netPnlBD = brokerage.netPNL
+
+                            val stop = stops.find { it.tradeId == trade.id }
+                            val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+
+                            Triple(pnlBD, netPnlBD, rValue)
+                        }
+
+                        val pnl = dailyStats.sumOf { it.first }
+                        val netPnl = dailyStats.sumOf { it.second }
+                        val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
+
+                        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(date.toJavaLocalDate())
+
+                        Model(
+                            day = day,
+                            noOfTrades = tradesByDay.size.toString(),
+                            pnl = pnl.toPlainString(),
+                            isProfitable = pnl > BigDecimal.ZERO,
+                            netPnl = netPnl.toPlainString(),
+                            isNetProfitable = netPnl > BigDecimal.ZERO,
+                            fees = (pnl - netPnl).toPlainString(),
+                            rValue = "${rValue}R",
+                        )
                     }
-
-                    val pnl = dailyStats.sumOf { it.first }
-                    val netPnl = dailyStats.sumOf { it.second }
-                    val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
-
-                    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entries.key.toJavaLocalDate())
-
-                    val noOfTrades = entries.value.size
-
-                    Model(
-                        day = day,
-                        noOfTrades = noOfTrades.toString(),
-                        pnl = pnl.toPlainString(),
-                        isProfitable = pnl > BigDecimal.ZERO,
-                        netPnl = netPnl.toPlainString(),
-                        isNetProfitable = netPnl > BigDecimal.ZERO,
-                        fees = (pnl - netPnl).toPlainString(),
-                        rValue = "${rValue}R",
-                    )
-                }
+                }.let { flows -> combine(flows) { it.asList() } }
         }.emitInto(this)
     }
 

@@ -37,12 +37,16 @@ internal class TradeExcursionsGenerator(
                 Logger.d(DebugTag) { "No Trades found for profile - ${profile.name}" }
             } else {
 
+                val tradeIds = trades.map { it.id }
+                val stops = tradesRepo.getPrimaryStops(tradeIds).first()
+                val targets = tradesRepo.getPrimaryTargets(tradeIds).first()
+
                 trades.forEach { trade ->
 
                     val excursions = getExcursions(
                         trade = trade,
-                        stop = tradesRepo.getPrimaryStop(trade.id).first(),
-                        target = tradesRepo.getPrimaryTarget(trade.id).first(),
+                        stop = stops.find { it.tradeId == trade.id },
+                        target = targets.find { it.tradeId == trade.id },
                     )
 
                     if (excursions != null) {

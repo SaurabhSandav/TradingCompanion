@@ -24,12 +24,16 @@ SELECT TradeTarget.*
 FROM TradeTarget
 INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
 WHERE Trade.id = ?
-ORDER BY
-  CASE
-    WHEN Trade.side = 'long' THEN -1.0 * CAST(TradeTarget.price AS REAL)
-    ELSE CAST(TradeTarget.price AS REAL)
-  END
+ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeTarget.price AS REAL)
 LIMIT 1;
+
+getPrimaryTargetsByTrades:
+SELECT TradeTarget.*
+FROM TradeTarget
+INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
+WHERE Trade.id IN ?
+GROUP BY TradeTarget.tradeId
+HAVING MAX(IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeTarget.price AS REAL));
 
 delete:
 DELETE FROM TradeTarget

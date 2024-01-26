@@ -13,9 +13,9 @@ import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -52,39 +52,48 @@ internal class PNLStudy(
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.map { trades ->
+        tradesRepo.allTrades.flatMapLatest { trades ->
 
-            trades.filter { it.isClosed }.map { trade ->
+            val closedTrades = trades.filter { it.isClosed }
+            val closedTradesIds = closedTrades.map { it.id }
 
-                val brokerage = trade.brokerageAtExit()!!
-                val pnlBD = brokerage.pnl
-                val netPnlBD = brokerage.netPNL
+            combine(
+                tradesRepo.getPrimaryStops(closedTradesIds),
+                tradesRepo.getPrimaryTargets(closedTradesIds),
+            ) { stops, targets ->
 
-                val stop = tradesRepo.getPrimaryStop(trade.id).first()
-                val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+                closedTrades.map { trade ->
 
-                val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
-                val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
+                    val stop = stops.find { it.tradeId == trade.id }
+                    val target = targets.find { it.tradeId == trade.id }
 
-                val target = tradesRepo.getPrimaryTarget(trade.id).first()?.price
+                    val brokerage = trade.brokerageAtExit()!!
+                    val pnlBD = brokerage.pnl
+                    val netPnlBD = brokerage.netPNL
 
-                Model(
-                    ticker = trade.ticker,
-                    quantity = trade.quantity.toPlainString(),
-                    side = trade.side.strValue.uppercase(),
-                    entry = trade.averageEntry.toPlainString(),
-                    stop = stop?.price?.toPlainString() ?: "NA",
-                    duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
-                    target = target?.toPlainString() ?: "NA",
-                    exit = trade.averageExit!!.toPlainString(),
-                    pnl = pnlBD.toPlainString(),
-                    isProfitable = pnlBD > BigDecimal.ZERO,
-                    netPnl = netPnlBD.toPlainString(),
-                    isNetProfitable = netPnlBD > BigDecimal.ZERO,
-                    fees = (pnlBD - netPnlBD).toPlainString(),
-                    rValue = rValue?.let { "${it}R" }.orEmpty(),
-                )
+                    val rValue = stop?.let { trade.rValueAt(pnl = pnlBD, stop = it) }
+
+                    val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                    val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
+                    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
+
+                    Model(
+                        ticker = trade.ticker,
+                        quantity = trade.quantity.toPlainString(),
+                        side = trade.side.strValue.uppercase(),
+                        entry = trade.averageEntry.toPlainString(),
+                        stop = stop?.price?.toPlainString() ?: "NA",
+                        duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
+                        target = target?.price?.toPlainString() ?: "NA",
+                        exit = trade.averageExit!!.toPlainString(),
+                        pnl = pnlBD.toPlainString(),
+                        isProfitable = pnlBD > BigDecimal.ZERO,
+                        netPnl = netPnlBD.toPlainString(),
+                        isNetProfitable = netPnlBD > BigDecimal.ZERO,
+                        fees = (pnlBD - netPnlBD).toPlainString(),
+                        rValue = rValue?.let { "${it}R" }.orEmpty(),
+                    )
+                }
             }
         }.emitInto(this)
     }
