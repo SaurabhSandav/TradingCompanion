@@ -239,7 +239,7 @@ class f extends T {
       new c(this, { time: i.entryTime, price: i.entryPrice }, this._options.entryLabelOptions),
       new c(this, { time: i.entryTime, price: i.stopPrice }, this._options.stopLabelOptions),
       new c(this, { time: i.entryTime, price: i.targetPrice }, this._options.targetLabelOptions)
-    ]);
+    ]), this.requestUpdate();
   }
   get trades() {
     return this._trades;
