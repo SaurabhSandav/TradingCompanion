@@ -199,6 +199,7 @@ internal fun AttachmentEditorDialog(
 
     FilePicker(
         show = showFilePicker,
+        title = "Select Attachment",
     ) { fileDetails ->
 
         when (fileDetails) {

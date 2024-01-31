@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.RichText
+import com.halilibo.richtext.ui.material3.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager

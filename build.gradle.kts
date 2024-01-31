@@ -135,12 +135,12 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:21.0.1:linux")
-            implementation("org.openjfx:javafx-controls:21.0.1:linux")
-            implementation("org.openjfx:javafx-graphics:21.0.1:linux")
-            implementation("org.openjfx:javafx-media:21.0.1:linux")
-            implementation("org.openjfx:javafx-swing:21.0.1:linux")
-            implementation("org.openjfx:javafx-web:21.0.1:linux")
+            implementation("org.openjfx:javafx-base:21.0.2:linux")
+            implementation("org.openjfx:javafx-controls:21.0.2:linux")
+            implementation("org.openjfx:javafx-graphics:21.0.2:linux")
+            implementation("org.openjfx:javafx-media:21.0.2:linux")
+            implementation("org.openjfx:javafx-swing:21.0.2:linux")
+            implementation("org.openjfx:javafx-web:21.0.2:linux")
 
             // Krypto
             implementation("com.soywiz.korlibs.krypto:krypto:4.0.10")
@@ -156,14 +156,14 @@ kotlin {
             implementation(libs.kermit)
 
             // Compose Multiplatform File Picker
-            implementation("com.darkrockstudios:mpfilepicker:3.0.0")
+            implementation("com.darkrockstudios:mpfilepicker:3.1.0")
 
             // JCEF MAVEN
             implementation(libs.jcefMaven)
 
             // compose-richtext
-            implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.17.0")
-            implementation("com.halilibo.compose-richtext:richtext-commonmark:0.17.0")
+            implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.20.0")
+            implementation("com.halilibo.compose-richtext:richtext-commonmark:0.20.0")
         }
 
         jvmTest.dependencies {
