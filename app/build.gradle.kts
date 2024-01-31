@@ -154,6 +154,9 @@ kotlin {
 
             // ZoomImage
             implementation(libs.zoomimage.composeCoil3)
+
+            // Roboquant
+            implementation("org.roboquant:roboquant:2.1.0")
         }
 
         jvmTest.dependencies {
