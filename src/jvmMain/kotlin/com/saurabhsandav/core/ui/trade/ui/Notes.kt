@@ -16,6 +16,7 @@ import androidx.compose.ui.window.WindowPlacement
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.material3.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
@@ -87,7 +88,8 @@ internal fun Notes(
 
                     if (showDeleteConfirmationDialog) {
 
-                        DeleteNoteConfirmationDialog(
+                        DeleteConfirmationDialog(
+                            subject = "note",
                             onDismiss = { showDeleteConfirmationDialog = false },
                             onConfirm = { onDeleteNote(note.id) },
                         )
@@ -226,28 +228,4 @@ private fun NoteEditorWindow(
             )
         }
     }
-}
-
-@Composable
-private fun DeleteNoteConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to delete the note?")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

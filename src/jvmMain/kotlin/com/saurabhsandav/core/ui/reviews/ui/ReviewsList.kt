@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.ReviewId
+import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
 import kotlinx.collections.immutable.ImmutableList
@@ -125,34 +129,11 @@ private fun ReviewItem(
     if (showDeleteConfirmationDialog) {
 
         DeleteConfirmationDialog(
+            subject = "review",
             onDismiss = { showDeleteConfirmationDialog = false },
             onConfirm = onDelete,
         )
     }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to delete the review?")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }
 
 private enum class ContentType {

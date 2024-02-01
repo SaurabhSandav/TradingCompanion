@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
@@ -238,7 +239,8 @@ private fun WebViewBackendPreference(
 
     if (newBackend != null) {
 
-        WebViewChangeConfirmationDialog(
+        ConfirmationDialog(
+            text = "Are you sure you want to change the WebView Backend? (App will restart)",
             onDismiss = { newBackend = null },
             onConfirm = {
                 onWebViewBackendChange(newBackend!!)
@@ -246,28 +248,4 @@ private fun WebViewBackendPreference(
             },
         )
     }
-}
-
-@Composable
-private fun WebViewChangeConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to change WebView Backend? (App will restart)")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

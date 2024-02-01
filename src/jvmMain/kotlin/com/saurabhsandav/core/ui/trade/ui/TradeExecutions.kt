@@ -20,9 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.Tooltip
-import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
@@ -158,7 +156,7 @@ private fun TradeExecutionItem(
         if (showLockConfirmationDialog) {
 
             ConfirmationDialog(
-                confirmationRequestText = "Are you sure you want to lock the execution?",
+                text = "Are you sure you want to lock the execution?",
                 onDismiss = { showLockConfirmationDialog = false },
                 onConfirm = {
                     showLockConfirmationDialog = false
@@ -169,36 +167,11 @@ private fun TradeExecutionItem(
 
         if (showDeleteConfirmationDialog) {
 
-            ConfirmationDialog(
-                confirmationRequestText = "Are you sure you want to delete the execution?",
+            DeleteConfirmationDialog(
+                subject = "execution",
                 onDismiss = { showDeleteConfirmationDialog = false },
                 onConfirm = onDeleteExecution,
             )
         }
     }
-}
-
-@Composable
-private fun ConfirmationDialog(
-    confirmationRequestText: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text(confirmationRequestText)
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

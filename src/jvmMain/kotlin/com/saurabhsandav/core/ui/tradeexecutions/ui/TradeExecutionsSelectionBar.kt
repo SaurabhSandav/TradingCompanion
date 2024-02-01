@@ -16,9 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.SelectionManager
-import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.*
 
 @Composable
 internal fun TradeExecutionsSelectionBar(
@@ -77,7 +75,7 @@ internal fun TradeExecutionsSelectionBar(
                 if (showLockConfirmationDialog) {
 
                     ConfirmationDialog(
-                        confirmationRequestText = "Are you sure you want to lock the executions?",
+                        text = "Are you sure you want to lock the executions?",
                         onDismiss = { showLockConfirmationDialog = false },
                         onConfirm = {
                             showLockConfirmationDialog = false
@@ -89,8 +87,8 @@ internal fun TradeExecutionsSelectionBar(
 
                 if (showDeleteConfirmationDialog) {
 
-                    ConfirmationDialog(
-                        confirmationRequestText = "Are you sure you want to delete the executions?",
+                    DeleteConfirmationDialog(
+                        subject = "executions",
                         onDismiss = { showDeleteConfirmationDialog = false },
                         onConfirm = {
                             onDeleteExecutions(selectionManager.selection.toList())
@@ -101,33 +99,6 @@ internal fun TradeExecutionsSelectionBar(
             }
         }
     }
-}
-
-@Composable
-private fun ConfirmationDialog(
-    confirmationRequestText: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        modifier = Modifier.width(300.dp),
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text(confirmationRequestText)
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-        shape = MaterialTheme.shapes.medium,
-    )
 }
 
 @Composable

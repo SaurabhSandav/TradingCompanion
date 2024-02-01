@@ -1,12 +1,10 @@
 package com.saurabhsandav.core.ui.landing
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
@@ -61,34 +59,11 @@ internal fun LandingWindow(
 
         if (showExitConfirmationDialog) {
 
-            ExitConfirmationDialog(
+            ConfirmationDialog(
+                text = "Are you sure you want to exit?",
                 onDismiss = { showExitConfirmationDialog = false },
                 onConfirm = onCloseRequest,
             )
         }
     }
-}
-
-@Composable
-private fun ExitConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = {
-            Text("Are you sure you want to exit?")
-        },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

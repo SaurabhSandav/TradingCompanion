@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
@@ -145,35 +146,12 @@ internal fun AttachmentItem(
 
     if (showRemoveConfirmationDialog) {
 
-        RemoveConfirmationDialog(
+        ConfirmationDialog(
+            text = "Are you sure you want to remove the attachment?",
             onDismiss = { showRemoveConfirmationDialog = false },
             onConfirm = onRemove,
         )
     }
-}
-
-@Composable
-private fun RemoveConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to remove the attachment?")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }
 
 @Composable

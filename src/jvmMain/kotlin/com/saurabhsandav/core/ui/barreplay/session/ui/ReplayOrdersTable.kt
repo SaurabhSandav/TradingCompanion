@@ -3,8 +3,6 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayOrderListItem
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
 import kotlinx.collections.immutable.ImmutableList
@@ -67,7 +66,8 @@ internal fun ReplayOrdersTable(
 
                 if (showCancelConfirmationDialog) {
 
-                    CancelConfirmationDialog(
+                    ConfirmationDialog(
+                        text = "Are you sure you want to cancel the order?",
                         onDismiss = { showCancelConfirmationDialog = false },
                         onConfirm = { onCancelOrder(item.id) },
                     )
@@ -75,28 +75,4 @@ internal fun ReplayOrdersTable(
             }
         }
     }
-}
-
-@Composable
-private fun CancelConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to cancel the order?")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

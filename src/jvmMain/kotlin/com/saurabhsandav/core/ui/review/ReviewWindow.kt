@@ -4,11 +4,15 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.*
@@ -64,7 +68,8 @@ internal fun ReviewWindow(
 
         if (showCloseConfirmationDialog) {
 
-            CloseConfirmationDialog(
+            ConfirmationDialog(
+                text = "Do you want to discard unsaved changes and close?",
                 onDismiss = { showCloseConfirmationDialog = false },
                 onConfirm = onCloseRequest,
             )
@@ -152,28 +157,4 @@ private fun ReviewScreen(
             }
         }
     }
-}
-
-@Composable
-private fun CloseConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = {
-            Text("Do you want to discard unsaved changes and close?")
-        },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }

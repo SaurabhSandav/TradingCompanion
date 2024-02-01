@@ -18,6 +18,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
@@ -238,36 +239,11 @@ private fun DeleteIconButton(
     if (showDeleteConfirmationDialog) {
 
         DeleteConfirmationDialog(
-            deleteTypeText = deleteTypeText,
+            subject = deleteTypeText,
             onDismiss = { showDeleteConfirmationDialog = false },
             onConfirm = onDelete,
         )
     }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    deleteTypeText: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        text = {
-            Text("Are you sure you want to delete the $deleteTypeText?")
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("No")
-            }
-        },
-    )
 }
 
 @Composable
