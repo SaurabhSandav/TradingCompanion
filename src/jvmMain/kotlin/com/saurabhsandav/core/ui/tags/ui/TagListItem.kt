@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.tags.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -9,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
@@ -24,6 +26,7 @@ internal fun TagListItem(
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
+        modifier = Modifier.clickable(onClick = onEditTag),
         headlineContent = { Text(tag.name) },
         supportingContent = { Text(tag.description) },
         trailingContent = {
