@@ -2,12 +2,14 @@ package com.saurabhsandav.core
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
+import com.saurabhsandav.core.trading.AutoTraderScriptIdColumnAdapter
 import com.saurabhsandav.core.trading.ProfileIdColumnAdapter
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolIdColumnAdapter
+import com.saurabhsandav.trading.record.utils.InstantReadableColumnAdapter
 
 fun AppDB(driver: SqlDriver) = AppDB(
     driver = driver,
@@ -26,5 +28,10 @@ fun AppDB(driver: SqlDriver) = AppDB(
     SymbolDownloadTimestampAdapter = SymbolDownloadTimestamp.Adapter(
         brokerIdAdapter = BrokerIdColumnAdapter,
         timestampAdapter = InstantColumnAdapter,
+    ),
+    AutoTraderScriptAdapter = AutoTraderScript.Adapter(
+        idAdapter = AutoTraderScriptIdColumnAdapter,
+        createdAdapter = InstantReadableColumnAdapter,
+        lastUpdatedAdapter = InstantReadableColumnAdapter,
     ),
 )

@@ -23,6 +23,7 @@ internal fun LandingWindow(
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
+    onOpenAutoTrader: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
 
@@ -66,6 +67,7 @@ internal fun LandingWindow(
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,
             onOpenBarReplay = onOpenBarReplay,
+            onOpenAutoTrader = onOpenAutoTrader,
             onOpenSettings = onOpenSettings,
         )
 

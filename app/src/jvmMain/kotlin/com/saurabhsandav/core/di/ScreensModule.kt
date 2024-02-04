@@ -3,6 +3,7 @@ package com.saurabhsandav.core.di
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.account.AccountModule
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormModule
+import com.saurabhsandav.core.ui.autotrader.AutoTraderModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.landing.LandingModule
@@ -36,6 +37,10 @@ internal class ScreensModule(
 
     val barReplayModule: (CoroutineScope) -> BarReplayModule = { coroutineScope ->
         BarReplayModule(appModule, coroutineScope)
+    }
+
+    val autoTraderModule = { coroutineScope: CoroutineScope ->
+        AutoTraderModule(this, coroutineScope)
     }
 
     val chartsModule: (CoroutineScope) -> ChartsModule = { coroutineScope ->

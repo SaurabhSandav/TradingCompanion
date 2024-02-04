@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CandlestickChart
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,6 +36,7 @@ internal fun LandingNavigationRail(
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
+    onOpenAutoTrader: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
 
@@ -118,6 +120,15 @@ internal fun LandingNavigationRail(
                 icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
                 selected = false,
                 onClick = onOpenBarReplay,
+            )
+        }
+
+        SimpleTooltipBox("Auto Trader") {
+
+            NavigationRailItem(
+                icon = { Icon(Icons.Filled.SmartToy, contentDescription = "Auto Trader") },
+                selected = false,
+                onClick = onOpenAutoTrader,
             )
         }
 

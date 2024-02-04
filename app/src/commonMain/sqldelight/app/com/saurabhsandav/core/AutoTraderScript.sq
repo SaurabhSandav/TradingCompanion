@@ -1,0 +1,40 @@
+import com.saurabhsandav.core.trading.AutoTraderScriptId;
+import kotlin.time.Instant;
+
+CREATE TABLE IF NOT EXISTS AutoTraderScript (
+id INTEGER AS AutoTraderScriptId NOT NULL PRIMARY KEY,
+title TEXT NOT NULL,
+description TEXT NOT NULL,
+script TEXT NOT NULL,
+created TEXT AS Instant NOT NULL,
+lastUpdated TEXT AS Instant NOT NULL,
+UNIQUE (title COLLATE NOCASE)
+);
+
+insert:
+INSERT INTO AutoTraderScript(title, description, script, created, lastUpdated)
+VALUES (?, ?, ?, ?, ?);
+
+delete:
+DELETE FROM AutoTraderScript
+WHERE id = ?;
+
+update:
+UPDATE AutoTraderScript
+SET title = ?, description = ?, script = ?, lastUpdated = ?
+WHERE id = ?;
+
+getById:
+SELECT * FROM AutoTraderScript
+WHERE id = ?;
+
+getAll:
+SELECT * FROM AutoTraderScript;
+
+isTitleUnique:
+SELECT NOT EXISTS(
+  SELECT id
+  FROM AutoTraderScript
+  WHERE title = :title COLLATE NOCASE
+  AND (:ignoreId IS NULL OR id != :ignoreId)
+);

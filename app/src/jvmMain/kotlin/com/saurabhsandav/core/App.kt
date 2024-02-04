@@ -15,6 +15,7 @@ import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.di.ScreensModule
 import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.ui.autotrader.AutoTraderWindow
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -118,6 +119,7 @@ internal fun App(
         val profilesWindowManager = remember { AppWindowManager() }
         val pnlCalculatorWindowManager = remember { AppWindowManager() }
         val barReplayWindowManager = remember { AppWindowManager() }
+        val autoTraderWindowManager = remember { AppWindowManager() }
         val settingsWindowManager = remember { AppWindowManager() }
 
         landingWindowsManager.Windows { window ->
@@ -135,6 +137,7 @@ internal fun App(
                 onOpenProfiles = profilesWindowManager::openWindow,
                 onOpenPnlCalculator = pnlCalculatorWindowManager::openWindow,
                 onOpenBarReplay = barReplayWindowManager::openWindow,
+                onOpenAutoTrader = autoTraderWindowManager::openWindow,
                 onOpenSettings = settingsWindowManager::openWindow,
             )
         }
@@ -175,6 +178,14 @@ internal fun App(
             BarReplayWindow(
                 onCloseRequest = barReplayWindowManager::closeWindow,
                 onOpenProfile = landingWindowsManager::newWindow,
+            )
+        }
+
+        // Auto Trader
+        autoTraderWindowManager.Window {
+
+            AutoTraderWindow(
+                onCloseRequest = autoTraderWindowManager::closeWindow,
             )
         }
 

@@ -154,6 +154,14 @@ kotlin {
 
             // ZoomImage
             implementation(libs.zoomimage.composeCoil3)
+
+            // Scripting
+            implementation("org.jetbrains.kotlin:kotlin-scripting-common:${libs.versions.kotlin.get()}")
+            implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:${libs.versions.kotlin.get()}")
+            implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host:${libs.versions.kotlin.get()}")
+
+            // ktfmt
+            implementation("com.facebook:ktfmt:0.47")
         }
 
         jvmTest.dependencies {

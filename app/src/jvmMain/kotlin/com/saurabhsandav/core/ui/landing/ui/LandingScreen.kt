@@ -26,6 +26,7 @@ internal fun LandingScreen(
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
+    onOpenAutoTrader: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
 
@@ -48,6 +49,7 @@ internal fun LandingScreen(
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,
             onOpenBarReplay = onOpenBarReplay,
+            onOpenAutoTrader = onOpenAutoTrader,
             onOpenSettings = onOpenSettings,
         )
     }
@@ -63,6 +65,7 @@ private fun LandingScreen(
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
+    onOpenAutoTrader: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
 
@@ -77,6 +80,7 @@ private fun LandingScreen(
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,
             onOpenBarReplay = onOpenBarReplay,
+            onOpenAutoTrader = onOpenAutoTrader,
             onOpenSettings = onOpenSettings,
         )
 
