@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -8,6 +9,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
+    id("de.undercouch.download") version "5.5.0"
 }
 
 group = "com.saurabhsandav.apps"
@@ -229,4 +231,14 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+val downloadLWC by tasks.registering(Download::class) {
+    src("https://unpkg.com/lightweight-charts@4.1.2/dist/lightweight-charts.standalone.production.js")
+    dest("src/jvmMain/resources/charts_page")
+    overwrite(false)
+}
+
+tasks.withType<ProcessResources> {
+    dependsOn(downloadLWC)
 }
