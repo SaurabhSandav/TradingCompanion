@@ -2,9 +2,12 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.indexOr
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
 
 internal class SimpleReplaySeriesBuilder(
     private val inputSeries: CandleSeries,
@@ -17,6 +20,7 @@ internal class SimpleReplaySeriesBuilder(
     )
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
     private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
+    private var currentIndex = initialIndex - 1
 
     override val replaySeries: ReplaySeries = ReplaySeries(
         replaySeries = _replaySeries,
@@ -24,37 +28,72 @@ internal class SimpleReplaySeriesBuilder(
         candleState = _candleState.asStateFlow(),
     )
 
-    override fun addCandle(offset: Int) {
-
-        // Get candle as-is
-        val inputCandle = inputSeries[initialIndex + offset]
-
-        // Add candle to replay series
-        _replaySeries.addLiveCandle(inputCandle)
-
-        // Update time
-        _replayTime.update { inputCandle.openInstant }
+    override fun getNextCandleInstant(): Instant? {
+        return inputSeries.getOrNull(currentIndex + 1)?.openInstant
     }
 
-    override fun addCandle(offset: Int, candleState: BarReplay.CandleState) {
+    override fun advanceTo(instant: Instant) {
 
-        // Get full closed candle
-        val fullCandle = inputSeries[initialIndex + offset]
+        val advanceIndex = inputSeries.binarySearchByAsResult(
+            key = instant,
+            fromIndex = currentIndex,
+            selector = { it.openInstant },
+        ).indexOr { naturalIndex -> naturalIndex - 1 }
 
-        // Simulate candle at given candle state
-        val candle = fullCandle.atState(candleState)
+        (currentIndex + 1..advanceIndex).forEach { index ->
 
-        // Add candle to replay series
-        _replaySeries.addLiveCandle(candle)
+            // Get candle as-is
+            val inputCandle = inputSeries[index]
 
-        // Update time
-        _replayTime.update { candle.openInstant }
+            // Add candle to replay series
+            _replaySeries.addLiveCandle(inputCandle)
 
-        // Update candle state
-        _candleState.update { candleState }
+            // Update time
+            _replayTime.update { inputCandle.openInstant }
+        }
+
+        currentIndex = advanceIndex
+    }
+
+    override fun advanceTo(
+        instant: Instant,
+        candleState: BarReplay.CandleState,
+    ) {
+
+        val advanceIndex = inputSeries.binarySearchByAsResult(
+            key = instant,
+            fromIndex = currentIndex,
+            selector = { it.openInstant },
+        ).indexOr { naturalIndex -> naturalIndex - 1 }
+
+        (currentIndex + 1..advanceIndex).forEach { index ->
+
+            // Get full closed candle
+            val fullCandle = inputSeries[index]
+
+            // Simulate candle at given candle state
+            val candle = when (index) {
+                advanceIndex -> fullCandle.atState(candleState)
+                else -> fullCandle
+            }
+
+            // Add candle to replay series
+            _replaySeries.addLiveCandle(candle)
+
+            // Update time
+            _replayTime.update { candle.openInstant }
+
+            // Update candle state
+            _candleState.update { candleState }
+        }
+
+        currentIndex = advanceIndex
     }
 
     override fun reset() {
+
+        // Reset offset
+        currentIndex = initialIndex - 1
 
         // Reset replaySeries to initial state
         _replaySeries.removeLast(_replaySeries.size - initialIndex)

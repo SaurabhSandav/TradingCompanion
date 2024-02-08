@@ -17,6 +17,7 @@ internal class ReplaySessionModule(
 
     private val barReplay = BarReplay(
         timeframe = replayParams.baseTimeframe,
+        from = replayParams.replayFrom,
         candleUpdateType = if (replayParams.replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
 

@@ -3,6 +3,7 @@ package com.saurabhsandav.core.trading.barreplay
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
+import com.saurabhsandav.core.utils.BinarySearchResult
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ internal class ResampledReplaySeriesBuilder(
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries: MutableCandleSeries
+    private var currentInputIndex = initialIndex - 1
     private val initialTimeframeCandleIndex: Int
     private var currentTimeframeCandleIndex: Int
     private val _replayTime: MutableStateFlow<Instant>
@@ -24,10 +26,8 @@ internal class ResampledReplaySeriesBuilder(
 
     init {
 
-        val currentIndex = initialIndex - 1
-
         // Find timeframe candle index that corresponds to current replay time
-        initialTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[currentIndex])
+        initialTimeframeCandleIndex = findTimeframeCandleIndex(inputSeries[currentInputIndex])
         currentTimeframeCandleIndex = initialTimeframeCandleIndex
 
         // Last candle is resampled from inputSeries to make it more accurate to current replay state
@@ -49,78 +49,109 @@ internal class ResampledReplaySeriesBuilder(
         candleState = _candleState.asStateFlow(),
     )
 
-    override fun addCandle(offset: Int) {
-
-        val currentIndex = initialIndex + offset
-        val inputCandle = inputSeries[currentIndex]
-
-        val isNewTimeframeCandle =
-            timeframeSeries.binarySearch { it.openInstant.compareTo(inputCandle.openInstant) } >= 0
-
-        val candle = when {
-            isNewTimeframeCandle -> {
-
-                // Replace previous finished candle with timeframe candle
-                _replaySeries.removeLast()
-                _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
-
-                // Increment current timeframe candle
-                currentTimeframeCandleIndex++
-
-                // Candle as-is with openInstant adjusted
-                inputCandle.withTimeframeOpenInstant()
-            }
-
-            // New candle from inputSeries is resampled into previously added candle
-            else -> _replaySeries.last().resample(inputCandle).withTimeframeOpenInstant()
-        }
-
-        // Add to replay series
-        _replaySeries.addLiveCandle(candle)
-
-        // Update time
-        _replayTime.update { inputCandle.openInstant }
+    override fun getNextCandleInstant(): Instant? {
+        return inputSeries.getOrNull(currentInputIndex + 1)?.openInstant
     }
 
-    override fun addCandle(offset: Int, candleState: BarReplay.CandleState) {
+    override fun advanceTo(instant: Instant) {
 
-        val currentIndex = initialIndex + offset
-        val inputCandle = inputSeries[currentIndex]
+        val advanceIndex = inputSeries.binarySearchByAsResult(
+            key = instant,
+            fromIndex = currentInputIndex,
+            selector = { it.openInstant },
+        ).indexOr { naturalIndex -> naturalIndex - 1 }
 
-        val isNewTimeframeCandle =
-            timeframeSeries.binarySearch { it.openInstant.compareTo(inputCandle.openInstant) } >= 0
-                    && _replaySeries.last().openInstant != inputCandle.openInstant
+        (currentInputIndex + 1..advanceIndex).forEach { index ->
 
-        val candle = when {
-            isNewTimeframeCandle -> {
+            val inputCandle = inputSeries[index]
 
-                // Replace previous finished candle with timeframe candle
-                _replaySeries.removeLast()
-                _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
+            val isNewTimeframeCandle = timeframeSeries.binarySearchByAsResult(inputCandle.openInstant) {
+                it.openInstant
+            } is BinarySearchResult.Found
 
-                // Increment current timeframe candle
-                currentTimeframeCandleIndex++
+            val candle = when {
+                isNewTimeframeCandle -> {
 
-                // Candle as-is with openInstant adjusted
-                inputCandle.atState(candleState).withTimeframeOpenInstant()
+                    // Replace previous finished candle with timeframe candle
+                    _replaySeries.removeLast()
+                    _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
+
+                    // Increment current timeframe candle
+                    currentTimeframeCandleIndex++
+
+                    // Candle as-is with openInstant adjusted
+                    inputCandle.withTimeframeOpenInstant()
+                }
+
+                // New candle from inputSeries is resampled into previously added candle
+                else -> _replaySeries.last().resample(inputCandle).withTimeframeOpenInstant()
             }
 
-            // New candle from inputSeries is resampled into previously added candle
-            else -> _replaySeries.last().resample(inputCandle.atState(candleState))
-                .withTimeframeOpenInstant()
+            // Add to replay series
+            _replaySeries.addLiveCandle(candle)
+
+            // Update time
+            _replayTime.update { inputCandle.openInstant }
         }
 
-        // Add to replay series
-        _replaySeries.addLiveCandle(candle)
+        currentInputIndex = advanceIndex
+    }
 
-        // Update time
-        _replayTime.update { inputCandle.openInstant }
+    override fun advanceTo(
+        instant: Instant,
+        candleState: BarReplay.CandleState,
+    ) {
 
-        // Update candle state
-        _candleState.update { candleState }
+        val advanceIndex = inputSeries.binarySearchByAsResult(
+            key = instant,
+            fromIndex = currentInputIndex,
+            selector = { it.openInstant },
+        ).indexOr { naturalIndex -> naturalIndex - 1 }
+
+        (currentInputIndex + 1..advanceIndex).forEach { index ->
+
+            val inputCandle = inputSeries[index]
+
+            val isNewTimeframeCandle =
+                timeframeSeries.binarySearch { it.openInstant.compareTo(inputCandle.openInstant) } >= 0
+                        && _replaySeries.last().openInstant != inputCandle.openInstant
+
+            val candle = when {
+                isNewTimeframeCandle -> {
+
+                    // Replace previous finished candle with timeframe candle
+                    _replaySeries.removeLast()
+                    _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
+
+                    // Increment current timeframe candle
+                    currentTimeframeCandleIndex++
+
+                    // Candle as-is with openInstant adjusted
+                    inputCandle.atState(candleState).withTimeframeOpenInstant()
+                }
+
+                // New candle from inputSeries is resampled into previously added candle
+                else -> _replaySeries.last().resample(inputCandle.atState(candleState))
+                    .withTimeframeOpenInstant()
+            }
+
+            // Add to replay series
+            _replaySeries.addLiveCandle(candle)
+
+            // Update time
+            _replayTime.update { inputCandle.openInstant }
+
+            // Update candle state
+            _candleState.update { candleState }
+        }
+
+        currentInputIndex = advanceIndex
     }
 
     override fun reset() {
+
+        // Reset offset
+        currentInputIndex = initialIndex - 1
 
         // Reset currentTimeframeCandleIndex to initial
         currentTimeframeCandleIndex = initialTimeframeCandleIndex

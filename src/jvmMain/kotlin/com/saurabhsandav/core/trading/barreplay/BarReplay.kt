@@ -2,24 +2,31 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.indexOrNaturalIndex
+import kotlinx.datetime.Instant
 
 class BarReplay(
     private val timeframe: Timeframe,
+    private val from: Instant,
     private val candleUpdateType: CandleUpdateType = CandleUpdateType.FullBar,
 ) {
 
-    private var offset = 0
+    private var currentInstant = from
     private var candleState = CandleState.Close
 
     private val replaySeriesBuilders = mutableListOf<ReplaySeriesBuilder>()
 
     fun newSeries(
         inputSeries: CandleSeries,
-        initialIndex: Int,
         timeframeSeries: CandleSeries? = null,
     ): ReplaySeries {
 
         check(timeframe == inputSeries.timeframe) { "BarReplay: Input series timeframe is invalid" }
+
+        val initialIndex = inputSeries
+            .binarySearchByAsResult(from) { it.openInstant }
+            .indexOrNaturalIndex
 
         val replaySeriesBuilder = when (timeframeSeries) {
             null -> SimpleReplaySeriesBuilder(
@@ -34,8 +41,8 @@ class BarReplay(
             )
         }
 
-        val currentOffset = offset - 1
-        if (currentOffset >= 0) replaySeriesBuilder.skipTo(currentOffset, candleState)
+        // Advance to current instant and candle state
+        replaySeriesBuilder.advanceTo(currentInstant, candleState)
 
         replaySeriesBuilders.add(replaySeriesBuilder)
 
@@ -46,13 +53,18 @@ class BarReplay(
         replaySeriesBuilders.find { builder -> builder.replaySeries == series }?.let(replaySeriesBuilders::remove)
     }
 
-    fun advance() {
+    fun advance(): Boolean {
+
+        val nextInstant = when (candleState) {
+            CandleState.Close -> replaySeriesBuilders
+                .mapNotNull { builder -> builder.getNextCandleInstant() }
+                .minOrNull() ?: return false
+
+            else -> currentInstant
+        }
 
         when (candleUpdateType) {
-            CandleUpdateType.FullBar -> {
-                replaySeriesBuilders.forEach { builder -> builder.addCandle(offset) }
-                offset++
-            }
+            CandleUpdateType.FullBar -> replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant) }
 
             CandleUpdateType.OHLC -> {
 
@@ -60,32 +72,41 @@ class BarReplay(
                 candleState = candleState.next()
 
                 // Add/Update bar
-                replaySeriesBuilders.forEach { builder -> builder.addCandle(offset, candleState) }
-
-                // If candle has closed, increment offset
-                if (candleState == CandleState.Close) offset++
+                replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant, candleState) }
             }
         }
+
+        currentInstant = nextInstant
+
+        return true
     }
 
-    fun advanceByBar() {
+    fun advanceByBar(): Boolean {
 
-        // Move to candle close state
-        candleState = CandleState.Close
+        val nextInstant = when (candleState) {
+            CandleState.Close -> replaySeriesBuilders
+                .mapNotNull { builder -> builder.getNextCandleInstant() }
+                .minOrNull() ?: return false
+
+            else -> currentInstant
+        }
 
         replaySeriesBuilders.forEach(
             when (candleUpdateType) {
-                CandleUpdateType.FullBar -> { builder -> builder.addCandle(offset) }
-                CandleUpdateType.OHLC -> { builder -> builder.addCandle(offset, candleState) }
+                CandleUpdateType.FullBar -> { builder -> builder.advanceTo(nextInstant) }
+                CandleUpdateType.OHLC -> { builder -> builder.advanceTo(nextInstant, CandleState.Close) }
             }
         )
 
-        offset++
+        currentInstant = nextInstant
+        candleState = CandleState.Close
+
+        return true
     }
 
     fun reset() {
         replaySeriesBuilders.forEach { builder -> builder.reset() }
-        offset = 0
+        currentInstant = from
         candleState = CandleState.Close
     }
 
@@ -100,21 +121,6 @@ class BarReplay(
             Extreme1 -> Extreme2
             Extreme2 -> Close
             Close -> Open
-        }
-    }
-
-    private fun ReplaySeriesBuilder.skipTo(offset: Int, candleState: CandleState) {
-
-        repeat(times = offset + 1) { currentOffset ->
-
-            when {
-                // If last offset and candle not closed, add partial candle.
-                currentOffset == offset && candleState != CandleState.Close -> {
-                    addCandle(currentOffset, candleState)
-                }
-
-                else -> addCandle(currentOffset)
-            }
         }
     }
 }

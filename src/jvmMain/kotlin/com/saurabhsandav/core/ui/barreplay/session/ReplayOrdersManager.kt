@@ -232,12 +232,7 @@ internal class ReplayOrdersManager(
 
         val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
 
-        val replaySeries = barReplay.newSeries(
-            inputSeries = candleSeries,
-            initialIndex = candleSeries
-                .binarySearchByAsResult(replayParams.replayFrom) { it.openInstant }
-                .indexOrNaturalIndex,
-        )
+        val replaySeries = barReplay.newSeries(inputSeries = candleSeries)
 
         val scope = MainScope()
 

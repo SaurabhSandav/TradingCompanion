@@ -41,7 +41,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun addCandle() {
+    fun advance() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -49,9 +49,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.addCandle(0)
-        sut.addCandle(1)
-        sut.addCandle(2)
+        sut.advanceTo(inputSeries[8].openInstant)
 
         assertEquals(timeframeSeries[2], sut.replaySeries.last())
         assertEquals(3, sut.replaySeries.size)
@@ -60,7 +58,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun addCandle_not_closed() {
+    fun advance_not_closed() {
 
         val candleState = BarReplay.CandleState.Extreme2
 
@@ -70,10 +68,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.addCandle(0)
-        sut.addCandle(1)
-        sut.addCandle(2)
-        sut.addCandle(3, candleState)
+        sut.advanceTo(inputSeries[9].openInstant, candleState)
 
         assertEquals(inputSeries[9].atState(candleState), sut.replaySeries.last())
         assertEquals(4, sut.replaySeries.size)
@@ -90,8 +85,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.addCandle(0)
-        sut.addCandle(1)
+        sut.advanceTo(inputSeries[7].openInstant)
         sut.reset()
 
         assertEquals(timeframeSeries[1], sut.replaySeries.last())
@@ -109,7 +103,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.addCandle(0, BarReplay.CandleState.Open)
+        sut.advanceTo(inputSeries[6].openInstant, BarReplay.CandleState.Open)
         sut.reset()
 
         assertEquals(timeframeSeries[1], sut.replaySeries.last())

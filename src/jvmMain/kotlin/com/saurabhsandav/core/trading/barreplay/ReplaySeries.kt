@@ -14,9 +14,11 @@ internal interface ReplaySeriesBuilder {
 
     val replaySeries: ReplaySeries
 
-    fun addCandle(offset: Int)
+    fun getNextCandleInstant(): Instant?
 
-    fun addCandle(offset: Int, candleState: BarReplay.CandleState)
+    fun advanceTo(instant: Instant)
+
+    fun advanceTo(instant: Instant, candleState: BarReplay.CandleState)
 
     fun reset()
 }
