@@ -3,7 +3,6 @@ package com.saurabhsandav.core.trading.barreplay
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.utils.BinarySearchResult
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,50 +50,6 @@ internal class ResampledReplaySeriesBuilder(
 
     override fun getNextCandleInstant(): Instant? {
         return inputSeries.getOrNull(currentInputIndex + 1)?.openInstant
-    }
-
-    override fun advanceTo(instant: Instant) {
-
-        val advanceIndex = inputSeries.binarySearchByAsResult(
-            key = instant,
-            fromIndex = currentInputIndex,
-            selector = { it.openInstant },
-        ).indexOr { naturalIndex -> naturalIndex - 1 }
-
-        (currentInputIndex + 1..advanceIndex).forEach { index ->
-
-            val inputCandle = inputSeries[index]
-
-            val isNewTimeframeCandle = timeframeSeries.binarySearchByAsResult(inputCandle.openInstant) {
-                it.openInstant
-            } is BinarySearchResult.Found
-
-            val candle = when {
-                isNewTimeframeCandle -> {
-
-                    // Replace previous finished candle with timeframe candle
-                    _replaySeries.removeLast()
-                    _replaySeries.addLiveCandle(timeframeSeries[currentTimeframeCandleIndex])
-
-                    // Increment current timeframe candle
-                    currentTimeframeCandleIndex++
-
-                    // Candle as-is with openInstant adjusted
-                    inputCandle.withTimeframeOpenInstant()
-                }
-
-                // New candle from inputSeries is resampled into previously added candle
-                else -> _replaySeries.last().resample(inputCandle).withTimeframeOpenInstant()
-            }
-
-            // Add to replay series
-            _replaySeries.addLiveCandle(candle)
-
-            // Update time
-            _replayTime.update { inputCandle.openInstant }
-        }
-
-        currentInputIndex = advanceIndex
     }
 
     override fun advanceTo(

@@ -26,14 +26,14 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance() {
+    fun advance_closed() {
 
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
             initialIndex = 1,
         )
 
-        sut.advanceTo(inputSeries[3].openInstant)
+        sut.advanceTo(inputSeries[3].openInstant, BarReplay.CandleState.Close)
 
         assertEquals(inputSeries[3], sut.replaySeries.last())
         assertEquals(4, sut.replaySeries.size)
@@ -67,7 +67,7 @@ class SimpleReplaySeriesBuilderTest {
             initialIndex = 1,
         )
 
-        sut.advanceTo(inputSeries[2].openInstant)
+        sut.advanceTo(inputSeries[2].openInstant, BarReplay.CandleState.Close)
         sut.reset()
 
         assertEquals(inputSeries[0], sut.replaySeries.last())

@@ -16,9 +16,10 @@ internal interface ReplaySeriesBuilder {
 
     fun getNextCandleInstant(): Instant?
 
-    fun advanceTo(instant: Instant)
-
-    fun advanceTo(instant: Instant, candleState: BarReplay.CandleState)
+    fun advanceTo(
+        instant: Instant,
+        candleState: BarReplay.CandleState,
+    )
 
     fun reset()
 }

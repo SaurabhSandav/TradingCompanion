@@ -41,7 +41,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance() {
+    fun advance_closed() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -49,7 +49,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.advanceTo(inputSeries[8].openInstant)
+        sut.advanceTo(inputSeries[8].openInstant, BarReplay.CandleState.Close)
 
         assertEquals(timeframeSeries[2], sut.replaySeries.last())
         assertEquals(3, sut.replaySeries.size)
@@ -85,7 +85,7 @@ class ResampledReplaySeriesBuilderTest {
             initialIndex = 6,
         )
 
-        sut.advanceTo(inputSeries[7].openInstant)
+        sut.advanceTo(inputSeries[7].openInstant, BarReplay.CandleState.Close)
         sut.reset()
 
         assertEquals(timeframeSeries[1], sut.replaySeries.last())

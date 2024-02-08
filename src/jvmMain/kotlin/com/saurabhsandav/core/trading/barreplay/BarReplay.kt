@@ -63,18 +63,13 @@ class BarReplay(
             else -> currentInstant
         }
 
-        when (candleUpdateType) {
-            CandleUpdateType.FullBar -> replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant) }
-
-            CandleUpdateType.OHLC -> {
-
-                // Move to next candle state
-                candleState = candleState.next()
-
-                // Add/Update bar
-                replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant, candleState) }
-            }
+        candleState = when (candleUpdateType) {
+            CandleUpdateType.FullBar -> CandleState.Close
+            CandleUpdateType.OHLC -> candleState.next()
         }
+
+        // Add/Update bar
+        replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant, candleState) }
 
         currentInstant = nextInstant
 
@@ -91,12 +86,8 @@ class BarReplay(
             else -> currentInstant
         }
 
-        replaySeriesBuilders.forEach(
-            when (candleUpdateType) {
-                CandleUpdateType.FullBar -> { builder -> builder.advanceTo(nextInstant) }
-                CandleUpdateType.OHLC -> { builder -> builder.advanceTo(nextInstant, CandleState.Close) }
-            }
-        )
+        // Add/Update bar
+        replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant, CandleState.Close) }
 
         currentInstant = nextInstant
         candleState = CandleState.Close

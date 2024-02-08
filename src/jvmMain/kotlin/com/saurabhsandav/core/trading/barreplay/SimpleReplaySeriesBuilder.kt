@@ -32,29 +32,6 @@ internal class SimpleReplaySeriesBuilder(
         return inputSeries.getOrNull(currentIndex + 1)?.openInstant
     }
 
-    override fun advanceTo(instant: Instant) {
-
-        val advanceIndex = inputSeries.binarySearchByAsResult(
-            key = instant,
-            fromIndex = currentIndex,
-            selector = { it.openInstant },
-        ).indexOr { naturalIndex -> naturalIndex - 1 }
-
-        (currentIndex + 1..advanceIndex).forEach { index ->
-
-            // Get candle as-is
-            val inputCandle = inputSeries[index]
-
-            // Add candle to replay series
-            _replaySeries.addLiveCandle(inputCandle)
-
-            // Update time
-            _replayTime.update { inputCandle.openInstant }
-        }
-
-        currentIndex = advanceIndex
-    }
-
     override fun advanceTo(
         instant: Instant,
         candleState: BarReplay.CandleState,
