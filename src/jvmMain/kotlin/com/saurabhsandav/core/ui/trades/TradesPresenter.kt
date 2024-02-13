@@ -88,7 +88,9 @@ internal class TradesPresenter(
             isFocusModeEnabled.flatMapLatest { focusMode ->
 
                 fun List<Trade>.subListOrEmpty(from: Int = 0, to: Int = size): List<Trade> {
-                    return if (to <= from) emptyList() else subList(from, to)
+                    val fromC = from.coerceAtLeast(0)
+                    val toC = to.coerceAtMost(size)
+                    return if (toC <= fromC) emptyList() else subList(fromC, toC)
                 }
 
                 if (focusMode) {

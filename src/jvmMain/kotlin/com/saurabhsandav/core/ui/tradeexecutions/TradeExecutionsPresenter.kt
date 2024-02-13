@@ -92,8 +92,10 @@ internal class TradeExecutionsPresenter(
         return produceState(initial) {
 
             fun List<TradeExecution>.transform(from: Int = 0, to: Int = size): ImmutableList<TradeExecutionEntry> {
-                if (to <= from) return persistentListOf()
-                return subList(from, to).map { it.toTradeExecutionListEntry() }.toImmutableList()
+                val fromC = from.coerceAtLeast(0)
+                val toC = to.coerceAtMost(size)
+                if (toC <= fromC) return persistentListOf()
+                return subList(fromC, toC).map { it.toTradeExecutionListEntry() }.toImmutableList()
             }
 
             tradingProfiles
