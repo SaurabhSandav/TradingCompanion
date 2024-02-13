@@ -79,11 +79,13 @@ internal class AppModule {
     )
 
     val appDB: AppDB = run {
+
         val driver = JdbcSqliteDriver(
             url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/${AppPaths.appName}.db",
             properties = Properties().apply { put("foreign_keys", "true") },
+            schema = AppDB.Schema,
         )
-        AppDB.Schema.create(driver)
+
         AppDB(
             driver = driver,
             TradingProfileAdapter = TradingProfile.Adapter(
@@ -96,11 +98,11 @@ internal class AppModule {
         JdbcSqliteDriver(
             url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/Candles.db",
             properties = Properties().apply { put("foreign_keys", "true") },
+            schema = CandleDB.Schema,
         )
     }
 
     private val candleDB: CandleDB = run {
-        CandleDB.Schema.create(candleDBDriver)
         CandleDB(
             driver = candleDBDriver,
             CheckedRangeAdapter = CheckedRange.Adapter(

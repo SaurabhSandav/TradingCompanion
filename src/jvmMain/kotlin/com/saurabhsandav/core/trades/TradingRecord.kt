@@ -12,11 +12,13 @@ internal class TradingRecord(
 ) {
 
     private val tradesDB: TradesDB = run {
+
         val driver = JdbcSqliteDriver(
             url = "jdbc:sqlite:$recordPath/Trades.db",
             properties = Properties().apply { put("foreign_keys", "true") },
+            schema = TradesDB.Schema,
         )
-        TradesDB.Schema.create(driver)
+
         TradesDB(
             driver = driver,
             SizingTradeAdapter = SizingTrade.Adapter(
