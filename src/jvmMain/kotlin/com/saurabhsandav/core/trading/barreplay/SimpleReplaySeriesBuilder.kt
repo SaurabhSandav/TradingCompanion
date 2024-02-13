@@ -6,7 +6,6 @@ import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Instant
 
 internal class SimpleReplaySeriesBuilder(
@@ -58,10 +57,10 @@ internal class SimpleReplaySeriesBuilder(
             _replaySeries.addLiveCandle(candle)
 
             // Update time
-            _replayTime.update { candle.openInstant }
+            _replayTime.value = candle.openInstant
 
             // Update candle state
-            _candleState.update { candleState }
+            _candleState.value = candleState
         }
 
         currentIndex = advanceIndex
@@ -76,9 +75,9 @@ internal class SimpleReplaySeriesBuilder(
         _replaySeries.removeLast(_replaySeries.size - initialIndex)
 
         // Update time
-        _replayTime.update { _replaySeries.last().openInstant }
+        _replayTime.value = _replaySeries.last().openInstant
 
         // Update candle state
-        _candleState.update { BarReplay.CandleState.Close }
+        _candleState.value = BarReplay.CandleState.Close
     }
 }
