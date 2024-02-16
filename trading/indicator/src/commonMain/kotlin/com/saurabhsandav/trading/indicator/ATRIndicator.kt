@@ -16,4 +16,11 @@ class ATRIndicator(
     override fun get(index: Int): BigDecimal {
         return atr[index]
     }
+
+    override fun get(
+        from: Int,
+        toInclusive: Int,
+    ): List<BigDecimal> {
+        return atr[from, toInclusive]
+    }
 }

@@ -12,7 +12,7 @@ class BarReplay(
     private val candleUpdateType: CandleUpdateType = CandleUpdateType.FullBar,
 ) {
 
-    private var currentInstant = from
+    var currentInstant = from
     private var candleState = CandleState.Close
 
     private val replaySeriesBuilders = mutableListOf<ReplaySeriesBuilder>()

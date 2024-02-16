@@ -14,5 +14,12 @@ class ClosePriceIndicator(
         return candleSeries[index].close
     }
 
+    override fun get(
+        from: Int,
+        toInclusive: Int,
+    ): List<BigDecimal> {
+        return candleSeries.subList(from, toInclusive + 1).map { it.close }
+    }
+
     private object CacheKey : Indicator.CacheKey
 }

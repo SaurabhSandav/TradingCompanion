@@ -14,6 +14,6 @@ internal class TradeManagementJob(
         delay(1.minutes)
 
         // Generate excursions
-        excursionsGenerator.generateExcursions()
+//        excursionsGenerator.generateExcursions()
     }
 }

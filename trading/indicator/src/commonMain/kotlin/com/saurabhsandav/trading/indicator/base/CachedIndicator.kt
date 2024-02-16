@@ -23,4 +23,11 @@ abstract class CachedIndicator<T : Any>(
 
         return cache[index]!!
     }
+
+    override fun get(
+        from: Int,
+        toInclusive: Int,
+    ): List<T> {
+        return (from..toInclusive).map(::get)
+    }
 }

@@ -15,5 +15,10 @@ interface Indicator<T : Any> {
 
     operator fun get(index: Int): T
 
+    operator fun get(
+        from: Int,
+        toInclusive: Int,
+    ): List<T>
+
     interface CacheKey
 }
