@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class ResampledReplaySeriesBuilderTest {
 
     @Test
-    fun init() {
+    fun `Initial state`() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -26,7 +26,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun init_partial() {
+    fun `Initial state partial candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -41,7 +41,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance_closed() {
+    fun `Advance to closed candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -58,7 +58,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance_not_closed() {
+    fun `Advance to partial candle`() {
 
         val candleState = BarReplay.CandleState.Extreme2
 
@@ -77,7 +77,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun reset_closed() {
+    fun `Reset after closed candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -95,7 +95,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun reset_not_closed() {
+    fun `Reset after partial candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
             inputSeries = inputSeries,

@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 class SimpleReplaySeriesBuilderTest {
 
     @Test
-    fun init() {
+    fun `Initial state`() {
 
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -26,7 +26,7 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance_closed() {
+    fun `Advance to closed candle`() {
 
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -42,7 +42,7 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
-    fun advance_not_closed() {
+    fun `Advance to partial candle`() {
 
         val candleState = BarReplay.CandleState.Extreme2
 
@@ -60,7 +60,7 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
-    fun reset_closed() {
+    fun `Reset after closed candle`() {
 
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
@@ -77,7 +77,7 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
-    fun reset_not_closed() {
+    fun `Reset after partial candle`() {
 
         val sut = SimpleReplaySeriesBuilder(
             inputSeries = inputSeries,
