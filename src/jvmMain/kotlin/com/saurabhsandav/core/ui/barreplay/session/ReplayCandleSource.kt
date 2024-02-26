@@ -25,6 +25,10 @@ internal class ReplayCandleSource(
 
     override suspend fun onLoad(interval: ClosedRange<Instant>): CandleSource.Result {
 
+        if (!replaySeries.isCompleted) {
+            replaySeries.complete(replaySeriesFactory())
+        }
+
         val replaySeries = replaySeries.await()
 
         val fromIndex = replaySeries
@@ -70,6 +74,10 @@ internal class ReplayCandleSource(
         after: Instant,
         count: Int,
     ): CandleSource.Result {
+
+        if (!replaySeries.isCompleted) {
+            replaySeries.complete(replaySeriesFactory())
+        }
 
         val replaySeries = replaySeries.await()
 
