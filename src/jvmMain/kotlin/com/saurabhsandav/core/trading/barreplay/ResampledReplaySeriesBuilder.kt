@@ -62,7 +62,7 @@ internal class ResampledReplaySeriesBuilder(
             selector = { it.openInstant },
         ).indexOr { naturalIndex -> naturalIndex - 1 }
 
-        (currentInputIndex + 1..advanceIndex).forEach { index ->
+        (currentInputIndex..advanceIndex).forEach { index ->
 
             val inputCandle = inputSeries[index]
 

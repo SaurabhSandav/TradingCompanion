@@ -58,7 +58,7 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
-    fun `Advance to partial candle`() {
+    fun `Skip to partial candle`() {
 
         val candleState = BarReplay.CandleState.Extreme2
 
@@ -74,6 +74,25 @@ class ResampledReplaySeriesBuilderTest {
         assertEquals(4, sut.replaySeries.size)
         assertEquals(inputSeries[9].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(candleState, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun `Advance sequentially to partial candle`() {
+
+        val sut = ResampledReplaySeriesBuilder(
+            inputSeries = inputSeries,
+            timeframeSeries = timeframeSeries,
+            initialIndex = 6,
+        )
+
+        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Open)
+        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Extreme1)
+        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Extreme2)
+
+        assertEquals(inputSeries[9].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
+        assertEquals(4, sut.replaySeries.size)
+        assertEquals(inputSeries[9].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(BarReplay.CandleState.Extreme2, sut.replaySeries.candleState.value)
     }
 
     @Test

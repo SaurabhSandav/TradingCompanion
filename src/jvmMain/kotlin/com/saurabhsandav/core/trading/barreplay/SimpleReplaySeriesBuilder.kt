@@ -42,7 +42,7 @@ internal class SimpleReplaySeriesBuilder(
             selector = { it.openInstant },
         ).indexOr { naturalIndex -> naturalIndex - 1 }
 
-        (currentIndex + 1..advanceIndex).forEach { index ->
+        (currentIndex..advanceIndex).forEach { index ->
 
             // Get full closed candle
             val fullCandle = inputSeries[index]
