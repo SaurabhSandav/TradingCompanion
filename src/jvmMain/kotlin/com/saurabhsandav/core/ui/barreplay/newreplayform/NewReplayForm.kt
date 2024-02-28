@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.utils.NIFTY50
-import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun NewReplayForm(
@@ -43,7 +42,7 @@ internal fun NewReplayForm(
 
             OutlinedListSelectionField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
-                items = remember { persistentListOf(*enumValues<Timeframe>()) },
+                items = remember { enumValues<Timeframe>().toList() },
                 itemText = { it.toLabel() },
                 onSelection = { model.baseTimeframeField.value = it },
                 selection = model.baseTimeframeField.value,

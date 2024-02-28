@@ -23,9 +23,6 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -94,7 +91,7 @@ internal class ReplaySessionPresenter(
     }
 
     @Composable
-    private fun getReplayOrderItems(): State<ImmutableList<ReplayOrderListItem>> {
+    private fun getReplayOrderItems(): State<List<ReplayOrderListItem>> {
         return remember {
             replayOrdersManager.openOrders.map { openOrders ->
                 openOrders.map { openOrder ->
@@ -131,9 +128,9 @@ internal class ReplaySessionPresenter(
                             ldt = openOrder.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()),
                         ),
                     )
-                }.toImmutableList()
+                }
             }
-        }.collectAsState(persistentListOf())
+        }.collectAsState(emptyList())
     }
 
     private fun onResetReplay() {

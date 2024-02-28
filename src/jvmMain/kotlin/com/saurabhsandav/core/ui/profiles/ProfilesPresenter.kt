@@ -14,9 +14,6 @@ import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.putCurrentTradingProfileId
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 
@@ -50,14 +47,12 @@ internal class ProfilesPresenter(
     }
 
     @Composable
-    private fun getProfiles(): State<ImmutableList<Profile>> {
+    private fun getProfiles(): State<List<Profile>> {
         return remember {
             tradingProfiles.allProfiles.map { profiles ->
-                profiles.filter { if (trainingOnly) it.isTraining else true }
-                    .map(::toProfileState)
-                    .toImmutableList()
+                profiles.filter { if (trainingOnly) it.isTraining else true }.map(::toProfileState)
             }
-        }.collectAsState(persistentListOf())
+        }.collectAsState(emptyList())
     }
 
     @Composable

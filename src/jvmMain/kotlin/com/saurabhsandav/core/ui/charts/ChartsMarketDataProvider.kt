@@ -7,8 +7,6 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.NIFTY50
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -17,12 +15,12 @@ internal class ChartsMarketDataProvider(
     private val candleRepo: CandleRepository,
 ) : MarketDataProvider {
 
-    override fun symbols(): StateFlow<ImmutableList<String>> {
+    override fun symbols(): StateFlow<List<String>> {
         return MutableStateFlow(NIFTY50)
     }
 
-    override fun timeframes(): StateFlow<ImmutableList<Timeframe>> {
-        return MutableStateFlow(Timeframe.entries.toImmutableList())
+    override fun timeframes(): StateFlow<List<Timeframe>> {
+        return MutableStateFlow(Timeframe.entries.toList())
     }
 
     override fun buildCandleSource(params: StockChartParams): ChartsCandleSource {

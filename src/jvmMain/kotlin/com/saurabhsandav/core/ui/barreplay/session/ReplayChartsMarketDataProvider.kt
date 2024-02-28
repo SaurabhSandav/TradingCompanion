@@ -20,8 +20,6 @@ import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -36,12 +34,12 @@ internal class ReplayChartsMarketDataProvider(
     private val tradingProfiles: TradingProfiles,
 ) : MarketDataProvider {
 
-    override fun symbols(): StateFlow<ImmutableList<String>> {
+    override fun symbols(): StateFlow<List<String>> {
         return MutableStateFlow(NIFTY50)
     }
 
-    override fun timeframes(): StateFlow<ImmutableList<Timeframe>> {
-        return MutableStateFlow(Timeframe.entries.toImmutableList())
+    override fun timeframes(): StateFlow<List<Timeframe>> {
+        return MutableStateFlow(Timeframe.entries.toList())
     }
 
     override fun hasVolume(params: StockChartParams): Boolean {

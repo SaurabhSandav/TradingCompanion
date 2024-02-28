@@ -27,7 +27,6 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.NIFTY50
 import com.saurabhsandav.core.utils.nowIn
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import java.util.*
@@ -114,7 +113,7 @@ private fun TradeExecutionForm(
 
         OutlinedListSelectionField(
             modifier = Modifier.focusRequester(instrumentFocusRequester),
-            items = remember { persistentListOf(*enumValues<Instrument>()) },
+            items = remember { enumValues<Instrument>().toList() },
             itemText = {
                 it.strValue.replaceFirstChar { char ->
                     if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()

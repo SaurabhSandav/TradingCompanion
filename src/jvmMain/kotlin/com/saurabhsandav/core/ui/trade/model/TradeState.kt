@@ -5,7 +5,6 @@ import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
@@ -13,17 +12,17 @@ import java.math.BigDecimal
 internal data class TradeState(
     val title: String,
     val details: Details?,
-    val executions: ImmutableList<Execution>,
+    val executions: List<Execution>,
     val newExecutionEnabled: Boolean,
-    val stops: ImmutableList<TradeStop>,
+    val stops: List<TradeStop>,
     val previewStop: (BigDecimal) -> Flow<TradeStop?>,
-    val targets: ImmutableList<TradeTarget>,
+    val targets: List<TradeTarget>,
     val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     val excursions: Excursions?,
-    val notes: ImmutableList<TradeNote>,
-    val tags: ImmutableList<TradeTag>,
-    val tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
-    val attachments: ImmutableList<TradeAttachment>,
+    val notes: List<TradeNote>,
+    val tags: List<TradeTag>,
+    val tagSuggestions: (String) -> Flow<List<TradeTag>>,
+    val attachments: List<TradeAttachment>,
     val eventSink: (TradeEvent) -> Unit,
 ) {
 

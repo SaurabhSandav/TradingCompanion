@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.TradesList
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesScreen(
@@ -28,7 +27,7 @@ internal fun TradesScreen(
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onApplyFilter: (TradeFilter) -> Unit,
-    errors: ImmutableList<UIErrorMessage>,
+    errors: List<UIErrorMessage>,
 ) {
 
     // Set window title

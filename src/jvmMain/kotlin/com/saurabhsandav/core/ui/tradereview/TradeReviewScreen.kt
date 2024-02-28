@@ -29,7 +29,6 @@ import com.saurabhsandav.core.ui.tradereview.ui.MainTabRow
 import com.saurabhsandav.core.ui.tradereview.ui.TradesTableSwitcher
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeReviewWindow(
@@ -74,8 +73,8 @@ internal fun TradeReviewWindow(
 internal fun TradeReviewScreen(
     selectedProfileId: ProfileId?,
     onSelectProfile: (ProfileId) -> Unit,
-    trades: ImmutableList<TradeEntry>,
-    markedTrades: ImmutableList<MarkedTradeEntry>,
+    trades: List<TradeEntry>,
+    markedTrades: List<MarkedTradeEntry>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,

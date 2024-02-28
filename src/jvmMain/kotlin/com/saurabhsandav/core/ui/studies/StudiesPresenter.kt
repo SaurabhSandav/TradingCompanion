@@ -1,14 +1,12 @@
 package com.saurabhsandav.core.ui.studies
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.studies.impl.Study
 import com.saurabhsandav.core.ui.studies.model.StudiesEvent
 import com.saurabhsandav.core.ui.studies.model.StudiesState
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 
 @Stable
@@ -22,7 +20,7 @@ internal class StudiesPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule StudiesState(
-            studyFactories = remember { studyFactories.toImmutableList() },
+            studyFactories = studyFactories,
             studyWindowsManager = studyWindowsManager,
             eventSink = ::onEvent,
         )

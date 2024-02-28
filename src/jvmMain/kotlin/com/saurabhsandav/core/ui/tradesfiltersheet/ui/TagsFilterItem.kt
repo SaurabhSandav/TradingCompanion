@@ -14,15 +14,13 @@ import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 
 @Composable
 internal fun TagsFilterItem(
-    selectedTags: ImmutableList<TradeTag>?,
-    tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    selectedTags: List<TradeTag>?,
+    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
     matchAllTags: Boolean,
@@ -80,7 +78,7 @@ internal fun TagsFilterItem(
 
 @Composable
 private fun AddTagButton(
-    tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
 ) {
 
@@ -103,7 +101,7 @@ private fun AddTagButton(
             var filter by state { "" }
             val filteredTags by remember {
                 snapshotFlow { filter }.flatMapLatest(tagSuggestions)
-            }.collectAsState(persistentListOf())
+            }.collectAsState(emptyList())
             val focusRequester = remember { FocusRequester() }
 
             OutlinedTextField(

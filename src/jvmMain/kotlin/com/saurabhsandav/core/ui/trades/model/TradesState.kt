@@ -3,13 +3,12 @@ package com.saurabhsandav.core.ui.trades.model
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
 @Immutable
 internal data class TradesState(
     val tradesList: TradesList,
-    val errors: ImmutableList<UIErrorMessage>,
+    val errors: List<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
 
@@ -18,16 +17,16 @@ internal data class TradesState(
 
         @Immutable
         data class All(
-            val trades: ImmutableList<TradeEntry>,
+            val trades: List<TradeEntry>,
             val isFiltered: Boolean,
         ) : TradesList()
 
         @Immutable
         data class Focused(
-            val openTrades: ImmutableList<TradeEntry>,
-            val todayTrades: ImmutableList<TradeEntry>,
+            val openTrades: List<TradeEntry>,
+            val todayTrades: List<TradeEntry>,
             val todayStats: Stats?,
-            val pastTrades: ImmutableList<TradeEntry>,
+            val pastTrades: List<TradeEntry>,
         ) : TradesList()
     }
 

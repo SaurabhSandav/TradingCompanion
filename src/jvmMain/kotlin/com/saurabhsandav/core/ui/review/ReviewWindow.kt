@@ -23,7 +23,6 @@ import com.saurabhsandav.core.ui.review.ui.ReviewTopAppBar
 import com.saurabhsandav.core.ui.review.ui.TradesTable
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewWindow(
@@ -88,7 +87,7 @@ private fun ReviewScreen(
     canSaveReview: Boolean,
     onSaveReview: () -> Unit,
     onMarkdownLinkClicked: (String) -> Unit,
-    trades: ImmutableList<TradeEntry>,
+    trades: List<TradeEntry>,
     onOpenChart: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
 ) {

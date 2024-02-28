@@ -21,9 +21,6 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -74,7 +71,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getTrades(): State<ImmutableList<TradeEntry>> {
+    private fun getTrades(): State<List<TradeEntry>> {
         return remember {
 
             selectedProfileId
@@ -102,10 +99,9 @@ internal class TradeReviewPresenter(
                                         isMarked = profileTradeId in markedProfileTradeIds,
                                     )
                                 }
-                                .toImmutableList()
                         }
                 }
-        }.collectAsState(persistentListOf())
+        }.collectAsState(emptyList())
     }
 
     private fun Trade.toTradeListEntry(
@@ -161,7 +157,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getMarkedTrades(): State<ImmutableList<MarkedTradeEntry>> {
+    private fun getMarkedTrades(): State<List<MarkedTradeEntry>> {
         return remember {
 
             snapshotFlow { markedTradeIds.toList() }
@@ -194,9 +190,8 @@ internal class TradeReviewPresenter(
                                 else -> combine(flows) { it.toList().flatten() }
                             }
                         }
-                        .map { it.toImmutableList() }
                 }
-        }.collectAsState(persistentListOf())
+        }.collectAsState(emptyList())
     }
 
     private fun Trade.toMarkedTradeListEntry(

@@ -7,7 +7,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.util.*
@@ -16,7 +15,7 @@ import java.util.*
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
     val selectedProfileId: ProfileId?,
-    val replayOrderItems: ImmutableList<ReplayOrderListItem>,
+    val replayOrderItems: List<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo,
     val isAutoNextEnabled: Boolean,

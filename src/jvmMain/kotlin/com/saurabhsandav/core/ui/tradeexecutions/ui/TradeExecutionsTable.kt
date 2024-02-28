@@ -20,7 +20,6 @@ import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
@@ -95,7 +94,7 @@ internal fun TradeExecutionsTable(
 }
 
 private fun TableScope<TradeExecutionEntry>.executionRows(
-    executions: ImmutableList<TradeExecutionEntry>,
+    executions: List<TradeExecutionEntry>,
     title: String,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,

@@ -10,11 +10,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun <T : Any> OutlinedListSelectionField(
-    items: ImmutableList<T>,
+    items: List<T>,
     itemText: (T) -> String,
     onSelection: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -103,7 +102,7 @@ fun <T : Any> OutlinedListSelectionField(
 
 @Composable
 fun <T : Any> ListSelectionField(
-    items: ImmutableList<T>,
+    items: List<T>,
     itemText: (T) -> String,
     onSelection: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -193,7 +192,7 @@ fun <T : Any> ListSelectionField(
 @Composable
 fun <T : Any> ListSelectionDialog(
     onDismissRequest: () -> Unit,
-    items: ImmutableList<T>,
+    items: List<T>,
     itemText: (T) -> String,
     onSelection: (T) -> Unit,
     selection: T? = null,

@@ -5,13 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTableSwitcher(
     selectedTab: Tab,
-    trades: ImmutableList<TradeEntry>,
-    markedTrades: ImmutableList<MarkedTradeEntry>,
+    trades: List<TradeEntry>,
+    markedTrades: List<MarkedTradeEntry>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,

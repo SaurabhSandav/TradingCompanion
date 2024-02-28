@@ -13,7 +13,6 @@ import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsSelectionBar
 import com.saurabhsandav.core.ui.tradeexecutions.ui.TradeExecutionsTable
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsScreen(
@@ -25,7 +24,7 @@ internal fun TradeExecutionsScreen(
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecutions: (List<TradeExecutionId>) -> Unit,
     onDeleteExecutions: (List<TradeExecutionId>) -> Unit,
-    errors: ImmutableList<UIErrorMessage>,
+    errors: List<UIErrorMessage>,
 ) {
 
     // Set window title

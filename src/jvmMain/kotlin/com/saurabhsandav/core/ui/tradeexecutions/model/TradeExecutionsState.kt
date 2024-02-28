@@ -4,21 +4,20 @@ import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class TradeExecutionsState(
     val executionsList: ExecutionsList,
     val selectionManager: SelectionManager<TradeExecutionId>,
     val canSelectionLock: Boolean,
-    val errors: ImmutableList<UIErrorMessage>,
+    val errors: List<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {
 
     @Immutable
     internal data class ExecutionsList(
-        val todayExecutions: ImmutableList<TradeExecutionEntry>,
-        val pastExecutions: ImmutableList<TradeExecutionEntry>,
+        val todayExecutions: List<TradeExecutionEntry>,
+        val pastExecutions: List<TradeExecutionEntry>,
     )
 
     @Immutable

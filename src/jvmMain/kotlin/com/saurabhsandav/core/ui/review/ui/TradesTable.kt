@@ -16,11 +16,10 @@ import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
-    trades: ImmutableList<TradeEntry>,
+    trades: List<TradeEntry>,
     onOpenChart: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
 ) {

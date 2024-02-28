@@ -10,12 +10,11 @@ import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
 import com.saurabhsandav.core.ui.reviews.ui.ReviewsList
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewsScreen(
-    pinnedReviews: ImmutableList<Review>,
-    unPinnedReviews: ImmutableList<Review>,
+    pinnedReviews: List<Review>,
+    unPinnedReviews: List<Review>,
     onNewReview: () -> Unit,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,

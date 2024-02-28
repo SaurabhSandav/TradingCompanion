@@ -28,7 +28,6 @@ import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.rememberTableSchema
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
@@ -38,11 +37,11 @@ import java.math.BigDecimal
 
 @Composable
 internal fun StopsAndTargets(
-    stops: ImmutableList<TradeStop>,
+    stops: List<TradeStop>,
     previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
-    targets: ImmutableList<TradeTarget>,
+    targets: List<TradeTarget>,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
@@ -72,7 +71,7 @@ internal fun StopsAndTargets(
 
 @Composable
 private fun StopsList(
-    stops: ImmutableList<TradeStop>,
+    stops: List<TradeStop>,
     previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
@@ -147,7 +146,7 @@ private fun StopsList(
 
 @Composable
 private fun TargetsList(
-    targets: ImmutableList<TradeTarget>,
+    targets: List<TradeTarget>,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,

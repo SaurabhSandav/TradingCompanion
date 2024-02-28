@@ -18,11 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagListItem
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun TagsScreen(
-    tags: ImmutableList<Tag>,
+    tags: List<Tag>,
     onNewTag: () -> Unit,
     onNewTagFromExisting: (TradeTagId) -> Unit,
     onEditTag: (TradeTagId) -> Unit,

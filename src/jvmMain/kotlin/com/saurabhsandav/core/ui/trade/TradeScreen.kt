@@ -26,7 +26,6 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.trade.ui.*
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
@@ -92,7 +91,7 @@ internal fun TradeWindow(
 @Composable
 internal fun TradeScreen(
     details: Details?,
-    executions: ImmutableList<Execution>,
+    executions: List<Execution>,
     newExecutionEnabled: Boolean,
     onAddToTrade: () -> Unit,
     onCloseTrade: () -> Unit,
@@ -101,24 +100,24 @@ internal fun TradeScreen(
     onLockExecution: (TradeExecutionId) -> Unit,
     onDeleteExecution: (TradeExecutionId) -> Unit,
     onOpenChart: () -> Unit,
-    stops: ImmutableList<TradeStop>,
+    stops: List<TradeStop>,
     previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
-    targets: ImmutableList<TradeTarget>,
+    targets: List<TradeTarget>,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
     excursions: Excursions?,
-    tags: ImmutableList<TradeTag>,
-    tagSuggestions: (String) -> Flow<ImmutableList<TradeTag>>,
+    tags: List<TradeTag>,
+    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
-    attachments: ImmutableList<TradeAttachment>,
+    attachments: List<TradeAttachment>,
     onAddAttachment: (AttachmentFormModel) -> Unit,
     onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
     onRemoveAttachment: (TradeAttachmentId) -> Unit,
-    notes: ImmutableList<TradeNote>,
+    notes: List<TradeNote>,
     onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
     onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,

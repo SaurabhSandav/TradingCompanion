@@ -20,7 +20,6 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.utils.nowIn
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -28,9 +27,9 @@ import kotlinx.datetime.TimeZone
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
-    tickers: ImmutableList<String>,
+    tickers: List<String>,
     onChangeTicker: (String) -> Unit,
-    timeframes: ImmutableList<Timeframe>,
+    timeframes: List<Timeframe>,
     onChangeTimeframe: (Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,

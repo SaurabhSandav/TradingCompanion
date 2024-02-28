@@ -21,11 +21,10 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.studies.impl.Study
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun StudiesScreen(
-    studyFactories: ImmutableList<Study.Factory<*>>,
+    studyFactories: List<Study.Factory<*>>,
     onOpenStudy: (Study.Factory<*>) -> Unit,
 ) {
 

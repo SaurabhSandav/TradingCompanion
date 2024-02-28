@@ -19,14 +19,10 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -166,7 +162,7 @@ internal class SizingPresenter(
     }
 
     @Composable
-    private fun getSizedTrades(account: Account): ImmutableList<SizedTrade> {
+    private fun getSizedTrades(account: Account): List<SizedTrade> {
         return remember(account) {
             flow {
 
@@ -175,10 +171,9 @@ internal class SizingPresenter(
                     .sizingTrades
                     .allTrades
                     .mapList { sizingTrade -> sizingTrade.size(account) }
-                    .map { it.toImmutableList() }
                     .emitInto(this)
             }
-        }.collectAsState(persistentListOf()).value
+        }.collectAsState(emptyList()).value
     }
 
     private fun SizingTrade.size(account: Account): SizedTrade {

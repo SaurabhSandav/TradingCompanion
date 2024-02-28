@@ -22,7 +22,6 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.ui.profiles.ui.ProfileListItem
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ProfilesWindow(
@@ -111,7 +110,7 @@ internal fun ProfileSwitcherBox(
 
 @Composable
 private fun ProfilesScreen(
-    profiles: ImmutableList<Profile>,
+    profiles: List<Profile>,
     onSelectProfile: (ProfileId) -> Unit,
     currentProfileId: ProfileId?,
     onSetCurrentProfile: (ProfileId) -> Unit,

@@ -22,11 +22,10 @@ import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun Notes(
-    notes: ImmutableList<TradeNote>,
+    notes: List<TradeNote>,
     onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
     onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,

@@ -15,15 +15,13 @@ import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 
 @Composable
 internal fun TickersFilterItem(
-    selectedTickers: ImmutableList<String>,
-    tickerSuggestions: (String) -> Flow<ImmutableList<String>>,
+    selectedTickers: List<String>,
+    tickerSuggestions: (String) -> Flow<List<String>>,
     onAddTicker: (String) -> Unit,
     onRemoveTicker: (String) -> Unit,
 ) {
@@ -60,7 +58,7 @@ internal fun TickersFilterItem(
 
 @Composable
 private fun AddTickerButton(
-    tickerSuggestions: (String) -> Flow<ImmutableList<String>>,
+    tickerSuggestions: (String) -> Flow<List<String>>,
     onAddTicker: (String) -> Unit,
 ) {
 
@@ -83,7 +81,7 @@ private fun AddTickerButton(
             var filter by state { "" }
             val filteredTickers by remember {
                 snapshotFlow { filter }.flatMapLatest(tickerSuggestions)
-            }.collectAsState(persistentListOf())
+            }.collectAsState(emptyList())
             val focusRequester = remember { FocusRequester() }
 
             OutlinedTextField(

@@ -1,11 +1,10 @@
 package com.saurabhsandav.core.ui.account
 
 import androidx.compose.runtime.Immutable
-import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 internal data class AccountState(
-    val transactions: ImmutableList<Transaction>,
+    val transactions: List<Transaction>,
 )
 
 @Immutable

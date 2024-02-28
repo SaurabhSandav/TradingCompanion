@@ -16,11 +16,10 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.*
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun AccountScreen(
-    transactions: ImmutableList<Transaction>,
+    transactions: List<Transaction>,
 ) {
 
     // Set window title

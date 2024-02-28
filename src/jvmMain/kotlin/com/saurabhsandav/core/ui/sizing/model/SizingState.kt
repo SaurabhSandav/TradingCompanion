@@ -6,12 +6,11 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import kotlinx.collections.immutable.ImmutableList
 import java.util.*
 
 @Immutable
 internal data class SizingState(
-    val sizedTrades: ImmutableList<SizedTrade>,
+    val sizedTrades: List<SizedTrade>,
     val executionFormWindowsManager: AppWindowsManager<TradeExecutionFormParams>,
     val eventSink: (SizingEvent) -> Unit,
 ) {

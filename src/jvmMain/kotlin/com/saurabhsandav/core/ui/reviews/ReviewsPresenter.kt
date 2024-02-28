@@ -18,9 +18,6 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -54,15 +51,15 @@ internal class ReviewsPresenter(
     }
 
     @Composable
-    private fun getPinnedReviews(): ImmutableList<Review> = getReviews { getPinnedReviews() }
+    private fun getPinnedReviews(): List<Review> = getReviews { getPinnedReviews() }
 
     @Composable
-    private fun getUnpinnedReviews(): ImmutableList<Review> = getReviews { getUnPinnedReviews() }
+    private fun getUnpinnedReviews(): List<Review> = getReviews { getUnPinnedReviews() }
 
     @Composable
     private fun getReviews(
         query: TradesRepo.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
-    ): ImmutableList<Review> {
+    ): List<Review> {
         return remember {
             flow {
 
@@ -79,11 +76,10 @@ internal class ReviewsPresenter(
                                     title = review.title,
                                 )
                             }
-                            .toImmutableList()
                     }
                     .emitInto(this)
             }
-        }.collectAsState(persistentListOf()).value
+        }.collectAsState(emptyList()).value
     }
 
     private fun onNewReview() = coroutineScope.launchUnit {

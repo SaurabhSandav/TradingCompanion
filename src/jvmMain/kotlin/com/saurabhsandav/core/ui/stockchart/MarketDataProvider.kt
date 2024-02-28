@@ -2,14 +2,13 @@ package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.StateFlow
 
 interface MarketDataProvider {
 
-    fun symbols(): StateFlow<ImmutableList<String>>
+    fun symbols(): StateFlow<List<String>>
 
-    fun timeframes(): StateFlow<ImmutableList<Timeframe>>
+    fun timeframes(): StateFlow<List<Timeframe>>
 
     fun hasVolume(params: StockChartParams): Boolean
 

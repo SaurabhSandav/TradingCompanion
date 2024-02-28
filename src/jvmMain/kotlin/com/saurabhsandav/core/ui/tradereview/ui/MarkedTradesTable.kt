@@ -17,11 +17,10 @@ import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeEntry
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun MarkedTradesTable(
-    markedTrades: ImmutableList<MarkedTradeEntry>,
+    markedTrades: List<MarkedTradeEntry>,
     onUnMarkTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,

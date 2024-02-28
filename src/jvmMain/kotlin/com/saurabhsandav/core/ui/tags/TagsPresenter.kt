@@ -14,9 +14,6 @@ import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -48,7 +45,7 @@ internal class TagsPresenter(
     }
 
     @Composable
-    private fun getTags(): State<ImmutableList<Tag>> {
+    private fun getTags(): State<List<Tag>> {
         return remember {
             flow {
 
@@ -64,11 +61,11 @@ internal class TagsPresenter(
                                 name = tag.name,
                                 description = tag.description,
                             )
-                        }.toImmutableList()
+                        }
                     }
                     .emitInto(this)
             }
-        }.collectAsState(persistentListOf())
+        }.collectAsState(emptyList())
     }
 
     private fun onNewTag() {

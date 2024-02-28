@@ -22,12 +22,12 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -77,8 +77,8 @@ internal class ReviewPresenter(
     }
 
     @Composable
-    private fun getTrades(): ImmutableList<TradeEntry> {
-        return produceState<ImmutableList<TradeEntry>>(persistentListOf()) {
+    private fun getTrades(): List<TradeEntry> {
+        return produceState<List<TradeEntry>>(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileReviewId.profileId)
 
@@ -92,7 +92,6 @@ internal class ReviewPresenter(
                         .mapList { trade ->
                             trade.toTradeListEntry()
                         }
-                        .map { it.toImmutableList() }
                 }
                 .collect { value = it }
         }.value

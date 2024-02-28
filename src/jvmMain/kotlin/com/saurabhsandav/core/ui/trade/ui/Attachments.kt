@@ -26,14 +26,13 @@ import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import java.awt.Desktop
 import java.io.File
 
 @Composable
 internal fun Attachments(
-    attachments: ImmutableList<TradeAttachment>,
+    attachments: List<TradeAttachment>,
     onAddAttachment: (AttachmentFormModel) -> Unit,
     onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
     onRemoveAttachment: (TradeAttachmentId) -> Unit,

@@ -17,9 +17,6 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 import com.saurabhsandav.core.utils.format
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -48,7 +45,7 @@ internal class TradesPresenter(
 
         return@launchMolecule TradesState(
             tradesList = getTradesList(),
-            errors = remember(errors) { errors.toImmutableList() },
+            errors = errors,
             eventSink = ::onEvent,
         )
     }
@@ -68,10 +65,10 @@ internal class TradesPresenter(
 
         val initial = remember {
             TradesList.Focused(
-                openTrades = persistentListOf(),
-                todayTrades = persistentListOf(),
+                openTrades = emptyList(),
+                todayTrades = emptyList(),
                 todayStats = null,
-                pastTrades = persistentListOf()
+                pastTrades = emptyList()
             )
         }
 
@@ -79,8 +76,8 @@ internal class TradesPresenter(
 
             val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-            fun List<Trade>.toTradeListEntries(): ImmutableList<TradeEntry> {
-                return map { it.toTradeListEntry() }.toImmutableList()
+            fun List<Trade>.toTradeListEntries(): List<TradeEntry> {
+                return map { it.toTradeListEntry() }
             }
 
             val defaultFilter = TradeFilter()

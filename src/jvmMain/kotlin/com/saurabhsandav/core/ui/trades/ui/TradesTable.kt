@@ -15,7 +15,6 @@ import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradesTable(
@@ -129,7 +128,7 @@ internal fun TradesTable(
 }
 
 private fun TableScope<TradeEntry>.tradeRows(
-    trades: ImmutableList<TradeEntry>,
+    trades: List<TradeEntry>,
     title: String,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,

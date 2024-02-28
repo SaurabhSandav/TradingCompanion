@@ -15,14 +15,10 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 internal class TradesFilterPresenter(
     coroutineScope: CoroutineScope,
@@ -69,13 +65,13 @@ internal class TradesFilterPresenter(
     }
 
     @Composable
-    private fun getSelectedTags(): ImmutableList<TradeTag>? {
+    private fun getSelectedTags(): List<TradeTag>? {
 
         // Information of whether a filter is enabled is required when first composing UI.
         // Sending an empty list followed by the actual fetch means the UI initially thinks there are no tags selected.
         // Send a null initially if tags not selected. In this case, an empty list will signify tags are loading.
-        val initial: ImmutableList<TradeTag>? = remember {
-            if (filterConfig.tags.isEmpty()) null else persistentListOf()
+        val initial: List<TradeTag>? = remember {
+            if (filterConfig.tags.isEmpty()) null else emptyList()
         }
 
         return produceState(initial) {
@@ -92,11 +88,11 @@ internal class TradesFilterPresenter(
                         description = tag.description,
                     )
                 }
-                .collect { value = it.toImmutableList() }
+                .collect { value = it }
         }.value
     }
 
-    private fun tagSuggestions(filterQuery: String): Flow<ImmutableList<TradeTag>> = flow {
+    private fun tagSuggestions(filterQuery: String): Flow<List<TradeTag>> = flow {
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
@@ -115,11 +111,10 @@ internal class TradesFilterPresenter(
                     description = tag.description,
                 )
             }
-            .map { it.toImmutableList() }
             .emitInto(this)
     }
 
-    private fun tickerSuggestions(filterQuery: String): Flow<ImmutableList<String>> = flow {
+    private fun tickerSuggestions(filterQuery: String): Flow<List<String>> = flow {
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
@@ -130,7 +125,6 @@ internal class TradesFilterPresenter(
                     ignore = tickers,
                 )
             }
-            .map { it.toImmutableList() }
             .emitInto(this)
     }
 

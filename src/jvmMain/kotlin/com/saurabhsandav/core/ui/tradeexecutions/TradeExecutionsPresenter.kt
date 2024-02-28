@@ -19,9 +19,6 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.Exec
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -49,7 +46,7 @@ internal class TradeExecutionsPresenter(
             executionsList = getExecutionsList(),
             selectionManager = selectionManager,
             canSelectionLock = canSelectionLock,
-            errors = remember(errors) { errors.toImmutableList() },
+            errors = errors,
             eventSink = ::onEvent,
         )
     }
@@ -84,18 +81,18 @@ internal class TradeExecutionsPresenter(
 
         val initial = remember {
             ExecutionsList(
-                todayExecutions = persistentListOf(),
-                pastExecutions = persistentListOf(),
+                todayExecutions = emptyList(),
+                pastExecutions = emptyList(),
             )
         }
 
         return produceState(initial) {
 
-            fun List<TradeExecution>.transform(from: Int = 0, to: Int = size): ImmutableList<TradeExecutionEntry> {
+            fun List<TradeExecution>.transform(from: Int = 0, to: Int = size): List<TradeExecutionEntry> {
                 val fromC = from.coerceAtLeast(0)
                 val toC = to.coerceAtMost(size)
-                if (toC <= fromC) return persistentListOf()
-                return subList(fromC, toC).map { it.toTradeExecutionListEntry() }.toImmutableList()
+                if (toC <= fromC) return emptyList()
+                return subList(fromC, toC).map { it.toTradeExecutionListEntry() }
             }
 
             tradingProfiles

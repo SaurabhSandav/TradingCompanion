@@ -25,11 +25,10 @@ import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
 import com.saurabhsandav.core.ui.trade.model.TradeState
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun TradeExecutionsTable(
-    items: ImmutableList<TradeState.Execution>,
+    items: List<TradeState.Execution>,
     newExecutionEnabled: Boolean,
     onAddToTrade: () -> Unit,
     onCloseTrade: () -> Unit,

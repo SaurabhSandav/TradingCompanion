@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.review.model
 
 import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
 @Immutable
@@ -10,7 +9,7 @@ internal data class ReviewState(
     val title: String,
     val isMarkdown: Boolean,
     val review: String,
-    val trades: ImmutableList<TradeEntry>,
+    val trades: List<TradeEntry>,
     val eventSink: (ReviewEvent) -> Unit,
 ) {
 

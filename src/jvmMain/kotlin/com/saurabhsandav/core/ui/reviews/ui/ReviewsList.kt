@@ -20,12 +20,11 @@ import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun ReviewsList(
-    pinnedReviews: ImmutableList<Review>,
-    unPinnedReviews: ImmutableList<Review>,
+    pinnedReviews: List<Review>,
+    unPinnedReviews: List<Review>,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
@@ -53,7 +52,7 @@ internal fun ReviewsList(
 
 private fun LazyListScope.reviews(
     isPinned: Boolean,
-    reviews: ImmutableList<Review>,
+    reviews: List<Review>,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,

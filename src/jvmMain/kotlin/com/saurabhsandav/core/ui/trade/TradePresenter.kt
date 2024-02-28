@@ -24,9 +24,6 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -173,8 +170,8 @@ internal class TradePresenter(
     }
 
     @Composable
-    private fun getTradeExecutions(): State<ImmutableList<Execution>> {
-        return produceState<ImmutableList<Execution>>(persistentListOf()) {
+    private fun getTradeExecutions(): State<List<Execution>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -194,14 +191,14 @@ internal class TradePresenter(
                         ),
                         locked = execution.locked,
                     )
-                }.toImmutableList()
+                }
             }
         }
     }
 
     @Composable
-    private fun getTradeStops(): State<ImmutableList<TradeStop>> {
-        return produceState<ImmutableList<TradeStop>>(persistentListOf()) {
+    private fun getTradeStops(): State<List<TradeStop>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -217,14 +214,14 @@ internal class TradePresenter(
                         risk = brokerage.pnl.toPlainString(),
                         netRisk = brokerage.netPNL.toPlainString(),
                     )
-                }.toImmutableList()
+                }
             }.collect { tradeStops -> value = tradeStops }
         }
     }
 
     @Composable
-    private fun getTradeTargets(): State<ImmutableList<TradeTarget>> {
-        return produceState<ImmutableList<TradeTarget>>(persistentListOf()) {
+    private fun getTradeTargets(): State<List<TradeTarget>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -240,7 +237,7 @@ internal class TradePresenter(
                         profit = brokerage.pnl.toPlainString(),
                         netProfit = brokerage.netPNL.toPlainString(),
                     )
-                }.toImmutableList()
+                }
             }.collect { tradeTargets -> value = tradeTargets }
         }
     }
@@ -273,8 +270,8 @@ internal class TradePresenter(
     }
 
     @Composable
-    private fun getTradeTags(): State<ImmutableList<TradeTag>> {
-        return produceState<ImmutableList<TradeTag>>(persistentListOf()) {
+    private fun getTradeTags(): State<List<TradeTag>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -288,13 +285,13 @@ internal class TradePresenter(
                         description = tag.description,
                     )
                 }
-                .collect { value = it.toImmutableList() }
+                .collect { value = it }
         }
     }
 
     @Composable
-    private fun getTradeAttachments(): State<ImmutableList<TradeAttachment>> {
-        return produceState<ImmutableList<TradeAttachment>>(persistentListOf()) {
+    private fun getTradeAttachments(): State<List<TradeAttachment>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -312,13 +309,13 @@ internal class TradePresenter(
                         extension = path.extension.uppercase().ifBlank { null },
                     )
                 }
-                .collect { value = it.toImmutableList() }
+                .collect { value = it }
         }
     }
 
     @Composable
-    private fun getTradeNotes(): State<ImmutableList<TradeNote>> {
-        return produceState<ImmutableList<TradeNote>>(persistentListOf()) {
+    private fun getTradeNotes(): State<List<TradeNote>> {
+        return produceState(emptyList()) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -342,7 +339,7 @@ internal class TradePresenter(
                         isMarkdown = note.isMarkdown,
                     )
                 }
-                .collect { value = it.toImmutableList() }
+                .collect { value = it }
         }
     }
 
@@ -396,7 +393,7 @@ internal class TradePresenter(
         }
     }
 
-    private fun tagSuggestions(filter: String): Flow<ImmutableList<TradeTag>> = flow {
+    private fun tagSuggestions(filter: String): Flow<List<TradeTag>> = flow {
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -410,7 +407,6 @@ internal class TradePresenter(
                     description = tag.description,
                 )
             }
-            .map { it.toImmutableList() }
             .emitInto(this)
     }
 

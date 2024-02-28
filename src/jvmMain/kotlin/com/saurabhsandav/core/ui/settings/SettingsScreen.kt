@@ -20,8 +20,6 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun SettingsWindow(
@@ -84,7 +82,7 @@ internal fun SettingsScreen(
             HorizontalDivider()
 
             LandingScreenPreference(
-                items = remember { persistentListOf(*enumValues<LandingScreen>()) },
+                items = remember { enumValues<LandingScreen>().toList() },
                 selectedItem = landingScreen,
                 onLandingScreenChange = onLandingScreenChange,
             )
@@ -99,7 +97,7 @@ internal fun SettingsScreen(
             HorizontalDivider()
 
             DefaultTimeframePreference(
-                items = remember { persistentListOf(*enumValues<Timeframe>()) },
+                items = remember { enumValues<Timeframe>().toList() },
                 selectedItem = defaultTimeframe,
                 onDefaultTimeframeChange = onDefaultTimeframeChange,
             )
@@ -107,7 +105,7 @@ internal fun SettingsScreen(
             HorizontalDivider()
 
             WebViewBackendPreference(
-                items = remember { persistentListOf(*enumValues<WebViewBackend>()) },
+                items = remember { enumValues<WebViewBackend>().toList() },
                 selectedItem = webViewBackend,
                 onWebViewBackendChange = onWebViewBackendChange,
             )
@@ -140,7 +138,7 @@ private fun DarkModePreference(
 
 @Composable
 private fun LandingScreenPreference(
-    items: ImmutableList<LandingScreen>,
+    items: List<LandingScreen>,
     selectedItem: LandingScreen,
     onLandingScreenChange: (LandingScreen) -> Unit,
 ) {
@@ -196,7 +194,7 @@ private fun DensityPreference(
 
 @Composable
 private fun DefaultTimeframePreference(
-    items: ImmutableList<Timeframe>,
+    items: List<Timeframe>,
     selectedItem: Timeframe,
     onDefaultTimeframeChange: (Timeframe) -> Unit,
 ) {
@@ -217,7 +215,7 @@ private fun DefaultTimeframePreference(
 
 @Composable
 private fun WebViewBackendPreference(
-    items: ImmutableList<WebViewBackend>,
+    items: List<WebViewBackend>,
     selectedItem: WebViewBackend,
     onWebViewBackendChange: (WebViewBackend) -> Unit,
 ) {
