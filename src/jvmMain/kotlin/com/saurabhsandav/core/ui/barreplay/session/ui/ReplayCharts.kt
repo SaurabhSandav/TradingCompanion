@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -82,7 +82,7 @@ internal fun ReplayCharts(
             }
         }
 
-        Divider()
+        HorizontalDivider()
 
         ReplayControls(
             replayFullBar = replayFullBar,

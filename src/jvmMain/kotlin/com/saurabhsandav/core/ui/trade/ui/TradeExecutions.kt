@@ -71,7 +71,7 @@ internal fun TradeExecutionsTable(
 
             DefaultTableHeader(schema)
 
-            Divider()
+            HorizontalDivider()
 
             items.forEach { item ->
 
@@ -150,7 +150,7 @@ private fun TradeExecutionItem(
                 schema = schema,
             )
 
-            Divider()
+            HorizontalDivider()
         }
 
         if (showLockConfirmationDialog) {

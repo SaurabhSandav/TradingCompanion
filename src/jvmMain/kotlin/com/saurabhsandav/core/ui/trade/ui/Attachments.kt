@@ -50,7 +50,7 @@ internal fun Attachments(
             content = { Text(text = "Attachments") },
         )
 
-        Divider()
+        HorizontalDivider()
 
         attachments.take(10).forEach { attachment ->
 
@@ -64,7 +64,7 @@ internal fun Attachments(
             }
         }
 
-        Divider()
+        HorizontalDivider()
 
         var showAddAttachmentDialog by state { false }
 

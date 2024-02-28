@@ -47,7 +47,7 @@ internal fun Notes(
             Text(text = "Notes")
         }
 
-        Divider()
+        HorizontalDivider()
 
         notes.forEach { note ->
 
@@ -97,7 +97,7 @@ internal fun Notes(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
         }
 
         val addWindowManager = remember { AppWindowManager() }
@@ -177,7 +177,7 @@ private fun NoteEditorWindow(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -216,7 +216,7 @@ private fun NoteEditorWindow(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             TextButton(
                 modifier = Modifier.fillMaxWidth(),

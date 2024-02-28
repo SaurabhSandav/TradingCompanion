@@ -5,7 +5,7 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -103,7 +103,7 @@ private fun MarkedTradeEntry(
                 onClick = onSelectTrade,
             )
 
-            Divider()
+            HorizontalDivider()
         }
     }
 }

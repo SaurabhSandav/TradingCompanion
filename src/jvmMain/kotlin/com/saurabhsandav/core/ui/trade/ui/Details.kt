@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.trade.ui
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
@@ -69,7 +69,7 @@ internal fun Details(details: Details) {
 
             DefaultTableHeader(schema = schema)
 
-            Divider()
+            HorizontalDivider()
 
             DefaultTableRow(
                 item = details,

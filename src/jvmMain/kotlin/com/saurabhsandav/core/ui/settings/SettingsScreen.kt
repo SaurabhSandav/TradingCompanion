@@ -81,7 +81,7 @@ internal fun SettingsScreen(
                 onDarkThemeEnabledChange = onDarkThemeEnabledChange,
             )
 
-            Divider()
+            HorizontalDivider()
 
             LandingScreenPreference(
                 items = remember { persistentListOf(*enumValues<LandingScreen>()) },
@@ -89,14 +89,14 @@ internal fun SettingsScreen(
                 onLandingScreenChange = onLandingScreenChange,
             )
 
-            Divider()
+            HorizontalDivider()
 
             DensityPreference(
                 densityFraction = densityFraction,
                 onDensityFractionChange = onDensityFractionChange,
             )
 
-            Divider()
+            HorizontalDivider()
 
             DefaultTimeframePreference(
                 items = remember { persistentListOf(*enumValues<Timeframe>()) },
@@ -104,7 +104,7 @@ internal fun SettingsScreen(
                 onDefaultTimeframeChange = onDefaultTimeframeChange,
             )
 
-            Divider()
+            HorizontalDivider()
 
             WebViewBackendPreference(
                 items = remember { persistentListOf(*enumValues<WebViewBackend>()) },

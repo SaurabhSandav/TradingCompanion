@@ -77,7 +77,7 @@ internal fun LandingNavigationRail(
             }
         }
 
-        Divider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
+        HorizontalDivider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
         NavigationRailItem(
             icon = { Icon(Icons.Default.SwitchAccount, contentDescription = "Profiles") },

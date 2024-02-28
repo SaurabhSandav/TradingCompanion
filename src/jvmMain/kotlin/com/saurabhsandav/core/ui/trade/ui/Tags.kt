@@ -42,7 +42,7 @@ internal fun Tags(
             Text(text = "Tags")
         }
 
-        Divider()
+        HorizontalDivider()
 
         ChipsSelectorBox(
             modifier = Modifier.fillMaxWidth().padding(16.dp),

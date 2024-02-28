@@ -183,7 +183,7 @@ private fun SizingTradeCard(
             }
         }
 
-        Divider()
+        HorizontalDivider()
 
         Row(
             modifier = Modifier.fillMaxWidth(),

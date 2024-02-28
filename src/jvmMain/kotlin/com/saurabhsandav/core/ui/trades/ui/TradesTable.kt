@@ -61,7 +61,7 @@ internal fun TradesTable(
 
                 DefaultTableHeader(schema)
 
-                Divider()
+                HorizontalDivider()
 
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -85,7 +85,7 @@ internal fun TradesTable(
                     )
                 }
 
-                Divider()
+                HorizontalDivider()
             }
         },
     ) {
@@ -159,7 +159,7 @@ private fun TableScope<TradeEntry>.tradeRows(
                 trailingContent = stats?.let { { StatsHeaderItem(it) } },
             )
 
-            Divider()
+            HorizontalDivider()
         }
 
         rows(
@@ -203,7 +203,7 @@ private fun TradeEntry(
                 onClick = onOpenDetails,
             )
 
-            Divider()
+            HorizontalDivider()
         }
     }
 }

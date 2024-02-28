@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,7 +61,7 @@ internal fun ReplayOrdersTable(
 
                     DefaultTableRow(item, schema)
 
-                    Divider()
+                    HorizontalDivider()
                 }
 
                 if (showCancelConfirmationDialog) {

@@ -127,7 +127,7 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
                 },
             )
 
-            Divider()
+            HorizontalDivider()
         }
 
         rows(
@@ -193,7 +193,7 @@ private fun TradeExecutionEntry(
                 onLongClick = onLongClick,
             )
 
-            Divider()
+            HorizontalDivider()
         }
 
         if (showLockConfirmationDialog) {

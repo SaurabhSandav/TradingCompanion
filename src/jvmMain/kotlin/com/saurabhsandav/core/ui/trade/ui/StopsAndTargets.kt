@@ -101,7 +101,7 @@ private fun StopsList(
             // Header
             DefaultTableHeader(schema = schema)
 
-            Divider()
+            HorizontalDivider()
 
             // Stops list
             stops.forEach { stop ->
@@ -115,7 +115,7 @@ private fun StopsList(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             val addValueState = remember {
                 AddValueState(
@@ -176,7 +176,7 @@ private fun TargetsList(
             // Header
             DefaultTableHeader(schema = schema)
 
-            Divider()
+            HorizontalDivider()
 
             // Targets list
             targets.forEach { target ->
@@ -190,7 +190,7 @@ private fun TargetsList(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             val addValueState = remember {
                 AddValueState(

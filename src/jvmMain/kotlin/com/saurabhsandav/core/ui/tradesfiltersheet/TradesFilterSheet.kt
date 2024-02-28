@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.tradesfiltersheet
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -105,27 +105,27 @@ private fun TradesFilterSheet(
 
             OpenClosedFilterItem(openClosed, onOpenClosedChange)
 
-            Divider()
+            HorizontalDivider()
 
             SideFilterItem(side, onSideChange)
 
-            Divider()
+            HorizontalDivider()
 
             DateIntervalFilterItem(dateInterval, onDateIntervalChange)
 
-            Divider()
+            HorizontalDivider()
 
             TimeIntervalFilterItem(timeInterval, onTimeIntervalChange)
 
-            Divider()
+            HorizontalDivider()
 
             PnlFilterItem(pnl, onPnlChange, filterByNetPnl, onFilterByNetPnlChange)
 
-            Divider()
+            HorizontalDivider()
 
             NotesFilterItem(notes, onNotesChange)
 
-            Divider()
+            HorizontalDivider()
 
             TagsFilterItem(
                 selectedTags = selectedTags,
@@ -136,7 +136,7 @@ private fun TradesFilterSheet(
                 onMatchAllTagsChange = onMatchAllTagsChange,
             )
 
-            Divider()
+            HorizontalDivider()
 
             TickersFilterItem(
                 selectedTickers = selectedTickers,

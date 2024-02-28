@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.trade.ui
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
@@ -52,7 +52,7 @@ internal fun Excursions(excursions: Excursions) {
                 )
             }
 
-            Divider()
+            HorizontalDivider()
 
             Row(
                 modifier = Modifier

@@ -69,7 +69,7 @@ internal fun ProfileTradesTable(
 
                 DefaultTableHeader(schema)
 
-                Divider()
+                HorizontalDivider()
 
                 OutlinedButton(
                     modifier = Modifier.align(Alignment.End).padding(16.dp),
@@ -79,7 +79,7 @@ internal fun ProfileTradesTable(
                     content = { Text("Filter") },
                 )
 
-                Divider()
+                HorizontalDivider()
             }
         },
     ) {
@@ -123,7 +123,7 @@ private fun TradeEntry(
                 onClick = onSelectTrade,
             )
 
-            Divider()
+            HorizontalDivider()
         }
     }
 }

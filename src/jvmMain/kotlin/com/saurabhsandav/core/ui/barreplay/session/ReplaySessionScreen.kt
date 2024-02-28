@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
@@ -34,7 +34,7 @@ internal fun ReplaySessionScreen(
             onAdvanceReplayByBar = { state.eventSink(AdvanceReplayByBar) },
         )
 
-        Divider()
+        HorizontalDivider()
 
         ReplayOrdersTable(
             replayOrderItems = state.replayOrderItems,

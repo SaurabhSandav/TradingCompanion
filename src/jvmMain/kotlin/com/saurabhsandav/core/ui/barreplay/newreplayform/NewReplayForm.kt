@@ -95,7 +95,7 @@ internal fun NewReplayForm(
                 Text("Full Bar")
             }
 
-            Divider()
+            HorizontalDivider()
 
             OutlinedListSelectionField(
                 items = NIFTY50,
@@ -108,7 +108,7 @@ internal fun NewReplayForm(
                 supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
             )
 
-            Divider()
+            HorizontalDivider()
 
             Button(
                 onClick = onLaunchReplay,

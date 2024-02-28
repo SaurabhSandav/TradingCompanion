@@ -58,7 +58,7 @@ internal fun StockChartControls(
 
                 customControls(stockChart)
 
-                Divider()
+                HorizontalDivider()
             }
 
             Column {
@@ -98,7 +98,7 @@ internal fun StockChartControls(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             OutlinedListSelectionField(
                 items = tickers,
@@ -116,7 +116,7 @@ internal fun StockChartControls(
                 label = { Text("Timeframe") },
             )
 
-            Divider()
+            HorizontalDivider()
 
             var goToDate by state {
                 Clock.System.nowIn(TimeZone.currentSystemDefault())

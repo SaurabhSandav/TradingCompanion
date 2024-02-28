@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,7 +37,7 @@ abstract class TableStudy<T> : Study {
 
                     DefaultTableRow(item, schema)
 
-                    Divider()
+                    HorizontalDivider()
                 }
             }
         }
