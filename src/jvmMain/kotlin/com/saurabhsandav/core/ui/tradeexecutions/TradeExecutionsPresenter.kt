@@ -28,7 +28,6 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
-@Stable
 internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,

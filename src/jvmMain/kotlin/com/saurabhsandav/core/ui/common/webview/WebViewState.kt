@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.common.webview
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AwtColor
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +11,6 @@ fun WebView(
     modifier: Modifier = Modifier,
 ) = webViewState.WebView(modifier)
 
-@Stable
 interface WebViewState {
 
     @Composable

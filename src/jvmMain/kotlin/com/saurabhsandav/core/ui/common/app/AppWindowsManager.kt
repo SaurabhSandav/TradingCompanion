@@ -1,11 +1,9 @@
 package com.saurabhsandav.core.ui.common.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 
-@Stable
 internal class AppWindowsManager<T> {
 
     private val _windows = mutableStateListOf<Window<T>>()
@@ -38,7 +36,6 @@ internal class AppWindowsManager<T> {
         _windows.clear()
     }
 
-    @Stable
     class Window<T>(
         val params: T,
         val onCloseRequest: (Window<T>) -> Unit,

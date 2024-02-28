@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.review
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
 import app.cash.molecule.RecompositionMode
@@ -36,7 +35,6 @@ import java.util.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@Stable
 internal class ReviewPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileReviewId: ProfileReviewId,

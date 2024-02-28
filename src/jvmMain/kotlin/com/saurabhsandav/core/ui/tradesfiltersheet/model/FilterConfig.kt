@@ -1,12 +1,10 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.autoSaver
 import com.saurabhsandav.core.trades.model.*
 import kotlinx.datetime.*
 import java.math.BigDecimal
 
-@Immutable
 data class FilterConfig(
     val openClosed: OpenClosed = OpenClosed.All,
     val side: Side = Side.All,

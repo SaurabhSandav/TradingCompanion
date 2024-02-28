@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.setValue
 
-@Stable
 class StockChartTabsState(
     private val onNew: (tabId: Int) -> Unit,
     private val onSelect: (tabId: Int) -> Unit,

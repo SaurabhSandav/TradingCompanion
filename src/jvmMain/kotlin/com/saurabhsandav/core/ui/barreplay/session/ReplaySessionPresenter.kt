@@ -35,7 +35,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
-@Stable
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
     replayParams: ReplayParams,

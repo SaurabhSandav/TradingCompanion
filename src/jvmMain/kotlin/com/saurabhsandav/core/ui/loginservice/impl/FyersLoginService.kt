@@ -46,7 +46,6 @@ import java.awt.Desktop
 import java.net.URI
 import kotlin.time.Duration.Companion.days
 
-@Stable
 internal class FyersLoginService private constructor(
     private val coroutineScope: CoroutineScope,
     private val resultHandle: LoginService.ResultHandle,

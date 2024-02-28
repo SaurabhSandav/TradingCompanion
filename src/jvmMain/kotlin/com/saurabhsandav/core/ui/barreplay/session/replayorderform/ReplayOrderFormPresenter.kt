@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,7 +14,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 
-@Stable
 internal class ReplayOrderFormPresenter(
     private val coroutineScope: CoroutineScope,
     private val replayOrdersManager: ReplayOrdersManager,

@@ -40,7 +40,6 @@ import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
 
-@Stable
 class StockChart(
     parentScope: CoroutineScope,
     private val prefs: FlowSettings,

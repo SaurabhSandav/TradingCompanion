@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.account
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -13,7 +12,6 @@ import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-@Stable
 internal class AccountPresenter(
     coroutineScope: CoroutineScope,
     appDB: AppDB,

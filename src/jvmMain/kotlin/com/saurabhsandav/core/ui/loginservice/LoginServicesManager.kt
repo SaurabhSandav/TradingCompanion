@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.loginservice
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import com.saurabhsandav.core.ui.common.app.AppWindowOwner
@@ -59,14 +58,12 @@ class LoginServicesManager {
         holder.resultHandle.resultHandles += resultHandle
     }
 
-    @Stable
     private class ServiceHolder(
         val service: LoginService,
         val resultHandle: DefaultResultHandle,
         val owner: AppWindowOwner = AppWindowOwner(),
     )
 
-    @Stable
     private class DefaultResultHandle(
         private val onFinished: () -> Unit,
     ) : ResultHandle {

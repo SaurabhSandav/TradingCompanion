@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.common.app
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
-@Stable
 class AppWindowManager(initialIsOpen: Boolean = false) {
 
     val owner = AppWindowOwner()

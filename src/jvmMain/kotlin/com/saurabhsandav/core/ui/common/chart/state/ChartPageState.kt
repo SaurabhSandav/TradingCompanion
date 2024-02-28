@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.common.chart.state
 
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
@@ -12,7 +11,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@Stable
 fun ChartPageState(
     coroutineScope: CoroutineScope,
     webViewState: WebViewState,
@@ -23,7 +21,6 @@ fun ChartPageState(
     webViewState = webViewState,
 ).apply { connect(chart) }
 
-@Stable
 class ChartPageState(
     private val coroutineScope: CoroutineScope,
     private val arrangement: ChartArrangement,

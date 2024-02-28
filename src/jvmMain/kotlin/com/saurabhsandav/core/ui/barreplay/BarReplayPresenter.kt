@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,7 +30,6 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 
-@Stable
 internal class BarReplayPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,

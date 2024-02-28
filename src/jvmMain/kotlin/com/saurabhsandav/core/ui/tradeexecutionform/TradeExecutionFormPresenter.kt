@@ -18,7 +18,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-@Stable
 internal class TradeExecutionFormPresenter(
     private val onCloseRequest: () -> Unit,
     private val coroutineScope: CoroutineScope,

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import androidx.compose.runtime.Stable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.coroutines.binding.binding
@@ -24,14 +23,11 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.binarySearchByAsResult
-import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.math.BigDecimal
 import kotlin.random.Random
 
-@Stable
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
     private val replayParams: ReplayParams,

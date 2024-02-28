@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-@Stable
 internal class ChartsPresenter(
     private val coroutineScope: CoroutineScope,
     stockChartsStateFactory: StockChartsStateFactory,

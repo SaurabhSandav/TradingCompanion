@@ -36,7 +36,6 @@ import kotlin.io.path.extension
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@Stable
 internal class TradePresenter(
     private val profileTradeId: ProfileTradeId,
     private val coroutineScope: CoroutineScope,

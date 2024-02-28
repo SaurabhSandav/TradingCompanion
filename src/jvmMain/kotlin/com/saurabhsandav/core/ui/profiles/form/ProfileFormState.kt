@@ -1,12 +1,9 @@
 package com.saurabhsandav.core.ui.profiles.form
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
-@Immutable
 internal data class ProfileFormState(
     val title: String,
     val formModel: ProfileFormModel?,
@@ -19,7 +16,6 @@ sealed class ProfileFormType {
     data class Edit(val id: ProfileId) : ProfileFormType()
 }
 
-@Stable
 internal class ProfileFormModel(
     val validator: FormValidator,
     isProfileNameUnique: suspend (String) -> Boolean,

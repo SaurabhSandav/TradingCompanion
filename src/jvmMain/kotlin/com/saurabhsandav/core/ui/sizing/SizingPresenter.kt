@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.sizing
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
@@ -27,7 +30,6 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-@Stable
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,

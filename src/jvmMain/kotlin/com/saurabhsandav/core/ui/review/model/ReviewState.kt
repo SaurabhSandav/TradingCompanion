@@ -1,10 +1,8 @@
 package com.saurabhsandav.core.ui.review.model
 
-import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.flow.Flow
 
-@Immutable
 internal data class ReviewState(
     val title: String,
     val isMarkdown: Boolean,
@@ -18,7 +16,6 @@ internal data class ReviewState(
         Trades,
     }
 
-    @Immutable
     internal data class TradeEntry(
         val profileTradeId: ProfileTradeId,
         val broker: String,

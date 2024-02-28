@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.studies
 
-import androidx.compose.runtime.Stable
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -9,7 +8,6 @@ import com.saurabhsandav.core.ui.studies.model.StudiesEvent
 import com.saurabhsandav.core.ui.studies.model.StudiesState
 import kotlinx.coroutines.CoroutineScope
 
-@Stable
 internal class StudiesPresenter(
     coroutineScope: CoroutineScope,
     private val studyFactories: List<Study.Factory<out Study>>,

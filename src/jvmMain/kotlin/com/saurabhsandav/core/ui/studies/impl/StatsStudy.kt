@@ -4,7 +4,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -288,7 +287,6 @@ internal class StatsStudy(
         )
     }
 
-    @Immutable
     data class GeneralStats(
         val pnl: String = "",
         val netPnl: String = "",

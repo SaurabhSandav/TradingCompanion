@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.common.webview
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.JFXColor
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.*
 import netscape.javascript.JSObject
 import javafx.scene.web.WebView as JFXWebView
 
-@Stable
 class JavaFxWebViewState : WebViewState {
 
     private lateinit var webView: JFXWebView

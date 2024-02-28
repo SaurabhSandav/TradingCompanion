@@ -132,7 +132,6 @@ fun WindowTitle(title: String) {
     }
 }
 
-@Stable
 class AppWindowState(
     windowState: WindowState,
     private val defaultTitle: String? = null,
@@ -192,7 +191,6 @@ class AppWindowState(
 
 val LocalAppWindowState = staticCompositionLocalOf<AppWindowState> { error("AppWindowState not set") }
 
-@Stable
 class AppWindowOwner {
 
     private val children = mutableListOf<AppWindowState>()

@@ -27,7 +27,6 @@ internal fun rememberPNLCalculatorWindowState(
     }
 }
 
-@Stable
 internal class PNLCalculatorWindowState(
     val params: PNLCalculatorWindowParams,
     private val coroutineScope: CoroutineScope,

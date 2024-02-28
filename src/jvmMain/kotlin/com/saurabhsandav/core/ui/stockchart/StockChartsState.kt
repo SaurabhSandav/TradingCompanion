@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -24,7 +23,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.util.prefs.Preferences
 
-@Stable
 class StockChartsState(
     parentScope: CoroutineScope,
     private val initialParams: StockChartParams,

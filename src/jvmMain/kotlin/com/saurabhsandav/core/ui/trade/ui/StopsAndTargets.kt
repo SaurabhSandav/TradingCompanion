@@ -351,7 +351,6 @@ private fun AddValueTextField(
     }
 }
 
-@Stable
 private class AddValueState<T : Any>(
     private val preview: (BigDecimal) -> Flow<T?>,
     private val onAdd: (BigDecimal) -> Unit,

@@ -1,14 +1,11 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
-@Immutable
 internal data class TradeState(
     val title: String,
     val details: Details?,
@@ -26,7 +23,6 @@ internal data class TradeState(
     val eventSink: (TradeEvent) -> Unit,
 ) {
 
-    @Immutable
     internal data class Details(
         val id: TradeId,
         val broker: String,
@@ -43,7 +39,6 @@ internal data class TradeState(
         val fees: String,
     )
 
-    @Immutable
     internal data class Execution(
         val id: TradeExecutionId,
         val quantity: String,
@@ -53,7 +48,6 @@ internal data class TradeState(
         val locked: Boolean,
     )
 
-    @Immutable
     internal data class Excursions(
         val maeInTrade: String,
         val mfeInTrade: String,
@@ -61,7 +55,6 @@ internal data class TradeState(
         val mfeInSession: String,
     )
 
-    @Immutable
     internal data class TradeStop(
         val price: BigDecimal,
         val priceText: String,
@@ -69,7 +62,6 @@ internal data class TradeState(
         val netRisk: String,
     )
 
-    @Immutable
     internal data class TradeTarget(
         val price: BigDecimal,
         val priceText: String,
@@ -77,14 +69,12 @@ internal data class TradeState(
         val netProfit: String,
     )
 
-    @Immutable
     internal data class TradeTag(
         val id: TradeTagId,
         val name: String,
         val description: String,
     )
 
-    @Immutable
     internal data class TradeAttachment(
         val id: TradeAttachmentId,
         val name: String,
@@ -93,7 +83,6 @@ internal data class TradeState(
         val extension: String?,
     )
 
-    @Immutable
     internal data class TradeNote(
         val id: TradeNoteId,
         val noteText: String,
@@ -102,7 +91,6 @@ internal data class TradeState(
     )
 }
 
-@Stable
 internal class AttachmentFormModel(
     val validator: FormValidator,
     initial: Initial,

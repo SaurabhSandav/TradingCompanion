@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@Stable
 internal class LandingPresenter(
     coroutineScope: CoroutineScope,
     private val profileId: ProfileId,

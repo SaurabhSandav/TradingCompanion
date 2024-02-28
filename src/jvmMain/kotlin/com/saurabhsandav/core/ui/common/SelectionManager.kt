@@ -1,9 +1,7 @@
 package com.saurabhsandav.core.ui.common
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 
-@Stable
 class SelectionManager<T> {
 
     private val _selection = mutableStateListOf<T>()

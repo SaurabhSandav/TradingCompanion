@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.settings
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.map
 import java.io.File
 import kotlin.system.exitProcess
 
-@Stable
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,

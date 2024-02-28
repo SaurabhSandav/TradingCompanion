@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.tradecontent
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
@@ -215,19 +214,16 @@ internal class TradeContentLauncher {
         }
     }
 
-    @Immutable
     private data class TradeExecutionFormWindowParams(
         val profileId: ProfileId,
         val formType: TradeExecutionFormType,
     )
 
-    @Immutable
     private data class TradeTagFormWindowParams(
         val profileId: ProfileId,
         val formType: TagFormType,
     )
 
-    @Immutable
     private data class TradeReviewWindowParams(
         val chartsHandle: ChartsHandle,
         val tradeReviewHandle: TradeReviewHandle,

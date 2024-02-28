@@ -1,17 +1,13 @@
 package com.saurabhsandav.core.ui.tagform.model
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
-@Immutable
 internal data class TagFormState(
     val title: String,
     val formModel: TagFormModel?,
 )
 
-@Stable
 internal class TagFormModel(
     val validator: FormValidator,
     isTagNameUnique: suspend (String) -> Boolean,

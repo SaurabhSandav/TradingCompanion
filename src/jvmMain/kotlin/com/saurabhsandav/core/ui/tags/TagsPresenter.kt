@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.tags
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -18,7 +21,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-@Stable
 internal class TagsPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,

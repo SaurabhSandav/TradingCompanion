@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.profiles
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -17,7 +20,6 @@ import com.saurabhsandav.core.utils.putCurrentTradingProfileId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 
-@Stable
 internal class ProfilesPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,

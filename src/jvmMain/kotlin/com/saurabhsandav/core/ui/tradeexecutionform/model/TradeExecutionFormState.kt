@@ -1,7 +1,5 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
@@ -14,14 +12,12 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 
-@Immutable
 internal data class TradeExecutionFormState(
     val title: String,
     val formModel: TradeExecutionFormModel?,
     val onSaveExecution: () -> Unit,
 )
 
-@Stable
 internal class TradeExecutionFormModel(
     val validator: FormValidator,
     initial: Initial,

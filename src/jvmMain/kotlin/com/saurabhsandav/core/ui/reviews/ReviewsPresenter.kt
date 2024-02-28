@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.reviews
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-@Stable
 internal class ReviewsPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.runtime.Stable
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
@@ -10,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 
-@Stable
 internal class ChartMarkersProvider(
     private val tradingProfiles: TradingProfiles,
 ) {

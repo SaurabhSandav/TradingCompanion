@@ -1,11 +1,9 @@
 package com.saurabhsandav.core.ui.tradereview.model
 
-import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.flow.Flow
 
-@Immutable
 internal data class TradeReviewState(
     val selectedProfileId: ProfileId?,
     val trades: List<TradeEntry>,
@@ -18,7 +16,6 @@ internal data class TradeReviewState(
         Marked,
     }
 
-    @Immutable
     internal data class TradeEntry(
         val profileTradeId: ProfileTradeId,
         val isMarked: Boolean,
@@ -36,7 +33,6 @@ internal data class TradeReviewState(
         val isNetProfitable: Boolean,
     )
 
-    @Immutable
     internal data class MarkedTradeEntry(
         val profileTradeId: ProfileTradeId,
         val profileName: String,

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
-import androidx.compose.runtime.Immutable
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -11,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.util.*
 
-@Immutable
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
     val selectedProfileId: ProfileId?,
@@ -22,7 +20,6 @@ internal data class ReplaySessionState(
     val eventSink: (ReplaySessionEvent) -> Unit,
 ) {
 
-    @Immutable
     internal data class ReplayOrderListItem(
         val id: Long,
         val executionType: String,
@@ -34,14 +31,12 @@ internal data class ReplaySessionState(
         val timestamp: String,
     )
 
-    @Immutable
     internal data class OrderFormParams(
         val id: UUID,
         val stockChartParams: StockChartParams,
         val initialModel: ReplayOrderFormModel.Initial?,
     )
 
-    @Immutable
     internal data class ReplayChartInfo(
         val replayTime: Flow<String> = emptyFlow(),
         val candleState: Flow<String> = emptyFlow(),

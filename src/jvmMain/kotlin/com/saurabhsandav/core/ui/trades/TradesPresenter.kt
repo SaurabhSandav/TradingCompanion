@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.trades
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.*
@@ -29,7 +32,6 @@ import java.util.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@Stable
 internal class TradesPresenter(
     coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
