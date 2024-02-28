@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.landing.model
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FactCheck
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,9 +23,9 @@ internal data class LandingState(
         TradeSizing("Trade Sizing", Icons.Filled.Straighten),
         TradeExecutions("Trade Executions", Icons.Filled.FolderOpen),
         Trades("Trades", Icons.Filled.Folder),
-        Tags("Tags", Icons.Default.Label),
+        Tags("Tags", Icons.AutoMirrored.Filled.Label),
         Reviews("Reviews", Icons.Filled.RateReview),
-        Studies("Studies", Icons.Filled.FactCheck);
+        Studies("Studies", Icons.AutoMirrored.Filled.FactCheck);
 
         companion object {
 

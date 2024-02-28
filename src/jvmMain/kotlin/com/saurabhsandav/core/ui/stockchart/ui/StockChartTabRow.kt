@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ScrollableTabRow
@@ -96,7 +98,7 @@ private fun StockChartTabControlsRow(
         onClick = state::selectPreviousTab,
         tooltipText = "Previous tab",
         content = {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Previous tab")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous tab")
         }
     )
 
@@ -104,7 +106,7 @@ private fun StockChartTabControlsRow(
         onClick = state::selectNextTab,
         tooltipText = "Next tab",
         content = {
-            Icon(Icons.Default.ArrowForward, contentDescription = "Next tab")
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next tab")
         }
     )
 
