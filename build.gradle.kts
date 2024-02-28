@@ -24,13 +24,6 @@ configurations.all {
     }
 }
 
-// Workaround for https://github.com/touchlab/Kermit/issues/383
-configurations
-    .matching { it.name.endsWith("TestRuntimeClasspath") }
-    .configureEach {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-test-junit")
-    }
-
 kotlin {
 
     jvm {
@@ -234,7 +227,7 @@ compose.desktop {
 }
 
 val downloadLWC by tasks.registering(Download::class) {
-    src("https://unpkg.com/lightweight-charts@4.1.2/dist/lightweight-charts.standalone.production.js")
+    src("https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js")
     dest("src/jvmMain/resources/charts_page")
     overwrite(false)
 }
