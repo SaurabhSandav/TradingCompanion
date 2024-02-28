@@ -46,6 +46,8 @@ kotlin {
                 freeCompilerArgs.addAll(
                     "-Xexpect-actual-classes",
                     "-Xcontext-receivers",
+                    "-P",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
                 )
 
                 // Trigger this with:
