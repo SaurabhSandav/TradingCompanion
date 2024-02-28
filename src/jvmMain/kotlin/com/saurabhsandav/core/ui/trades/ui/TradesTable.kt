@@ -68,12 +68,24 @@ internal fun TradesTable(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
 
-                    Text("Focus")
+                    SingleChoiceSegmentedButtonRow {
 
-                    Switch(
-                        checked = tradesList is TradesList.Focused,
-                        onCheckedChange = onSetFocusModeEnabled,
-                    )
+                        val isFocusMode = tradesList is TradesList.Focused
+
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            onClick = { onSetFocusModeEnabled(false) },
+                            selected = !isFocusMode,
+                            label = { Text("All") },
+                        )
+
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            onClick = { onSetFocusModeEnabled(true) },
+                            selected = isFocusMode,
+                            label = { Text("Focus") },
+                        )
+                    }
 
                     Spacer(Modifier.weight(1F))
 
