@@ -200,7 +200,7 @@ fun <T : Any> ListSelectionDialog(
     placeholderText: String = "Select...",
 ) {
 
-    AlertDialog(
+    BasicAlertDialog(
         onDismissRequest = onDismissRequest,
     ) {
 

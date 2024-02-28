@@ -93,7 +93,9 @@ class CefWebViewState : WebViewState {
 
                     Text(progressText)
 
-                    LinearProgressIndicator(initializationProgress.second)
+                    LinearProgressIndicator(
+                        progress = { initializationProgress.second },
+                    )
                 }
             }
         }
