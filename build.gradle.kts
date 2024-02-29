@@ -48,6 +48,9 @@ kotlin {
                     "-Xcontext-receivers",
                     "-P",
                     "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
+                    "-P",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:stabilityConfigurationPath=" +
+                            project.absoluteProjectPath("compose_compiler_config.conf")
                 )
 
                 // Trigger this with:
