@@ -59,7 +59,6 @@ internal class ReplaySessionModule(
             barReplay = barReplay,
             replayOrdersManager = replayOrdersManager,
             appPrefs = appModule.appPrefs,
-            tradingProfiles = appModule.tradingProfiles,
         )
     }
 }

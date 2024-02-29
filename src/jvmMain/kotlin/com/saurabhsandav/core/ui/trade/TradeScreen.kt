@@ -37,7 +37,7 @@ internal fun TradeWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradeModule(scope).presenter(profileTradeId) }
+    val presenter = remember { appModule.tradeModule(scope).presenter(profileTradeId, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(

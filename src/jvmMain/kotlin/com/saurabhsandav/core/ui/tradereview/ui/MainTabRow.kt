@@ -25,7 +25,7 @@ internal fun MainTabRow(
     selectedTab: TradeReviewState.Tab,
     onSelectTab: (TradeReviewState.Tab) -> Unit,
     selectedProfileId: ProfileId?,
-    onSelectProfile: (ProfileId) -> Unit,
+    onProfileSelected: (ProfileId?) -> Unit,
 ) {
 
     TabRow(
@@ -53,8 +53,8 @@ internal fun MainTabRow(
                     ProfileSwitcherBox(
                         expanded = profileSwitcherExpanded,
                         onExpandedChange = { profileSwitcherExpanded = it },
-                        selectedProfileId = selectedProfileId,
-                        onSelectProfile = onSelectProfile,
+                        initialSelectedProfileId = selectedProfileId,
+                        onProfileSelected = onProfileSelected,
                     ) { profileName ->
 
                         SideEffect { currentProfileName = profileName }

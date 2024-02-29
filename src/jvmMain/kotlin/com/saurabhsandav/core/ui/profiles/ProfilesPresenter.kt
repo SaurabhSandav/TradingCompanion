@@ -26,9 +26,25 @@ internal class ProfilesPresenter(
     private val tradingProfiles: TradingProfiles,
     private val customSelectionMode: Boolean,
     private val trainingOnly: Boolean,
+    initialSelectedProfileId: ProfileId? = null,
+    private val onProfileSelected: ((ProfileId?) -> Unit)? = null,
 ) {
 
-    private val currentProfileId = MutableStateFlow<ProfileId?>(null)
+    private val currentProfileId = MutableStateFlow(initialSelectedProfileId)
+
+    init {
+
+        // Handle selected profile deletion
+        currentProfileId
+            .filterNotNull()
+            .flatMapLatest(tradingProfiles::getProfileOrNull)
+            .filter { it == null }
+            .onEach {
+                currentProfileId.value = null
+                onProfileSelected!!.invoke(null)
+            }
+            .launchIn(coroutineScope)
+    }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -62,20 +78,24 @@ internal class ProfilesPresenter(
         return remember {
             when {
                 customSelectionMode -> currentProfileId.flatMapLatest { currentProfileId ->
-                    when (currentProfileId) {
-                        null -> flowOf(null)
-                        else -> tradingProfiles.getProfileOrNull(currentProfileId)
-                    }
+
+                    if (currentProfileId == null) return@flatMapLatest flowOf(null)
+
+                    tradingProfiles.getProfileOrNull(currentProfileId)
                 }
 
                 else -> appPrefs.getCurrentTradingProfile(tradingProfiles)
-            }.filterNotNull().map(::toProfileState)
+            }.map { profile -> profile?.let(::toProfileState) }
         }.collectAsState(null)
     }
 
     private fun onSetCurrentProfile(id: ProfileId) = coroutineScope.launchUnit {
         when {
-            customSelectionMode -> currentProfileId.value = id
+            customSelectionMode -> {
+                currentProfileId.value = id
+                onProfileSelected!!.invoke(id)
+            }
+
             else -> appPrefs.putCurrentTradingProfileId(id)
         }
     }
@@ -99,11 +119,13 @@ internal class ProfilesPresenter(
         isTraining = profile.isTraining,
     )
 
-    fun interface Factory {
+    interface Factory {
 
-        operator fun invoke(
+        fun build(
             customSelectionMode: Boolean,
             trainingOnly: Boolean,
+            initialSelectedProfileId: ProfileId? = null,
+            onProfileSelected: ((ProfileId?) -> Unit)? = null,
         ): ProfilesPresenter
     }
 }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
@@ -24,9 +23,7 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -42,7 +39,6 @@ internal class ReplaySessionPresenter(
     private val barReplay: BarReplay,
     val replayOrdersManager: ReplayOrdersManager,
     private val appPrefs: FlowSettings,
-    private val tradingProfiles: TradingProfiles,
 ) {
 
     private var autoNextJob by mutableStateOf<Job?>(null)
@@ -72,7 +68,7 @@ internal class ReplaySessionPresenter(
             AdvanceReplay -> onAdvanceReplay()
             AdvanceReplayByBar -> onAdvanceReplayByBar()
             is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
-            is SelectProfile -> onSelectProfile(event.id)
+            is ProfileSelected -> onProfileSelected(event.id)
             is Buy -> onBuy(event.stockChart)
             is Sell -> onSell(event.stockChart)
             is CancelOrder -> onCancelOrder(event.id)
@@ -82,10 +78,7 @@ internal class ReplaySessionPresenter(
     @Composable
     private fun getSelectedProfileId(): ProfileId? {
         return remember {
-            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-                .map { it?.let(::ProfileId) }
-                .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
-                .map { it?.id }
+            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).map { it?.let(::ProfileId) }
         }.collectAsState(null).value
     }
 
@@ -176,13 +169,22 @@ internal class ReplaySessionPresenter(
         }
     }
 
-    private fun onSelectProfile(id: ProfileId) = coroutineScope.launchUnit {
+    private fun onProfileSelected(id: ProfileId?) = coroutineScope.launchUnit {
 
-        // Save selected profile
-        appPrefs.putLong(PrefKeys.ReplayTradingProfile, id.value)
+        val currentProfileId = appPrefs.getLongOrNull(PrefKeys.ReplayTradingProfile)?.let(::ProfileId)
 
-        // Close all child windows
-        orderFormWindowsManager.closeAll()
+        when (id) {
+            // Profile deleted, delete pref
+            null -> appPrefs.remove(PrefKeys.ReplayTradingProfile)
+            // Save selected profile
+            else -> appPrefs.putLong(PrefKeys.ReplayTradingProfile, id.value)
+        }
+
+        if (currentProfileId != id) {
+
+            // Close all child windows
+            orderFormWindowsManager.closeAll()
+        }
     }
 
     private fun onBuy(stockChart: StockChart) = coroutineScope.launchUnit {

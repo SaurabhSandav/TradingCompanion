@@ -12,8 +12,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -40,12 +39,19 @@ internal class TradeExecutionFormPresenter(
             is CloseTrade -> closeTrade(formType.tradeId)
             is Edit -> edit(formType.id)
         }
+
+        // Close if profile deleted
+        tradingProfiles
+            .getProfileOrNull(profileId)
+            .filter { it == null }
+            .onEach { onCloseRequest() }
+            .launchIn(coroutineScope)
     }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         val tradingProfileName by remember {
-            tradingProfiles.getProfile(profileId).map { profile -> "${profile.name} - " }
+            tradingProfiles.getProfileOrNull(profileId).filterNotNull().map { profile -> "${profile.name} - " }
         }.collectAsState("")
 
         return@launchMolecule TradeExecutionFormState(

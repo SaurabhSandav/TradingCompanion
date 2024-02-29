@@ -16,7 +16,7 @@ import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
 @Composable
 internal fun ReplayConfigRow(
     selectedProfileId: ProfileId?,
-    onSelectProfile: (ProfileId) -> Unit,
+    onProfileSelected: (ProfileId?) -> Unit,
     onNewReplay: () -> Unit,
     onResetReplay: () -> Unit,
     replayFullBar: Boolean,
@@ -34,8 +34,8 @@ internal fun ReplayConfigRow(
         ProfileSwitcherBox(
             expanded = profileSwitcherExpanded,
             onExpandedChange = { profileSwitcherExpanded = it },
-            selectedProfileId = selectedProfileId,
-            onSelectProfile = onSelectProfile,
+            initialSelectedProfileId = selectedProfileId,
+            onProfileSelected = onProfileSelected,
             trainingOnly = true,
         ) { profileName ->
 

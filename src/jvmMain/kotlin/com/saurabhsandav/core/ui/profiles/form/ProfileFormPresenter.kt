@@ -11,6 +11,8 @@ import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 internal class ProfileFormPresenter(
@@ -49,7 +51,13 @@ internal class ProfileFormPresenter(
                     is ProfileFormType.New -> ProfileFormModel.Initial(isTraining = trainingOnly)
                     is ProfileFormType.Edit -> {
 
-                        val profile = tradingProfiles.getProfile(formType.id).first()
+                        val profile = tradingProfiles.getProfileOrNull(formType.id).first()
+
+                        // If profile already deleted, close
+                        if (profile == null) {
+                            onCloseRequest()
+                            return@launch
+                        }
 
                         ProfileFormModel.Initial(
                             name = profile.name,
@@ -59,6 +67,14 @@ internal class ProfileFormPresenter(
                     }
                 },
             )
+        }
+
+        if (formType is ProfileFormType.Edit) {
+
+            tradingProfiles
+                .getProfileOrNull(formType.id)
+                .onEach { profile -> if (profile == null) onCloseRequest() }
+                .launchIn(coroutineScope)
         }
     }
 

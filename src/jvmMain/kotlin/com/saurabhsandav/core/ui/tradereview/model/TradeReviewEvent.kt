@@ -6,7 +6,7 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 internal sealed class TradeReviewEvent {
 
-    data class SelectProfile(val id: ProfileId) : TradeReviewEvent()
+    data class ProfileSelected(val id: ProfileId?) : TradeReviewEvent()
 
     data class MarkTrade(
         val profileTradeId: ProfileTradeId,

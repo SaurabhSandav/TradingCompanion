@@ -60,7 +60,7 @@ internal class TradeReviewPresenter(
     private fun onEvent(event: TradeReviewEvent) {
 
         when (event) {
-            is SelectProfile -> onSelectProfile(event.id)
+            is ProfileSelected -> onProfileSelected(event.id)
             is MarkTrade -> onMarkTrade(event.profileTradeId, event.isMarked)
             is SelectTrade -> onSelectTrade(event.profileTradeId)
             is OpenDetails -> onOpenDetails(event.profileTradeId)
@@ -77,8 +77,9 @@ internal class TradeReviewPresenter(
                 .flatMapLatest { id ->
                     if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null)
                 }
-                .filterNotNull()
                 .flatMapLatest { profile ->
+
+                    if (profile == null) return@flatMapLatest flowOf(emptyList())
 
                     val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
@@ -171,9 +172,16 @@ internal class TradeReviewPresenter(
 
                             val tradingRecord = tradingProfiles.getRecord(profileId)
 
-                            tradingProfiles.getProfile(profileId).flatMapLatest { profile ->
+                            tradingProfiles.getProfileOrNull(profileId).flatMapLatest profile@{ profile ->
 
-                                tradingRecord.trades
+                                if (profile == null) {
+                                    markedTradeIds.removeIf { it.profileId == profileId }
+                                    chartsHandle.setMarkedTrades(markedTradeIds)
+                                    return@profile emptyFlow()
+                                }
+
+                                tradingRecord
+                                    .trades
                                     .getByIds(ids = tradeIds)
                                     .mapList {
                                         it.toMarkedTradeListEntry(
@@ -245,10 +253,14 @@ internal class TradeReviewPresenter(
         )
     }
 
-    private fun onSelectProfile(id: ProfileId) = coroutineScope.launchUnit {
+    private fun onProfileSelected(id: ProfileId?) = coroutineScope.launchUnit {
 
-        // Save selected profile
-        appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id.value)
+        when (id) {
+            // Profile deleted, delete pref
+            null -> appPrefs.remove(PrefKeys.TradeReviewTradingProfile)
+            // Save selected profile
+            else -> appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id.value)
+        }
     }
 
     private fun onMarkTrade(

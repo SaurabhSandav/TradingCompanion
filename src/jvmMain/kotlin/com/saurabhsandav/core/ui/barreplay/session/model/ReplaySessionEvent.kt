@@ -13,7 +13,7 @@ internal sealed class ReplaySessionEvent {
 
     data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
 
-    data class SelectProfile(val id: ProfileId) : ReplaySessionEvent()
+    data class ProfileSelected(val id: ProfileId?) : ReplaySessionEvent()
 
     data class Buy(val stockChart: StockChart) : ReplaySessionEvent()
 

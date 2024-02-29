@@ -9,10 +9,14 @@ internal class TradeModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = { profileTradeId: ProfileTradeId ->
+    val presenter = {
+            profileTradeId: ProfileTradeId,
+            onProfileStoppedExisting: () -> Unit,
+        ->
 
         TradePresenter(
             profileTradeId = profileTradeId,
+            onProfileStoppedExisting = onProfileStoppedExisting,
             coroutineScope = coroutineScope,
             tradeContentLauncher = appModule.tradeContentLauncher,
             tradingProfiles = appModule.tradingProfiles,

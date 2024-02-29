@@ -38,6 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class TradePresenter(
     private val profileTradeId: ProfileTradeId,
+    private val onProfileStoppedExisting: () -> Unit,
     private val coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -55,10 +56,20 @@ internal class TradePresenter(
 
     private var newExecutionEnabled by mutableStateOf(false)
 
+    init {
+
+        // Close if profile deleted
+        tradingProfiles
+            .getProfileOrNull(profileId)
+            .filter { it == null }
+            .onEach { onProfileStoppedExisting() }
+            .launchIn(coroutineScope)
+    }
+
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         val tradingProfileName by remember {
-            tradingProfiles.getProfile(profileId).map { profile -> "${profile.name} - " }
+            tradingProfiles.getProfileOrNull(profileId).filterNotNull().map { profile -> "${profile.name} - " }
         }.collectAsState("")
 
         return@launchMolecule TradeState(

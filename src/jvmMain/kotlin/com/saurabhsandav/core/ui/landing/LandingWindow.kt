@@ -9,7 +9,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.landing.ui.LandingScreen
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 
 @Composable
 internal fun LandingWindow(
@@ -24,7 +24,15 @@ internal fun LandingWindow(
 
     val appModule = LocalAppModule.current
     val profileName by remember {
-        appModule.tradingProfiles.getProfile(profileId).map { "${it.name} - " }
+        appModule.tradingProfiles.getProfileOrNull(profileId).transform { profile ->
+
+            if (profile == null) {
+                onCloseRequest()
+                return@transform
+            }
+
+            emit("${profile.name} - ")
+        }
     }.collectAsState("")
 
     val windowState = rememberAppWindowState(

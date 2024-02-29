@@ -27,7 +27,7 @@ internal fun ReplaySessionScreen(
         ReplayConfigRow(
             onNewReplay = onNewReplay,
             selectedProfileId = state.selectedProfileId,
-            onSelectProfile = { id -> state.eventSink(SelectProfile(id)) },
+            onProfileSelected = { id -> state.eventSink(ProfileSelected(id)) },
             onResetReplay = { state.eventSink(ResetReplay) },
             replayFullBar = replayParams.replayFullBar,
             onAdvanceReplay = { state.eventSink(AdvanceReplay) },

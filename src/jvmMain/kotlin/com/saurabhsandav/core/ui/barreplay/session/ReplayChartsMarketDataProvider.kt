@@ -128,9 +128,10 @@ internal class ReplayChartsMarketDataProvider(
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
             .map { it?.let(::ProfileId) }
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
-            .filterNotNull()
 
         return replayProfile.flatMapLatest { profile ->
+
+            if (profile == null) return@flatMapLatest flowOf(emptyList())
 
             val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
@@ -175,9 +176,10 @@ internal class ReplayChartsMarketDataProvider(
         val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
             .map { it?.let(::ProfileId) }
             .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
-            .filterNotNull()
 
         return replayProfile.flatMapLatest { profile ->
+
+            if (profile == null) return@flatMapLatest flowOf(emptyList())
 
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 

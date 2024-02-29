@@ -57,7 +57,7 @@ internal fun TradeReviewWindow(
 
         TradeReviewScreen(
             selectedProfileId = state.selectedProfileId,
-            onSelectProfile = { profileTradeId -> state.eventSink(SelectProfile(profileTradeId)) },
+            onProfileSelected = { profileTradeId -> state.eventSink(ProfileSelected(profileTradeId)) },
             trades = state.trades,
             markedTrades = state.markedTrades,
             onMarkTrade = { profileTradeId, isMarked -> state.eventSink(MarkTrade(profileTradeId, isMarked)) },
@@ -72,7 +72,7 @@ internal fun TradeReviewWindow(
 @Composable
 internal fun TradeReviewScreen(
     selectedProfileId: ProfileId?,
-    onSelectProfile: (ProfileId) -> Unit,
+    onProfileSelected: (ProfileId?) -> Unit,
     trades: List<TradeEntry>,
     markedTrades: List<MarkedTradeEntry>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
@@ -91,7 +91,7 @@ internal fun TradeReviewScreen(
                 selectedTab = selectedTab,
                 onSelectTab = { selectedTab = it },
                 selectedProfileId = selectedProfileId,
-                onSelectProfile = onSelectProfile,
+                onProfileSelected = onProfileSelected,
             )
         },
         floatingActionButton = {
