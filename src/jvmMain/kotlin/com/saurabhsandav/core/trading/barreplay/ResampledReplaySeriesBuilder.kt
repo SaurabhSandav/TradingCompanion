@@ -38,7 +38,7 @@ internal class ResampledReplaySeriesBuilder(
         )
 
         // Set initial time
-        _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
+        _replayTime = MutableStateFlow(inputSeries[currentInputIndex].openInstant)
     }
 
     override val replaySeries: ReplaySeries = ReplaySeries(
@@ -117,7 +117,7 @@ internal class ResampledReplaySeriesBuilder(
         _replaySeries.replaceCandles(timeframeSeries.subList(0, currentTimeframeCandleIndex) + resampledCandle)
 
         // Update time
-        _replayTime.value = resampledCandle.openInstant
+        _replayTime.value = inputSeries[currentInputIndex].openInstant
 
         // Update candle state
         _candleState.value = BarReplay.CandleState.Close

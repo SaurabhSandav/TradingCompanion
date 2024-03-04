@@ -16,7 +16,7 @@ class ResampledReplaySeriesBuilderTest {
 
         assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
-        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
@@ -104,7 +104,7 @@ class ResampledReplaySeriesBuilderTest {
 
         assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
-        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
@@ -122,7 +122,7 @@ class ResampledReplaySeriesBuilderTest {
 
         assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
-        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 }
