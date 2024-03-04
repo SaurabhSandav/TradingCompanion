@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.trading.barreplay
 
+import com.saurabhsandav.core.trading.Timeframe
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 class ResampledReplaySeriesBuilderTest {
 
@@ -48,6 +50,90 @@ class ResampledReplaySeriesBuilderTest {
         assertEquals(201, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[200].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with BarReplay`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+        )
+
+        val sut = barReplay.newSeries(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+        )
+
+        assertEquals(CandleUtils.m15Series[199], sut.last())
+        assertEquals(200, sut.size)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with already advanced BarReplay`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+        )
+
+        barReplay.newSeries(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+        )
+
+        repeat(5) {
+            barReplay.advance()
+        }
+
+        val sut = barReplay.newSeries(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+        )
+
+        assertEquals(CandleUtils.m5Series.subList(203, 205).reduce(CandleUtils::resample), sut.last())
+        assertEquals(202, sut.size)
+        assertEquals(CandleUtils.m5Series[204].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with already advanced BarReplay with partial candle`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+            candleUpdateType = CandleUpdateType.OHLC,
+        )
+
+        barReplay.newSeries(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+        )
+
+        repeat(18) {
+            barReplay.advance()
+        }
+
+        val sut = barReplay.newSeries(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+        )
+
+        assertEquals(
+            expected = CandleUtils.m5Series
+                .subList(203, 205)
+                .reduceIndexed { i, resampledCandle, newCandle ->
+                    val stateCandle = if (i == 1) newCandle.atState(BarReplay.CandleState.Extreme1) else newCandle
+                    CandleUtils.resample(resampledCandle, stateCandle)
+                },
+            actual = sut.last(),
+        )
+        assertEquals(202, sut.size)
+        assertEquals(CandleUtils.m5Series[204].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Extreme1, sut.candleState.value)
     }
 
     @Test

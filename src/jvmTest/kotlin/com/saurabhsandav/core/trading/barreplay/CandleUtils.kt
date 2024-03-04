@@ -12,6 +12,16 @@ object CandleUtils {
 
     val d1Series by getCandlesSeries(Timeframe.D1)
 
+    fun resample(
+        resampledCandle: Candle,
+        newCandle: Candle,
+    ): Candle = resampledCandle.copy(
+        high = if (resampledCandle.high > newCandle.high) resampledCandle.high else newCandle.high,
+        low = if (resampledCandle.low < newCandle.low) resampledCandle.low else newCandle.low,
+        close = newCandle.close,
+        volume = resampledCandle.volume + newCandle.volume,
+    )
+
     private fun getCandlesSeries(timeframe: Timeframe): Lazy<CandleSeries> = lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
 
         require(timeframe in listOf(Timeframe.M5, Timeframe.M15, Timeframe.D1))

@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.trading.barreplay
 
+import com.saurabhsandav.core.trading.Timeframe
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 class SimpleReplaySeriesBuilderTest {
 
@@ -31,6 +33,67 @@ class SimpleReplaySeriesBuilderTest {
         assertEquals(200, sut.replaySeries.size)
         assertEquals(CandleUtils.d1Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with BarReplay`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+        )
+
+        val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
+
+        assertEquals(CandleUtils.m5Series[199], sut.last())
+        assertEquals(200, sut.size)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with already advanced BarReplay`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+        )
+
+        barReplay.newSeries(inputSeries = CandleUtils.m5Series)
+
+        repeat(5) {
+            barReplay.advance()
+        }
+
+        val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
+
+        assertEquals(CandleUtils.m5Series[204], sut.last())
+        assertEquals(205, sut.size)
+        assertEquals(CandleUtils.m5Series[204].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
+    }
+
+    @Test
+    fun `Initial state with already advanced BarReplay with partial candle`() {
+
+        val barReplay = BarReplay(
+            timeframe = Timeframe.M5,
+            from = CandleUtils.m5Series[200].openInstant - 1.seconds,
+            candleUpdateType = CandleUpdateType.OHLC,
+        )
+
+        barReplay.newSeries(inputSeries = CandleUtils.m5Series)
+
+        repeat(5) {
+            barReplay.advance()
+        }
+
+        val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
+
+        assertEquals(CandleUtils.m5Series[201].atState(BarReplay.CandleState.Open), sut.last())
+        assertEquals(202, sut.size)
+        assertEquals(CandleUtils.m5Series[201].openInstant, sut.replayTime.value)
+        assertEquals(BarReplay.CandleState.Open, sut.candleState.value)
     }
 
     @Test
