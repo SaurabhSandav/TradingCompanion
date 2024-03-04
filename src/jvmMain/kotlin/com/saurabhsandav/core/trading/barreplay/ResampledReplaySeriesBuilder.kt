@@ -110,14 +110,11 @@ internal class ResampledReplaySeriesBuilder(
         // Reset currentTimeframeCandleIndex to initial
         currentTimeframeCandleIndex = initialTimeframeCandleIndex
 
-        // Reset ReplaySeries to initial state
-        _replaySeries.removeLast(_replaySeries.size - currentTimeframeCandleIndex)
-
         // Last candle is resampled from inputSeries to make it more accurate to current replay state
         val resampledCandle = resampledInitialTimeframeCandle()
 
-        // Add resampled candle
-        _replaySeries.addLiveCandle(resampledCandle)
+        // Reset ReplaySeries to initial state
+        _replaySeries.replaceCandles(timeframeSeries.subList(0, currentTimeframeCandleIndex) + resampledCandle)
 
         // Update time
         _replayTime.value = resampledCandle.openInstant

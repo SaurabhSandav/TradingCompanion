@@ -16,6 +16,8 @@ interface MutableCandleSeries : CandleSeries {
 
     fun prependCandles(candles: List<Candle>)
 
+    fun replaceCandles(candles: List<Candle>)
+
     fun removeFirst(n: Int = 1)
 
     fun removeLast(n: Int = 1)
@@ -190,6 +192,29 @@ private class MutableCandleSeriesImpl(
                 if (list.size > maxCandleCount) list.removeLast()
             }
         }
+    }
+
+    override fun replaceCandles(candles: List<Candle>) {
+
+        val prevInstantRange = instantRange.value
+
+        // Clear cached indicators
+        indicatorCaches.forEach { it.clear() }
+
+        // Remove all candles
+        list.clear()
+
+        candles.forEach(::appendCandle)
+
+        // Update instant range
+        _instantRange.value = when {
+            list.isNotEmpty() -> first().openInstant..last().openInstant
+            else -> null
+        }
+
+        // Notify modification
+        val newInstantRange = instantRange.value
+        _modifications.tryEmit(prevInstantRange to newInstantRange)
     }
 
     override fun removeFirst(n: Int) {

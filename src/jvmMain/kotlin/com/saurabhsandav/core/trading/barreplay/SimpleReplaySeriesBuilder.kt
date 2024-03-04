@@ -19,6 +19,7 @@ internal class SimpleReplaySeriesBuilder(
     )
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
     private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
+
     private var currentIndex = initialIndex - 1
 
     override val replaySeries: ReplaySeries = ReplaySeries(
@@ -72,7 +73,7 @@ internal class SimpleReplaySeriesBuilder(
         currentIndex = initialIndex - 1
 
         // Reset replaySeries to initial state
-        _replaySeries.removeLast(_replaySeries.size - initialIndex)
+        _replaySeries.replaceCandles(inputSeries.subList(0, initialIndex))
 
         // Update time
         _replayTime.value = _replaySeries.last().openInstant
