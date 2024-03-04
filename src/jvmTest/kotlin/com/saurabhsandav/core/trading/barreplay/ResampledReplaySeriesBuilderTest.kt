@@ -21,6 +21,21 @@ class ResampledReplaySeriesBuilderTest {
     }
 
     @Test
+    fun `Initial state daily`() {
+
+        val sut = ResampledReplaySeriesBuilder(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.d1Series,
+            initialIndex = 200,
+        )
+
+        assertEquals(CandleUtils.d1Series[199], sut.replaySeries.last())
+        assertEquals(200, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
     fun `Initial state partially resampled candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
@@ -49,6 +64,23 @@ class ResampledReplaySeriesBuilderTest {
         assertEquals(CandleUtils.m15Series[203], sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[211].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun `Advance to closed candle daily`() {
+
+        val sut = ResampledReplaySeriesBuilder(
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.d1Series,
+            initialIndex = 200,
+        )
+
+        sut.advanceTo(CandleUtils.d1Series[201].openInstant, BarReplay.CandleState.Close)
+
+        assertEquals(CandleUtils.d1Series[200], sut.replaySeries.last())
+        assertEquals(201, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[274].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 

@@ -10,9 +10,11 @@ object CandleUtils {
 
     val m15Series by getCandlesSeries(Timeframe.M15)
 
+    val d1Series by getCandlesSeries(Timeframe.D1)
+
     private fun getCandlesSeries(timeframe: Timeframe): Lazy<CandleSeries> = lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
 
-        require(timeframe in listOf(Timeframe.M5, Timeframe.M15))
+        require(timeframe in listOf(Timeframe.M5, Timeframe.M15, Timeframe.D1))
 
         this::class.java.getResourceAsStream("/NTPC_$timeframe.csv")
             .let(::requireNotNull)

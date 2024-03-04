@@ -20,6 +20,20 @@ class SimpleReplaySeriesBuilderTest {
     }
 
     @Test
+    fun `Initial state daily`() {
+
+        val sut = SimpleReplaySeriesBuilder(
+            inputSeries = CandleUtils.d1Series,
+            initialIndex = 200,
+        )
+
+        assertEquals(CandleUtils.d1Series[199], sut.replaySeries.last())
+        assertEquals(200, sut.replaySeries.size)
+        assertEquals(CandleUtils.d1Series[199].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
     fun `Advance to closed candle`() {
 
         val sut = SimpleReplaySeriesBuilder(
@@ -32,6 +46,22 @@ class SimpleReplaySeriesBuilderTest {
         assertEquals(CandleUtils.m5Series[203], sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[203].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
+    }
+
+    @Test
+    fun `Advance to closed candle daily`() {
+
+        val sut = SimpleReplaySeriesBuilder(
+            inputSeries = CandleUtils.d1Series,
+            initialIndex = 200,
+        )
+
+        sut.advanceTo(CandleUtils.d1Series[203].openInstant, BarReplay.CandleState.Close)
+
+        assertEquals(CandleUtils.d1Series[203], sut.replaySeries.last())
+        assertEquals(204, sut.replaySeries.size)
+        assertEquals(CandleUtils.d1Series[203].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
