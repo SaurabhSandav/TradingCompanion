@@ -1,10 +1,5 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.asCandleSeries
-import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -14,29 +9,29 @@ class ResampledReplaySeriesBuilderTest {
     fun `Initial state`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        assertEquals(timeframeSeries[1], sut.replaySeries.last())
-        assertEquals(2, sut.replaySeries.size)
-        assertEquals(timeframeSeries[1].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
+        assertEquals(200, sut.replaySeries.size)
+        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
     @Test
-    fun `Initial state partial candle`() {
+    fun `Initial state partially resampled candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 7,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 201,
         )
 
-        assertEquals(inputSeries[6], sut.replaySeries.last())
-        assertEquals(3, sut.replaySeries.size)
-        assertEquals(inputSeries[6].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[200], sut.replaySeries.last())
+        assertEquals(201, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[200].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
@@ -44,16 +39,16 @@ class ResampledReplaySeriesBuilderTest {
     fun `Advance to closed candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        sut.advanceTo(inputSeries[8].openInstant, BarReplay.CandleState.Close)
+        sut.advanceTo(CandleUtils.m5Series[211].openInstant, BarReplay.CandleState.Close)
 
-        assertEquals(timeframeSeries[2], sut.replaySeries.last())
-        assertEquals(3, sut.replaySeries.size)
-        assertEquals(inputSeries[8].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m15Series[203], sut.replaySeries.last())
+        assertEquals(204, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[211].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
@@ -63,16 +58,16 @@ class ResampledReplaySeriesBuilderTest {
         val candleState = BarReplay.CandleState.Extreme2
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        sut.advanceTo(inputSeries[9].openInstant, candleState)
+        sut.advanceTo(CandleUtils.m5Series[209].openInstant, candleState)
 
-        assertEquals(inputSeries[9].atState(candleState), sut.replaySeries.last())
-        assertEquals(4, sut.replaySeries.size)
-        assertEquals(inputSeries[9].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[209].atState(candleState), sut.replaySeries.last())
+        assertEquals(204, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[209].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(candleState, sut.replaySeries.candleState.value)
     }
 
@@ -80,18 +75,18 @@ class ResampledReplaySeriesBuilderTest {
     fun `Advance sequentially to partial candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Open)
-        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Extreme1)
-        sut.advanceTo(inputSeries[9].openInstant, BarReplay.CandleState.Extreme2)
+        sut.advanceTo(CandleUtils.m5Series[200].openInstant, BarReplay.CandleState.Open)
+        sut.advanceTo(CandleUtils.m5Series[200].openInstant, BarReplay.CandleState.Extreme1)
+        sut.advanceTo(CandleUtils.m5Series[200].openInstant, BarReplay.CandleState.Extreme2)
 
-        assertEquals(inputSeries[9].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
-        assertEquals(4, sut.replaySeries.size)
-        assertEquals(inputSeries[9].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m5Series[200].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
+        assertEquals(201, sut.replaySeries.size)
+        assertEquals(CandleUtils.m5Series[200].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Extreme2, sut.replaySeries.candleState.value)
     }
 
@@ -99,17 +94,17 @@ class ResampledReplaySeriesBuilderTest {
     fun `Reset after closed candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        sut.advanceTo(inputSeries[7].openInstant, BarReplay.CandleState.Close)
+        sut.advanceTo(CandleUtils.m5Series[211].openInstant, BarReplay.CandleState.Close)
         sut.reset()
 
-        assertEquals(timeframeSeries[1], sut.replaySeries.last())
-        assertEquals(2, sut.replaySeries.size)
-        assertEquals(timeframeSeries[1].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
+        assertEquals(200, sut.replaySeries.size)
+        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
 
@@ -117,189 +112,17 @@ class ResampledReplaySeriesBuilderTest {
     fun `Reset after partial candle`() {
 
         val sut = ResampledReplaySeriesBuilder(
-            inputSeries = inputSeries,
-            timeframeSeries = timeframeSeries,
-            initialIndex = 6,
+            inputSeries = CandleUtils.m5Series,
+            timeframeSeries = CandleUtils.m15Series,
+            initialIndex = 200,
         )
 
-        sut.advanceTo(inputSeries[6].openInstant, BarReplay.CandleState.Open)
+        sut.advanceTo(CandleUtils.m5Series[209].openInstant, BarReplay.CandleState.Open)
         sut.reset()
 
-        assertEquals(timeframeSeries[1], sut.replaySeries.last())
-        assertEquals(2, sut.replaySeries.size)
-        assertEquals(timeframeSeries[1].openInstant, sut.replaySeries.replayTime.value)
+        assertEquals(CandleUtils.m15Series[199], sut.replaySeries.last())
+        assertEquals(200, sut.replaySeries.size)
+        assertEquals(CandleUtils.m15Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
     }
-
-    private val inputSeries = MutableCandleSeries(
-        initial = listOf(
-            Candle(
-                Instant.fromEpochSeconds(1702624500),
-                "297.55".toBigDecimal(),
-                "297.7".toBigDecimal(),
-                "297.3".toBigDecimal(),
-                "297.35".toBigDecimal(),
-                "260304".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702624800),
-                "297.35".toBigDecimal(),
-                "297.5".toBigDecimal(),
-                "297.3".toBigDecimal(),
-                "297.4".toBigDecimal(),
-                "32179".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702625100),
-                "297.4".toBigDecimal(),
-                "297.4".toBigDecimal(),
-                "297.2".toBigDecimal(),
-                "297.35".toBigDecimal(),
-                "72328".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702625400),
-                "297.3".toBigDecimal(),
-                "297.45".toBigDecimal(),
-                "297.25".toBigDecimal(),
-                "297.35".toBigDecimal(),
-                "28748".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702625700),
-                "297.35".toBigDecimal(),
-                "297.45".toBigDecimal(),
-                "297.25".toBigDecimal(),
-                "297.4".toBigDecimal(),
-                "264255".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702626000),
-                "297.4".toBigDecimal(),
-                "297.7".toBigDecimal(),
-                "297.35".toBigDecimal(),
-                "297.5".toBigDecimal(),
-                "158485".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702626300),
-                "297.45".toBigDecimal(),
-                "297.5".toBigDecimal(),
-                "296.85".toBigDecimal(),
-                "297".toBigDecimal(),
-                "133020".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702626600),
-                "296.9".toBigDecimal(),
-                "297".toBigDecimal(),
-                "296.3".toBigDecimal(),
-                "296.45".toBigDecimal(),
-                "385188".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702626900),
-                "296.3".toBigDecimal(),
-                "296.65".toBigDecimal(),
-                "296.2".toBigDecimal(),
-                "296.6".toBigDecimal(),
-                "102969".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702627200),
-                "296.65".toBigDecimal(),
-                "297.1".toBigDecimal(),
-                "296.55".toBigDecimal(),
-                "297".toBigDecimal(),
-                "97349".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702627500),
-                "296.95".toBigDecimal(),
-                "297.2".toBigDecimal(),
-                "296.8".toBigDecimal(),
-                "297.2".toBigDecimal(),
-                "193037".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702627800),
-                "297.2".toBigDecimal(),
-                "297.8".toBigDecimal(),
-                "297.2".toBigDecimal(),
-                "297.6".toBigDecimal(),
-                "296911".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702628100),
-                "297.6".toBigDecimal(),
-                "298".toBigDecimal(),
-                "297.55".toBigDecimal(),
-                "297.9".toBigDecimal(),
-                "128112".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702628400),
-                "297.8".toBigDecimal(),
-                "298.15".toBigDecimal(),
-                "297.75".toBigDecimal(),
-                "297.9".toBigDecimal(),
-                "194660".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702628700),
-                "297.9".toBigDecimal(),
-                "298.15".toBigDecimal(),
-                "297.75".toBigDecimal(),
-                "298.1".toBigDecimal(),
-                "223943".toBigDecimal()
-            ),
-        ),
-        timeframe = Timeframe.M5,
-    ).asCandleSeries()
-
-    private val timeframeSeries = MutableCandleSeries(
-        initial = listOf(
-            Candle(
-                Instant.fromEpochSeconds(1702624500),
-                "297.55".toBigDecimal(),
-                "297.7".toBigDecimal(),
-                "297.2".toBigDecimal(),
-                "297.35".toBigDecimal(),
-                "364811".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702625400),
-                "297.3".toBigDecimal(),
-                "297.7".toBigDecimal(),
-                "297.25".toBigDecimal(),
-                "297.5".toBigDecimal(),
-                "451488".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702626300),
-                "297.45".toBigDecimal(),
-                "297.5".toBigDecimal(),
-                "296.2".toBigDecimal(),
-                "296.6".toBigDecimal(),
-                "621177".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702627200),
-                "296.65".toBigDecimal(),
-                "297.8".toBigDecimal(),
-                "296.55".toBigDecimal(),
-                "297.6".toBigDecimal(),
-                "587297".toBigDecimal()
-            ),
-            Candle(
-                Instant.fromEpochSeconds(1702628100),
-                "297.6".toBigDecimal(),
-                "298.15".toBigDecimal(),
-                "297.55".toBigDecimal(),
-                "298.1".toBigDecimal(),
-                "546715".toBigDecimal()
-            ),
-        ),
-        timeframe = Timeframe.M15,
-    )
 }
