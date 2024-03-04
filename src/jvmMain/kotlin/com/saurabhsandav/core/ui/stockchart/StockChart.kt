@@ -12,14 +12,11 @@ import com.saurabhsandav.core.chart.options.TimeScaleOptions
 import com.saurabhsandav.core.chart.plugin.SessionMarkers
 import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers
 import com.saurabhsandav.core.chart.plugin.TradeMarkers
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.SessionChecker
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
-import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
@@ -211,7 +208,7 @@ class StockChart(
                 .launchIn(dataCoroutineScope)
 
             // Update chart with live candles
-            candleSeries.live.onEach { update() }.launchIn(dataCoroutineScope)
+            candleSeries.live.onEach { (i, candle) -> update(i, candle) }.launchIn(dataCoroutineScope)
 
             setupMarkers()
         }
@@ -339,12 +336,12 @@ class StockChart(
         } else sma200Plotter.setData(emptyList())
     }
 
-    private fun update() {
+    private fun update(
+        index: Int,
+        candle: Candle,
+    ) {
 
         val indicators = requireNotNull(indicators)
-        val index = indicators.candleSeries.lastIndex
-        val candle = indicators.candleSeries.last()
-
         val time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart())
 
         candlestickPlotter.update(

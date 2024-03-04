@@ -35,6 +35,6 @@ interface CandleSource {
 
     class Result(
         val candles: List<Candle>,
-        val live: Flow<Candle>? = null,
+        val live: Flow<IndexedValue<Candle>>? = null,
     )
 }

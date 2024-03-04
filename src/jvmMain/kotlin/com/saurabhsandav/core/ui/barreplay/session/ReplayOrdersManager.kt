@@ -234,6 +234,7 @@ internal class ReplayOrdersManager(
 
         // Send price updates to BacktestBroker
         replaySeries.live
+            .map { (_, candle) -> candle as Candle }
             .runningFold<Candle, Pair<Candle, Candle>?>(null) { accumulator, new ->
                 (accumulator?.second ?: new) to new
             }

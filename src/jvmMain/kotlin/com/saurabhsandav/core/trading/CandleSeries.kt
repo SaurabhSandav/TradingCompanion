@@ -10,7 +10,7 @@ interface CandleSeries : List<Candle> {
 
     val timeframe: Timeframe
 
-    val live: Flow<Candle>
+    val live: Flow<IndexedValue<Candle>>
 
     val instantRange: StateFlow<ClosedRange<Instant>?>
 

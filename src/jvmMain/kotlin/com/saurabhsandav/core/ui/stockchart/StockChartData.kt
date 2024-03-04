@@ -63,12 +63,12 @@ class StockChartData(
         liveJob?.cancel()
     }
 
-    internal fun collectLive(live: Flow<Candle>) {
+    internal fun collectLive(live: Flow<IndexedValue<Candle>>) {
 
         if (liveJob != null) return
 
         liveJob = coroutineScope.launch {
-            live.collect(mutableCandleSeries::addLiveCandle)
+            live.map { it.value }.collect(mutableCandleSeries::addLiveCandle)
         }
     }
 

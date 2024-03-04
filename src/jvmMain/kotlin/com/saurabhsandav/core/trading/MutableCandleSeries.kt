@@ -53,8 +53,8 @@ private class MutableCandleSeriesImpl(
 
     private val indicatorCaches = mutableListOf<IndicatorCache<*>>()
 
-    private val _live = MutableSharedFlow<Candle>(extraBufferCapacity = Int.MAX_VALUE)
-    override val live: Flow<Candle> = _live.asSharedFlow()
+    private val _live = MutableSharedFlow<IndexedValue<Candle>>(extraBufferCapacity = Int.MAX_VALUE)
+    override val live: Flow<IndexedValue<Candle>> = _live.asSharedFlow()
 
     private val _modifications = MutableSharedFlow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>>(
         extraBufferCapacity = Int.MAX_VALUE,
@@ -73,7 +73,7 @@ private class MutableCandleSeriesImpl(
         appendCandle(candle)
 
         // Update live flow
-        _live.tryEmit(candle)
+        _live.tryEmit(IndexedValue(lastIndex, candle))
 
         // Update instant range
         _instantRange.value = when {
