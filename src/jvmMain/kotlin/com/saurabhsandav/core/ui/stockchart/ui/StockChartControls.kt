@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
+import com.saurabhsandav.core.ui.common.controls.ListSelectionFieldDefaults
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
@@ -31,6 +33,7 @@ internal fun StockChartControls(
     onChangeTicker: (String) -> Unit,
     timeframes: List<Timeframe>,
     onChangeTimeframe: (Timeframe) -> Unit,
+    onOpenInNewTab: (String, Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
@@ -105,6 +108,11 @@ internal fun StockChartControls(
                 selection = stockChart.params.ticker,
                 onSelection = onChangeTicker,
                 label = { Text("Ticker") },
+                trailingIcon = ListSelectionFieldDefaults.TrailingIcon(
+                    icon = Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = "Open in new tab",
+                    onClick = { onOpenInNewTab(it, stockChart.params.timeframe) }
+                ),
             )
 
             OutlinedListSelectionField(
@@ -113,6 +121,11 @@ internal fun StockChartControls(
                 selection = stockChart.params.timeframe,
                 onSelection = onChangeTimeframe,
                 label = { Text("Timeframe") },
+                trailingIcon = ListSelectionFieldDefaults.TrailingIcon(
+                    icon = Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = "Open in new tab",
+                    onClick = { onOpenInNewTab(stockChart.params.ticker, it) }
+                ),
             )
 
             HorizontalDivider()

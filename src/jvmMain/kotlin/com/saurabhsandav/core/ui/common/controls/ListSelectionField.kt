@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -21,6 +22,7 @@ fun <T : Any> OutlinedListSelectionField(
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    trailingIcon: ListSelectionFieldDefaults.TrailingIcon<T>? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
 ) {
@@ -93,6 +95,18 @@ fun <T : Any> OutlinedListSelectionField(
                         expanded = false
                         onSelection(item)
                     },
+                    trailingIcon = trailingIcon?.run {
+                        {
+                            IconButton(
+                                onClick = {
+                                    expanded = false
+                                    onClick(item)
+                                }
+                            ) {
+                                Icon(icon, contentDescription = contentDescription)
+                            }
+                        }
+                    },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }
@@ -110,6 +124,7 @@ fun <T : Any> ListSelectionField(
     placeholderText: String = "Select...",
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    trailingIcon: ListSelectionFieldDefaults.TrailingIcon<T>? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
 ) {
@@ -182,6 +197,18 @@ fun <T : Any> ListSelectionField(
                         expanded = false
                         onSelection(item)
                     },
+                    trailingIcon = trailingIcon?.run {
+                        {
+                            IconButton(
+                                onClick = {
+                                    expanded = false
+                                    onClick(item)
+                                }
+                            ) {
+                                Icon(icon, contentDescription = contentDescription)
+                            }
+                        }
+                    },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }
@@ -214,4 +241,13 @@ fun <T : Any> ListSelectionDialog(
             )
         }
     }
+}
+
+object ListSelectionFieldDefaults {
+
+    data class TrailingIcon<T>(
+        val icon: ImageVector,
+        val contentDescription: String,
+        val onClick: (T) -> Unit,
+    )
 }

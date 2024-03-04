@@ -155,6 +155,10 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
+    fun onOpenInNewTab(ticker: String, timeframe: Timeframe) {
+        newChart(StockChartParams(ticker, timeframe))
+    }
+
     fun goToDateTime(
         stockChart: StockChart,
         dateTime: LocalDateTime?,
