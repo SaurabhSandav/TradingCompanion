@@ -234,7 +234,7 @@ internal class StatsStudy(
 
         val winTrades = allTrades.filter { it.pnl > BigDecimal.ZERO }
         val winCount = winTrades.count()
-        val winPct = winCount / totalTrades.toFloat()
+        val winDecimal = winCount / totalTrades.toFloat()
         val winTotalPnl = winTrades.sumOf { it.pnl }
         val averageWin = winTrades.map { it.pnl }.average()
         val longestWinStreak = longestStreak(allTrades) { it.pnl > BigDecimal.ZERO }
@@ -249,7 +249,7 @@ internal class StatsStudy(
 
         val lossTrades = allTrades.filter { it.pnl <= BigDecimal.ZERO }
         val lossCount = lossTrades.count()
-        val lossPct = lossCount / totalTrades.toFloat()
+        val lossDecimal = lossCount / totalTrades.toFloat()
         val lossTotalPnl = lossTrades.sumOf { it.pnl }
         val averageLoss = lossTrades.map { it.pnl }.average()
         val longestLossStreak = longestStreak(allTrades) { it.pnl <= BigDecimal.ZERO }
@@ -262,7 +262,7 @@ internal class StatsStudy(
             averageHoldingTimeSeconds / 60
         }
 
-        val expectancy = (winPct.toBigDecimal() * averageWin) - (lossPct.toBigDecimal() * averageLoss)
+        val expectancy = (winDecimal.toBigDecimal() * averageWin) + (lossDecimal.toBigDecimal() * averageLoss)
 
         return GeneralStats(
             pnl = allTrades.sumOf { it.pnl }.toPlainString(),
@@ -273,13 +273,13 @@ internal class StatsStudy(
             averageHoldingTime = "$averageHoldingTime minutes",
             expectancy = "%.2f".format(expectancy),
             wins = winCount.toString(),
-            winPercent = (winPct * 100).toString(),
+            winPercent = (winDecimal * 100).toString(),
             largestWin = winTrades.maxOfOrNull { it.pnl }?.toString() ?: "",
             averageWin = averageWin.toPlainString(),
             longestWinStreak = longestWinStreak.toString(),
             averageWinHoldingTime = "${"%.2f".format(averageWinHoldingTime)} minutes",
             losses = lossCount.toString(),
-            lossPercent = (lossPct * 100).toString(),
+            lossPercent = (lossDecimal * 100).toString(),
             largestLoss = lossTrades.minOfOrNull { it.pnl }?.toString() ?: "",
             averageLoss = averageLoss.toPlainString(),
             longestLossStreak = longestLossStreak.toString(),
