@@ -22,6 +22,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
@@ -170,10 +171,15 @@ internal class TradeExcursionsGenerator(
                 .maxOfOrNull { it.high }
         } ?: tradeMaePrice
 
-        fun Trade.calculatePnl(price: BigDecimal): BigDecimal = when (side) {
-            TradeSide.Long -> (price - averageEntry) * quantity
-            TradeSide.Short -> (averageEntry - price) * quantity
-        }.stripTrailingZeros()
+        fun Trade.calculatePnl(price: BigDecimal): BigDecimal {
+
+            val cost = when (side) {
+                TradeSide.Long -> price - averageEntry
+                TradeSide.Short -> averageEntry - price
+            }
+
+            return (cost * quantity).setScale(cost.scale(), RoundingMode.HALF_EVEN).stripTrailingZeros()
+        }
 
         return@withContext TradeExcursions(
             tradeId = trade.id,

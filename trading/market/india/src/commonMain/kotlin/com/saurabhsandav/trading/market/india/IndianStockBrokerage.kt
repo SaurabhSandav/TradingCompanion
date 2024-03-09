@@ -23,8 +23,8 @@ internal fun indiaBrokerage(
 
     val (buyPrice, sellPrice) = if (isLong) entry to exit else exit to entry
 
-    val buyTurnover = (buyPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
-    val sellTurnover = (sellPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
+    val buyTurnover = (buyPrice * quantity).setScale(buyPrice.scale(), RoundingMode.HALF_EVEN)
+    val sellTurnover = (sellPrice * quantity).setScale(sellPrice.scale(), RoundingMode.HALF_EVEN)
 
     val brokerage = brokerage(buyTurnover, sellTurnover)
 
@@ -32,9 +32,9 @@ internal fun indiaBrokerage(
 
     val sttTotal = (sellTurnover * sttMultiplier).setScale(0, RoundingMode.HALF_EVEN)
 
-    val excTransCharge = (excTransChargeMultiplier * turnover).setScale(2, RoundingMode.HALF_EVEN)
+    val excTransCharge = (excTransChargeMultiplier * turnover).setScale(turnover.scale(), RoundingMode.HALF_EVEN)
 
-    val sebiCharges = (turnover * "0.000001".toBigDecimal()).setScale(2, RoundingMode.HALF_EVEN)
+    val sebiCharges = (turnover * "0.000001".toBigDecimal()).setScale(turnover.scale(), RoundingMode.HALF_EVEN)
 
     val stax = ("0.18".toBigDecimal() * (brokerage + excTransCharge + sebiCharges)).setScale(2, RoundingMode.HALF_EVEN)
 
@@ -42,7 +42,7 @@ internal fun indiaBrokerage(
 
     val totalCharges = brokerage + sttTotal + excTransCharge + stax + sebiCharges + stampCharges
 
-    val pointsToBreakeven = (totalCharges / quantity).setScale(2, RoundingMode.HALF_EVEN)
+    val pointsToBreakeven = totalCharges.divide(quantity, 2, RoundingMode.HALF_EVEN)
 
     val breakeven = if (isLong) entry + pointsToBreakeven else entry - pointsToBreakeven
 

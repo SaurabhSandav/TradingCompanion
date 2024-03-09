@@ -6,6 +6,7 @@ import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.broker.Symbol
 import com.saurabhsandav.trading.core.Instrument
 import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.time.Instant
 
 class ZerodhaBroker : Broker {
@@ -28,15 +29,13 @@ class ZerodhaBroker : Broker {
         isLong = isLong,
     ) { buyTurnover, sellTurnover ->
 
-        val brokerageBuy = when {
-            (buyTurnover * "0.0003".toBigDecimal()) > "20".toBigDecimal() -> "20".toBigDecimal()
-            else -> (buyTurnover * "0.0003".toBigDecimal())
-        }
+        val twenty = "20".toBigDecimal()
 
-        val brokerageSell = when {
-            (sellTurnover * "0.0003".toBigDecimal()) > "20".toBigDecimal() -> "20".toBigDecimal()
-            else -> (sellTurnover * "0.0003".toBigDecimal())
-        }
+        val brokerageBuy = minOf(buyTurnover * "0.0003".toBigDecimal(), twenty)
+            .setScale(buyTurnover.scale(), RoundingMode.HALF_EVEN)
+
+        val brokerageSell = minOf(sellTurnover * "0.0003".toBigDecimal(), twenty)
+            .setScale(sellTurnover.scale(), RoundingMode.HALF_EVEN)
 
         brokerageBuy + brokerageSell
     }

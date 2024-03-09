@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.MathContext
+import java.math.RoundingMode
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.deleteExisting
@@ -508,11 +509,11 @@ class Executions(
     private fun List<TradeExecution>.averagePrice(): BigDecimal {
 
         val totalQuantity = sumOf { it.quantity }
-        val sum = sumOf { it.price * it.quantity }
+        val sum = sumOf { (it.price * it.quantity).setScale(it.price.scale(), RoundingMode.HALF_EVEN) }
 
         return when (totalQuantity.compareTo(BigDecimal.ZERO)) {
             0 -> BigDecimal.ZERO
-            else -> sum.divide(totalQuantity, MathContext.DECIMAL32)
+            else -> sum.divide(totalQuantity, sum.scale(), RoundingMode.HALF_EVEN)
         }
     }
 

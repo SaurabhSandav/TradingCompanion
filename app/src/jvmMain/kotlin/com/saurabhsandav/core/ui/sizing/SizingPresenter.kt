@@ -146,7 +146,7 @@ internal class SizingPresenter(
 
         val calculatedQuantity = when {
             spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+            else -> account.riskAmount.divide(spread, 0, RoundingMode.FLOOR)
         }
 
         val maxAffordableQuantity = when {
@@ -195,7 +195,7 @@ internal class SizingPresenter(
 
         val calculatedQuantity = when {
             spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+            else -> account.riskAmount.divide(spread, 0, RoundingMode.FLOOR)
         }
 
         val maxAffordableQuantity = when {

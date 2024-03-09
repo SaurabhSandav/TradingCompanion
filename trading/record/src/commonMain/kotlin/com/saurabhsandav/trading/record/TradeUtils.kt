@@ -68,7 +68,12 @@ fun TradeDisplay.brokerageAt(
 fun TradeDisplay.rValueAt(
     pnl: BigDecimal,
     stop: TradeStop,
-): BigDecimal = when (side) {
-    TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
-    TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
-}.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
+): BigDecimal {
+
+    val stopSpread = (averageEntry - stop.price).abs()
+    val risk = (stopSpread * quantity).setScale(stopSpread.scale(), RoundingMode.HALF_EVEN)
+
+    return pnl.divide(risk, 4, RoundingMode.HALF_EVEN)
+        .setScale(1, RoundingMode.HALF_EVEN)
+        .stripTrailingZeros()
+}
