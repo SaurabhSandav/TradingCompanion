@@ -65,7 +65,10 @@ internal class ResampledReplaySeriesBuilder(
         (currentInputIndex..advanceIndex).forEach { index ->
 
             val inputCandle = inputSeries[index]
-            val resampledNewCandle = timeframeCandleResampledTo(index, candleState)
+            val resampledNewCandle = timeframeCandleResampledTo(
+                inputIndex = index,
+                lastCandleState = if (index == advanceIndex) candleState else BarReplay.CandleState.Close,
+            )
 
             // Add to replay series
             _replaySeries.addLiveCandle(resampledNewCandle)

@@ -138,6 +138,11 @@ class SimpleReplaySeriesBuilderTest {
 
         sut.advanceTo(CandleUtils.m5Series[203].openInstant, BarReplay.CandleState.Extreme2)
 
+        // Check previous candles were closed
+        sut.replaySeries.subList(200, 203).forEachIndexed { index, candle ->
+            assertEquals(CandleUtils.m5Series[200 + index], candle)
+        }
+
         assertEquals(CandleUtils.m5Series[203].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[203].openInstant, sut.replaySeries.replayTime.value)

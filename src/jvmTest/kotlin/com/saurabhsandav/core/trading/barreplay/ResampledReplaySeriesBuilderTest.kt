@@ -183,6 +183,11 @@ class ResampledReplaySeriesBuilderTest {
 
         sut.advanceTo(CandleUtils.m5Series[209].openInstant, candleState)
 
+        // Check previous candles were closed and replaced with original candles
+        sut.replaySeries.subList(200, 203).forEachIndexed { index, candle ->
+            assertEquals(CandleUtils.m15Series[200 + index], candle)
+        }
+
         assertEquals(CandleUtils.m5Series[209].atState(candleState), sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[209].openInstant, sut.replaySeries.replayTime.value)
