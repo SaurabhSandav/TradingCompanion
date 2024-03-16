@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
-    id("de.undercouch.download") version "5.5.0"
+    id("de.undercouch.download") version "5.6.0"
 }
 
 group = "com.saurabhsandav.apps"
@@ -162,8 +162,8 @@ kotlin {
             implementation(libs.jcefMaven)
 
             // compose-richtext
-            implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.20.0")
-            implementation("com.halilibo.compose-richtext:richtext-commonmark:0.20.0")
+            implementation("com.halilibo.compose-richtext:richtext-ui-material3:1.0.0-alpha01")
+            implementation("com.halilibo.compose-richtext:richtext-commonmark:1.0.0-alpha01")
         }
 
         jvmTest.dependencies {

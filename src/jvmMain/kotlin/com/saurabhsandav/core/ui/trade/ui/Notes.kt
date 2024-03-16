@@ -13,7 +13,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog

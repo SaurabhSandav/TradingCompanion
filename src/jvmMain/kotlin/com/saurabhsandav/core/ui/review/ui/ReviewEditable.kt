@@ -21,7 +21,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.material3.RichText
 import com.halilibo.richtext.ui.string.RichTextStringStyle
@@ -89,13 +89,8 @@ internal fun ReviewEditable(
                             linkStyle = SpanStyle(color = MaterialTheme.colorScheme.inversePrimary),
                         ),
                     ),
-                    children = {
-
-                        Markdown(
-                            content = review,
-                            onLinkClicked = onMarkdownLinkClicked,
-                        )
-                    },
+                    linkClickHandler = onMarkdownLinkClicked,
+                    children = { Markdown(content = review) },
                 )
 
                 else -> Text(
