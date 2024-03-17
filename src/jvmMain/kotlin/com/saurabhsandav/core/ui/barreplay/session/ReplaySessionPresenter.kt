@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
+import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
@@ -112,9 +112,9 @@ internal class ReplaySessionPresenter(
                         price = when (openOrder.executionType) {
                             is Limit -> openOrder.executionType.price.toPlainString()
                             is Market -> ""
-                            is StopLimit -> openOrder.executionType.limitPrice.toPlainString()
+                            is StopLimit -> openOrder.executionType.price.toPlainString()
                             is StopMarket -> openOrder.executionType.trigger.toPlainString()
-                            is TrailingStop -> openOrder.executionType.trailingStop.toPlainString()
+                            is TrailingStop -> openOrder.executionType.trailingStop?.toPlainString() ?: ""
                         },
                         timestamp = TradeDateTimeFormatter.format(
                             ldt = openOrder.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()),

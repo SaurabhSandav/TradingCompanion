@@ -2,7 +2,6 @@ package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.*
-import com.saurabhsandav.core.trading.backtest.OrderExecutionType.*
 import com.saurabhsandav.core.trading.isLong
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -87,8 +86,9 @@ class BacktestBroker {
         newPrice: BigDecimal,
     ) {
 
-        // If order can be executed
-        if (openOrder.canExecute(prevPrice, newPrice)) {
+        val executionPrice = openOrder.tryExecute(prevPrice, newPrice)
+
+        if (executionPrice != null) {
 
             // Order is not open anymore
             _openOrders.update { it.remove(openOrder) }
@@ -99,13 +99,7 @@ class BacktestBroker {
                 executionType = openOrder.executionType,
                 createdAt = openOrder.createdAt,
                 closedAt = instant,
-                executionPrice = when (openOrder.executionType) {
-                    is Limit -> openOrder.executionType.price
-                    is Market -> newPrice
-                    is StopLimit -> openOrder.executionType.limitPrice
-                    is StopMarket -> newPrice
-                    is TrailingStop -> openOrder.executionType.trailingStop
-                }
+                executionPrice = executionPrice
             )
 
             // Order is closed

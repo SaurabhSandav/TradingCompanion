@@ -29,10 +29,10 @@ sealed class BacktestOrder {
         val ocoId: Any? = null,
     ) : BacktestOrder() {
 
-        fun canExecute(
+        fun tryExecute(
             prevPrice: BigDecimal,
             newPrice: BigDecimal,
-        ): Boolean = executionType.canExecute(
+        ): BigDecimal? = executionType.tryExecute(
             side = params.side,
             prevPrice = prevPrice,
             newPrice = newPrice,
