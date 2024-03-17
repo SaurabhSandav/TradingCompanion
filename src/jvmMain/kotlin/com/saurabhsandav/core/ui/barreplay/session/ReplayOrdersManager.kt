@@ -8,16 +8,10 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.trading.backtest.BacktestBroker
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.ClosedOrder
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.OrderParams
-import com.saurabhsandav.core.trading.backtest.Limit
-import com.saurabhsandav.core.trading.backtest.StopMarket
-import com.saurabhsandav.core.trading.backtest.newCandle
+import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.ReplaySeries
 import com.saurabhsandav.core.trading.data.CandleRepository
@@ -40,13 +34,23 @@ internal class ReplayOrdersManager(
 ) {
 
     private val replaySeriesAndScopeCache = mutableMapOf<String, ReplaySeriesAndScope>()
-    private val backtestBroker = BacktestBroker()
+    private val account = BacktestAccount(10_000.toBigDecimal())
+    private val backtestBroker = BacktestBroker(account)
+    val openOrders = backtestBroker.orders.map { orders ->
+        @Suppress("UNCHECKED_CAST")
+        orders.filter { it.status is BacktestOrder.Status.Open } as List<BacktestOrder<BacktestOrder.Status.Open>>
+    }
 
     init {
 
         // Un-cache unused ReplaySeries
-        backtestBroker.closedOrders
-            .map { orders -> orders.map { it.params.ticker }.distinct() }
+        backtestBroker.orders
+            .map { orders ->
+                orders
+                    .filter { it.status is BacktestOrder.Status.Closed }
+                    .map { it.params.ticker }
+                    .distinct()
+            }
             .onEach { tickers ->
 
                 val tickersToUnCache = replaySeriesAndScopeCache.keys - tickers.toSet()
@@ -61,8 +65,6 @@ internal class ReplayOrdersManager(
             .launchIn(coroutineScope)
     }
 
-    val openOrders = backtestBroker.openOrders
-
     fun newOrder(
         stockChartParams: StockChartParams,
         quantity: BigDecimal,
@@ -76,7 +78,8 @@ internal class ReplayOrdersManager(
 
         coroutineScope.launch {
 
-            val replaySeries = createReplaySeries(stockChartParams.ticker)
+            // Updates broker with price for ticker
+            createReplaySeries(stockChartParams.ticker)
 
             val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
                 .first()
@@ -85,7 +88,7 @@ internal class ReplayOrdersManager(
 
             val tradingRecord = tradingProfiles.getRecord(replayProfileId)
 
-            val orderParams = OrderParams(
+            val orderParams = BacktestOrder.Params(
                 broker = "Finvasia",
                 instrument = Instrument.Equity,
                 ticker = stockChartParams.ticker,
@@ -94,19 +97,20 @@ internal class ReplayOrdersManager(
                 side = side,
             )
 
-            val openOrder = backtestBroker.newOrder(
-                instant = replaySeries.replayTime.value,
+            val openOrderId = backtestBroker.newOrder(
                 params = orderParams,
                 executionType = Limit(price = price),
             )
 
             coroutineScope.launch contingentOrders@{
 
-                val closedOrder = backtestBroker.closedOrders
-                    .mapNotNull { closedOrders -> closedOrders.find { it.id == openOrder.id } }
+                val closedOrder = backtestBroker.orders
+                    .mapNotNull { orders ->
+                        orders.find { it.status is BacktestOrder.Status.Closed && it.id == openOrderId }
+                    }
                     .first()
 
-                if (closedOrder !is ClosedOrder.Executed) return@contingentOrders
+                if (closedOrder.status !is BacktestOrder.Status.Executed) return@contingentOrders
 
                 val savedOrderId = tradingRecord.executions.new(
                     broker = closedOrder.params.broker,
@@ -115,8 +119,8 @@ internal class ReplayOrdersManager(
                     quantity = closedOrder.params.quantity,
                     lots = closedOrder.params.lots,
                     side = closedOrder.params.side,
-                    price = closedOrder.executionPrice,
-                    timestamp = closedOrder.closedAt,
+                    price = closedOrder.status.executionPrice,
+                    timestamp = closedOrder.status.closedAt,
                     locked = false,
                 )
 
@@ -140,8 +144,7 @@ internal class ReplayOrdersManager(
                         tradingRecord.trades.addStop(trade.id, stop)
 
                         // Send stop order to broker
-                        val openStopOrder = backtestBroker.newOrder(
-                            instant = replaySeries.replayTime.value,
+                        val openStopOrderId = backtestBroker.newOrder(
                             params = positionCloseParams,
                             executionType = StopMarket(trigger = stop),
                             ocoId = exitOcoId,
@@ -151,12 +154,14 @@ internal class ReplayOrdersManager(
                         coroutineScope.launch stopOrder@{
 
                             // Suspend until order is closed
-                            val closedStopOrder = backtestBroker.closedOrders
-                                .mapNotNull { closedOrders -> closedOrders.find { it.id == openStopOrder.id } }
+                            val closedStopOrder = backtestBroker.orders
+                                .mapNotNull { orders ->
+                                    orders.find { it.status is BacktestOrder.Status.Closed && it.id == openStopOrderId }
+                                }
                                 .first()
 
                             // If order was executed, record it.
-                            if (closedStopOrder is ClosedOrder.Executed) {
+                            if (closedStopOrder.status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
                                     broker = closedStopOrder.params.broker,
@@ -165,8 +170,8 @@ internal class ReplayOrdersManager(
                                     quantity = closedStopOrder.params.quantity,
                                     lots = closedStopOrder.params.lots,
                                     side = closedStopOrder.params.side,
-                                    price = closedStopOrder.executionPrice,
-                                    timestamp = closedStopOrder.closedAt,
+                                    price = closedStopOrder.status.executionPrice,
+                                    timestamp = closedStopOrder.status.closedAt,
                                     locked = false,
                                 )
                             }
@@ -179,8 +184,7 @@ internal class ReplayOrdersManager(
                         tradingRecord.trades.addTarget(trade.id, target)
 
                         // Send target order to broker
-                        val openTargetOrder = backtestBroker.newOrder(
-                            instant = replaySeries.replayTime.value,
+                        val openTargetOrderId = backtestBroker.newOrder(
                             params = positionCloseParams,
                             executionType = Limit(price = target),
                             ocoId = exitOcoId,
@@ -190,12 +194,14 @@ internal class ReplayOrdersManager(
                         coroutineScope.launch targetOrder@{
 
                             // Suspend until order is closed
-                            val closedTargetOrder = backtestBroker.closedOrders
-                                .mapNotNull { closedOrders -> closedOrders.find { it.id == openTargetOrder.id } }
+                            val closedTargetOrder = backtestBroker.orders
+                                .mapNotNull { orders ->
+                                    orders.find { it.status is BacktestOrder.Status.Closed && it.id == openTargetOrderId }
+                                }
                                 .first()
 
                             // If order was executed, record it.
-                            if (closedTargetOrder is ClosedOrder.Executed) {
+                            if (closedTargetOrder.status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
                                     broker = closedTargetOrder.params.broker,
@@ -204,8 +210,8 @@ internal class ReplayOrdersManager(
                                     quantity = closedTargetOrder.params.quantity,
                                     lots = closedTargetOrder.params.lots,
                                     side = closedTargetOrder.params.side,
-                                    price = closedTargetOrder.executionPrice,
-                                    timestamp = closedTargetOrder.closedAt,
+                                    price = closedTargetOrder.status.executionPrice,
+                                    timestamp = closedTargetOrder.status.closedAt,
                                     locked = false,
                                 )
                             }
@@ -218,16 +224,8 @@ internal class ReplayOrdersManager(
         return orderId
     }
 
-    fun cancelOrder(id: Long) {
-
-        val orderToRemove = openOrders.value.find { it.id == id } ?: error("Replay order($id) not found")
-        val replaySeries = replaySeriesAndScopeCache[orderToRemove.params.ticker]
-            ?.replaySeries ?: error("ReplaySeries not found")
-
-        backtestBroker.cancelOrder(
-            instant = replaySeries.replayTime.value,
-            openOrder = orderToRemove,
-        )
+    fun cancelOrder(id: BacktestOrderId) {
+        backtestBroker.cancelOrder(id = id)
     }
 
     private suspend fun createReplaySeries(ticker: String): ReplaySeries = replaySeriesAndScopeCache.getOrPut(ticker) {
@@ -240,18 +238,11 @@ internal class ReplayOrdersManager(
 
         // Send price updates to BacktestBroker
         replaySeries.live
-            .map { (_, candle) -> candle as Candle }
-            .runningFold<Candle, Pair<Candle, Candle>?>(null) { accumulator, new ->
-                (accumulator?.second ?: new) to new
-            }
-            .filterNotNull()
-            .onEach { (prevCandle, newCandle) ->
+            .onEach { (_, candle) ->
 
                 backtestBroker.newCandle(
                     ticker = ticker,
-                    instant = replaySeries.replayTime.value,
-                    prevCandle = prevCandle,
-                    newCandle = newCandle,
+                    candle = candle,
                     replayOHLC = replayParams.replayFullBar,
                 )
             }

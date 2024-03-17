@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.stockchart.StockChart
 
 internal sealed class ReplaySessionEvent {
@@ -19,5 +20,5 @@ internal sealed class ReplaySessionEvent {
 
     data class Sell(val stockChart: StockChart) : ReplaySessionEvent()
 
-    data class CancelOrder(val id: Long) : ReplaySessionEvent()
+    data class CancelOrder(val id: BacktestOrderId) : ReplaySessionEvent()
 }

@@ -1,0 +1,23 @@
+package com.saurabhsandav.core.trading.backtest
+
+import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import kotlinx.datetime.Instant
+import java.math.BigDecimal
+
+data class BacktestExecution(
+    val id: BacktestExecutionId,
+    val broker: String,
+    val instrument: Instrument,
+    val ticker: String,
+    val quantity: BigDecimal,
+    val side: TradeExecutionSide,
+    val price: BigDecimal,
+    val timestamp: Instant,
+)
+
+@JvmInline
+value class BacktestExecutionId(val value: Long) {
+
+    override fun toString(): String = value.toString()
+}

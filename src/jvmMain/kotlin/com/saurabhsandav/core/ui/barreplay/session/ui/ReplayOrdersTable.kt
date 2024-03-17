@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayOrderListItem
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -17,7 +18,7 @@ import com.saurabhsandav.core.ui.common.table.*
 @Composable
 internal fun ReplayOrdersTable(
     replayOrderItems: List<ReplayOrderListItem>,
-    onCancelOrder: (Long) -> Unit,
+    onCancelOrder: (BacktestOrderId) -> Unit,
 ) {
 
     val schema = rememberTableSchema<ReplayOrderListItem> {

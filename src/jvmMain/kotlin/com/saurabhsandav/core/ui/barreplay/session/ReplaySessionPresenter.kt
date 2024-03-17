@@ -227,7 +227,7 @@ internal class ReplaySessionPresenter(
         orderFormWindowsManager.newWindow(params)
     }
 
-    private fun onCancelOrder(id: Long) {
+    private fun onCancelOrder(id: BacktestOrderId) {
         replayOrdersManager.cancelOrder(id)
     }
 

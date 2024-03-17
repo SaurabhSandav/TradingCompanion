@@ -5,14 +5,15 @@ import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
-sealed class BacktestOrder {
+data class BacktestOrder<S : BacktestOrder.Status>(
+    val id: BacktestOrderId,
+    val params: Params,
+    val createdAt: Instant,
+    val executionType: OrderExecutionType,
+    val status: S,
+) {
 
-    abstract val id: Long
-    abstract val params: OrderParams
-    abstract val createdAt: Instant
-    abstract val executionType: OrderExecutionType
-
-    data class OrderParams(
+    data class Params(
         val broker: String,
         val instrument: Instrument,
         val ticker: String,
@@ -21,43 +22,45 @@ sealed class BacktestOrder {
         val side: TradeExecutionSide,
     )
 
-    data class OpenOrder(
-        override val id: Long,
-        override val params: OrderParams,
-        override val createdAt: Instant,
-        override val executionType: OrderExecutionType,
-        val ocoId: Any? = null,
-    ) : BacktestOrder() {
+    sealed class Status {
 
-        fun tryExecute(
-            prevPrice: BigDecimal,
-            newPrice: BigDecimal,
-        ): BigDecimal? = executionType.tryExecute(
-            side = params.side,
-            prevPrice = prevPrice,
-            newPrice = newPrice,
-        )
-    }
+        data class Open(val ocoId: Any? = null) : Status()
 
-    sealed class ClosedOrder : BacktestOrder() {
+        sealed class Closed : Status() {
 
-        abstract val closedAt: Instant
+            abstract val closedAt: Instant
+        }
 
-        data class Canceled(
-            override val id: Long,
-            override val params: OrderParams,
-            override val createdAt: Instant,
+        data class Rejected(
             override val closedAt: Instant,
-            override val executionType: OrderExecutionType,
-        ) : ClosedOrder()
+            val cause: RejectionCause,
+        ) : Closed()
+
+        data class Canceled(override val closedAt: Instant) : Closed()
 
         data class Executed(
-            override val id: Long,
-            override val params: OrderParams,
-            override val createdAt: Instant,
             override val closedAt: Instant,
-            override val executionType: OrderExecutionType,
             val executionPrice: BigDecimal,
-        ) : ClosedOrder()
+        ) : Closed()
+
+        enum class RejectionCause {
+            MarginShortfall,
+            LessThanMinimumOrderValue,
+        }
     }
 }
+
+@JvmInline
+value class BacktestOrderId(val value: Long) {
+
+    override fun toString(): String = value.toString()
+}
+
+fun BacktestOrder<BacktestOrder.Status.Open>.tryExecute(
+    prevPrice: BigDecimal,
+    newPrice: BigDecimal,
+): BigDecimal? = executionType.tryExecute(
+    side = params.side,
+    prevPrice = prevPrice,
+    newPrice = newPrice,
+)

@@ -1,139 +1,450 @@
 package com.saurabhsandav.core.trading.backtest
 
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.*
+import com.saurabhsandav.core.trading.backtest.BacktestOrder.Params
+import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.*
 import com.saurabhsandav.core.trading.isLong
+import com.saurabhsandav.core.utils.Brokerage
+import com.saurabhsandav.core.utils.binarySearchByAsResult
+import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.core.utils.indexOr
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 
-class BacktestBroker {
+class BacktestBroker(
+    private val account: BacktestAccount,
+    private val leverage: BigDecimal = BigDecimal.ONE,
+    private val minimumOrderValue: BigDecimal = BigDecimal.ZERO,
+    private val minimumMaintenanceMargin: BigDecimal = BigDecimal.ZERO,
+    private val onMarginCall: () -> Unit = {},
+) {
 
-    private var nextId = 0L
+    var usedMargin: BigDecimal = BigDecimal.ZERO
+        private set
 
-    private val _openOrders = MutableStateFlow(persistentListOf<OpenOrder>())
-    val openOrders = _openOrders.asStateFlow()
+    val availableMargin: BigDecimal
+        get() = account.balance - usedMargin
 
-    private val _closedOrders = MutableStateFlow(persistentListOf<ClosedOrder>())
-    val closedOrders = _closedOrders.asStateFlow()
+    private var nextOrderId = 0L
+    private var nextExecutionId = 0L
+    private var nextPositionId = 0L
+    private var currentInstant = Instant.DISTANT_PAST
+    private val currentPrices = mutableMapOf<String, BigDecimal>()
+
+    private val _orders = MutableStateFlow(persistentListOf<BacktestOrder<*>>())
+    val orders = _orders.asStateFlow()
+
+    private val _executions = MutableStateFlow(persistentListOf<BacktestExecution>())
+    val executions = _executions.asStateFlow()
+
+    private val _positions = MutableStateFlow(persistentListOf<BacktestPosition>())
+    val positions = _positions.asStateFlow()
 
     fun newOrder(
-        instant: Instant,
-        params: OrderParams,
+        params: Params,
         executionType: OrderExecutionType,
         ocoId: Any? = null,
-    ): OpenOrder {
+    ): BacktestOrderId {
 
-        val openOrder = OpenOrder(
-            id = nextId++,
+        require(params.quantity > BigDecimal.ZERO) { "BacktestBroker: Quantity must be greater than 0" }
+
+        val (cost, margin) = orderCostAndMargin(params, executionType)
+
+        val newOrder = BacktestOrder(
+            id = nextOrderId++.let(::BacktestOrderId),
             params = params,
             executionType = executionType,
-            createdAt = instant,
-            ocoId = ocoId,
+            createdAt = currentInstant,
+            status = when {
+                // Is a close order?
+                margin.compareTo(BigDecimal.ZERO) == 0 -> Open(ocoId = ocoId)
+                // Is enough margin available?
+                margin > availableMargin -> Rejected(currentInstant, RejectionCause.MarginShortfall)
+                // Is cost above minimumOrderValue?
+                cost < minimumOrderValue -> Rejected(currentInstant, RejectionCause.LessThanMinimumOrderValue)
+                else -> Open(ocoId = ocoId)
+            },
         )
 
         // Add to list of orders
-        _openOrders.update { it.add(openOrder) }
+        _orders.update { it.add(newOrder) }
 
-        return openOrder
+        // Update margin
+        updateUsedMargin()
+
+        return newOrder.id
     }
 
-    fun cancelOrder(
-        instant: Instant,
-        openOrder: OpenOrder,
-    ) {
+    fun cancelOrder(id: BacktestOrderId) {
 
-        val canceledOrder = ClosedOrder.Canceled(
-            id = openOrder.id,
-            params = openOrder.params,
-            executionType = openOrder.executionType,
-            createdAt = openOrder.createdAt,
-            closedAt = instant,
-        )
+        // Cancel order if not already closed
+        updateOrderStatus(id) {
+            if (status !is Open) status else Canceled(closedAt = currentInstant)
+        }
 
-        // Order is not open anymore
-        _openOrders.update { it.remove(openOrder) }
-
-        // Order is closed
-        _closedOrders.update { it.add(canceledOrder) }
+        // Update margin
+        updateUsedMargin()
     }
 
     fun newPrice(
-        ticker: String,
         instant: Instant,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
+        ticker: String,
+        price: BigDecimal,
     ) {
 
-        // Create copy of open orders to allow removing orders from original list during iteration.
-        _openOrders.value
-            .filter { it.params.ticker == ticker }
-            .forEach { openOrder -> executeOrderIfEligible(instant, openOrder, prevPrice, newPrice) }
-    }
+        require(currentInstant <= instant) { "Time is in the past" }
 
-    fun reset() {
-        _openOrders.update { it.clear() }
-        _closedOrders.update { it.clear() }
+        // Set time
+        currentInstant = instant
+
+        // Order execution requires previous price. Attempt execution first and then update current price
+
+        // Create copy of open orders to allow removing orders from original list during iteration.
+        orders.value
+            .filter { it.status is Open && it.params.ticker == ticker }
+            .forEach { openOrder ->
+                @Suppress("UNCHECKED_CAST")
+                executeOrderIfEligible(openOrder as BacktestOrder<Open>, price)
+            }
+
+        // Cache current price
+        currentPrices[ticker] = price
+
+        // Update margin
+        updateUsedMargin()
     }
 
     private fun executeOrderIfEligible(
-        instant: Instant,
-        openOrder: OpenOrder,
-        prevPrice: BigDecimal,
+        openOrder: BacktestOrder<Open>,
         newPrice: BigDecimal,
     ) {
 
-        val executionPrice = openOrder.tryExecute(prevPrice, newPrice)
+        val prevPrice = currentPrices[openOrder.params.ticker] ?: return
 
-        if (executionPrice != null) {
+        // Return if order cannot be executed
+        val executionPrice = openOrder.tryExecute(prevPrice, newPrice) ?: return
 
-            // Order is not open anymore
-            _openOrders.update { it.remove(openOrder) }
+        val executedOrder = updateOrderStatus(openOrder.id) {
 
-            val executedOrder = ClosedOrder.Executed(
-                id = openOrder.id,
-                params = openOrder.params,
-                executionType = openOrder.executionType,
-                createdAt = openOrder.createdAt,
-                closedAt = instant,
-                executionPrice = executionPrice
+            Executed(
+                closedAt = currentInstant,
+                executionPrice = executionPrice,
             )
+        }
 
-            // Order is closed
-            _closedOrders.update { it.add(executedOrder) }
+        val execution = BacktestExecution(
+            id = nextExecutionId++.let(::BacktestExecutionId),
+            broker = executedOrder.params.broker,
+            instrument = executedOrder.params.instrument,
+            ticker = executedOrder.params.ticker,
+            quantity = executedOrder.params.quantity,
+            side = executedOrder.params.side,
+            price = executedOrder.status.executionPrice,
+            timestamp = currentInstant,
+        )
 
-            // Cancel all OCO siblings
-            _openOrders
+        // Add Execution
+        _executions.value = executions.value.add(execution)
+
+        // Update positions with execution
+        updatePositionsWithExecution(execution)
+
+        // Cancel all OCO siblings
+        if (openOrder.status.ocoId != null) {
+
+            orders
                 .value
-                .filter { it.ocoId == openOrder.ocoId }
+                .filter { it.status is Open && it.status.ocoId == openOrder.status.ocoId }
                 .forEach { openOCOOrder ->
-
-                    // Order is not open anymore
-                    _openOrders.update { it.remove(openOCOOrder) }
-
-                    val canceledOrder = ClosedOrder.Canceled(
-                        id = openOCOOrder.id,
-                        params = openOCOOrder.params,
-                        executionType = openOCOOrder.executionType,
-                        createdAt = openOCOOrder.createdAt,
-                        closedAt = instant,
-                    )
-
-                    // Order is closed
-                    _closedOrders.update { it.add(canceledOrder) }
+                    updateOrderStatus(openOCOOrder.id) { Canceled(closedAt = currentInstant) }
                 }
         }
+    }
+
+    private fun updateUsedMargin() {
+
+        val positions = positions.value
+
+        // Update PNL for positions
+        _positions.value = positions.map { position ->
+            position.copy(pnl = position.brokerage().pnl)
+        }.toPersistentList()
+
+        @Suppress("UNCHECKED_CAST")
+        val openOrders = orders.value.filter { it.status is Open } as List<BacktestOrder<Open>>
+
+        // Margin of positions - Net PNL (If negative)
+        val positionMargins = positions.sumOf { position ->
+
+            val turnover = position.averagePrice * position.quantity
+            val netPnl = position.brokerage().netPNL
+
+            (turnover / leverage) - netPnl.coerceAtMost(BigDecimal.ZERO)
+        }
+
+        // Margin of orders
+        val orderMargins = openOrders.sumOf { openOrder ->
+            val (_, margin) = orderCostAndMargin(openOrder.params, openOrder.executionType)
+            margin
+        }
+
+        usedMargin = positionMargins + orderMargins
+
+        if (availableMargin < minimumMaintenanceMargin) onMarginCall()
+    }
+
+    private fun orderCostAndMargin(
+        params: Params,
+        executionType: OrderExecutionType,
+    ): Pair<BigDecimal, BigDecimal> {
+
+        // TradeSide for position that can be exited by this order
+        val exitsPositionWithSide = when (params.side) {
+            TradeExecutionSide.Sell -> TradeSide.Long
+            TradeExecutionSide.Buy -> TradeSide.Short
+        }
+
+        // Look for a position that can be exited by this order
+        val positionToExit = positions.value.find { position ->
+            position.ticker == params.ticker && position.side == exitsPositionWithSide
+        }
+
+        // Quantity that'll create a new position. Will be 0 if order only closes position.
+        val newPositionQuantity = when {
+            positionToExit != null -> params.quantity - positionToExit.quantity
+            else -> params.quantity
+        }
+
+        // This order just closes existing position. 0 margin required.
+        if (newPositionQuantity <= BigDecimal.ZERO) return BigDecimal.ZERO to BigDecimal.ZERO
+
+        val executionPrice = when (executionType) {
+            is Limit -> executionType.price
+            is StopLimit -> executionType.price
+            is TrailingStop -> executionType.trailingStop!!
+            is Market, is StopMarket -> null
+        } ?: getCurrentPrice(params.ticker)
+
+        val cost = executionPrice * newPositionQuantity
+        val margin = cost / leverage
+
+        return cost to margin
+    }
+
+    private fun updatePositionsWithExecution(execution: BacktestExecution) {
+
+        val currentPrice = getCurrentPrice(execution.ticker)
+        val positions = positions.value
+
+        // Position that will consume this execution
+        val positionIndex = positions.indexOfFirst {
+            it.broker == execution.broker && it.instrument == execution.instrument && it.ticker == execution.ticker
+        }.takeIf { it != -1 }
+
+        // No position exists to consume execution. Create new position.
+        if (positionIndex == null) {
+
+            val tradeSide = when (execution.side) {
+                TradeExecutionSide.Buy -> TradeSide.Long
+                TradeExecutionSide.Sell -> TradeSide.Short
+            }
+
+            val newPosition = BacktestPosition(
+                id = nextPositionId++.let(::BacktestPositionId),
+                broker = execution.broker,
+                ticker = execution.ticker,
+                instrument = execution.instrument,
+                quantity = execution.quantity,
+                side = tradeSide,
+                averagePrice = execution.price,
+                pnl = brokerage(
+                    broker = execution.broker,
+                    instrument = execution.instrument,
+                    entry = execution.price,
+                    exit = currentPrice,
+                    quantity = execution.quantity,
+                    side = tradeSide,
+                ).pnl,
+            )
+
+            // Add position
+            _positions.value = positions.add(newPosition)
+
+        } else { // Position exists. Update position with new execution
+
+            val position = positions[positionIndex]
+
+            when {
+                // Close position
+                (position.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
+                        (position.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) -> {
+
+                    val extraQuantity = position.quantity - execution.quantity
+
+                    when (extraQuantity.compareTo(BigDecimal.ZERO)) {
+                        // Closed fully
+                        0 -> {
+
+                            // Remove closed position
+                            _positions.value = _positions.value.removeAt(positionIndex)
+
+                            // Update Account
+                            account.addTransaction(
+                                instant = currentInstant,
+                                value = position.brokerage(exit = execution.price).netPNL,
+                            )
+                        }
+                        // Closed Partially
+                        1 -> {
+
+                            // Recalculate position parameters after consuming current execution
+                            val updatedPosition = position.copy(
+                                quantity = extraQuantity,
+                                pnl = position.brokerage(
+                                    exit = currentPrice,
+                                    quantity = extraQuantity,
+                                ).pnl,
+                            )
+
+                            // Update position with new parameters
+                            _positions.value = _positions.value.set(positionIndex, updatedPosition)
+
+                            // Update Account
+                            account.addTransaction(
+                                instant = currentInstant,
+                                value = position.brokerage(
+                                    exit = execution.price,
+                                    quantity = execution.quantity,
+                                ).netPNL,
+                            )
+                        }
+                        // Closed fully and opened new
+                        -1 -> {
+
+                            // Remove closed position
+                            _positions.value = _positions.value.removeAt(positionIndex)
+
+                            // Update Account
+                            account.addTransaction(
+                                instant = currentInstant,
+                                value = position.brokerage(exit = execution.price).netPNL,
+                            )
+
+                            val newPositionSide = when (execution.side) {
+                                TradeExecutionSide.Buy -> TradeSide.Long
+                                TradeExecutionSide.Sell -> TradeSide.Short
+                            }
+
+                            // Add new position
+                            val newPosition = BacktestPosition(
+                                id = nextPositionId++.let(::BacktestPositionId),
+                                broker = execution.broker,
+                                ticker = execution.ticker,
+                                instrument = execution.instrument,
+                                quantity = extraQuantity.negate(),
+                                side = newPositionSide,
+                                averagePrice = execution.price,
+                                pnl = brokerage(
+                                    broker = execution.broker,
+                                    instrument = execution.instrument,
+                                    entry = execution.price,
+                                    exit = currentPrice,
+                                    quantity = extraQuantity.negate(),
+                                    side = newPositionSide,
+                                ).pnl,
+                            )
+
+                            // Add new position
+                            _positions.value = positions.add(newPosition)
+                        }
+                    }
+                }
+
+                // Add to position
+                else -> {
+
+                    val newQuantity = position.quantity + execution.quantity
+                    val newAveragePrice = run {
+                        val positionTurnover = position.averagePrice * position.quantity
+                        val executionTurnover = execution.price * execution.quantity
+                        (positionTurnover + executionTurnover) / newQuantity
+                    }
+
+                    // Recalculate position parameters after consuming current execution
+                    val updatedPosition = position.copy(
+                        quantity = newQuantity,
+                        averagePrice = newAveragePrice,
+                        pnl = position.brokerage(
+                            entry = newAveragePrice,
+                            exit = currentPrice,
+                            quantity = newQuantity,
+                        ).pnl,
+                    )
+
+                    // Update position with new parameters
+                    _positions.value = _positions.value.set(positionIndex, updatedPosition)
+                }
+            }
+        }
+    }
+
+    private fun <S : BacktestOrder.Status> updateOrderStatus(
+        id: BacktestOrderId,
+        block: BacktestOrder<*>.() -> S,
+    ): BacktestOrder<S> {
+
+        val orders = _orders.value
+
+        val orderIndex = orders.binarySearchByAsResult(id.value) { it.id.value }
+            .indexOr { error("Order($id) does not exist") }
+
+        val order = orders[orderIndex]
+        val newStatus = order.run(block)
+
+        @Suppress("UNCHECKED_CAST")
+        if (order.status == newStatus) return order as BacktestOrder<S>
+
+        val updatedOrder = BacktestOrder(
+            id = id,
+            params = order.params,
+            createdAt = order.createdAt,
+            executionType = order.executionType,
+            status = newStatus,
+        )
+
+        _orders.value = orders.set(orderIndex, updatedOrder)
+
+        return updatedOrder
+    }
+
+    private fun BacktestPosition.brokerage(
+        entry: BigDecimal = averagePrice,
+        exit: BigDecimal = getCurrentPrice(ticker),
+        quantity: BigDecimal = this.quantity,
+    ): Brokerage = brokerage(
+        broker = broker,
+        instrument = instrument,
+        entry = entry,
+        exit = exit,
+        quantity = quantity,
+        side = side,
+    )
+
+    private fun getCurrentPrice(ticker: String): BigDecimal {
+        return currentPrices[ticker] ?: error("BacktestBroker: No price available for $ticker")
     }
 }
 
 fun BacktestBroker.newCandle(
     ticker: String,
-    instant: Instant,
-    prevCandle: Candle,
-    newCandle: Candle,
+    candle: Candle,
     replayOHLC: Boolean,
 ) {
 
@@ -141,16 +452,16 @@ fun BacktestBroker.newCandle(
         replayOHLC -> {
 
             val (extreme1, extreme2) = when {
-                newCandle.isLong -> newCandle.low to newCandle.high
-                else -> newCandle.low to newCandle.high
+                candle.isLong -> candle.low to candle.high
+                else -> candle.low to candle.high
             }
 
-            newPrice(ticker, instant, prevCandle.close, newCandle.open)
-            newPrice(ticker, instant, prevCandle.open, extreme1)
-            newPrice(ticker, instant, extreme1, extreme2)
-            newPrice(ticker, instant, extreme2, newCandle.close)
+            newPrice(candle.openInstant, ticker, candle.open)
+            newPrice(candle.openInstant, ticker, extreme1)
+            newPrice(candle.openInstant, ticker, extreme2)
+            newPrice(candle.openInstant, ticker, candle.close)
         }
 
-        else -> newPrice(ticker, instant, prevCandle.close, newCandle.close)
+        else -> newPrice(candle.openInstant, ticker, candle.close)
     }
 }
