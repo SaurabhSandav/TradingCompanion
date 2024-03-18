@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.trades.stats
 
+import com.saurabhsandav.core.trades.Trade
 import java.math.BigDecimal
 import kotlin.time.Duration
 
@@ -32,4 +33,11 @@ data class TradingStats(
     val lossAverage: BigDecimal?,
     val lossStreakLongest: Int,
     val lossDurationAverage: Duration?,
-)
+    val partialStats: Map<PartialStatsKey, TradingStats?>,
+) {
+
+    interface PartialStatsKey {
+
+        fun shouldIncludeTrade(trade: Trade): Boolean
+    }
+}

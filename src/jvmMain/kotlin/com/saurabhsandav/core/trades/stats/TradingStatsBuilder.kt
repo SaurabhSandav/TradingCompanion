@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trades.stats
 
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.stats.TradingStats.PartialStatsKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
@@ -10,10 +11,12 @@ import java.math.RoundingMode
 import kotlin.math.max
 import kotlin.time.Duration
 
-internal fun TradingRecord.buildStats(): Flow<TradingStats?> {
+internal fun TradingRecord.buildStats(
+    partialStatsKeys: List<PartialStatsKey> = emptyList(),
+): Flow<TradingStats?> {
     return trades.allTrades.map { trades ->
 
-        val builder = TradingStatsBuilder()
+        val builder = TradingStatsBuilder(partialStatsKeys)
 
         for (index in trades.indices.reversed()) {
             builder.recordTrade(trades[index])
@@ -23,15 +26,20 @@ internal fun TradingRecord.buildStats(): Flow<TradingStats?> {
     }
 }
 
-internal fun buildTradingStats(trades: List<Trade>): TradingStats? {
+internal fun buildTradingStats(
+    trades: List<Trade>,
+    partialStatsKeys: List<PartialStatsKey> = emptyList(),
+): TradingStats? {
 
-    return TradingStatsBuilder().run {
+    return TradingStatsBuilder(partialStatsKeys).run {
         recordTrades(trades)
         build()
     }
 }
 
-private class TradingStatsBuilder {
+private class TradingStatsBuilder(
+    private val partialStatsKeys: List<PartialStatsKey> = emptyList(),
+) {
 
     private var count = 0
     private var pnl = BigDecimal.ZERO
@@ -58,6 +66,10 @@ private class TradingStatsBuilder {
     private var lossLargest: BigDecimal? = null
     private var lossStreakLongest = 0
     private var lossStreakCurrent = 0
+
+    private val partialStatsBuilders = buildMap {
+        partialStatsKeys.forEach { put(it, TradingStatsBuilder()) }
+    }
 
     fun recordTrades(trades: List<Trade>) {
         trades.forEach(::recordTrade)
@@ -99,6 +111,10 @@ private class TradingStatsBuilder {
             lossStreakCurrent++
             winStreakCurrent = 0
             lossStreakLongest = max(lossStreakCurrent, lossStreakLongest)
+        }
+
+        partialStatsBuilders.forEach { (key, builder) ->
+            if (key.shouldIncludeTrade(trade)) builder.recordTrade(trade)
         }
     }
 
@@ -157,6 +173,7 @@ private class TradingStatsBuilder {
             lossAverage = lossAverage?.stripTrailingZeros(),
             lossStreakLongest = lossStreakLongest,
             lossDurationAverage = lossDurationAverage,
+            partialStats = partialStatsBuilders.mapValues { (_, builder) -> builder.build() },
         )
     }
 

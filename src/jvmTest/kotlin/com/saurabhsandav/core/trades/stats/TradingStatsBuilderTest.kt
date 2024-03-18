@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trades.stats
 
 import com.saurabhsandav.core.assertBDEquals
+import com.saurabhsandav.core.trades.Trade
+import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -128,5 +130,114 @@ class TradingStatsBuilderTest {
         assertBDEquals("-200.6607", stats.lossAverage)
         assertEquals(14, stats.lossStreakLongest)
         assertEquals(1589.857142857.seconds, stats.lossDurationAverage)
+    }
+
+    @Test
+    fun `All trades with partial stats`() {
+
+        val winnersKey = object : TradingStats.PartialStatsKey {
+            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl > BigDecimal.ZERO
+        }
+
+        val losersKey = object : TradingStats.PartialStatsKey {
+            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl < BigDecimal.ZERO
+        }
+
+        val stats = buildTradingStats(TradingStatsUtils.trades, listOf(winnersKey, losersKey))
+
+        assertNotNull(stats)
+
+        assertEquals(20, stats.count)
+        assertBDEquals("-708.25", stats.pnl)
+        assertBDEquals("-975.32", stats.pnlNet)
+        assertBDEquals("514.25", stats.pnlPeak)
+        assertBDEquals("328.23", stats.pnlNetPeak)
+        assertBDEquals("267.07", stats.fees)
+        assertBDEquals("13.3535", stats.feesAverage)
+        assertBDEquals("-0.7479", stats.profitFactor)
+        assertEquals(1975.55.seconds, stats.durationAverage)
+        assertBDEquals("-35.41248", stats.expectancy)
+        assertEquals(6, stats.winCount)
+        assertBDEquals(2101, stats.winPnl)
+        assertBDEquals("2011.44", stats.winPnlNet)
+        assertBDEquals("89.56", stats.winFees)
+        assertBDEquals(30, stats.winPercent)
+        assertBDEquals(1092, stats.winLargest)
+        assertBDEquals("350.1667", stats.winAverage)
+        assertEquals(3, stats.winStreakLongest)
+        assertEquals(2875.5.seconds, stats.winDurationAverage)
+        assertEquals(14, stats.lossCount)
+        assertBDEquals("-2809.25", stats.lossPnl)
+        assertBDEquals("-2986.76", stats.lossPnlNet)
+        assertBDEquals("177.51", stats.lossFees)
+        assertBDEquals(70, stats.lossPercent)
+        assertBDEquals(-280, stats.lossLargest)
+        assertBDEquals("-200.6607", stats.lossAverage)
+        assertEquals(7, stats.lossStreakLongest)
+        assertEquals(1589.857142857.seconds, stats.lossDurationAverage)
+
+        assertEquals(stats.partialStats.size, 2)
+
+        val winStats = assertNotNull(stats.partialStats[winnersKey])
+
+        assertEquals(6, winStats.count)
+        assertBDEquals(2101, winStats.pnl)
+        assertBDEquals("2011.44", winStats.pnlNet)
+        assertBDEquals(2101, winStats.pnlPeak)
+        assertBDEquals("2011.44", winStats.pnlNetPeak)
+        assertBDEquals("89.56", winStats.fees)
+        assertBDEquals("14.9267", winStats.feesAverage)
+        assertNull(winStats.profitFactor)
+        assertEquals(2875.5.seconds, winStats.durationAverage)
+        assertNull(winStats.expectancy)
+        assertEquals(6, winStats.winCount)
+        assertBDEquals(2101, winStats.winPnl)
+        assertBDEquals("2011.44", winStats.winPnlNet)
+        assertBDEquals("89.56", winStats.winFees)
+        assertBDEquals(100, winStats.winPercent)
+        assertBDEquals(1092, winStats.winLargest)
+        assertBDEquals("350.1667", winStats.winAverage)
+        assertEquals(6, winStats.winStreakLongest)
+        assertEquals(2875.5.seconds, winStats.winDurationAverage)
+        assertEquals(0, winStats.lossCount)
+        assertBDEquals(0, winStats.lossPnl)
+        assertBDEquals(0, winStats.lossPnlNet)
+        assertBDEquals(0, winStats.lossFees)
+        assertBDEquals(0, winStats.lossPercent)
+        assertNull(winStats.lossLargest)
+        assertNull(winStats.lossAverage)
+        assertEquals(0, winStats.lossStreakLongest)
+        assertNull(winStats.lossDurationAverage)
+
+        val lossStats = assertNotNull(stats.partialStats[losersKey])
+
+        assertEquals(14, lossStats.count)
+        assertBDEquals("-2809.25", lossStats.pnl)
+        assertBDEquals("-2986.76", lossStats.pnlNet)
+        assertBDEquals(0, lossStats.pnlPeak)
+        assertBDEquals(0, lossStats.pnlNetPeak)
+        assertBDEquals("177.51", lossStats.fees)
+        assertBDEquals("12.6793", lossStats.feesAverage)
+        assertNull(lossStats.profitFactor)
+        assertEquals(1589.857142857.seconds, lossStats.durationAverage)
+        assertNull(lossStats.expectancy)
+        assertEquals(0, lossStats.winCount)
+        assertBDEquals(0, lossStats.winPnl)
+        assertBDEquals(0, lossStats.winPnlNet)
+        assertBDEquals(0, lossStats.winFees)
+        assertBDEquals(0, lossStats.winPercent)
+        assertNull(lossStats.winLargest)
+        assertNull(lossStats.winAverage)
+        assertEquals(0, lossStats.winStreakLongest)
+        assertNull(lossStats.winDurationAverage)
+        assertEquals(14, lossStats.lossCount)
+        assertBDEquals("-2809.25", lossStats.lossPnl)
+        assertBDEquals("-2986.76", lossStats.lossPnlNet)
+        assertBDEquals("177.51", lossStats.lossFees)
+        assertBDEquals(100, lossStats.lossPercent)
+        assertBDEquals(-280, lossStats.lossLargest)
+        assertBDEquals("-200.6607", lossStats.lossAverage)
+        assertEquals(14, lossStats.lossStreakLongest)
+        assertEquals(1589.857142857.seconds, lossStats.lossDurationAverage)
     }
 }
