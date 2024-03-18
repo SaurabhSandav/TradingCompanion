@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.studies.impl
+package com.saurabhsandav.core.ui.stats.studies
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -13,19 +13,16 @@ import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
-internal class PNLByDayStudy(
+internal class PNLByMonthStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
-) : TableStudy<PNLByDayStudy.Model>() {
+) : TableStudy<PNLByMonthStudy.Model>() {
 
     override val schema: TableSchema<Model> = tableSchema {
-        addColumnText("Day") { it.day }
+        addColumnText("Month") { it.month }
         addColumnText("Trades") { it.noOfTrades }
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
@@ -46,15 +43,18 @@ internal class PNLByDayStudy(
         tradesRepo.allTrades.flatMapLatest { trades ->
 
             trades
-                .groupBy { it.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date }
-                .map { (date, tradesByDay) ->
+                .groupBy { trade ->
+                    val ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                    "${ldt.month} ${ldt.year}"
+                }
+                .map { (month, tradesByMonth) ->
 
-                    val closedTrades = tradesByDay.filter { it.isClosed }
+                    val closedTrades = tradesByMonth.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
                     tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
 
-                        val dailyStats = closedTrades.map { trade ->
+                        val monthlyStats = closedTrades.map { trade ->
 
                             val brokerage = trade.brokerageAtExit()!!
                             val pnlBD = brokerage.pnl
@@ -66,15 +66,13 @@ internal class PNLByDayStudy(
                             Triple(pnlBD, netPnlBD, rValue)
                         }
 
-                        val pnl = dailyStats.sumOf { it.first }
-                        val netPnl = dailyStats.sumOf { it.second }
-                        val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
-
-                        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(date.toJavaLocalDate())
+                        val pnl = monthlyStats.sumOf { it.first }
+                        val netPnl = monthlyStats.sumOf { it.second }
+                        val rValue = monthlyStats.mapNotNull { it.third }.sumOf { it }
 
                         Model(
-                            day = day,
-                            noOfTrades = tradesByDay.size.toString(),
+                            month = month,
+                            noOfTrades = tradesByMonth.size.toString(),
                             pnl = pnl.toPlainString(),
                             isProfitable = pnl > BigDecimal.ZERO,
                             netPnl = netPnl.toPlainString(),
@@ -88,7 +86,7 @@ internal class PNLByDayStudy(
     }
 
     data class Model(
-        val day: String,
+        val month: String,
         val noOfTrades: String,
         val pnl: String,
         val isProfitable: Boolean,
@@ -101,10 +99,10 @@ internal class PNLByDayStudy(
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
-    ) : Study.Factory<PNLByDayStudy> {
+    ) : Study.Factory<PNLByMonthStudy> {
 
-        override val name: String = "PNL By Day"
+        override val name: String = "PNL By Month"
 
-        override fun create() = PNLByDayStudy(profileId, tradingProfiles)
+        override fun create() = PNLByMonthStudy(profileId, tradingProfiles)
     }
 }

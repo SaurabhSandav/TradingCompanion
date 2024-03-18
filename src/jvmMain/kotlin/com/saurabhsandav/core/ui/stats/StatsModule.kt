@@ -1,11 +1,11 @@
-package com.saurabhsandav.core.ui.studies
+package com.saurabhsandav.core.ui.stats
 
 import com.saurabhsandav.core.AppModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.studies.impl.*
+import com.saurabhsandav.core.ui.stats.studies.*
 import kotlinx.coroutines.CoroutineScope
 
-internal class StudiesModule(
+internal class StatsModule(
     appModule: AppModule,
     coroutineScope: CoroutineScope,
     profileId: ProfileId,
@@ -13,8 +13,10 @@ internal class StudiesModule(
 
     val presenter = {
 
-        StudiesPresenter(
+        StatsPresenter(
             coroutineScope = coroutineScope,
+            profileId = profileId,
+            tradingProfiles = appModule.tradingProfiles,
             studyFactories = listOf(
                 PNLStudy.Factory(
                     profileId = profileId,
@@ -43,10 +45,6 @@ internal class StudiesModule(
                     tradingProfiles = appModule.tradingProfiles,
                 ),
                 PNLByTickerStudy.Factory(
-                    profileId = profileId,
-                    tradingProfiles = appModule.tradingProfiles,
-                ),
-                StatsStudy.Factory(
                     profileId = profileId,
                     tradingProfiles = appModule.tradingProfiles,
                 ),

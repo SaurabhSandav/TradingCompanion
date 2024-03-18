@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.studies.impl
+package com.saurabhsandav.core.ui.stats.studies
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -12,15 +12,20 @@ import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.tableSchema
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
-internal class PNLByTickerStudy(
+internal class PNLByDayStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
-) : TableStudy<PNLByTickerStudy.Model>() {
+) : TableStudy<PNLByDayStudy.Model>() {
 
     override val schema: TableSchema<Model> = tableSchema {
-        addColumnText("Ticker") { it.ticker }
+        addColumnText("Day") { it.day }
         addColumnText("Trades") { it.noOfTrades }
         addColumn("PNL") {
             Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
@@ -41,15 +46,15 @@ internal class PNLByTickerStudy(
         tradesRepo.allTrades.flatMapLatest { trades ->
 
             trades
-                .groupBy { it.ticker }
-                .map { (ticker, tradesByTicker) ->
+                .groupBy { it.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date }
+                .map { (date, tradesByDay) ->
 
-                    val closedTrades = tradesByTicker.filter { it.isClosed }
+                    val closedTrades = tradesByDay.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
                     tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
 
-                        val tickerStats = closedTrades.filter { it.isClosed }.map { trade ->
+                        val dailyStats = closedTrades.map { trade ->
 
                             val brokerage = trade.brokerageAtExit()!!
                             val pnlBD = brokerage.pnl
@@ -61,13 +66,15 @@ internal class PNLByTickerStudy(
                             Triple(pnlBD, netPnlBD, rValue)
                         }
 
-                        val pnl = tickerStats.sumOf { it.first }
-                        val netPnl = tickerStats.sumOf { it.second }
-                        val rValue = tickerStats.mapNotNull { it.third }.sumOf { it }
+                        val pnl = dailyStats.sumOf { it.first }
+                        val netPnl = dailyStats.sumOf { it.second }
+                        val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
+
+                        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(date.toJavaLocalDate())
 
                         Model(
-                            ticker = ticker,
-                            noOfTrades = tradesByTicker.size.toString(),
+                            day = day,
+                            noOfTrades = tradesByDay.size.toString(),
                             pnl = pnl.toPlainString(),
                             isProfitable = pnl > BigDecimal.ZERO,
                             netPnl = netPnl.toPlainString(),
@@ -76,14 +83,12 @@ internal class PNLByTickerStudy(
                             rValue = "${rValue}R",
                         )
                     }
-                }.let { flows ->
-                    combine(flows) { models -> models.asList().sortedByDescending { it.noOfTrades.toInt() } }
-                }
+                }.let { flows -> combine(flows) { it.asList() } }
         }.emitInto(this)
     }
 
     data class Model(
-        val ticker: String,
+        val day: String,
         val noOfTrades: String,
         val pnl: String,
         val isProfitable: Boolean,
@@ -96,10 +101,10 @@ internal class PNLByTickerStudy(
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
-    ) : Study.Factory<PNLByTickerStudy> {
+    ) : Study.Factory<PNLByDayStudy> {
 
-        override val name: String = "PNL By Ticker"
+        override val name: String = "PNL By Day"
 
-        override fun create() = PNLByTickerStudy(profileId, tradingProfiles)
+        override fun create() = PNLByDayStudy(profileId, tradingProfiles)
     }
 }

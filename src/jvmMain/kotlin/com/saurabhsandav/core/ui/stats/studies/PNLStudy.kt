@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.studies.impl
+package com.saurabhsandav.core.ui.stats.studies
 
 import androidx.compose.material3.Text
 import com.saurabhsandav.core.trades.TradingProfiles

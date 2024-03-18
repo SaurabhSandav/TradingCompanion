@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.studies.impl
+package com.saurabhsandav.core.ui.stats.studies
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,11 +25,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
-internal class PNLByDayChartStudy(
+internal class PNLByMonthChartStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
     private val webViewStateProvider: () -> WebViewState,
@@ -44,7 +45,14 @@ internal class PNLByDayChartStudy(
                 trades.filter { it.isClosed }
                     .asReversed()
                     .groupingBy { trade ->
-                        trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+                        val ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+
+                        LocalDate(
+                            year = ldt.year,
+                            monthNumber = ldt.monthNumber,
+                            dayOfMonth = 1,
+                        )
                     }
                     .fold(
                         initialValueSelector = { _, _ -> BigDecimal.ZERO },
@@ -112,10 +120,10 @@ internal class PNLByDayChartStudy(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
         private val webViewStateProvider: () -> WebViewState,
-    ) : Study.Factory<PNLByDayChartStudy> {
+    ) : Study.Factory<PNLByMonthChartStudy> {
 
-        override val name: String = "PNL By Day (Chart)"
+        override val name: String = "PNL By Month (Chart)"
 
-        override fun create() = PNLByDayChartStudy(profileId, tradingProfiles, webViewStateProvider)
+        override fun create() = PNLByMonthChartStudy(profileId, tradingProfiles, webViewStateProvider)
     }
 }

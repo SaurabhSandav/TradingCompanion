@@ -1,15 +1,7 @@
-package com.saurabhsandav.core.ui.studies
+package com.saurabhsandav.core.ui.stats
 
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,51 +12,44 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.studies.impl.Study
+import com.saurabhsandav.core.ui.stats.model.StatsState.StatsCategory
+import com.saurabhsandav.core.ui.stats.studies.Study
+import com.saurabhsandav.core.ui.stats.ui.LoadedStats
 
 @Composable
-internal fun StudiesScreen(
+internal fun StatsScreen(
+    statsCategories: List<StatsCategory>?,
     studyFactories: List<Study.Factory<*>>,
     onOpenStudy: (Study.Factory<*>) -> Unit,
 ) {
 
     // Set window title
-    WindowTitle("Studies")
+    WindowTitle("Stats")
 
-    Box {
+    when {
+        statsCategories != null -> LoadedStats(
+            statsCategories = statsCategories,
+            studyFactories = studyFactories,
+            onOpenStudy = onOpenStudy,
+        )
 
-        val lazyListState = rememberLazyListState()
-
-        LazyColumn(
+        else -> Box(
             modifier = Modifier.fillMaxSize(),
-            state = lazyListState,
-        ) {
-
-            items(items = studyFactories) { studyFactory ->
-
-                ListItem(
-                    modifier = Modifier.clickable { onOpenStudy(studyFactory) },
-                    headlineContent = { Text(studyFactory.name) },
-                )
-            }
-        }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyListState)
+            contentAlignment = Alignment.Center,
+            content = { Text("No trades") },
         )
     }
 }
 
 @Composable
-internal fun StudiesScreenWindows(
+internal fun StatsScreenWindows(
     studyWindowsManager: AppWindowsManager<Study.Factory<*>>,
 ) {
 
     // Study windows
     studyWindowsManager.Windows { window ->
 
-        StudyWindow(
+        StudyWindowWindow(
             studyFactory = window.params,
             onCloseRequest = window::close,
         )
@@ -72,7 +57,7 @@ internal fun StudiesScreenWindows(
 }
 
 @Composable
-private fun StudyWindow(
+private fun StudyWindowWindow(
     studyFactory: Study.Factory<*>,
     onCloseRequest: () -> Unit,
 ) {

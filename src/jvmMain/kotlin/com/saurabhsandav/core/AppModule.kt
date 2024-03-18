@@ -31,8 +31,8 @@ import com.saurabhsandav.core.ui.reviews.ReviewsModule
 import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.sizing.SizingModule
+import com.saurabhsandav.core.ui.stats.StatsModule
 import com.saurabhsandav.core.ui.stockchart.*
-import com.saurabhsandav.core.ui.studies.StudiesModule
 import com.saurabhsandav.core.ui.tagform.TagFormModule
 import com.saurabhsandav.core.ui.tags.TagsModule
 import com.saurabhsandav.core.ui.trade.TradeModule
@@ -215,11 +215,11 @@ internal class AppModule {
         SizingModule(this, coroutineScope, profileId)
     }
 
-    val studiesModule = {
+    val statsModule = {
             coroutineScope: CoroutineScope,
             profileId: ProfileId,
         ->
-        StudiesModule(this, coroutineScope, profileId)
+        StatsModule(this, coroutineScope, profileId)
     }
 
     val tagsModule = {

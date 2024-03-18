@@ -17,7 +17,7 @@ import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.*
 import com.saurabhsandav.core.ui.reviews.ReviewsLandingSwitcherItem
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
-import com.saurabhsandav.core.ui.studies.StudiesLandingSwitcherItem
+import com.saurabhsandav.core.ui.stats.StatsLandingSwitcherItem
 import com.saurabhsandav.core.ui.tags.TagsLandingSwitcherItem
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
@@ -45,7 +45,7 @@ internal fun LandingScreen(
             Trades to TradesLandingSwitcherItem(appModule.tradesModule(scope, profileId)),
             Tags to TagsLandingSwitcherItem(appModule.tagsModule(scope, profileId)),
             Reviews to ReviewsLandingSwitcherItem(appModule.reviewsModule(scope, profileId)),
-            Studies to StudiesLandingSwitcherItem(appModule.studiesModule(scope, profileId)),
+            Stats to StatsLandingSwitcherItem(appModule.statsModule(scope, profileId)),
         )
     }
 
