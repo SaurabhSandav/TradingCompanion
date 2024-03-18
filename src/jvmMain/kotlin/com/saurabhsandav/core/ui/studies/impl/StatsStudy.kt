@@ -12,14 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.stats.TradingStats
+import com.saurabhsandav.core.trades.stats.buildStats
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import java.math.BigDecimal
+import kotlin.time.Duration
 
 internal class StatsStudy(
     private val profileId: ProfileId,
@@ -31,7 +32,10 @@ internal class StatsStudy(
 
         val generalStats = remember {
             flow {
-                tradingProfiles.getRecord(profileId).trades.allTrades.map(::calculateGeneralStats).emitInto(this)
+                tradingProfiles.getRecord(profileId)
+                    .buildStats()
+                    .map { stats -> stats?.let(::toDisplayableStats) }
+                    .emitInto(this)
             }
         }.collectAsState(null).value
 
@@ -58,7 +62,7 @@ internal class StatsStudy(
     }
 
     @Composable
-    private fun Stats(generalStats: GeneralStats) {
+    private fun Stats(displayableStats: DisplayableStats) {
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -70,37 +74,37 @@ internal class StatsStudy(
 
                 StatEntry(
                     label = "Pnl",
-                    value = generalStats.pnl,
+                    value = displayableStats.pnl,
                 )
 
                 StatEntry(
                     label = "Net Pnl",
-                    value = generalStats.netPnl,
+                    value = displayableStats.pnlNet,
                 )
 
                 StatEntry(
                     label = "Total Fees",
-                    value = generalStats.totalFees,
+                    value = displayableStats.feesTotal,
                 )
 
                 StatEntry(
                     label = "Average Fees",
-                    value = generalStats.averageFees,
+                    value = displayableStats.feesAverage,
                 )
 
                 StatEntry(
                     label = "Profit Factor",
-                    value = generalStats.profitFactor,
+                    value = displayableStats.profitFactor,
                 )
 
                 StatEntry(
                     label = "Average Holding Time",
-                    value = generalStats.averageHoldingTime,
+                    value = displayableStats.durationAverage,
                 )
 
                 StatEntry(
                     label = "Expectancy",
-                    value = generalStats.expectancy,
+                    value = displayableStats.expectancy,
                 )
             }
 
@@ -108,32 +112,32 @@ internal class StatsStudy(
 
                 StatEntry(
                     label = "Wins",
-                    value = generalStats.wins,
+                    value = displayableStats.winCount,
                 )
 
                 StatEntry(
                     label = "Win %",
-                    value = generalStats.winPercent,
+                    value = displayableStats.winPercent,
                 )
 
                 StatEntry(
                     label = "Largest Win",
-                    value = generalStats.largestWin,
+                    value = displayableStats.winLargest,
                 )
 
                 StatEntry(
                     label = "Average Win",
-                    value = generalStats.averageWin,
+                    value = displayableStats.winAverage,
                 )
 
                 StatEntry(
                     label = "Longest Win Streak",
-                    value = generalStats.longestWinStreak,
+                    value = displayableStats.winStreakLongest,
                 )
 
                 StatEntry(
                     label = "Average Win Holding Time",
-                    value = generalStats.averageWinHoldingTime,
+                    value = displayableStats.winDurationAverage,
                 )
             }
 
@@ -141,32 +145,32 @@ internal class StatsStudy(
 
                 StatEntry(
                     label = "Losses",
-                    value = generalStats.losses,
+                    value = displayableStats.lossCount,
                 )
 
                 StatEntry(
                     label = "Loss %",
-                    value = generalStats.lossPercent,
+                    value = displayableStats.lossPercent,
                 )
 
                 StatEntry(
                     label = "Largest Loss",
-                    value = generalStats.largestLoss,
+                    value = displayableStats.lossLargest,
                 )
 
                 StatEntry(
                     label = "Average Loss",
-                    value = generalStats.averageLoss,
+                    value = displayableStats.lossAverage,
                 )
 
                 StatEntry(
                     label = "Longest Loss Streak",
-                    value = generalStats.longestLossStreak,
+                    value = displayableStats.lossStreakLongest,
                 )
 
                 StatEntry(
                     label = "Average Loss Holding Time",
-                    value = generalStats.averageLossHoldingTime,
+                    value = displayableStats.lossDurationAverage,
                 )
             }
         }
@@ -195,122 +199,69 @@ internal class StatsStudy(
         }
     }
 
-    private fun calculateGeneralStats(trades: List<Trade>): GeneralStats? {
+    private fun toDisplayableStats(stats: TradingStats) = DisplayableStats(
+        pnl = stats.pnl.toPlainString(),
+        pnlNet = stats.pnlNet.toPlainString(),
+        feesTotal = stats.fees.toPlainString(),
+        feesAverage = stats.feesAverage.toPlainString(),
+        profitFactor = stats.profitFactor?.toPlainString().orEmpty(),
+        durationAverage = stats.durationAverage.displayStr(),
+        expectancy = "%.2f".format(stats.expectancy),
+        winCount = stats.winCount.toString(),
+        winPercent = stats.winPercent.toPlainString(),
+        winLargest = stats.winLargest?.toPlainString().orEmpty(),
+        winAverage = stats.winAverage?.toPlainString().orEmpty(),
+        winStreakLongest = stats.winStreakLongest.toString(),
+        winDurationAverage = stats.winDurationAverage?.displayStr().orEmpty(),
+        lossCount = stats.lossCount.toString(),
+        lossPercent = stats.lossPercent.toString(),
+        lossLargest = stats.lossLargest?.toPlainString().orEmpty(),
+        lossAverage = stats.lossAverage?.toPlainString().orEmpty(),
+        lossStreakLongest = stats.lossStreakLongest.toString(),
+        lossDurationAverage = stats.lossDurationAverage?.displayStr().orEmpty(),
+    )
 
-        val allTrades = trades.filter { it.isClosed }
+    private fun Duration.displayStr(): String {
 
-        if (allTrades.isEmpty()) return null
+        val seconds = inWholeSeconds
 
-        fun longestStreak(trades: List<Trade>, predicate: (Trade) -> Boolean): Int {
+        if (seconds == 0L) return "0 seconds"
 
-            var currentStreak = 0
-            var longestStreak = 0
+        val days = seconds / 86400
+        val remainingSeconds = seconds % 86400
+        val hours = remainingSeconds / 3600
+        val minutes = (remainingSeconds % 3600) / 60
+        val remainingSecondsLeft = remainingSeconds % 60
 
-            for (element in trades) {
-                when {
-                    predicate(element) -> currentStreak++
-                    else -> {
-                        longestStreak = maxOf(longestStreak, currentStreak)
-                        currentStreak = 0
-                    }
-                }
-            }
-
-            return maxOf(longestStreak, currentStreak)
-        }
-
-        fun List<BigDecimal>.average() = when {
-            this.isEmpty() -> BigDecimal.ZERO
-            else -> reduce { acc, value -> acc + value } / size.toBigDecimal()
-        }
-
-        val totalTrades = allTrades.size
-        val totalFees = allTrades.sumOf { it.fees }
-        val averageFees = totalFees / totalTrades.toBigDecimal()
-
-        val averageHoldingTime = run {
-
-            val holdingTimes = allTrades.map { it.exitTimestamp!! - it.entryTimestamp }
-
-            val averageHoldingTimeSeconds = holdingTimes.sumOf { it.inWholeSeconds } / totalTrades
-            averageHoldingTimeSeconds / 60
-        }
-
-        val winTrades = allTrades.filter { it.pnl > BigDecimal.ZERO }
-        val winCount = winTrades.count()
-        val winDecimal = winCount / totalTrades.toFloat()
-        val winTotalPnl = winTrades.sumOf { it.pnl }
-        val averageWin = winTrades.map { it.pnl }.average()
-        val longestWinStreak = longestStreak(allTrades) { it.pnl > BigDecimal.ZERO }
-
-        val averageWinHoldingTime = run {
-
-            val holdingTimes = winTrades.map { it.exitTimestamp!! - it.entryTimestamp }
-
-            val averageHoldingTimeSeconds = holdingTimes.map { it.inWholeSeconds }.average()
-            averageHoldingTimeSeconds / 60
-        }
-
-        val lossTrades = allTrades.filter { it.pnl <= BigDecimal.ZERO }
-        val lossCount = lossTrades.count()
-        val lossDecimal = lossCount / totalTrades.toFloat()
-        val lossTotalPnl = lossTrades.sumOf { it.pnl }
-        val averageLoss = lossTrades.map { it.pnl }.average()
-        val longestLossStreak = longestStreak(allTrades) { it.pnl <= BigDecimal.ZERO }
-
-        val averageLossHoldingTime = run {
-
-            val holdingTimes = lossTrades.map { it.exitTimestamp!! - it.entryTimestamp }
-
-            val averageHoldingTimeSeconds = holdingTimes.map { it.inWholeSeconds }.average()
-            averageHoldingTimeSeconds / 60
-        }
-
-        val expectancy = (winDecimal.toBigDecimal() * averageWin) + (lossDecimal.toBigDecimal() * averageLoss)
-
-        return GeneralStats(
-            pnl = allTrades.sumOf { it.pnl }.toPlainString(),
-            netPnl = allTrades.sumOf { it.netPnl }.toPlainString(),
-            totalFees = totalFees.toPlainString(),
-            averageFees = averageFees.toPlainString(),
-            profitFactor = (winTotalPnl / lossTotalPnl).toPlainString(),
-            averageHoldingTime = "$averageHoldingTime minutes",
-            expectancy = "%.2f".format(expectancy),
-            wins = winCount.toString(),
-            winPercent = (winDecimal * 100).toString(),
-            largestWin = winTrades.maxOfOrNull { it.pnl }?.toString() ?: "",
-            averageWin = averageWin.toPlainString(),
-            longestWinStreak = longestWinStreak.toString(),
-            averageWinHoldingTime = "${"%.2f".format(averageWinHoldingTime)} minutes",
-            losses = lossCount.toString(),
-            lossPercent = (lossDecimal * 100).toString(),
-            largestLoss = lossTrades.minOfOrNull { it.pnl }?.toString() ?: "",
-            averageLoss = averageLoss.toPlainString(),
-            longestLossStreak = longestLossStreak.toString(),
-            averageLossHoldingTime = "${"%.2f".format(averageLossHoldingTime)} minutes",
-        )
+        return buildString {
+            if (days > 0) append("$days ${if (days == 1L) "day" else "days"} ")
+            if (hours > 0) append("$hours ${if (hours == 1L) "hour" else "hours"} ")
+            if (minutes > 0) append("$minutes ${if (minutes == 1L) "minute" else "minutes"} ")
+            if (isEmpty() || remainingSecondsLeft > 0)
+                append("$remainingSecondsLeft ${if (remainingSecondsLeft == 1L) "second" else "seconds"}")
+        }.trim()
     }
 
-    data class GeneralStats(
+    data class DisplayableStats(
         val pnl: String = "",
-        val netPnl: String = "",
-        val totalFees: String = "",
-        val averageFees: String = "",
+        val pnlNet: String = "",
+        val feesTotal: String = "",
+        val feesAverage: String = "",
         val profitFactor: String = "",
-        val averageHoldingTime: String = "",
+        val durationAverage: String = "",
         val expectancy: String = "",
-        val wins: String = "",
+        val winCount: String = "",
         val winPercent: String = "",
-        val largestWin: String = "",
-        val averageWin: String = "",
-        val longestWinStreak: String = "",
-        val averageWinHoldingTime: String = "",
-        val losses: String = "",
+        val winLargest: String = "",
+        val winAverage: String = "",
+        val winStreakLongest: String = "",
+        val winDurationAverage: String = "",
+        val lossCount: String = "",
         val lossPercent: String = "",
-        val largestLoss: String = "",
-        val averageLoss: String = "",
-        val longestLossStreak: String = "",
-        val averageLossHoldingTime: String = "",
+        val lossLargest: String = "",
+        val lossAverage: String = "",
+        val lossStreakLongest: String = "",
+        val lossDurationAverage: String = "",
     )
 
     class Factory(
