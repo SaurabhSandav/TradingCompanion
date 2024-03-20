@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trades.stats
 
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingRecord
+import com.saurabhsandav.core.trades.stats.TradingStats.Drawdown
 import com.saurabhsandav.core.trades.stats.TradingStats.PartialStatsKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -67,6 +68,9 @@ private class TradingStatsBuilder(
     private var lossStreakLongest = 0
     private var lossStreakCurrent = 0
 
+    private val drawdowns = mutableListOf<Drawdown>()
+    private var currentDrawdown: Drawdown? = null
+
     private val partialStatsBuilders = buildMap {
         partialStatsKeys.forEach { put(it, TradingStatsBuilder()) }
     }
@@ -113,8 +117,54 @@ private class TradingStatsBuilder(
             lossStreakLongest = max(lossStreakCurrent, lossStreakLongest)
         }
 
+        calculateDrawdown(trade)
+
         partialStatsBuilders.forEach { (key, builder) ->
             if (key.shouldIncludeTrade(trade)) builder.recordTrade(trade)
+        }
+    }
+
+    private fun calculateDrawdown(trade: Trade) {
+
+        // If pnl hit a new peak, current drawdown (if any) has ended
+        currentDrawdown
+            ?.takeIf { it.pnlPeak != pnlPeak }
+            ?.run {
+
+                // Use the start of a new pnl peak as the end time for the current drawdown
+                drawdowns += copy(
+                    to = trade.entryTimestamp,
+                    duration = trade.entryTimestamp - from,
+                    pnlPeak = pnlPeak.stripTrailingZeros(),
+                    drawdown = drawdown.stripTrailingZeros(),
+                )
+
+                currentDrawdown = null
+            }
+
+        // Pnl is less than peak, start new drawdown
+        if (pnl < pnlPeak) {
+
+            currentDrawdown = when (val currentDrawdown = currentDrawdown) {
+                null -> Drawdown(
+                    tradeCount = 1,
+                    from = trade.entryTimestamp,
+                    to = trade.exitTimestamp ?: trade.entryTimestamp,
+                    duration = (trade.exitTimestamp ?: trade.entryTimestamp) - trade.entryTimestamp,
+                    tradeIdFrom = trade.id,
+                    tradeIdTo = trade.id,
+                    pnlPeak = pnlPeak,
+                    drawdown = (pnlPeak - pnl).negate(),
+                )
+
+                else -> currentDrawdown.copy(
+                    tradeCount = currentDrawdown.tradeCount + 1,
+                    to = trade.exitTimestamp ?: trade.entryTimestamp,
+                    duration = (trade.exitTimestamp ?: trade.entryTimestamp) - currentDrawdown.from,
+                    tradeIdTo = trade.id,
+                    drawdown = minOf(currentDrawdown.drawdown, (pnlPeak - pnl).negate()),
+                )
+            }
         }
     }
 
@@ -143,6 +193,23 @@ private class TradingStatsBuilder(
             winAverage == null || lossAverage == null -> null
             else -> (winDecimal * winAverage) + (lossDecimal * lossAverage)
         }
+
+        val drawdowns = when (val currentDrawdown = currentDrawdown) {
+            null -> drawdowns.toList()
+            else -> drawdowns + currentDrawdown
+        }
+
+        val drawdownMax = drawdowns.minOfOrNull { it.drawdown }
+        val drawdownAverage = drawdowns
+            .takeIf { it.isNotEmpty() }
+            ?.sumOf { it.drawdown }
+            ?.roundedDiv(drawdowns.size.toBigDecimal())
+
+        val drawdownDurationMax = drawdowns.maxOfOrNull { it.duration }
+        val drawdownDurationAverage = drawdowns
+            .takeIf { it.isNotEmpty() }
+            ?.fold(Duration.ZERO) { acc, drawdown -> acc + drawdown.duration }
+            ?.div(drawdowns.size)
 
         return TradingStats(
             count = count,
@@ -173,6 +240,11 @@ private class TradingStatsBuilder(
             lossAverage = lossAverage?.stripTrailingZeros(),
             lossStreakLongest = lossStreakLongest,
             lossDurationAverage = lossDurationAverage,
+            drawdowns = drawdowns,
+            drawdownMax = drawdownMax?.stripTrailingZeros(),
+            drawdownAverage = drawdownAverage?.stripTrailingZeros(),
+            drawdownDurationMax = drawdownDurationMax,
+            drawdownDurationAverage = drawdownDurationAverage,
             partialStats = partialStatsBuilders.mapValues { (_, builder) -> builder.build() },
         )
     }

@@ -132,6 +132,45 @@ class TradingStatsBuilderTest {
         assertEquals(1589.857142857.seconds, stats.lossDurationAverage)
     }
 
+    @Suppress("TestFunctionName")
+    @Test
+    fun Drawdowns() {
+
+        val stats = buildTradingStats(TradingStatsUtils.trades)
+
+        assertNotNull(stats)
+
+        assertEquals(3, stats.drawdowns.size)
+        assertBDEquals("-1222.5", stats.drawdownMax)
+        assertBDEquals("-936.4167", stats.drawdownAverage)
+        assertEquals(85501, stats.drawdownDurationMax?.inWholeSeconds)
+        assertEquals(35356, stats.drawdownDurationAverage?.inWholeSeconds)
+
+        assertEquals(5, stats.drawdowns[0].tradeCount)
+        assertEquals(1706503676, stats.drawdowns[0].from.epochSeconds)
+        assertEquals(1706516947, stats.drawdowns[0].to.epochSeconds)
+        assertEquals(332, stats.drawdowns[0].tradeIdFrom.value)
+        assertEquals(336, stats.drawdowns[0].tradeIdTo.value)
+        assertBDEquals(200, stats.drawdowns[0].pnlPeak)
+        assertBDEquals("-515.25", stats.drawdowns[0].drawdown)
+
+        assertEquals(4, stats.drawdowns[1].tradeCount)
+        assertEquals(1706589353, stats.drawdowns[1].from.epochSeconds)
+        assertEquals(1706596651, stats.drawdowns[1].to.epochSeconds)
+        assertEquals(338, stats.drawdowns[1].tradeIdFrom.value)
+        assertEquals(341, stats.drawdowns[1].tradeIdTo.value)
+        assertBDEquals("407.75", stats.drawdowns[1].pnlPeak)
+        assertBDEquals("-1071.5", stats.drawdowns[1].drawdown)
+
+        assertEquals(7, stats.drawdowns[2].tradeCount)
+        assertEquals(1706680896, stats.drawdowns[2].from.epochSeconds)
+        assertEquals(1706766397, stats.drawdowns[2].to.epochSeconds)
+        assertEquals(344, stats.drawdowns[2].tradeIdFrom.value)
+        assertEquals(350, stats.drawdowns[2].tradeIdTo.value)
+        assertBDEquals("514.25", stats.drawdowns[2].pnlPeak)
+        assertBDEquals("-1222.5", stats.drawdowns[2].drawdown)
+    }
+
     @Test
     fun `All trades with partial stats`() {
 

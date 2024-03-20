@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.trades.stats
 
 import com.saurabhsandav.core.trades.Trade
+import com.saurabhsandav.core.trades.model.TradeId
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import kotlin.time.Duration
 
@@ -33,6 +35,11 @@ data class TradingStats(
     val lossAverage: BigDecimal?,
     val lossStreakLongest: Int,
     val lossDurationAverage: Duration?,
+    val drawdowns: List<Drawdown>,
+    val drawdownMax: BigDecimal?,
+    val drawdownAverage: BigDecimal?,
+    val drawdownDurationMax: Duration?,
+    val drawdownDurationAverage: Duration?,
     val partialStats: Map<PartialStatsKey, TradingStats?>,
 ) {
 
@@ -40,4 +47,15 @@ data class TradingStats(
 
         fun shouldIncludeTrade(trade: Trade): Boolean
     }
+
+    data class Drawdown(
+        val tradeCount: Int,
+        val from: Instant,
+        val to: Instant,
+        val duration: Duration,
+        val tradeIdFrom: TradeId,
+        val tradeIdTo: TradeId,
+        val pnlPeak: BigDecimal,
+        val drawdown: BigDecimal,
+    )
 }
