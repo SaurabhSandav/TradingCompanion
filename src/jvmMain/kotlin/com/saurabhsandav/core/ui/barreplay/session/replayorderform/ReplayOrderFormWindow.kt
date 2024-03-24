@@ -73,7 +73,7 @@ private fun ReplayOrderForm(
 
     Column(
         modifier = Modifier.fillMaxHeight()
-            .padding(16.dp)
+            .padding(MaterialTheme.dimens.containerPadding)
             .width(IntrinsicSize.Min)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(

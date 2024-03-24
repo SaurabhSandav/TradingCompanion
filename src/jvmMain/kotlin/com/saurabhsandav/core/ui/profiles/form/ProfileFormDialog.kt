@@ -13,6 +13,7 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfileFormDialog(
@@ -56,7 +57,7 @@ private fun Form(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

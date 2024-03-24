@@ -64,7 +64,7 @@ internal fun TradesTable(
                 HorizontalDivider()
 
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
                     horizontalArrangement = Arrangement.spacedBy(
                         space = MaterialTheme.dimens.rowHorizontalSpacing,
                         alignment = Alignment.CenterHorizontally,

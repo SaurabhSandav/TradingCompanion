@@ -158,7 +158,9 @@ private fun NoteEditorWindow(
                             val scrollState = rememberScrollState()
 
                             RichText(
-                                modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(16.dp),
+                                modifier = Modifier.fillMaxSize()
+                                    .verticalScroll(scrollState)
+                                    .padding(MaterialTheme.dimens.containerPadding),
                                 children = { Markdown(text) }
                             )
 
@@ -180,7 +182,7 @@ private fun NoteEditorWindow(
             HorizontalDivider()
 
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 

@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.tagform
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +17,7 @@ import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.tagform.model.TagFormModel
 import com.saurabhsandav.core.ui.tagform.model.TagFormType
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 fun TagFormWindow(
@@ -65,7 +63,7 @@ private fun Form(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

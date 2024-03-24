@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.loginservice.impl
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +17,7 @@ import com.saurabhsandav.core.fyers_api.model.response.isAuthError
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.loginservice.LoginService
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import io.ktor.http.*
@@ -284,7 +282,7 @@ internal class FyersLoginService private constructor(
                     var pin by state { "" }
 
                     Box(
-                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
                         contentAlignment = Alignment.Center,
                         propagateMinConstraints = true,
                     ) {

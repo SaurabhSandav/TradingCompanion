@@ -90,7 +90,7 @@ internal fun TradeFilterChipGroup(
     ) {
 
         FlowRow(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
             horizontalArrangement = Arrangement.spacedBy(
                 space = MaterialTheme.dimens.rowHorizontalSpacing,
                 alignment = Alignment.End,

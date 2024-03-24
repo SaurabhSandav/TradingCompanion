@@ -100,7 +100,7 @@ private fun FetchCandleDataLoginConfirmationDialog(
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
 

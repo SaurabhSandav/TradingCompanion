@@ -40,7 +40,7 @@ internal class StatsStudy(
             val scrollState = rememberScrollState()
 
             Column(
-                modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
+                modifier = Modifier.verticalScroll(scrollState).padding(MaterialTheme.dimens.containerPadding),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
@@ -179,7 +179,9 @@ internal class StatsStudy(
     ) {
 
         Column(
-            modifier = Modifier.width(IntrinsicSize.Min).border(1.dp, Color.Gray).padding(16.dp),
+            modifier = Modifier.width(IntrinsicSize.Min)
+                .border(1.dp, Color.Gray)
+                .padding(MaterialTheme.dimens.containerPadding),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 

@@ -20,12 +20,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.material3.RichText
 import com.halilibo.richtext.ui.string.RichTextStringStyle
 import com.saurabhsandav.core.ui.common.saveableState
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReviewEditable(
@@ -47,7 +47,7 @@ internal fun ReviewEditable(
             val modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(16.dp)
+                .padding(MaterialTheme.dimens.containerPadding)
 
             when {
                 editTarget -> {

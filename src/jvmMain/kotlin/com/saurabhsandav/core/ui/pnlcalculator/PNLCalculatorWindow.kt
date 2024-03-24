@@ -61,7 +61,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
         val model = state.model
 
         Column(
-            modifier = Modifier.padding(16.dp).weight(1F).fillMaxHeight(),
+            modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).weight(1F).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(
                 space = MaterialTheme.dimens.columnVerticalSpacing,
                 alignment = Alignment.CenterVertically,
@@ -164,7 +164,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
         }
 
         LazyTable(
-            modifier = Modifier.padding(16.dp).width(800.dp).fillMaxHeight(),
+            modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).width(800.dp).fillMaxHeight(),
             schema = schema,
         ) {
 

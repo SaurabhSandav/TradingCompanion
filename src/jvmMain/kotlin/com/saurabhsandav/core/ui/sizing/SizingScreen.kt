@@ -75,7 +75,7 @@ private fun SizingTradesGrid(
 ) {
 
     LazyVerticalGrid(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
         columns = GridCells.Adaptive(250.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -113,7 +113,7 @@ private fun SizingTradeCard(
     Card {
 
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

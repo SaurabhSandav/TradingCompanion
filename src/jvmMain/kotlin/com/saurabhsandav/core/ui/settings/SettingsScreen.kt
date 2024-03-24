@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -71,7 +70,7 @@ internal fun SettingsScreen(
         val scrollState = rememberScrollState()
 
         Column(
-            modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
+            modifier = Modifier.verticalScroll(scrollState).padding(MaterialTheme.dimens.containerPadding),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 

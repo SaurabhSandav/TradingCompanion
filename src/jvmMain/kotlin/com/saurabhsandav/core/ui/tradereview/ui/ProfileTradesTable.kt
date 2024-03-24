@@ -15,6 +15,7 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeEntry
 
@@ -71,7 +72,7 @@ internal fun ProfileTradesTable(
                 HorizontalDivider()
 
                 OutlinedButton(
-                    modifier = Modifier.align(Alignment.End).padding(16.dp),
+                    modifier = Modifier.align(Alignment.End).padding(MaterialTheme.dimens.containerPadding),
                     onClick = onFilter,
                     shape = MaterialTheme.shapes.small,
                     enabled = isFilterEnabled,

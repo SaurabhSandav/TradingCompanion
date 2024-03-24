@@ -47,7 +47,10 @@ internal fun StockChartControls(
     ) {
 
         Column(
-            modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp).verticalScroll(rememberScrollState()),
+            modifier = Modifier.width(250.dp)
+                .fillMaxHeight()
+                .padding(MaterialTheme.dimens.containerPadding)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(
                 space = MaterialTheme.dimens.columnVerticalSpacing,
                 alignment = Alignment.CenterVertically,

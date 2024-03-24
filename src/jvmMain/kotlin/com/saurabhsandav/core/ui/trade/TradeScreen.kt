@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.TradeAttachmentId
@@ -132,7 +131,7 @@ internal fun TradeScreen(
                     val scrollState = rememberScrollState()
 
                     Column(
-                        modifier = Modifier.padding(16.dp).verticalScroll(scrollState),
+                        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).verticalScroll(scrollState),
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
                     ) {
 

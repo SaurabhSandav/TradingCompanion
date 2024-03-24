@@ -24,6 +24,7 @@ import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import kotlinx.coroutines.launch
@@ -206,7 +207,7 @@ internal fun AttachmentEditorDialog(
         ) {
 
             Column(
-                modifier = Modifier.padding(16.dp).width(IntrinsicSize.Min),
+                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).width(IntrinsicSize.Min),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

@@ -39,7 +39,7 @@ internal fun DateIntervalFilterItem(
         Column {
 
             FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
                 horizontalArrangement = Arrangement.spacedBy(
                     space = MaterialTheme.dimens.rowHorizontalSpacing,
                     alignment = Alignment.End,
@@ -114,7 +114,7 @@ private fun CustomForm(
 ) {
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 

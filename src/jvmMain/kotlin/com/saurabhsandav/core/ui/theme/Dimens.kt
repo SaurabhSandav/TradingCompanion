@@ -16,4 +16,6 @@ object Dimens {
     val rowVerticalSpacing = 16.dp
 
     val rowHorizontalSpacing = 16.dp
+
+    val containerPadding = 16.dp
 }

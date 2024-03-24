@@ -98,7 +98,7 @@ private fun TradeExecutionForm(
         modifier = Modifier.fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .width(IntrinsicSize.Min)
-            .padding(16.dp),
+            .padding(MaterialTheme.dimens.containerPadding),
         verticalArrangement = Arrangement.spacedBy(
             space = MaterialTheme.dimens.columnVerticalSpacing,
             alignment = Alignment.CenterVertically,

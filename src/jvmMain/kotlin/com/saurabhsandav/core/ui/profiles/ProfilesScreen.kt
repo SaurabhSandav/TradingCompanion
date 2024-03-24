@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -134,7 +133,7 @@ private fun ProfilesScreen(
             val scrollState = rememberScrollState()
 
             Column(
-                modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
+                modifier = Modifier.verticalScroll(scrollState).padding(MaterialTheme.dimens.containerPadding),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
