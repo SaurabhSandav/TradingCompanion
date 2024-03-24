@@ -24,6 +24,7 @@ import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun PNLCalculatorWindow(
@@ -61,12 +62,18 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
         Column(
             modifier = Modifier.padding(16.dp).weight(1F).fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(
+                space = MaterialTheme.dimens.columnVerticalSpacing,
+                alignment = Alignment.CenterVertically,
+            ),
         ) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = MaterialTheme.dimens.rowHorizontalSpacing,
+                    alignment = Alignment.CenterHorizontally
+                ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
@@ -125,50 +132,45 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
             }
         }
 
-        Column(
-            modifier = Modifier.padding(16.dp).width(800.dp).fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-        ) {
-
-            val schema = rememberTableSchema<PNLEntry> {
-                addColumn("Side") {
-                    Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-                }
-                addColumnText("Quantity") { it.quantity }
-                addColumnText("Entry") { it.entry }
-                addColumnText("Exit") { it.exit }
-                addColumnText("Breakeven") { it.breakeven }
-                addColumn("PNL") {
-                    Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-                }
-                addColumnText("Charges") { it.charges }
-                addColumn("Net PNL") {
-                    Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-                }
-                addColumn(width = Weight(.5F)) {
-
-                    val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
-
-                    IconButtonWithTooltip(
-                        modifier = Modifier.alpha(alpha),
-                        onClick = { state.onRemoveCalculation(it.id) },
-                        tooltipText = "Close",
-                        enabled = it.isRemovable,
-                        content = {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        },
-                    )
-                }
+        val schema = rememberTableSchema<PNLEntry> {
+            addColumn("Side") {
+                Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
             }
+            addColumnText("Quantity") { it.quantity }
+            addColumnText("Entry") { it.entry }
+            addColumnText("Exit") { it.exit }
+            addColumnText("Breakeven", width = Weight(1.2F)) { it.breakeven }
+            addColumn("PNL") {
+                Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+            }
+            addColumnText("Charges") { it.charges }
+            addColumn("Net PNL") {
+                Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+            }
+            addColumn(width = Weight(.5F)) {
 
-            LazyTable(
-                schema = schema,
-            ) {
+                val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
 
-                rows(
-                    items = model.pnlEntries,
+                IconButtonWithTooltip(
+                    modifier = Modifier.alpha(alpha),
+                    onClick = { state.onRemoveCalculation(it.id) },
+                    tooltipText = "Close",
+                    enabled = it.isRemovable,
+                    content = {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
+                    },
                 )
             }
+        }
+
+        LazyTable(
+            modifier = Modifier.padding(16.dp).width(800.dp).fillMaxHeight(),
+            schema = schema,
+        ) {
+
+            rows(
+                items = model.pnlEntries,
+            )
         }
     }
 }

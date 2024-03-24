@@ -26,6 +26,7 @@ import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
 import com.saurabhsandav.core.ui.common.table.DefaultTableRow
 import com.saurabhsandav.core.ui.common.table.addColumnText
 import com.saurabhsandav.core.ui.common.table.rememberTableSchema
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import kotlinx.coroutines.flow.Flow
@@ -48,7 +49,7 @@ internal fun StopsAndTargets(
 ) {
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
         StopsList(

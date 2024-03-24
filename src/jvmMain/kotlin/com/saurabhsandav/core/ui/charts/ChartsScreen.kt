@@ -2,10 +2,7 @@ package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +15,7 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDecline
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.stockchart.StockCharts
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ChartsScreen(
@@ -110,7 +108,7 @@ private fun FetchCandleDataLoginConfirmationDialog(
 
             Row(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
             ) {
 
                 Button(onClick = onConfirm) {

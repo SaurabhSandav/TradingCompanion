@@ -2,19 +2,19 @@ package com.saurabhsandav.core.ui.profiles.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
@@ -22,6 +22,7 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfileListItem(
@@ -41,14 +42,15 @@ internal fun ProfileListItem(
         modifier = Modifier.clickable(onClick = onSelectProfile),
         headlineContent = {
 
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing)
+            ) {
 
                 Text(profile.name)
 
                 AnimatedVisibility(isCurrent) {
 
                     Icon(
-                        modifier = Modifier.padding(start = 16.dp),
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "Current Profile",
                     )

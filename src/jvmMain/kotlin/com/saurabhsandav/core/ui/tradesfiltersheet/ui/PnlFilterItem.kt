@@ -17,6 +17,7 @@ import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
@@ -36,7 +37,7 @@ internal fun PnlFilterItem(
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
             Row {
@@ -53,8 +54,11 @@ internal fun PnlFilterItem(
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = MaterialTheme.dimens.rowHorizontalSpacing,
+                    alignment = Alignment.End,
+                ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowVerticalSpacing),
             ) {
 
                 TradeFilterChip(
@@ -124,7 +128,7 @@ private fun CustomForm(
 ) {
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
         CustomField(

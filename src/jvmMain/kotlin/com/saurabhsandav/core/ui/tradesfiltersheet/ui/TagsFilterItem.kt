@@ -13,6 +13,7 @@ import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -34,7 +35,7 @@ internal fun TagsFilterItem(
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
             Row {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.ui.profiles.ui.ProfileListItem
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfilesWindow(
@@ -133,7 +135,7 @@ private fun ProfilesScreen(
 
             Column(
                 modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
                 profiles.forEach { profile ->

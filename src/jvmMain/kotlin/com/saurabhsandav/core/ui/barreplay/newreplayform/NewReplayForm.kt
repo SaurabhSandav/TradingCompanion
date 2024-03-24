@@ -11,12 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.NIFTY50
 
 @Composable
@@ -32,7 +32,10 @@ internal fun NewReplayForm(
 
         Column(
             modifier = Modifier.width(IntrinsicSize.Min),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(
+                space = MaterialTheme.dimens.columnVerticalSpacing,
+                alignment = Alignment.CenterVertically,
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 

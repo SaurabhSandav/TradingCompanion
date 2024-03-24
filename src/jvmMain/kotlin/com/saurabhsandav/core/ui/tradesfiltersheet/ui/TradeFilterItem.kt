@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun TradeFilterItem(
@@ -90,8 +91,11 @@ internal fun TradeFilterChipGroup(
 
         FlowRow(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = MaterialTheme.dimens.rowHorizontalSpacing,
+                alignment = Alignment.End,
+            ),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowVerticalSpacing),
             content = content,
         )
     }

@@ -14,6 +14,7 @@ import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SideSheet
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
@@ -161,7 +162,7 @@ private fun Buttons(
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
         OutlinedButton(

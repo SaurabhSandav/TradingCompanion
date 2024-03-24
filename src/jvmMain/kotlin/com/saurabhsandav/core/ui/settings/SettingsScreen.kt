@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun SettingsWindow(
@@ -71,7 +72,7 @@ internal fun SettingsScreen(
 
         Column(
             modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
             DarkModePreference(

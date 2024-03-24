@@ -14,6 +14,7 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 
 @Composable
@@ -64,7 +65,10 @@ internal fun TradesTable(
 
                 Row(
                     modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space = MaterialTheme.dimens.rowHorizontalSpacing,
+                        alignment = Alignment.CenterHorizontally,
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
 
@@ -227,7 +231,7 @@ private fun StatsHeaderItem(stats: Stats) {
     ) {
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -244,7 +248,7 @@ private fun StatsHeaderItem(stats: Stats) {
         }
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 

@@ -7,16 +7,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 fun ChipsSelectorBox(
@@ -27,8 +24,14 @@ fun ChipsSelectorBox(
 
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.rowHorizontalSpacing,
+            alignment = Alignment.CenterHorizontally,
+        ),
+        verticalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.rowVerticalSpacing,
+            alignment = Alignment.CenterVertically,
+        ),
     ) {
 
         selectedItems()

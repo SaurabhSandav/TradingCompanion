@@ -19,6 +19,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplayOrderFormWindow(
@@ -75,7 +76,10 @@ private fun ReplayOrderForm(
             .padding(16.dp)
             .width(IntrinsicSize.Min)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.columnVerticalSpacing,
+            alignment = Alignment.CenterVertically,
+        ),
     ) {
 
         OutlinedTextField(
@@ -101,7 +105,10 @@ private fun ReplayOrderForm(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.spacedBy(
+                MaterialTheme.dimens.rowHorizontalSpacing,
+                Alignment.CenterHorizontally
+            ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
 

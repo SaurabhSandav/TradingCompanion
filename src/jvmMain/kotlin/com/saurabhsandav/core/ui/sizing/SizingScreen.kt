@@ -21,6 +21,7 @@ import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.utils.NIFTY50
 
@@ -113,7 +114,7 @@ private fun SizingTradeCard(
 
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 

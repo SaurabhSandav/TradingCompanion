@@ -21,6 +21,7 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -47,7 +48,10 @@ internal fun StockChartControls(
 
         Column(
             modifier = Modifier.width(250.dp).fillMaxHeight().padding(16.dp).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(
+                space = MaterialTheme.dimens.columnVerticalSpacing,
+                alignment = Alignment.CenterVertically,
+            ),
         ) {
 
             Button(

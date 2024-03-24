@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.studies.impl
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -39,7 +41,7 @@ internal class StatsStudy(
 
             Column(
                 modifier = Modifier.verticalScroll(scrollState).padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
                 when {
@@ -60,7 +62,7 @@ internal class StatsStudy(
 
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -178,7 +180,7 @@ internal class StatsStudy(
 
         Column(
             modifier = Modifier.width(IntrinsicSize.Min).border(1.dp, Color.Gray).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
             Text(label, Modifier.width(IntrinsicSize.Max))

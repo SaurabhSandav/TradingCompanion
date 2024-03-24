@@ -5,15 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplayControls(
@@ -28,7 +25,10 @@ internal fun ReplayControls(
 ) {
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.columnVerticalSpacing,
+            alignment = Alignment.CenterVertically,
+        ),
     ) {
 
         Button(
@@ -66,7 +66,7 @@ internal fun ReplayControls(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
             ) {
 
                 Button(

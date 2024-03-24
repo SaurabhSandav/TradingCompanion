@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun TradeExecutionsSelectionBar(
@@ -36,7 +37,7 @@ internal fun TradeExecutionsSelectionBar(
             Row(
                 modifier = Modifier.height(48.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
             ) {
 
                 var showLockConfirmationDialog by state { false }

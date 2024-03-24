@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +20,7 @@ import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalTime
@@ -38,8 +40,11 @@ internal fun TimeIntervalFilterItem(
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = MaterialTheme.dimens.rowHorizontalSpacing,
+                    alignment = Alignment.End,
+                ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowVerticalSpacing),
             ) {
 
                 TradeFilterChip(
@@ -86,7 +91,7 @@ private fun CustomForm(
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
         TimePicker(

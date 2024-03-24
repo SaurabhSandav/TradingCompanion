@@ -252,7 +252,7 @@ internal class FyersLoginService private constructor(
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(
-                            space = 16.dp,
+                            space = MaterialTheme.dimens.rowHorizontalSpacing,
                             alignment = Alignment.CenterHorizontally,
                         ),
                         verticalAlignment = Alignment.CenterVertically,
