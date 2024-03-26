@@ -19,5 +19,7 @@ object Dimens {
 
     val containerPadding = 16.dp
 
+    val listItemPadding = 8.dp
+
     val listHeaderHeight = 64.dp
 }

@@ -28,7 +28,8 @@ internal fun Excursions(excursions: Excursions) {
 
             // Header
             Row(
-                modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight).padding(8.dp),
+                modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight)
+                    .padding(MaterialTheme.dimens.listItemPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
@@ -58,7 +59,7 @@ internal fun Excursions(excursions: Excursions) {
             Row(
                 modifier = Modifier
                     .combinedClickable { }
-                    .padding(8.dp),
+                    .padding(MaterialTheme.dimens.listItemPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 

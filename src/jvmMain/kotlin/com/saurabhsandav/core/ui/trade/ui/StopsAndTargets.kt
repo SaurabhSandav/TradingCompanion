@@ -261,7 +261,7 @@ private fun <T : Any> AddValueForm(
             showAddForm -> {
 
                 Row(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
 

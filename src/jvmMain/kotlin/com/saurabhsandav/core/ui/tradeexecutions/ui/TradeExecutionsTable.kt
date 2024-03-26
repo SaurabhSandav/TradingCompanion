@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 
@@ -111,7 +112,7 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
         ) {
 
             ListItem(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
                 headlineContent = {
                     Text(
                         text = title,

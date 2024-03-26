@@ -15,11 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReviewsList(
@@ -65,7 +65,7 @@ private fun LazyListScope.reviews(
         ) {
 
             ListItem(
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
                 headlineContent = {
                     Text(
                         text = if (isPinned) "Pinned" else "Unpinned",

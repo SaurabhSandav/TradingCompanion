@@ -158,7 +158,7 @@ private fun TableScope<TradeEntry>.tradeRows(
         ) {
 
             ListItem(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
                 headlineContent = {
                     Text(
                         text = title,

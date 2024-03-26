@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
@@ -16,7 +15,8 @@ fun <T> DefaultTableHeader(
 ) {
 
     Row(
-        modifier = modifier.height(MaterialTheme.dimens.listHeaderHeight).padding(8.dp),
+        modifier = modifier.height(MaterialTheme.dimens.listHeaderHeight)
+            .padding(MaterialTheme.dimens.listItemPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
@@ -45,7 +45,7 @@ fun <T> DefaultTableRow(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
-            .padding(8.dp)
+            .padding(MaterialTheme.dimens.listItemPadding)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
