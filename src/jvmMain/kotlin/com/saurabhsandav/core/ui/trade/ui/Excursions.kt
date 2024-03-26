@@ -14,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState.Excursions
 
 @Composable
@@ -27,7 +28,7 @@ internal fun Excursions(excursions: Excursions) {
 
             // Header
             Row(
-                modifier = Modifier.height(48.dp).padding(8.dp),
+                modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight).padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 

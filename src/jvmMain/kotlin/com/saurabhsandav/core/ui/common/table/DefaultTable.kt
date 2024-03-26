@@ -16,7 +16,7 @@ fun <T> DefaultTableHeader(
 ) {
 
     Row(
-        modifier = modifier.height(64.dp).padding(8.dp),
+        modifier = modifier.height(MaterialTheme.dimens.listHeaderHeight).padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {

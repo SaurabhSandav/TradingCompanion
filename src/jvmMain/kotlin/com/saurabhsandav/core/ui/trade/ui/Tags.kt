@@ -32,14 +32,11 @@ internal fun Tags(
     ) {
 
         // Header
-        Row(
-            modifier = Modifier.height(64.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-
-            Text(text = "Tags")
-        }
+        Box(
+            modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight).fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+            content = { Text(text = "Tags") },
+        )
 
         HorizontalDivider()
 

@@ -38,14 +38,11 @@ internal fun Notes(
     ) {
 
         // Header
-        Row(
-            modifier = Modifier.height(64.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-
-            Text(text = "Notes")
-        }
+        Box(
+            modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight).fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+            content = { Text(text = "Notes") },
+        )
 
         HorizontalDivider()
 

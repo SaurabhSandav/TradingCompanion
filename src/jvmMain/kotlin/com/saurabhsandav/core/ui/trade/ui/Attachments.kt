@@ -45,7 +45,7 @@ internal fun Attachments(
 
         // Header
         Box(
-            modifier = Modifier.height(64.dp).fillMaxWidth(),
+            modifier = Modifier.height(MaterialTheme.dimens.listHeaderHeight).fillMaxWidth(),
             contentAlignment = Alignment.Center,
             content = { Text(text = "Attachments") },
         )
