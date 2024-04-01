@@ -93,3 +93,6 @@ fun BigDecimal.round(
         }
     }
 }
+
+val Candle.travel: BigDecimal
+    get() = if (isLong) close - open else open - close

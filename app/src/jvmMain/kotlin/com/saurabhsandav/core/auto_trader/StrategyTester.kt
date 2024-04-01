@@ -27,7 +27,7 @@ suspend fun main() {
         tickers = tickers,
         from = from.toInstant(tz),
         to = to.toInstant(tz),
-        strategy = pctChangeStrategy("0.5".toBigDecimal()),
+        strategy = engulfingCandleStrategy(),
     )
 
     record.buildStats().first().also { println(it?.prettyPrint()) }
