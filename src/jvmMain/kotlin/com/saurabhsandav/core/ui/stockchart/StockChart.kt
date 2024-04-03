@@ -54,7 +54,8 @@ class StockChart(
     internal val candlestickPlotter = CandlestickPlotter("candles")
     private val volumePlotter = VolumePlotter("volume")
     private val vwapPlotter = LinePlotter("vwap", "VWAP", Color(0xFFA500))
-    private val ema9Plotter = LinePlotter("ema9", "EMA (9)")
+    private val ema9Plotter = LinePlotter("ema9", "EMA (9)", Color(0x2962FF))
+    private val ema21Plotter = LinePlotter("ema21", "EMA (21)", Color(0xF7525F))
     private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color(0x0AB210))
     private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
     private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
@@ -81,6 +82,7 @@ class StockChart(
                 volumePlotter,
                 vwapPlotter,
                 ema9Plotter,
+                ema21Plotter,
                 sma50Plotter,
                 sma100Plotter,
                 sma200Plotter,
@@ -270,6 +272,13 @@ class StockChart(
             )
         })
 
+        ema21Plotter.setData(candleSeries.indices.map { index ->
+            LineData(
+                time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN),
+            )
+        })
+
         if (indicators.hasVolume) {
 
             volumePlotter.setData(candleSeries.indices.map { index ->
@@ -358,6 +367,13 @@ class StockChart(
             LineData(
                 time = time,
                 value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN),
+            )
+        )
+
+        ema21Plotter.update(
+            LineData(
+                time = time,
+                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN),
             )
         )
 
@@ -537,6 +553,7 @@ class StockChart(
 
         val closePriceIndicator = ClosePriceIndicator(candleSeries)
         val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
+        val ema21Indicator = EMAIndicator(closePriceIndicator, length = 21)
         val vwapIndicator = VWAPIndicator(candleSeries, sessionChecker).takeIf { hasVolume }
 
         val sma50Indicator = SMAIndicator(closePriceIndicator, length = 50).takeIf { isDaily }
