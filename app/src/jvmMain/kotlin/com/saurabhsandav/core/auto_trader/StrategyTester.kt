@@ -27,7 +27,7 @@ suspend fun main() {
         tickers = tickers,
         from = from.toInstant(tz),
         to = to.toInstant(tz),
-        strategy = engulfingCandleStrategy(),
+        strategy = emaCrossoverStrategy(),
     )
 
     record.buildStats().first().also { println(it?.prettyPrint()) }
