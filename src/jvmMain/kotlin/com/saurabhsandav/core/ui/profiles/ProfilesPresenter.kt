@@ -26,11 +26,11 @@ internal class ProfilesPresenter(
     private val tradingProfiles: TradingProfiles,
     private val customSelectionMode: Boolean,
     private val trainingOnly: Boolean,
-    initialSelectedProfileId: ProfileId? = null,
+    selectedProfileId: ProfileId? = null,
     private val onProfileSelected: ((ProfileId?) -> Unit)? = null,
 ) {
 
-    private val currentProfileId = MutableStateFlow(initialSelectedProfileId)
+    private val currentProfileId = MutableStateFlow(selectedProfileId)
 
     init {
 
@@ -89,14 +89,14 @@ internal class ProfilesPresenter(
         }.collectAsState(null)
     }
 
-    private fun onSetCurrentProfile(id: ProfileId) = coroutineScope.launchUnit {
+    private fun onSetCurrentProfile(id: ProfileId?) = coroutineScope.launchUnit {
         when {
             customSelectionMode -> {
                 currentProfileId.value = id
-                onProfileSelected!!.invoke(id)
+                onProfileSelected.let(::requireNotNull).invoke(id)
             }
 
-            else -> appPrefs.putCurrentTradingProfileId(id)
+            else -> appPrefs.putCurrentTradingProfileId(id.let(::requireNotNull))
         }
     }
 
@@ -124,7 +124,7 @@ internal class ProfilesPresenter(
         fun build(
             customSelectionMode: Boolean,
             trainingOnly: Boolean,
-            initialSelectedProfileId: ProfileId? = null,
+            selectedProfileId: ProfileId? = null,
             onProfileSelected: ((ProfileId?) -> Unit)? = null,
         ): ProfilesPresenter
     }

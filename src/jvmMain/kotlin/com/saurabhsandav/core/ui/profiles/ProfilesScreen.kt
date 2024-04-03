@@ -60,7 +60,7 @@ internal fun ProfileSwitcherBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onProfileSelected: (ProfileId?) -> Unit,
-    initialSelectedProfileId: ProfileId? = null,
+    selectedProfileId: ProfileId? = null,
     trainingOnly: Boolean = false,
     content: @Composable (String?) -> Unit,
 ) {
@@ -71,7 +71,7 @@ internal fun ProfileSwitcherBox(
         appModule.profilesModule(scope).presenterFactory.build(
             customSelectionMode = true,
             trainingOnly = trainingOnly,
-            initialSelectedProfileId = initialSelectedProfileId,
+            selectedProfileId = selectedProfileId,
             onProfileSelected = { id ->
                 onProfileSelected(id)
                 onExpandedChange(false)
@@ -79,6 +79,10 @@ internal fun ProfileSwitcherBox(
         )
     }
     val state by presenter.state.collectAsState()
+
+    LaunchedEffect(selectedProfileId) {
+        state.eventSink(SetCurrentProfile(selectedProfileId))
+    }
 
     content(state.currentProfile?.name)
 

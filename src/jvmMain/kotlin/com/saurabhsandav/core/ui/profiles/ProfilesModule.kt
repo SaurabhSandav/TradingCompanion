@@ -14,7 +14,7 @@ internal class ProfilesModule(
         override fun build(
             customSelectionMode: Boolean,
             trainingOnly: Boolean,
-            initialSelectedProfileId: ProfileId?,
+            selectedProfileId: ProfileId?,
             onProfileSelected: ((ProfileId?) -> Unit)?,
         ) = ProfilesPresenter(
             coroutineScope = coroutineScope,
@@ -22,7 +22,7 @@ internal class ProfilesModule(
             tradingProfiles = appModule.tradingProfiles,
             customSelectionMode = customSelectionMode,
             trainingOnly = trainingOnly,
-            initialSelectedProfileId = initialSelectedProfileId,
+            selectedProfileId = selectedProfileId,
             onProfileSelected = onProfileSelected,
         )
     }

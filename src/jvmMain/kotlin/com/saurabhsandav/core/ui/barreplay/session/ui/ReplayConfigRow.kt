@@ -34,7 +34,7 @@ internal fun ReplayConfigRow(
         ProfileSwitcherBox(
             expanded = profileSwitcherExpanded,
             onExpandedChange = { profileSwitcherExpanded = it },
-            initialSelectedProfileId = selectedProfileId,
+            selectedProfileId = selectedProfileId,
             onProfileSelected = onProfileSelected,
             trainingOnly = true,
         ) { profileName ->

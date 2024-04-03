@@ -9,6 +9,5 @@ object PrefKeys {
     const val WebViewBackend = "webview_backend"
     const val FyersAuthTokens = "fyers_auth_tokens"
     const val CurrentTradingProfile = "current_trading_profile"
-    const val TradeReviewTradingProfile = "trade_review_trading_profile"
     const val ReplayTradingProfile = "replay_trading_profile"
 }

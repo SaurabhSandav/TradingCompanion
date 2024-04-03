@@ -53,7 +53,7 @@ internal fun MainTabRow(
                     ProfileSwitcherBox(
                         expanded = profileSwitcherExpanded,
                         onExpandedChange = { profileSwitcherExpanded = it },
-                        initialSelectedProfileId = selectedProfileId,
+                        selectedProfileId = selectedProfileId,
                         onProfileSelected = onProfileSelected,
                     ) { profileName ->
 

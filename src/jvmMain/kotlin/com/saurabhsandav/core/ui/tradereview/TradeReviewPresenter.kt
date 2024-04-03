@@ -24,6 +24,7 @@ import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -37,12 +38,10 @@ internal class TradeReviewPresenter(
     private val chartsHandle: ChartsHandle,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
-    private val appPrefs: FlowSettings,
+    appPrefs: FlowSettings,
 ) {
 
-    private val selectedProfileId = appPrefs.getLongOrNullFlow(PrefKeys.TradeReviewTradingProfile)
-        .map { it?.let(::ProfileId) }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, null)
+    private val selectedProfileId = MutableStateFlow<ProfileId?>(null)
 
     private val markedTradeIds = chartsHandle.markedTradeIds.toMutableStateList()
     private val tradeFilter = MutableStateFlow(TradeFilter())
@@ -55,6 +54,18 @@ internal class TradeReviewPresenter(
             markedTrades = getMarkedTrades().value,
             eventSink = ::onEvent,
         )
+    }
+
+    init {
+
+        coroutineScope.launch {
+
+            val defaultProfileId = appPrefs.getLongOrNullFlow(PrefKeys.CurrentTradingProfile)
+                .first()
+                ?.let(::ProfileId)
+
+            selectedProfileId.update { it ?: defaultProfileId }
+        }
     }
 
     private fun onEvent(event: TradeReviewEvent) {
@@ -253,14 +264,8 @@ internal class TradeReviewPresenter(
         )
     }
 
-    private fun onProfileSelected(id: ProfileId?) = coroutineScope.launchUnit {
-
-        when (id) {
-            // Profile deleted, delete pref
-            null -> appPrefs.remove(PrefKeys.TradeReviewTradingProfile)
-            // Save selected profile
-            else -> appPrefs.putLong(PrefKeys.TradeReviewTradingProfile, id.value)
-        }
+    private fun onProfileSelected(id: ProfileId?) {
+        selectedProfileId.value = id
     }
 
     private fun onMarkTrade(
@@ -277,6 +282,9 @@ internal class TradeReviewPresenter(
     }
 
     private fun onSelectTrade(profileTradeId: ProfileTradeId) = coroutineScope.launchUnit {
+
+        // Select trade profile as current profile
+        onProfileSelected(profileTradeId.profileId)
 
         // Mark selected trade
         if (profileTradeId !in markedTradeIds) {
