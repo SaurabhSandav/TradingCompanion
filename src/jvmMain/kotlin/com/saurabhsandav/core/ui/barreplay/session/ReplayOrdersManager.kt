@@ -1,39 +1,30 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.backtest.*
-import com.saurabhsandav.core.trading.barreplay.BarReplay
-import com.saurabhsandav.core.trading.barreplay.ReplaySeries
-import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.PrefKeys
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.*
 import kotlin.random.Random
 
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
-    private val replayParams: ReplayParams,
-    private val barReplay: BarReplay,
+    private val replaySeriesCache: ReplaySeriesCache,
     private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
-    private val candleRepo: CandleRepository,
 ) {
 
-    private val replaySeriesAndScopeCache = mutableMapOf<String, ReplaySeriesAndScope>()
+    private val tickerPriceScopeCache = mutableMapOf<String, CoroutineScope>()
     private val account = BacktestAccount(10_000.toBigDecimal())
     private val backtestBroker = BacktestBroker(account)
     val openOrders = backtestBroker.orders.map { orders ->
@@ -44,22 +35,13 @@ internal class ReplayOrdersManager(
     init {
 
         // Un-cache unused ReplaySeries
-        backtestBroker.orders
-            .map { orders ->
-                orders
-                    .filter { it.status is BacktestOrder.Status.Closed }
-                    .map { it.params.ticker }
-                    .distinct()
-            }
-            .onEach { tickers ->
+        backtestBroker.positions
+            .map { positions -> positions.map { it.ticker }.toSet() }
+            .onEach { openTickers ->
 
-                val tickersToUnCache = replaySeriesAndScopeCache.keys - tickers.toSet()
-
-                tickersToUnCache.forEach { ticker ->
-                    val cacheEntry = replaySeriesAndScopeCache[ticker]!!
-                    barReplay.removeSeries(cacheEntry.replaySeries)
-                    cacheEntry.scope.cancel()
-                    replaySeriesAndScopeCache.remove(ticker)
+                (tickerPriceScopeCache.keys - openTickers).forEach { ticker ->
+                    tickerPriceScopeCache.remove(ticker)?.cancel()
+                    replaySeriesCache.releaseForOrdersManager(ticker)
                 }
             }
             .launchIn(coroutineScope)
@@ -228,70 +210,34 @@ internal class ReplayOrdersManager(
         backtestBroker.cancelOrder(id = id)
     }
 
-    private suspend fun createReplaySeries(ticker: String): ReplaySeries = replaySeriesAndScopeCache.getOrPut(ticker) {
+    private suspend fun createReplaySeries(ticker: String) {
 
-        val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
+        val replaySeries = replaySeriesCache.getForOrdersManager(ticker)
 
-        val replaySeries = barReplay.newSeries(inputSeries = candleSeries)
+        tickerPriceScopeCache.getOrPut(ticker) {
 
-        val scope = MainScope()
+            val scope = MainScope()
 
-        // Send price updates to BacktestBroker
-        replaySeries.live
-            .onEach { (_, candle) ->
+            // Send initial price to BacktestBroker
+            backtestBroker.newPrice(
+                instant = replaySeries.last().openInstant,
+                ticker = ticker,
+                price = replaySeries.last().close,
+            )
 
-                backtestBroker.newCandle(
-                    ticker = ticker,
-                    candle = candle,
-                    replayOHLC = replayParams.replayFullBar,
-                )
-            }
-            .launchIn(scope)
+            // Send price updates to BacktestBroker
+            replaySeries.live
+                .onEach { (_, candle) ->
 
-        ReplaySeriesAndScope(replaySeries, scope)
-    }.replaySeries
+                    backtestBroker.newCandle(
+                        ticker = ticker,
+                        candle = candle,
+                        replayOHLC = false,
+                    )
+                }
+                .launchIn(scope)
 
-    private suspend fun getCandleSeries(
-        ticker: String,
-        timeframe: Timeframe,
-    ): CandleSeries {
-
-        val allCandlesResult = binding {
-
-            val candlesBefore = async {
-                candleRepo.getCandlesBefore(
-                    ticker = ticker,
-                    timeframe = timeframe,
-                    at = replayParams.replayFrom,
-                    count = replayParams.candlesBefore,
-                    includeAt = true,
-                ).bind().first()
-            }
-
-            val candlesAfter = async {
-                candleRepo.getCandles(
-                    ticker = ticker,
-                    timeframe = timeframe,
-                    from = replayParams.replayFrom,
-                    to = replayParams.dataTo,
-                    includeFromCandle = false,
-                ).bind().first()
-            }
-
-            candlesBefore.await() + candlesAfter.await()
-        }
-
-        return when (allCandlesResult) {
-            is Ok -> MutableCandleSeries(allCandlesResult.value, timeframe)
-            is Err -> when (val error = allCandlesResult.error) {
-                is CandleRepository.Error.AuthError -> error("AuthError")
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
+            scope
         }
     }
-
-    private class ReplaySeriesAndScope(
-        val replaySeries: ReplaySeries,
-        val scope: CoroutineScope,
-    )
 }

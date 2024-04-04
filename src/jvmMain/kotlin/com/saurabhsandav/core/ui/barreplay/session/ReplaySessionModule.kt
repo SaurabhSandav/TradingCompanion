@@ -21,21 +21,23 @@ internal class ReplaySessionModule(
         candleUpdateType = if (replayParams.replayFullBar) CandleUpdateType.FullBar else CandleUpdateType.OHLC,
     )
 
-    private val replayOrdersManager = ReplayOrdersManager(
-        coroutineScope = coroutineScope,
+    private val replaySeriesCache = ReplaySeriesCache(
         replayParams = replayParams,
         barReplay = barReplay,
+        candleRepo = appModule.candleRepo,
+    )
+
+    private val replayOrdersManager = ReplayOrdersManager(
+        coroutineScope = coroutineScope,
+        replaySeriesCache = replaySeriesCache,
         appPrefs = appModule.appPrefs,
         tradingProfiles = appModule.tradingProfiles,
-        candleRepo = appModule.candleRepo,
     )
 
     private val marketDataProvider = ReplayChartsMarketDataProvider(
         coroutineScope = coroutineScope,
-        replayParams = replayParams,
-        barReplay = barReplay,
+        replaySeriesCache = replaySeriesCache,
         appPrefs = appModule.appPrefs,
-        candleRepo = appModule.candleRepo,
         tradingProfiles = appModule.tradingProfiles,
     )
 

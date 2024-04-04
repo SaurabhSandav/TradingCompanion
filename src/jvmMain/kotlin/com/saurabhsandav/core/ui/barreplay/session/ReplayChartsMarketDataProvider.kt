@@ -1,16 +1,12 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.coroutines.binding.binding
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trading.*
-import com.saurabhsandav.core.trading.barreplay.BarReplay
-import com.saurabhsandav.core.trading.barreplay.ReplaySeries
-import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
+import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.DailySessionChecker
+import com.saurabhsandav.core.trading.SessionChecker
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.stockchart.CandleSource
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
@@ -22,15 +18,12 @@ import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 
 internal class ReplayChartsMarketDataProvider(
     private val coroutineScope: CoroutineScope,
-    private val replayParams: BarReplayState.ReplayParams,
-    private val barReplay: BarReplay,
+    private val replaySeriesCache: ReplaySeriesCache,
     private val appPrefs: FlowSettings,
-    private val candleRepo: CandleRepository,
     private val tradingProfiles: TradingProfiles,
 ) : MarketDataProvider {
 
@@ -49,7 +42,7 @@ internal class ReplayChartsMarketDataProvider(
     override fun buildCandleSource(params: StockChartParams): CandleSource {
         return ReplayCandleSource(
             params = params,
-            replaySeriesFactory = { buildReplaySeries(params) },
+            replaySeriesFactory = { replaySeriesCache.getForChart(params) },
             getTradeMarkers = { emptyFlow() },
             getTradeExecutionMarkers = { emptyFlow() },
             // TODO Disabled until markers are made individually mark-able
@@ -59,64 +52,10 @@ internal class ReplayChartsMarketDataProvider(
     }
 
     override fun releaseCandleSource(candleSource: CandleSource) = coroutineScope.launchUnit {
-
-        // Remove ReplaySeries from BarReplay
-        barReplay.removeSeries((candleSource as ReplayCandleSource).replaySeries.await())
+        replaySeriesCache.releaseForChart(candleSource.params)
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker
-
-    private suspend fun buildReplaySeries(params: StockChartParams): ReplaySeries {
-
-        val candleSeries = getCandleSeries(params.ticker, replayParams.baseTimeframe)
-
-        return barReplay.newSeries(
-            inputSeries = candleSeries,
-            timeframeSeries = when (replayParams.baseTimeframe) {
-                params.timeframe -> null
-                else -> getCandleSeries(params.ticker, params.timeframe)
-            },
-        )
-    }
-
-    private suspend fun getCandleSeries(
-        ticker: String,
-        timeframe: Timeframe,
-    ): CandleSeries {
-
-        val allCandlesResult = binding {
-
-            val candlesBefore = async {
-                candleRepo.getCandlesBefore(
-                    ticker = ticker,
-                    timeframe = timeframe,
-                    at = replayParams.replayFrom,
-                    count = replayParams.candlesBefore,
-                    includeAt = true,
-                ).bind().first()
-            }
-
-            val candlesAfter = async {
-                candleRepo.getCandles(
-                    ticker = ticker,
-                    timeframe = timeframe,
-                    from = replayParams.replayFrom,
-                    to = replayParams.dataTo,
-                    includeFromCandle = false,
-                ).bind().first()
-            }
-
-            candlesBefore.await() + candlesAfter.await()
-        }
-
-        return when (allCandlesResult) {
-            is Ok -> MutableCandleSeries(allCandlesResult.value, timeframe)
-            is Err -> when (val error = allCandlesResult.error) {
-                is CandleRepository.Error.AuthError -> error("AuthError")
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
-        }
-    }
 
     private fun getTradeMarkers(
         ticker: String,
