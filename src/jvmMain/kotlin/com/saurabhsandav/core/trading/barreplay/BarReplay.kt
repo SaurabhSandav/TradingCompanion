@@ -78,19 +78,13 @@ class BarReplay(
 
     fun advanceByBar(): Boolean {
 
-        val nextInstant = when (candleState) {
-            CandleState.Close -> replaySeriesBuilders
-                .mapNotNull { builder -> builder.getNextCandleInstant() }
-                .minOrNull() ?: return false
+        // For FullBar update type, advance() is all we need
+        if (candleUpdateType == CandleUpdateType.FullBar) return advance()
 
-            else -> currentInstant
-        }
-
-        // Add/Update bar
-        replaySeriesBuilders.forEach { builder -> builder.advanceTo(nextInstant, CandleState.Close) }
-
-        currentInstant = nextInstant
-        candleState = CandleState.Close
+        // If current candle was closed, advance to next candle open before checking for candle close
+        do {
+            if (!advance()) return false
+        } while (candleState != CandleState.Close)
 
         return true
     }
