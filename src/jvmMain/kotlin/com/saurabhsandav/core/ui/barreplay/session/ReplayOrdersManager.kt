@@ -26,6 +26,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.math.BigDecimal
+import java.util.*
 import kotlin.random.Random
 
 internal class ReplayOrdersManager(
@@ -130,6 +131,8 @@ internal class ReplayOrdersManager(
                         }
                     )
 
+                    val exitOcoId = UUID.randomUUID()
+
                     if (stop != null) {
 
                         // Add stop to trade stops
@@ -140,6 +143,7 @@ internal class ReplayOrdersManager(
                             instant = replaySeries.replayTime.value,
                             params = positionCloseParams,
                             executionType = OrderExecutionType.StopMarket(trigger = stop),
+                            ocoId = exitOcoId,
                         )
 
                         // Handle stop order execution
@@ -178,6 +182,7 @@ internal class ReplayOrdersManager(
                             instant = replaySeries.replayTime.value,
                             params = positionCloseParams,
                             executionType = OrderExecutionType.Limit(price = target),
+                            ocoId = exitOcoId,
                         )
 
                         // Handle target order execution
