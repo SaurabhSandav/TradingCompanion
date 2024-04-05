@@ -86,8 +86,8 @@ internal class FormFieldImpl<T> internal constructor(
                     value.validate()
                 }
             }
-        } catch (ex: Exception) {
-            if (ex !is ValidationException) throw ex
+        } catch (_: ValidationException) {
+            // Validation interrupted because a field was invalid. Validation result is in `ValidationScopeImpl`.
         }
 
         val result = receiver.result
