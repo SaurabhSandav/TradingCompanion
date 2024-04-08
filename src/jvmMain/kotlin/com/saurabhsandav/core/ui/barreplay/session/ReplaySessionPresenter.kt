@@ -142,7 +142,7 @@ internal class ReplaySessionPresenter(
     }
 
     private fun onAdvanceReplayByBar() {
-        barReplay.advanceByBar()
+        barReplay.advanceToClose()
     }
 
     private fun onSetIsAutoNextEnabled(isAutoNextEnabled: Boolean) {

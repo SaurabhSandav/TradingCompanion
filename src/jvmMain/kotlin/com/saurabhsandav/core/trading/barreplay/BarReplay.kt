@@ -76,7 +76,7 @@ class BarReplay(
         return true
     }
 
-    fun advanceByBar(): Boolean {
+    fun advanceToClose(): Boolean {
 
         // For FullBar update type, advance() is all we need
         if (candleUpdateType == CandleUpdateType.FullBar) return advance()
