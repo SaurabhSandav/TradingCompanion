@@ -6,7 +6,7 @@ import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -16,7 +16,7 @@ internal class ChartsMarketDataProvider(
 ) : MarketDataProvider {
 
     override fun symbols(): StateFlow<List<String>> {
-        return MutableStateFlow(NIFTY50)
+        return MutableStateFlow(NIFTY500)
     }
 
     override fun timeframes(): StateFlow<List<Timeframe>> {

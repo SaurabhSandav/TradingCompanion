@@ -18,7 +18,7 @@ import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -47,7 +47,7 @@ internal class ChartsPresenter(
             .first()
 
         stockChartsStateFactory(
-            initialParams = StockChartParams(NIFTY50.first(), defaultTimeframe),
+            initialParams = StockChartParams(NIFTY500.first(), defaultTimeframe),
             loadConfig = LoadConfig(initialLoadBefore = Clock.System.now()),
         )
     }
@@ -96,14 +96,14 @@ internal class ChartsPresenter(
             if (defaultTimeframe != Timeframe.D1) {
 
                 // Daily chart for index.
-                add(StockChartParams(NIFTY50.first(), Timeframe.D1))
+                add(StockChartParams(NIFTY500.first(), Timeframe.D1))
 
                 // Daily chart for ticker.
                 add(StockChartParams(ticker, Timeframe.D1))
             }
 
             // Default timeframe chart for index.
-            add(StockChartParams(NIFTY50.first(), defaultTimeframe))
+            add(StockChartParams(NIFTY500.first(), defaultTimeframe))
 
             // Default timeframe chart for ticker. Also bring to front.
             add(tickerDTParams)

@@ -17,7 +17,7 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
 internal fun NewReplayForm(
@@ -100,7 +100,7 @@ internal fun NewReplayForm(
             HorizontalDivider()
 
             OutlinedListSelectionField(
-                items = NIFTY50,
+                items = NIFTY500,
                 itemText = { it },
                 onSelection = { model.initialTickerField.value = it },
                 selection = model.initialTickerField.value,

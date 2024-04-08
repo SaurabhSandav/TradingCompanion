@@ -23,7 +23,7 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
 internal fun SizingScreen(
@@ -229,7 +229,7 @@ private fun AddTradeCard(
 
             ListSelectionDialog(
                 onDismissRequest = { showTickerSelectionDialog = false },
-                items = NIFTY50,
+                items = NIFTY500,
                 itemText = { it },
                 onSelection = {
                     onAddTrade(it)

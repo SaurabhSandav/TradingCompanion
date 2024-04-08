@@ -26,7 +26,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -132,7 +132,7 @@ private fun TradeExecutionForm(
         )
 
         OutlinedListSelectionField(
-            items = NIFTY50,
+            items = NIFTY500,
             itemText = { it },
             onSelection = { model.tickerField.value = it },
             selection = model.tickerField.value,

@@ -16,7 +16,7 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewR
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -104,7 +104,7 @@ internal class BarReplayPresenter(
             replayFrom = replayFrom,
             dataTo = dataTo,
             replayFullBar = true,
-            initialTicker = NIFTY50.first(),
+            initialTicker = NIFTY500.first(),
         )
     }
 }

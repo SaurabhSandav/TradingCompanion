@@ -16,7 +16,7 @@ import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
-import com.saurabhsandav.core.utils.NIFTY50
+import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
@@ -35,7 +35,7 @@ internal class ReplayChartsMarketDataProvider(
 ) : MarketDataProvider {
 
     override fun symbols(): StateFlow<List<String>> {
-        return MutableStateFlow(NIFTY50)
+        return MutableStateFlow(NIFTY500)
     }
 
     override fun timeframes(): StateFlow<List<Timeframe>> {
