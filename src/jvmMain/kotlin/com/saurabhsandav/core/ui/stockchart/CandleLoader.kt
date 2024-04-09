@@ -1,10 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -28,6 +26,7 @@ class CandleLoader(
             val data = StockChartData(
                 params = params,
                 source = marketDataProvider.buildCandleSource(params),
+                onCandlesLoaded = { onCandlesLoaded(params) },
             )
 
             data.coroutineScope.launch {
@@ -81,109 +80,120 @@ class CandleLoader(
 
         // Already loaded interval for timeframe
         val loadedPages = loadedPagesMap[params.timeframe]!!
+        val currentInterval = loadedPages.interval
 
-        val existingRange = loadedPages.pages.run { first().start..last().endInclusive }
-
-        // Candles already loaded. Return.
-        if (interval.start in existingRange && interval.endInclusive in existingRange) return@withLock
+        // Return if candles already loaded.
+        if (interval.start in currentInterval && interval.endInclusive in currentInterval) return@withLock
 
         // Candles not already loaded. Replace current candles with given interval candles
-        getStockChartData(params).performLoad {
 
-            // Load initial candles
-            val result = source.onLoad(interval)
+        val data = getStockChartData(params)
 
-            // If no candles available, do nothing.
-            if (result.candles.isNotEmpty()) {
+        var initialLoadInterval = interval
+        var initialCandleCount: Int
+        var hasBefore = true
+        var hasAfter = true
 
-                // Stop collecting live candles
-                stopCollectingLive()
+        // If loaded candles count is less than `LoadConfig.initialLoadCount`, load before and after pages
+        do {
 
-                // Replace all candles with newly loaded
-                mutableCandleSeries.clear()
-                mutableCandleSeries.appendCandles(result.candles)
+            val previousInterval = initialLoadInterval
 
-                // Collect live candles if available
-                if (result.live != null) collectLive(result.live)
+            if (hasBefore) {
 
-                // Create new LoadedPages
-                val newLoadedPages = LoadedPages(interval)
-                loadedPagesMap[params.timeframe] = newLoadedPages
+                // Get new before
+                val newBefore = data.source.getBeforeInstant(
+                    currentBefore = initialLoadInterval.start,
+                    loadCount = loadConfig.loadMoreCount,
+                )
 
-                // If loaded candles count is less than `LoadConfig.initialLoadCount`, load before and after pages
-                val shortfall = loadConfig.initialLoadCount - candleSeries.size
-                if (shortfall > 0) {
-
-                    // Load before
-                    val beforeResult = source.onLoadBefore(
-                        before = interval.start,
-                        count = loadConfig.loadMoreCount,
-                    )
-
-                    if (beforeResult.candles.isNotEmpty()) {
-
-                        mutableCandleSeries.prependCandles(beforeResult.candles)
-
-                        // Add before page to LoadedPages
-                        newLoadedPages.addBefore(beforeResult.candles.first().openInstant..interval.start)
-                    }
-
-                    // Load after page only if live candle collection is not ongoing
-                    if (liveJob == null) {
-
-                        // Load after
-                        val afterResult = source.onLoadAfter(
-                            after = interval.endInclusive,
-                            count = loadConfig.loadMoreCount,
-                        )
-
-                        if (afterResult.candles.isNotEmpty()) {
-
-                            mutableCandleSeries.appendCandles(afterResult.candles)
-
-                            // Add after page to LoadedPages
-                            newLoadedPages.addAfter(interval.endInclusive..afterResult.candles.last().openInstant)
-                        }
-
-                        // Collect live candles if available
-                        if (afterResult.live != null) collectLive(afterResult.live)
-                    }
+                when {
+                    newBefore == null || initialLoadInterval.start == newBefore -> hasBefore = false
+                    else -> initialLoadInterval = newBefore..initialLoadInterval.endInclusive
                 }
+            }
 
-                val requestInterval = newLoadedPages.pages.run { first().start..last().endInclusive }
+            if (hasAfter) {
 
-                // Sync other StockChartData with same timeframe
-                coroutineScope {
+                // Get new after
+                val newAfter = data.source.getAfterInstant(
+                    currentAfter = initialLoadInterval.endInclusive,
+                    loadCount = loadConfig.loadMoreCount,
+                )
 
-                    stockChartDataMap
-                        .keys
-                        // Skip already loaded StockChartData
-                        .filter { it.timeframe == params.timeframe && it != params }
-                        .map { mapParams ->
+                when {
+                    newAfter == null || initialLoadInterval.endInclusive == newAfter -> hasAfter = false
+                    else -> initialLoadInterval = initialLoadInterval.start..newAfter
+                }
+            }
 
-                            async {
+            initialCandleCount = data.source.getCount(initialLoadInterval)
 
-                                getStockChartData(mapParams).performLoad {
+            if (initialLoadInterval == previousInterval) break
 
-                                    // Load interval
-                                    val mapResult = source.onLoad(requestInterval)
+        } while (loadConfig.initialLoadCount > initialCandleCount)
 
-                                    // Stop collecting live candles
-                                    stopCollectingLive()
+        // Add new interval to LoadedPages
+        val newLoadedPages = LoadedPages(initialPage = initialLoadInterval)
+        loadedPagesMap[params.timeframe] = newLoadedPages
 
-                                    // Replace all candles with newly loaded
-                                    mutableCandleSeries.clear()
-                                    mutableCandleSeries.appendCandles(mapResult.candles)
+        // If initial candle count is less than initial load count x 2, load more at both ends
+        if (initialCandleCount < (loadConfig.initialLoadCount * 2)) {
 
-                                    // Collect live candles if available
-                                    if (mapResult.live != null) collectLive(mapResult.live)
-                                }
-                            }
-                        }
-                        .awaitAll()
+            // Buffer before
+            if (hasBefore) {
+
+                val before = newLoadedPages.start
+
+                // Get new before
+                val newBefore = data.source.getBeforeInstant(
+                    currentBefore = before,
+                    loadCount = loadConfig.loadMoreCount,
+                )
+
+                when {
+                    // If no candles available, do nothing.
+                    newBefore == null || before == newBefore -> hasBefore = false
+                    // Add new interval to LoadedPages
+                    else -> newLoadedPages.addBefore(newBefore..before)
+                }
+            }
+
+            // Buffer after
+            if (hasAfter) {
+
+                val after = newLoadedPages.endInclusive
+
+                // Get new after
+                val newAfter = data.source.getAfterInstant(
+                    currentAfter = after,
+                    loadCount = loadConfig.loadMoreCount,
+                )
+
+                when {
+                    // If no candles available, do nothing.
+                    newAfter == null || after == newAfter -> hasAfter = false
+                    // Add new interval to LoadedPages
+                    else -> newLoadedPages.addAfter(after..newAfter)
                 }
             }
         }
+
+        // Sync other StockChartData with same timeframe
+        stockChartDataMap
+            .keys
+            .filter { it.timeframe == params.timeframe }
+            .map { mapParams ->
+                getStockChartData(mapParams).run {
+                    reset()
+                    if (data == this) {
+                        setHasBefore(hasBefore)
+                        setHasAfter(hasAfter)
+                    }
+                    load(newLoadedPages.interval)
+                }
+            }
+            .joinAll()
     }
 
     suspend fun loadBefore(params: StockChartParams) {
@@ -193,192 +203,113 @@ class CandleLoader(
 
         loadMutex.withLock {
 
-            // Already loaded interval for timeframe
+            val data = getStockChartData(params)
+
+            if (!data.hasBefore) return@withLock
+
+            // LoadedPages for timeframe
             val loadedPages = loadedPagesMap[params.timeframe]!!
             // Start of loaded interval for current timeframe
-            val before = loadedPages.pages.first().start
+            val before = loadedPages.start
 
-            getStockChartData(params).performLoad {
+            // Get new before
+            val newBefore = data.source.getBeforeInstant(
+                currentBefore = before,
+                loadCount = loadConfig.loadMoreCount,
+            )
 
-                // Load before
-                val result = source.onLoadBefore(
-                    before = before,
-                    count = loadConfig.loadMoreCount,
-                )
-
-                // If no candles available, don't add page. If no page being added, don't collect live candles.
-                if (result.candles.isNotEmpty()) {
-
-                    mutableCandleSeries.prependCandles(result.candles)
-
-                    // Request interval considered from first of loaded candles to the before value
-                    val requestInterval = result.candles.first().openInstant..before
-
-                    // Add loaded interval to LoadedPages
-                    loadedPages.addBefore(requestInterval)
-
-                    // Sync other StockChartData with same timeframe
-                    coroutineScope {
-
-                        stockChartDataMap
-                            .keys
-                            // Skip already loaded StockChartData
-                            .filter { it.timeframe == params.timeframe && it != params }
-                            .map { mapParams ->
-
-                                async {
-
-                                    getStockChartData(mapParams).performLoad {
-
-                                        // Load interval
-                                        val mapResult = source.onLoad(requestInterval)
-
-                                        mutableCandleSeries.prependCandles(mapResult.candles)
-                                    }
-                                }
-                            }
-                            .awaitAll()
-                    }
-                }
+            // If no candles available, do nothing.
+            if (newBefore == null || before == newBefore) {
+                data.setHasBefore(false)
+                return@withLock
             }
+
+            // Add new interval to LoadedPages
+            loadedPages.addBefore(newBefore..before)
+
+            // Sync other StockChartData with same timeframe
+            stockChartDataMap
+                .keys
+                .filter { it.timeframe == params.timeframe }
+                .map { mapParams -> getStockChartData(mapParams).load(loadedPages.interval) }
+                .joinAll()
         }
     }
 
     suspend fun loadAfter(params: StockChartParams) {
 
-        // If locked, loading before may be unnecessary.
+        // If locked, loading after may be unnecessary.
         if (loadMutex.isLocked) return
 
         loadMutex.withLock {
 
-            // Already loaded interval for timeframe
+            val data = getStockChartData(params)
+
+            // Don't try to load after if collecting live candles
+            if (data.isCollectingLive) return@withLock
+
+            if (!data.hasAfter) return@withLock
+
+            // LoadedPages for timeframe
             val loadedPages = loadedPagesMap[params.timeframe]!!
             // End of loaded interval for current timeframe
-            val after = loadedPages.pages.last().endInclusive
+            val after = loadedPages.endInclusive
 
-            getStockChartData(params).performLoad {
+            // Get new after
+            val newAfter = data.source.getAfterInstant(
+                currentAfter = after,
+                loadCount = loadConfig.loadMoreCount,
+            )
 
-                // Don't try to load after if live candles collection ongoing
-                if (liveJob != null) return@performLoad
-
-                // Load after
-                val result = source.onLoadAfter(
-                    after = after,
-                    count = loadConfig.loadMoreCount,
-                )
-
-                // If no candles available, don't add page. If no page being added, don't collect live candles.
-                if (result.candles.isNotEmpty()) {
-
-                    mutableCandleSeries.appendCandles(result.candles)
-
-                    // Collect live candles if available
-                    if (result.live != null) collectLive(result.live)
-
-                    // Request interval considered from after value to the last of loaded values
-                    val requestInterval = after..result.candles.last().openInstant
-
-                    // Add loaded interval to LoadedPages
-                    loadedPages.addAfter(requestInterval)
-
-                    // Sync other StockChartData with same timeframe
-                    coroutineScope {
-
-                        stockChartDataMap
-                            .keys
-                            // Skip already loaded StockChartData
-                            .filter { it.timeframe == params.timeframe && it != params }
-                            .map { mapParams ->
-
-                                async {
-
-                                    getStockChartData(mapParams).performLoad mapLoad@{
-
-                                        // Don't try to load after if collecting live candles
-                                        if (liveJob != null) return@mapLoad
-
-                                        // Load interval
-                                        val mapResult = source.onLoad(requestInterval)
-
-                                        mutableCandleSeries.appendCandles(mapResult.candles)
-
-                                        // Collect live candles if available
-                                        if (mapResult.live != null) collectLive(mapResult.live)
-                                    }
-                                }
-                            }
-                            .awaitAll()
-                    }
-                }
+            // If no candles available, do nothing.
+            if (newAfter == null || after == newAfter) {
+                data.setHasAfter(false)
+                return@withLock
             }
+
+            // Add new interval to LoadedPages
+            loadedPages.addAfter(after..newAfter)
+
+            // Sync other StockChartData with same timeframe
+            stockChartDataMap
+                .keys
+                .filter { it.timeframe == params.timeframe }
+                .map { mapParams -> getStockChartData(mapParams).load(loadedPages.interval) }
+                .joinAll()
         }
     }
 
     private suspend fun loadInitial(data: StockChartData) {
 
-        data.performLoad {
+        val loadedPages = loadedPagesMap.getOrPut(data.params.timeframe) {
 
-            // Previously loaded interval for same timeframe
-            when (val loadedPages = loadedPagesMap[params.timeframe]) {
-                // Initial page load for this timeframe
-                null -> {
+            val newBefore = data.source.getBeforeInstant(
+                currentBefore = loadConfig.initialLoadBefore,
+                loadCount = loadConfig.initialLoadCount,
+            )
 
-                    // Load initial candles
-                    val result = source.onLoadBefore(
-                        before = loadConfig.initialLoadBefore,
-                        count = loadConfig.initialLoadCount,
-                    )
+            // If no candles available, don't add page.
+            if (newBefore == null || loadConfig.initialLoadBefore == newBefore) return
 
-                    // If no candles available, don't add page. If no page being added, don't collect live candles.
-                    if (result.candles.isNotEmpty()) {
-
-                        mutableCandleSeries.appendCandles(result.candles)
-
-                        // Collect live candles if available
-                        if (result.live != null) collectLive(result.live)
-
-                        // Create LoadedPages with initial page
-                        loadedPagesMap[params.timeframe] = LoadedPages(
-                            initialPage = result.candles.first().openInstant..loadConfig.initialLoadBefore
-                        )
-                    }
-                }
-
-                // Timeframe already has loaded pages
-                else -> {
-
-                    // Already loaded interval for timeframe
-                    val requestInterval = loadedPages.pages.run { first().start..last().endInclusive }
-
-                    // Load
-                    val result = source.onLoad(interval = requestInterval)
-
-                    mutableCandleSeries.appendCandles(result.candles)
-
-                    // Collect live candles if available
-                    if (result.live != null) collectLive(result.live)
-                }
-            }
+            // Create LoadedPages with initial page
+            LoadedPages(initialPage = newBefore..loadConfig.initialLoadBefore)
         }
-    }
 
-    private suspend fun StockChartData.performLoad(block: suspend StockChartData.() -> Unit) {
-
-        loadState.emit(LoadState.Loading)
-
-        // Perform load in StockChartData coroutineScope.
-        // This allows cancellation of all loading for this StockChartData at once.
-        // Join so that callers can await load.
-        coroutineScope.launch { block() }.join()
-
-        loadState.emit(LoadState.Loaded)
-
-        onCandlesLoaded(params)
+        data.load(loadedPages.interval).join()
     }
 
     private class LoadedPages(initialPage: ClosedRange<Instant>) {
 
         val pages = mutableListOf(initialPage)
+
+        val start: Instant
+            get() = pages.first().start
+
+        val endInclusive: Instant
+            get() = pages.last().endInclusive
+
+        val interval: ClosedRange<Instant>
+            get() = start..endInclusive
 
         fun addBefore(range: ClosedRange<Instant>) {
             pages.add(0, range)
