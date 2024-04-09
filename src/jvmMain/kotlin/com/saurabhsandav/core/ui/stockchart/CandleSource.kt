@@ -15,15 +15,19 @@ interface CandleSource {
         interval: ClosedRange<Instant>,
     ): Result
 
-    suspend fun onLoadBefore(
-        before: Instant,
-        count: Int,
-    ): Result
+    suspend fun getCount(
+        interval: ClosedRange<Instant>,
+    ): Int
 
-    suspend fun onLoadAfter(
-        after: Instant,
-        count: Int,
-    ): Result
+    suspend fun getBeforeInstant(
+        currentBefore: Instant,
+        loadCount: Int,
+    ): Instant?
+
+    suspend fun getAfterInstant(
+        currentAfter: Instant,
+        loadCount: Int,
+    ): Instant?
 
     fun getTradeMarkers(
         instantRange: ClosedRange<Instant>,
@@ -34,7 +38,7 @@ interface CandleSource {
     ): Flow<List<TradeExecutionMarker>> = emptyFlow()
 
     class Result(
-        val candles: List<Candle>,
+        val candles: Flow<List<Candle>>,
         val live: Flow<IndexedValue<Candle>>? = null,
     )
 }

@@ -27,43 +27,49 @@ internal class ChartsCandleSource(
                 timeframe = params.timeframe,
                 from = interval.start,
                 to = interval.endInclusive,
-                includeFromCandle = false,
+                includeFromCandle = true,
             )
-        }.first()
+        }
 
         return CandleSource.Result(candles)
     }
 
-    override suspend fun onLoadBefore(before: Instant, count: Int): CandleSource.Result {
+    override suspend fun getCount(interval: ClosedRange<Instant>): Int {
+        return unwrap {
 
-        val candles = unwrap {
-
-            candleRepo.getCandlesBefore(
+            candleRepo.getCountInRange(
                 ticker = params.ticker,
                 timeframe = params.timeframe,
-                at = before,
-                count = count,
-                includeAt = true,
+                from = interval.start,
+                to = interval.endInclusive,
             )
-        }.first()
-
-        return CandleSource.Result(candles)
+        }.first().toInt()
     }
 
-    override suspend fun onLoadAfter(after: Instant, count: Int): CandleSource.Result {
+    override suspend fun getBeforeInstant(currentBefore: Instant, loadCount: Int): Instant? {
 
-        val candles = unwrap {
+        return unwrap {
 
-            candleRepo.getCandlesAfter(
+            candleRepo.getInstantBeforeByCount(
                 ticker = params.ticker,
                 timeframe = params.timeframe,
-                at = after,
-                count = count,
-                includeAt = true,
+                before = currentBefore,
+                count = loadCount,
             )
         }.first()
+    }
 
-        return CandleSource.Result(candles)
+    override suspend fun getAfterInstant(currentAfter: Instant, loadCount: Int): Instant? {
+
+        return unwrap {
+
+            candleRepo.getInstantAfterByCount(
+                ticker = params.ticker,
+                timeframe = params.timeframe,
+                after = currentAfter,
+                count = loadCount,
+            )
+        }.first()
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {

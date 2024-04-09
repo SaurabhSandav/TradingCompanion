@@ -12,6 +12,7 @@ import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
 
 internal class ReplayCandleSource(
@@ -37,45 +38,55 @@ internal class ReplayCandleSource(
         val toIndex = lastIndex + 1
 
         return CandleSource.Result(
-            candles = replaySeries.subList(fromIndex, toIndex),
+            candles = flowOf(replaySeries.subList(fromIndex, toIndex)),
             live = replaySeries.live.takeIf { toIndex == replaySeries.size },
         )
     }
 
-    override suspend fun onLoadBefore(
-        before: Instant,
-        count: Int,
-    ): CandleSource.Result {
+    override suspend fun getCount(interval: ClosedRange<Instant>): Int {
 
         val replaySeries = loadReplaySeries()
 
+        val fromIndex = replaySeries
+            .binarySearchByAsResult(interval.start) { it.openInstant }
+            .indexOrNaturalIndex
         val lastIndex = replaySeries
-            .binarySearchByAsResult(before) { it.openInstant }
+            .binarySearchByAsResult(interval.endInclusive) { it.openInstant }
             .indexOr { naturalIndex -> naturalIndex - 1 }
             .coerceAtMost(replaySeries.lastIndex)
-        val fromIndex = (lastIndex - count).coerceAtLeast(0)
         val toIndex = lastIndex + 1
 
-        return CandleSource.Result(
-            candles = replaySeries.subList(fromIndex, toIndex),
-            live = replaySeries.live.takeIf { toIndex == replaySeries.size },
-        )
+        return toIndex - fromIndex
     }
 
-    override suspend fun onLoadAfter(
-        after: Instant,
-        count: Int,
-    ): CandleSource.Result {
+    override suspend fun getBeforeInstant(
+        currentBefore: Instant,
+        loadCount: Int,
+    ): Instant {
 
         val replaySeries = loadReplaySeries()
 
-        val fromIndex = replaySeries.binarySearchByAsResult(after) { it.openInstant }.indexOrNaturalIndex
-        val toIndex = (fromIndex + count + 1).coerceAtMost(replaySeries.size)
+        val beforeIndex = replaySeries
+            .binarySearchByAsResult(currentBefore) { it.openInstant }
+            .indexOr { error("Candle at $currentBefore not found") }
+        val newBeforeIndex = (beforeIndex - loadCount).coerceAtLeast(0)
 
-        return CandleSource.Result(
-            candles = replaySeries.subList(fromIndex, toIndex),
-            live = replaySeries.live.takeIf { toIndex == replaySeries.size },
-        )
+        return replaySeries[newBeforeIndex].openInstant
+    }
+
+    override suspend fun getAfterInstant(
+        currentAfter: Instant,
+        loadCount: Int,
+    ): Instant {
+
+        val replaySeries = loadReplaySeries()
+
+        val afterIndex = replaySeries
+            .binarySearchByAsResult(currentAfter) { it.openInstant }
+            .indexOr { error("Candle at $currentAfter not found") }
+        val newAfterIndex = (afterIndex + loadCount).coerceAtMost(replaySeries.lastIndex)
+
+        return replaySeries[newAfterIndex].openInstant
     }
 
     private suspend fun loadReplaySeries(): ReplaySeries {
