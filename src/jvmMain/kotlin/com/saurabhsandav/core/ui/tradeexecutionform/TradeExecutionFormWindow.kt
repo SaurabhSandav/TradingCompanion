@@ -23,6 +23,8 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
@@ -131,12 +133,11 @@ private fun TradeExecutionForm(
             supportingText = model.instrumentField.errorMessage?.let { { Text(it) } },
         )
 
-        OutlinedListSelectionField(
-            items = NIFTY500,
-            itemText = { it },
-            onSelection = { model.tickerField.value = it },
-            selection = model.tickerField.value,
-            label = { Text("Ticker") },
+        TickerSelectionField(
+            type = TickerSelectionType.Regular,
+            tickers = NIFTY500,
+            selected = model.tickerField.value,
+            onSelect = { model.tickerField.value = it },
             enabled = isTickerEditable,
             isError = model.tickerField.isError,
             supportingText = model.tickerField.errorMessage?.let { { Text(it) } },

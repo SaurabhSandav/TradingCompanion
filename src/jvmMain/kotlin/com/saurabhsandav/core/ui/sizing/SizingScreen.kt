@@ -17,11 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.utils.NIFTY500
 
@@ -227,15 +227,13 @@ private fun AddTradeCard(
 
         if (showTickerSelectionDialog) {
 
-            ListSelectionDialog(
-                onDismissRequest = { showTickerSelectionDialog = false },
-                items = NIFTY500,
-                itemText = { it },
-                onSelection = {
-                    onAddTrade(it)
+            TickerSelectionDialog(
+                onCloseRequest = { showTickerSelectionDialog = false },
+                tickers = NIFTY500,
+                onSelect = { ticker ->
+                    onAddTrade(ticker)
                     showTickerSelectionDialog = false
-                },
-                placeholderText = "Select Ticker...",
+                }
             )
         }
     }

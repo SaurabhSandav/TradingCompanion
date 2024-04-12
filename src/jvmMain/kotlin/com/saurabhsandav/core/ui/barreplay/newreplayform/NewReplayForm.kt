@@ -17,6 +17,8 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
@@ -99,13 +101,11 @@ internal fun NewReplayForm(
 
             HorizontalDivider()
 
-            OutlinedListSelectionField(
-                items = NIFTY500,
-                itemText = { it },
-                onSelection = { model.initialTickerField.value = it },
-                selection = model.initialTickerField.value,
-                label = { Text("Ticker") },
-                placeholderText = "Select Ticker...",
+            TickerSelectionField(
+                type = TickerSelectionType.Regular,
+                tickers = NIFTY500,
+                selected = model.initialTickerField.value,
+                onSelect = { model.initialTickerField.value = it },
                 isError = model.initialTickerField.isError,
                 supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
             )

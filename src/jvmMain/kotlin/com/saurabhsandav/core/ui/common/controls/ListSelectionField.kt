@@ -218,33 +218,6 @@ fun <T : Any> ListSelectionField(
     }
 }
 
-@Composable
-fun <T : Any> ListSelectionDialog(
-    onDismissRequest: () -> Unit,
-    items: List<T>,
-    itemText: (T) -> String,
-    onSelection: (T) -> Unit,
-    selection: T? = null,
-    placeholderText: String = "Select...",
-) {
-
-    BasicAlertDialog(
-        onDismissRequest = onDismissRequest,
-    ) {
-
-        Surface {
-
-            OutlinedListSelectionField(
-                items = items,
-                itemText = itemText,
-                onSelection = onSelection,
-                selection = selection,
-                placeholderText = placeholderText,
-            )
-        }
-    }
-}
-
 object ListSelectionFieldDefaults {
 
     data class TrailingIcon<T>(

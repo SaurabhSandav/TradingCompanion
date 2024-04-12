@@ -22,6 +22,8 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -109,17 +111,13 @@ internal fun StockChartControls(
 
             HorizontalDivider()
 
-            OutlinedListSelectionField(
-                items = tickers,
-                itemText = { it },
-                selection = stockChart.params.ticker,
-                onSelection = onChangeTicker,
-                label = { Text("Ticker") },
-                trailingIcon = ListSelectionFieldDefaults.TrailingIcon(
-                    icon = Icons.AutoMirrored.Default.OpenInNew,
-                    contentDescription = "Open in new tab",
-                    onClick = { onOpenInNewTab(it, stockChart.params.timeframe) }
+            TickerSelectionField(
+                type = TickerSelectionType.Chart(
+                    onOpenInNewTab = { ticker -> onOpenInNewTab(ticker, stockChart.params.timeframe) }
                 ),
+                tickers = tickers,
+                selected = stockChart.params.ticker,
+                onSelect = onChangeTicker,
             )
 
             OutlinedListSelectionField(
