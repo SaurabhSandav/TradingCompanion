@@ -1,0 +1,26 @@
+import com.saurabhsandav.core.trades.model.TransactionType;
+import java.math.BigDecimal;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE IF NOT EXISTS AccountTransaction (
+timestamp TEXT AS Instant NOT NULL,
+amount TEXT AS BigDecimal NOT NULL,
+type TEXT AS TransactionType NOT NULL,
+balance TEXT AS BigDecimal NOT NULL,
+note TEXT NOT NULL
+);
+
+insert:
+INSERT
+INTO AccountTransaction(timestamp, amount, type, balance, note)
+VALUES (?, ?, ?, ?, ?);
+
+getAll:
+SELECT *
+FROM AccountTransaction;
+
+getLastBalance:
+SELECT balance
+FROM AccountTransaction
+ORDER BY timestamp DESC
+LIMIT 1;
