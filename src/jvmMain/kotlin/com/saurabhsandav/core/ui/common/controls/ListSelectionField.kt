@@ -29,7 +29,7 @@ fun <T : Any> OutlinedListSelectionField(
 
     var expanded by state { false }
     val selectionUpdated by rememberUpdatedState(selection)
-    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
+    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: "" }
 
     ExposedDropdownMenuBox(
         modifier = modifier,
@@ -59,6 +59,7 @@ fun <T : Any> OutlinedListSelectionField(
             readOnly = true,
             singleLine = true,
             label = label,
+            placeholder = { Text(placeholderText) },
             trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             supportingText = supportingText,
             isError = isError,
@@ -72,7 +73,7 @@ fun <T : Any> OutlinedListSelectionField(
 
             var filter by state { "" }
             val filteredItems by derivedState {
-                items.filter { item -> itemText(item).lowercase().contains(filter.lowercase()) }
+                items.filter { item -> itemText(item).contains(filter, ignoreCase = true) }
             }
             val focusRequester = remember { FocusRequester() }
 
@@ -131,7 +132,7 @@ fun <T : Any> ListSelectionField(
 
     var expanded by state { false }
     val selectionUpdated by rememberUpdatedState(selection)
-    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: placeholderText }
+    val selectedItemText by derivedState { selectionUpdated?.let(itemText) ?: "" }
 
     ExposedDropdownMenuBox(
         modifier = modifier,
@@ -161,6 +162,7 @@ fun <T : Any> ListSelectionField(
             readOnly = true,
             singleLine = true,
             label = label,
+            placeholder = { Text(placeholderText) },
             trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             supportingText = supportingText,
             isError = isError,
@@ -174,7 +176,7 @@ fun <T : Any> ListSelectionField(
 
             var filter by state { "" }
             val filteredItems by derivedState {
-                items.filter { item -> itemText(item).lowercase().contains(filter.lowercase()) }
+                items.filter { item -> itemText(item).contains(filter, ignoreCase = true) }
             }
             val focusRequester = remember { FocusRequester() }
 
