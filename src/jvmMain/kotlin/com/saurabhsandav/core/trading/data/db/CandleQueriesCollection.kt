@@ -11,7 +11,19 @@ class CandleQueriesCollection(private val driver: SqlDriver) {
     private val mutex = Mutex()
     private val queriesMap = mutableMapOf<String, CandlesQueries>()
 
-    fun getTableName(ticker: String, timeframe: Timeframe) = "${ticker}_${timeframe.seconds}"
+    fun getTableName(ticker: String, timeframe: Timeframe): String {
+
+        val needsPrefix = ticker.first().isDigit()
+        val timeframeStr = timeframe.seconds.toString()
+        val length = ticker.length + timeframeStr.length + if (needsPrefix) 1 else 0
+
+        return buildString(length) {
+            if (needsPrefix) append('_')
+            ticker.forEach { char -> if (char == '-') append('_') else append(char) }
+            append('_')
+            append(timeframeStr)
+        }
+    }
 
     suspend fun get(ticker: String, timeframe: Timeframe): CandlesQueries = mutex.withLock {
 
