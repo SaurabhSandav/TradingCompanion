@@ -32,7 +32,7 @@ WHERE id = ?;
 getAll:
 SELECT *
 FROM TradeExecution
-ORDER BY datetime(timestamp) DESC;
+ORDER BY datetime(timestamp) DESC, id DESC;
 
 getById:
 SELECT *

@@ -47,7 +47,7 @@ SELECT id FROM Trade WHERE id IN ?;
 getAll:
 SELECT *
 FROM Trade
-ORDER BY datetime(entryTimestamp) DESC;
+ORDER BY datetime(entryTimestamp) DESC, id DESC;
 
 getById:
 SELECT *
@@ -58,7 +58,7 @@ getByIds:
 SELECT *
 FROM Trade
 WHERE id IN ?
-ORDER BY datetime(entryTimestamp) DESC;
+ORDER BY datetime(entryTimestamp) DESC, id DESC;
 
 getFiltered:
 SELECT *
@@ -91,13 +91,13 @@ AND (:tagsCount IS NULL OR id IN
 AND (:tickersCount <= 0 OR ticker IN :tickers)
 ORDER BY
 IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
-datetime(entryTimestamp) DESC;
+datetime(entryTimestamp) DESC, id DESC;
 
 getOpen:
 SELECT *
 FROM Trade
 WHERE isClosed = FALSE
-ORDER BY datetime(entryTimestamp) DESC;
+ORDER BY datetime(entryTimestamp) DESC, id DESC;
 
 getOpenCount:
 SELECT COUNT(*)
