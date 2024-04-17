@@ -64,7 +64,6 @@ internal class ReplaySessionPresenter(
     private fun onEvent(event: ReplaySessionEvent) {
 
         when (event) {
-            ResetReplay -> onResetReplay()
             AdvanceReplay -> onAdvanceReplay()
             AdvanceReplayByBar -> onAdvanceReplayByBar()
             is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
@@ -123,18 +122,6 @@ internal class ReplaySessionPresenter(
                 }
             }
         }.collectAsState(emptyList())
-    }
-
-    private fun onResetReplay() {
-
-        // Disable auto next
-        onSetIsAutoNextEnabled(false)
-
-        // Reset bar replay
-        barReplay.reset()
-
-        // Reset candles to initial state
-        chartsState.reset()
     }
 
     private fun onAdvanceReplay() {

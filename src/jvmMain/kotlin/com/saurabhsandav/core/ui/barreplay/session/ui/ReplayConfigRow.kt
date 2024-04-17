@@ -18,7 +18,6 @@ internal fun ReplayConfigRow(
     selectedProfileId: ProfileId?,
     onProfileSelected: (ProfileId?) -> Unit,
     onNewReplay: () -> Unit,
-    onResetReplay: () -> Unit,
     replayFullBar: Boolean,
     onAdvanceReplay: () -> Unit,
     onAdvanceReplayByBar: () -> Unit,
@@ -51,13 +50,6 @@ internal fun ReplayConfigRow(
             onClick = onNewReplay,
         ) {
             Text("New Replay")
-        }
-
-        TextButton(
-            modifier = Modifier.weight(1F),
-            onClick = onResetReplay,
-        ) {
-            Text("Reset Replay")
         }
 
         TextButton(

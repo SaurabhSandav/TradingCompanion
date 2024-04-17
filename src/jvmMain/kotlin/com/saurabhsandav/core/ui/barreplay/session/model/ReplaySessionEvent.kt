@@ -6,8 +6,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChart
 
 internal sealed class ReplaySessionEvent {
 
-    data object ResetReplay : ReplaySessionEvent()
-
     data object AdvanceReplay : ReplaySessionEvent()
 
     data object AdvanceReplayByBar : ReplaySessionEvent()
