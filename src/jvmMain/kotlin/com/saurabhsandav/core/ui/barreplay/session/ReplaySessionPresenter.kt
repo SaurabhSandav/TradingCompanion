@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
@@ -23,7 +24,9 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -39,6 +42,7 @@ internal class ReplaySessionPresenter(
     private val barReplay: BarReplay,
     val replayOrdersManager: ReplayOrdersManager,
     private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     private var autoNextJob by mutableStateOf<Job?>(null)
@@ -50,9 +54,12 @@ internal class ReplaySessionPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
+        val (profileId, profileName) = getSelectedProfileIdAndName()
+
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
-            selectedProfileId = getSelectedProfileId(),
+            selectedProfileId = profileId,
+            selectedProfileName = profileName,
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
@@ -75,10 +82,16 @@ internal class ReplaySessionPresenter(
     }
 
     @Composable
-    private fun getSelectedProfileId(): ProfileId? {
+    private fun getSelectedProfileIdAndName(): Pair<ProfileId?, String?> {
         return remember {
-            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile).map { it?.let(::ProfileId) }
-        }.collectAsState(null).value
+            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
+                .flatMapLatest { profileId ->
+                    when (profileId) {
+                        null -> flowOf(null to null)
+                        else -> tradingProfiles.getProfileOrNull(ProfileId(profileId)).map { it?.id to it?.name }
+                    }
+                }
+        }.collectAsState(null to null).value
     }
 
     @Composable

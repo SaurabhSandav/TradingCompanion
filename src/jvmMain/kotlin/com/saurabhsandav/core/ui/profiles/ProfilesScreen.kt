@@ -57,13 +57,11 @@ internal fun ProfilesWindow(
 }
 
 @Composable
-internal fun ProfileSwitcherBox(
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
+fun ProfileSelectorDialog(
+    onCloseRequest: () -> Unit,
+    selectedProfileId: ProfileId?,
     onProfileSelected: (ProfileId?) -> Unit,
-    selectedProfileId: ProfileId? = null,
     trainingOnly: Boolean = false,
-    content: @Composable (String?) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -75,35 +73,30 @@ internal fun ProfileSwitcherBox(
             selectedProfileId = selectedProfileId,
             onProfileSelected = { id ->
                 onProfileSelected(id)
-                onExpandedChange(false)
+                onCloseRequest()
             },
         )
     }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(selectedProfileId) {
-        state.eventSink(SetCurrentProfile(selectedProfileId))
+        state.eventSink(UpdateSelectedProfile(selectedProfileId))
     }
 
-    content(state.currentProfile?.name)
+    AppDialogWindow(
+        title = "Select Profile",
+        onCloseRequest = onCloseRequest,
+    ) {
 
-    if (expanded) {
-
-        AppDialogWindow(
-            title = "Select Profile",
-            onCloseRequest = { onExpandedChange(false) },
-        ) {
-
-            ProfilesScreen(
-                profiles = state.profiles,
-                onSelectProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
-                currentProfileId = state.currentProfile?.id,
-                onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
-                onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-                onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
-                trainingOnly = trainingOnly,
-            )
-        }
+        ProfilesScreen(
+            profiles = state.profiles,
+            onSelectProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
+            currentProfileId = state.currentProfile?.id,
+            onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
+            onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
+            onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
+            trainingOnly = trainingOnly,
+        )
     }
 }
 

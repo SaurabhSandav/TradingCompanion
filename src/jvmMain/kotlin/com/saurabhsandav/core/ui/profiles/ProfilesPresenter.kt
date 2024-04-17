@@ -59,6 +59,7 @@ internal class ProfilesPresenter(
 
         when (event) {
             is SetCurrentProfile -> onSetCurrentProfile(event.id)
+            is UpdateSelectedProfile -> onUpdateSelectedProfile(event.id)
             is DeleteProfile -> onDeleteProfile(event.id)
             is CopyProfile -> onCopyProfile(event.id)
         }
@@ -89,15 +90,19 @@ internal class ProfilesPresenter(
         }.collectAsState(null)
     }
 
-    private fun onSetCurrentProfile(id: ProfileId?) = coroutineScope.launchUnit {
+    private fun onSetCurrentProfile(id: ProfileId) = coroutineScope.launchUnit {
         when {
             customSelectionMode -> {
                 currentProfileId.value = id
-                onProfileSelected.let(::requireNotNull).invoke(id)
+                onProfileSelected?.invoke(id)
             }
 
-            else -> appPrefs.putCurrentTradingProfileId(id.let(::requireNotNull))
+            else -> appPrefs.putCurrentTradingProfileId(id)
         }
+    }
+
+    private fun onUpdateSelectedProfile(id: ProfileId?) {
+        currentProfileId.value = id
     }
 
     private fun onDeleteProfile(id: ProfileId) = coroutineScope.launchUnit {

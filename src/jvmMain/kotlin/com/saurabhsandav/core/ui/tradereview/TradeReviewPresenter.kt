@@ -50,6 +50,7 @@ internal class TradeReviewPresenter(
 
         return@launchMolecule TradeReviewState(
             selectedProfileId = selectedProfileId.collectAsState().value,
+            selectedProfileName = getSelectedProfileName(),
             trades = getTrades().value,
             markedTrades = getMarkedTrades().value,
             eventSink = ::onEvent,
@@ -78,6 +79,19 @@ internal class TradeReviewPresenter(
             ClearMarkedTrades -> onClearMarkedTrades()
             is ApplyFilter -> onApplyFilter(event.tradeFilter)
         }
+    }
+
+    @Composable
+    private fun getSelectedProfileName(): String? {
+        return remember {
+
+            selectedProfileId.flatMapLatest { profileId ->
+                when (profileId) {
+                    null -> flowOf(null)
+                    else -> tradingProfiles.getProfileOrNull(profileId).map { it?.name }
+                }
+            }
+        }.collectAsState(null).value
     }
 
     @Composable

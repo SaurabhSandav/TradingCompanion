@@ -11,11 +11,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
+import com.saurabhsandav.core.ui.profiles.ProfileSelectorDialog
 
 @Composable
 internal fun ReplayConfigRow(
     selectedProfileId: ProfileId?,
+    selectedProfileName: String?,
     onProfileSelected: (ProfileId?) -> Unit,
     onNewReplay: () -> Unit,
     replayFullBar: Boolean,
@@ -28,20 +29,21 @@ internal fun ReplayConfigRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
 
-        var profileSwitcherExpanded by state { false }
+        var showProfileSelector by state { false }
 
-        ProfileSwitcherBox(
-            expanded = profileSwitcherExpanded,
-            onExpandedChange = { profileSwitcherExpanded = it },
-            selectedProfileId = selectedProfileId,
-            onProfileSelected = onProfileSelected,
-            trainingOnly = true,
-        ) { profileName ->
+        TextButton(
+            modifier = Modifier.weight(1F),
+            onClick = { showProfileSelector = true },
+            content = { Text("Profile: ${selectedProfileName ?: "None"}") },
+        )
 
-            TextButton(
-                modifier = Modifier.weight(1F),
-                onClick = { profileSwitcherExpanded = true },
-                content = { Text("Profile: ${profileName ?: "None"}") },
+        if (showProfileSelector) {
+
+            ProfileSelectorDialog(
+                onCloseRequest = { showProfileSelector = false },
+                selectedProfileId = selectedProfileId,
+                onProfileSelected = onProfileSelected,
+                trainingOnly = true,
             )
         }
 

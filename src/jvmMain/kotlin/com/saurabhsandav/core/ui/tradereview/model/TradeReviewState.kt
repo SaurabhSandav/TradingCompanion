@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 internal data class TradeReviewState(
     val selectedProfileId: ProfileId?,
+    val selectedProfileName: String?,
     val trades: List<TradeEntry>,
     val markedTrades: List<MarkedTradeEntry>,
     val eventSink: (TradeReviewEvent) -> Unit,

@@ -14,6 +14,7 @@ import java.util.*
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
     val selectedProfileId: ProfileId?,
+    val selectedProfileName: String?,
     val replayOrderItems: List<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo,

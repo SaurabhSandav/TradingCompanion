@@ -8,7 +8,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -17,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.profiles.ProfileSwitcherBox
+import com.saurabhsandav.core.ui.profiles.ProfileSelectorDialog
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
 
 @Composable
@@ -25,6 +24,7 @@ internal fun MainTabRow(
     selectedTab: TradeReviewState.Tab,
     onSelectTab: (TradeReviewState.Tab) -> Unit,
     selectedProfileId: ProfileId?,
+    selectedProfileName: String?,
     onProfileSelected: (ProfileId?) -> Unit,
 ) {
 
@@ -41,34 +41,32 @@ internal fun MainTabRow(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
 
-                    var profileSwitcherExpanded by state { false }
-                    var currentProfileName by state<String?> { null }
+                    var showProfileSelector by state { false }
 
                     Text(
                         modifier = Modifier.weight(1F),
-                        text = "Profile: ${currentProfileName ?: "None"}",
+                        text = "Profile: ${selectedProfileName ?: "None"}",
                         textAlign = TextAlign.Center,
                     )
 
-                    ProfileSwitcherBox(
-                        expanded = profileSwitcherExpanded,
-                        onExpandedChange = { profileSwitcherExpanded = it },
-                        selectedProfileId = selectedProfileId,
-                        onProfileSelected = onProfileSelected,
-                    ) { profileName ->
+                    IconButtonWithTooltip(
+                        onClick = { showProfileSelector = true },
+                        tooltipText = "Open Profile switcher",
+                    ) {
 
-                        SideEffect { currentProfileName = profileName }
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Open Profile switcher",
+                        )
+                    }
 
-                        IconButtonWithTooltip(
-                            onClick = { profileSwitcherExpanded = true },
-                            tooltipText = "Open Profile switcher",
-                        ) {
+                    if (showProfileSelector) {
 
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Open Profile switcher",
-                            )
-                        }
+                        ProfileSelectorDialog(
+                            onCloseRequest = { showProfileSelector = false },
+                            selectedProfileId = selectedProfileId,
+                            onProfileSelected = onProfileSelected,
+                        )
                     }
                 }
             },
