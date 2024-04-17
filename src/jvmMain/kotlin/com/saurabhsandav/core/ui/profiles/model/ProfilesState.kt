@@ -11,7 +11,7 @@ internal data class ProfilesState(
     data class Profile(
         val id: ProfileId,
         val name: String,
-        val description: String,
+        val description: String?,
         val isTraining: Boolean,
     )
 }

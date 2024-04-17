@@ -115,7 +115,7 @@ internal class ProfilesPresenter(
     private fun toProfileState(profile: TradingProfile) = Profile(
         id = profile.id,
         name = profile.name,
-        description = profile.description,
+        description = profile.description.takeIf { it.isNotBlank() },
         isTraining = profile.isTraining,
     )
 

@@ -4,12 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,7 +37,7 @@ internal fun ProfileListItem(
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable(onClick = onSelectProfile),
+        modifier = Modifier.clickable(onClick = onSelectProfile).padding(MaterialTheme.dimens.listItemPadding),
         headlineContent = {
 
             Row(
@@ -63,7 +61,7 @@ internal fun ProfileListItem(
                 color = if (profile.isTraining) AppColor.LossRed else AppColor.ProfitGreen,
             )
         },
-        supportingContent = { Text(profile.description) },
+        supportingContent = profile.description?.let { { Text(it) } },
         trailingContent = {
 
             Row {
@@ -108,6 +106,8 @@ internal fun ProfileListItem(
             }
         },
     )
+
+    HorizontalDivider()
 
     if (showEditProfileDialog) {
 

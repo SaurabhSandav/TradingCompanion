@@ -1,12 +1,13 @@
 package com.saurabhsandav.core.ui.profiles
 
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,7 +23,6 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.ui.profiles.ui.ProfileListItem
-import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfilesWindow(
@@ -130,33 +130,29 @@ private fun ProfilesScreen(
 
         Box {
 
-            val scrollState = rememberScrollState()
+            val lazyListState = rememberLazyListState()
 
-            Column(
-                modifier = Modifier.verticalScroll(scrollState).padding(MaterialTheme.dimens.containerPadding),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
+            LazyColumn(
+                state = lazyListState,
             ) {
 
-                profiles.forEach { profile ->
+                items(profiles, key = { it.id }) { profile ->
 
-                    key(profile.id) {
-
-                        ProfileListItem(
-                            profile = profile,
-                            onSelectProfile = { onSelectProfile(profile.id) },
-                            isCurrent = profile.id == currentProfileId,
-                            onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
-                            onDeleteProfile = { onDeleteProfile(profile.id) },
-                            onCopyProfile = { onCopyProfile(profile.id) },
-                            trainingOnly = trainingOnly,
-                        )
-                    }
+                    ProfileListItem(
+                        profile = profile,
+                        onSelectProfile = { onSelectProfile(profile.id) },
+                        isCurrent = profile.id == currentProfileId,
+                        onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
+                        onDeleteProfile = { onDeleteProfile(profile.id) },
+                        onCopyProfile = { onCopyProfile(profile.id) },
+                        trainingOnly = trainingOnly,
+                    )
                 }
             }
 
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(scrollState)
+                adapter = rememberScrollbarAdapter(lazyListState)
             )
         }
     }
