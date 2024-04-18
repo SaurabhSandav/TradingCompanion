@@ -29,15 +29,15 @@ internal class ReplaySessionModule(
 
     private val replayOrdersManager = ReplayOrdersManager(
         coroutineScope = coroutineScope,
+        profileId = replayParams.profileId,
         replaySeriesCache = replaySeriesCache,
-        appPrefs = appModule.appPrefs,
         tradingProfiles = appModule.tradingProfiles,
     )
 
     private val marketDataProvider = ReplayChartsMarketDataProvider(
         coroutineScope = coroutineScope,
+        profileId = replayParams.profileId,
         replaySeriesCache = replaySeriesCache,
-        appPrefs = appModule.appPrefs,
         tradingProfiles = appModule.tradingProfiles,
     )
 
@@ -60,7 +60,6 @@ internal class ReplaySessionModule(
             },
             barReplay = barReplay,
             replayOrdersManager = replayOrdersManager,
-            appPrefs = appModule.appPrefs,
             tradingProfiles = appModule.tradingProfiles,
         )
     }

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
@@ -13,8 +12,7 @@ import java.util.*
 
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
-    val selectedProfileId: ProfileId?,
-    val selectedProfileName: String?,
+    val profileName: String?,
     val replayOrderItems: List<ReplayOrderListItem>,
     val orderFormWindowsManager: AppWindowsManager<OrderFormParams>,
     val chartInfo: (StockChart) -> ReplayChartInfo,

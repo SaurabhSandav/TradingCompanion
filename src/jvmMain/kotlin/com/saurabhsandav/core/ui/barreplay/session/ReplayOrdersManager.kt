@@ -1,13 +1,11 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -19,8 +17,8 @@ import kotlin.random.Random
 
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
+    private val profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -63,11 +61,7 @@ internal class ReplayOrdersManager(
             // Updates broker with price for ticker
             createReplaySeries(stockChartParams.ticker)
 
-            val replayProfileId = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-                .first()
-                ?.let(::ProfileId)
-                ?: error("Replay profile not set")
-
+            val replayProfileId = profileId ?: error("Replay profile not set")
             val tradingRecord = tradingProfiles.getRecord(replayProfileId)
 
             val orderParams = BacktestOrder.Params(

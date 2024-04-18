@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.newreplayform
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isInt
@@ -21,6 +22,7 @@ class NewReplayFormModel(
     dataTo: LocalDateTime,
     replayFullBar: Boolean,
     initialTicker: String?,
+    profileId: ProfileId?,
 ) {
 
     val baseTimeframeField = validator.addField(baseTimeframe) { isRequired() }
@@ -53,4 +55,6 @@ class NewReplayFormModel(
     var replayFullBar by mutableStateOf(replayFullBar)
 
     val initialTickerField = validator.addField(initialTicker) { isRequired() }
+
+    val profileField = validator.addField(profileId)
 }

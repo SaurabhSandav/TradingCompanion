@@ -16,6 +16,7 @@ import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
@@ -108,6 +109,12 @@ internal fun NewReplayForm(
                 onSelect = { model.initialTickerField.value = it },
                 isError = model.initialTickerField.isError,
                 supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
+            )
+
+            ProfileSelectorField(
+                selectedProfileId = model.profileField.value,
+                onProfileSelected = { model.profileField.value = it },
+                trainingOnly = true,
             )
 
             HorizontalDivider()

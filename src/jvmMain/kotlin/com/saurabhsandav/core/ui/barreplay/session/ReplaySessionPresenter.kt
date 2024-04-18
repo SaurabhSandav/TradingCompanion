@@ -3,9 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
@@ -19,12 +17,10 @@ import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -37,11 +33,10 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
-    replayParams: ReplayParams,
+    private val replayParams: ReplayParams,
     stockChartsStateFactory: StockChartsStateFactory,
     private val barReplay: BarReplay,
     val replayOrdersManager: ReplayOrdersManager,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -54,12 +49,9 @@ internal class ReplaySessionPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        val (profileId, profileName) = getSelectedProfileIdAndName()
-
         return@launchMolecule ReplaySessionState(
             chartsState = chartsState,
-            selectedProfileId = profileId,
-            selectedProfileName = profileName,
+            profileName = getProfileName(),
             replayOrderItems = getReplayOrderItems().value,
             orderFormWindowsManager = orderFormWindowsManager,
             chartInfo = ::getChartInfo,
@@ -74,7 +66,6 @@ internal class ReplaySessionPresenter(
             AdvanceReplay -> onAdvanceReplay()
             AdvanceReplayByBar -> onAdvanceReplayByBar()
             is SetIsAutoNextEnabled -> onSetIsAutoNextEnabled(event.isAutoNextEnabled)
-            is ProfileSelected -> onProfileSelected(event.id)
             is Buy -> onBuy(event.stockChart)
             is Sell -> onSell(event.stockChart)
             is CancelOrder -> onCancelOrder(event.id)
@@ -82,16 +73,13 @@ internal class ReplaySessionPresenter(
     }
 
     @Composable
-    private fun getSelectedProfileIdAndName(): Pair<ProfileId?, String?> {
+    private fun getProfileName(): String? {
         return remember {
-            appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-                .flatMapLatest { profileId ->
-                    when (profileId) {
-                        null -> flowOf(null to null)
-                        else -> tradingProfiles.getProfileOrNull(ProfileId(profileId)).map { it?.id to it?.name }
-                    }
-                }
-        }.collectAsState(null to null).value
+            when (replayParams.profileId) {
+                null -> flowOf(null)
+                else -> tradingProfiles.getProfileOrNull(replayParams.profileId).map { it?.name }
+            }
+        }.collectAsState(null).value
     }
 
     @Composable
@@ -166,24 +154,6 @@ internal class ReplaySessionPresenter(
                 autoNextJob?.cancel()
                 null
             }
-        }
-    }
-
-    private fun onProfileSelected(id: ProfileId?) = coroutineScope.launchUnit {
-
-        val currentProfileId = appPrefs.getLongOrNull(PrefKeys.ReplayTradingProfile)?.let(::ProfileId)
-
-        when (id) {
-            // Profile deleted, delete pref
-            null -> appPrefs.remove(PrefKeys.ReplayTradingProfile)
-            // Save selected profile
-            else -> appPrefs.putLong(PrefKeys.ReplayTradingProfile, id.value)
-        }
-
-        if (currentProfileId != id) {
-
-            // Close all child windows
-            orderFormWindowsManager.closeAll()
         }
     }
 

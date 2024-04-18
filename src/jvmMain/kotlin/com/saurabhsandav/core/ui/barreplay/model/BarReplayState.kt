@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.model
 
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import kotlinx.datetime.Instant
@@ -27,5 +28,6 @@ internal data class BarReplayState(
         val dataTo: Instant,
         val replayFullBar: Boolean,
         val initialTicker: String,
+        val profileId: ProfileId?,
     )
 }

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.stockchart.StockChart
 
@@ -11,8 +10,6 @@ internal sealed class ReplaySessionEvent {
     data object AdvanceReplayByBar : ReplaySessionEvent()
 
     data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
-
-    data class ProfileSelected(val id: ProfileId?) : ReplaySessionEvent()
 
     data class Buy(val stockChart: StockChart) : ReplaySessionEvent()
 

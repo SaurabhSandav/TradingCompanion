@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.CandleSeries
@@ -13,7 +12,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.NIFTY500
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
@@ -22,8 +20,8 @@ import kotlinx.coroutines.flow.*
 
 internal class ReplayChartsMarketDataProvider(
     private val coroutineScope: CoroutineScope,
+    private val profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
-    private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) : MarketDataProvider {
 
@@ -64,9 +62,10 @@ internal class ReplayChartsMarketDataProvider(
 
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
-        val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-            .map { it?.let(::ProfileId) }
-            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
+        val replayProfile = when {
+            profileId != null -> tradingProfiles.getProfileOrNull(profileId)
+            else -> flowOf(null)
+        }
 
         return replayProfile.flatMapLatest { profile ->
 
@@ -112,9 +111,10 @@ internal class ReplayChartsMarketDataProvider(
 
         val instantRange = candleSeries.instantRange.value ?: return emptyFlow()
 
-        val replayProfile = appPrefs.getLongOrNullFlow(PrefKeys.ReplayTradingProfile)
-            .map { it?.let(::ProfileId) }
-            .flatMapLatest { id -> if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null) }
+        val replayProfile = when {
+            profileId != null -> tradingProfiles.getProfileOrNull(profileId)
+            else -> flowOf(null)
+        }
 
         return replayProfile.flatMapLatest { profile ->
 

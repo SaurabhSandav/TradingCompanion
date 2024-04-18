@@ -1,18 +1,23 @@
 package com.saurabhsandav.core.ui.profiles
 
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -97,6 +102,92 @@ fun ProfileSelectorDialog(
             onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
             trainingOnly = trainingOnly,
         )
+    }
+}
+
+@Composable
+fun ProfileSelectorField(
+    selectedProfileId: ProfileId?,
+    onProfileSelected: (ProfileId?) -> Unit,
+    trainingOnly: Boolean = false,
+) {
+
+    var showSelectorDialog by state { false }
+
+    val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
+    val presenter = remember {
+        appModule.profilesModule(scope).presenterFactory.build(
+            customSelectionMode = true,
+            trainingOnly = trainingOnly,
+            selectedProfileId = selectedProfileId,
+            onProfileSelected = { id ->
+                onProfileSelected(id)
+                showSelectorDialog = false
+            },
+        )
+    }
+    val state by presenter.state.collectAsState()
+
+    LaunchedEffect(selectedProfileId) {
+        state.eventSink(UpdateSelectedProfile(selectedProfileId))
+    }
+
+    OutlinedTextField(
+        modifier = Modifier.pointerInput(selectedProfileId) {
+
+            if (selectedProfileId != null) return@pointerInput
+
+            awaitEachGesture {
+                // Must be PointerEventPass.Initial to observe events before the text field consumes them
+                // in the Main pass
+                awaitFirstDown(pass = PointerEventPass.Initial)
+                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                if (upEvent != null) {
+                    showSelectorDialog = !showSelectorDialog
+                }
+            }
+        },
+        value = state.currentProfile?.name ?: "",
+        onValueChange = {},
+        enabled = true,
+        readOnly = true,
+        label = { Text("Profile") },
+        trailingIcon = {
+            when {
+                selectedProfileId == null -> ExposedDropdownMenuDefaults.TrailingIcon(expanded = showSelectorDialog)
+
+                else -> IconButton(
+                    onClick = { onProfileSelected(null) },
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = null,
+                    )
+                }
+            }
+        },
+        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+    )
+
+    if (showSelectorDialog) {
+
+        AppDialogWindow(
+            title = "Select Profile",
+            onCloseRequest = { showSelectorDialog = false },
+        ) {
+
+            ProfilesScreen(
+                profiles = state.profiles,
+                onSelectProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
+                currentProfileId = state.currentProfile?.id,
+                onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
+                onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
+                onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
+                trainingOnly = trainingOnly,
+            )
+        }
     }
 }
 
