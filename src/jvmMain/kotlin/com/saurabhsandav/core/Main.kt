@@ -124,6 +124,7 @@ internal fun App(onCloseRequest: () -> Unit) {
 
             BarReplayWindow(
                 onCloseRequest = barReplayWindowManager::closeWindow,
+                onOpenProfile = landingWindowsManager::newWindow,
             )
         }
 

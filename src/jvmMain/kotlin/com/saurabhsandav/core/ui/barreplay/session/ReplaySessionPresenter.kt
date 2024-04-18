@@ -79,7 +79,7 @@ internal class ReplaySessionPresenter(
                 null -> flowOf(null)
                 else -> tradingProfiles.getProfileOrNull(replayParams.profileId).map { it?.name }
             }
-        }.collectAsState(null).value
+        }.collectAsState(replayParams.profileId?.let { "" }).value
     }
 
     @Composable

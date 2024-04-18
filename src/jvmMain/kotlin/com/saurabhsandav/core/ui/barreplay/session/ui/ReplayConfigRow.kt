@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 
 @Composable
 internal fun ReplayConfigRow(
+    profileName: String?,
+    onOpenProfile: () -> Unit,
     onNewReplay: () -> Unit,
     replayFullBar: Boolean,
     onAdvanceReplay: () -> Unit,
@@ -20,6 +22,16 @@ internal fun ReplayConfigRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
+
+        if (profileName != null) {
+
+            TextButton(
+                modifier = Modifier.weight(1F),
+                onClick = onOpenProfile,
+            ) {
+                Text("Profile: $profileName")
+            }
+        }
 
         TextButton(
             modifier = Modifier.weight(1F),

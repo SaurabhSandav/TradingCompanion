@@ -1,14 +1,8 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
@@ -16,11 +10,11 @@ import com.saurabhsandav.core.ui.barreplay.session.replayorderform.ReplayOrderFo
 import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayCharts
 import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayConfigRow
 import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayOrdersTable
-import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplaySessionScreen(
     barReplayModule: BarReplayModule,
+    onOpenProfile: () -> Unit,
     onNewReplay: () -> Unit,
     replayParams: ReplayParams,
 ) {
@@ -31,27 +25,9 @@ internal fun ReplaySessionScreen(
 
     Column {
 
-        AnimatedContent(
-            targetState = state.profileName,
-            transitionSpec = { (fadeIn() + expandVertically()).togetherWith(fadeOut() + shrinkVertically()) },
-        ) { profileName ->
-
-            if (profileName != null) {
-
-                Column {
-
-                    Text(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                            .padding(MaterialTheme.dimens.listItemPadding),
-                        text = "Profile: ${state.profileName}",
-                    )
-
-                    HorizontalDivider()
-                }
-            }
-        }
-
         ReplayConfigRow(
+            profileName = state.profileName,
+            onOpenProfile = onOpenProfile,
             onNewReplay = onNewReplay,
             replayFullBar = replayParams.replayFullBar,
             onAdvanceReplay = { state.eventSink(AdvanceReplay) },
