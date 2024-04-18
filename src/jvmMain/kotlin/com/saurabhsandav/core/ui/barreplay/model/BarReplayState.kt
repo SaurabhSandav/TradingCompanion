@@ -4,6 +4,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 internal data class BarReplayState(
     val replayState: ReplayState?,
@@ -21,6 +22,7 @@ internal data class BarReplayState(
         ) : ReplayState()
     }
 
+    @Serializable
     data class ReplayParams(
         val baseTimeframe: Timeframe,
         val candlesBefore: Int,

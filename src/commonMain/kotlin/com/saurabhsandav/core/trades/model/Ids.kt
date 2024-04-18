@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trades.model
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 @JvmInline
 value class ProfileId(val value: Long) {
 

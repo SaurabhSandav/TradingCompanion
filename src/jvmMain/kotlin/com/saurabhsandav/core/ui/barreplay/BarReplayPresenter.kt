@@ -28,6 +28,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.days
 
 internal class BarReplayPresenter(
@@ -78,6 +80,8 @@ internal class BarReplayPresenter(
             profileId = formModel.profileField.value,
         )
 
+        appPrefs.putString(PrefKeys.ReplayFormModel, Json.encodeToString(replayParams))
+
         replayState = ReplayStarted(replayParams = replayParams)
     }
 
@@ -87,26 +91,46 @@ internal class BarReplayPresenter(
 
     private suspend fun initialLaunchFormModel(): NewReplayFormModel {
 
-        val defaultTimeframe = appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
-            .map(Timeframe::valueOf)
-            .first()
+        val replayParams = appPrefs.getStringOrNull(PrefKeys.ReplayFormModel)
+            ?.let { Json.decodeFromString<ReplayParams>(it) }
 
-        val currentTime = Clock.System.now()
-        val days30 = 30.days
+        return when (replayParams) {
+            null -> {
 
-        val candlesBefore = 200
-        val dataTo = currentTime.toLocalDateTime(TimeZone.currentSystemDefault())
-        val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
+                val defaultTimeframe =
+                    appPrefs.getStringFlow(PrefKeys.DefaultTimeframe, PrefDefaults.DefaultTimeframe.name)
+                        .map(Timeframe::valueOf)
+                        .first()
 
-        return NewReplayFormModel(
-            validator = formValidator,
-            baseTimeframe = defaultTimeframe,
-            candlesBefore = candlesBefore.toString(),
-            replayFrom = replayFrom,
-            dataTo = dataTo,
-            replayFullBar = true,
-            initialTicker = NIFTY500.first(),
-            profileId = null,
-        )
+                val currentTime = Clock.System.now()
+                val days30 = 30.days
+
+                val candlesBefore = 200
+                val dataTo = currentTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
+
+                NewReplayFormModel(
+                    validator = formValidator,
+                    baseTimeframe = defaultTimeframe,
+                    candlesBefore = candlesBefore.toString(),
+                    replayFrom = replayFrom,
+                    dataTo = dataTo,
+                    replayFullBar = true,
+                    initialTicker = NIFTY500.first(),
+                    profileId = null,
+                )
+            }
+
+            else -> NewReplayFormModel(
+                validator = formValidator,
+                baseTimeframe = replayParams.baseTimeframe,
+                candlesBefore = replayParams.candlesBefore.toString(),
+                replayFrom = replayParams.replayFrom.toLocalDateTime(TimeZone.currentSystemDefault()),
+                dataTo = replayParams.dataTo.toLocalDateTime(TimeZone.currentSystemDefault()),
+                replayFullBar = replayParams.replayFullBar,
+                initialTicker = replayParams.initialTicker,
+                profileId = replayParams.profileId,
+            )
+        }
     }
 }
