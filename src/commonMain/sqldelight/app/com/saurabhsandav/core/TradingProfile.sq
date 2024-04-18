@@ -1,5 +1,6 @@
 import com.saurabhsandav.core.trades.model.ProfileId;
 import kotlin.Boolean;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS TradingProfile (
 id INTEGER AS ProfileId NOT NULL PRIMARY KEY,
@@ -7,6 +8,8 @@ name TEXT NOT NULL,
 description TEXT NOT NULL,
 path TEXT NOT NULL UNIQUE,
 isTraining INTEGER AS Boolean NOT NULL,
+tradeCount INTEGER AS Int NOT NULL DEFAULT 0,
+tradeCountOpen INTEGER AS Int NOT NULL DEFAULT 0,
 UNIQUE (name COLLATE NOCASE)
 );
 
@@ -38,6 +41,15 @@ SELECT EXISTS( SELECT * FROM TradingProfile WHERE id = ? );
 
 delete:
 DELETE FROM TradingProfile
+WHERE id = ?;
+
+setTradeCounts:
+UPDATE TradingProfile
+SET tradeCount = ?, tradeCountOpen = ?
+WHERE id = ?;
+
+getTradeCounts:
+SELECT tradeCount, tradeCountOpen FROM TradingProfile
 WHERE id = ?;
 
 isProfileNameUnique:

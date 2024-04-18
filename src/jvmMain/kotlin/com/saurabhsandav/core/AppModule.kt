@@ -1,5 +1,6 @@
 package com.saurabhsandav.core
 
+import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.LogWriter
@@ -90,6 +91,8 @@ internal class AppModule {
             driver = driver,
             TradingProfileAdapter = TradingProfile.Adapter(
                 idAdapter = ProfileIdColumnAdapter,
+                tradeCountAdapter = IntColumnAdapter,
+                tradeCountOpenAdapter = IntColumnAdapter,
             ),
         )
     }

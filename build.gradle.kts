@@ -194,21 +194,21 @@ sqldelight {
         create("AppDB") {
             packageName = "com.saurabhsandav.core"
             srcDirs("src/commonMain/sqldelight/app")
-            schemaOutputDirectory = file("build/dbs")
+            schemaOutputDirectory = file("src/commonMain/sqldelight/app")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
 
         create("TradesDB") {
             packageName = "com.saurabhsandav.core.trades"
             srcDirs("src/commonMain/sqldelight/trades")
-            schemaOutputDirectory = file("build/dbs")
+            schemaOutputDirectory = file("src/commonMain/sqldelight/trades")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
 
         create("CandleDB") {
             packageName = "com.saurabhsandav.core.trading.data"
             srcDirs("src/commonMain/sqldelight/candles")
-            schemaOutputDirectory = file("build/dbs")
+            schemaOutputDirectory = file("src/commonMain/sqldelight/candles")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
     }
