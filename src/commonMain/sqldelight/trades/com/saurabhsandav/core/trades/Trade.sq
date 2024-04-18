@@ -99,10 +99,11 @@ FROM Trade
 WHERE isClosed = FALSE
 ORDER BY datetime(entryTimestamp) DESC, id DESC;
 
-getOpenCount:
-SELECT COUNT(*)
-FROM Trade
-WHERE isClosed = FALSE;
+getTotalAndOpenCount:
+SELECT
+  COUNT(*) AS totalCount,
+  COUNT(CASE WHEN isClosed = FALSE THEN 1 END) AS openCount
+FROM Trade;
 
 getByTickerInInterval:
 SELECT *

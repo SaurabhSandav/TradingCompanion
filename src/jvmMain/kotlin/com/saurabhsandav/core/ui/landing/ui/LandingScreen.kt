@@ -73,7 +73,7 @@ private fun LandingScreen(
     currentScreen: LandingScreen,
     onCurrentScreenChange: (LandingScreen) -> Unit,
     tradeContentLauncher: TradeContentLauncher,
-    openTradesCount: Long?,
+    openTradesCount: Int?,
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,

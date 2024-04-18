@@ -13,5 +13,7 @@ internal data class ProfilesState(
         val name: String,
         val description: String?,
         val isTraining: Boolean,
+        val tradeCount: Int,
+        val tradeCountOpen: Int?,
     )
 }

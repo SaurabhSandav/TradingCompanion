@@ -15,6 +15,7 @@ import java.math.MathContext
 
 internal class TradeExecutionsRepo(
     private val tradesDB: TradesDB,
+    private val onTradesUpdated: suspend () -> Unit,
 ) {
 
     val allExecutions: Flow<List<TradeExecution>>
@@ -39,7 +40,8 @@ internal class TradeExecutionsRepo(
         timestamp: Instant,
         locked: Boolean,
     ): TradeExecutionId = withContext(Dispatchers.IO) {
-        tradesDB.transactionWithResult {
+
+        val executionId = tradesDB.transactionWithResult {
 
             // Insert Trade execution
             tradesDB.tradeExecutionQueries.insert(
@@ -63,6 +65,11 @@ internal class TradeExecutionsRepo(
 
             return@transactionWithResult executionId
         }
+
+        // Notify updates
+        onTradesUpdated()
+
+        return@withContext executionId
     }
 
     suspend fun edit(
@@ -117,6 +124,9 @@ internal class TradeExecutionsRepo(
             }
         }
 
+        // Notify updates
+        onTradesUpdated()
+
         return@withContext id
     }
 
@@ -162,6 +172,9 @@ internal class TradeExecutionsRepo(
                 }
             }
         }
+
+        // Notify updates
+        onTradesUpdated()
     }
 
     suspend fun lock(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {

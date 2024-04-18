@@ -56,10 +56,29 @@ internal fun ProfileListItem(
             }
         },
         overlineContent = {
-            Text(
-                text = if (profile.isTraining) "TRAINING" else "LIVE",
-                color = if (profile.isTraining) AppColor.LossRed else AppColor.ProfitGreen,
-            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+            ) {
+
+                Text(
+                    text = if (profile.isTraining) "TRAINING" else "LIVE",
+                    color = if (profile.isTraining) AppColor.LossRed else AppColor.ProfitGreen,
+                )
+
+                Text(
+                    text = buildString {
+                        append(profile.tradeCount)
+                        append(" trades")
+
+                        if (profile.tradeCountOpen != null) {
+                            append(" (")
+                            append(profile.tradeCountOpen)
+                            append(" open)")
+                        }
+                    }
+                )
+            }
         },
         supportingContent = profile.description?.let { { Text(it) } },
         trailingContent = {

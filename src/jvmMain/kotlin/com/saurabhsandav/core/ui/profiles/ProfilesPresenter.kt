@@ -122,6 +122,8 @@ internal class ProfilesPresenter(
         name = profile.name,
         description = profile.description.takeIf { it.isNotBlank() },
         isTraining = profile.isTraining,
+        tradeCount = profile.tradeCount,
+        tradeCountOpen = profile.tradeCountOpen.takeIf { it > 0 },
     )
 
     interface Factory {

@@ -92,10 +92,6 @@ internal class TradesRepo(
         return query.asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getOpenCount(): Flow<Long> {
-        return tradesDB.tradeQueries.getOpenCount().asFlow().mapToOne(Dispatchers.IO)
-    }
-
     fun getByTickerInInterval(
         ticker: String,
         range: ClosedRange<Instant>,

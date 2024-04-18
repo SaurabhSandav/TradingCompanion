@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 internal data class LandingState(
     val currentScreen: LandingScreen?,
-    val openTradesCount: Long?,
+    val openTradesCount: Int?,
     val eventSink: (LandingEvent) -> Unit,
 ) {
 

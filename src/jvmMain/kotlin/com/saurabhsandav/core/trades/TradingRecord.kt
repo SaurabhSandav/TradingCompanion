@@ -9,6 +9,7 @@ import java.util.*
 
 internal class TradingRecord(
     recordPath: String,
+    onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
 ) {
 
     private val tradesDB: TradesDB = run {
@@ -101,7 +102,18 @@ internal class TradingRecord(
         )
     }
 
-    val executions = TradeExecutionsRepo(tradesDB)
+    val executions = TradeExecutionsRepo(
+        tradesDB = tradesDB,
+        onTradesUpdated = {
+
+            val (totalCount, openCount) = tradesDB.tradeQueries
+                .getTotalAndOpenCount()
+                .executeAsOne()
+                .run { totalCount.toInt() to openCount.toInt() }
+
+            onTradeCountsUpdated(totalCount, openCount)
+        },
+    )
 
     val trades = TradesRepo(recordPath, tradesDB, executions)
 

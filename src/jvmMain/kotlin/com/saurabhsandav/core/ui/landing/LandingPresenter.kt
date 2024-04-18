@@ -53,16 +53,14 @@ internal class LandingPresenter(
     }
 
     @Composable
-    private fun getOpenTradeCount(): Long? {
-        return produceState<Long?>(null) {
+    private fun getOpenTradeCount(): Int? {
+        return produceState<Int?>(null) {
 
             flow {
 
                 tradingProfiles
-                    .getRecord(profileId)
-                    .trades
-                    .getOpenCount()
-                    .map { count -> count.takeUnless { it == 0L } }
+                    .getProfile(profileId)
+                    .map { profile -> profile.tradeCountOpen.takeUnless { it == 0 } }
                     .emitInto(this)
             }.collect { value = it }
         }.value

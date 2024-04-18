@@ -142,6 +142,14 @@ internal class TradingProfiles(
 
                 TradingRecord(
                     recordPath = profileFilesPath.toString(),
+                    onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
+
+                        appDB.tradingProfileQueries.setTradeCounts(
+                            id = profile.id,
+                            tradeCount = tradeCount,
+                            tradeCountOpen = tradeCountOpen,
+                        )
+                    },
                 )
             }
         }

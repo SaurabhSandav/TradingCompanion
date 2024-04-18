@@ -21,7 +21,7 @@ internal fun LandingNavigationRail(
     currentScreen: LandingState.LandingScreen,
     onCurrentScreenChange: (LandingState.LandingScreen) -> Unit,
     tradeContentLauncher: TradeContentLauncher,
-    openTradesCount: Long?,
+    openTradesCount: Int?,
     onOpenProfiles: () -> Unit,
     onOpenPnlCalculator: () -> Unit,
     onOpenBarReplay: () -> Unit,
