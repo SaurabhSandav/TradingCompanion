@@ -33,6 +33,20 @@ interface CandleCache {
         to: Instant,
     ): Flow<Long>
 
+    fun getInstantBeforeByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        before: Instant,
+        count: Int,
+    ): Flow<Instant?>
+
+    fun getInstantAfterByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        after: Instant,
+        count: Int,
+    ): Flow<Instant?>
+
     fun fetchRange(
         ticker: String,
         timeframe: Timeframe,
