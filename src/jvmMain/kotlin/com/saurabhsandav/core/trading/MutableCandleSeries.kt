@@ -57,6 +57,7 @@ private class MutableCandleSeriesImpl(
     override val live: Flow<IndexedValue<Candle>> = _live.asSharedFlow()
 
     private val _modifications = MutableSharedFlow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>>(
+        replay = 1,
         extraBufferCapacity = Int.MAX_VALUE,
     )
     override val modifications: Flow<Pair<ClosedRange<Instant>?, ClosedRange<Instant>?>> = _modifications.asSharedFlow()
