@@ -25,11 +25,7 @@ internal class ReplayCandleSource(
 
     override suspend fun onLoad(interval: ClosedRange<Instant>): CandleSource.Result {
 
-        if (!replaySeries.isCompleted) {
-            replaySeries.complete(replaySeriesFactory())
-        }
-
-        val replaySeries = replaySeries.await()
+        val replaySeries = loadReplaySeries()
 
         val fromIndex = replaySeries
             .binarySearchByAsResult(interval.start) { it.openInstant }
@@ -51,11 +47,7 @@ internal class ReplayCandleSource(
         count: Int,
     ): CandleSource.Result {
 
-        if (!replaySeries.isCompleted) {
-            replaySeries.complete(replaySeriesFactory())
-        }
-
-        val replaySeries = replaySeries.await()
+        val replaySeries = loadReplaySeries()
 
         val lastIndex = replaySeries
             .binarySearchByAsResult(before) { it.openInstant }
@@ -75,11 +67,7 @@ internal class ReplayCandleSource(
         count: Int,
     ): CandleSource.Result {
 
-        if (!replaySeries.isCompleted) {
-            replaySeries.complete(replaySeriesFactory())
-        }
-
-        val replaySeries = replaySeries.await()
+        val replaySeries = loadReplaySeries()
 
         val fromIndex = replaySeries.binarySearchByAsResult(after) { it.openInstant }.indexOrNaturalIndex
         val toIndex = (fromIndex + count + 1).coerceAtMost(replaySeries.size)
@@ -88,6 +76,15 @@ internal class ReplayCandleSource(
             candles = replaySeries.subList(fromIndex, toIndex),
             live = replaySeries.live.takeIf { toIndex == replaySeries.size },
         )
+    }
+
+    private suspend fun loadReplaySeries(): ReplaySeries {
+
+        if (!replaySeries.isCompleted) {
+            replaySeries.complete(replaySeriesFactory())
+        }
+
+        return replaySeries.await()
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
