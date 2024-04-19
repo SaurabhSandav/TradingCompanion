@@ -19,6 +19,13 @@ interface CandleCache {
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
 
+    suspend fun replace(
+        ticker: String,
+        timeframe: Timeframe,
+        interval: ClosedRange<Instant>,
+        new: List<Candle>,
+    )
+
     fun getCountInRange(
         ticker: String,
         timeframe: Timeframe,
@@ -55,18 +62,6 @@ interface CandleCache {
         count: Int,
         includeAt: Boolean,
     ): Flow<List<Candle>>
-
-    suspend fun save(
-        ticker: String,
-        timeframe: Timeframe,
-        candles: List<Candle>,
-    )
-
-    suspend fun delete(
-        ticker: String,
-        timeframe: Timeframe,
-        interval: ClosedRange<Instant>,
-    )
 
     data class CountRange(
         val beforeCount: Long,

@@ -141,14 +141,8 @@ internal class CandleRepository(
 
         downloadRanges.filterNot { range -> range.start > range.endInclusive }.forEach { range ->
             when (val result = download(ticker, timeframe, range)) {
-                is Ok -> {
-
-                    // Delete any previous candles in given range.
-                    candleCache.delete(ticker, timeframe, range)
-
-                    // Save candles
-                    candleCache.save(ticker, timeframe, result.value)
-                }
+                // Replace candles in given range.
+                is Ok -> candleCache.replace(ticker, timeframe, range, result.value)
                 is Err -> return when (val error = result.error) {
                     is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
                     is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))

@@ -57,6 +57,36 @@ internal class CandleCacheDB(
             .first()
     }
 
+    override suspend fun replace(
+        ticker: String,
+        timeframe: Timeframe,
+        interval: ClosedRange<Instant>,
+        new: List<Candle>,
+    ) = withContext(Dispatchers.IO) {
+
+        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+
+        candlesQueries.transaction {
+
+            candlesQueries.delete(
+                from = interval.start,
+                to = interval.endInclusive,
+            )
+
+            new.forEach { candle ->
+
+                candlesQueries.insert(
+                    epochSeconds = candle.openInstant.epochSeconds,
+                    open = candle.open.toPlainString(),
+                    high = candle.high.toPlainString(),
+                    low = candle.low.toPlainString(),
+                    close = candle.close.toPlainString(),
+                    volume = candle.volume.toLong(),
+                )
+            }
+        }
+    }
+
     override fun getCountInRange(
         ticker: String,
         timeframe: Timeframe,
@@ -192,41 +222,5 @@ internal class CandleCacheDB(
                 )
             }.asFlow().mapToList(Dispatchers.IO).emitInto(this)
         }
-    }
-
-    override suspend fun save(
-        ticker: String,
-        timeframe: Timeframe,
-        candles: List<Candle>,
-    ) = withContext(Dispatchers.IO) {
-
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
-
-        candlesQueries.transaction {
-            candles.forEach { candle ->
-                candlesQueries.insert(
-                    epochSeconds = candle.openInstant.epochSeconds,
-                    open = candle.open.toPlainString(),
-                    high = candle.high.toPlainString(),
-                    low = candle.low.toPlainString(),
-                    close = candle.close.toPlainString(),
-                    volume = candle.volume.toLong(),
-                )
-            }
-        }
-    }
-
-    override suspend fun delete(
-        ticker: String,
-        timeframe: Timeframe,
-        interval: ClosedRange<Instant>,
-    ) {
-
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
-
-        candlesQueries.delete(
-            from = interval.start,
-            to = interval.endInclusive,
-        )
     }
 }
