@@ -33,6 +33,36 @@ internal class CandleRepository(
         return Ok(candleCache.getCountInRange(ticker, timeframe, from, to))
     }
 
+    suspend fun getInstantBeforeByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        before: Instant,
+        count: Int,
+    ): Result<Flow<Instant?>, Error> {
+
+        // Download entire range / Fill gaps at ends of cached range (if necessary)
+        val fillResult = checkAndFillRangeByCount(ticker, timeframe, before, count, 0)
+        if (fillResult.isErr) return fillResult.asErr()
+
+        // Fetch and return candles
+        return Ok(candleCache.getInstantBeforeByCount(ticker, timeframe, before, count))
+    }
+
+    suspend fun getInstantAfterByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        after: Instant,
+        count: Int,
+    ): Result<Flow<Instant?>, Error> {
+
+        // Download entire range / Fill gaps at ends of cached range (if necessary)
+        val fillResult = checkAndFillRangeByCount(ticker, timeframe, after, 0, count)
+        if (fillResult.isErr) return fillResult.asErr()
+
+        // Fetch and return candles
+        return Ok(candleCache.getInstantAfterByCount(ticker, timeframe, after, count))
+    }
+
     /**
      * Get candles for [ticker] and [timeframe] in [from]..[to] interval.
      * Set [includeFromCandle] = true to include candle containing [from].

@@ -102,6 +102,44 @@ internal class CandleCacheDB(
             .emitInto(this)
     }
 
+    override fun getInstantBeforeByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        before: Instant,
+        count: Int,
+    ): Flow<Instant?> = flow {
+
+        candleQueriesCollection
+            .get(ticker, timeframe)
+            .getInstantBeforeByCount(
+                before = before.epochSeconds,
+                count = count.toLong(),
+                mapper = Instant.Companion::fromEpochSeconds,
+            )
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .emitInto(this)
+    }
+
+    override fun getInstantAfterByCount(
+        ticker: String,
+        timeframe: Timeframe,
+        after: Instant,
+        count: Int,
+    ): Flow<Instant?> = flow {
+
+        candleQueriesCollection
+            .get(ticker, timeframe)
+            .getInstantAfterByCount(
+                after = after.epochSeconds,
+                count = count.toLong(),
+                mapper = Instant.Companion::fromEpochSeconds,
+            )
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .emitInto(this)
+    }
+
     override fun fetchRange(
         ticker: String,
         timeframe: Timeframe,

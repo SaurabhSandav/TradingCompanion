@@ -24,6 +24,30 @@ class CandlesQueries(
         cursor.getLong(0)!!
     }
 
+    fun <T : Any> getInstantBeforeByCount(
+        before: Long,
+        count: Long,
+        mapper: (epochSeconds: Long) -> T,
+    ): Query<T> = GetInstantBeforeByCountQuery(
+        identifier = identifierSeries + Identifier_getInstantBeforeByCount,
+        before = before,
+        count = count,
+    ) { cursor ->
+        mapper(cursor.getLong(0)!!)
+    }
+
+    fun <T : Any> getInstantAfterByCount(
+        after: Long,
+        count: Long,
+        mapper: (epochSeconds: Long) -> T,
+    ): Query<T> = GetInstantAfterByCountQuery(
+        identifier = identifierSeries + Identifier_getInstantAfterByCount,
+        after = after,
+        count = count,
+    ) { cursor ->
+        mapper(cursor.getLong(0)!!)
+    }
+
     fun <T : Any> getInRange(
         from: Long,
         to: Long,
@@ -259,7 +283,83 @@ class CandlesQueries(
                 bindLong(1, to)
             }
 
-        override fun toString(): String = "Candles.sq:getInRange"
+        override fun toString(): String = "Candles.sq:getCountInRange"
+    }
+
+    private inner class GetInstantBeforeByCountQuery<out T : Any>(
+        val identifier: Int,
+        val before: Long,
+        val count: Long,
+        mapper: (SqlCursor) -> T,
+    ) : Query<T>(mapper) {
+
+        override fun addListener(listener: Listener) {
+            driver.addListener(tableName, listener = listener)
+        }
+
+        override fun removeListener(listener: Listener) {
+            driver.removeListener(tableName, listener = listener)
+        }
+
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
+            driver.executeQuery(
+                identifier = identifier,
+                sql = """
+                    |WITH candles AS (
+                    |  SELECT epochSeconds FROM $tableName
+                    |  WHERE epochSeconds < ?
+                    |  ORDER BY epochSeconds DESC
+                    |)
+                    |SELECT * FROM candles
+                    |LIMIT 1
+                    |OFFSET MIN(?, (SELECT count(*) FROM candles)) - 1
+                    """.trimMargin(),
+                mapper = mapper,
+                parameters = 2,
+            ) {
+                bindLong(0, before)
+                bindLong(1, count)
+            }
+
+        override fun toString(): String = "Candles.sq:getInstantBeforeByCount"
+    }
+
+    private inner class GetInstantAfterByCountQuery<out T : Any>(
+        val identifier: Int,
+        val after: Long,
+        val count: Long,
+        mapper: (SqlCursor) -> T,
+    ) : Query<T>(mapper) {
+
+        override fun addListener(listener: Listener) {
+            driver.addListener(tableName, listener = listener)
+        }
+
+        override fun removeListener(listener: Listener) {
+            driver.removeListener(tableName, listener = listener)
+        }
+
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
+            driver.executeQuery(
+                identifier = identifier,
+                sql = """
+                    |WITH candles AS (
+                    |  SELECT epochSeconds FROM $tableName
+                    |  WHERE epochSeconds > ?
+                    |  ORDER BY epochSeconds ASC
+                    |)
+                    |SELECT * FROM candles
+                    |LIMIT 1
+                    |OFFSET MIN(?, (SELECT count(*) FROM candles)) - 1
+                    """.trimMargin(),
+                mapper = mapper,
+                parameters = 2,
+            ) {
+                bindLong(0, after)
+                bindLong(1, count)
+            }
+
+        override fun toString(): String = "Candles.sq:getInstantAfterByCount"
     }
 
     private inner class GetInRangeQuery<out T : Any>(
@@ -461,6 +561,8 @@ class CandlesQueries(
         private const val Identifier_getEpochSecondsAndCountAt = 6
         private const val Identifier_getCountBefore = 7
         private const val Identifier_getCountAfter = 8
+        private const val Identifier_getInstantBeforeByCount = 9
+        private const val Identifier_getInstantAfterByCount = 10
     }
 }
 
