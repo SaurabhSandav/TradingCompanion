@@ -97,3 +97,8 @@ fun BinarySearchResult.indexOr(
     is BinarySearchResult.Found -> index
     is BinarySearchResult.NotFound -> block(naturalIndex)
 }
+
+fun BinarySearchResult.indexOrNull(): Int? = when (this) {
+    is BinarySearchResult.Found -> index
+    is BinarySearchResult.NotFound -> null
+}
