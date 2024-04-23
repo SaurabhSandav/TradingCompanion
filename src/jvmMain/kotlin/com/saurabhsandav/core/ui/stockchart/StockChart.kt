@@ -484,6 +484,9 @@ class StockChart(
         // No candles loaded, nothing to do
         if (candleSeries.isEmpty()) return
 
+        // Temporarily disable anchoring visible range to latest candles
+        actualChart.timeScale.applyOptions(TimeScaleOptions(shiftVisibleRangeOnNewBar = false))
+
         val candleRange = when (interval) {
 
             // If range is not provided, go to the latest candles
@@ -534,6 +537,7 @@ class StockChart(
         }
 
         actualChart.timeScale.setVisibleLogicalRange(from = from, to = to)
+        actualChart.timeScale.applyOptions(TimeScaleOptions(shiftVisibleRangeOnNewBar = true))
     }
 
     private fun generateSessionStartInstants(candleSeries: CandleSeries): Flow<List<Instant>> {
