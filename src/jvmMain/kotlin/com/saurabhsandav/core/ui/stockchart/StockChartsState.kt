@@ -301,7 +301,7 @@ class StockChartsState(
     private fun onCandlesLoaded(params: StockChartParams) {
         charts
             .filter { stockChart -> stockChart.params == params }
-            .forEach { stockChart -> stockChart.setData() }
+            .forEach { stockChart -> stockChart.setDataToChart() }
     }
 
     private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {

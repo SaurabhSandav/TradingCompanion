@@ -28,11 +28,8 @@ import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.core.utils.BinarySearchResult.NotFound
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.time.Duration.Companion.milliseconds
@@ -73,6 +70,8 @@ class StockChart(
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<Plotter<*>>()
     val markersAreEnabled = prefs.getBooleanFlow(PrefMarkersEnabled, false)
+
+    private var initialized = CompletableDeferred<Unit>()
 
     init {
 
@@ -120,6 +119,9 @@ class StockChart(
 
     fun setData(data: StockChartData) {
 
+        if (!initialized.isCompleted) initialized.cancel()
+        initialized = CompletableDeferred()
+
         val prevParams = params
 
         // Update chart params
@@ -137,8 +139,8 @@ class StockChart(
 
         dataCoroutineScope.launch {
 
-            // Wait for first load
-            data.loadState.first { loadState -> loadState == LoadState.Loaded }
+            // Await first load
+            data.candleSeries.modifications.first()
 
             val candleSeries = data.candleSeries
 
@@ -162,7 +164,7 @@ class StockChart(
             } ?: (candleSeries.size - 90F)..(candleSeries.size + 10F)
 
             // Set initial data
-            setData()
+            setDataToChart()
 
             // Set visible range
             actualChart.timeScale.setVisibleLogicalRange(
@@ -213,6 +215,9 @@ class StockChart(
             candleSeries.live.onEach { (i, candle) -> update(i, candle) }.launchIn(dataCoroutineScope)
 
             setupMarkers()
+
+            // Signal initialization completion
+            initialized.complete(Unit)
         }
     }
 
@@ -249,7 +254,7 @@ class StockChart(
         plotters.clear()
     }
 
-    internal fun setData() {
+    internal fun setDataToChart() {
 
         val indicators = indicators ?: return
         val candleSeries = indicators.candleSeries
@@ -471,10 +476,10 @@ class StockChart(
 
     private suspend fun navigateToInterval(interval: ClosedRange<Instant>?) {
 
-        // Wait for any loading to finish
-        data.loadState.first { loadState -> loadState == LoadState.Loaded }
-
         val candleSeries = data.candleSeries
+
+        // Wait for any loading to finish
+        initialized.await()
 
         // No candles loaded, nothing to do
         if (candleSeries.isEmpty()) return
