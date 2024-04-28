@@ -9,20 +9,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import app.cash.paging.PagingData
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradesList
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradesScreen(
     profileId: ProfileId,
-    tradesList: TradesList,
+    tradeEntries: Flow<PagingData<TradeEntry>>,
+    isFocusModeEnabled: Boolean,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
@@ -62,7 +65,8 @@ internal fun TradesScreen(
         ) {
 
             TradesTable(
-                tradesList = tradesList,
+                tradeEntries = tradeEntries,
+                isFocusModeEnabled = isFocusModeEnabled,
                 onOpenDetails = onOpenDetails,
                 onOpenChart = onOpenChart,
                 onSetFocusModeEnabled = { isEnabled ->

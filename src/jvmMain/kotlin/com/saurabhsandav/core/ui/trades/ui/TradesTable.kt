@@ -3,181 +3,179 @@ package com.saurabhsandav.core.ui.trades.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.cash.paging.PagingData
+import app.cash.paging.compose.collectAsLazyPagingItems
+import app.cash.paging.compose.itemContentType
+import app.cash.paging.compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.trades.model.TradesState.*
+import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Section
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradesTable(
-    tradesList: TradesList,
+    tradeEntries: Flow<PagingData<TradeEntry>>,
+    isFocusModeEnabled: Boolean,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onFilter: () -> Unit,
 ) {
 
+    val items = tradeEntries.collectAsLazyPagingItems()
+
     LazyTable(
         headerContent = {
 
-            TradeTableSchema.SimpleHeader {
-                id.text { "ID" }
-                broker.text { "Broker" }
-                ticker.text { "Ticker" }
-                side.text { "Side" }
-                quantity.text { "Quantity" }
-                avgEntry.text { "Avg. Entry" }
-                avgExit.text { "Avg. Exit" }
-                entryTime.text { "Entry Time" }
-                duration.text { "Duration" }
-                pnl.text { "PNL" }
-                netPnl.text { "Net PNL" }
-                fees.text { "Fees" }
-            }
-
-            Row(
-                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-                horizontalArrangement = Arrangement.spacedBy(
-                    space = MaterialTheme.dimens.rowHorizontalSpacing,
-                    alignment = Alignment.CenterHorizontally,
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                SingleChoiceSegmentedButtonRow {
-
-                    val isFocusMode = tradesList is TradesList.Focused
-
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                        onClick = { onSetFocusModeEnabled(false) },
-                        selected = !isFocusMode,
-                        label = { Text("All") },
-                    )
-
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                        onClick = { onSetFocusModeEnabled(true) },
-                        selected = isFocusMode,
-                        label = { Text("Focus") },
-                    )
-                }
-
-                Spacer(Modifier.weight(1F))
-
-                OutlinedButton(
-                    onClick = onFilter,
-                    shape = MaterialTheme.shapes.small,
-                    content = { Text("Filter") },
-                )
-            }
-
-            HorizontalDivider()
+            Header(
+                isFocusModeEnabled = isFocusModeEnabled,
+                onSetFocusModeEnabled = onSetFocusModeEnabled,
+                onFilter = onFilter,
+            )
         },
     ) {
 
-        when (tradesList) {
-            is TradesList.All -> {
-
-                tradeRows(
-                    trades = tradesList.trades,
-                    title = if (tradesList.isFiltered) "Filtered" else "All",
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
-                )
-            }
-
-            is TradesList.Focused -> {
-
-                tradeRows(
-                    trades = tradesList.openTrades,
-                    title = "Open",
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
-                )
-
-                tradeRows(
-                    trades = tradesList.todayTrades,
-                    title = "Today",
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
-                    stats = tradesList.todayStats,
-                )
-
-                tradeRows(
-                    trades = tradesList.pastTrades,
-                    title = "Past",
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
-                )
-            }
-        }
-    }
-}
-
-private fun LazyListScope.tradeRows(
-    trades: List<TradeEntry>,
-    title: String,
-    onOpenDetails: (TradeId) -> Unit,
-    onOpenChart: (TradeId) -> Unit,
-    stats: Stats? = null,
-) {
-
-    if (trades.isNotEmpty()) {
-
-        item(
-            contentType = ContentType.Header,
-        ) {
-
-            ListItem(
-                modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
-                headlineContent = {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineLarge,
-                    )
-                },
-                supportingContent = {
-                    Text(
-                        text = "${trades.size} Trades",
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                },
-                trailingContent = stats?.let { { StatsHeaderItem(it) } },
-            )
-
-            HorizontalDivider()
-        }
-
         items(
-            items = trades,
-            key = { entry -> entry.id },
-            contentType = { ContentType.Entry },
-        ) { entry ->
+            count = items.itemCount,
+            key = items.itemKey { entry ->
 
-            TradeEntry(
-                entry = entry,
-                onOpenDetails = { onOpenDetails(entry.id) },
-                onOpenChart = { onOpenChart(entry.id) },
-            )
+                when (entry) {
+                    is Section -> "Section_${entry.type}"
+                    is Item -> entry.id
+                }
+            },
+            contentType = items.itemContentType { entry -> entry.javaClass },
+        ) { index ->
+
+            when (val entry = items[index]!!) {
+                is Section -> Section(entry)
+                is Item -> TradeItem(
+                    item = entry,
+                    onOpenDetails = { onOpenDetails(entry.id) },
+                    onOpenChart = { onOpenChart(entry.id) },
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun TradeEntry(
-    entry: TradeEntry,
+private fun ColumnScope.Header(
+    isFocusModeEnabled: Boolean,
+    onSetFocusModeEnabled: (Boolean) -> Unit,
+    onFilter: () -> Unit,
+) {
+
+    TradeTableSchema.SimpleHeader {
+        id.text { "ID" }
+        broker.text { "Broker" }
+        ticker.text { "Ticker" }
+        side.text { "Side" }
+        quantity.text { "Quantity" }
+        avgEntry.text { "Avg. Entry" }
+        avgExit.text { "Avg. Exit" }
+        entryTime.text { "Entry Time" }
+        duration.text { "Duration" }
+        pnl.text { "PNL" }
+        netPnl.text { "Net PNL" }
+        fees.text { "Fees" }
+    }
+
+    Row(
+        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.rowHorizontalSpacing,
+            alignment = Alignment.CenterHorizontally,
+        ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        SingleChoiceSegmentedButtonRow {
+
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                onClick = { onSetFocusModeEnabled(false) },
+                selected = !isFocusModeEnabled,
+                label = { Text("All") },
+            )
+
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                onClick = { onSetFocusModeEnabled(true) },
+                selected = isFocusModeEnabled,
+                label = { Text("Focus") },
+            )
+        }
+
+        Spacer(Modifier.weight(1F))
+
+        OutlinedButton(
+            onClick = onFilter,
+            shape = MaterialTheme.shapes.small,
+            content = { Text("Filter") },
+        )
+    }
+
+    HorizontalDivider()
+}
+
+@Composable
+private fun Section(
+    section: Section,
+) {
+
+    ListItem(
+        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
+        headlineContent = {
+            Text(
+                text = when (section.type) {
+                    Section.Type.Open -> "Open"
+                    Section.Type.Today -> "Today"
+                    Section.Type.Past -> "Past"
+                    Section.Type.All -> "All"
+                    Section.Type.Filtered -> "Filtered"
+                },
+                style = MaterialTheme.typography.headlineLarge,
+            )
+        },
+        supportingContent = {
+
+            val count by section.count.collectAsState("")
+
+            Text(
+                text = "$count Trades",
+                style = MaterialTheme.typography.labelLarge,
+            )
+        },
+        trailingContent = section.stats?.let {
+            {
+                val stats = it.collectAsState(null).value
+
+                if (stats != null) StatsStrip(stats)
+            }
+        },
+    )
+
+    HorizontalDivider()
+}
+
+@Composable
+private fun TradeItem(
+    item: Item,
     onOpenDetails: () -> Unit,
     onOpenChart: () -> Unit,
 ) {
@@ -196,30 +194,30 @@ private fun TradeEntry(
             TradeTableSchema.SimpleRow(
                 onClick = onOpenDetails,
             ) {
-                id.text { entry.id.toString() }
-                broker.text { entry.broker }
-                ticker.text { entry.ticker }
+                id.text { item.id.toString() }
+                broker.text { item.broker }
+                ticker.text { item.ticker }
                 side {
-                    Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                quantity.text { entry.quantity }
-                avgEntry.text { entry.entry }
-                avgExit.text { entry.exit ?: "NA" }
-                entryTime.text { entry.entryTime }
+                quantity.text { item.quantity }
+                avgEntry.text { item.entry }
+                avgExit.text { item.exit ?: "NA" }
+                entryTime.text { item.entryTime }
                 duration {
 
                     Text(
-                        text = entry.duration.collectAsState("").value,
+                        text = item.duration.collectAsState("").value,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 pnl {
-                    Text(entry.pnl, color = if (entry.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 netPnl {
-                    Text(entry.netPnl, color = if (entry.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                fees.text { entry.fees }
+                fees.text { item.fees }
             }
 
             HorizontalDivider()
@@ -228,7 +226,7 @@ private fun TradeEntry(
 }
 
 @Composable
-private fun StatsHeaderItem(stats: Stats) {
+private fun StatsStrip(stats: Stats) {
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(32.dp),
@@ -268,10 +266,6 @@ private fun StatsHeaderItem(stats: Stats) {
             )
         }
     }
-}
-
-private enum class ContentType {
-    Header, Entry;
 }
 
 private object TradeTableSchema : TableSchema() {

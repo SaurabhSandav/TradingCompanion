@@ -1,11 +1,9 @@
 package com.saurabhsandav.core.ui.trades
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import app.cash.paging.*
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
@@ -18,7 +16,9 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
-import com.saurabhsandav.core.ui.trades.model.TradesState.*
+import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -39,14 +39,15 @@ internal class TradesPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val isFocusModeEnabled = MutableStateFlow(true)
-    private val tradeFilter = MutableStateFlow(TradeFilter())
+    private var isFocusModeEnabled by mutableStateOf(true)
+    private var tradeFilter by mutableStateOf(TradeFilter())
     private val errors = mutableStateListOf<UIErrorMessage>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradesState(
-            tradesList = getTradesList(),
+            tradeEntries = getTradeEntries(),
+            isFocusModeEnabled = isFocusModeEnabled,
             errors = errors,
             eventSink = ::onEvent,
         )
@@ -63,82 +64,106 @@ internal class TradesPresenter(
     }
 
     @Composable
-    private fun getTradesList(): TradesList {
-
-        val initial = remember {
-            TradesList.Focused(
-                openTrades = emptyList(),
-                todayTrades = emptyList(),
-                todayStats = null,
-                pastTrades = emptyList()
-            )
-        }
-
-        return produceState<TradesList>(initial) {
+    private fun getTradeEntries(): Flow<PagingData<TradeEntry>> = remember {
+        flow {
 
             val tradesRepo = tradingProfiles.getRecord(profileId).trades
+            val pagingConfig = PagingConfig(
+                pageSize = 70,
+                enablePlaceholders = false,
+                maxSize = 300,
+            )
 
-            fun List<Trade>.toTradeListEntries(): List<TradeEntry> {
-                return map { it.toTradeListEntry() }
-            }
+            snapshotFlow { isFocusModeEnabled to tradeFilter }.flatMapLatest { (isFocusModeEnabled, tradeFilter) ->
 
-            val defaultFilter = TradeFilter()
+                Pager(
+                    config = pagingConfig,
+                    pagingSourceFactory = {
 
-            isFocusModeEnabled.flatMapLatest { focusMode ->
-
-                fun List<Trade>.subListOrEmpty(from: Int = 0, to: Int = size): List<Trade> {
-                    val fromC = from.coerceAtLeast(0)
-                    val toC = to.coerceAtMost(size)
-                    return if (toC <= fromC) emptyList() else subList(fromC, toC)
-                }
-
-                if (focusMode) {
-
-                    tradesRepo
-                        .getFiltered(
-                            filter = TradeFilter(),
-                            sort = TradeSort.OpenDescEntryDesc,
+                        tradesRepo.getFilteredPagingSource(
+                            filter = tradeFilter,
+                            sort = if (isFocusModeEnabled) TradeSort.OpenDescEntryDesc else TradeSort.EntryDesc,
                         )
-                        .flatMapLatest { trades ->
+                    },
+                ).flow.map { pagingData ->
 
-                            val firstClosedTradeIndex = trades.indexOfFirst { it.isClosed }
+                    val tz = TimeZone.currentSystemDefault()
+                    val nowDate = Clock.System.now().toLocalDateTime(tz).date
+                    val startOfToday = nowDate.atStartOfDayIn(tz)
 
-                            val firstNotTodayTradeIndex = trades.subListOrEmpty(from = firstClosedTradeIndex).run {
-                                val tz = TimeZone.currentSystemDefault()
-                                val startOfToday = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz)
-                                firstClosedTradeIndex + indexOfFirst { it.entryTimestamp < startOfToday }
+                    @Suppress("UNCHECKED_CAST")
+                    pagingData.insertSeparators { before, after ->
+
+                        when {
+
+                            // If before is the last trade
+                            after == null -> null
+
+                            // If focus mode is not enabled
+                            !isFocusModeEnabled -> when {
+                                before == null -> {
+
+                                    TradeEntry.Section(
+                                        type = when (tradeFilter) {
+                                            TradeFilter() -> TradeEntry.Section.Type.All
+                                            else -> TradeEntry.Section.Type.Filtered
+                                        },
+                                        count = tradesRepo.getFilteredCount(tradeFilter)
+                                    )
+                                }
+
+                                else -> null
                             }
 
-                            val todayTrades = trades.subListOrEmpty(firstClosedTradeIndex, firstNotTodayTradeIndex)
+                            // If first trade is open
+                            before == null && !after.isClosed -> TradeEntry.Section(
+                                type = TradeEntry.Section.Type.Open,
+                                count = tradesRepo.getFilteredCount(TradeFilter(isClosed = false))
+                            )
 
-                            todayTrades.generateStats(tradesRepo).map { todayStats ->
+                            // If either after is first trade or before is open
+                            // And after is from today
+                            (before == null || !before.isClosed) && after.isClosed && after.entryTimestamp >= startOfToday -> {
 
-                                TradesList.Focused(
-                                    openTrades = trades.subListOrEmpty(to = firstClosedTradeIndex).toTradeListEntries(),
-                                    todayTrades = todayTrades.toTradeListEntries(),
-                                    todayStats = todayStats,
-                                    pastTrades = trades.subListOrEmpty(from = firstNotTodayTradeIndex)
-                                        .toTradeListEntries(),
+                                val filter = TradeFilter(instantFrom = startOfToday)
+
+                                TradeEntry.Section(
+                                    type = TradeEntry.Section.Type.Today,
+                                    count = tradesRepo.getFilteredCount(filter),
+                                    stats = tradesRepo.getFiltered(filter)
+                                        .flatMapLatest { it.generateStats(tradesRepo) }
                                 )
                             }
-                        }
-                } else {
-                    tradeFilter.flatMapLatest { filter -> tradesRepo.getFiltered(filter = filter) }
-                        .map { trades ->
-                            TradesList.All(
-                                trades = trades.toTradeListEntries(),
-                                isFiltered = tradeFilter.value != defaultFilter,
-                            )
-                        }
-                }
 
-            }.collect { value = it }
-        }.value
+                            // If either after is first execution or before is from today
+                            // And after is from before today
+                            (before == null || !before.isClosed || before.entryTimestamp >= startOfToday)
+                                    && after.isClosed && after.entryTimestamp < startOfToday -> {
+
+                                val filter = TradeFilter(instantTo = startOfToday)
+
+                                TradeEntry.Section(
+                                    type = TradeEntry.Section.Type.Past,
+                                    count = tradesRepo.getFilteredCount(filter),
+                                )
+                            }
+
+                            else -> null
+                        }
+                    }.map { tradeOrEntry ->
+                        when (tradeOrEntry) {
+                            is Trade -> tradeOrEntry.toTradeEntryItem()
+                            else -> tradeOrEntry
+                        }
+                    } as PagingData<TradeEntry>
+                }
+            }.emitInto(this)
+        }
     }
 
-    private fun List<Trade>.generateStats(tradesRepo: TradesRepo): Flow<Stats?> {
+    private fun List<Trade>.generateStats(tradesRepo: TradesRepo): Flow<Stats> {
 
-        val closedTrades = filter { it.isClosed }.ifEmpty { return flowOf(null) }
+        val closedTrades = filter { it.isClosed }.ifEmpty { error("generateStats: No trades") }
         val closedTradesIds = closedTrades.map { it.id }
 
         return tradesRepo.getPrimaryStops(closedTradesIds).map { tradeStops ->
@@ -170,7 +195,7 @@ internal class TradesPresenter(
         }
     }
 
-    private fun Trade.toTradeListEntry(): TradeEntry {
+    private fun Trade.toTradeEntryItem(): TradeEntry.Item {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -196,7 +221,7 @@ internal class TradesPresenter(
             }
         }
 
-        return TradeEntry(
+        return TradeEntry.Item(
             id = id,
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
@@ -230,12 +255,12 @@ internal class TradesPresenter(
     }
 
     private fun onSetFocusModeEnabled(isEnabled: Boolean) {
-        isFocusModeEnabled.value = isEnabled
-        if (isEnabled) tradeFilter.value = TradeFilter()
+        isFocusModeEnabled = isEnabled
+        if (isEnabled) tradeFilter = TradeFilter()
     }
 
     private fun onApplyFilter(newTradeFilter: TradeFilter) {
-        isFocusModeEnabled.value = false
-        tradeFilter.value = newTradeFilter
+        isFocusModeEnabled = false
+        tradeFilter = newTradeFilter
     }
 }

@@ -1,9 +1,11 @@
 package com.saurabhsandav.core.trades
 
+import app.cash.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.saurabhsandav.core.paging_sqldelight.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +54,42 @@ internal class TradesRepo(
         return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
+    fun getFilteredCount(filter: TradeFilter): Flow<Long> {
+
+        fun Boolean.toLong() = if (this) 1L else 0L
+
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
+        fun LocalTime.simpleString(): String {
+            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
+            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
+            return formatter.format(offsetTime.toJavaLocalTime())
+        }
+
+        val query = tradesDB.tradeQueries.getFilteredCount(
+            isClosed = filter.isClosed,
+            side = filter.side,
+            from = filter.instantFrom?.toString(),
+            to = filter.instantTo?.toString(),
+            timeFrom = filter.timeFrom?.simpleString(),
+            timeTo = filter.timeTo?.simpleString(),
+            pnlFrom = filter.pnlFrom?.toDouble(),
+            pnlTo = filter.pnlTo?.toDouble(),
+            filterByNetPnl = filter.filterByNetPnl.toLong(),
+            hasNotes = filter.hasNotes?.toLong(),
+            tags = filter.tags,
+            tagsCount = when {
+                filter.tags.isEmpty() -> null
+                filter.matchAllTags -> filter.tags.size.toLong()
+                else -> -1
+            },
+            tickers = filter.tickers,
+            tickersCount = filter.tickers.size.toLong(),
+        )
+
+        return query.asFlow().mapToOne(Dispatchers.IO)
+    }
+
     fun getFiltered(
         filter: TradeFilter,
         sort: TradeSort = TradeSort.EntryDesc,
@@ -90,6 +128,73 @@ internal class TradesRepo(
         )
 
         return query.asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getFilteredPagingSource(
+        filter: TradeFilter,
+        sort: TradeSort = TradeSort.EntryDesc,
+    ): PagingSource<Int, Trade> {
+
+        fun Boolean.toLong() = if (this) 1L else 0L
+
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
+        fun LocalTime.simpleString(): String {
+            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
+            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
+            return formatter.format(offsetTime.toJavaLocalTime())
+        }
+
+        return QueryPagingSource(
+            countQuery = tradesDB.tradeQueries.getFilteredCount(
+                isClosed = filter.isClosed,
+                side = filter.side,
+                from = filter.instantFrom?.toString(),
+                to = filter.instantTo?.toString(),
+                timeFrom = filter.timeFrom?.simpleString(),
+                timeTo = filter.timeTo?.simpleString(),
+                pnlFrom = filter.pnlFrom?.toDouble(),
+                pnlTo = filter.pnlTo?.toDouble(),
+                filterByNetPnl = filter.filterByNetPnl.toLong(),
+                hasNotes = filter.hasNotes?.toLong(),
+                tags = filter.tags,
+                tagsCount = when {
+                    filter.tags.isEmpty() -> null
+                    filter.matchAllTags -> filter.tags.size.toLong()
+                    else -> -1
+                },
+                tickers = filter.tickers,
+                tickersCount = filter.tickers.size.toLong(),
+            ),
+            transacter = tradesDB.tradeQueries,
+            context = Dispatchers.IO,
+            queryProvider = { limit, offset ->
+
+                tradesDB.tradeQueries.getFilteredPaged(
+                    isClosed = filter.isClosed,
+                    side = filter.side,
+                    from = filter.instantFrom?.toString(),
+                    to = filter.instantTo?.toString(),
+                    timeFrom = filter.timeFrom?.simpleString(),
+                    timeTo = filter.timeTo?.simpleString(),
+                    pnlFrom = filter.pnlFrom?.toDouble(),
+                    pnlTo = filter.pnlTo?.toDouble(),
+                    filterByNetPnl = filter.filterByNetPnl.toLong(),
+                    hasNotes = filter.hasNotes?.toLong(),
+                    tags = filter.tags,
+                    tagsCount = when {
+                        filter.tags.isEmpty() -> null
+                        filter.matchAllTags -> filter.tags.size.toLong()
+                        else -> -1
+                    },
+                    tickers = filter.tickers,
+                    tickersCount = filter.tickers.size.toLong(),
+                    sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
+                    limit = limit,
+                    offset = offset,
+                )
+            },
+        )
     }
 
     fun getByTickerInInterval(

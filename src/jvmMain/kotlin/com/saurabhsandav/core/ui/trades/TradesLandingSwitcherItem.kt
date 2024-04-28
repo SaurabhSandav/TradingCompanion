@@ -19,7 +19,8 @@ internal class TradesLandingSwitcherItem(
 
         TradesScreen(
             profileId = tradesModule.profileId,
-            tradesList = state.tradesList,
+            tradeEntries = state.tradeEntries,
+            isFocusModeEnabled = state.isFocusModeEnabled,
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
             onOpenChart = { state.eventSink(OpenChart(it)) },
             onSetFocusModeEnabled = { state.eventSink(SetFocusModeEnabled(it)) },
