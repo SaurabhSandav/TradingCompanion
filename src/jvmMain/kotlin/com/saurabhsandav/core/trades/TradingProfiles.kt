@@ -9,7 +9,6 @@ import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -54,7 +53,7 @@ internal class TradingProfiles(
             appDB.tradingProfileQueries.insert(
                 name = name,
                 description = description,
-                path = path ?: UUID.randomUUID().toString(),
+                path = path ?: generateProfilePath(),
                 isTraining = isTraining,
             )
 
@@ -94,11 +93,29 @@ internal class TradingProfiles(
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
 
         // Create new entry in DB
-        val newProfile = newProfile(
-            name = name(profile.name),
-            description = profile.description,
-            isTraining = profile.isTraining,
-        ).first()
+        val newProfile = appDB.transactionWithResult {
+
+            // Insert into DB
+            appDB.tradingProfileQueries.insert(
+                name = name(profile.name),
+                description = profile.description,
+                path = generateProfilePath(),
+                isTraining = profile.isTraining,
+            )
+
+            // Get id of last inserted row
+            val newProfileId = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
+
+            // Set counts
+            appDB.tradingProfileQueries.setTradeCounts(
+                id = newProfileId,
+                tradeCount = profile.tradeCount,
+                tradeCountOpen = profile.tradeCountOpen,
+            )
+
+            // Return copied TradingProfile
+            appDB.tradingProfileQueries.get(newProfileId).executeAsOne()
+        }
 
         // Copy associated files
         profile.filesPath.toFile().copyRecursively(newProfile.filesPath.toFile())
@@ -154,6 +171,8 @@ internal class TradingProfiles(
             }
         }
     }
+
+    private fun generateProfilePath(): String = UUID.randomUUID().toString()
 
     private val TradingProfile.filesPath: Path
         get() = Path("$appFilesPath/Records/$path")
