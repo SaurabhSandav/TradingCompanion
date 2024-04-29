@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
+import app.cash.paging.PagingData
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
@@ -29,6 +30,7 @@ import com.saurabhsandav.core.ui.tradereview.ui.MainTabRow
 import com.saurabhsandav.core.ui.tradereview.ui.TradesTableSwitcher
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradeReviewWindow(
@@ -75,7 +77,7 @@ internal fun TradeReviewScreen(
     selectedProfileId: ProfileId?,
     selectedProfileName: String?,
     onProfileSelected: (ProfileId?) -> Unit,
-    trades: List<TradeItem>,
+    trades: Flow<PagingData<TradeItem>>,
     markedTrades: List<MarkedTradeItem>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,

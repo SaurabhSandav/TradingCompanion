@@ -3,11 +3,13 @@ package com.saurabhsandav.core.ui.tradereview
 import androidx.compose.runtime.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import app.cash.paging.*
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
+import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -17,11 +19,9 @@ import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeItem
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeItem
-import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.format
-import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.core.utils.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -51,7 +51,7 @@ internal class TradeReviewPresenter(
         return@launchMolecule TradeReviewState(
             selectedProfileId = selectedProfileId.collectAsState().value,
             selectedProfileName = getSelectedProfileName(),
-            trades = getTrades().value,
+            trades = getTrades(),
             markedTrades = getMarkedTrades().value,
             eventSink = ::onEvent,
         )
@@ -95,38 +95,59 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getTrades(): State<List<TradeItem>> {
-        return remember {
+    private fun getTrades(): Flow<PagingData<TradeItem>> = remember {
+        flow {
+            coroutineScope {
 
-            selectedProfileId
-                .flatMapLatest { id ->
-                    if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null)
-                }
-                .flatMapLatest { profile ->
+                val pagingConfig = PagingConfig(
+                    pageSize = 70,
+                    enablePlaceholders = false,
+                    maxSize = 300,
+                )
 
-                    if (profile == null) return@flatMapLatest flowOf(emptyList())
+                selectedProfileId
+                    .flatMapLatest { id ->
+                        if (id != null) tradingProfiles.getProfileOrNull(id) else flowOf(null)
+                    }
+                    .flatMapLatest { profile ->
 
-                    val tradesRepo = tradingProfiles.getRecord(profile.id).trades
+                        if (profile == null) return@flatMapLatest flowOf(PagingData.empty<TradeItem>())
 
-                    tradeFilter
-                        .flatMapLatest(tradesRepo::getFiltered)
-                        .combine(snapshotFlow { markedTradeIds.toList() }) { trades, markedProfileTradeIds ->
-                            trades
-                                .map {
+                        val tradesRepo = tradingProfiles.getRecord(profile.id).trades
 
-                                    val profileTradeId = ProfileTradeId(
-                                        profileId = profile.id,
-                                        tradeId = it.id,
+                        tradeFilter.flatMapLatest { tradeFilter ->
+
+                            Pager(
+                                config = pagingConfig,
+                                pagingSourceFactory = {
+
+                                    tradesRepo.getFilteredPagingSource(
+                                        filter = tradeFilter,
+                                        sort = TradeSort.EntryDesc,
                                     )
+                                },
+                            ).flow
+                                .cachedIn(this)
+                                .combine(snapshotFlow { markedTradeIds.toList() }) { pagingData, markedProfileTradeIds ->
 
-                                    it.toTradeItem(
-                                        profileTradeId = profileTradeId,
-                                        isMarked = profileTradeId in markedProfileTradeIds,
-                                    )
+                                    pagingData.map { trade ->
+
+                                        val profileTradeId = ProfileTradeId(
+                                            profileId = profile.id,
+                                            tradeId = trade.id,
+                                        )
+
+                                        trade.toTradeItem(
+                                            profileTradeId = profileTradeId,
+                                            isMarked = profileTradeId in markedProfileTradeIds,
+                                        )
+                                    }
                                 }
                         }
-                }
-        }.collectAsState(emptyList())
+
+                    }.emitInto(this@flow)
+            }
+        }
     }
 
     private fun Trade.toTradeItem(

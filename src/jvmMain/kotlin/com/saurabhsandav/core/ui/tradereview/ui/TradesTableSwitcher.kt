@@ -3,13 +3,15 @@ package com.saurabhsandav.core.ui.tradereview.ui
 import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import app.cash.paging.PagingData
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun TradesTableSwitcher(
     selectedTab: Tab,
-    trades: List<TradeItem>,
+    trades: Flow<PagingData<TradeItem>>,
     markedTrades: List<MarkedTradeItem>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,

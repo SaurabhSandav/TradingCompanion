@@ -5,13 +5,15 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.cash.paging.PagingData
+import app.cash.paging.compose.collectAsLazyPagingItems
+import app.cash.paging.compose.itemKey
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
@@ -19,16 +21,19 @@ import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeItem
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun ProfileTradesTable(
-    trades: List<TradeItem>,
+    trades: Flow<PagingData<TradeItem>>,
     onMarkTrade: (ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (ProfileTradeId) -> Unit,
     onOpenDetails: (ProfileTradeId) -> Unit,
     isFilterEnabled: Boolean,
     onFilter: () -> Unit,
 ) {
+
+    val items = trades.collectAsLazyPagingItems()
 
     LazyTable(
         headerContent = {
@@ -61,9 +66,11 @@ internal fun ProfileTradesTable(
     ) {
 
         items(
-            items = trades,
-            key = { it.profileTradeId },
-        ) { item ->
+            count = items.itemCount,
+            key = items.itemKey { item -> item.profileTradeId },
+        ) { index ->
+
+            val item = items[index]!!
 
             TradeItem(
                 item = item,
