@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.trades.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trades.model.TradesState.*
 
@@ -26,87 +28,67 @@ internal fun TradesTable(
     onFilter: () -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeEntry> {
-        addColumnText("ID", width = Fixed(48.dp)) { it.id.toString() }
-        addColumnText("Broker", width = Weight(2F)) { it.broker }
-        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
-        addColumn("Side") {
-            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Quantity") { it.quantity }
-        addColumnText("Avg. Entry") { it.entry }
-        addColumnText("Avg. Exit") { it.exit ?: "NA" }
-        addColumnText("Entry Time", width = Weight(2.2F)) { it.entryTime }
-        addColumn("Duration", width = Weight(1.5F)) {
-
-            Text(
-                text = it.duration.collectAsState("").value,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        addColumn("PNL") {
-            Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumn("Net PNL") {
-            Text(it.netPnl, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Fees") { it.fees }
-    }
-
     LazyTable(
-        schema = schema,
         headerContent = {
 
-            Column {
+            TradeTableSchema.SimpleHeader {
+                id.text { "ID" }
+                broker.text { "Broker" }
+                ticker.text { "Ticker" }
+                side.text { "Side" }
+                quantity.text { "Quantity" }
+                avgEntry.text { "Avg. Entry" }
+                avgExit.text { "Avg. Exit" }
+                entryTime.text { "Entry Time" }
+                duration.text { "Duration" }
+                pnl.text { "PNL" }
+                netPnl.text { "Net PNL" }
+                fees.text { "Fees" }
+            }
 
-                DefaultTableHeader(schema)
+            Row(
+                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = MaterialTheme.dimens.rowHorizontalSpacing,
+                    alignment = Alignment.CenterHorizontally,
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
 
-                HorizontalDivider()
+                SingleChoiceSegmentedButtonRow {
 
-                Row(
-                    modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        space = MaterialTheme.dimens.rowHorizontalSpacing,
-                        alignment = Alignment.CenterHorizontally,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                    val isFocusMode = tradesList is TradesList.Focused
 
-                    SingleChoiceSegmentedButtonRow {
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        onClick = { onSetFocusModeEnabled(false) },
+                        selected = !isFocusMode,
+                        label = { Text("All") },
+                    )
 
-                        val isFocusMode = tradesList is TradesList.Focused
-
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                            onClick = { onSetFocusModeEnabled(false) },
-                            selected = !isFocusMode,
-                            label = { Text("All") },
-                        )
-
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                            onClick = { onSetFocusModeEnabled(true) },
-                            selected = isFocusMode,
-                            label = { Text("Focus") },
-                        )
-                    }
-
-                    Spacer(Modifier.weight(1F))
-
-                    OutlinedButton(
-                        onClick = onFilter,
-                        shape = MaterialTheme.shapes.small,
-                        content = { Text("Filter") },
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        onClick = { onSetFocusModeEnabled(true) },
+                        selected = isFocusMode,
+                        label = { Text("Focus") },
                     )
                 }
 
-                HorizontalDivider()
+                Spacer(Modifier.weight(1F))
+
+                OutlinedButton(
+                    onClick = onFilter,
+                    shape = MaterialTheme.shapes.small,
+                    content = { Text("Filter") },
+                )
             }
+
+            HorizontalDivider()
         },
     ) {
 
         when (tradesList) {
-            is TradesList.All ->
+            is TradesList.All -> {
 
                 tradeRows(
                     trades = tradesList.trades,
@@ -114,6 +96,7 @@ internal fun TradesTable(
                     onOpenDetails = onOpenDetails,
                     onOpenChart = onOpenChart,
                 )
+            }
 
             is TradesList.Focused -> {
 
@@ -143,7 +126,7 @@ internal fun TradesTable(
     }
 }
 
-private fun TableScope<TradeEntry>.tradeRows(
+private fun LazyListScope.tradeRows(
     trades: List<TradeEntry>,
     title: String,
     onOpenDetails: (TradeId) -> Unit,
@@ -153,7 +136,7 @@ private fun TableScope<TradeEntry>.tradeRows(
 
     if (trades.isNotEmpty()) {
 
-        row(
+        item(
             contentType = ContentType.Header,
         ) {
 
@@ -177,14 +160,13 @@ private fun TableScope<TradeEntry>.tradeRows(
             HorizontalDivider()
         }
 
-        rows(
+        items(
             items = trades,
             key = { entry -> entry.id },
             contentType = { ContentType.Entry },
         ) { entry ->
 
             TradeEntry(
-                schema = schema,
                 entry = entry,
                 onOpenDetails = { onOpenDetails(entry.id) },
                 onOpenChart = { onOpenChart(entry.id) },
@@ -195,7 +177,6 @@ private fun TableScope<TradeEntry>.tradeRows(
 
 @Composable
 private fun TradeEntry(
-    schema: TableSchema<TradeEntry>,
     entry: TradeEntry,
     onOpenDetails: () -> Unit,
     onOpenChart: () -> Unit,
@@ -212,11 +193,34 @@ private fun TradeEntry(
 
         Column {
 
-            DefaultTableRow(
-                item = entry,
-                schema = schema,
+            TradeTableSchema.SimpleRow(
                 onClick = onOpenDetails,
-            )
+            ) {
+                id.text { entry.id.toString() }
+                broker.text { entry.broker }
+                ticker.text { entry.ticker }
+                side {
+                    Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                }
+                quantity.text { entry.quantity }
+                avgEntry.text { entry.entry }
+                avgExit.text { entry.exit ?: "NA" }
+                entryTime.text { entry.entryTime }
+                duration {
+
+                    Text(
+                        text = entry.duration.collectAsState("").value,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                pnl {
+                    Text(entry.pnl, color = if (entry.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                }
+                netPnl {
+                    Text(entry.netPnl, color = if (entry.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                }
+                fees.text { entry.fees }
+            }
 
             HorizontalDivider()
         }
@@ -268,4 +272,20 @@ private fun StatsHeaderItem(stats: Stats) {
 
 private enum class ContentType {
     Header, Entry;
+}
+
+private object TradeTableSchema : TableSchema() {
+
+    val id = cell(Fixed(48.dp))
+    val broker = cell(Weight(2F))
+    val ticker = cell(Weight(1.7F))
+    val side = cell()
+    val quantity = cell()
+    val avgEntry = cell()
+    val avgExit = cell()
+    val entryTime = cell(Weight(2.2F))
+    val duration = cell(Weight(1.5F))
+    val pnl = cell()
+    val netPnl = cell()
+    val fees = cell()
 }
