@@ -18,14 +18,14 @@ import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeEntry
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeItem
 
 @Composable
 internal fun ProfileTradesTable(
-    trades: List<TradeEntry>,
-    onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
-    onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
-    onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
+    trades: List<TradeItem>,
+    onMarkTrade: (ProfileTradeId, isMarked: Boolean) -> Unit,
+    onSelectTrade: (ProfileTradeId) -> Unit,
+    onOpenDetails: (ProfileTradeId) -> Unit,
     isFilterEnabled: Boolean,
     onFilter: () -> Unit,
 ) {
@@ -63,21 +63,21 @@ internal fun ProfileTradesTable(
         items(
             items = trades,
             key = { it.profileTradeId },
-        ) { entry ->
+        ) { item ->
 
-            TradeEntry(
-                entry = entry,
-                onMarkTrade = { onMarkTrade(entry.profileTradeId, it) },
-                onSelectTrade = { onSelectTrade(entry.profileTradeId) },
-                onOpenDetails = { onOpenDetails(entry.profileTradeId) },
+            TradeItem(
+                item = item,
+                onMarkTrade = { onMarkTrade(item.profileTradeId, it) },
+                onSelectTrade = { onSelectTrade(item.profileTradeId) },
+                onOpenDetails = { onOpenDetails(item.profileTradeId) },
             )
         }
     }
 }
 
 @Composable
-private fun TradeEntry(
-    entry: TradeEntry,
+private fun TradeItem(
+    item: TradeItem,
     onMarkTrade: (Boolean) -> Unit,
     onSelectTrade: () -> Unit,
     onOpenDetails: () -> Unit,
@@ -99,32 +99,32 @@ private fun TradeEntry(
                 mark {
 
                     Checkbox(
-                        checked = entry.isMarked,
+                        checked = item.isMarked,
                         onCheckedChange = { onMarkTrade(it) }
                     )
                 }
-                id.text { entry.profileTradeId.tradeId.toString() }
-                broker.text { entry.broker }
-                ticker.text { entry.ticker }
+                id.text { item.profileTradeId.tradeId.toString() }
+                broker.text { item.broker }
+                ticker.text { item.ticker }
                 side {
-                    Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                quantity.text { entry.quantity }
-                avgEntry.text { entry.entry }
-                avgExit.text { entry.exit ?: "NA" }
-                entryTime.text { entry.entryTime }
+                quantity.text { item.quantity }
+                avgEntry.text { item.entry }
+                avgExit.text { item.exit ?: "NA" }
+                entryTime.text { item.entryTime }
                 duration {
 
                     Text(
-                        text = entry.duration.collectAsState("").value,
+                        text = item.duration.collectAsState("").value,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 pnl {
-                    Text(entry.pnl, color = if (entry.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 netPnl {
-                    Text(entry.netPnl, color = if (entry.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }
 

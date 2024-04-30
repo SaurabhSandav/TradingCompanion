@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.Flow
 internal data class TradeReviewState(
     val selectedProfileId: ProfileId?,
     val selectedProfileName: String?,
-    val trades: List<TradeEntry>,
-    val markedTrades: List<MarkedTradeEntry>,
+    val trades: List<TradeItem>,
+    val markedTrades: List<MarkedTradeItem>,
     val eventSink: (TradeReviewEvent) -> Unit,
 ) {
 
@@ -17,7 +17,7 @@ internal data class TradeReviewState(
         Marked,
     }
 
-    internal data class TradeEntry(
+    internal data class TradeItem(
         val profileTradeId: ProfileTradeId,
         val isMarked: Boolean,
         val broker: String,
@@ -34,7 +34,7 @@ internal data class TradeReviewState(
         val isNetProfitable: Boolean,
     )
 
-    internal data class MarkedTradeEntry(
+    internal data class MarkedTradeItem(
         val profileTradeId: ProfileTradeId,
         val profileName: String,
         val broker: String,

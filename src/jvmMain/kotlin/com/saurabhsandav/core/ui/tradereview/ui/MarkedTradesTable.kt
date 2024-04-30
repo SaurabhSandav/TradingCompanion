@@ -17,11 +17,11 @@ import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeEntry
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeItem
 
 @Composable
 internal fun MarkedTradesTable(
-    markedTrades: List<MarkedTradeEntry>,
+    markedTrades: List<MarkedTradeItem>,
     onUnMarkTrade: (ProfileTradeId) -> Unit,
     onSelectTrade: (ProfileTradeId) -> Unit,
     onOpenDetails: (ProfileTradeId) -> Unit,
@@ -51,21 +51,21 @@ internal fun MarkedTradesTable(
         items(
             items = markedTrades,
             key = { it.profileTradeId },
-        ) { entry ->
+        ) { item ->
 
-            MarkedTradeEntry(
-                entry = entry,
-                onUnMarkTrade = { onUnMarkTrade(entry.profileTradeId) },
-                onSelectTrade = { onSelectTrade(entry.profileTradeId) },
-                onOpenDetails = { onOpenDetails(entry.profileTradeId) },
+            MarkedTradeItem(
+                item = item,
+                onUnMarkTrade = { onUnMarkTrade(item.profileTradeId) },
+                onSelectTrade = { onSelectTrade(item.profileTradeId) },
+                onOpenDetails = { onOpenDetails(item.profileTradeId) },
             )
         }
     }
 }
 
 @Composable
-private fun MarkedTradeEntry(
-    entry: MarkedTradeEntry,
+private fun MarkedTradeItem(
+    item: MarkedTradeItem,
     onUnMarkTrade: () -> Unit,
     onSelectTrade: () -> Unit,
     onOpenDetails: () -> Unit,
@@ -90,29 +90,29 @@ private fun MarkedTradeEntry(
                         onCheckedChange = { onUnMarkTrade() }
                     )
                 }
-                id.text { entry.profileTradeId.tradeId.toString() }
-                profile.text { entry.profileName }
-                broker.text { entry.broker }
-                ticker.text { entry.ticker }
+                id.text { item.profileTradeId.tradeId.toString() }
+                profile.text { item.profileName }
+                broker.text { item.broker }
+                ticker.text { item.ticker }
                 side {
-                    Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                quantity.text { entry.quantity }
-                avgEntry.text { entry.entry }
-                avgExit.text { entry.exit ?: "NA" }
-                entryTime.text { entry.entryTime }
+                quantity.text { item.quantity }
+                avgEntry.text { item.entry }
+                avgExit.text { item.exit ?: "NA" }
+                entryTime.text { item.entryTime }
                 duration {
 
                     Text(
-                        text = entry.duration.collectAsState("").value,
+                        text = item.duration.collectAsState("").value,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 pnl {
-                    Text(entry.pnl, color = if (entry.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 netPnl {
-                    Text(entry.netPnl, color = if (entry.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }
 

@@ -9,8 +9,8 @@ import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
 @Composable
 internal fun TradesTableSwitcher(
     selectedTab: Tab,
-    trades: List<TradeEntry>,
-    markedTrades: List<MarkedTradeEntry>,
+    trades: List<TradeItem>,
+    markedTrades: List<MarkedTradeItem>,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,

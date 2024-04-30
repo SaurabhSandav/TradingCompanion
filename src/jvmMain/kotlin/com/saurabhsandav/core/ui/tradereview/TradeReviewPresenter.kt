@@ -15,8 +15,8 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState
-import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeEntry
-import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeEntry
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeItem
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeItem
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
@@ -95,7 +95,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getTrades(): State<List<TradeEntry>> {
+    private fun getTrades(): State<List<TradeItem>> {
         return remember {
 
             selectedProfileId
@@ -119,7 +119,7 @@ internal class TradeReviewPresenter(
                                         tradeId = it.id,
                                     )
 
-                                    it.toTradeListEntry(
+                                    it.toTradeItem(
                                         profileTradeId = profileTradeId,
                                         isMarked = profileTradeId in markedProfileTradeIds,
                                     )
@@ -129,10 +129,10 @@ internal class TradeReviewPresenter(
         }.collectAsState(emptyList())
     }
 
-    private fun Trade.toTradeListEntry(
+    private fun Trade.toTradeItem(
         profileTradeId: ProfileTradeId,
         isMarked: Boolean,
-    ): TradeEntry {
+    ): TradeItem {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -158,7 +158,7 @@ internal class TradeReviewPresenter(
             }
         }
 
-        return TradeEntry(
+        return TradeItem(
             profileTradeId = profileTradeId,
             isMarked = isMarked,
             broker = "$broker ($instrumentCapitalized)",
@@ -182,7 +182,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getMarkedTrades(): State<List<MarkedTradeEntry>> {
+    private fun getMarkedTrades(): State<List<MarkedTradeItem>> {
         return remember {
 
             snapshotFlow { markedTradeIds.toList() }
@@ -209,7 +209,7 @@ internal class TradeReviewPresenter(
                                     .trades
                                     .getByIds(ids = tradeIds)
                                     .mapList {
-                                        it.toMarkedTradeListEntry(
+                                        it.toMarkedTradeItem(
                                             profileId = profileId,
                                             profileName = profile.name,
                                         )
@@ -226,10 +226,10 @@ internal class TradeReviewPresenter(
         }.collectAsState(emptyList())
     }
 
-    private fun Trade.toMarkedTradeListEntry(
+    private fun Trade.toMarkedTradeItem(
         profileId: ProfileId,
         profileName: String,
-    ): MarkedTradeEntry {
+    ): MarkedTradeItem {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -255,7 +255,7 @@ internal class TradeReviewPresenter(
             }
         }
 
-        return MarkedTradeEntry(
+        return MarkedTradeItem(
             profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
             profileName = profileName,
             broker = "$broker ($instrumentCapitalized)",
