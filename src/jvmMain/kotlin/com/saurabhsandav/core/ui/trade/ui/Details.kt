@@ -14,8 +14,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.SimpleHeader
+import com.saurabhsandav.core.ui.common.table2.SimpleRow
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.TableSchema
+import com.saurabhsandav.core.ui.common.table2.text
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details
 
 @Composable
@@ -25,56 +28,76 @@ internal fun Details(details: Details) {
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        val schema = rememberTableSchema<Details> {
-            addColumnText("Broker", width = Weight(2F)) { it.broker }
-            addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
-            addColumn("Side") {
-
-                Text(
-                    text = it.side,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
-                )
-            }
-            addColumnText("Quantity") { it.quantity }
-            addColumnText("Avg. Entry") { it.entry }
-            addColumnText("Avg. Exit") { it.exit ?: "NA" }
-            addColumn("Duration", width = Weight(1.5F)) {
-
-                Text(
-                    text = it.duration.collectAsState("").value,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            addColumn("PNL") {
-
-                Text(
-                    text = it.pnl,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-                )
-            }
-            addColumn("Net PNL") {
-
-                Text(
-                    text = it.netPnl,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-                )
-            }
-            addColumnText("Fees") { it.fees }
-        }
-
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-            DefaultTableHeader(schema = schema)
+            DetailsTableSchema.SimpleHeader {
+                broker.text { "Broker" }
+                ticker.text { "Ticker" }
+                side.text { "Side" }
+                quantity.text { "Quantity" }
+                avgEntry.text { "Avg. Entry" }
+                avgExit.text { "Avg. Exit" }
+                duration.text { "Duration" }
+                pnl.text { "PNL" }
+                netPnl.text { "Net PNL" }
+                fees.text { "Fees" }
+            }
 
             HorizontalDivider()
 
-            DefaultTableRow(
-                item = details,
-                schema = schema,
-            )
+            DetailsTableSchema.SimpleRow {
+                broker.text { details.broker }
+                ticker.text { details.ticker }
+                side {
+
+                    Text(
+                        text = details.side,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (details.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
+                    )
+                }
+                quantity.text { details.quantity }
+                avgEntry.text { details.entry }
+                avgExit.text { details.exit ?: "NA" }
+                duration {
+
+                    Text(
+                        text = details.duration.collectAsState("").value,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                pnl {
+
+                    Text(
+                        text = details.pnl,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (details.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                    )
+                }
+                netPnl {
+
+                    Text(
+                        text = details.netPnl,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (details.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                    )
+                }
+                fees.text { details.fees }
+            }
         }
     }
+}
+
+private object DetailsTableSchema : TableSchema() {
+
+    val broker = cell(Weight(2F))
+    val ticker = cell(Weight(1.7F))
+    val side = cell()
+    val quantity = cell()
+    val avgEntry = cell()
+    val avgExit = cell()
+    val duration = cell(Weight(1.5F))
+    val pnl = cell()
+    val netPnl = cell()
+    val fees = cell()
 }

@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
-import com.saurabhsandav.core.ui.common.table.DefaultTableHeader
-import com.saurabhsandav.core.ui.common.table.DefaultTableRow
-import com.saurabhsandav.core.ui.common.table.addColumnText
-import com.saurabhsandav.core.ui.common.table.rememberTableSchema
+import com.saurabhsandav.core.ui.common.table2.SimpleHeader
+import com.saurabhsandav.core.ui.common.table2.SimpleRow
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.TableSchema
+import com.saurabhsandav.core.ui.common.table2.text
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
@@ -83,23 +83,14 @@ private fun StopsList(
         modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        val schema = rememberTableSchema<TradeStop> {
-            addColumnText("Stop") { it.priceText }
-            addColumnText("Risk") { it.risk }
-            addColumnText("Net Risk") { it.netRisk }
-            addColumn(width = Weight(.5F)) { stop ->
-
-                DeleteIconButton(
-                    deleteTypeText = "Stop @ ${stop.priceText}",
-                    onDelete = { onDeleteStop(stop.price) },
-                )
-            }
-        }
-
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
             // Header
-            DefaultTableHeader(schema = schema)
+            StopTableSchema.SimpleHeader {
+                stop.text { "Stop" }
+                risk.text { "Risk" }
+                netRisk.text { "Net Risk" }
+            }
 
             HorizontalDivider()
 
@@ -108,10 +99,18 @@ private fun StopsList(
 
                 key(stop) {
 
-                    DefaultTableRow(
-                        item = stop,
-                        schema = schema,
-                    )
+                    StopTableSchema.SimpleRow {
+                        this.stop.text { stop.priceText }
+                        risk.text { stop.risk }
+                        netRisk.text { stop.netRisk }
+                        delete {
+
+                            DeleteIconButton(
+                                deleteTypeText = "Stop @ ${stop.priceText}",
+                                onDelete = { onDeleteStop(stop.price) },
+                            )
+                        }
+                    }
                 }
             }
 
@@ -158,23 +157,14 @@ private fun TargetsList(
         modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        val schema = rememberTableSchema<TradeTarget> {
-            addColumnText("Target") { it.priceText }
-            addColumnText("Profit") { it.profit }
-            addColumnText("Net Profit") { it.netProfit }
-            addColumn(width = Weight(.5F)) { target ->
-
-                DeleteIconButton(
-                    deleteTypeText = "Target @ ${target.priceText}",
-                    onDelete = { onDeleteTarget(target.price) },
-                )
-            }
-        }
-
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
             // Header
-            DefaultTableHeader(schema = schema)
+            TargetTableSchema.SimpleHeader {
+                this.target.text { "Target" }
+                profit.text { "Profit" }
+                netProfit.text { "Net Profit" }
+            }
 
             HorizontalDivider()
 
@@ -183,10 +173,18 @@ private fun TargetsList(
 
                 key(target) {
 
-                    DefaultTableRow(
-                        item = target,
-                        schema = schema,
-                    )
+                    TargetTableSchema.SimpleRow {
+                        this.target.text { target.priceText }
+                        profit.text { target.profit }
+                        netProfit.text { target.netProfit }
+                        delete {
+
+                            DeleteIconButton(
+                                deleteTypeText = "Target @ ${target.priceText}",
+                                onDelete = { onDeleteTarget(target.price) },
+                            )
+                        }
+                    }
                 }
             }
 
@@ -391,4 +389,20 @@ private class AddValueState<T : Any>(
         onAdd(price)
         hideAddForm()
     }
+}
+
+private object StopTableSchema : TableSchema() {
+
+    val stop = cell()
+    val risk = cell()
+    val netRisk = cell()
+    val delete = cell(Weight(.5F))
+}
+
+private object TargetTableSchema : TableSchema() {
+
+    val target = cell()
+    val profit = cell()
+    val netProfit = cell()
+    val delete = cell(Weight(.5F))
 }

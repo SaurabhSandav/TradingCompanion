@@ -21,9 +21,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
-import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.SimpleHeader
+import com.saurabhsandav.core.ui.common.table2.SimpleRow
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.TableSchema
+import com.saurabhsandav.core.ui.common.table2.text
 import com.saurabhsandav.core.ui.trade.model.TradeState
 
 @Composable
@@ -42,33 +45,14 @@ internal fun TradeExecutionsTable(
         modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
 
-        val schema = rememberTableSchema<TradeState.Execution> {
-            addColumn(width = Fixed(48.dp)) { entry ->
-
-                if (!entry.locked) {
-
-                    TooltipArea(
-                        tooltip = { Tooltip("Not locked") },
-                        content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
-                    )
-                }
-            }
-            addColumnText("Quantity") { it.quantity }
-            addColumn("Side") {
-
-                Text(
-                    text = it.side,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = if (it.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
-                )
-            }
-            addColumnText("Price") { it.price }
-            addColumnText("Time", width = Weight(2.2F)) { it.timestamp }
-        }
-
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-            DefaultTableHeader(schema)
+            TradeExecutionTableSchema.SimpleHeader {
+                quantity.text { "Quantity" }
+                side.text { "Side" }
+                price.text { "Price" }
+                time.text { "Time" }
+            }
 
             HorizontalDivider()
 
@@ -77,7 +61,6 @@ internal fun TradeExecutionsTable(
                 key(item) {
 
                     TradeExecutionItem(
-                        schema = schema,
                         item = item,
                         onNewExecution = { onNewFromExistingExecution(item.id) },
                         onEditExecution = { onEditExecution(item.id) },
@@ -112,7 +95,6 @@ internal fun TradeExecutionsTable(
 
 @Composable
 private fun TradeExecutionItem(
-    schema: TableSchema<TradeState.Execution>,
     item: TradeState.Execution,
     onNewExecution: () -> Unit,
     onEditExecution: () -> Unit,
@@ -144,10 +126,29 @@ private fun TradeExecutionItem(
 
         Column {
 
-            DefaultTableRow(
-                item = item,
-                schema = schema,
-            )
+            TradeExecutionTableSchema.SimpleRow {
+                locked {
+
+                    if (!item.locked) {
+
+                        TooltipArea(
+                            tooltip = { Tooltip("Not locked") },
+                            content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
+                        )
+                    }
+                }
+                quantity.text { item.quantity }
+                side {
+
+                    Text(
+                        text = item.side,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (item.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
+                    )
+                }
+                price.text { item.price }
+                time.text { item.timestamp }
+            }
 
             HorizontalDivider()
         }
@@ -173,4 +174,13 @@ private fun TradeExecutionItem(
             )
         }
     }
+}
+
+private object TradeExecutionTableSchema : TableSchema() {
+
+    val locked = cell(Fixed(48.dp))
+    val quantity = cell()
+    val side = cell()
+    val price = cell()
+    val time = cell(Weight(2.2F))
 }
