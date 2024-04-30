@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,7 +14,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.Repl
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table2.*
 
 @Composable
 internal fun ReplayOrdersTable(
@@ -21,23 +22,22 @@ internal fun ReplayOrdersTable(
     onCancelOrder: (BacktestOrderId) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<ReplayOrderListItem> {
-        addColumnText("Execution Type") { it.executionType }
-        addColumnText("Broker") { it.broker }
-        addColumnText("Ticker") { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("Side") {
-            Text(it.side, color = if (it.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Price") { it.price }
-        addColumnText("Time") { it.timestamp }
-    }
-
     LazyTable(
-        schema = schema,
+        headerContent = {
+
+            ReplayOrderTableSchema.SimpleHeader {
+                executionType.text { "Execution Type" }
+                broker.text { "Broker" }
+                ticker.text { "Ticker" }
+                quantity.text { "Quantity" }
+                side.text { "Side" }
+                price.text { "Price" }
+                time.text { "Time" }
+            }
+        },
     ) {
 
-        rows(
+        items(
             items = replayOrderItems,
             key = { it.id },
         ) { item ->
@@ -59,7 +59,17 @@ internal fun ReplayOrdersTable(
 
                 Column {
 
-                    DefaultTableRow(item, schema)
+                    ReplayOrderTableSchema.SimpleRow {
+                        executionType.text { item.executionType }
+                        broker.text { item.broker }
+                        ticker.text { item.ticker }
+                        quantity.text { item.quantity }
+                        side {
+                            Text(item.side, color = if (item.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
+                        }
+                        price.text { item.price }
+                        time.text { item.timestamp }
+                    }
 
                     HorizontalDivider()
                 }
@@ -75,4 +85,15 @@ internal fun ReplayOrdersTable(
             }
         }
     }
+}
+
+private object ReplayOrderTableSchema : TableSchema() {
+
+    val executionType = cell()
+    val broker = cell()
+    val ticker = cell()
+    val quantity = cell()
+    val side = cell()
+    val price = cell()
+    val time = cell()
 }

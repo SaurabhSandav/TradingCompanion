@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.account
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -15,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
@@ -26,22 +27,31 @@ internal fun AccountScreen(
     // Set window title
     WindowTitle("Account")
 
-    val schema = rememberTableSchema<Transaction> {
-        addColumnText("Date") { it.date }
-        addColumnText("Type") { it.type }
-        addColumn("Amount") {
-            Text(it.amount, color = if (it.type == "Credit") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Note") { it.note }
-    }
-
     LazyTable(
-        schema = schema,
+        headerContent = {
+            TransactionTableSchema.SimpleHeader {
+                date.text { "Date" }
+                type.text { "Type" }
+                amount.text { "Amount" }
+                note.text { "Note" }
+            }
+        },
     ) {
 
-        rows(items = transactions)
+        items(items = transactions) { item ->
 
-        row {
+            TransactionTableSchema.SimpleRow {
+
+                date.text { item.date }
+                type.text { item.type }
+                amount {
+                    Text(item.amount, color = if (item.type == "Credit") AppColor.ProfitGreen else AppColor.LossRed)
+                }
+                note.text { item.note }
+            }
+        }
+
+        item {
             SizingTradeCreator(
                 onAddTrade = { },
             )
@@ -77,4 +87,12 @@ private fun SizingTradeCreator(
             Text("New Trade")
         }
     }
+}
+
+private object TransactionTableSchema : TableSchema() {
+
+    val date = cell()
+    val type = cell()
+    val amount = cell()
+    val note = cell()
 }

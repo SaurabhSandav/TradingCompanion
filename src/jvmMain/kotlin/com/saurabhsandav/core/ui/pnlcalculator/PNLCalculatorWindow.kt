@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.pnlcalculator
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -22,8 +23,8 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
@@ -132,45 +133,71 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
             }
         }
 
-        val schema = rememberTableSchema<PNLEntry> {
-            addColumn("Side") {
-                Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-            }
-            addColumnText("Quantity") { it.quantity }
-            addColumnText("Entry") { it.entry }
-            addColumnText("Exit") { it.exit }
-            addColumnText("Breakeven", width = Weight(1.2F)) { it.breakeven }
-            addColumn("PNL") {
-                Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-            }
-            addColumnText("Charges") { it.charges }
-            addColumn("Net PNL") {
-                Text(it.netPNL, color = if (it.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-            }
-            addColumn(width = Weight(.5F)) {
-
-                val alpha by animateFloatAsState(if (it.isRemovable) 1F else 0F)
-
-                IconButtonWithTooltip(
-                    modifier = Modifier.alpha(alpha),
-                    onClick = { state.onRemoveCalculation(it.id) },
-                    tooltipText = "Close",
-                    enabled = it.isRemovable,
-                    content = {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    },
-                )
-            }
-        }
-
         LazyTable(
             modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).width(800.dp).fillMaxHeight(),
-            schema = schema,
+            headerContent = {
+
+                PNLTableSchema.SimpleHeader {
+                    side.text { "Side" }
+                    quantity.text { "Quantity" }
+                    entry.text { "Entry" }
+                    exit.text { "Exit" }
+                    breakeven.text { "Breakeven" }
+                    pnl.text { "PNL" }
+                    charges.text { "Charges" }
+                    netPnl.text { "Net PNL" }
+                }
+            },
         ) {
 
-            rows(
+            items(
                 items = model.pnlEntries,
-            )
+            ) { item ->
+
+                PNLTableSchema.SimpleRow {
+                    side {
+                        Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                    }
+                    quantity.text { item.quantity }
+                    entry.text { item.entry }
+                    exit.text { item.exit }
+                    breakeven.text { item.breakeven }
+                    pnl {
+                        Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    }
+                    charges.text { item.charges }
+                    netPnl {
+                        Text(item.netPNL, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
+                    }
+                    close {
+
+                        val alpha by animateFloatAsState(if (item.isRemovable) 1F else 0F)
+
+                        IconButtonWithTooltip(
+                            modifier = Modifier.alpha(alpha),
+                            onClick = { state.onRemoveCalculation(item.id) },
+                            tooltipText = "Close",
+                            enabled = item.isRemovable,
+                            content = {
+                                Icon(Icons.Default.Close, contentDescription = "Close")
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
+}
+
+private object PNLTableSchema : TableSchema() {
+
+    val side = cell()
+    val quantity = cell()
+    val entry = cell()
+    val exit = cell()
+    val breakeven = cell(Weight(1.2F))
+    val pnl = cell()
+    val charges = cell()
+    val netPnl = cell()
+    val close = cell(Weight(.5F))
 }
