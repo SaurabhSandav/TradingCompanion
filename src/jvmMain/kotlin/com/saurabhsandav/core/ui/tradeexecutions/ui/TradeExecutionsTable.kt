@@ -5,6 +5,8 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
@@ -15,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
-import com.saurabhsandav.core.ui.common.table.*
-import com.saurabhsandav.core.ui.common.table.Column.Width.Fixed
-import com.saurabhsandav.core.ui.common.table.Column.Width.Weight
+import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.ExecutionsList
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
@@ -34,45 +36,24 @@ internal fun TradeExecutionsTable(
     onDeleteExecution: (TradeExecutionId) -> Unit,
 ) {
 
-    val schema = rememberTableSchema<TradeExecutionEntry> {
-        addColumn(width = Fixed(48.dp)) { entry ->
-
-            Checkbox(
-                checked = isMarked(entry.id),
-                onCheckedChange = { onMarkExecution(entry.id) },
-            )
-        }
-        addColumn(width = Fixed(48.dp)) { entry ->
-
-            if (!entry.locked) {
-
-                TooltipArea(
-                    tooltip = { Tooltip("Not locked") },
-                    content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
-                )
-            }
-        }
-        addColumnText("Broker", width = Weight(2F)) { it.broker }
-        addColumnText("Ticker", width = Weight(1.7F)) { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("Side") { entry ->
-
-            Text(
-                text = entry.side,
-                color = if (entry.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
-            )
-        }
-        addColumnText("Price") { it.price }
-        addColumnText("Time", width = Weight(2.2F)) { it.timestamp }
-    }
-
     LazyTable(
-        schema = schema,
+        headerContent = {
+
+            TradeExecutionTableSchema.SimpleHeader {
+                broker.text { "Broker" }
+                ticker.text { "Ticker" }
+                quantity.text { "Quantity" }
+                side.text { "Side" }
+                price.text { "Price" }
+                time.text { "Time" }
+            }
+        },
     ) {
 
         executionRows(
             executions = executionsList.todayExecutions,
             title = "Today",
+            isMarked = isMarked,
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,
             onNewExecution = onNewExecution,
@@ -84,6 +65,7 @@ internal fun TradeExecutionsTable(
         executionRows(
             executions = executionsList.pastExecutions,
             title = "Past",
+            isMarked = isMarked,
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,
             onNewExecution = onNewExecution,
@@ -94,9 +76,10 @@ internal fun TradeExecutionsTable(
     }
 }
 
-private fun TableScope<TradeExecutionEntry>.executionRows(
+private fun LazyListScope.executionRows(
     executions: List<TradeExecutionEntry>,
     title: String,
+    isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
     onNewExecution: (TradeExecutionId) -> Unit,
@@ -107,7 +90,7 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
 
     if (executions.isNotEmpty()) {
 
-        row(
+        item(
             contentType = ContentType.Header,
         ) {
 
@@ -130,15 +113,16 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
             HorizontalDivider()
         }
 
-        rows(
+        items(
             items = executions,
             key = { entry -> entry.id },
             contentType = { ContentType.Entry },
         ) { entry ->
 
             TradeExecutionEntry(
-                schema = schema,
                 entry = entry,
+                isMarked = isMarked(entry.id),
+                onMarkExecution = { onMarkExecution(entry.id) },
                 onClick = { onClickExecution(entry.id) },
                 onLongClick = { onMarkExecution(entry.id) },
                 onNewExecution = { onNewExecution(entry.id) },
@@ -152,8 +136,9 @@ private fun TableScope<TradeExecutionEntry>.executionRows(
 
 @Composable
 private fun TradeExecutionEntry(
-    schema: TableSchema<TradeExecutionEntry>,
     entry: TradeExecutionEntry,
+    isMarked: Boolean,
+    onMarkExecution: () -> Unit,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onNewExecution: () -> Unit,
@@ -186,12 +171,40 @@ private fun TradeExecutionEntry(
 
         Column {
 
-            DefaultTableRow(
-                item = entry,
-                schema = schema,
+            TradeExecutionTableSchema.SimpleRow(
                 onClick = onClick,
                 onLongClick = onLongClick,
-            )
+            ) {
+                selected {
+
+                    Checkbox(
+                        checked = isMarked,
+                        onCheckedChange = { onMarkExecution() },
+                    )
+                }
+                locked {
+
+                    if (!entry.locked) {
+
+                        TooltipArea(
+                            tooltip = { Tooltip("Not locked") },
+                            content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
+                        )
+                    }
+                }
+                broker.text { entry.broker }
+                ticker.text { entry.ticker }
+                quantity.text { entry.quantity }
+                side {
+
+                    Text(
+                        text = entry.side,
+                        color = if (entry.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed,
+                    )
+                }
+                price.text { entry.price }
+                time.text { entry.timestamp }
+            }
 
             HorizontalDivider()
         }
@@ -221,4 +234,16 @@ private fun TradeExecutionEntry(
 
 private enum class ContentType {
     Header, Entry;
+}
+
+private object TradeExecutionTableSchema : TableSchema() {
+
+    val selected = cell(Fixed(48.dp))
+    val locked = cell(Fixed(48.dp))
+    val broker = cell(Weight(2F))
+    val ticker = cell(Weight(1.7F))
+    val quantity = cell()
+    val side = cell()
+    val price = cell()
+    val time = cell(Weight(2.2F))
 }
