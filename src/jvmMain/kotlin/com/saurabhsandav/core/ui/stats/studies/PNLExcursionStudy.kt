@@ -1,116 +1,193 @@
 package com.saurabhsandav.core.ui.stats.studies
 
 import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import app.cash.paging.Pager
+import app.cash.paging.PagingConfig
+import app.cash.paging.PagingData
+import app.cash.paging.compose.collectAsLazyPagingItems
+import app.cash.paging.compose.itemKey
+import app.cash.paging.map
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trades.model.TradeFilter
+import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
-import com.saurabhsandav.core.ui.common.table.TableSchema
-import com.saurabhsandav.core.ui.common.table.addColumn
-import com.saurabhsandav.core.ui.common.table.addColumnText
-import com.saurabhsandav.core.ui.common.table.tableSchema
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 internal class PNLExcursionStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
-) : TableStudy<PNLExcursionStudy.Model>() {
+) : Study {
 
-    override val schema: TableSchema<Model> = tableSchema {
-        addColumnText("Ticker") { it.ticker }
-        addColumnText("Quantity") { it.quantity }
-        addColumn("Side") {
-            Text(it.side, color = if (it.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumnText("Entry") { it.entry }
-        addColumnText("Stop") { it.stop }
-        addColumnText("Target") { it.target }
-        addColumnText("Duration") { it.duration }
-        addColumnText("Exit") { it.exit }
-        addColumn("PNL") {
-            Text(it.pnl, color = if (it.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
-        }
-        addColumn(
-            header = {
+    @Composable
+    override fun render() {
 
-                TooltipArea(
-                    tooltip = { Tooltip("Excursions In Trade") },
-                    content = { Text("In Trade") },
-                )
+        val items = data.collectAsLazyPagingItems()
+
+        LazyTable(
+            modifier = Modifier.fillMaxSize(),
+            headerContent = {
+
+                Schema.SimpleHeader {
+                    id.text { "ID" }
+                    ticker.text { "Ticker" }
+                    side.text { "Side" }
+                    quantity.text { "Quantity" }
+                    avgEntry.text { "Avg. Entry" }
+                    avgExit.text { "Avg. Exit" }
+                    entryTime.text { "Entry Time" }
+                    duration.text { "Duration" }
+                    stop.text { "Stop" }
+                    target.text { "Target" }
+                    pnl.text { "PNL" }
+                    excursionsInTrade {
+
+                        TooltipArea(
+                            tooltip = { Tooltip("Excursions In Trade") },
+                            content = { Text("In Trade") },
+                        )
+                    }
+                    excursionsInSession {
+
+                        TooltipArea(
+                            tooltip = { Tooltip("Excursions In Session") },
+                            content = { Text("In Session") },
+                        )
+                    }
+                }
             },
-            content = { Text(it.inTrade) }
-        )
-        addColumn(
-            header = {
+        ) {
 
-                TooltipArea(
-                    tooltip = { Tooltip("Excursions In Session") },
-                    content = { Text("In Session") },
-                )
-            },
-            content = { Text(it.inSession) }
-        )
+            items(
+                count = items.itemCount,
+                key = items.itemKey { it.id }
+            ) { index ->
+
+                val item = items[index]!!
+                val generated = item.generated.collectAsState(null).value
+
+                Schema.SimpleRow {
+                    id.text { item.id.value.toString() }
+                    ticker.text { item.ticker }
+                    side {
+                        Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                    }
+                    quantity.text { item.quantity }
+                    avgEntry.text { item.entry }
+                    avgExit.text { item.exit }
+                    entryTime.text { item.entryTime }
+                    duration.text { item.duration }
+
+                    if (generated != null) {
+
+                        stop.text { generated.stop }
+                        target.text { generated.target }
+                        pnl {
+                            Text(
+                                generated.pnl,
+                                color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                            )
+                        }
+                        excursionsInTrade { Text(generated.inTrade) }
+                        excursionsInSession { Text(generated.inSession) }
+                    }
+                }
+
+                HorizontalDivider()
+            }
+        }
     }
 
-    override val data: Flow<List<Model>> = flow {
+    private val data: Flow<PagingData<Item>> = flow {
+
+        val pagingConfig = PagingConfig(
+            pageSize = 70,
+            enablePlaceholders = false,
+            maxSize = 300,
+        )
 
         val tradesRepo = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.flatMapLatest { trades ->
+        Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
 
-            val closedTrades = trades.filter { it.isClosed }
-            val closedTradesIds = closedTrades.map { it.id }
+                tradesRepo.getFilteredPagingSource(
+                    filter = TradeFilter(isClosed = true),
+                    sort = TradeSort.EntryDesc,
+                )
+            },
+        ).flow.map { pagingData ->
 
-            combine(
-                tradesRepo.getPrimaryStops(closedTradesIds),
-                tradesRepo.getPrimaryTargets(closedTradesIds),
-            ) { stops, targets ->
+            pagingData.map { trade ->
 
-                closedTrades.map { trade ->
+                val durationStr = run {
 
-                    val brokerage = trade.brokerageAtExit()!!
-                    val pnlBD = brokerage.pnl
+                    val durationSeconds = (trade.exitTimestamp!! - trade.entryTimestamp).inWholeSeconds
 
-                    val entryLDT = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                    val exitLDT = trade.exitTimestamp?.toLocalDateTime(TimeZone.currentSystemDefault())
-                    val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(entryLDT)
-
-                    val stop = stops.find { it.tradeId == trade.id }
-                    val target = targets.find { it.tradeId == trade.id }?.price
-
-                    val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
-                    val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
-
-                    val excursions = tradesRepo.getExcursions(trade.id).first()
-
-                    Model(
-                        ticker = trade.ticker,
-                        quantity = trade.quantity.toPlainString(),
-                        side = trade.side.strValue.uppercase(),
-                        entry = trade.averageEntry.toPlainString(),
-                        stop = stop?.price?.toPlainString() ?: "NA",
-                        duration = "$day\n${entryLDT.time} ->\n${exitLDT?.time}",
-                        target = target?.toPlainString() ?: "NA",
-                        exit = trade.averageExit!!.toPlainString(),
-                        pnl = "${pnlBD.toPlainString()}${rValueStr}",
-                        isProfitable = pnlBD > BigDecimal.ZERO,
-                        inTrade = trade.buildExcursionString(stop, excursions, true),
-                        inSession = trade.buildExcursionString(stop, excursions, false),
+                    "%02d:%02d:%02d".format(
+                        durationSeconds / 3600,
+                        (durationSeconds % 3600) / 60,
+                        durationSeconds % 60,
                     )
                 }
+
+                Item(
+                    id = trade.id,
+                    ticker = trade.ticker,
+                    side = trade.side.strValue.uppercase(),
+                    quantity = trade.quantity.toPlainString(),
+                    entry = trade.averageEntry.toPlainString(),
+                    exit = trade.averageExit!!.toPlainString(),
+                    entryTime = TradeDateTimeFormatter.format(
+                        ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+                    ),
+                    duration = durationStr,
+                    isProfitable = trade.pnl > BigDecimal.ZERO,
+                    generated = combine(
+                        tradesRepo.getPrimaryStop(trade.id),
+                        tradesRepo.getPrimaryTarget(trade.id),
+                        tradesRepo.getExcursions(trade.id),
+                    ) { stop, target, excursions ->
+
+                        val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
+                        val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+
+                        Generated(
+                            stop = stop?.price?.toPlainString() ?: "NA",
+                            target = target?.price?.toPlainString() ?: "NA",
+                            pnl = "${trade.pnl.toPlainString()}${rValueStr}",
+                            inTrade = trade.buildExcursionString(stop, excursions, true),
+                            inSession = trade.buildExcursionString(stop, excursions, false),
+                        )
+                    },
+                )
             }
+
         }.emitInto(this)
     }
 
@@ -177,20 +254,43 @@ internal class PNLExcursionStudy(
         return " | ${rValueStr}R"
     }
 
-    data class Model(
+    private data class Item(
+        val id: TradeId,
         val ticker: String,
-        val quantity: String,
         val side: String,
+        val quantity: String,
         val entry: String,
+        val exit: String,
+        val entryTime: String,
+        val duration: String,
+        val isProfitable: Boolean,
+        val generated: Flow<Generated>,
+    )
+
+    private data class Generated(
         val stop: String,
         val target: String,
-        val duration: String,
-        val exit: String,
         val pnl: String,
-        val isProfitable: Boolean,
         val inTrade: AnnotatedString,
         val inSession: AnnotatedString,
     )
+
+    private object Schema : TableSchema() {
+
+        val id = cell(Fixed(48.dp))
+        val ticker = cell(Fixed(150.dp))
+        val side = cell(Fixed(100.dp))
+        val quantity = cell(Fixed(100.dp))
+        val avgEntry = cell(Fixed(100.dp))
+        val avgExit = cell(Fixed(100.dp))
+        val entryTime = cell(Fixed(200.dp))
+        val duration = cell(Fixed(100.dp))
+        val stop = cell(Fixed(100.dp))
+        val target = cell(Fixed(100.dp))
+        val pnl = cell(Fixed(200.dp))
+        val excursionsInTrade = cell()
+        val excursionsInSession = cell()
+    }
 
     class Factory(
         private val profileId: ProfileId,
