@@ -26,7 +26,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -111,14 +110,19 @@ internal class ReviewPresenter(
             )
         }
 
-        val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
-            else -> flow {
-                while (true) {
-                    emit(formatDuration(Clock.System.now() - entryTimestamp))
-                    delay(1.seconds)
+        val duration = when {
+            isClosed -> TradeEntry.Duration.Closed(
+                str = formatDuration(exitTimestamp!! - entryTimestamp)
+            )
+
+            else -> TradeEntry.Duration.Open(
+                flow = flow {
+                    while (true) {
+                        emit(formatDuration(Clock.System.now() - entryTimestamp))
+                        delay(1.seconds)
+                    }
                 }
-            }
+            )
         }
 
         return TradeEntry(
@@ -135,7 +139,7 @@ internal class ReviewPresenter(
             entryTime = TradeDateTimeFormatter.format(
                 ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
             ),
-            duration = durationStr,
+            duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
             netPnl = netPnl.toPlainString(),

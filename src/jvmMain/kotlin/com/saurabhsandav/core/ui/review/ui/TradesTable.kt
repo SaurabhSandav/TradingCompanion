@@ -16,6 +16,8 @@ import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
+import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry.Duration.Closed
+import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry.Duration.Open
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 @Composable
@@ -90,7 +92,10 @@ private fun TradeEntry(
                 duration {
 
                     Text(
-                        text = entry.duration.collectAsState("").value,
+                        text = when (val duration = entry.duration) {
+                            is Open -> duration.flow.collectAsState("").value
+                            is Closed -> duration.str
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

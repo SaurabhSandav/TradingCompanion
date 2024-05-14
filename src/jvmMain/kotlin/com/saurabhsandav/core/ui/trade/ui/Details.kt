@@ -20,6 +20,8 @@ import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table2.TableSchema
 import com.saurabhsandav.core.ui.common.table2.text
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details
+import com.saurabhsandav.core.ui.trade.model.TradeState.Details.Duration.Closed
+import com.saurabhsandav.core.ui.trade.model.TradeState.Details.Duration.Open
 
 @Composable
 internal fun Details(details: Details) {
@@ -62,7 +64,10 @@ internal fun Details(details: Details) {
                 duration {
 
                     Text(
-                        text = details.duration.collectAsState("").value,
+                        text = when (val duration = details.duration) {
+                            is Open -> duration.flow.collectAsState("").value
+                            is Closed -> duration.str
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

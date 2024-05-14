@@ -23,6 +23,8 @@ import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item.Duration.Closed
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item.Duration.Open
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Section
 import kotlinx.coroutines.flow.Flow
 
@@ -207,7 +209,10 @@ private fun TradeItem(
                 duration {
 
                     Text(
-                        text = item.duration.collectAsState("").value,
+                        text = when (val duration = item.duration) {
+                            is Open -> duration.flow.collectAsState("").value
+                            is Closed -> duration.str
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

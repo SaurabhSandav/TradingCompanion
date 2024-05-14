@@ -18,11 +18,15 @@ import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
 import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -195,7 +199,7 @@ internal class TradesPresenter(
         }
     }
 
-    private fun Trade.toTradeEntryItem(): TradeEntry.Item {
+    private fun Trade.toTradeEntryItem(): Item {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -211,17 +215,22 @@ internal class TradesPresenter(
             )
         }
 
-        val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
-            else -> flow {
-                while (true) {
-                    emit(formatDuration(Clock.System.now() - entryTimestamp))
-                    delay(1.seconds)
+        val duration = when {
+            isClosed -> Item.Duration.Closed(
+                str = formatDuration(exitTimestamp!! - entryTimestamp)
+            )
+
+            else -> Item.Duration.Open(
+                flow = flow {
+                    while (true) {
+                        emit(formatDuration(Clock.System.now() - entryTimestamp))
+                        delay(1.seconds)
+                    }
                 }
-            }
+            )
         }
 
-        return TradeEntry.Item(
+        return Item(
             id = id,
             broker = "$broker ($instrumentCapitalized)",
             ticker = ticker,
@@ -235,7 +244,7 @@ internal class TradesPresenter(
             entryTime = TradeDateTimeFormatter.format(
                 ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
             ),
-            duration = durationStr,
+            duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
             netPnl = netPnl.toPlainString(),

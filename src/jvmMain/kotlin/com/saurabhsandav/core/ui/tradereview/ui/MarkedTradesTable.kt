@@ -17,6 +17,8 @@ import com.saurabhsandav.core.ui.common.table2.*
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Closed
+import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Open
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeItem
 
 @Composable
@@ -104,7 +106,10 @@ private fun MarkedTradeItem(
                 duration {
 
                     Text(
-                        text = item.duration.collectAsState("").value,
+                        text = when (val duration = item.duration) {
+                            is Open -> duration.flow.collectAsState("").value
+                            is Closed -> duration.str
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

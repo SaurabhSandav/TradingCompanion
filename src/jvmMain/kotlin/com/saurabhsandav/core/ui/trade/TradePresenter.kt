@@ -139,14 +139,19 @@ internal class TradePresenter(
                     )
                 }
 
-                val durationStr = when {
-                    trade.isClosed -> flowOf(formatDuration(trade.exitTimestamp!! - trade.entryTimestamp))
-                    else -> flow {
-                        while (true) {
-                            emit(formatDuration(Clock.System.now() - trade.entryTimestamp))
-                            delay(1.seconds)
+                val duration = when {
+                    trade.isClosed -> Details.Duration.Closed(
+                        str = formatDuration(trade.exitTimestamp!! - trade.entryTimestamp)
+                    )
+
+                    else -> Details.Duration.Open(
+                        flow = flow {
+                            while (true) {
+                                emit(formatDuration(Clock.System.now() - trade.entryTimestamp))
+                                delay(1.seconds)
+                            }
                         }
-                    }
+                    )
                 }
 
                 newExecutionEnabled = !trade.isClosed
@@ -167,7 +172,7 @@ internal class TradePresenter(
                         },
                         entry = trade.averageEntry.toPlainString(),
                         exit = trade.averageExit?.toPlainString() ?: "",
-                        duration = durationStr,
+                        duration = duration,
                         pnl = "${trade.pnl.toPlainString()}${rValueStr}",
                         isProfitable = trade.pnl > BigDecimal.ZERO,
                         netPnl = trade.netPnl.toPlainString(),

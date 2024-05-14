@@ -31,13 +31,21 @@ internal data class TradeState(
         val quantity: String,
         val entry: String,
         val exit: String?,
-        val duration: Flow<String>,
+        val duration: Duration,
         val pnl: String,
         val isProfitable: Boolean,
         val netPnl: String,
         val isNetProfitable: Boolean,
         val fees: String,
-    )
+    ) {
+
+        sealed class Duration {
+
+            data class Open(val flow: Flow<String>) : Duration()
+
+            data class Closed(val str: String) : Duration()
+        }
+    }
 
     internal data class Execution(
         val id: TradeExecutionId,

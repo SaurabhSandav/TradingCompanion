@@ -38,13 +38,21 @@ internal data class TradesState(
             val entry: String,
             val exit: String?,
             val entryTime: String,
-            val duration: Flow<String>,
+            val duration: Duration,
             val pnl: String,
             val isProfitable: Boolean,
             val netPnl: String,
             val isNetProfitable: Boolean,
             val fees: String,
-        ) : TradeEntry()
+        ) : TradeEntry() {
+
+            sealed class Duration {
+
+                data class Open(val flow: Flow<String>) : Duration()
+
+                data class Closed(val str: String) : Duration()
+            }
+        }
     }
 
     internal data class Stats(

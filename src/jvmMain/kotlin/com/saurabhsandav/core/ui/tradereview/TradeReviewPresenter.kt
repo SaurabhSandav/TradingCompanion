@@ -169,14 +169,19 @@ internal class TradeReviewPresenter(
             )
         }
 
-        val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
-            else -> flow {
-                while (true) {
-                    emit(formatDuration(Clock.System.now() - entryTimestamp))
-                    delay(1.seconds)
+        val duration = when {
+            isClosed -> TradeReviewState.Duration.Closed(
+                str = formatDuration(exitTimestamp!! - entryTimestamp)
+            )
+
+            else -> TradeReviewState.Duration.Open(
+                flow = flow {
+                    while (true) {
+                        emit(formatDuration(Clock.System.now() - entryTimestamp))
+                        delay(1.seconds)
+                    }
                 }
-            }
+            )
         }
 
         return TradeItem(
@@ -194,7 +199,7 @@ internal class TradeReviewPresenter(
             entryTime = TradeDateTimeFormatter.format(
                 ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
             ),
-            duration = durationStr,
+            duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
             netPnl = netPnl.toPlainString(),
@@ -266,14 +271,19 @@ internal class TradeReviewPresenter(
             )
         }
 
-        val durationStr = when {
-            isClosed -> flowOf(formatDuration(exitTimestamp!! - entryTimestamp))
-            else -> flow {
-                while (true) {
-                    emit(formatDuration(Clock.System.now() - entryTimestamp))
-                    delay(1.seconds)
+        val duration = when {
+            isClosed -> TradeReviewState.Duration.Closed(
+                str = formatDuration(exitTimestamp!! - entryTimestamp)
+            )
+
+            else -> TradeReviewState.Duration.Open(
+                flow = flow {
+                    while (true) {
+                        emit(formatDuration(Clock.System.now() - entryTimestamp))
+                        delay(1.seconds)
+                    }
                 }
-            }
+            )
         }
 
         return MarkedTradeItem(
@@ -291,7 +301,7 @@ internal class TradeReviewPresenter(
             entryTime = TradeDateTimeFormatter.format(
                 ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
             ),
-            duration = durationStr,
+            duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,
             netPnl = netPnl.toPlainString(),
