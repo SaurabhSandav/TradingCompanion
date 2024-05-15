@@ -6,6 +6,8 @@ import com.saurabhsandav.core.fyers_api.model.DateFormat
 import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
 import com.saurabhsandav.core.fyers_api.model.request.RefreshValidationRequest
 import com.saurabhsandav.core.fyers_api.model.response.*
+import dev.whyoleg.cryptography.CryptographyProvider
+import dev.whyoleg.cryptography.algorithms.digest.SHA256
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -13,7 +15,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import korlibs.crypto.sha256
 import kotlinx.serialization.json.Json
 
 class FyersApi {
@@ -49,7 +50,7 @@ class FyersApi {
 
         val requestBody = AuthValidationRequest(
             grantType = "authorization_code",
-            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".toByteArray().sha256().toString(),
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256().toString(),
             code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
         )
 
@@ -71,7 +72,7 @@ class FyersApi {
 
         val requestBody = RefreshValidationRequest(
             grantType = "refresh_token",
-            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".toByteArray().sha256().toString(),
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256().toString(),
             refreshToken = refreshToken,
             pin = pin,
         )
@@ -137,5 +138,9 @@ class FyersApi {
         }
 
         return response.body()
+    }
+
+    private suspend fun String.sha256(): ByteArray {
+        return CryptographyProvider.Default.get(SHA256).hasher().hash(encodeToByteArray())
     }
 }

@@ -143,7 +143,8 @@ kotlin {
             implementation("org.openjfx:javafx-web:21.0.2:linux")
 
             // Krypto
-            implementation("com.soywiz.korlibs.krypto:krypto:4.0.10")
+            implementation("dev.whyoleg.cryptography:cryptography-core:0.3.0")
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.0")
 
             // kotlin-result
             implementation(libs.kotlinResult)
