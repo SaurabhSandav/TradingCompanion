@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.common.table2
+package com.saurabhsandav.core.ui.common.table
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Box

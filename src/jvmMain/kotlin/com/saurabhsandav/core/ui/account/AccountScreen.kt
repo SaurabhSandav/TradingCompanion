@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable

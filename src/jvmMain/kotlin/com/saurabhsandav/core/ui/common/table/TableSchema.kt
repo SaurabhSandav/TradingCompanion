@@ -1,11 +1,11 @@
-package com.saurabhsandav.core.ui.common.table2
+package com.saurabhsandav.core.ui.common.table
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 
 open class TableSchema {
 

@@ -14,7 +14,7 @@ import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone

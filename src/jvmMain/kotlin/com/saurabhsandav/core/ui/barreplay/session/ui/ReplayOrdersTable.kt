@@ -14,7 +14,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.Repl
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.table2.*
+import com.saurabhsandav.core.ui.common.table.*
 
 @Composable
 internal fun ReplayOrdersTable(

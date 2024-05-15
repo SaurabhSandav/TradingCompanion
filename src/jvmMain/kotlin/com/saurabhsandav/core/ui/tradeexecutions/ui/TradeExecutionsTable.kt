@@ -20,9 +20,9 @@ import app.cash.paging.compose.itemContentType
 import app.cash.paging.compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
-import com.saurabhsandav.core.ui.common.table2.*
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry.Item

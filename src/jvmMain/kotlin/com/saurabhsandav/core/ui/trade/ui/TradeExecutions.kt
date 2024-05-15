@@ -21,12 +21,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
-import com.saurabhsandav.core.ui.common.table2.SimpleHeader
-import com.saurabhsandav.core.ui.common.table2.SimpleRow
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
-import com.saurabhsandav.core.ui.common.table2.TableSchema
-import com.saurabhsandav.core.ui.common.table2.text
+import com.saurabhsandav.core.ui.common.table.SimpleHeader
+import com.saurabhsandav.core.ui.common.table.SimpleRow
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.trade.model.TradeState
 
 @Composable

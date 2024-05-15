@@ -23,8 +23,8 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.table2.*
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable

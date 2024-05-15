@@ -26,8 +26,8 @@ import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
-import com.saurabhsandav.core.ui.common.table2.*
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.flow.Flow

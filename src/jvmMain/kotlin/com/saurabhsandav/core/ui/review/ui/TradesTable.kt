@@ -12,9 +12,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table2.*
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Fixed
-import com.saurabhsandav.core.ui.common.table2.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
+import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry.Duration.Closed
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry.Duration.Open
