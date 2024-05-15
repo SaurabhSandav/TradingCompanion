@@ -12,22 +12,24 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.*
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
@@ -116,9 +118,10 @@ internal class ReplaySessionPresenter(
                             is StopMarket -> openOrder.executionType.trigger.toPlainString()
                             is TrailingStop -> openOrder.executionType.trailingStop?.toPlainString() ?: ""
                         },
-                        timestamp = TradeDateTimeFormatter.format(
-                            ldt = openOrder.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()),
-                        ),
+                        timestamp = openOrder
+                            .createdAt
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .format(TradeDateTimeFormat),
                     )
                 }
             }
@@ -204,13 +207,15 @@ internal class ReplaySessionPresenter(
     private fun getChartInfo(stockChart: StockChart) = ReplayChartInfo(
         replayTime = flow {
 
+            val tz = TimeZone.currentSystemDefault()
+
             stockChart.data
                 .source
                 .let { it as ReplayCandleSource }
                 .replaySeries
                 .await()
                 .replayTime
-                .map(::formattedReplayTime)
+                .map { it.toLocalDateTime(tz).format(ReplayDateTimeFormat) }
                 .emitInto(this)
         },
         candleState = flow {
@@ -226,8 +231,20 @@ internal class ReplaySessionPresenter(
         },
     )
 
-    private fun formattedReplayTime(currentInstant: Instant): String {
-        val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())
-        return DateTimeFormatter.ofPattern("MMM d, yyyy\nHH:mm:ss").format(localDateTime)
+    private companion object {
+
+        private val ReplayDateTimeFormat = LocalDateTime.Format {
+            monthName(MonthNames.ENGLISH_ABBREVIATED)
+            char(' ')
+            dayOfMonth(Padding.NONE)
+            chars(", ")
+            year()
+            char('\n')
+            hour()
+            char(':')
+            minute()
+            char(':')
+            second()
+        }
     }
 }

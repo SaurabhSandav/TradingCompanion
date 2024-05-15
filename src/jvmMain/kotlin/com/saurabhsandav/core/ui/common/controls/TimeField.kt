@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.common.controls
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
@@ -11,9 +10,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.toJavaLocalTime
-import kotlinx.datetime.toKotlinLocalTime
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.format
 
 @Composable
 fun TimeField(
@@ -27,8 +24,7 @@ fun TimeField(
     label: @Composable (() -> Unit)? = null,
 ) {
 
-    val formatter = remember { DateTimeFormatter.ofPattern(TimePattern) }
-    var timeText by state(value) { value?.toJavaLocalTime()?.let(formatter::format) ?: "" }
+    var timeText by state(value) { value?.format(TimeFormat) ?: "" }
     var isTimeValid by state { true }
 
     OutlinedTextField(
@@ -49,7 +45,7 @@ fun TimeField(
 
             if (trimmed.toIntOrNull() == null) return@OutlinedTextField
 
-            val time = runCatching { java.time.LocalTime.parse(trimmed, formatter).toKotlinLocalTime() }
+            val time = runCatching { LocalTime.parse(trimmed, TimeFormat) }
 
             time.onSuccess { onValidValueChange(it) }
             isTimeValid = time.isSuccess
@@ -93,4 +89,8 @@ fun TimeField(
     )
 }
 
-private const val TimePattern = "HHmmss"
+private val TimeFormat = LocalTime.Format {
+    hour()
+    minute()
+    second()
+}

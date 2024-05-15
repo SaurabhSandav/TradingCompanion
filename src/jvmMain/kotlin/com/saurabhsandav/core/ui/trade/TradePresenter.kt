@@ -5,7 +5,7 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
@@ -21,7 +21,6 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
@@ -201,9 +201,10 @@ internal class TradePresenter(
                             ?: execution.quantity.toString(),
                         side = execution.side.strValue.uppercase(),
                         price = execution.price.toPlainString(),
-                        timestamp = TradeDateTimeFormatter.format(
-                            ldt = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                        ),
+                        timestamp = execution
+                            .timestamp
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .format(TradeDateTimeFormat),
                         locked = execution.locked,
                     )
                 }
@@ -337,12 +338,9 @@ internal class TradePresenter(
             tradingRecord.trades.getNotesForTrade(tradeId)
                 .mapList { note ->
 
-                    val added = TradeDateTimeFormatter.format(
-                        ldt = note.added.toLocalDateTime(TimeZone.currentSystemDefault())
-                    )
-                    val lastEdited = note.lastEdited
-                        ?.toLocalDateTime(TimeZone.currentSystemDefault())
-                        ?.let(TradeDateTimeFormatter::format)
+                    val tz = TimeZone.currentSystemDefault()
+                    val added = note.added.toLocalDateTime(tz).format(TradeDateTimeFormat)
+                    val lastEdited = note.lastEdited?.toLocalDateTime(tz)?.format(TradeDateTimeFormat)
 
                     TradeNote(
                         id = note.id,

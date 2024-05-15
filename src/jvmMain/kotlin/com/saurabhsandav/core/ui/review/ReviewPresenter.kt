@@ -9,7 +9,7 @@ import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.review.model.ReviewEvent
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.*
 import com.saurabhsandav.core.ui.review.model.ReviewState
@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +27,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
@@ -136,9 +136,7 @@ internal class ReviewPresenter(
             },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
-            entryTime = TradeDateTimeFormatter.format(
-                ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-            ),
+            entryTime = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
             duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,

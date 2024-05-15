@@ -9,7 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -24,7 +27,8 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.*
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 @Composable
 fun DateTimePickerField(
@@ -38,9 +42,7 @@ fun DateTimePickerField(
     yearRange: IntRange = DatePickerDefaults.YearRange,
 ) {
 
-    val formatter = remember { DateTimeFormatter.ofPattern(DateTimePattern) }
-    val valueUpdated by rememberUpdatedState(value)
-    val dateTimeText by derivedState { formatter.format(valueUpdated.toJavaLocalDateTime()) }
+    val dateTimeText by state(value) { value.format(DateTimeFormat) }
 
     var showDateDialog by state { false }
     var showTimeDialog by state { false }
@@ -241,8 +243,7 @@ fun DateTimeField(
     label: @Composable (() -> Unit)? = null,
 ) {
 
-    val formatter = remember { DateTimeFormatter.ofPattern("ddMMyyyyHHmmss") }
-    var dateTimeStr by state(value) { formatter.format(value.toJavaLocalDateTime()) }
+    var dateTimeStr by state(value) { value.format(DateTimeFormatLegacy) }
     var isDateTimeValid by state { true }
 
     OutlinedTextField(
@@ -263,7 +264,7 @@ fun DateTimeField(
 
             if (trimmed.toLongOrNull() == null) return@OutlinedTextField
 
-            val date = runCatching { java.time.LocalDateTime.parse(trimmed, formatter).toKotlinLocalDateTime() }
+            val date = runCatching { LocalDateTime.parse(trimmed, DateTimeFormatLegacy) }
 
             date.onSuccess { onValidValueChange(it) }
             isDateTimeValid = date.isSuccess
@@ -317,4 +318,23 @@ fun DateTimeField(
     )
 }
 
-private const val DateTimePattern = "MMMM dd, yyyy - HH:mm"
+private val DateTimeFormatLegacy = LocalDateTime.Format {
+    dayOfMonth()
+    monthNumber()
+    year()
+    hour()
+    minute()
+    second()
+}
+
+private val DateTimeFormat = LocalDateTime.Format {
+    monthName(MonthNames.ENGLISH_FULL)
+    char(' ')
+    dayOfMonth()
+    chars(", ")
+    year()
+    chars(" - ")
+    hour()
+    char(':')
+    minute()
+}

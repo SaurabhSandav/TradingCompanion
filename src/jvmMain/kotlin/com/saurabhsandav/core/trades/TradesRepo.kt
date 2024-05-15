@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.char
 import java.math.BigDecimal
 import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.path.*
 
@@ -58,21 +58,13 @@ internal class TradesRepo(
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
-        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-
-        fun LocalTime.simpleString(): String {
-            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
-            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
-            return formatter.format(offsetTime.toJavaLocalTime())
-        }
-
         val query = tradesDB.tradeQueries.getFilteredCount(
             isClosed = filter.isClosed,
             side = filter.side,
             from = filter.instantFrom?.toString(),
             to = filter.instantTo?.toString(),
-            timeFrom = filter.timeFrom?.simpleString(),
-            timeTo = filter.timeTo?.simpleString(),
+            timeFrom = filter.timeFrom?.toOffsetFilterTimeString(),
+            timeTo = filter.timeTo?.toOffsetFilterTimeString(),
             pnlFrom = filter.pnlFrom?.toDouble(),
             pnlTo = filter.pnlTo?.toDouble(),
             filterByNetPnl = filter.filterByNetPnl.toLong(),
@@ -97,21 +89,13 @@ internal class TradesRepo(
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
-        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-
-        fun LocalTime.simpleString(): String {
-            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
-            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
-            return formatter.format(offsetTime.toJavaLocalTime())
-        }
-
         val query = tradesDB.tradeQueries.getFiltered(
             isClosed = filter.isClosed,
             side = filter.side,
             from = filter.instantFrom?.toString(),
             to = filter.instantTo?.toString(),
-            timeFrom = filter.timeFrom?.simpleString(),
-            timeTo = filter.timeTo?.simpleString(),
+            timeFrom = filter.timeFrom?.toOffsetFilterTimeString(),
+            timeTo = filter.timeTo?.toOffsetFilterTimeString(),
             pnlFrom = filter.pnlFrom?.toDouble(),
             pnlTo = filter.pnlTo?.toDouble(),
             filterByNetPnl = filter.filterByNetPnl.toLong(),
@@ -137,22 +121,14 @@ internal class TradesRepo(
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
-        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-
-        fun LocalTime.simpleString(): String {
-            val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
-            val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
-            return formatter.format(offsetTime.toJavaLocalTime())
-        }
-
         return QueryPagingSource(
             countQuery = tradesDB.tradeQueries.getFilteredCount(
                 isClosed = filter.isClosed,
                 side = filter.side,
                 from = filter.instantFrom?.toString(),
                 to = filter.instantTo?.toString(),
-                timeFrom = filter.timeFrom?.simpleString(),
-                timeTo = filter.timeTo?.simpleString(),
+                timeFrom = filter.timeFrom?.toOffsetFilterTimeString(),
+                timeTo = filter.timeTo?.toOffsetFilterTimeString(),
                 pnlFrom = filter.pnlFrom?.toDouble(),
                 pnlTo = filter.pnlTo?.toDouble(),
                 filterByNetPnl = filter.filterByNetPnl.toLong(),
@@ -175,8 +151,8 @@ internal class TradesRepo(
                     side = filter.side,
                     from = filter.instantFrom?.toString(),
                     to = filter.instantTo?.toString(),
-                    timeFrom = filter.timeFrom?.simpleString(),
-                    timeTo = filter.timeTo?.simpleString(),
+                    timeFrom = filter.timeFrom?.toOffsetFilterTimeString(),
+                    timeTo = filter.timeTo?.toOffsetFilterTimeString(),
                     pnlFrom = filter.pnlFrom?.toDouble(),
                     pnlTo = filter.pnlTo?.toDouble(),
                     filterByNetPnl = filter.filterByNetPnl.toLong(),
@@ -694,8 +670,22 @@ internal class TradesRepo(
         tradesDB.reviewQueries.delete(id)
     }
 
-    companion object {
+    private fun LocalTime.toOffsetFilterTimeString(): String {
+        val utcOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now())
+        val offsetTime = LocalTime.fromSecondOfDay(toSecondOfDay() - utcOffset.totalSeconds)
+        return offsetTime.format(FilterTimeFormat)
+    }
+
+    private companion object {
 
         const val AttachmentFolderName = "attachments"
+
+        val FilterTimeFormat = LocalTime.Format {
+            hour()
+            char(':')
+            minute()
+            char(':')
+            second()
+        }
     }
 }

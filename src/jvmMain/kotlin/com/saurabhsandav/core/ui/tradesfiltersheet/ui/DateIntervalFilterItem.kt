@@ -24,6 +24,8 @@ import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.DateInterval
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 @Composable
 internal fun DateIntervalFilterItem(
@@ -142,7 +144,7 @@ private fun RowScope.DatePicker(
             value = formField.value,
             onValidValueChange = { formField.value = it },
             label = { Text(label) },
-            format = "MMM dd, yyyy",
+            format = DateFormat,
             isError = formField.isError,
             supportingText = formField.errorMessage?.let { { Text(it) } },
         )
@@ -185,4 +187,12 @@ private class DateIntervalFormModel(
             )
         }
     }
+}
+
+private val DateFormat = LocalDate.Format {
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char(' ')
+    dayOfMonth()
+    chars(", ")
+    year()
 }

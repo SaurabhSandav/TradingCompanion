@@ -9,7 +9,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeSort
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
@@ -20,17 +20,14 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 import java.util.*
 import kotlin.time.Duration
@@ -241,9 +238,7 @@ internal class TradesPresenter(
             },
             entry = averageEntry.toPlainString(),
             exit = averageExit?.toPlainString() ?: "",
-            entryTime = TradeDateTimeFormatter.format(
-                ldt = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-            ),
+            entryTime = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
             duration = duration,
             pnl = pnl.toPlainString(),
             isProfitable = pnl > BigDecimal.ZERO,

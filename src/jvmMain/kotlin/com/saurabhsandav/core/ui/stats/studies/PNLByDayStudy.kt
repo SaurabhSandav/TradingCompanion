@@ -17,12 +17,15 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 internal class PNLByDayStudy(
     profileId: ProfileId,
@@ -116,7 +119,7 @@ internal class PNLByDayStudy(
                         val netPnl = dailyStats.sumOf { it.second }
                         val rValue = dailyStats.mapNotNull { it.third }.sumOf { it }
 
-                        val day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(date.toJavaLocalDate())
+                        val day = date.format(DateFormat)
 
                         Model(
                             day = day,
@@ -162,5 +165,16 @@ internal class PNLByDayStudy(
         override val name: String = "PNL By Day"
 
         override fun create() = PNLByDayStudy(profileId, tradingProfiles)
+    }
+
+    private companion object {
+
+        val DateFormat: DateTimeFormat<LocalDate> = LocalDate.Format {
+            dayOfMonth(Padding.NONE)
+            char(' ')
+            monthName(MonthNames.ENGLISH_ABBREVIATED)
+            char(' ')
+            year()
+        }
     }
 }

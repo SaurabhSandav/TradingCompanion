@@ -1,5 +1,21 @@
 package com.saurabhsandav.core.ui.common
 
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 
-val TradeDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy - HH:mm:ss")
+val TradeDateTimeFormat: DateTimeFormat<LocalDateTime> = LocalDateTime.Format {
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char(' ')
+    dayOfMonth(Padding.NONE)
+    chars(", ")
+    year()
+    chars(" - ")
+    hour()
+    char(':')
+    minute()
+    char(':')
+    second()
+}

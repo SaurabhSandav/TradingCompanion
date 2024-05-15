@@ -4,14 +4,19 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.*
-import java.time.format.DateTimeFormatter
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 @Composable
 fun DatePickerField(
@@ -22,13 +27,11 @@ fun DatePickerField(
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
-    format: String = DatePattern,
+    format: DateTimeFormat<LocalDate> = DateFormat,
     yearRange: IntRange = DatePickerDefaults.YearRange,
 ) {
 
-    val formatter = remember(format) { DateTimeFormatter.ofPattern(format) }
-    val valueUpdated by rememberUpdatedState(value)
-    val dateText by derivedState { valueUpdated?.toJavaLocalDate()?.let(formatter::format) ?: "" }
+    val dateText by state(value) { value?.format(format) ?: "" }
     var showDialog by state { false }
 
     OutlinedTextField(
@@ -95,4 +98,10 @@ fun DatePickerField(
     }
 }
 
-private const val DatePattern = "MMMM dd, yyyy"
+private val DateFormat = LocalDate.Format {
+    monthName(MonthNames.ENGLISH_FULL)
+    char(' ')
+    dayOfMonth()
+    chars(", ")
+    year()
+}

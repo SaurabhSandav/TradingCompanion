@@ -9,7 +9,7 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -18,7 +18,6 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -26,10 +25,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 internal class TradeExecutionsPresenter(
@@ -148,7 +145,7 @@ internal class TradeExecutionsPresenter(
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
         side = side.strValue.uppercase(),
         price = price.toPlainString(),
-        timestamp = TradeDateTimeFormatter.format(timestamp.toLocalDateTime(TimeZone.currentSystemDefault())),
+        timestamp = timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
         locked = locked,
     )
 

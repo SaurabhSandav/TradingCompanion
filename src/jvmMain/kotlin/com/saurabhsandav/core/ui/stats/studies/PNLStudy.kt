@@ -20,17 +20,17 @@ import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.TradeDateTimeFormatter
+import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.utils.emitInto
-import com.saurabhsandav.core.utils.format
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
@@ -157,9 +157,10 @@ internal class PNLStudy(
                     quantity = trade.quantity.toPlainString(),
                     entry = trade.averageEntry.toPlainString(),
                     exit = trade.averageExit!!.toPlainString(),
-                    entryTime = TradeDateTimeFormatter.format(
-                        ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
-                    ),
+                    entryTime = trade
+                        .entryTimestamp
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                        .format(TradeDateTimeFormat),
                     duration = durationStr,
                     pnl = trade.pnl.toPlainString(),
                     isProfitable = trade.pnl > BigDecimal.ZERO,

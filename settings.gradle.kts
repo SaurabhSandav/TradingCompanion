@@ -47,6 +47,7 @@ dependencyResolutionManagement {
 
         create("libs") {
             from("com.saurabhsandav:common-versions:0.94.0")
+            version("kotlinxDatetime", "0.6.0")
         }
     }
 }
