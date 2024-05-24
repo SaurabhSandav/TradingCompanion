@@ -47,10 +47,10 @@ kotlin {
                     "-Xexpect-actual-classes",
                     "-Xcontext-receivers",
                     "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
+                    "plugin:androidx.compose.compiler.plugins.kotlin:strongSkipping=true",
                     "-P",
                     "plugin:androidx.compose.compiler.plugins.kotlin:stabilityConfigurationPath=" +
-                            project.absoluteProjectPath("compose_compiler_config.conf")
+                            layout.projectDirectory + "/compose_compiler_config.conf"
                 )
 
                 // Trigger this with:
