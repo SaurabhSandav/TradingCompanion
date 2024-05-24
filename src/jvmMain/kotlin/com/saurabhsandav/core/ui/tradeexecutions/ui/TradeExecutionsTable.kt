@@ -14,10 +14,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.cash.paging.PagingData
-import app.cash.paging.compose.collectAsLazyPagingItems
-import app.cash.paging.compose.itemContentType
-import app.cash.paging.compose.itemKey
+import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
+import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.table.*

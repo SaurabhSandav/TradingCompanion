@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.tradereview.ui
 import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import app.cash.paging.PagingData
+import androidx.paging.PagingData
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
 import kotlinx.coroutines.flow.Flow

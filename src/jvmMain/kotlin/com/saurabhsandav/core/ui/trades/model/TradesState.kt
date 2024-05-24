@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.trades.model
 
-import app.cash.paging.PagingData
+import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.coroutines.flow.Flow

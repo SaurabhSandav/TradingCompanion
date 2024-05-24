@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.paging_sqldelight
 
-import app.cash.paging.*
+import androidx.paging.PagingState
 import app.cash.sqldelight.*
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
@@ -16,26 +16,26 @@ internal class OffsetQueryPagingSource<RowType : Any>(
     override val jumpingSupported get() = true
 
     override suspend fun load(
-        params: PagingSourceLoadParams<Int>,
-    ): PagingSourceLoadResult<Int, RowType> = withContext(context) {
+        params: LoadParams<Int>,
+    ): LoadResult<Int, RowType> = withContext(context) {
         val key = params.key ?: initialOffset
         val limit = when (params) {
-            is PagingSourceLoadParamsPrepend<*> -> minOf(key, params.loadSize)
+            is LoadParams.Prepend<*> -> minOf(key, params.loadSize)
             else -> params.loadSize
         }
-        val getPagingSourceLoadResult: TransactionCallbacks.() -> PagingSourceLoadResultPage<Int, RowType> = {
+        val getPagingSourceLoadResult: TransactionCallbacks.() -> LoadResult.Page<Int, RowType> = {
             val count = countQuery.executeAsOne()
             val offset = when (params) {
-                is PagingSourceLoadParamsPrepend<*> -> maxOf(0, key - params.loadSize)
-                is PagingSourceLoadParamsAppend<*> -> key
-                is PagingSourceLoadParamsRefresh<*> -> if (key >= count) maxOf(0, count - params.loadSize) else key
-                else -> error("Unknown PagingSourceLoadParams ${params::class}")
+                is LoadParams.Prepend<*> -> maxOf(0, key - params.loadSize)
+                is LoadParams.Append<*> -> key
+                is LoadParams.Refresh<*> -> if (key >= count) maxOf(0, count - params.loadSize) else key
+                else -> error("Unknown PagingSource.LoadParams ${params::class}")
             }
             val data = queryProvider(limit, offset)
                 .also { currentQuery = it }
                 .executeAsList()
             val nextPosToLoad = offset + data.size
-            PagingSourceLoadResultPage(
+            LoadResult.Page(
                 data = data,
                 prevKey = offset.takeIf { it > 0 && data.isNotEmpty() },
                 nextKey = nextPosToLoad.takeIf { data.isNotEmpty() && data.size >= limit && it < count },
@@ -47,7 +47,7 @@ internal class OffsetQueryPagingSource<RowType : Any>(
             is Transacter -> transacter.transactionWithResult(bodyWithReturn = getPagingSourceLoadResult)
             is SuspendingTransacter -> transacter.transactionWithResult(bodyWithReturn = getPagingSourceLoadResult)
         }
-        if (invalid) PagingSourceLoadResultInvalid() else loadResult
+        if (invalid) LoadResult.Invalid() else loadResult
     }
 
     override fun getRefreshKey(state: PagingState<Int, RowType>) =

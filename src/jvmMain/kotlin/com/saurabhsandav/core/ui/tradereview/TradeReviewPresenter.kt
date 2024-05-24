@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.tradereview
 
 import androidx.compose.runtime.*
+import androidx.paging.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import app.cash.paging.*
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradingProfiles
