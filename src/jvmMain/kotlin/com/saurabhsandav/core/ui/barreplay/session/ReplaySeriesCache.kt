@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
@@ -99,7 +97,7 @@ internal class ReplaySeriesCache(
         timeframe: Timeframe,
     ): CandleSeries {
 
-        val allCandlesResult = binding {
+        val allCandlesResult = coroutineBinding {
 
             val candlesBefore = async {
                 candleRepo.getCandlesBefore(
@@ -124,9 +122,9 @@ internal class ReplaySeriesCache(
             candlesBefore.await() + candlesAfter.await()
         }
 
-        return when (allCandlesResult) {
-            is Ok -> MutableCandleSeries(allCandlesResult.value, timeframe)
-            is Err -> when (val error = allCandlesResult.error) {
+        return when {
+            allCandlesResult.isOk -> MutableCandleSeries(allCandlesResult.value, timeframe)
+            else -> when (val error = allCandlesResult.error) {
                 is CandleRepository.Error.AuthError -> error("AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }

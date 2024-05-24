@@ -3,7 +3,7 @@ package com.saurabhsandav.core.trading.data
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -46,7 +46,7 @@ internal class FyersCandleDownloader(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ): Result<List<Candle>, CandleDownloader.Error> = binding {
+    ): Result<List<Candle>, CandleDownloader.Error> = coroutineBinding {
 
         // Fyers symbol notation
         val symbolFull = when (ticker) {
@@ -96,7 +96,7 @@ internal class FyersCandleDownloader(
             currentTo = if (newCurrentTo > to) to else newCurrentTo
         }
 
-        return@binding candles
+        return@coroutineBinding candles
     }
 
     private suspend fun getAccessToken(): Result<String, CandleDownloader.Error> {

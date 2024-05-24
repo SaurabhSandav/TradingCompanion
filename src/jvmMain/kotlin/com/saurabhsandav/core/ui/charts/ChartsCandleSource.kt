@@ -1,7 +1,5 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.CandleSource
@@ -90,9 +88,9 @@ internal class ChartsCandleSource(
             block = request,
         )
 
-        return when (result) {
-            is Ok -> result.value
-            is Err -> when (val error = result.error) {
+        return when {
+            result.isOk -> result.value
+            else -> when (val error = result.error) {
                 is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
                 is CandleRepository.Error.UnknownError -> error(error.message)
             }
