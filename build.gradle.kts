@@ -1,11 +1,13 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.gradle.versions.checker)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
+    id("org.jetbrains.kotlin.plugin.compose") version libs.versions.kotlin
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
@@ -15,7 +17,7 @@ plugins {
 group = "com.saurabhsandav.apps"
 version = "1.0-SNAPSHOT"
 
-configurations.all {
+configurations.configureEach {
 
     resolutionStrategy.dependencySubstitution {
         substitute(module("org.jetbrains.compose.material:material"))
@@ -26,53 +28,27 @@ configurations.all {
 
 kotlin {
 
+    jvmToolchain(17)
+
     jvm {
 
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
-
-        compilations.all {
-            compilerOptions.configure {
-                jvmToolchain(17)
-            }
-        }
     }
 
-    targets.all {
-        compilations.all {
-            compilerOptions.configure {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
 
-                freeCompilerArgs.addAll(
-                    "-Xexpect-actual-classes",
-                    "-Xcontext-receivers",
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:strongSkipping=true",
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:stabilityConfigurationPath=" +
-                            layout.projectDirectory + "/compose_compiler_config.conf"
-                )
-
-                // Trigger this with:
-                // ./gradlew build -PenableMultiModuleComposeReports=true --rerun-tasks
-                if (project.findProperty("enableMultiModuleComposeReports") == "true") {
-
-                    val path = layout.buildDirectory.dir("compose_metrics").get().asFile.absolutePath
-
-                    freeCompilerArgs.addAll(
-                        "-P",
-                        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$path",
-                        "-P",
-                        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$path",
-                    )
-                }
-            }
-        }
+        freeCompilerArgs.addAll(
+            "-Xexpect-actual-classes",
+            "-Xcontext-receivers",
+        )
     }
 
     sourceSets {
 
-        all {
+        configureEach {
 
             languageSettings {
 
@@ -215,6 +191,19 @@ sqldelight {
             schemaOutputDirectory = file("src/commonMain/sqldelight/candles")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
+    }
+}
+
+composeCompiler {
+    enableStrongSkippingMode = true
+    stabilityConfigurationFile = layout.projectDirectory.file("compose_compiler_config.conf")
+
+    // Trigger this with:
+    // ./gradlew build -PenableComposeCompilerReports --rerun-tasks
+    if (project.providers.gradleProperty("enableComposeCompilerReports").isPresent) {
+        val composeReports = layout.buildDirectory.map { it.dir("reports").dir("compose") }
+        reportsDestination.set(composeReports)
+        metricsDestination.set(composeReports)
     }
 }
 

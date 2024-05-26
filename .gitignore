@@ -207,6 +207,8 @@ modules.xml
 hs_err_pid*
 
 ### Kotlin ###
+.kotlin
+
 # Compiled class file
 
 # Log file
@@ -323,4 +325,3 @@ Thumbs.db
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio,intellij+all,kotlin,java
- 
