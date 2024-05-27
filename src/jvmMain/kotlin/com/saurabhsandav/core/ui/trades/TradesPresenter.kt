@@ -22,10 +22,7 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import java.math.BigDecimal
@@ -164,7 +161,7 @@ internal class TradesPresenter(
 
     private fun List<Trade>.generateStats(tradesRepo: TradesRepo): Flow<Stats> {
 
-        val closedTrades = filter { it.isClosed }.ifEmpty { error("generateStats: No trades") }
+        val closedTrades = filter { it.isClosed }.ifEmpty { return emptyFlow() }
         val closedTradesIds = closedTrades.map { it.id }
 
         return tradesRepo.getPrimaryStops(closedTradesIds).map { tradeStops ->
