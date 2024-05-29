@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.gradle.versions.checker)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
-    id("org.jetbrains.kotlin.plugin.compose") version libs.versions.kotlin
+    alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
@@ -111,16 +111,16 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:21.0.2:linux")
-            implementation("org.openjfx:javafx-controls:21.0.2:linux")
-            implementation("org.openjfx:javafx-graphics:21.0.2:linux")
-            implementation("org.openjfx:javafx-media:21.0.2:linux")
-            implementation("org.openjfx:javafx-swing:21.0.2:linux")
-            implementation("org.openjfx:javafx-web:21.0.2:linux")
+            implementation("org.openjfx:javafx-base:22.0.1:linux")
+            implementation("org.openjfx:javafx-controls:22.0.1:linux")
+            implementation("org.openjfx:javafx-graphics:22.0.1:linux")
+            implementation("org.openjfx:javafx-media:22.0.1:linux")
+            implementation("org.openjfx:javafx-swing:22.0.1:linux")
+            implementation("org.openjfx:javafx-web:22.0.1:linux")
 
             // Krypto
-            implementation("dev.whyoleg.cryptography:cryptography-core:0.3.0")
-            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.0")
+            implementation("dev.whyoleg.cryptography:cryptography-core:0.3.1")
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.1")
 
             // kotlin-result
             implementation(libs.kotlinResult)
@@ -133,7 +133,7 @@ kotlin {
             implementation(libs.kermit)
 
             // Compose Multiplatform File Picker
-            implementation("com.darkrockstudios:mpfilepicker:3.1.0")
+            implementation(libs.mpfilepicker)
 
             // JCEF MAVEN
             implementation(libs.jcefMaven)
@@ -142,8 +142,8 @@ kotlin {
             implementation("com.halilibo.compose-richtext:richtext-ui-material3:1.0.0-alpha01")
             implementation("com.halilibo.compose-richtext:richtext-commonmark:1.0.0-alpha01")
 
-            // Paging
-            implementation("androidx.paging:paging-common:3.3.0")
+            // Jetpack Paging
+            implementation(libs.jetpack.paging.common)
         }
 
         jvmTest.dependencies {
@@ -225,7 +225,7 @@ compose.desktop {
 }
 
 val downloadLWC by tasks.registering(Download::class) {
-    src("https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js")
+    src("https://unpkg.com/lightweight-charts@4.1.4/dist/lightweight-charts.standalone.production.js")
     dest("src/jvmMain/resources/charts_page")
     overwrite(false)
 }
