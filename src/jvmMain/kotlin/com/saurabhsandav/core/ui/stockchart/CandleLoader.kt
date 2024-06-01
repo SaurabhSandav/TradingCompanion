@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
+import kotlin.math.ceil
 
 class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
@@ -196,7 +197,10 @@ class CandleLoader(
             .joinAll()
     }
 
-    suspend fun loadBefore(params: StockChartParams) {
+    suspend fun loadBefore(
+        params: StockChartParams,
+        loadCount: Int? = null,
+    ) {
 
         // If locked, loading before may be unnecessary.
         if (loadMutex.isLocked) return
@@ -209,23 +213,34 @@ class CandleLoader(
 
             // LoadedPages for timeframe
             val loadedPages = loadedPagesMap[params.timeframe]!!
-            // Start of loaded interval for current timeframe
-            val before = loadedPages.start
-
-            // Get new before
-            val newBefore = data.source.getBeforeInstant(
-                currentBefore = before,
-                loadCount = loadConfig.loadMoreCount,
-            )
-
-            // If no candles available, do nothing.
-            if (newBefore == null || before == newBefore) {
-                data.setHasBefore(false)
-                return@withLock
+            val initialLoadedInterval = loadedPages.interval
+            val loadIterations = when {
+                loadCount == null || loadCount <= 0 -> 1
+                else -> (loadCount / loadConfig.loadMoreCount.toFloat()).let(::ceil).toInt()
             }
 
-            // Add new interval to LoadedPages
-            loadedPages.addBefore(newBefore..before)
+            repeat(loadIterations) {
+
+                // Start of loaded interval for current timeframe
+                val before = loadedPages.start
+
+                // Get new before
+                val newBefore = data.source.getBeforeInstant(
+                    currentBefore = before,
+                    loadCount = loadConfig.loadMoreCount,
+                )
+
+                // If no candles available, do nothing.
+                if (newBefore == null || before == newBefore) {
+                    data.setHasBefore(false)
+                    return@repeat
+                }
+
+                // Add new interval to LoadedPages
+                loadedPages.addBefore(newBefore..before)
+            }
+
+            if (loadedPages.interval == initialLoadedInterval) return@withLock
 
             // Sync other StockChartData with same timeframe
             stockChartDataMap
@@ -236,7 +251,10 @@ class CandleLoader(
         }
     }
 
-    suspend fun loadAfter(params: StockChartParams) {
+    suspend fun loadAfter(
+        params: StockChartParams,
+        loadCount: Int? = null,
+    ) {
 
         // If locked, loading after may be unnecessary.
         if (loadMutex.isLocked) return
@@ -252,23 +270,34 @@ class CandleLoader(
 
             // LoadedPages for timeframe
             val loadedPages = loadedPagesMap[params.timeframe]!!
-            // End of loaded interval for current timeframe
-            val after = loadedPages.endInclusive
-
-            // Get new after
-            val newAfter = data.source.getAfterInstant(
-                currentAfter = after,
-                loadCount = loadConfig.loadMoreCount,
-            )
-
-            // If no candles available, do nothing.
-            if (newAfter == null || after == newAfter) {
-                data.setHasAfter(false)
-                return@withLock
+            val initialLoadedInterval = loadedPages.interval
+            val loadIterations = when {
+                loadCount == null || loadCount <= 0 -> 1
+                else -> (loadCount / loadConfig.loadMoreCount.toFloat()).let(::ceil).toInt()
             }
 
-            // Add new interval to LoadedPages
-            loadedPages.addAfter(after..newAfter)
+            repeat(loadIterations) {
+
+                // End of loaded interval for current timeframe
+                val after = loadedPages.endInclusive
+
+                // Get new after
+                val newAfter = data.source.getAfterInstant(
+                    currentAfter = after,
+                    loadCount = loadConfig.loadMoreCount,
+                )
+
+                // If no candles available, do nothing.
+                if (newAfter == null || after == newAfter) {
+                    data.setHasAfter(false)
+                    return@repeat
+                }
+
+                // Add new interval to LoadedPages
+                loadedPages.addAfter(after..newAfter)
+            }
+
+            if (loadedPages.interval == initialLoadedInterval) return@withLock
 
             // Sync other StockChartData with same timeframe
             stockChartDataMap

@@ -28,10 +28,15 @@ import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.core.utils.BinarySearchResult.NotFound
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
 class StockChart(
@@ -175,7 +180,7 @@ class StockChart(
             // Load before/after candles if needed
             actualChart.timeScale
                 .visibleLogicalRangeChange()
-                .conflate()
+                .debounce(300.milliseconds)
                 .filterNotNull()
                 .onEach { logicalRange ->
 
@@ -192,20 +197,20 @@ class StockChart(
                         barsInfo.barsBefore < candleLoader.loadConfig.loadMoreThreshold -> {
 
                             // Load
-                            candleLoader.loadBefore(params)
-
-                            // Wait for loaded candles to be set to chart. Prevents un-necessary loads.
-                            delay(500.milliseconds)
+                            candleLoader.loadBefore(
+                                params = params,
+                                loadCount = barsInfo.barsBefore.takeIf { it < 0 }?.absoluteValue?.roundToInt(),
+                            )
                         }
 
                         // Load more new data if there are less than a certain no. of bars to the right of the visible area.
                         barsInfo.barsAfter < candleLoader.loadConfig.loadMoreThreshold -> {
 
                             // Load
-                            candleLoader.loadAfter(params)
-
-                            // Wait for loaded candles to be set to chart. Prevents un-necessary loads.
-                            delay(500.milliseconds)
+                            candleLoader.loadAfter(
+                                params = params,
+                                loadCount = barsInfo.barsAfter.takeIf { it < 0 }?.absoluteValue?.roundToInt(),
+                            )
                         }
                     }
                 }
