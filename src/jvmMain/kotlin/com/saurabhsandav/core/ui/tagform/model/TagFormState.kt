@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.tagform.model
 
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import kotlinx.coroutines.CoroutineScope
 
 internal data class TagFormState(
     val title: String,
@@ -9,10 +10,13 @@ internal data class TagFormState(
 )
 
 internal class TagFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     isTagNameUnique: suspend (String) -> Boolean,
     initial: Initial,
+    onSubmit: suspend TagFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val nameField = validator.addField(initial.name) {
         isRequired()

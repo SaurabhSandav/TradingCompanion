@@ -55,7 +55,6 @@ internal fun ReplayOrderFormWindow(
                 formModel != null -> ReplayOrderForm(
                     ticker = state.ticker,
                     model = formModel,
-                    onSaveOrder = { state.onSaveOrder() },
                 )
 
                 else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -68,7 +67,6 @@ internal fun ReplayOrderFormWindow(
 private fun ReplayOrderForm(
     ticker: String,
     model: ReplayOrderFormModel,
-    onSaveOrder: () -> Unit,
 ) {
 
     Column(
@@ -151,8 +149,8 @@ private fun ReplayOrderForm(
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = onSaveOrder,
-            enabled = model.validator.isValid,
+            onClick = model.validator::submit,
+            enabled = model.validator.canSubmit,
             content = { Text("Add") },
         )
     }

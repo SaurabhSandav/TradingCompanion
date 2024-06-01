@@ -7,6 +7,7 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -15,13 +16,15 @@ import kotlinx.datetime.atTime
 internal data class TradeExecutionFormState(
     val title: String,
     val formModel: TradeExecutionFormModel?,
-    val onSaveExecution: () -> Unit,
 )
 
 internal class TradeExecutionFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     initial: Initial,
+    onSubmit: suspend TradeExecutionFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val instrumentField = validator.addField(initial.instrument) { isRequired() }
 

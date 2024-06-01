@@ -10,12 +10,13 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 
 class NewReplayFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     baseTimeframe: Timeframe?,
     candlesBefore: String,
     replayFrom: LocalDateTime,
@@ -23,7 +24,10 @@ class NewReplayFormModel(
     replayFullBar: Boolean,
     initialTicker: String?,
     profileId: ProfileId?,
+    onSubmit: suspend NewReplayFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val baseTimeframeField = validator.addField(baseTimeframe) { isRequired() }
 

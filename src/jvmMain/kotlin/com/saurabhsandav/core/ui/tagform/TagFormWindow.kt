@@ -47,10 +47,7 @@ fun TagFormWindow(
 
             when (val model = state.formModel) {
                 null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                else -> Form(
-                    model = model,
-                    onSaveTag = presenter::save,
-                )
+                else -> Form(model = model)
             }
         }
     }
@@ -59,7 +56,6 @@ fun TagFormWindow(
 @Composable
 private fun Form(
     model: TagFormModel,
-    onSaveTag: () -> Unit,
 ) {
 
     Column(
@@ -89,8 +85,8 @@ private fun Form(
         )
 
         Button(
-            onClick = onSaveTag,
-            enabled = model.validator.isValid,
+            onClick = model.validator::submit,
+            enabled = model.validator.canSubmit,
             content = { Text("Save Tag") },
         )
     }

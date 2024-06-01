@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.profiles.form
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import kotlinx.coroutines.CoroutineScope
 
 internal data class ProfileFormState(
     val title: String,
@@ -17,10 +18,13 @@ sealed class ProfileFormType {
 }
 
 internal class ProfileFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     isProfileNameUnique: suspend (String) -> Boolean,
     initial: Initial,
+    onSubmit: suspend ProfileFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val nameField = validator.addField(initial.name) {
         isRequired()

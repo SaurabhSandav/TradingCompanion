@@ -22,12 +22,10 @@ import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
-import kotlinx.coroutines.launch
 import java.awt.Desktop
 import java.io.File
 
@@ -167,11 +165,15 @@ internal fun AttachmentEditorDialog(
     var showDetailsForm by state { isEditMode }
     var fileName by state<String?> { null }
 
-    val formValidator = rememberFormValidator()
+    val coroutineScope = rememberCoroutineScope()
     val model = remember {
         AttachmentFormModel(
-            validator = formValidator,
+            coroutineScope = coroutineScope,
             initial = initialModel ?: AttachmentFormModel.Initial(),
+            onSubmit = {
+                onSaveAttachment(this)
+                onCloseRequest()
+            },
         )
     }
 
@@ -235,18 +237,9 @@ internal fun AttachmentEditorDialog(
                 if (!isEditMode)
                     Text("File to upload: $fileName")
 
-                val coroutineScope = rememberCoroutineScope()
                 Button(
-                    onClick = {
-                        coroutineScope.launch {
-
-                            if (formValidator.validate()) {
-                                onSaveAttachment(model)
-                                onCloseRequest()
-                            }
-                        }
-                    },
-                    enabled = model.validator.isValid,
+                    onClick = model.validator::submit,
+                    enabled = model.validator.canSubmit,
                     content = { Text("Save Attachment") },
                 )
             }

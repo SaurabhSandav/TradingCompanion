@@ -5,18 +5,21 @@ import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import kotlinx.coroutines.CoroutineScope
 
 internal data class ReplayOrderFormState(
     val title: String,
     val ticker: String,
     val formModel: ReplayOrderFormModel?,
-    val onSaveOrder: () -> Unit,
 )
 
 internal class ReplayOrderFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     initial: Initial,
+    onSubmit: suspend ReplayOrderFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val quantityField = validator.addField(initial.quantity) {
         isRequired()

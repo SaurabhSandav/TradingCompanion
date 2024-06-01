@@ -8,19 +8,17 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tagform.model.TagFormModel
 import com.saurabhsandav.core.ui.tagform.model.TagFormState
 import com.saurabhsandav.core.ui.tagform.model.TagFormType
 import com.saurabhsandav.core.ui.tagform.model.TagFormType.*
-import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal class TagFormPresenter(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     profileId: ProfileId,
     private val formType: TagFormType,
     private val onCloseRequest: () -> Unit,
@@ -28,8 +26,6 @@ internal class TagFormPresenter(
 ) {
 
     private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
-
-    private val formValidator = FormValidator(coroutineScope)
 
     private var formModel by mutableStateOf<TagFormModel?>(null)
 
@@ -53,7 +49,7 @@ internal class TagFormPresenter(
             val tradesRepo = tradesRepo.await()
 
             formModel = TagFormModel(
-                validator = formValidator,
+                coroutineScope = coroutineScope,
                 isTagNameUnique = ::isTagNameUnique,
                 initial = when (formType) {
                     is New -> TagFormModel.Initial()
@@ -77,28 +73,25 @@ internal class TagFormPresenter(
                         )
                     }
                 },
+                onSubmit = { save() },
             )
         }
     }
 
-    fun save() = coroutineScope.launchUnit {
-
-        if (!formValidator.validate()) return@launchUnit
+    private suspend fun TagFormModel.save() {
 
         val tradesRepo = tradesRepo.await()
 
-        val formModel = checkNotNull(formModel)
-
         when (formType) {
             is New, is NewFromExisting -> tradesRepo.createTag(
-                name = formModel.nameField.value,
-                description = formModel.descriptionField.value,
+                name = nameField.value,
+                description = descriptionField.value,
             )
 
             is Edit -> tradesRepo.updateTag(
                 id = formType.id,
-                name = formModel.nameField.value,
-                description = formModel.descriptionField.value,
+                name = nameField.value,
+                description = descriptionField.value,
             )
         }
 

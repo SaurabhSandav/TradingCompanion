@@ -25,7 +25,6 @@ import com.saurabhsandav.core.utils.NIFTY500
 @Composable
 internal fun NewReplayForm(
     model: NewReplayFormModel,
-    onLaunchReplay: () -> Unit,
 ) {
 
     Box(
@@ -120,8 +119,8 @@ internal fun NewReplayForm(
             HorizontalDivider()
 
             Button(
-                onClick = onLaunchReplay,
-                enabled = model.validator.isValid,
+                onClick = model.validator::submit,
+                enabled = model.validator.canSubmit,
                 content = { Text("Launch") },
             )
         }

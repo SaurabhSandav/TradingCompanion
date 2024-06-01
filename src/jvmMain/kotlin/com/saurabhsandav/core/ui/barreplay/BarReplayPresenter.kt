@@ -15,7 +15,6 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
-import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
@@ -36,8 +35,6 @@ internal class BarReplayPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
 ) {
-
-    private val formValidator = FormValidator(coroutineScope)
 
     private var replayState by mutableStateOf<ReplayState?>(null)
 
@@ -60,24 +57,19 @@ internal class BarReplayPresenter(
 
         when (event) {
             NewReplay -> onNewReplay()
-            LaunchReplay -> onLaunchReplay()
         }
     }
 
-    private fun onLaunchReplay() = coroutineScope.launchUnit {
-
-        if (!formValidator.validate()) return@launchUnit
-
-        val formModel = (replayState as NewReplay).model
+    private suspend fun NewReplayFormModel.onLaunchReplay() {
 
         val replayParams = ReplayParams(
-            baseTimeframe = formModel.baseTimeframeField.value!!,
-            candlesBefore = formModel.candlesBeforeField.value.toInt(),
-            replayFrom = formModel.replayFromField.value.toInstant(TimeZone.currentSystemDefault()),
-            dataTo = formModel.dataToField.value.toInstant(TimeZone.currentSystemDefault()),
-            replayFullBar = formModel.replayFullBar,
-            initialTicker = formModel.initialTickerField.value!!,
-            profileId = formModel.profileField.value,
+            baseTimeframe = baseTimeframeField.value!!,
+            candlesBefore = candlesBeforeField.value.toInt(),
+            replayFrom = replayFromField.value.toInstant(TimeZone.currentSystemDefault()),
+            dataTo = dataToField.value.toInstant(TimeZone.currentSystemDefault()),
+            replayFullBar = replayFullBar,
+            initialTicker = initialTickerField.value!!,
+            profileId = profileField.value,
         )
 
         appPrefs.putString(PrefKeys.ReplayFormModel, Json.encodeToString(replayParams))
@@ -110,7 +102,7 @@ internal class BarReplayPresenter(
                 val replayFrom = currentTime.minus(days30).toLocalDateTime(TimeZone.currentSystemDefault())
 
                 NewReplayFormModel(
-                    validator = formValidator,
+                    coroutineScope = coroutineScope,
                     baseTimeframe = defaultTimeframe,
                     candlesBefore = candlesBefore.toString(),
                     replayFrom = replayFrom,
@@ -118,11 +110,12 @@ internal class BarReplayPresenter(
                     replayFullBar = true,
                     initialTicker = NIFTY500.first(),
                     profileId = null,
+                    onSubmit = { onLaunchReplay() },
                 )
             }
 
             else -> NewReplayFormModel(
-                validator = formValidator,
+                coroutineScope = coroutineScope,
                 baseTimeframe = replayParams.baseTimeframe,
                 candlesBefore = replayParams.candlesBefore.toString(),
                 replayFrom = replayParams.replayFrom.toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -130,6 +123,7 @@ internal class BarReplayPresenter(
                 replayFullBar = replayParams.replayFullBar,
                 initialTicker = replayParams.initialTicker,
                 profileId = replayParams.profileId,
+                onSubmit = { onLaunchReplay() },
             )
         }
     }
