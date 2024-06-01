@@ -42,7 +42,6 @@ internal fun ProfileFormDialog(
                 else -> Form(
                     model = model,
                     trainingOnly = trainingOnly,
-                    onSaveProfile = presenter::save,
                 )
             }
         }
@@ -53,7 +52,6 @@ internal fun ProfileFormDialog(
 private fun Form(
     model: ProfileFormModel,
     trainingOnly: Boolean,
-    onSaveProfile: () -> Unit,
 ) {
 
     Column(
@@ -96,8 +94,8 @@ private fun Form(
         }
 
         Button(
-            onClick = onSaveProfile,
-            enabled = model.validator.isValid,
+            onClick = model.validator::submit,
+            enabled = model.validator.canSubmit,
             content = { Text("Save Profile") },
         )
     }

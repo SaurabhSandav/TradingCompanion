@@ -37,7 +37,6 @@ internal fun BarReplayWindow(
                 null -> CircularProgressIndicator()
                 is NewReplay -> NewReplayForm(
                     model = replayState.model,
-                    onLaunchReplay = { state.eventSink(BarReplayEvent.LaunchReplay) },
                 )
 
                 is ReplayStarted -> ReplaySessionScreen(

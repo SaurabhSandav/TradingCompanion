@@ -63,7 +63,6 @@ internal fun TradeExecutionFormWindow(
         TradeExecutionFormScreen(
             formType = formType,
             formModel = state.formModel,
-            onSaveExecution = state.onSaveExecution,
         )
     }
 }
@@ -72,7 +71,6 @@ internal fun TradeExecutionFormWindow(
 private fun TradeExecutionFormScreen(
     formType: TradeExecutionFormType,
     formModel: TradeExecutionFormModel?,
-    onSaveExecution: () -> Unit,
 ) {
 
     Box(Modifier.wrapContentSize()) {
@@ -81,7 +79,6 @@ private fun TradeExecutionFormScreen(
             formModel != null -> TradeExecutionForm(
                 formType = formType,
                 model = formModel,
-                onSaveExecution = onSaveExecution,
             )
 
             else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -93,7 +90,6 @@ private fun TradeExecutionFormScreen(
 private fun TradeExecutionForm(
     formType: TradeExecutionFormType,
     model: TradeExecutionFormModel,
-    onSaveExecution: () -> Unit,
 ) {
 
     Column(
@@ -245,8 +241,8 @@ private fun TradeExecutionForm(
 
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = onSaveExecution,
-            enabled = model.validator.isValid,
+            onClick = model.validator::submit,
+            enabled = model.validator.canSubmit,
             content = { Text("Add") },
         )
     }

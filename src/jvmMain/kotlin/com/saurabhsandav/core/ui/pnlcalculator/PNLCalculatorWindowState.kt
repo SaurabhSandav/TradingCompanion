@@ -7,7 +7,6 @@ import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.New
 import com.saurabhsandav.core.utils.Brokerage
 import com.saurabhsandav.core.utils.brokerage
-import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -29,10 +28,10 @@ internal fun rememberPNLCalculatorWindowState(
 
 internal class PNLCalculatorWindowState(
     val params: PNLCalculatorWindowParams,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
 ) {
 
-    private val formValidator = FormValidator(coroutineScope)
+    private val formValidator = FormValidator(coroutineScope, ::onCalculate)
     private var maxId = 0
 
     var isReady by mutableStateOf(false)
@@ -58,16 +57,16 @@ internal class PNLCalculatorWindowState(
         }
     }
 
-    fun onCalculate() = coroutineScope.launchUnit {
+    private fun onCalculate() {
 
         val side = if (model.isLongField.value) "LONG" else "SHORT"
 
-        if (!formValidator.validate() || model.pnlEntries.any {
+        if (model.pnlEntries.any {
                 it.quantity == model.quantityField.value &&
                         it.side == side &&
                         it.entry == model.entryField.value &&
                         it.exit == model.exitField.value
-            }) return@launchUnit
+            }) return
 
         val brokerage = brokerage(
             quantity = model.quantityField.value.toBigDecimal(),

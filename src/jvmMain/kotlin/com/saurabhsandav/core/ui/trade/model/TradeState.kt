@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.trade.model
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
@@ -100,9 +101,12 @@ internal data class TradeState(
 }
 
 internal class AttachmentFormModel(
-    val validator: FormValidator,
+    coroutineScope: CoroutineScope,
     initial: Initial,
+    onSubmit: suspend AttachmentFormModel.() -> Unit,
 ) {
+
+    val validator = FormValidator(coroutineScope) { onSubmit() }
 
     val nameField = validator.addField(initial.name) { isRequired() }
 

@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -29,7 +28,6 @@ internal class TradeExecutionFormPresenter(
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
     private val tradesRepo = coroutineScope.async { tradingRecord.await().trades }
     private val executionsRepo = coroutineScope.async { tradingRecord.await().executions }
-    private val formValidator = FormValidator(coroutineScope)
     private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
     init {
@@ -61,15 +59,10 @@ internal class TradeExecutionFormPresenter(
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}${if (formType is Edit) "Edit Trade Execution (${formType.id})" else "New Trade Execution"}",
             formModel = formModel,
-            onSaveExecution = ::onSaveExecution,
         )
     }
 
-    private fun onSaveExecution() = coroutineScope.launchUnit {
-
-        if (!formValidator.validate()) return@launchUnit
-
-        val formModel = requireNotNull(formModel)
+    private suspend fun TradeExecutionFormModel.onSaveExecution() {
 
         val executionsRepo = executionsRepo.await()
         val tradesRepo = tradesRepo.await()
@@ -80,24 +73,24 @@ internal class TradeExecutionFormPresenter(
             is Edit -> executionsRepo.edit(
                 id = formType.id,
                 broker = "Finvasia",
-                instrument = formModel.instrumentField.value!!,
-                ticker = formModel.tickerField.value!!,
-                quantity = formModel.quantityField.value.toBigDecimal(),
-                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = formModel.priceField.value.toBigDecimal(),
-                timestamp = formModel.timestamp.toInstant(tz),
+                instrument = instrumentField.value!!,
+                ticker = tickerField.value!!,
+                quantity = quantityField.value.toBigDecimal(),
+                lots = lotsField.value.ifBlank { null }?.toInt(),
+                side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                price = priceField.value.toBigDecimal(),
+                timestamp = timestamp.toInstant(tz),
             )
 
             else -> executionsRepo.new(
                 broker = "Finvasia",
-                instrument = formModel.instrumentField.value!!,
-                ticker = formModel.tickerField.value!!,
-                quantity = formModel.quantityField.value.toBigDecimal(),
-                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
-                side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = formModel.priceField.value.toBigDecimal(),
-                timestamp = formModel.timestamp.toInstant(tz),
+                instrument = instrumentField.value!!,
+                ticker = tickerField.value!!,
+                quantity = quantityField.value.toBigDecimal(),
+                lots = lotsField.value.ifBlank { null }?.toInt(),
+                side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                price = priceField.value.toBigDecimal(),
+                timestamp = timestamp.toInstant(tz),
                 locked = false,
             )
         }
@@ -109,10 +102,10 @@ internal class TradeExecutionFormPresenter(
             val trade = tradesRepo.getTradesForExecution(executionId).first().single { !it.isClosed }
 
             // Add stop
-            if (formModel.addStopField.value) tradesRepo.addStop(trade.id, formType.stop)
+            if (addStopField.value) tradesRepo.addStop(trade.id, formType.stop)
 
             // Add target
-            if (formModel.addTargetField.value) tradesRepo.addTarget(trade.id, formType.target)
+            if (addTargetField.value) tradesRepo.addTarget(trade.id, formType.target)
         }
 
         // Close form
@@ -121,18 +114,14 @@ internal class TradeExecutionFormPresenter(
 
     private fun new() {
 
-        this.formModel = TradeExecutionFormModel(
-            validator = formValidator,
-            initial = TradeExecutionFormModel.Initial(),
-        )
+        setFormModel(initial = TradeExecutionFormModel.Initial())
     }
 
     private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
 
         val execution = executionsRepo.await().getById(id).first()
 
-        formModel = TradeExecutionFormModel(
-            validator = formValidator,
+        setFormModel(
             initial = TradeExecutionFormModel.Initial(
                 instrument = execution.instrument,
                 ticker = execution.ticker,
@@ -146,18 +135,14 @@ internal class TradeExecutionFormPresenter(
 
     private fun newSized(initialModel: TradeExecutionFormModel.Initial) {
 
-        this.formModel = TradeExecutionFormModel(
-            validator = formValidator,
-            initial = initialModel,
-        )
+        setFormModel(initialModel)
     }
 
     private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
         val trade = tradesRepo.await().getById(tradeId).first()
 
-        formModel = TradeExecutionFormModel(
-            validator = formValidator,
+        setFormModel(
             initial = TradeExecutionFormModel.Initial(
                 instrument = trade.instrument,
                 ticker = trade.ticker,
@@ -170,8 +155,7 @@ internal class TradeExecutionFormPresenter(
 
         val trade = tradesRepo.await().getById(tradeId).first()
 
-        formModel = TradeExecutionFormModel(
-            validator = formValidator,
+        setFormModel(
             initial = TradeExecutionFormModel.Initial(
                 instrument = trade.instrument,
                 ticker = trade.ticker,
@@ -185,8 +169,7 @@ internal class TradeExecutionFormPresenter(
 
         val execution = executionsRepo.await().getById(id).first()
 
-        formModel = TradeExecutionFormModel(
-            validator = formValidator,
+        setFormModel(
             initial = TradeExecutionFormModel.Initial(
                 instrument = execution.instrument,
                 ticker = execution.ticker,
@@ -196,6 +179,15 @@ internal class TradeExecutionFormPresenter(
                 price = execution.price.toPlainString(),
                 timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
             ),
+        )
+    }
+
+    private fun setFormModel(initial: TradeExecutionFormModel.Initial) {
+
+        formModel = TradeExecutionFormModel(
+            coroutineScope = coroutineScope,
+            initial = initial,
+            onSubmit = { onSaveExecution() },
         )
     }
 }

@@ -125,8 +125,8 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                enabled = model.validator.isValid,
-                onClick = state::onCalculate,
+                onClick = model.validator::submit,
+                enabled = model.validator.canSubmit,
             ) {
 
                 Text("Calculate")
