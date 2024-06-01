@@ -69,6 +69,7 @@ internal data class TradeState(
         val priceText: String,
         val risk: String,
         val netRisk: String,
+        val isPrimary: Boolean,
     )
 
     internal data class TradeTarget(
@@ -76,6 +77,7 @@ internal data class TradeState(
         val priceText: String,
         val profit: String,
         val netProfit: String,
+        val isPrimary: Boolean,
     )
 
     internal data class TradeTag(

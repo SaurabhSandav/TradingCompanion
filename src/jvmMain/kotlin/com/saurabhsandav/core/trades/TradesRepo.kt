@@ -300,6 +300,11 @@ internal class TradesRepo(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
+    suspend fun setPrimaryStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeStopQueries.setPrimary(tradeId = id, price = price)
+    }
+
     fun getTargetsForTrade(id: TradeId): Flow<List<TradeTarget>> {
         return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
     }
@@ -340,6 +345,11 @@ internal class TradesRepo(
 
         // Delete Excursions. Excursions use primary target to generate session mfe/mae.
         tradesDB.tradeExcursionsQueries.delete(id)
+    }
+
+    suspend fun setPrimaryTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+
+        tradesDB.tradeTargetQueries.setPrimary(tradeId = id, price = price)
     }
 
     fun getAllTags(): Flow<List<TradeTag>> {
