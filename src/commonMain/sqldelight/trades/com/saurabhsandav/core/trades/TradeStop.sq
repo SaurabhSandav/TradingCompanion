@@ -1,17 +1,22 @@
 import com.saurabhsandav.core.trades.model.TradeId;
 import java.math.BigDecimal;
+import kotlin.Boolean;
 
 CREATE TABLE IF NOT EXISTS TradeStop (
 tradeId INTEGER AS TradeId NOT NULL,
 price TEXT AS BigDecimal NOT NULL,
+isPrimary INTEGER AS Boolean NOT NULL DEFAULT FALSE,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, price)
 );
 
 insert:
+WITH is_primary AS (
+  SELECT NOT EXISTS(SELECT * FROM TradeStop WHERE tradeId = :tradeId AND isPrimary = TRUE)
+)
 INSERT OR IGNORE
-INTO TradeStop(tradeId, price)
-VALUES (?, ?);
+INTO TradeStop(tradeId, price, isPrimary)
+VALUES (:tradeId, ?, (SELECT * FROM is_primary));
 
 getByTrade:
 SELECT *
@@ -20,20 +25,16 @@ WHERE tradeId = ?
 ORDER BY rowid ASC;
 
 getPrimaryStopByTrade:
-SELECT TradeStop.*
+SELECT *
 FROM TradeStop
-INNER JOIN Trade ON TradeStop.tradeId = Trade.id
-WHERE Trade.id = ?
-ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL)
-LIMIT 1;
+WHERE tradeId = ? AND isPrimary = TRUE;
 
 getPrimaryStopsByTrades:
-SELECT TradeStop.*
+SELECT *
 FROM TradeStop
-INNER JOIN Trade ON TradeStop.tradeId = Trade.id
-WHERE Trade.id IN ?
-GROUP BY TradeStop.tradeId
-HAVING MIN(IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL));
+WHERE tradeId IN ?
+GROUP BY tradeId
+HAVING isPrimary = TRUE;
 
 delete:
 DELETE FROM TradeStop
@@ -42,3 +43,15 @@ WHERE tradeId = ? AND price = ?;
 deleteByTrade:
 DELETE FROM TradeStop
 WHERE tradeId = ?;
+
+setPrimary {
+  UPDATE TradeStop
+  SET isPrimary = FALSE
+  WHERE tradeId = :tradeId;
+
+  UPDATE TradeStop
+  SET isPrimary = TRUE
+  WHERE
+    tradeId = :tradeId
+    AND price = ?;
+}

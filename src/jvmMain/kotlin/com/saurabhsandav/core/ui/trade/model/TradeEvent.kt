@@ -26,9 +26,13 @@ internal sealed class TradeEvent {
 
     data class DeleteStop(val price: BigDecimal) : TradeEvent()
 
+    data class SetPrimaryStop(val price: BigDecimal) : TradeEvent()
+
     data class AddTarget(val price: BigDecimal) : TradeEvent()
 
     data class DeleteTarget(val price: BigDecimal) : TradeEvent()
+
+    data class SetPrimaryTarget(val price: BigDecimal) : TradeEvent()
 
     data class AddTag(val id: TradeTagId) : TradeEvent()
 

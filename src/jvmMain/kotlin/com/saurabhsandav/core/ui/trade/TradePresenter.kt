@@ -108,8 +108,10 @@ internal class TradePresenter(
             OpenChart -> onOpenChart()
             is AddStop -> onAddStop(event.price)
             is DeleteStop -> onDeleteStop(event.price)
+            is SetPrimaryStop -> setPrimaryStop(event.price)
             is AddTarget -> onAddTarget(event.price)
             is DeleteTarget -> onDeleteTarget(event.price)
+            is SetPrimaryTarget -> setPrimaryTarget(event.price)
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
             is AddAttachment -> onAddAttachment(event.formModel)
@@ -227,6 +229,7 @@ internal class TradePresenter(
                         priceText = stop.price.toPlainString(),
                         risk = brokerage.pnl.toPlainString(),
                         netRisk = brokerage.netPNL.toPlainString(),
+                        isPrimary = stop.isPrimary,
                     )
                 }
             }.collect { tradeStops -> value = tradeStops }
@@ -248,6 +251,7 @@ internal class TradePresenter(
                         priceText = target.price.toPlainString(),
                         profit = brokerage.pnl.toPlainString(),
                         netProfit = brokerage.netPNL.toPlainString(),
+                        isPrimary = target.isPrimary,
                     )
                 }
             }.collect { tradeTargets -> value = tradeTargets }
@@ -367,6 +371,7 @@ internal class TradePresenter(
                         priceText = price.toPlainString(),
                         risk = brokerage.pnl.toPlainString(),
                         netRisk = brokerage.netPNL.toPlainString(),
+                        isPrimary = false,
                     )
                 }
             }
@@ -392,6 +397,7 @@ internal class TradePresenter(
                         priceText = price.toPlainString(),
                         profit = brokerage.pnl.toPlainString(),
                         netProfit = brokerage.netPNL.toPlainString(),
+                        isPrimary = false,
                     )
                 }
             }
@@ -470,6 +476,11 @@ internal class TradePresenter(
         tradesRepo.await().deleteStop(tradeId, price)
     }
 
+    private fun setPrimaryStop(price: BigDecimal) = coroutineScope.launchUnit {
+
+        tradesRepo.await().setPrimaryStop(tradeId, price)
+    }
+
     private fun onAddTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
         tradesRepo.await().addTarget(tradeId, price)
@@ -478,6 +489,11 @@ internal class TradePresenter(
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
         tradesRepo.await().deleteTarget(tradeId, price)
+    }
+
+    private fun setPrimaryTarget(price: BigDecimal) = coroutineScope.launchUnit {
+
+        tradesRepo.await().setPrimaryTarget(tradeId, price)
     }
 
     private fun onAddTag(id: TradeTagId) = coroutineScope.launchUnit {

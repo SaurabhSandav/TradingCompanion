@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +25,7 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
-import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
+import com.saurabhsandav.core.ui.common.table.TableCell.Width
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
@@ -42,10 +44,12 @@ internal fun StopsAndTargets(
     previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
+    onSetPrimaryStop: (BigDecimal) -> Unit,
     targets: List<TradeTarget>,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
+    onSetPrimaryTarget: (BigDecimal) -> Unit,
 ) {
 
     Row(
@@ -58,6 +62,7 @@ internal fun StopsAndTargets(
             previewStop = previewStop,
             onAddStop = onAddStop,
             onDeleteStop = onDeleteStop,
+            onSetPrimaryStop = onSetPrimaryStop,
         )
 
         TargetsList(
@@ -66,6 +71,7 @@ internal fun StopsAndTargets(
             previewTarget = previewTarget,
             onAddTarget = onAddTarget,
             onDeleteTarget = onDeleteTarget,
+            onSetPrimaryTarget = onSetPrimaryTarget,
         )
     }
 }
@@ -76,6 +82,7 @@ private fun StopsList(
     previewStop: (BigDecimal) -> Flow<TradeStop?>,
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
+    onSetPrimaryStop: (BigDecimal) -> Unit,
     modifier: Modifier,
 ) {
 
@@ -103,12 +110,21 @@ private fun StopsList(
                         this.stop.text { stop.priceText }
                         risk.text { stop.risk }
                         netRisk.text { stop.netRisk }
-                        delete {
+                        options {
 
-                            DeleteIconButton(
-                                deleteTypeText = "Stop @ ${stop.priceText}",
-                                onDelete = { onDeleteStop(stop.price) },
-                            )
+                            Row {
+
+                                ToggleIsPrimaryButton(
+                                    typeText = "Stop",
+                                    isPrimary = stop.isPrimary,
+                                    onToggle = { onSetPrimaryStop(stop.price) },
+                                )
+
+                                DeleteIconButton(
+                                    deleteTypeText = "Stop @ ${stop.priceText}",
+                                    onDelete = { onDeleteStop(stop.price) },
+                                )
+                            }
                         }
                     }
                 }
@@ -150,6 +166,7 @@ private fun TargetsList(
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
+    onSetPrimaryTarget: (BigDecimal) -> Unit,
     modifier: Modifier,
 ) {
 
@@ -177,12 +194,21 @@ private fun TargetsList(
                         this.target.text { target.priceText }
                         profit.text { target.profit }
                         netProfit.text { target.netProfit }
-                        delete {
+                        options {
 
-                            DeleteIconButton(
-                                deleteTypeText = "Target @ ${target.priceText}",
-                                onDelete = { onDeleteTarget(target.price) },
-                            )
+                            Row {
+
+                                ToggleIsPrimaryButton(
+                                    typeText = "Target",
+                                    isPrimary = target.isPrimary,
+                                    onToggle = { onSetPrimaryTarget(target.price) },
+                                )
+
+                                DeleteIconButton(
+                                    deleteTypeText = "Target @ ${target.priceText}",
+                                    onDelete = { onDeleteTarget(target.price) },
+                                )
+                            }
                         }
                     }
                 }
@@ -245,6 +271,36 @@ private fun DeleteIconButton(
 }
 
 @Composable
+private fun ToggleIsPrimaryButton(
+    typeText: String,
+    isPrimary: Boolean,
+    onToggle: () -> Unit,
+) {
+
+    IconButtonWithTooltip(
+        onClick = onToggle,
+        enabled = !isPrimary,
+        tooltipText = when {
+            isPrimary -> "Primary $typeText"
+            else -> "Set Primary"
+        },
+        content = {
+
+            Icon(
+                imageVector = when {
+                    isPrimary -> Icons.Filled.CheckCircle
+                    else -> Icons.Outlined.CheckCircleOutline
+                },
+                contentDescription = when {
+                    isPrimary -> "Primary $typeText"
+                    else -> "Secondary $typeText"
+                },
+            )
+        },
+    )
+}
+
+@Composable
 private fun <T : Any> AddValueForm(
     addValueState: AddValueState<T>,
     valueLabel: String,
@@ -283,7 +339,10 @@ private fun <T : Any> AddValueForm(
                         else -> previewContent(previewValue)
                     }
 
-                    Box(Modifier.weight(.5F)) {
+                    Box(
+                        modifier = Modifier.width(OptionsWidth),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
 
                         IconButtonWithTooltip(
                             onClick = addValueState::hideAddForm,
@@ -396,7 +455,10 @@ private object StopTableSchema : TableSchema() {
     val stop = cell()
     val risk = cell()
     val netRisk = cell()
-    val delete = cell(Weight(.5F))
+    val options = cell(
+        width = Width.Fixed(OptionsWidth),
+        contentAlignment = Alignment.CenterEnd,
+    )
 }
 
 private object TargetTableSchema : TableSchema() {
@@ -404,5 +466,10 @@ private object TargetTableSchema : TableSchema() {
     val target = cell()
     val profit = cell()
     val netProfit = cell()
-    val delete = cell(Weight(.5F))
+    val options = cell(
+        width = Width.Fixed(OptionsWidth),
+        contentAlignment = Alignment.CenterEnd,
+    )
 }
+
+private val OptionsWidth = 100.dp
