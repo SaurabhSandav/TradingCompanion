@@ -30,10 +30,11 @@ fun <T : TableSchema> T.SimpleHeader(
 
             val content = rowBuilder.contents[cell]
 
-            Box(cell.width.asModifier()) {
-
-                content?.invoke()
-            }
+            Box(
+                modifier = cell.width.asModifier(),
+                contentAlignment = cell.contentAlignment,
+                content = { content?.invoke() },
+            )
         }
     }
 
@@ -66,10 +67,11 @@ fun <T : TableSchema> T.SimpleRow(
 
             val content = rowBuilder.contents[cell]
 
-            Box(cell.width.asModifier()) {
-
-                content?.invoke()
-            }
+            Box(
+                modifier = cell.width.asModifier(),
+                contentAlignment = cell.contentAlignment,
+                content = { content?.invoke() },
+            )
         }
     }
 }
