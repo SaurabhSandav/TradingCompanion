@@ -46,6 +46,7 @@ internal fun StopsAndTargets(
     onDeleteStop: (BigDecimal) -> Unit,
     onSetPrimaryStop: (BigDecimal) -> Unit,
     targets: List<TradeTarget>,
+    showTargetRValues: Boolean,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
@@ -68,6 +69,7 @@ internal fun StopsAndTargets(
         TargetsList(
             modifier = Modifier.weight(1F),
             targets = targets,
+            showRValues = showTargetRValues,
             previewTarget = previewTarget,
             onAddTarget = onAddTarget,
             onDeleteTarget = onDeleteTarget,
@@ -163,6 +165,7 @@ private fun StopsList(
 @Composable
 private fun TargetsList(
     targets: List<TradeTarget>,
+    showRValues: Boolean,
     previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     onAddTarget: (BigDecimal) -> Unit,
     onDeleteTarget: (BigDecimal) -> Unit,
@@ -176,9 +179,12 @@ private fun TargetsList(
 
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
+            val schema = remember(showRValues) { TargetTableSchema(showRValues) }
+
             // Header
-            TargetTableSchema.SimpleHeader {
+            schema.SimpleHeader {
                 this.target.text { "Target" }
+                rValue?.text { "R" }
                 profit.text { "Profit" }
                 netProfit.text { "Net Profit" }
             }
@@ -190,8 +196,9 @@ private fun TargetsList(
 
                 key(target) {
 
-                    TargetTableSchema.SimpleRow {
+                    schema.SimpleRow {
                         this.target.text { target.priceText }
+                        rValue?.text { target.rValue }
                         profit.text { target.profit }
                         netProfit.text { target.netProfit }
                         options {
@@ -461,9 +468,12 @@ private object StopTableSchema : TableSchema() {
     )
 }
 
-private object TargetTableSchema : TableSchema() {
+private class TargetTableSchema(
+    showRValues: Boolean,
+) : TableSchema() {
 
     val target = cell()
+    val rValue = if (showRValues) cell() else null
     val profit = cell()
     val netProfit = cell()
     val options = cell(
