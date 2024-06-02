@@ -21,6 +21,7 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -41,12 +42,9 @@ internal class ReviewPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val review = flow {
-        tradingProfiles.getRecord(profileReviewId.profileId)
-            .trades
-            .getReviewById(profileReviewId.reviewId)
-            .emitInto(this)
-    }
+    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileReviewId.profileId).trades }
+
+    private val review = flow { tradesRepo.await().getReviewById(profileReviewId.reviewId).emitInto(this) }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -77,14 +75,13 @@ internal class ReviewPresenter(
     private fun getTrades(): List<TradeEntry> {
         return produceState<List<TradeEntry>>(emptyList()) {
 
-            val tradingRecord = tradingProfiles.getRecord(profileReviewId.profileId)
+            val tradesRepo = tradesRepo.await()
 
-            tradingRecord
-                .trades
+            tradesRepo
                 .getReviewById(profileReviewId.reviewId)
                 .flatMapLatest { review ->
 
-                    tradingRecord.trades
+                    tradesRepo
                         .getByIds(ids = review.tradeIds)
                         .mapList { trade ->
                             trade.toTradeListEntry()
@@ -147,30 +144,26 @@ internal class ReviewPresenter(
 
     private fun onSaveTitle(title: String) = coroutineScope.launchUnit {
 
-        tradingProfiles.getRecord(profileReviewId.profileId)
-            .trades
-            .setReviewTitle(profileReviewId.reviewId, title)
+        tradesRepo.await().setReviewTitle(profileReviewId.reviewId, title)
     }
 
     private fun onToggleMarkdown() = coroutineScope.launchUnit {
 
-        tradingProfiles.getRecord(profileReviewId.profileId)
-            .trades
-            .toggleReviewIsMarkdown(profileReviewId.reviewId)
+        tradesRepo.await().toggleReviewIsMarkdown(profileReviewId.reviewId)
     }
 
     private fun onSaveReview(review: String) = coroutineScope.launchUnit {
 
-        val record = tradingProfiles.getRecord(profileReviewId.profileId)
+        val tradesRepo = tradesRepo.await()
 
         val ids = Regex(ReviewTradeRefRegex)
             .findAll(review)
             .mapNotNull { result -> result.groupValues[1].toLongOrNull() }
             .toList()
             .distinct()
-        val tradeIds = record.trades.exists(ids).first().filterValues { it }.keys.map(::TradeId)
+        val tradeIds = tradesRepo.exists(ids).first().filterValues { it }.keys.map(::TradeId)
 
-        record.trades.updateReview(
+        tradesRepo.updateReview(
             id = profileReviewId.reviewId,
             review = review,
             tradeIds = tradeIds,
@@ -186,8 +179,7 @@ internal class ReviewPresenter(
 
             val tradeId = tradeMatch.groupValues[1].toLongOrNull() ?: return@launchUnit
 
-            val tradingRecord = tradingProfiles.getRecord(profileReviewId.profileId)
-            val tradeExists = tradingRecord.trades.exists(tradeId).first()
+            val tradeExists = tradesRepo.await().exists(tradeId).first()
 
             if (tradeExists) {
 
@@ -208,8 +200,7 @@ internal class ReviewPresenter(
 
             val reviewId = reviewMatch.groupValues[1].toLongOrNull() ?: return@launchUnit
 
-            val tradingRecord = tradingProfiles.getRecord(profileReviewId.profileId)
-            val reviewExists = tradingRecord.trades.reviewExists(reviewId).first()
+            val reviewExists = tradesRepo.await().reviewExists(reviewId).first()
 
             if (reviewExists) {
 

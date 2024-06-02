@@ -6,21 +6,20 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.backtest.*
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.*
 import kotlin.random.Random
 
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
-    private val profileId: ProfileId?,
+    profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
     private val tradingProfiles: TradingProfiles,
 ) {
+
+    private val tradingRecord = coroutineScope.async { profileId?.let { tradingProfiles.getRecord(it) } }
 
     private val tickerPriceScopeCache = mutableMapOf<String, CoroutineScope>()
     private val account = BacktestAccount(10_000.toBigDecimal())
@@ -61,8 +60,7 @@ internal class ReplayOrdersManager(
             // Updates broker with price for ticker
             createReplaySeries(stockChartParams.ticker)
 
-            val replayProfileId = profileId ?: error("Replay profile not set")
-            val tradingRecord = tradingProfiles.getRecord(replayProfileId)
+            val tradingRecord = tradingRecord.await() ?: error("Replay profile not set")
 
             val orderParams = BacktestOrder.Params(
                 broker = "Finvasia",

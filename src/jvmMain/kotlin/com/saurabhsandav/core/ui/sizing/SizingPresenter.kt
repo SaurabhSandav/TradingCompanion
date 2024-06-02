@@ -23,6 +23,7 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -36,6 +37,8 @@ internal class SizingPresenter(
     private val account: Flow<Account>,
     private val tradingProfiles: TradingProfiles,
 ) {
+
+    private val sizingTradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).sizingTrades }
 
     val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
 
@@ -70,9 +73,7 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.sizingTrades.new(
+        sizingTradesRepo.await().new(
             ticker = ticker,
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),
@@ -83,9 +84,7 @@ internal class SizingPresenter(
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.sizingTrades.updateEntry(
+        sizingTradesRepo.await().updateEntry(
             id = id,
             entry = entryBD,
         )
@@ -95,9 +94,7 @@ internal class SizingPresenter(
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.sizingTrades.updateStop(
+        sizingTradesRepo.await().updateStop(
             id = id,
             stop = stopBD,
         )
@@ -105,16 +102,12 @@ internal class SizingPresenter(
 
     private fun removeTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.sizingTrades.delete(id)
+        sizingTradesRepo.await().delete(id)
     }
 
     private fun openLiveTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        val sizingTrade = tradingRecord.sizingTrades.getById(id).first()
+        val sizingTrade = sizingTradesRepo.await().getById(id).first()
 
         val entryStopComparison = sizingTrade.entry.compareTo(sizingTrade.stop)
 
@@ -168,9 +161,8 @@ internal class SizingPresenter(
         return remember(account) {
             flow {
 
-                tradingProfiles
-                    .getRecord(profileId)
-                    .sizingTrades
+                sizingTradesRepo
+                    .await()
                     .allTrades
                     .mapList { sizingTrade -> sizingTrade.size(account) }
                     .emitInto(this)

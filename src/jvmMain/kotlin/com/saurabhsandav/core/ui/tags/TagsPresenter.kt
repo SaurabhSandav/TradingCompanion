@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -27,6 +28,8 @@ internal class TagsPresenter(
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
 ) {
+
+    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -51,9 +54,8 @@ internal class TagsPresenter(
         return remember {
             flow {
 
-                tradingProfiles
-                    .getRecord(profileId)
-                    .trades
+                tradesRepo
+                    .await()
                     .getAllTags()
                     .map { tags ->
                         tags.map { tag ->
@@ -96,8 +98,6 @@ internal class TagsPresenter(
 
     private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.trades.deleteTag(id)
+        tradesRepo.await().deleteTag(id)
     }
 }

@@ -15,16 +15,19 @@ import com.saurabhsandav.core.ui.tagform.model.TagFormType
 import com.saurabhsandav.core.ui.tagform.model.TagFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal class TagFormPresenter(
     private val coroutineScope: CoroutineScope,
-    private val profileId: ProfileId,
+    profileId: ProfileId,
     private val formType: TagFormType,
     private val onCloseRequest: () -> Unit,
     private val tradingProfiles: TradingProfiles,
 ) {
+
+    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
 
     private val formValidator = FormValidator(coroutineScope)
 
@@ -47,6 +50,8 @@ internal class TagFormPresenter(
 
         coroutineScope.launch {
 
+            val tradesRepo = tradesRepo.await()
+
             formModel = TagFormModel(
                 validator = formValidator,
                 isTagNameUnique = ::isTagNameUnique,
@@ -54,8 +59,7 @@ internal class TagFormPresenter(
                     is New -> TagFormModel.Initial()
                     is NewFromExisting -> {
 
-                        val tradingRecord = tradingProfiles.getRecord(profileId)
-                        val tag = tradingRecord.trades.getTagById(formType.id).first()
+                        val tag = tradesRepo.getTagById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -65,8 +69,7 @@ internal class TagFormPresenter(
 
                     is Edit -> {
 
-                        val tradingRecord = tradingProfiles.getRecord(profileId)
-                        val tag = tradingRecord.trades.getTagById(formType.id).first()
+                        val tag = tradesRepo.getTagById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -82,17 +85,17 @@ internal class TagFormPresenter(
 
         if (!formValidator.validate()) return@launchUnit
 
-        val trades = tradingProfiles.getRecord(profileId).trades
+        val tradesRepo = tradesRepo.await()
 
         val formModel = checkNotNull(formModel)
 
         when (formType) {
-            is New, is NewFromExisting -> trades.createTag(
+            is New, is NewFromExisting -> tradesRepo.createTag(
                 name = formModel.nameField.value,
                 description = formModel.descriptionField.value,
             )
 
-            is Edit -> trades.updateTag(
+            is Edit -> tradesRepo.updateTag(
                 id = formType.id,
                 name = formModel.nameField.value,
                 description = formModel.descriptionField.value,
@@ -103,7 +106,6 @@ internal class TagFormPresenter(
     }
 
     private suspend fun isTagNameUnique(name: String): Boolean {
-        val trades = tradingProfiles.getRecord(profileId).trades
-        return trades.isTagNameUnique(name, (formType as? Edit)?.id)
+        return tradesRepo.await().isTagNameUnique(name, (formType as? Edit)?.id)
     }
 }

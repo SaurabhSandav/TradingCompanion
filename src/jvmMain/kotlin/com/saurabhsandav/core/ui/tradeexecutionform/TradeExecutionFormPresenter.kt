@@ -12,6 +12,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.*
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -25,6 +26,9 @@ internal class TradeExecutionFormPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
+    private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
+    private val tradesRepo = coroutineScope.async { tradingRecord.await().trades }
+    private val executionsRepo = coroutineScope.async { tradingRecord.await().executions }
     private val formValidator = FormValidator(coroutineScope)
     private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
@@ -67,12 +71,13 @@ internal class TradeExecutionFormPresenter(
 
         val formModel = requireNotNull(formModel)
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
+        val executionsRepo = executionsRepo.await()
+        val tradesRepo = tradesRepo.await()
 
         val tz = TimeZone.currentSystemDefault()
 
         val executionId = when (formType) {
-            is Edit -> tradingRecord.executions.edit(
+            is Edit -> executionsRepo.edit(
                 id = formType.id,
                 broker = "Finvasia",
                 instrument = formModel.instrumentField.value!!,
@@ -84,7 +89,7 @@ internal class TradeExecutionFormPresenter(
                 timestamp = formModel.timestamp.toInstant(tz),
             )
 
-            else -> tradingRecord.executions.new(
+            else -> executionsRepo.new(
                 broker = "Finvasia",
                 instrument = formModel.instrumentField.value!!,
                 ticker = formModel.tickerField.value!!,
@@ -101,13 +106,13 @@ internal class TradeExecutionFormPresenter(
 
             // Single execution can close a trade and open a new one.
             // Make sure to choose the open trade
-            val trade = tradingRecord.trades.getTradesForExecution(executionId).first().single { !it.isClosed }
+            val trade = tradesRepo.getTradesForExecution(executionId).first().single { !it.isClosed }
 
             // Add stop
-            if (formModel.addStopField.value) tradingRecord.trades.addStop(trade.id, formType.stop)
+            if (formModel.addStopField.value) tradesRepo.addStop(trade.id, formType.stop)
 
             // Add target
-            if (formModel.addTargetField.value) tradingRecord.trades.addTarget(trade.id, formType.target)
+            if (formModel.addTargetField.value) tradesRepo.addTarget(trade.id, formType.target)
         }
 
         // Close form
@@ -124,9 +129,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        val execution = tradingRecord.executions.getById(id).first()
+        val execution = executionsRepo.await().getById(id).first()
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
@@ -151,9 +154,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        val trade = tradingRecord.trades.getById(tradeId).first()
+        val trade = tradesRepo.await().getById(tradeId).first()
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
@@ -167,9 +168,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun closeTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        val trade = tradingRecord.trades.getById(tradeId).first()
+        val trade = tradesRepo.await().getById(tradeId).first()
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,
@@ -184,9 +183,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun edit(id: TradeExecutionId) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        val execution = tradingRecord.executions.getById(id).first()
+        val execution = executionsRepo.await().getById(id).first()
 
         formModel = TradeExecutionFormModel(
             validator = formValidator,

@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.Trad
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -36,6 +37,7 @@ internal class TradeExecutionsPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
+    private val executionsRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).executions }
     private val errors = mutableStateListOf<UIErrorMessage>()
     private val selectionManager = SelectionManager<TradeExecutionId>()
     private var canSelectionLock by mutableStateOf(false)
@@ -66,10 +68,8 @@ internal class TradeExecutionsPresenter(
 
         coroutineScope.launch {
 
-            val executionsRepo = tradingProfiles.getRecord(profileId).executions
-
             snapshotFlow { selectionManager.selection.toList() }
-                .flatMapLatest(executionsRepo::getByIds)
+                .flatMapLatest { executionsRepo.await().getByIds(it) }
                 .collect { executions ->
                     canSelectionLock = executions.any { !it.locked }
                 }
@@ -80,7 +80,7 @@ internal class TradeExecutionsPresenter(
     private fun getExecutionEntries(): Flow<PagingData<TradeExecutionEntry>> = remember {
         flow {
 
-            val executionsRepo = tradingProfiles.getRecord(profileId).executions
+            val executionsRepo = executionsRepo.await()
 
             val pager = Pager(
                 config = PagingConfig(
@@ -175,15 +175,11 @@ internal class TradeExecutionsPresenter(
 
     private fun onLockExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.executions.lock(ids)
+        executionsRepo.await().lock(ids)
     }
 
     private fun onDeleteExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        val tradingRecord = tradingProfiles.getRecord(profileId)
-
-        tradingRecord.executions.delete(ids)
+        executionsRepo.await().delete(ids)
     }
 }
