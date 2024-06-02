@@ -32,6 +32,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
+import java.math.MathContext
 import java.util.*
 import kotlin.io.path.extension
 import kotlin.time.Duration
@@ -84,6 +85,7 @@ internal class TradePresenter(
             stops = getTradeStops().value,
             previewStop = ::previewStop,
             targets = getTradeTargets().value,
+            showTargetRValues = showTargetRValues(),
             previewTarget = ::previewTarget,
             excursions = getExcursions().value,
             tags = getTradeTags().value,
@@ -240,22 +242,45 @@ internal class TradePresenter(
     private fun getTradeTargets(): State<List<TradeTarget>> {
         return produceState(emptyList()) {
 
-            trade.combine(tradesRepo.await().getTargetsForTrade(tradeId)) { trade, targets ->
+            val tradesRepo = tradesRepo.await()
+
+            combine(
+                trade,
+                tradesRepo.getTargetsForTrade(tradeId),
+                tradesRepo.getPrimaryStop(tradeId),
+            ) { trade, targets, stop ->
 
                 targets.map { target ->
 
                     val brokerage = trade.brokerageAt(target)
 
+                    val pnl = when (trade.side) {
+                        TradeSide.Long -> target.price - trade.averageEntry
+                        TradeSide.Short -> trade.averageEntry - target.price
+                    }.multiply(trade.quantity, MathContext.DECIMAL32)
+
+                    fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
+
+                    val rValue = stop?.let { "${trade.rValueAt(pnl, it).toPlainString()}R" }.orEmpty()
+
                     TradeTarget(
                         price = target.price,
-                        priceText = target.price.toPlainString(),
-                        profit = brokerage.pnl.toPlainString(),
-                        netProfit = brokerage.netPNL.toPlainString(),
+                        priceText = target.price.strippedPlainText(),
+                        rValue = rValue,
+                        profit = brokerage.pnl.strippedPlainText(),
+                        netProfit = brokerage.netPNL.strippedPlainText(),
                         isPrimary = target.isPrimary,
                     )
                 }
             }.collect { tradeTargets -> value = tradeTargets }
         }
+    }
+
+    @Composable
+    private fun showTargetRValues(): Boolean {
+        return produceState(false) {
+            tradesRepo.await().getPrimaryStop(tradeId).collect { value = it != null }
+        }.value
     }
 
     @Composable
@@ -379,26 +404,39 @@ internal class TradePresenter(
     }
 
     private fun previewTarget(price: BigDecimal): Flow<TradeTarget?> {
-        return trade.map { trade ->
+        return trade.flatMapLatest { trade ->
 
             val targetIsValid = when (trade.side) {
                 TradeSide.Long -> price > trade.averageEntry
                 TradeSide.Short -> price < trade.averageEntry
             }
 
-            when {
-                !targetIsValid -> null
-                else -> {
+            tradingProfiles.getRecord(profileId).trades.getPrimaryStop(trade.id).map { stop ->
 
-                    val brokerage = trade.brokerageAt(price)
+                when {
+                    !targetIsValid -> null
+                    else -> {
 
-                    TradeTarget(
-                        price = price,
-                        priceText = price.toPlainString(),
-                        profit = brokerage.pnl.toPlainString(),
-                        netProfit = brokerage.netPNL.toPlainString(),
-                        isPrimary = false,
-                    )
+                        val brokerage = trade.brokerageAt(price)
+
+                        val pnl = when (trade.side) {
+                            TradeSide.Long -> price - trade.averageEntry
+                            TradeSide.Short -> trade.averageEntry - price
+                        }.multiply(trade.quantity, MathContext.DECIMAL32)
+
+                        fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
+
+                        val rValue = stop?.let { "${trade.rValueAt(pnl, it).toPlainString()}R" }.orEmpty()
+
+                        TradeTarget(
+                            price = price,
+                            priceText = price.strippedPlainText(),
+                            rValue = rValue,
+                            profit = brokerage.pnl.strippedPlainText(),
+                            netProfit = brokerage.netPNL.strippedPlainText(),
+                            isPrimary = false,
+                        )
+                    }
                 }
             }
         }

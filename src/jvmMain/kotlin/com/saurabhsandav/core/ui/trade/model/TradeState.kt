@@ -15,6 +15,7 @@ internal data class TradeState(
     val stops: List<TradeStop>,
     val previewStop: (BigDecimal) -> Flow<TradeStop?>,
     val targets: List<TradeTarget>,
+    val showTargetRValues: Boolean,
     val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
     val excursions: Excursions?,
     val notes: List<TradeNote>,
@@ -75,6 +76,7 @@ internal data class TradeState(
     internal data class TradeTarget(
         val price: BigDecimal,
         val priceText: String,
+        val rValue: String,
         val profit: String,
         val netProfit: String,
         val isPrimary: Boolean,

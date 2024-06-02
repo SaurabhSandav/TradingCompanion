@@ -24,7 +24,9 @@ fun <T : TableSchema> T.SimpleHeader(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
-        val rowBuilder = remember(builder) { RowBuilderImpl().apply { builder(this@SimpleHeader) } }
+        val rowBuilder = remember(this@SimpleHeader, builder) {
+            RowBuilderImpl().apply { builder(this@SimpleHeader) }
+        }
 
         cells.forEach { cell ->
 
@@ -61,7 +63,9 @@ fun <T : TableSchema> T.SimpleRow(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
     ) {
 
-        val rowBuilder = remember(builder) { RowBuilderImpl().apply { builder(this@SimpleRow) } }
+        val rowBuilder = remember(this@SimpleRow, builder) {
+            RowBuilderImpl().apply { builder(this@SimpleRow) }
+        }
 
         cells.forEach { cell ->
 
