@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +29,8 @@ internal class ReviewsPresenter(
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
 ) {
+
+    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -61,9 +64,8 @@ internal class ReviewsPresenter(
         return remember {
             flow {
 
-                tradingProfiles
-                    .getRecord(profileId)
-                    .trades
+                tradesRepo
+                    .await()
                     .query()
                     .map { reviews ->
                         reviews
@@ -82,9 +84,7 @@ internal class ReviewsPresenter(
 
     private fun onNewReview() = coroutineScope.launchUnit {
 
-        val record = tradingProfiles.getRecord(profileId)
-
-        val reviewId = record.trades.createReview(
+        val reviewId = tradesRepo.await().createReview(
             title = "New Review",
             tradeIds = emptyList(),
             review = "",
@@ -106,15 +106,11 @@ internal class ReviewsPresenter(
 
     private fun onTogglePinReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        val record = tradingProfiles.getRecord(profileId)
-
-        record.trades.togglePinReview(id)
+        tradesRepo.await().togglePinReview(id)
     }
 
     private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        val record = tradingProfiles.getRecord(profileId)
-
-        record.trades.deleteReview(id)
+        tradesRepo.await().deleteReview(id)
     }
 }

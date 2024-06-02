@@ -16,18 +16,20 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.Trade
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 internal class TradesFilterPresenter(
     coroutineScope: CoroutineScope,
-    private val profileId: ProfileId,
+    profileId: ProfileId,
     initialFilterConfig: FilterConfig,
     private val onFilterChange: (FilterConfig) -> Unit,
     private val tradingProfiles: TradingProfiles,
 ) {
 
+    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
     private var filterConfig by mutableStateOf(initialFilterConfig)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -76,10 +78,8 @@ internal class TradesFilterPresenter(
 
         return produceState(initial) {
 
-            val tradesRepo = tradingProfiles.getRecord(profileId).trades
-
             snapshotFlow { filterConfig.tags }
-                .flatMapLatest(tradesRepo::getTagsByIds)
+                .flatMapLatest { tradesRepo.await().getTagsByIds(it) }
                 .mapList { tag ->
 
                     TradeTag(
@@ -94,11 +94,9 @@ internal class TradesFilterPresenter(
 
     private fun tagSuggestions(filterQuery: String): Flow<List<TradeTag>> = flow {
 
-        val tradesRepo = tradingProfiles.getRecord(profileId).trades
-
         snapshotFlow { filterConfig.tags }
             .flatMapLatest { tagIds ->
-                tradesRepo.getSuggestedTags(
+                tradesRepo.await().getSuggestedTags(
                     query = filterQuery,
                     ignoreIds = tagIds,
                 )
@@ -116,11 +114,9 @@ internal class TradesFilterPresenter(
 
     private fun tickerSuggestions(filterQuery: String): Flow<List<String>> = flow {
 
-        val tradesRepo = tradingProfiles.getRecord(profileId).trades
-
         snapshotFlow { filterConfig.tickers }
             .flatMapLatest { tickers ->
-                tradesRepo.getSuggestedTickers(
+                tradesRepo.await().getSuggestedTickers(
                     query = filterQuery,
                     ignore = tickers,
                 )
