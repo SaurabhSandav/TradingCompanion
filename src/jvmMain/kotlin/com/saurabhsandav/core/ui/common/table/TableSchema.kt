@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.common.table
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
@@ -14,9 +15,13 @@ open class TableSchema {
 
     protected fun cell(
         width: TableCell.Width = Weight(1F),
+        contentAlignment: Alignment = Alignment.TopStart,
     ): TableCell {
 
-        val cell = TableCell(width = width)
+        val cell = TableCell(
+            width = width,
+            contentAlignment = contentAlignment,
+        )
 
         _cells.add(cell)
 
@@ -26,6 +31,7 @@ open class TableSchema {
 
 class TableCell(
     val width: Width,
+    val contentAlignment: Alignment,
 ) {
 
     sealed class Width {
