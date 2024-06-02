@@ -238,6 +238,14 @@ class CandleLoader(
 
                 // Add new interval to LoadedPages
                 loadedPages.addBefore(newBefore..before)
+
+                val maxCandleCount = loadConfig.maxCandleCount
+                if (maxCandleCount != null) {
+
+                    val currentCandleCount = data.source.getCount(loadedPages.interval)
+
+                    if (currentCandleCount > maxCandleCount) loadedPages.dropAfter()
+                }
             }
 
             if (loadedPages.interval == initialLoadedInterval) return@withLock
@@ -295,6 +303,14 @@ class CandleLoader(
 
                 // Add new interval to LoadedPages
                 loadedPages.addAfter(after..newAfter)
+
+                val maxCandleCount = loadConfig.maxCandleCount
+                if (maxCandleCount != null) {
+
+                    val currentCandleCount = data.source.getCount(loadedPages.interval)
+
+                    if (currentCandleCount > maxCandleCount) loadedPages.dropBefore()
+                }
             }
 
             if (loadedPages.interval == initialLoadedInterval) return@withLock
@@ -346,6 +362,14 @@ class CandleLoader(
 
         fun addAfter(range: ClosedRange<Instant>) {
             pages.add(range)
+        }
+
+        fun dropBefore() {
+            pages.removeFirst()
+        }
+
+        fun dropAfter() {
+            pages.removeLast()
         }
     }
 }
