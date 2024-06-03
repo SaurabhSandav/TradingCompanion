@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.trade.model
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import com.saurabhsandav.core.ui.trade.StopPreviewer
+import com.saurabhsandav.core.ui.trade.TargetPreviewer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
@@ -13,10 +15,10 @@ internal data class TradeState(
     val executions: List<Execution>,
     val newExecutionEnabled: Boolean,
     val stops: List<TradeStop>,
-    val previewStop: (BigDecimal) -> Flow<TradeStop?>,
+    val stopPreviewer: Flow<StopPreviewer>,
     val targets: List<TradeTarget>,
     val showTargetRValues: Boolean,
-    val previewTarget: (BigDecimal) -> Flow<TradeTarget?>,
+    val targetPreviewer: Flow<TargetPreviewer>,
     val excursions: Excursions?,
     val notes: List<TradeNote>,
     val tags: List<TradeTag>,

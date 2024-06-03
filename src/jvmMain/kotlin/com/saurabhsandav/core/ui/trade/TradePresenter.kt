@@ -58,6 +58,10 @@ internal class TradePresenter(
         started = SharingStarted.Eagerly,
         replay = 1,
     )
+    private val stopPreviewer = trade.map(::StopPreviewer)
+    private val targetPreviewer = trade.flatMapLatest { trade ->
+        tradesRepo.await().getPrimaryStop(trade.id).map { stop -> TargetPreviewer(trade, stop) }
+    }
 
     private var newExecutionEnabled by mutableStateOf(false)
 
@@ -83,10 +87,10 @@ internal class TradePresenter(
             executions = getTradeExecutions().value,
             newExecutionEnabled = newExecutionEnabled,
             stops = getTradeStops().value,
-            previewStop = ::previewStop,
+            stopPreviewer = stopPreviewer,
             targets = getTradeTargets().value,
             showTargetRValues = showTargetRValues(),
-            previewTarget = ::previewTarget,
+            targetPreviewer = targetPreviewer,
             excursions = getExcursions().value,
             tags = getTradeTags().value,
             tagSuggestions = ::tagSuggestions,
@@ -374,71 +378,6 @@ internal class TradePresenter(
                     )
                 }
                 .collect { value = it }
-        }
-    }
-
-    private fun previewStop(price: BigDecimal): Flow<TradeStop?> {
-        return trade.map { trade ->
-
-            val stopIsValid = when (trade.side) {
-                TradeSide.Long -> price < trade.averageEntry
-                TradeSide.Short -> price > trade.averageEntry
-            }
-
-            when {
-                !stopIsValid -> null
-                else -> {
-
-                    val brokerage = trade.brokerageAt(price)
-
-                    TradeStop(
-                        price = price,
-                        priceText = price.toPlainString(),
-                        risk = brokerage.pnl.toPlainString(),
-                        netRisk = brokerage.netPNL.toPlainString(),
-                        isPrimary = false,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun previewTarget(price: BigDecimal): Flow<TradeTarget?> {
-        return trade.flatMapLatest { trade ->
-
-            val targetIsValid = when (trade.side) {
-                TradeSide.Long -> price > trade.averageEntry
-                TradeSide.Short -> price < trade.averageEntry
-            }
-
-            tradingProfiles.getRecord(profileId).trades.getPrimaryStop(trade.id).map { stop ->
-
-                when {
-                    !targetIsValid -> null
-                    else -> {
-
-                        val brokerage = trade.brokerageAt(price)
-
-                        val pnl = when (trade.side) {
-                            TradeSide.Long -> price - trade.averageEntry
-                            TradeSide.Short -> trade.averageEntry - price
-                        }.multiply(trade.quantity, MathContext.DECIMAL32)
-
-                        fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
-
-                        val rValue = stop?.let { "${trade.rValueAt(pnl, it).toPlainString()}R" }.orEmpty()
-
-                        TradeTarget(
-                            price = price,
-                            priceText = price.strippedPlainText(),
-                            rValue = rValue,
-                            profit = brokerage.pnl.strippedPlainText(),
-                            netProfit = brokerage.netPNL.strippedPlainText(),
-                            isPrimary = false,
-                        )
-                    }
-                }
-            }
         }
     }
 
