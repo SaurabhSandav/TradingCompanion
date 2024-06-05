@@ -56,6 +56,7 @@ kotlin {
 
                 listOf(
                     "kotlin.contracts.ExperimentalContracts",
+                    "kotlin.ExperimentalStdlibApi",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "kotlinx.coroutines.FlowPreview",
                     "androidx.compose.foundation.ExperimentalFoundationApi",
@@ -118,7 +119,7 @@ kotlin {
             implementation("org.openjfx:javafx-swing:22.0.1:linux")
             implementation("org.openjfx:javafx-web:22.0.1:linux")
 
-            // Krypto
+            // cryptography-kotlin
             implementation("dev.whyoleg.cryptography:cryptography-core:0.3.1")
             implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.1")
 

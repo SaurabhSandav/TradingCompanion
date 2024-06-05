@@ -50,7 +50,7 @@ class FyersApi {
 
         val requestBody = AuthValidationRequest(
             grantType = "authorization_code",
-            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256().toString(),
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256(),
             code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
         )
 
@@ -72,7 +72,7 @@ class FyersApi {
 
         val requestBody = RefreshValidationRequest(
             grantType = "refresh_token",
-            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256().toString(),
+            appIdHash = "${BuildKonfig.FYERS_APP_ID}:${BuildKonfig.FYERS_SECRET}".sha256(),
             refreshToken = refreshToken,
             pin = pin,
         )
@@ -140,7 +140,7 @@ class FyersApi {
         return response.body()
     }
 
-    private suspend fun String.sha256(): ByteArray {
-        return CryptographyProvider.Default.get(SHA256).hasher().hash(encodeToByteArray())
+    private suspend fun String.sha256(): String {
+        return CryptographyProvider.Default.get(SHA256).hasher().hash(encodeToByteArray()).toHexString()
     }
 }
