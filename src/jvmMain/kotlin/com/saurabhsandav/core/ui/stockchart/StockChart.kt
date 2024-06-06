@@ -538,7 +538,13 @@ class StockChart(
             }
 
             // Show latest 90 candles (with a 10 candle empty area)
-            else -> (candleSeries.size - 90F) to (candleSeries.size + 10F)
+            else -> {
+
+                // Load latest data
+                candleLoader.loadLatest(params)
+
+                (candleSeries.size - 90F) to (candleSeries.size + 10F)
+            }
         }
 
         actualChart.timeScale.setVisibleLogicalRange(from = from, to = to)
