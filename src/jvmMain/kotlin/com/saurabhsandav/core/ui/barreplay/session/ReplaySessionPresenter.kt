@@ -45,7 +45,7 @@ internal class ReplaySessionPresenter(
     private var autoNextJob by mutableStateOf<Job?>(null)
     private val chartsState = stockChartsStateFactory(
         initialParams = StockChartParams(replayParams.initialTicker, replayParams.baseTimeframe),
-        loadConfig = LoadConfig(initialLoadBefore = replayParams.replayFrom),
+        loadConfig = LoadConfig(initialLoadBefore = { replayParams.replayFrom }),
     )
     private val orderFormWindowsManager = AppWindowsManager<OrderFormParams>()
 

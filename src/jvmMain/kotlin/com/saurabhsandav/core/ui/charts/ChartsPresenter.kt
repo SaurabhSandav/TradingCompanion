@@ -48,7 +48,7 @@ internal class ChartsPresenter(
 
         stockChartsStateFactory(
             initialParams = StockChartParams(NIFTY500.first(), defaultTimeframe),
-            loadConfig = LoadConfig(initialLoadBefore = Clock.System.now()),
+            loadConfig = LoadConfig(initialLoadBefore = { Clock.System.now() }),
         )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)

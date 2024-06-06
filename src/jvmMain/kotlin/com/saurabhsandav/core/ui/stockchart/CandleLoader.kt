@@ -328,16 +328,18 @@ class CandleLoader(
 
         val loadedPages = loadedPagesMap.getOrPut(data.params.timeframe) {
 
+            val initialLoadBefore = loadConfig.initialLoadBefore()
+
             val newBefore = data.source.getBeforeInstant(
-                currentBefore = loadConfig.initialLoadBefore,
+                currentBefore = initialLoadBefore,
                 loadCount = loadConfig.initialLoadCount,
             )
 
             // If no candles available, don't add page.
-            if (newBefore == null || loadConfig.initialLoadBefore == newBefore) return
+            if (newBefore == null || initialLoadBefore == newBefore) return
 
             // Create LoadedPages with initial page
-            LoadedPages(initialPage = newBefore..loadConfig.initialLoadBefore)
+            LoadedPages(initialPage = newBefore..initialLoadBefore)
         }
 
         data.load(loadedPages.interval).join()
