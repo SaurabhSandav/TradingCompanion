@@ -32,6 +32,7 @@ import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 @Composable
@@ -204,6 +205,16 @@ private fun TradeExecutionForm(
             label = { Text("Entry Time") },
             isError = model.timeField.isError,
             supportingText = model.timeField.errorMessage?.let { { Text(it) } },
+            trailingIcon = {
+
+                TextButton(
+                    onClick = {
+                        model.timeField.value = Clock.System.now()
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .time
+                    }
+                ) { Text("NOW") }
+            },
         )
 
         if (formType is NewSized) {
