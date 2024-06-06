@@ -269,10 +269,7 @@ class CandleLoader(
 
             val data = getStockChartData(params)
 
-            // Don't try to load after if collecting live candles
-            if (data.isCollectingLive) return@withLock
-
-            if (!data.hasAfter) return@withLock
+            if (data.isCollectingLive || !data.hasAfter) return@withLock
 
             // LoadedPages for timeframe
             val loadedPages = loadedPagesMap[params.timeframe]!!
@@ -319,6 +316,28 @@ class CandleLoader(
                 .map { (_, mapData) -> mapData.load(loadedPages.interval) }
                 .joinAll()
         }
+    }
+
+    suspend fun loadLatest(params: StockChartParams) = loadMutex.withLock {
+
+        val data = getStockChartData(params)
+
+        if (data.isCollectingLive || !data.hasAfter) return@withLock
+
+        // LoadedPages for timeframe
+        val loadedPages = loadedPagesMap[params.timeframe]!!
+        val initialLoadBefore = loadConfig.initialLoadBefore()
+
+        if (loadedPages.endInclusive >= initialLoadBefore) return@withLock
+
+        loadedPagesMap.remove(params.timeframe)
+
+        stockChartDataMap
+            .filterKeys { it.timeframe == params.timeframe }
+            .forEach { (_, mapData) ->
+                mapData.reset()
+                loadInitial(mapData)
+            }
     }
 
     private suspend fun loadInitial(data: StockChartData) {
