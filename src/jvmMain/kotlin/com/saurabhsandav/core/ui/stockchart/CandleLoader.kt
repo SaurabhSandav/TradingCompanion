@@ -182,10 +182,9 @@ class CandleLoader(
 
         // Sync other StockChartData with same timeframe
         stockChartDataMap
-            .keys
-            .filter { it.timeframe == params.timeframe }
-            .map { mapParams ->
-                getStockChartData(mapParams).run {
+            .filterKeys { it.timeframe == params.timeframe }
+            .map { (_, mapData) ->
+                mapData.run {
                     reset()
                     if (data == this) {
                         setHasBefore(hasBefore)
@@ -252,9 +251,8 @@ class CandleLoader(
 
             // Sync other StockChartData with same timeframe
             stockChartDataMap
-                .keys
-                .filter { it.timeframe == params.timeframe }
-                .map { mapParams -> getStockChartData(mapParams).load(loadedPages.interval) }
+                .filterKeys { it.timeframe == params.timeframe }
+                .map { (_, mapData) -> mapData.load(loadedPages.interval) }
                 .joinAll()
         }
     }
@@ -317,9 +315,8 @@ class CandleLoader(
 
             // Sync other StockChartData with same timeframe
             stockChartDataMap
-                .keys
-                .filter { it.timeframe == params.timeframe }
-                .map { mapParams -> getStockChartData(mapParams).load(loadedPages.interval) }
+                .filterKeys { it.timeframe == params.timeframe }
+                .map { (_, mapData) -> mapData.load(loadedPages.interval) }
                 .joinAll()
         }
     }
