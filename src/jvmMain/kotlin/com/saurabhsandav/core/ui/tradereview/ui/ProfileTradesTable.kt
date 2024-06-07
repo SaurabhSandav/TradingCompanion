@@ -11,10 +11,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -36,6 +39,38 @@ internal fun ProfileTradesTable(
 ) {
 
     val items = trades.collectAsLazyPagingItems()
+
+    ListLoadStateIndicator(
+        state = {
+            when {
+                items.loadState.refresh is LoadState.Loading -> loading()
+                items.itemCount == 0 -> empty()
+                else -> loaded()
+            }
+        },
+        emptyText = { "No Trades" },
+    ) {
+
+        ProfileTradesTable(
+            items = items,
+            onMarkTrade = onMarkTrade,
+            onSelectTrade = onSelectTrade,
+            onOpenDetails = onOpenDetails,
+            isFilterEnabled = isFilterEnabled,
+            onFilter = onFilter,
+        )
+    }
+}
+
+@Composable
+private fun ProfileTradesTable(
+    items: LazyPagingItems<TradeItem>,
+    onMarkTrade: (ProfileTradeId, isMarked: Boolean) -> Unit,
+    onSelectTrade: (ProfileTradeId) -> Unit,
+    onOpenDetails: (ProfileTradeId) -> Unit,
+    isFilterEnabled: Boolean,
+    onFilter: () -> Unit,
+) {
 
     LazyTable(
         headerContent = {

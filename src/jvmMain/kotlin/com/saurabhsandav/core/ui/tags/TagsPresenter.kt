@@ -50,7 +50,7 @@ internal class TagsPresenter(
     }
 
     @Composable
-    private fun getTags(): State<List<Tag>> {
+    private fun getTags(): State<List<Tag>?> {
         return remember {
             flow {
 
@@ -69,7 +69,7 @@ internal class TagsPresenter(
                     }
                     .emitInto(this)
             }
-        }.collectAsState(emptyList())
+        }.collectAsState(null)
     }
 
     private fun onNewTag() {

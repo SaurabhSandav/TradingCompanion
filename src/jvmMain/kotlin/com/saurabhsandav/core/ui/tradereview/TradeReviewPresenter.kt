@@ -210,7 +210,7 @@ internal class TradeReviewPresenter(
     }
 
     @Composable
-    private fun getMarkedTrades(): State<List<MarkedTradeItem>> {
+    private fun getMarkedTrades(): State<List<MarkedTradeItem>?> {
         return remember {
 
             snapshotFlow { markedTradeIds.toList() }
@@ -251,7 +251,7 @@ internal class TradeReviewPresenter(
                             }
                         }
                 }
-        }.collectAsState(emptyList())
+        }.collectAsState(null)
     }
 
     private fun Trade.toMarkedTradeItem(

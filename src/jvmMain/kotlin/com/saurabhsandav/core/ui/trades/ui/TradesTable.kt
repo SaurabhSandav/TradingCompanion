@@ -10,12 +10,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -39,6 +42,38 @@ internal fun TradesTable(
 ) {
 
     val items = tradeEntries.collectAsLazyPagingItems()
+
+    ListLoadStateIndicator(
+        state = {
+            when {
+                items.loadState.refresh is LoadState.Loading -> loading()
+                items.itemCount == 0 -> empty()
+                else -> loaded()
+            }
+        },
+        emptyText = { "No Trades" },
+    ) {
+
+        TradesTable(
+            items = items,
+            isFocusModeEnabled = isFocusModeEnabled,
+            onOpenDetails = onOpenDetails,
+            onOpenChart = onOpenChart,
+            onSetFocusModeEnabled = onSetFocusModeEnabled,
+            onFilter = onFilter,
+        )
+    }
+}
+
+@Composable
+private fun TradesTable(
+    items: LazyPagingItems<TradeEntry>,
+    isFocusModeEnabled: Boolean,
+    onOpenDetails: (TradeId) -> Unit,
+    onOpenChart: (TradeId) -> Unit,
+    onSetFocusModeEnabled: (Boolean) -> Unit,
+    onFilter: () -> Unit,
+) {
 
     LazyTable(
         headerContent = {

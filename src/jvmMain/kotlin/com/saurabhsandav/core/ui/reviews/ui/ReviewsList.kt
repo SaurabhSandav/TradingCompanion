@@ -14,12 +14,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
+import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry.Item
@@ -36,6 +39,34 @@ internal fun ReviewsList(
 ) {
 
     val items = reviewEntries.collectAsLazyPagingItems()
+
+    ListLoadStateIndicator(
+        state = {
+            when {
+                items.loadState.refresh is LoadState.Loading -> loading()
+                items.itemCount == 0 -> empty()
+                else -> loaded()
+            }
+        },
+        emptyText = { "No Reviews" },
+    ) {
+
+        ReviewsList(
+            items = items,
+            onOpenReview = onOpenReview,
+            onTogglePinReview = onTogglePinReview,
+            onDeleteReview = onDeleteReview,
+        )
+    }
+}
+
+@Composable
+private fun ReviewsList(
+    items: LazyPagingItems<ReviewEntry>,
+    onOpenReview: (ReviewId) -> Unit,
+    onTogglePinReview: (ReviewId) -> Unit,
+    onDeleteReview: (ReviewId) -> Unit,
+) {
 
     LazyColumn {
 

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 internal fun TradesTableSwitcher(
     selectedTab: Tab,
     trades: Flow<PagingData<TradeItem>>,
-    markedTrades: List<MarkedTradeItem>,
+    markedTrades: List<MarkedTradeItem>?,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
