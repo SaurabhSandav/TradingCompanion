@@ -78,7 +78,7 @@ internal fun TradeReviewScreen(
     selectedProfileName: String?,
     onProfileSelected: (ProfileId?) -> Unit,
     trades: Flow<PagingData<TradeItem>>,
-    markedTrades: List<MarkedTradeItem>,
+    markedTrades: List<MarkedTradeItem>?,
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
@@ -102,7 +102,7 @@ internal fun TradeReviewScreen(
         floatingActionButton = {
 
             AnimatedVisibility(
-                visible = selectedTab == Tab.Marked && markedTrades.isNotEmpty(),
+                visible = selectedTab == Tab.Marked && markedTrades?.isNotEmpty() == true,
                 enter = scaleIn(),
                 exit = scaleOut(),
             ) {

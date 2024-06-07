@@ -14,7 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
@@ -42,6 +44,42 @@ internal fun TradeExecutionsTable(
 ) {
 
     val items = executionEntries.collectAsLazyPagingItems()
+
+    ListLoadStateIndicator(
+        state = {
+            when {
+                items.loadState.refresh is LoadState.Loading -> loading()
+                items.itemCount == 0 -> empty()
+                else -> loaded()
+            }
+        },
+        emptyText = { "No Executions" },
+    ) {
+
+        TradeExecutionsTable(
+            items = items,
+            isMarked = isMarked,
+            onClickExecution = onClickExecution,
+            onMarkExecution = onMarkExecution,
+            onNewExecution = onNewExecution,
+            onEditExecution = onEditExecution,
+            onLockExecution = onLockExecution,
+            onDeleteExecution = onDeleteExecution,
+        )
+    }
+}
+
+@Composable
+private fun TradeExecutionsTable(
+    items: LazyPagingItems<TradeExecutionEntry>,
+    isMarked: (TradeExecutionId) -> Boolean,
+    onClickExecution: (TradeExecutionId) -> Unit,
+    onMarkExecution: (TradeExecutionId) -> Unit,
+    onNewExecution: (TradeExecutionId) -> Unit,
+    onEditExecution: (TradeExecutionId) -> Unit,
+    onLockExecution: (TradeExecutionId) -> Unit,
+    onDeleteExecution: (TradeExecutionId) -> Unit,
+) {
 
     LazyTable(
         headerContent = {

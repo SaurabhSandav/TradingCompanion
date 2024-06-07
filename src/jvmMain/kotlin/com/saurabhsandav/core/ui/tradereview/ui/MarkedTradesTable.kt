@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -23,6 +24,35 @@ import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.MarkedTradeI
 
 @Composable
 internal fun MarkedTradesTable(
+    markedTrades: List<MarkedTradeItem>?,
+    onUnMarkTrade: (ProfileTradeId) -> Unit,
+    onSelectTrade: (ProfileTradeId) -> Unit,
+    onOpenDetails: (ProfileTradeId) -> Unit,
+) {
+
+    ListLoadStateIndicator(
+        state = {
+            when {
+                markedTrades == null -> loading()
+                markedTrades.isEmpty() -> empty()
+                else -> loaded()
+            }
+        },
+        emptyText = { "No Trades" },
+    ) {
+
+        MarkedTradesTable(
+            markedTrades = markedTrades ?: emptyList(),
+            onUnMarkTrade = onUnMarkTrade,
+            onSelectTrade = onSelectTrade,
+            onOpenDetails = onOpenDetails,
+        )
+    }
+}
+
+@JvmName("MarkedTradesTableActual")
+@Composable
+private fun MarkedTradesTable(
     markedTrades: List<MarkedTradeItem>,
     onUnMarkTrade: (ProfileTradeId) -> Unit,
     onSelectTrade: (ProfileTradeId) -> Unit,

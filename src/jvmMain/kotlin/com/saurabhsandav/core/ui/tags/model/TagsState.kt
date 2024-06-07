@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.tags.model
 import com.saurabhsandav.core.trades.model.TradeTagId
 
 data class TagsState(
-    val tags: List<Tag>,
+    val tags: List<Tag>?,
     val eventSink: (TagsEvent) -> Unit,
 ) {
 

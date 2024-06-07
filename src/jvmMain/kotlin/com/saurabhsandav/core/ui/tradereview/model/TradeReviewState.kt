@@ -9,7 +9,7 @@ internal data class TradeReviewState(
     val selectedProfileId: ProfileId?,
     val selectedProfileName: String?,
     val trades: Flow<PagingData<TradeItem>>,
-    val markedTrades: List<MarkedTradeItem>,
+    val markedTrades: List<MarkedTradeItem>?,
     val eventSink: (TradeReviewEvent) -> Unit,
 ) {
 
