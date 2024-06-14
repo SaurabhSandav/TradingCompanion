@@ -36,9 +36,25 @@ WHERE tradeId IN ?
 GROUP BY tradeId
 HAVING isPrimary = TRUE;
 
-delete:
+delete {
+
 DELETE FROM TradeTarget
-WHERE tradeId = ? AND price = ?;
+WHERE tradeId = :tradeId AND price = ?;
+
+-- If deleted target was primary, set farthest price as new primary
+WITH new_primary AS (
+  SELECT TradeTarget.* FROM TradeTarget
+  INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
+  WHERE tradeId = :tradeId
+  ORDER BY
+    isPrimary DESC,
+    ABS(CAST(Trade.averageEntry AS REAL) - CAST(TradeTarget.price AS REAL)) DESC
+  LIMIT 1
+)
+UPDATE TradeTarget
+SET isPrimary = (SELECT EXISTS(SELECT * FROM new_primary WHERE price = TradeTarget.price))
+WHERE tradeId = :tradeId;
+}
 
 deleteByTrade:
 DELETE FROM TradeTarget
