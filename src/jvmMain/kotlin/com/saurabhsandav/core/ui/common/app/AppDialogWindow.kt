@@ -27,6 +27,7 @@ fun AppDialogWindow(
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
+    alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable DialogWindowScope.() -> Unit,
@@ -43,6 +44,7 @@ fun AppDialogWindow(
         resizable = resizable,
         enabled = enabled,
         focusable = focusable,
+        alwaysOnTop = alwaysOnTop,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
     ) {
