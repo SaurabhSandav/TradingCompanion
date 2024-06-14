@@ -97,6 +97,7 @@ private fun FetchCandleDataLoginConfirmationDialog(
                 height = 150.dp,
             )
         ),
+        alwaysOnTop = true,
     ) {
 
         Column(

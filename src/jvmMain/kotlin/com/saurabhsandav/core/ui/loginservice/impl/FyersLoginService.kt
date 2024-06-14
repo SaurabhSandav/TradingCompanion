@@ -246,6 +246,7 @@ internal class FyersLoginService private constructor(
                         height = 100.dp,
                     ),
                     title = "Login to Fyers",
+                    alwaysOnTop = true,
                 ) {
 
                     Row(
@@ -277,6 +278,7 @@ internal class FyersLoginService private constructor(
                         height = 100.dp,
                     ),
                     title = "Enter Fyers pin",
+                    alwaysOnTop = true,
                 ) {
 
                     var pin by state { "" }
