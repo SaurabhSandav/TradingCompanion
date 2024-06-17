@@ -49,13 +49,26 @@ SELECT EXISTS(SELECT * FROM Review WHERE id = ?);
 getAll:
 SELECT * FROM Review;
 
-getPinned:
-SELECT * FROM Review WHERE isPinned = TRUE;
-
-getUnPinned:
-SELECT * FROM Review WHERE isPinned = FALSE;
-
 getById:
 SELECT *
 FROM Review
 WHERE id = ?;
+
+getAllCount:
+SELECT count(*)
+FROM Review;
+
+getAllPaged:
+SELECT *
+FROM Review
+ORDER BY
+  isPinned DESC,
+  datetime(created) DESC,
+  id DESC
+LIMIT :limit OFFSET :offset;
+
+getPinnedCount:
+SELECT count(*) FROM Review WHERE isPinned = TRUE;
+
+getUnpinnedCount:
+SELECT count(*) FROM Review WHERE isPinned = FALSE;

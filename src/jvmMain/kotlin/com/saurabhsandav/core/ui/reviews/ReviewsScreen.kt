@@ -6,15 +6,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
+import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.reviews.ui.ReviewsList
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun ReviewsScreen(
-    pinnedReviews: List<Review>,
-    unPinnedReviews: List<Review>,
+    reviewEntries: Flow<PagingData<ReviewEntry>>,
     onNewReview: () -> Unit,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
@@ -37,8 +38,7 @@ internal fun ReviewsScreen(
         ) {
 
             ReviewsList(
-                pinnedReviews = pinnedReviews,
-                unPinnedReviews = unPinnedReviews,
+                reviewEntries = reviewEntries,
                 onOpenReview = onOpenReview,
                 onTogglePinReview = onTogglePinReview,
                 onDeleteReview = onDeleteReview,

@@ -1,8 +1,9 @@
 package com.saurabhsandav.core.trades
 
+import androidx.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import com.saurabhsandav.core.paging_sqldelight.QueryPagingSource
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.utils.withoutNanoseconds
@@ -77,15 +78,22 @@ class Reviews(
         return tradesDB.reviewQueries.exists(ReviewId(id)).asFlow().mapToOne(Dispatchers.IO)
     }
 
-    fun getPinned(): Flow<List<Review>> {
-        return tradesDB.reviewQueries.getPinned().asFlow().mapToList(Dispatchers.IO)
-    }
-
-    fun getUnPinned(): Flow<List<Review>> {
-        return tradesDB.reviewQueries.getUnPinned().asFlow().mapToList(Dispatchers.IO)
-    }
-
     fun getById(id: ReviewId): Flow<Review> {
         return tradesDB.reviewQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getAllPagingSource(): PagingSource<Int, Review> = QueryPagingSource(
+        countQuery = tradesDB.reviewQueries.getAllCount(),
+        transacter = tradesDB.reviewQueries,
+        context = Dispatchers.IO,
+        queryProvider = tradesDB.reviewQueries::getAllPaged,
+    )
+
+    fun getPinnedCount(): Flow<Long> {
+        return tradesDB.reviewQueries.getPinnedCount().asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getUnpinnedCount(): Flow<Long> {
+        return tradesDB.reviewQueries.getUnpinnedCount().asFlow().mapToOne(Dispatchers.IO)
     }
 }
