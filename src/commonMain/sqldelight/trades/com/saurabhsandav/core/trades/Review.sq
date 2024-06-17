@@ -2,20 +2,22 @@ import com.saurabhsandav.core.trades.model.ReviewId;
 import com.saurabhsandav.core.trades.model.TradeId;
 import kotlin.Boolean;
 import kotlin.collections.List;
+import kotlinx.datetime.Instant;
 
 CREATE TABLE IF NOT EXISTS Review (
 id INTEGER AS ReviewId NOT NULL PRIMARY KEY,
 title TEXT NOT NULL,
 tradeIds TEXT AS List<TradeId> NOT NULL,
 review TEXT NOT NULL,
+created TEXT AS Instant NOT NULL,
 isMarkdown INTEGER AS Boolean NOT NULL,
 isPinned INTEGER AS Boolean NOT NULL DEFAULT FALSE
 );
 
 insert:
 INSERT
-INTO Review(title, tradeIds, review, isMarkdown)
-VALUES (?, ?, ?, ?);
+INTO Review(title, tradeIds, review, created, isMarkdown)
+VALUES (?, ?, ?, ?, ?);
 
 setTitle:
 UPDATE Review

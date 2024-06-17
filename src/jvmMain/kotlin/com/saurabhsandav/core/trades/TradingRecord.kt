@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.trades
 
-import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
-import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.core.trades.migrations.migrationAfterV1
+import com.saurabhsandav.core.trades.migrations.migrationAfterV2
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
@@ -22,6 +22,7 @@ internal class TradingRecord(
             schema = TradesDB.Schema,
             callbacks = arrayOf(
                 migrationAfterV1,
+                migrationAfterV2,
             ),
         )
 
@@ -92,6 +93,7 @@ internal class TradingRecord(
             ReviewAdapter = Review.Adapter(
                 idAdapter = ReviewIdColumnAdapter,
                 tradeIdsAdapter = TradeIdListColumnAdapter,
+                createdAdapter = InstantReadableColumnAdapter,
             ),
             TradeExcursionsAdapter = TradeExcursions.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
@@ -125,51 +127,4 @@ internal class TradingRecord(
     val reviews = Reviews(tradesDB)
 
     val sizingTrades = SizingTrades(tradesDB)
-
-    private companion object {
-
-        val migrationAfterV1 = AfterVersion(1) { driver ->
-
-            val transacter = object : TransacterImpl(driver) {}
-
-            transacter.transaction {
-
-                // Set farthest stop as primary
-                driver.execute(
-                    identifier = null,
-                    sql = """
-                    |UPDATE TradeStop AS ts
-                    |SET isPrimary = TRUE 
-                    |WHERE price = (
-                    |  SELECT TradeStop.price
-                    |  FROM TradeStop
-                    |  INNER JOIN Trade ON TradeStop.tradeId = Trade.id
-                    |  WHERE Trade.id = ts.tradeId
-                    |  ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL)
-                    |  LIMIT 1
-                    |);
-                    """.trimMargin(),
-                    parameters = 0,
-                )
-
-                // Set closest target as primary
-                driver.execute(
-                    identifier = null,
-                    sql = """
-                    |UPDATE TradeTarget AS tt
-                    |SET isPrimary = TRUE 
-                    |WHERE price = (
-                    |  SELECT TradeTarget.price
-                    |  FROM TradeTarget
-                    |  INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
-                    |  WHERE Trade.id = tt.tradeId
-                    |  ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeTarget.price AS REAL)
-                    |  LIMIT 1
-                    |);
-                    """.trimMargin(),
-                    parameters = 0,
-                )
-            }
-        }
-    }
 }
