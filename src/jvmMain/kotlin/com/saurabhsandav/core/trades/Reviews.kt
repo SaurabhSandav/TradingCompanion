@@ -5,9 +5,11 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 
 class Reviews(
     private val tradesDB: TradesDB,
@@ -26,6 +28,7 @@ class Reviews(
                 title = title,
                 tradeIds = tradeIds,
                 review = review,
+                created = Clock.System.now().withoutNanoseconds(),
                 isMarkdown = isMarkdown,
             )
 
