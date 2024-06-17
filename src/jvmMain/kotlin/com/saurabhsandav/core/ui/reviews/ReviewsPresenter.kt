@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.Trades
+import com.saurabhsandav.core.trades.Reviews
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ReviewId
@@ -30,7 +30,8 @@ internal class ReviewsPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
+    private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
+    private val reviews = coroutineScope.async { tradingRecord.await().reviews }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -52,19 +53,19 @@ internal class ReviewsPresenter(
     }
 
     @Composable
-    private fun getPinnedReviews(): List<Review> = getReviews { getPinnedReviews() }
+    private fun getPinnedReviews(): List<Review> = getReviews { getPinned() }
 
     @Composable
-    private fun getUnpinnedReviews(): List<Review> = getReviews { getUnPinnedReviews() }
+    private fun getUnpinnedReviews(): List<Review> = getReviews { getUnPinned() }
 
     @Composable
     private fun getReviews(
-        query: Trades.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
+        query: Reviews.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
     ): List<Review> {
         return remember {
             flow {
 
-                trades
+                reviews
                     .await()
                     .query()
                     .map { reviews ->
@@ -84,7 +85,7 @@ internal class ReviewsPresenter(
 
     private fun onNewReview() = coroutineScope.launchUnit {
 
-        val reviewId = trades.await().createReview(
+        val reviewId = reviews.await().new(
             title = "New Review",
             tradeIds = emptyList(),
             review = "",
@@ -106,11 +107,11 @@ internal class ReviewsPresenter(
 
     private fun onTogglePinReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        trades.await().togglePinReview(id)
+        reviews.await().togglePinned(id)
     }
 
     private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        trades.await().deleteReview(id)
+        reviews.await().delete(id)
     }
 }
