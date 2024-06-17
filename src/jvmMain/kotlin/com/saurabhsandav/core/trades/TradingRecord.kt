@@ -122,6 +122,8 @@ internal class TradingRecord(
 
     val trades = Trades(recordPath, tradesDB, executions)
 
+    val reviews = Reviews(tradesDB)
+
     val sizingTrades = SizingTrades(tradesDB)
 
     private companion object {
