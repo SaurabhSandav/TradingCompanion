@@ -5,102 +5,94 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
+import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
+import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
+import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry.Item
+import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry.Section
 import com.saurabhsandav.core.ui.theme.dimens
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun ReviewsList(
-    pinnedReviews: List<Review>,
-    unPinnedReviews: List<Review>,
+    reviewEntries: Flow<PagingData<ReviewEntry>>,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
 ) {
+
+    val items = reviewEntries.collectAsLazyPagingItems()
 
     LazyColumn {
 
-        reviews(
-            isPinned = true,
-            reviews = pinnedReviews,
-            onOpenReview = onOpenReview,
-            onTogglePinReview = onTogglePinReview,
-            onDeleteReview = onDeleteReview,
-        )
-
-        reviews(
-            isPinned = false,
-            reviews = unPinnedReviews,
-            onOpenReview = onOpenReview,
-            onTogglePinReview = onTogglePinReview,
-            onDeleteReview = onDeleteReview,
-        )
-    }
-}
-
-private fun LazyListScope.reviews(
-    isPinned: Boolean,
-    reviews: List<Review>,
-    onOpenReview: (ReviewId) -> Unit,
-    onTogglePinReview: (ReviewId) -> Unit,
-    onDeleteReview: (ReviewId) -> Unit,
-) {
-
-    if (reviews.isNotEmpty()) {
-
-        item(
-            contentType = ContentType.Header,
-        ) {
-
-            ListItem(
-                modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
-                headlineContent = {
-                    Text(
-                        text = if (isPinned) "Pinned" else "Unpinned",
-                        style = MaterialTheme.typography.headlineSmall,
-                    )
-                },
-                supportingContent = {
-                    Text(
-                        text = "${reviews.size} Reviews",
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                },
-            )
-        }
-
         items(
-            items = reviews,
-            key = { it.id },
-            contentType = { ContentType.Review },
-        ) { review ->
+            count = items.itemCount,
+            key = items.itemKey { entry ->
 
-            ReviewItem(
-                review = review,
-                onOpen = { onOpenReview(review.id) },
-                isPinned = isPinned,
-                onTogglePin = { onTogglePinReview(review.id) },
-                onDelete = { onDeleteReview(review.id) },
-            )
+                when (entry) {
+                    is Section -> "Section_${entry.isPinned}"
+                    is Item -> entry.id
+                }
+            },
+            contentType = items.itemContentType { entry -> entry.javaClass },
+        ) { index ->
+
+            when (val entry = items[index]!!) {
+                is Section -> Section(entry)
+                is Item -> Item(
+                    item = entry,
+                    onOpen = { onOpenReview(entry.id) },
+                    isPinned = entry.isPinned,
+                    onTogglePin = { onTogglePinReview(entry.id) },
+                    onDelete = { onDeleteReview(entry.id) },
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ReviewItem(
-    review: Review,
+private fun Section(section: Section) {
+
+    ListItem(
+        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
+        headlineContent = {
+            Text(
+                text = if (section.isPinned) "Pinned" else "Unpinned",
+                style = MaterialTheme.typography.headlineLarge,
+            )
+        },
+        supportingContent = {
+
+            val count by section.count.collectAsState("")
+
+            Text(
+                text = "$count Reviews",
+                style = MaterialTheme.typography.labelLarge,
+            )
+        },
+    )
+
+    HorizontalDivider()
+}
+
+@Composable
+private fun Item(
+    item: Item,
     onOpen: () -> Unit,
     isPinned: Boolean,
     onTogglePin: () -> Unit,
@@ -119,7 +111,7 @@ private fun ReviewItem(
 
         ListItem(
             modifier = Modifier.clickable(onClick = onOpen),
-            headlineContent = { Text(review.title) },
+            headlineContent = { Text(item.title) },
         )
 
         HorizontalDivider()
@@ -133,8 +125,4 @@ private fun ReviewItem(
             onConfirm = onDelete,
         )
     }
-}
-
-private enum class ContentType {
-    Header, Review;
 }

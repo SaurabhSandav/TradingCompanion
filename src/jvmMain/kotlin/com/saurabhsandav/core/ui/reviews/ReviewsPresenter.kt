@@ -1,18 +1,18 @@
 package com.saurabhsandav.core.ui.reviews
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.paging.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.Reviews
+import com.saurabhsandav.core.trades.Review
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.*
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState
-import com.saurabhsandav.core.ui.reviews.model.ReviewsState.Review
+import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
@@ -36,8 +36,7 @@ internal class ReviewsPresenter(
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule ReviewsState(
-            pinnedReviews = getPinnedReviews(),
-            unPinnedReviews = getUnpinnedReviews(),
+            reviewEntries = getReviewEntries(),
             eventSink = ::onEvent,
         )
     }
@@ -53,34 +52,63 @@ internal class ReviewsPresenter(
     }
 
     @Composable
-    private fun getPinnedReviews(): List<Review> = getReviews { getPinned() }
+    private fun getReviewEntries(): Flow<PagingData<ReviewEntry>> = remember {
+        flow {
 
-    @Composable
-    private fun getUnpinnedReviews(): List<Review> = getReviews { getUnPinned() }
+            val reviews = reviews.await()
 
-    @Composable
-    private fun getReviews(
-        query: Reviews.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
-    ): List<Review> {
-        return remember {
-            flow {
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 70,
+                    enablePlaceholders = false,
+                    maxSize = 300,
+                ),
+                pagingSourceFactory = reviews::getAllPagingSource,
+            )
 
-                reviews
-                    .await()
-                    .query()
-                    .map { reviews ->
-                        reviews
-                            .map { review ->
+            pager
+                .flow
+                .map { pagingData ->
 
-                                Review(
-                                    id = review.id,
-                                    title = review.title,
+                    @Suppress("UNCHECKED_CAST")
+                    pagingData
+                        .insertSeparators { before, after ->
+
+                            when {
+                                // If before is the last review
+                                after == null -> null
+
+                                // If first execution is pinned
+                                before == null && after.isPinned -> ReviewEntry.Section(
+                                    isPinned = true,
+                                    count = reviews.getPinnedCount(),
                                 )
+
+                                // If either after is first execution or before is from today
+                                // And after is from before today
+                                (before == null || before.isPinned) && !after.isPinned -> ReviewEntry.Section(
+                                    isPinned = false,
+                                    count = reviews.getUnpinnedCount(),
+                                )
+
+                                else -> null
                             }
-                    }
-                    .emitInto(this)
-            }
-        }.collectAsState(emptyList()).value
+                        }
+                        .map { reviewOrEntry ->
+
+                            when (reviewOrEntry) {
+                                is Review -> ReviewEntry.Item(
+                                    id = reviewOrEntry.id,
+                                    title = reviewOrEntry.title,
+                                    isPinned = reviewOrEntry.isPinned,
+                                )
+
+                                else -> reviewOrEntry
+                            }
+                        } as PagingData<ReviewEntry>
+                }
+                .emitInto(this)
+        }
     }
 
     private fun onNewReview() = coroutineScope.launchUnit {
