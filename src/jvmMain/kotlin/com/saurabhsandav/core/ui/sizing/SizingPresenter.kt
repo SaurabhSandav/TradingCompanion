@@ -38,7 +38,7 @@ internal class SizingPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val sizingTradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).sizingTrades }
+    private val sizingtrades = coroutineScope.async { tradingProfiles.getRecord(profileId).sizingTrades }
 
     val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormParams>()
 
@@ -73,7 +73,7 @@ internal class SizingPresenter(
 
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
-        sizingTradesRepo.await().new(
+        sizingtrades.await().new(
             ticker = ticker,
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),
@@ -84,7 +84,7 @@ internal class SizingPresenter(
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
-        sizingTradesRepo.await().updateEntry(
+        sizingtrades.await().updateEntry(
             id = id,
             entry = entryBD,
         )
@@ -94,7 +94,7 @@ internal class SizingPresenter(
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 
-        sizingTradesRepo.await().updateStop(
+        sizingtrades.await().updateStop(
             id = id,
             stop = stopBD,
         )
@@ -102,12 +102,12 @@ internal class SizingPresenter(
 
     private fun removeTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        sizingTradesRepo.await().delete(id)
+        sizingtrades.await().delete(id)
     }
 
     private fun openLiveTrade(id: SizingTradeId) = coroutineScope.launchUnit {
 
-        val sizingTrade = sizingTradesRepo.await().getById(id).first()
+        val sizingTrade = sizingtrades.await().getById(id).first()
 
         val entryStopComparison = sizingTrade.entry.compareTo(sizingTrade.stop)
 
@@ -161,7 +161,7 @@ internal class SizingPresenter(
         return remember(account) {
             flow {
 
-                sizingTradesRepo
+                sizingtrades
                     .await()
                     .allTrades
                     .mapList { sizingTrade -> sizingTrade.size(account) }

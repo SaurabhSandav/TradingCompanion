@@ -27,18 +27,18 @@ internal class ChartMarkersProvider(
             tradeIdsByProfileIds
                 .map { (profileId, tradeIds) ->
 
-                    val tradesRepo = tradingProfiles.getRecord(profileId).trades
+                    val trades = tradingProfiles.getRecord(profileId).trades
 
-                    tradesRepo
+                    trades
                         .getByTickerAndIdsInInterval(ticker, tradeIds, instantRange)
-                        .flatMapLatest { trades ->
+                        .flatMapLatest { markedTrades ->
 
-                            val closedTrades = trades.filter { it.isClosed }
+                            val closedTrades = markedTrades.filter { it.isClosed }
                             val closedTradesIds = closedTrades.map { it.id }
 
                             combine(
-                                tradesRepo.getPrimaryStops(closedTradesIds),
-                                tradesRepo.getPrimaryTargets(closedTradesIds),
+                                trades.getPrimaryStops(closedTradesIds),
+                                trades.getPrimaryTargets(closedTradesIds),
                             ) { stops, targets ->
 
                                 closedTrades.mapNotNull { trade ->

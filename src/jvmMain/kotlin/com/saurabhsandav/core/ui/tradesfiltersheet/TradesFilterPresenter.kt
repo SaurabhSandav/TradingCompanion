@@ -29,7 +29,7 @@ internal class TradesFilterPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
+    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
     private var filterConfig by mutableStateOf(initialFilterConfig)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -79,7 +79,7 @@ internal class TradesFilterPresenter(
         return produceState(initial) {
 
             snapshotFlow { filterConfig.tags }
-                .flatMapLatest { tradesRepo.await().getTagsByIds(it) }
+                .flatMapLatest { trades.await().getTagsByIds(it) }
                 .mapList { tag ->
 
                     TradeTag(
@@ -96,7 +96,7 @@ internal class TradesFilterPresenter(
 
         snapshotFlow { filterConfig.tags }
             .flatMapLatest { tagIds ->
-                tradesRepo.await().getSuggestedTags(
+                trades.await().getSuggestedTags(
                     query = filterQuery,
                     ignoreIds = tagIds,
                 )
@@ -116,7 +116,7 @@ internal class TradesFilterPresenter(
 
         snapshotFlow { filterConfig.tickers }
             .flatMapLatest { tickers ->
-                tradesRepo.await().getSuggestedTickers(
+                trades.await().getSuggestedTickers(
                     query = filterQuery,
                     ignore = tickers,
                 )

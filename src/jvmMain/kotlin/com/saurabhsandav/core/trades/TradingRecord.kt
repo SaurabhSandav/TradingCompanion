@@ -107,7 +107,7 @@ internal class TradingRecord(
         )
     }
 
-    val executions = TradeExecutionsRepo(
+    val executions = TradeExecutions(
         tradesDB = tradesDB,
         onTradesUpdated = {
 
@@ -120,9 +120,9 @@ internal class TradingRecord(
         },
     )
 
-    val trades = TradesRepo(recordPath, tradesDB, executions)
+    val trades = Trades(recordPath, tradesDB, executions)
 
-    val sizingTrades = SizingTradesRepo(tradesDB)
+    val sizingTrades = SizingTrades(tradesDB)
 
     private companion object {
 

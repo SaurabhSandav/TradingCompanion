@@ -117,7 +117,7 @@ internal class TradeReviewPresenter(
 
                         if (profile == null) return@flatMapLatest flowOf(PagingData.empty<TradeItem>())
 
-                        val tradesRepo = tradingProfiles.getRecord(profile.id).trades
+                        val trades = tradingProfiles.getRecord(profile.id).trades
 
                         tradeFilter.flatMapLatest { tradeFilter ->
 
@@ -125,7 +125,7 @@ internal class TradeReviewPresenter(
                                 config = pagingConfig,
                                 pagingSourceFactory = {
 
-                                    tradesRepo.getFilteredPagingSource(
+                                    trades.getFilteredPagingSource(
                                         filter = tradeFilter,
                                         sort = TradeSort.EntryDesc,
                                     )

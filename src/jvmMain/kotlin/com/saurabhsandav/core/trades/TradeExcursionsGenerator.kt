@@ -26,22 +26,22 @@ internal class TradeExcursionsGenerator(
 
             Logger.d(DebugTag) { "Generating Excursions for profile - ${profile.name}" }
 
-            val tradesRepo = tradingProfiles.getRecord(profile.id).trades
+            val trades = tradingProfiles.getRecord(profile.id).trades
 
             val instant = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 .atTime(LocalTime(0, 0))
                 .toInstant(TimeZone.currentSystemDefault())
-            val trades = tradesRepo.getWithoutExcursionsBefore(instant).first()
+            val tradesWithoutExcursions = trades.getWithoutExcursionsBefore(instant).first()
 
-            if (trades.isEmpty()) {
+            if (tradesWithoutExcursions.isEmpty()) {
                 Logger.d(DebugTag) { "No Trades found for profile - ${profile.name}" }
             } else {
 
-                val tradeIds = trades.map { it.id }
-                val stops = tradesRepo.getPrimaryStops(tradeIds).first()
-                val targets = tradesRepo.getPrimaryTargets(tradeIds).first()
+                val tradeIds = tradesWithoutExcursions.map { it.id }
+                val stops = trades.getPrimaryStops(tradeIds).first()
+                val targets = trades.getPrimaryTargets(tradeIds).first()
 
-                trades.forEach { trade ->
+                tradesWithoutExcursions.forEach { trade ->
 
                     val excursions = getExcursions(
                         trade = trade,
@@ -54,7 +54,7 @@ internal class TradeExcursionsGenerator(
                         Logger.d(DebugTag) { "Saving Excursions for Trade#(${trade.id})" }
 
                         // Save Excursions
-                        tradesRepo.setExcursions(
+                        trades.setExcursions(
                             id = excursions.tradeId,
                             tradeMfePrice = excursions.tradeMfePrice,
                             tradeMfePnl = excursions.tradeMfePnl,
