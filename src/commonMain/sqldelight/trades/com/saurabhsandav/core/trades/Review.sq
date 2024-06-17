@@ -17,9 +17,6 @@ INSERT
 INTO Review(title, tradeIds, review, isMarkdown)
 VALUES (?, ?, ?, ?);
 
-exists:
-SELECT EXISTS(SELECT * FROM Review WHERE id = ?);
-
 setTitle:
 UPDATE Review
 SET title = ?
@@ -43,6 +40,9 @@ WHERE id = ?;
 delete:
 DELETE FROM Review
 WHERE id = ?;
+
+exists:
+SELECT EXISTS(SELECT * FROM Review WHERE id = ?);
 
 getAll:
 SELECT * FROM Review;

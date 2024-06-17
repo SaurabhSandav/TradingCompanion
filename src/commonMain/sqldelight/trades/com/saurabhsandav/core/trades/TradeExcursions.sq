@@ -19,11 +19,11 @@ INSERT OR REPLACE
 INTO TradeExcursions
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
+delete:
+DELETE FROM TradeExcursions
+WHERE tradeId = ?;
+
 getByTrade:
 SELECT *
 FROM TradeExcursions
-WHERE tradeId = ?;
-
-delete:
-DELETE FROM TradeExcursions
 WHERE tradeId = ?;

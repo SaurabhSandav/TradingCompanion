@@ -26,21 +26,6 @@ internal class TradingProfiles(
     private val records = mutableMapOf<ProfileId, TradingRecord>()
     private val recordBuilderMutex = Mutex()
 
-    val allProfiles: Flow<List<TradingProfile>> =
-        appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
-
-    fun getProfile(id: ProfileId): Flow<TradingProfile> {
-        return getProfileOrNull(id).map { it ?: error("Profile($id) not found") }
-    }
-
-    fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
-        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(Dispatchers.IO)
-    }
-
-    fun getDefaultProfile(): Flow<TradingProfile> {
-        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(Dispatchers.IO)
-    }
-
     suspend fun newProfile(
         name: String,
         description: String,
@@ -63,10 +48,6 @@ internal class TradingProfiles(
             // Return TradingProfile
             appDB.tradingProfileQueries.get(id).asFlow().mapToOne(Dispatchers.IO)
         }
-    }
-
-    suspend fun exists(id: ProfileId): Boolean = withContext(Dispatchers.IO) {
-        return@withContext appDB.tradingProfileQueries.exists(id).executeAsOne()
     }
 
     suspend fun updateProfile(
@@ -132,6 +113,25 @@ internal class TradingProfiles(
 
         // Delete associated files
         profile.filesPath.toFile().deleteRecursively()
+    }
+
+    val allProfiles: Flow<List<TradingProfile>> =
+        appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+
+    fun getProfile(id: ProfileId): Flow<TradingProfile> {
+        return getProfileOrNull(id).map { it ?: error("Profile($id) not found") }
+    }
+
+    fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
+        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+    }
+
+    fun getDefaultProfile(): Flow<TradingProfile> {
+        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    suspend fun exists(id: ProfileId): Boolean = withContext(Dispatchers.IO) {
+        return@withContext appDB.tradingProfileQueries.exists(id).executeAsOne()
     }
 
     suspend fun isProfileNameUnique(

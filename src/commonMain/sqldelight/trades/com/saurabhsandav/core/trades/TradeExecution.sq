@@ -29,6 +29,15 @@ UPDATE TradeExecution
 SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
+delete:
+DELETE FROM TradeExecution
+WHERE id = ?;
+
+lock:
+UPDATE TradeExecution
+SET locked = TRUE
+WHERE id IN ?;
+
 getById:
 SELECT *
 FROM TradeExecution
@@ -70,12 +79,3 @@ isLocked:
 SELECT id, locked
 FROM TradeExecution
 WHERE id IN ?;
-
-lock:
-UPDATE TradeExecution
-SET locked = TRUE
-WHERE id IN ?;
-
-delete:
-DELETE FROM TradeExecution
-WHERE id = ?;

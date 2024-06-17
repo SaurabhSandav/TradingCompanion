@@ -18,42 +18,24 @@ INSERT OR IGNORE
 INTO TradeStop(tradeId, price, isPrimary)
 VALUES (:tradeId, ?, (SELECT * FROM is_primary));
 
-getByTrade:
-SELECT *
-FROM TradeStop
-WHERE tradeId = ?
-ORDER BY rowid ASC;
-
-getPrimaryStopByTrade:
-SELECT *
-FROM TradeStop
-WHERE tradeId = ? AND isPrimary = TRUE;
-
-getPrimaryStopsByTrades:
-SELECT *
-FROM TradeStop
-WHERE tradeId IN ?
-GROUP BY tradeId
-HAVING isPrimary = TRUE;
-
 delete {
 
-DELETE FROM TradeStop
-WHERE tradeId = :tradeId AND price = ?;
+  DELETE FROM TradeStop
+  WHERE tradeId = :tradeId AND price = ?;
 
--- If deleted stop was primary, set closest price as new primary
-WITH new_primary AS (
-  SELECT TradeStop.* FROM TradeStop
-  INNER JOIN Trade ON TradeStop.tradeId = Trade.id
-  WHERE tradeId = :tradeId
-  ORDER BY
-    isPrimary DESC,
-    ABS(CAST(Trade.averageEntry AS REAL) - CAST(TradeStop.price AS REAL)) ASC
-  LIMIT 1
-)
-UPDATE TradeStop
-SET isPrimary = (SELECT EXISTS(SELECT * FROM new_primary WHERE price = TradeStop.price))
-WHERE tradeId = :tradeId;
+  -- If deleted stop was primary, set closest price as new primary
+  WITH new_primary AS (
+    SELECT TradeStop.* FROM TradeStop
+    INNER JOIN Trade ON TradeStop.tradeId = Trade.id
+    WHERE tradeId = :tradeId
+    ORDER BY
+      isPrimary DESC,
+      ABS(CAST(Trade.averageEntry AS REAL) - CAST(TradeStop.price AS REAL)) ASC
+    LIMIT 1
+  )
+  UPDATE TradeStop
+  SET isPrimary = (SELECT EXISTS(SELECT * FROM new_primary WHERE price = TradeStop.price))
+  WHERE tradeId = :tradeId;
 }
 
 deleteByTrade:
@@ -71,3 +53,21 @@ setPrimary {
     tradeId = :tradeId
     AND price = ?;
 }
+
+getByTrade:
+SELECT *
+FROM TradeStop
+WHERE tradeId = ?
+ORDER BY rowid ASC;
+
+getPrimaryStopByTrade:
+SELECT *
+FROM TradeStop
+WHERE tradeId = ? AND isPrimary = TRUE;
+
+getPrimaryStopsByTrades:
+SELECT *
+FROM TradeStop
+WHERE tradeId IN ?
+GROUP BY tradeId
+HAVING isPrimary = TRUE;

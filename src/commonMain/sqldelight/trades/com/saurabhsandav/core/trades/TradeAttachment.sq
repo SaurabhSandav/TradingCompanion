@@ -10,12 +10,12 @@ insert:
 INSERT OR ROLLBACK INTO TradeAttachment(fileName, checksum)
 VALUES (?, ?);
 
+delete:
+DELETE FROM TradeAttachment
+WHERE id = ?;
+
 getById:
 SELECT * FROM TradeAttachment WHERE id = ?;
 
 getByChecksum:
 SELECT * FROM TradeAttachment WHERE checksum = ?;
-
-delete:
-DELETE FROM TradeAttachment
-WHERE id = ?;

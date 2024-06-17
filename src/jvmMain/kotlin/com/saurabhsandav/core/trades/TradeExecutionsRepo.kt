@@ -20,14 +20,6 @@ internal class TradeExecutionsRepo(
     private val onTradesUpdated: suspend () -> Unit,
 ) {
 
-    fun getById(id: TradeExecutionId): Flow<TradeExecution> {
-        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
-    }
-
-    fun getByIds(ids: List<TradeExecutionId>): Flow<List<TradeExecution>> {
-        return tradesDB.tradeExecutionQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
-    }
-
     suspend fun new(
         broker: String,
         instrument: Instrument,
@@ -178,6 +170,14 @@ internal class TradeExecutionsRepo(
 
     suspend fun lock(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
         tradesDB.tradeExecutionQueries.lock(ids)
+    }
+
+    fun getById(id: TradeExecutionId): Flow<TradeExecution> {
+        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    fun getByIds(ids: List<TradeExecutionId>): Flow<List<TradeExecution>> {
+        return tradesDB.tradeExecutionQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
     }
 
     fun getTodayCount(): Flow<Long> {

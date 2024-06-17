@@ -18,42 +18,24 @@ INSERT OR IGNORE
 INTO TradeTarget(tradeId, price, isPrimary)
 VALUES (:tradeId, ?, (SELECT * FROM is_primary));
 
-getByTrade:
-SELECT *
-FROM TradeTarget
-WHERE tradeId = ?
-ORDER BY rowid ASC;
-
-getPrimaryTargetByTrade:
-SELECT *
-FROM TradeTarget
-WHERE tradeId = ? AND isPrimary = TRUE;
-
-getPrimaryTargetsByTrades:
-SELECT *
-FROM TradeTarget
-WHERE tradeId IN ?
-GROUP BY tradeId
-HAVING isPrimary = TRUE;
-
 delete {
 
-DELETE FROM TradeTarget
-WHERE tradeId = :tradeId AND price = ?;
+  DELETE FROM TradeTarget
+  WHERE tradeId = :tradeId AND price = ?;
 
--- If deleted target was primary, set farthest price as new primary
-WITH new_primary AS (
-  SELECT TradeTarget.* FROM TradeTarget
-  INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
-  WHERE tradeId = :tradeId
-  ORDER BY
-    isPrimary DESC,
-    ABS(CAST(Trade.averageEntry AS REAL) - CAST(TradeTarget.price AS REAL)) DESC
-  LIMIT 1
-)
-UPDATE TradeTarget
-SET isPrimary = (SELECT EXISTS(SELECT * FROM new_primary WHERE price = TradeTarget.price))
-WHERE tradeId = :tradeId;
+  -- If deleted target was primary, set farthest price as new primary
+  WITH new_primary AS (
+    SELECT TradeTarget.* FROM TradeTarget
+    INNER JOIN Trade ON TradeTarget.tradeId = Trade.id
+    WHERE tradeId = :tradeId
+    ORDER BY
+      isPrimary DESC,
+      ABS(CAST(Trade.averageEntry AS REAL) - CAST(TradeTarget.price AS REAL)) DESC
+    LIMIT 1
+  )
+  UPDATE TradeTarget
+  SET isPrimary = (SELECT EXISTS(SELECT * FROM new_primary WHERE price = TradeTarget.price))
+  WHERE tradeId = :tradeId;
 }
 
 deleteByTrade:
@@ -71,3 +53,21 @@ setPrimary {
     tradeId = :tradeId
     AND price = ?;
 }
+
+getByTrade:
+SELECT *
+FROM TradeTarget
+WHERE tradeId = ?
+ORDER BY rowid ASC;
+
+getPrimaryTargetByTrade:
+SELECT *
+FROM TradeTarget
+WHERE tradeId = ? AND isPrimary = TRUE;
+
+getPrimaryTargetsByTrades:
+SELECT *
+FROM TradeTarget
+WHERE tradeId IN ?
+GROUP BY tradeId
+HAVING isPrimary = TRUE;
