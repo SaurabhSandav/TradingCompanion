@@ -42,9 +42,9 @@ internal class ReviewPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileReviewId.profileId).trades }
+    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileReviewId.profileId).trades }
 
-    private val review = flow { tradesRepo.await().getReviewById(profileReviewId.reviewId).emitInto(this) }
+    private val review = flow { trades.await().getReviewById(profileReviewId.reviewId).emitInto(this) }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -75,13 +75,13 @@ internal class ReviewPresenter(
     private fun getTrades(): List<TradeEntry> {
         return produceState<List<TradeEntry>>(emptyList()) {
 
-            val tradesRepo = tradesRepo.await()
+            val trades = trades.await()
 
-            tradesRepo
+            trades
                 .getReviewById(profileReviewId.reviewId)
                 .flatMapLatest { review ->
 
-                    tradesRepo
+                    trades
                         .getByIds(ids = review.tradeIds)
                         .mapList { trade ->
                             trade.toTradeListEntry()
@@ -144,26 +144,26 @@ internal class ReviewPresenter(
 
     private fun onSaveTitle(title: String) = coroutineScope.launchUnit {
 
-        tradesRepo.await().setReviewTitle(profileReviewId.reviewId, title)
+        trades.await().setReviewTitle(profileReviewId.reviewId, title)
     }
 
     private fun onToggleMarkdown() = coroutineScope.launchUnit {
 
-        tradesRepo.await().toggleReviewIsMarkdown(profileReviewId.reviewId)
+        trades.await().toggleReviewIsMarkdown(profileReviewId.reviewId)
     }
 
     private fun onSaveReview(review: String) = coroutineScope.launchUnit {
 
-        val tradesRepo = tradesRepo.await()
+        val trades = trades.await()
 
         val ids = Regex(ReviewTradeRefRegex)
             .findAll(review)
             .mapNotNull { result -> result.groupValues[1].toLongOrNull() }
             .toList()
             .distinct()
-        val tradeIds = tradesRepo.exists(ids).first().filterValues { it }.keys.map(::TradeId)
+        val tradeIds = trades.exists(ids).first().filterValues { it }.keys.map(::TradeId)
 
-        tradesRepo.updateReview(
+        trades.updateReview(
             id = profileReviewId.reviewId,
             review = review,
             tradeIds = tradeIds,
@@ -179,7 +179,7 @@ internal class ReviewPresenter(
 
             val tradeId = tradeMatch.groupValues[1].toLongOrNull() ?: return@launchUnit
 
-            val tradeExists = tradesRepo.await().exists(tradeId).first()
+            val tradeExists = trades.await().exists(tradeId).first()
 
             if (tradeExists) {
 
@@ -200,7 +200,7 @@ internal class ReviewPresenter(
 
             val reviewId = reviewMatch.groupValues[1].toLongOrNull() ?: return@launchUnit
 
-            val reviewExists = tradesRepo.await().reviewExists(reviewId).first()
+            val reviewExists = trades.await().reviewExists(reviewId).first()
 
             if (reviewExists) {
 

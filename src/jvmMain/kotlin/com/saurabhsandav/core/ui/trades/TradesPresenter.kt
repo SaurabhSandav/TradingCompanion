@@ -65,7 +65,7 @@ internal class TradesPresenter(
     private fun getTradeEntries(): Flow<PagingData<TradeEntry>> = remember {
         flow {
 
-            val tradesRepo = tradingProfiles.getRecord(profileId).trades
+            val trades = tradingProfiles.getRecord(profileId).trades
             val pagingConfig = PagingConfig(
                 pageSize = 70,
                 enablePlaceholders = false,
@@ -78,7 +78,7 @@ internal class TradesPresenter(
                     config = pagingConfig,
                     pagingSourceFactory = {
 
-                        tradesRepo.getFilteredPagingSource(
+                        trades.getFilteredPagingSource(
                             filter = tradeFilter,
                             sort = if (isFocusModeEnabled) TradeSort.OpenDescEntryDesc else TradeSort.EntryDesc,
                         )
@@ -106,7 +106,7 @@ internal class TradesPresenter(
                                             TradeFilter() -> TradeEntry.Section.Type.All
                                             else -> TradeEntry.Section.Type.Filtered
                                         },
-                                        count = tradesRepo.getFilteredCount(tradeFilter)
+                                        count = trades.getFilteredCount(tradeFilter)
                                     )
                                 }
 
@@ -116,7 +116,7 @@ internal class TradesPresenter(
                             // If first trade is open
                             before == null && !after.isClosed -> TradeEntry.Section(
                                 type = TradeEntry.Section.Type.Open,
-                                count = tradesRepo.getFilteredCount(TradeFilter(isClosed = false))
+                                count = trades.getFilteredCount(TradeFilter(isClosed = false))
                             )
 
                             // If either after is first trade or before is open
@@ -127,9 +127,9 @@ internal class TradesPresenter(
 
                                 TradeEntry.Section(
                                     type = TradeEntry.Section.Type.Today,
-                                    count = tradesRepo.getFilteredCount(filter),
-                                    stats = tradesRepo.getFiltered(filter)
-                                        .flatMapLatest { it.generateStats(tradesRepo) }
+                                    count = trades.getFilteredCount(filter),
+                                    stats = trades.getFiltered(filter)
+                                        .flatMapLatest { it.generateStats(trades) }
                                 )
                             }
 
@@ -142,7 +142,7 @@ internal class TradesPresenter(
 
                                 TradeEntry.Section(
                                     type = TradeEntry.Section.Type.Past,
-                                    count = tradesRepo.getFilteredCount(filter),
+                                    count = trades.getFilteredCount(filter),
                                 )
                             }
 
@@ -159,12 +159,12 @@ internal class TradesPresenter(
         }
     }
 
-    private fun List<Trade>.generateStats(tradesRepo: TradesRepo): Flow<Stats> {
+    private fun List<Trade>.generateStats(trades: Trades): Flow<Stats> {
 
         val closedTrades = filter { it.isClosed }.ifEmpty { return emptyFlow() }
         val closedTradesIds = closedTrades.map { it.id }
 
-        return tradesRepo.getPrimaryStops(closedTradesIds).map { tradeStops ->
+        return trades.getPrimaryStops(closedTradesIds).map { tradeStops ->
 
             val stats = closedTrades.map { trade ->
 

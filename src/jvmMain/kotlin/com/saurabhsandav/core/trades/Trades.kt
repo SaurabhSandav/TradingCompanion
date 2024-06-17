@@ -23,10 +23,10 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.io.path.*
 
-internal class TradesRepo(
+internal class Trades(
     recordPath: String,
     private val tradesDB: TradesDB,
-    private val executionsRepo: TradeExecutionsRepo,
+    private val executions: TradeExecutions,
 ) {
 
     val attachmentsPath = Path(recordPath, AttachmentFolderName)
@@ -211,7 +211,7 @@ internal class TradesRepo(
     }
 
     fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
-        return executionsRepo.getExecutionsForTrade(id)
+        return executions.getExecutionsForTrade(id)
     }
 
     fun getTradesForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {

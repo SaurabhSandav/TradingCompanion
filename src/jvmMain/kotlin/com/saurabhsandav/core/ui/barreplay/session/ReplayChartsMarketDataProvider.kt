@@ -71,18 +71,18 @@ internal class ReplayChartsMarketDataProvider(
 
             if (profile == null) return@flatMapLatest flowOf(emptyList())
 
-            val tradesRepo = tradingProfiles.getRecord(profile.id).trades
+            val trades = tradingProfiles.getRecord(profile.id).trades
 
-            tradesRepo
+            trades
                 .getByTickerInInterval(ticker, instantRange)
-                .flatMapLatest { trades ->
+                .flatMapLatest { tradesToMark ->
 
-                    val closedTrades = trades.filter { it.isClosed }
+                    val closedTrades = tradesToMark.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
                     combine(
-                        tradesRepo.getPrimaryStops(closedTradesIds),
-                        tradesRepo.getPrimaryTargets(closedTradesIds),
+                        trades.getPrimaryStops(closedTradesIds),
+                        trades.getPrimaryTargets(closedTradesIds),
                     ) { stops, targets ->
 
                         closedTrades.mapNotNull { trade ->

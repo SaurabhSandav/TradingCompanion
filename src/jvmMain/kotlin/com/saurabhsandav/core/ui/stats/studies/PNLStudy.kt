@@ -124,13 +124,13 @@ internal class PNLStudy(
             maxSize = 300,
         )
 
-        val tradesRepo = tradingProfiles.getRecord(profileId).trades
+        val trades = tradingProfiles.getRecord(profileId).trades
 
         Pager(
             config = pagingConfig,
             pagingSourceFactory = {
 
-                tradesRepo.getFilteredPagingSource(
+                trades.getFilteredPagingSource(
                     filter = TradeFilter(isClosed = true),
                     sort = TradeSort.EntryDesc,
                 )
@@ -168,8 +168,8 @@ internal class PNLStudy(
                     isNetProfitable = trade.netPnl > BigDecimal.ZERO,
                     fees = (trade.pnl - trade.netPnl).toPlainString(),
                     generated = combine(
-                        tradesRepo.getPrimaryStop(trade.id),
-                        tradesRepo.getPrimaryTarget(trade.id),
+                        trades.getPrimaryStop(trade.id),
+                        trades.getPrimaryTarget(trade.id),
                     ) { stop, target ->
 
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }

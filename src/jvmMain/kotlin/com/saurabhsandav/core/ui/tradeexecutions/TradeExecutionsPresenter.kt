@@ -37,7 +37,7 @@ internal class TradeExecutionsPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val executionsRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).executions }
+    private val executions = coroutineScope.async { tradingProfiles.getRecord(profileId).executions }
     private val errors = mutableStateListOf<UIErrorMessage>()
     private val selectionManager = SelectionManager<TradeExecutionId>()
     private var canSelectionLock by mutableStateOf(false)
@@ -69,7 +69,7 @@ internal class TradeExecutionsPresenter(
         coroutineScope.launch {
 
             snapshotFlow { selectionManager.selection.toList() }
-                .flatMapLatest { executionsRepo.await().getByIds(it) }
+                .flatMapLatest { executions.await().getByIds(it) }
                 .collect { executions ->
                     canSelectionLock = executions.any { !it.locked }
                 }
@@ -80,7 +80,7 @@ internal class TradeExecutionsPresenter(
     private fun getExecutionEntries(): Flow<PagingData<TradeExecutionEntry>> = remember {
         flow {
 
-            val executionsRepo = executionsRepo.await()
+            val executions = executions.await()
 
             val pager = Pager(
                 config = PagingConfig(
@@ -88,7 +88,7 @@ internal class TradeExecutionsPresenter(
                     enablePlaceholders = false,
                     maxSize = 300,
                 ),
-                pagingSourceFactory = executionsRepo::getAllPagingSource,
+                pagingSourceFactory = executions::getAllPagingSource,
             )
 
             pager
@@ -109,7 +109,7 @@ internal class TradeExecutionsPresenter(
                                 // If first execution is from today
                                 before == null && after.timestamp >= startOfToday -> TradeExecutionEntry.Section(
                                     isToday = true,
-                                    count = executionsRepo.getTodayCount(),
+                                    count = executions.getTodayCount(),
                                 )
 
                                 // If either after is first execution or before is from today
@@ -117,7 +117,7 @@ internal class TradeExecutionsPresenter(
                                 (before == null || before.timestamp >= startOfToday)
                                         && after.timestamp < startOfToday -> TradeExecutionEntry.Section(
                                     isToday = false,
-                                    count = executionsRepo.getBeforeTodayCount(),
+                                    count = executions.getBeforeTodayCount(),
                                 )
 
                                 else -> null
@@ -175,11 +175,11 @@ internal class TradeExecutionsPresenter(
 
     private fun onLockExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        executionsRepo.await().lock(ids)
+        executions.await().lock(ids)
     }
 
     private fun onDeleteExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
-        executionsRepo.await().delete(ids)
+        executions.await().delete(ids)
     }
 }

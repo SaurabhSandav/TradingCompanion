@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.TradesRepo
+import com.saurabhsandav.core.trades.Trades
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ReviewId
@@ -30,7 +30,7 @@ internal class ReviewsPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val tradesRepo = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
+    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -59,12 +59,12 @@ internal class ReviewsPresenter(
 
     @Composable
     private fun getReviews(
-        query: TradesRepo.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
+        query: Trades.() -> Flow<List<com.saurabhsandav.core.trades.Review>>,
     ): List<Review> {
         return remember {
             flow {
 
-                tradesRepo
+                trades
                     .await()
                     .query()
                     .map { reviews ->
@@ -84,7 +84,7 @@ internal class ReviewsPresenter(
 
     private fun onNewReview() = coroutineScope.launchUnit {
 
-        val reviewId = tradesRepo.await().createReview(
+        val reviewId = trades.await().createReview(
             title = "New Review",
             tradeIds = emptyList(),
             review = "",
@@ -106,11 +106,11 @@ internal class ReviewsPresenter(
 
     private fun onTogglePinReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        tradesRepo.await().togglePinReview(id)
+        trades.await().togglePinReview(id)
     }
 
     private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {
 
-        tradesRepo.await().deleteReview(id)
+        trades.await().deleteReview(id)
     }
 }

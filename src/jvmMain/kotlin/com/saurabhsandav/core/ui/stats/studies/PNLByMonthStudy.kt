@@ -84,11 +84,11 @@ internal class PNLByMonthStudy(
 
     private val data: Flow<List<Model>> = flow {
 
-        val tradesRepo = tradingProfiles.getRecord(profileId).trades
+        val trades = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.flatMapLatest { trades ->
+        trades.allTrades.flatMapLatest { allTrades ->
 
-            trades
+            allTrades
                 .groupBy { trade ->
                     val ldt = trade.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault())
                     "${ldt.month} ${ldt.year}"
@@ -98,7 +98,7 @@ internal class PNLByMonthStudy(
                     val closedTrades = tradesByMonth.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
+                    trades.getPrimaryStops(closedTradesIds).map { stops ->
 
                         val monthlyStats = closedTrades.map { trade ->
 

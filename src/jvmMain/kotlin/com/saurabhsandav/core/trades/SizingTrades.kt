@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
-internal class SizingTradesRepo(
+internal class SizingTrades(
     private val tradesDB: TradesDB,
 ) {
 

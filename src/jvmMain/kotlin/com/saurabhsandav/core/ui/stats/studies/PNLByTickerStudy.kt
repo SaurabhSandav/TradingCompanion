@@ -82,18 +82,18 @@ internal class PNLByTickerStudy(
 
     private val data: Flow<List<Model>> = flow {
 
-        val tradesRepo = tradingProfiles.getRecord(profileId).trades
+        val trades = tradingProfiles.getRecord(profileId).trades
 
-        tradesRepo.allTrades.flatMapLatest { trades ->
+        trades.allTrades.flatMapLatest { allTrades ->
 
-            trades
+            allTrades
                 .groupBy { it.ticker }
                 .map { (ticker, tradesByTicker) ->
 
                     val closedTrades = tradesByTicker.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    tradesRepo.getPrimaryStops(closedTradesIds).map { stops ->
+                    trades.getPrimaryStops(closedTradesIds).map { stops ->
 
                         val tickerStats = closedTrades.filter { it.isClosed }.map { trade ->
 
