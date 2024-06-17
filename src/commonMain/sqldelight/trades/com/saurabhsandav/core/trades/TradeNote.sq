@@ -23,11 +23,11 @@ UPDATE TradeNote
 SET note = ?, lastEdited = ?, isMarkdown = ?
 WHERE id = ?;
 
+delete:
+DELETE FROM TradeNote
+WHERE id = ?;
+
 getByTrade:
 SELECT *
 FROM TradeNote
 WHERE tradeId = ?;
-
-delete:
-DELETE FROM TradeNote
-WHERE id = ?;

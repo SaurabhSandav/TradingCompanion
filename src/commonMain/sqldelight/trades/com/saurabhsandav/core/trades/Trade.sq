@@ -38,6 +38,10 @@ SET quantity = ?, closedQuantity = ?, lots = ?, side = ?, averageEntry = ?, entr
 exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
 WHERE id = ?;
 
+delete:
+DELETE FROM Trade
+WHERE id = ?;
+
 exists:
 SELECT EXISTS(SELECT * FROM Trade WHERE id = ?);
 
@@ -196,7 +200,3 @@ FROM Trade
 WHERE
 ticker NOT IN :ignore
 AND ticker LIKE '%' || :query || '%';
-
-delete:
-DELETE FROM Trade
-WHERE id = ?;

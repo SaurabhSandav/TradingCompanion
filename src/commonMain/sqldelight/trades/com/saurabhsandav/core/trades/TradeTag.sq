@@ -16,6 +16,10 @@ UPDATE TradeTag
 SET name = ?, description = ?
 WHERE id = ?;
 
+delete:
+DELETE FROM TradeTag
+WHERE id = ?;
+
 getAll:
 SELECT * FROM TradeTag;
 
@@ -31,10 +35,6 @@ FROM TradeTag
 WHERE
 id NOT IN :ignore
 AND name LIKE '%' || :query || '%';
-
-delete:
-DELETE FROM TradeTag
-WHERE id = ?;
 
 isTagNameUnique:
 SELECT NOT EXISTS(

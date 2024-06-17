@@ -21,6 +21,15 @@ insert:
 INSERT INTO TradingProfile(name, description, path, isTraining)
 VALUES (?, ?, ?, ?);
 
+update:
+UPDATE TradingProfile
+SET name = ?, description = ?, isTraining = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM TradingProfile
+WHERE id = ?;
+
 get:
 SELECT * FROM TradingProfile
 WHERE id = ?;
@@ -31,22 +40,13 @@ SELECT * FROM TradingProfile;
 getDefault:
 SELECT * FROM TradingProfile LIMIT 1;
 
-update:
-UPDATE TradingProfile
-SET name = ?, description = ?, isTraining = ?
-WHERE id = ?;
-
-exists:
-SELECT EXISTS( SELECT * FROM TradingProfile WHERE id = ? );
-
-delete:
-DELETE FROM TradingProfile
-WHERE id = ?;
-
 setTradeCounts:
 UPDATE TradingProfile
 SET tradeCount = ?, tradeCountOpen = ?
 WHERE id = ?;
+
+exists:
+SELECT EXISTS( SELECT * FROM TradingProfile WHERE id = ? );
 
 getTradeCounts:
 SELECT tradeCount, tradeCountOpen FROM TradingProfile

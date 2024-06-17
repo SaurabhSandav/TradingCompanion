@@ -13,13 +13,6 @@ internal class SizingTradesRepo(
     private val tradesDB: TradesDB,
 ) {
 
-    val allTrades: Flow<List<SizingTrade>>
-        get() = tradesDB.sizingTradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
-
-    fun getById(id: SizingTradeId): Flow<SizingTrade> {
-        return tradesDB.sizingTradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
-    }
-
     suspend fun new(
         ticker: String,
         entry: BigDecimal,
@@ -43,5 +36,12 @@ internal class SizingTradesRepo(
 
     suspend fun delete(id: SizingTradeId) = withContext(Dispatchers.IO) {
         tradesDB.sizingTradeQueries.delete(id)
+    }
+
+    val allTrades: Flow<List<SizingTrade>>
+        get() = tradesDB.sizingTradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+
+    fun getById(id: SizingTradeId): Flow<SizingTrade> {
+        return tradesDB.sizingTradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 }
