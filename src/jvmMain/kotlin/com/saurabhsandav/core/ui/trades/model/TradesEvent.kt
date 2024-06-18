@@ -12,4 +12,6 @@ internal sealed class TradesEvent {
     data class SetFocusModeEnabled(val isEnabled: Boolean) : TradesEvent()
 
     data class ApplyFilter(val tradeFilter: TradeFilter) : TradesEvent()
+
+    data object NewExecution : TradesEvent()
 }

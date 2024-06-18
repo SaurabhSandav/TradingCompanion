@@ -30,6 +30,7 @@ internal fun TradesScreen(
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onApplyFilter: (TradeFilter) -> Unit,
+    onNewExecution: () -> Unit,
     errors: List<UIErrorMessage>,
 ) {
 
@@ -74,6 +75,7 @@ internal fun TradesScreen(
                     if (isEnabled) filterConfig = FilterConfig()
                 },
                 onFilter = { sheetState = SideSheetState.Open },
+                onNewExecution = onNewExecution,
             )
         }
 

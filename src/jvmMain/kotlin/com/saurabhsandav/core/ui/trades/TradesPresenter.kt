@@ -13,6 +13,7 @@ import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.trades.model.TradesEvent
 import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
 import com.saurabhsandav.core.ui.trades.model.TradesState
@@ -58,6 +59,7 @@ internal class TradesPresenter(
             is OpenChart -> onOpenChart(event.id)
             is SetFocusModeEnabled -> onSetFocusModeEnabled(event.isEnabled)
             is ApplyFilter -> onApplyFilter(event.tradeFilter)
+            is NewExecution -> onNewExecution()
         }
     }
 
@@ -263,5 +265,9 @@ internal class TradesPresenter(
     private fun onApplyFilter(newTradeFilter: TradeFilter) {
         isFocusModeEnabled = false
         tradeFilter = newTradeFilter
+    }
+
+    private fun onNewExecution() {
+        tradeContentLauncher.openExecutionForm(profileId, TradeExecutionFormType.New)
     }
 }

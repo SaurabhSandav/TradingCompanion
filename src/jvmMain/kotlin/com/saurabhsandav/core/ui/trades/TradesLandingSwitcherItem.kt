@@ -25,6 +25,7 @@ internal class TradesLandingSwitcherItem(
             onOpenChart = { state.eventSink(OpenChart(it)) },
             onSetFocusModeEnabled = { state.eventSink(SetFocusModeEnabled(it)) },
             onApplyFilter = { state.eventSink(ApplyFilter(it)) },
+            onNewExecution = { state.eventSink(NewExecution) },
             errors = state.errors,
         )
     }
