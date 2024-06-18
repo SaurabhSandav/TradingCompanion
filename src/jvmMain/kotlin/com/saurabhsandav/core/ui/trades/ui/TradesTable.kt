@@ -19,6 +19,7 @@ import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
+import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -117,29 +118,7 @@ private fun ColumnScope.Header(
     onFilter: () -> Unit,
 ) {
 
-    TradeTableSchema.SimpleHeader {
-        id.text { "ID" }
-        broker.text { "Broker" }
-        ticker.text { "Ticker" }
-        side.text { "Side" }
-        quantity.text { "Quantity" }
-        avgEntry.text { "Avg. Entry" }
-        avgExit.text { "Avg. Exit" }
-        entryTime.text { "Entry Time" }
-        duration.text { "Duration" }
-        pnl.text { "PNL" }
-        netPnl.text { "Net PNL" }
-        fees.text { "Fees" }
-    }
-
-    Row(
-        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.rowHorizontalSpacing,
-            alignment = Alignment.CenterHorizontally,
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    PrimaryOptionsBar {
 
         SingleChoiceSegmentedButtonRow {
 
@@ -168,6 +147,21 @@ private fun ColumnScope.Header(
     }
 
     HorizontalDivider()
+
+    TradeTableSchema.SimpleHeader {
+        id.text { "ID" }
+        broker.text { "Broker" }
+        ticker.text { "Ticker" }
+        side.text { "Side" }
+        quantity.text { "Quantity" }
+        avgEntry.text { "Avg. Entry" }
+        avgExit.text { "Avg. Exit" }
+        entryTime.text { "Entry Time" }
+        duration.text { "Duration" }
+        pnl.text { "PNL" }
+        netPnl.text { "Net PNL" }
+        fees.text { "Fees" }
+    }
 }
 
 @Composable

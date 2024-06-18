@@ -4,11 +4,9 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -18,10 +16,10 @@ import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
+import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Closed
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Open
@@ -75,6 +73,18 @@ private fun ProfileTradesTable(
     LazyTable(
         headerContent = {
 
+            PrimaryOptionsBar {
+
+                OutlinedButton(
+                    onClick = onFilter,
+                    shape = MaterialTheme.shapes.small,
+                    enabled = isFilterEnabled,
+                    content = { Text("Filter") },
+                )
+            }
+
+            HorizontalDivider()
+
             ProfileTradesTableSchema.SimpleHeader {
                 mark.text { "Mark" }
                 id.text { "ID" }
@@ -89,16 +99,6 @@ private fun ProfileTradesTable(
                 pnl.text { "PNL" }
                 netPnl.text { "Net PNL" }
             }
-
-            OutlinedButton(
-                modifier = Modifier.align(Alignment.End).padding(MaterialTheme.dimens.containerPadding),
-                onClick = onFilter,
-                shape = MaterialTheme.shapes.small,
-                enabled = isFilterEnabled,
-                content = { Text("Filter") },
-            )
-
-            HorizontalDivider()
         },
     ) {
 
