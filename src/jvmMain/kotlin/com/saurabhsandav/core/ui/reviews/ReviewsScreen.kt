@@ -1,9 +1,7 @@
 package com.saurabhsandav.core.ui.reviews
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
@@ -29,16 +27,11 @@ internal fun ReviewsScreen(
 
         Scaffold(
             modifier = Modifier.weight(1F),
-            floatingActionButton = {
-
-                ExtendedFloatingActionButton(onClick = onNewReview) {
-                    Text(text = "New Review")
-                }
-            },
         ) {
 
             ReviewsList(
                 reviewEntries = reviewEntries,
+                onNewReview = onNewReview,
                 onOpenReview = onOpenReview,
                 onTogglePinReview = onTogglePinReview,
                 onDeleteReview = onDeleteReview,

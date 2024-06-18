@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,12 +41,6 @@ internal fun TradeExecutionsScreen(
         Scaffold(
             modifier = Modifier.weight(1F),
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            floatingActionButton = {
-
-                ExtendedFloatingActionButton(onClick = onNewExecution) {
-                    Text(text = "New Trade Execution")
-                }
-            },
         ) {
 
             TradeExecutionsTable(
@@ -58,7 +54,8 @@ internal fun TradeExecutionsScreen(
                     }
                 },
                 onMarkExecution = selectionManager::select,
-                onNewExecution = onNewExecutionFromExisting,
+                onNewExecution = onNewExecution,
+                onNewExecutionFromExisting = onNewExecutionFromExisting,
                 onEditExecution = onEditExecution,
                 onLockExecution = { id -> onLockExecutions(listOf(id)) },
                 onDeleteExecution = { id -> onDeleteExecutions(listOf(id)) },
