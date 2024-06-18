@@ -3,7 +3,10 @@ package com.saurabhsandav.core.ui.trades.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,7 +22,6 @@ import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
-import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -40,6 +42,7 @@ internal fun TradesTable(
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onFilter: () -> Unit,
+    onNewExecution: () -> Unit,
 ) {
 
     val items = tradeEntries.collectAsLazyPagingItems()
@@ -62,6 +65,7 @@ internal fun TradesTable(
             onOpenChart = onOpenChart,
             onSetFocusModeEnabled = onSetFocusModeEnabled,
             onFilter = onFilter,
+            onNewExecution = onNewExecution,
         )
     }
 }
@@ -74,6 +78,7 @@ private fun TradesTable(
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onFilter: () -> Unit,
+    onNewExecution: () -> Unit,
 ) {
 
     LazyTable(
@@ -83,6 +88,7 @@ private fun TradesTable(
                 isFocusModeEnabled = isFocusModeEnabled,
                 onSetFocusModeEnabled = onSetFocusModeEnabled,
                 onFilter = onFilter,
+                onNewExecution = onNewExecution,
             )
         },
     ) {
@@ -116,35 +122,15 @@ private fun ColumnScope.Header(
     isFocusModeEnabled: Boolean,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onFilter: () -> Unit,
+    onNewExecution: () -> Unit,
 ) {
 
-    PrimaryOptionsBar {
-
-        SingleChoiceSegmentedButtonRow {
-
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                onClick = { onSetFocusModeEnabled(false) },
-                selected = !isFocusModeEnabled,
-                label = { Text("All") },
-            )
-
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                onClick = { onSetFocusModeEnabled(true) },
-                selected = isFocusModeEnabled,
-                label = { Text("Focus") },
-            )
-        }
-
-        Spacer(Modifier.weight(1F))
-
-        OutlinedButton(
-            onClick = onFilter,
-            shape = MaterialTheme.shapes.small,
-            content = { Text("Filter") },
-        )
-    }
+    TradesOptionsBar(
+        isFocusModeEnabled = isFocusModeEnabled,
+        onSetFocusModeEnabled = onSetFocusModeEnabled,
+        onFilter = onFilter,
+        onNewExecution = onNewExecution,
+    )
 
     HorizontalDivider()
 
