@@ -16,8 +16,6 @@ internal fun TradesTableSwitcher(
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
-    isFilterEnabled: Boolean,
-    onFilter: () -> Unit,
 ) {
 
     val saveableStateHolder = rememberSaveableStateHolder()
@@ -32,8 +30,6 @@ internal fun TradesTableSwitcher(
                     onMarkTrade = onMarkTrade,
                     onSelectTrade = onSelectTrade,
                     onOpenDetails = onOpenDetails,
-                    isFilterEnabled = isFilterEnabled,
-                    onFilter = onFilter,
                 )
 
                 Tab.Marked -> MarkedTradesTable(

@@ -1,13 +1,8 @@
 package com.saurabhsandav.core.ui.tradereview
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ClearAll
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,6 +22,7 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewEvent.*
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.*
 import com.saurabhsandav.core.ui.tradereview.ui.MainTabRow
+import com.saurabhsandav.core.ui.tradereview.ui.TradeReviewOptionsBar
 import com.saurabhsandav.core.ui.tradereview.ui.TradesTableSwitcher
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
@@ -66,6 +62,7 @@ internal fun TradeReviewWindow(
             onMarkTrade = { profileTradeId, isMarked -> state.eventSink(MarkTrade(profileTradeId, isMarked)) },
             onSelectTrade = { profileTradeId -> state.eventSink(SelectTrade(profileTradeId)) },
             onOpenDetails = { state.eventSink(OpenDetails(it)) },
+            onMarkAllTrades = { state.eventSink(MarkAllTrades) },
             onClearMarkedTrades = { state.eventSink(ClearMarkedTrades) },
             onApplyFilter = { state.eventSink(ApplyFilter(it)) },
         )
@@ -82,44 +79,20 @@ internal fun TradeReviewScreen(
     onMarkTrade: (profileTradeId: ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (profileTradeId: ProfileTradeId) -> Unit,
     onOpenDetails: (profileTradeId: ProfileTradeId) -> Unit,
+    onMarkAllTrades: () -> Unit,
     onClearMarkedTrades: () -> Unit,
     onApplyFilter: (TradeFilter) -> Unit,
 ) {
 
     var selectedTab by state { Tab.Profile }
 
-    Scaffold(
-        topBar = {
-
-            MainTabRow(
-                selectedTab = selectedTab,
-                onSelectTab = { selectedTab = it },
-                selectedProfileId = selectedProfileId,
-                selectedProfileName = selectedProfileName,
-                onProfileSelected = onProfileSelected,
-            )
-        },
-        floatingActionButton = {
-
-            AnimatedVisibility(
-                visible = selectedTab == Tab.Marked && markedTrades?.isNotEmpty() == true,
-                enter = scaleIn(),
-                exit = scaleOut(),
-            ) {
-
-                FloatingActionButton(onClick = onClearMarkedTrades) {
-                    Icon(Icons.Default.ClearAll, contentDescription = "Clear marked trades")
-                }
-            }
-        },
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
 
         var sheetState by state { SideSheetState.Closed }
         val onDismissSheet = { sheetState = SideSheetState.Closed }
         var filterConfig by saveableState(stateSaver = FilterConfig.Saver) { FilterConfig() }
 
         SideSheetHost(
-            modifier = Modifier.padding(paddingValues),
             sheetState = sheetState,
             sheet = {
 
@@ -139,16 +112,38 @@ internal fun TradeReviewScreen(
             onDismissSheet = onDismissSheet,
         ) {
 
-            TradesTableSwitcher(
-                selectedTab = selectedTab,
-                trades = trades,
-                markedTrades = markedTrades,
-                onMarkTrade = onMarkTrade,
-                onSelectTrade = onSelectTrade,
-                onOpenDetails = onOpenDetails,
-                isFilterEnabled = selectedProfileId != null,
-                onFilter = { sheetState = SideSheetState.Open },
-            )
+            Column(
+                modifier = Modifier.padding(paddingValues),
+            ) {
+
+                MainTabRow(
+                    selectedTab = selectedTab,
+                    onSelectTab = { selectedTab = it },
+                    selectedProfileId = selectedProfileId,
+                    selectedProfileName = selectedProfileName,
+                    onProfileSelected = onProfileSelected,
+                )
+
+                TradeReviewOptionsBar(
+                    selectedTab = selectedTab,
+                    isFilterEnabled = selectedProfileId != null,
+                    onFilter = { sheetState = SideSheetState.Open },
+                    onMarkAllTrades = onMarkAllTrades,
+                    tradesAreMarked = markedTrades?.isNotEmpty() == true,
+                    onClearMarkedTrades = onClearMarkedTrades,
+                )
+
+                HorizontalDivider()
+
+                TradesTableSwitcher(
+                    selectedTab = selectedTab,
+                    trades = trades,
+                    markedTrades = markedTrades,
+                    onMarkTrade = onMarkTrade,
+                    onSelectTrade = onSelectTrade,
+                    onOpenDetails = onOpenDetails,
+                )
+            }
         }
     }
 }
