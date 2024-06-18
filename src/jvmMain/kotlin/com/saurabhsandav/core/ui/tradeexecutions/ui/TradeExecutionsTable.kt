@@ -4,6 +4,7 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockOpen
@@ -37,7 +38,8 @@ internal fun TradeExecutionsTable(
     isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
-    onNewExecution: (TradeExecutionId) -> Unit,
+    onNewExecution: () -> Unit,
+    onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
     onDeleteExecution: (TradeExecutionId) -> Unit,
@@ -62,6 +64,7 @@ internal fun TradeExecutionsTable(
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,
             onNewExecution = onNewExecution,
+            onNewExecutionFromExisting = onNewExecutionFromExisting,
             onEditExecution = onEditExecution,
             onLockExecution = onLockExecution,
             onDeleteExecution = onDeleteExecution,
@@ -75,7 +78,8 @@ private fun TradeExecutionsTable(
     isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
-    onNewExecution: (TradeExecutionId) -> Unit,
+    onNewExecution: () -> Unit,
+    onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
     onDeleteExecution: (TradeExecutionId) -> Unit,
@@ -84,14 +88,9 @@ private fun TradeExecutionsTable(
     LazyTable(
         headerContent = {
 
-            TradeExecutionTableSchema.SimpleHeader {
-                broker.text { "Broker" }
-                ticker.text { "Ticker" }
-                quantity.text { "Quantity" }
-                side.text { "Side" }
-                price.text { "Price" }
-                time.text { "Time" }
-            }
+            Header(
+                onNewExecution = onNewExecution,
+            )
         },
     ) {
 
@@ -115,13 +114,39 @@ private fun TradeExecutionsTable(
                     onClick = { onClickExecution(entry.id) },
                     onLongClick = { onMarkExecution(entry.id) },
                     onMarkExecution = { onMarkExecution(entry.id) },
-                    onNewExecution = { onNewExecution(entry.id) },
+                    onNewExecution = { onNewExecutionFromExisting(entry.id) },
                     onEditExecution = { onEditExecution(entry.id) },
                     onLockExecution = { onLockExecution(entry.id) },
                     onDeleteExecution = { onDeleteExecution(entry.id) },
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.Header(
+    onNewExecution: () -> Unit,
+) {
+
+    PrimaryOptionsBar {
+
+        Button(
+            onClick = onNewExecution,
+            shape = MaterialTheme.shapes.small,
+            content = { Text("New Execution") },
+        )
+    }
+
+    HorizontalDivider()
+
+    TradeExecutionTableSchema.SimpleHeader {
+        broker.text { "Broker" }
+        ticker.text { "Ticker" }
+        quantity.text { "Quantity" }
+        side.text { "Side" }
+        price.text { "Price" }
+        time.text { "Time" }
     }
 }
 

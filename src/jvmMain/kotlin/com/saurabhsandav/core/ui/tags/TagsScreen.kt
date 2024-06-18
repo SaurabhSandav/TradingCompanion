@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.tags
 
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
@@ -17,16 +15,11 @@ fun TagsScreen(
     onDeleteTag: (TradeTagId) -> Unit,
 ) {
 
-    Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = onNewTag) {
-                Text(text = "New Tag")
-            }
-        },
-    ) {
+    Scaffold {
 
         TagsList(
             tags = tags,
+            onNewTag = onNewTag,
             onNewTagFromExisting = onNewTagFromExisting,
             onEditTag = onEditTag,
             onDeleteTag = onDeleteTag,

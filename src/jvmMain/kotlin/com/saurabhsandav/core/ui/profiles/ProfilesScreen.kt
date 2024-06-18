@@ -1,20 +1,12 @@
 package com.saurabhsandav.core.ui.profiles
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,7 +19,7 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
-import com.saurabhsandav.core.ui.profiles.ui.ProfileListItem
+import com.saurabhsandav.core.ui.profiles.ui.ProfilesList
 
 @Composable
 internal fun ProfilesWindow(
@@ -204,41 +196,18 @@ private fun ProfilesScreen(
 
     var showNewProfileDialog by state { false }
 
-    Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { showNewProfileDialog = true }) {
-                Text(text = "New Profile")
-            }
-        },
-    ) {
+    Scaffold {
 
-        Box {
-
-            val lazyListState = rememberLazyListState()
-
-            LazyColumn(
-                state = lazyListState,
-            ) {
-
-                items(profiles, key = { it.id }) { profile ->
-
-                    ProfileListItem(
-                        profile = profile,
-                        onSelectProfile = { onSelectProfile(profile.id) },
-                        isCurrent = profile.id == currentProfileId,
-                        onSetCurrentProfile = { onSetCurrentProfile(profile.id) },
-                        onDeleteProfile = { onDeleteProfile(profile.id) },
-                        onCopyProfile = { onCopyProfile(profile.id) },
-                        trainingOnly = trainingOnly,
-                    )
-                }
-            }
-
-            VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(lazyListState)
-            )
-        }
+        ProfilesList(
+            profiles = profiles,
+            onNewProfile = { showNewProfileDialog = true },
+            onSelectProfile = onSelectProfile,
+            currentProfileId = currentProfileId,
+            onSetCurrentProfile = onSetCurrentProfile,
+            onDeleteProfile = onDeleteProfile,
+            onCopyProfile = onCopyProfile,
+            trainingOnly = trainingOnly,
+        )
     }
 
     if (showNewProfileDialog) {
