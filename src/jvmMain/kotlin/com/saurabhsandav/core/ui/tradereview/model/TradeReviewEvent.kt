@@ -17,6 +17,8 @@ internal sealed class TradeReviewEvent {
 
     data class OpenDetails(val profileTradeId: ProfileTradeId) : TradeReviewEvent()
 
+    data object MarkAllTrades : TradeReviewEvent()
+
     data object ClearMarkedTrades : TradeReviewEvent()
 
     data class ApplyFilter(val tradeFilter: TradeFilter) : TradeReviewEvent()

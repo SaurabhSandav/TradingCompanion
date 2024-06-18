@@ -4,7 +4,9 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -16,7 +18,6 @@ import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
-import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -32,8 +33,6 @@ internal fun ProfileTradesTable(
     onMarkTrade: (ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (ProfileTradeId) -> Unit,
     onOpenDetails: (ProfileTradeId) -> Unit,
-    isFilterEnabled: Boolean,
-    onFilter: () -> Unit,
 ) {
 
     val items = trades.collectAsLazyPagingItems()
@@ -54,8 +53,6 @@ internal fun ProfileTradesTable(
             onMarkTrade = onMarkTrade,
             onSelectTrade = onSelectTrade,
             onOpenDetails = onOpenDetails,
-            isFilterEnabled = isFilterEnabled,
-            onFilter = onFilter,
         )
     }
 }
@@ -66,24 +63,10 @@ private fun ProfileTradesTable(
     onMarkTrade: (ProfileTradeId, isMarked: Boolean) -> Unit,
     onSelectTrade: (ProfileTradeId) -> Unit,
     onOpenDetails: (ProfileTradeId) -> Unit,
-    isFilterEnabled: Boolean,
-    onFilter: () -> Unit,
 ) {
 
     LazyTable(
         headerContent = {
-
-            PrimaryOptionsBar {
-
-                OutlinedButton(
-                    onClick = onFilter,
-                    shape = MaterialTheme.shapes.small,
-                    enabled = isFilterEnabled,
-                    content = { Text("Filter") },
-                )
-            }
-
-            HorizontalDivider()
 
             ProfileTradesTableSchema.SimpleHeader {
                 mark.text { "Mark" }

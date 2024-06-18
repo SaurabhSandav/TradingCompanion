@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradereview
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.paging.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
@@ -80,6 +81,7 @@ internal class TradeReviewPresenter(
             is MarkTrade -> onMarkTrade(event.profileTradeId, event.isMarked)
             is SelectTrade -> onSelectTrade(event.profileTradeId)
             is OpenDetails -> onOpenDetails(event.profileTradeId)
+            MarkAllTrades -> onMarkAllTrades()
             ClearMarkedTrades -> onClearMarkedTrades()
             is ApplyFilter -> onApplyFilter(event.tradeFilter)
         }
@@ -350,6 +352,22 @@ internal class TradeReviewPresenter(
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {
 
         tradeContentLauncher.openTrade(profileTradeId)
+    }
+
+    private fun onMarkAllTrades() = coroutineScope.launchUnit {
+
+        val profileId = selectedProfileId.value ?: return@launchUnit
+        val trades = tradingProfiles.getRecord(profileId).trades
+        val tradesToMark = trades.getFiltered(tradeFilter.value)
+            .first()
+            .map { ProfileTradeId(profileId, it.id) }
+
+        Snapshot.withMutableSnapshot {
+            markedTradeIds.clear()
+            markedTradeIds.addAll(tradesToMark)
+        }
+
+        chartsHandle.setMarkedTrades(markedTradeIds)
     }
 
     private fun onClearMarkedTrades() {
