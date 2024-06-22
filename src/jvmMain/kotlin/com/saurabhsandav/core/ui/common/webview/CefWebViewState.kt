@@ -30,6 +30,9 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.friwi.jcefmaven.CefAppBuilder
 import me.friwi.jcefmaven.EnumProgress
+import me.friwi.jcefmaven.MavenCefAppHandlerAdapter
+import org.cef.CefApp
+import org.cef.CefApp.CefAppState
 import org.cef.OS
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
@@ -40,6 +43,7 @@ import org.cef.callback.CefQueryCallback
 import org.cef.handler.*
 import org.cef.network.CefRequest
 import java.io.File
+import kotlin.system.exitProcess
 
 class CefWebViewState : WebViewState {
 
@@ -77,7 +81,7 @@ class CefWebViewState : WebViewState {
 
             else -> {
 
-                val initializationProgress by AppCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
+                val initializationProgress by MyCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
 
                 Column(
                     modifier = modifier,
@@ -110,7 +114,7 @@ class CefWebViewState : WebViewState {
     private suspend fun init() {
 
         val cefApp = withContext(Dispatchers.IO) {
-            AppCefApp.builder.build()
+            MyCefApp.builder.build()
         }
 
         val client = cefApp.createClient().apply {
@@ -263,7 +267,7 @@ class CefWebViewState : WebViewState {
     }
 }
 
-object AppCefApp {
+object MyCefApp {
 
     private val _progress = MutableSharedFlow<Pair<EnumProgress, Float>>(
         replay = 1,
@@ -274,5 +278,30 @@ object AppCefApp {
     val builder: CefAppBuilder = CefAppBuilder().apply {
         setInstallDir(File(AppPaths.getAppDataPath() + "/jcef-bundle"))
         setProgressHandler { state, percent -> _progress.tryEmit(state to (percent / 100F)) }
+
+        setAppHandler(object : MavenCefAppHandlerAdapter() {
+            override fun stateHasChanged(state: CefAppState) {
+                // Shutdown the app if the native CEF part is terminated
+                if (state == CefAppState.TERMINATED) exitProcess(0)
+            }
+        })
+
+        with(cefSettings) {
+            windowless_rendering_enabled = false
+            root_cache_path = "${AppPaths.getAppDataPath()}/CEF"
+        }
+    }
+
+    fun dispose() {
+
+        when (CefApp.getState()) {
+            CefAppState.NEW,
+            CefAppState.INITIALIZING,
+            CefAppState.INITIALIZED,
+            CefAppState.INITIALIZATION_FAILED,
+            -> CefApp.getInstance().dispose()
+
+            else -> return
+        }
     }
 }

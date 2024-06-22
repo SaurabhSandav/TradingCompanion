@@ -8,6 +8,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.landing.LandingWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
@@ -34,7 +35,10 @@ fun main() = application {
         LocalAppModule provides appModule,
     ) {
 
-        App(::exitApplication)
+        App {
+            MyCefApp.dispose()
+            exitApplication()
+        }
     }
 }
 
