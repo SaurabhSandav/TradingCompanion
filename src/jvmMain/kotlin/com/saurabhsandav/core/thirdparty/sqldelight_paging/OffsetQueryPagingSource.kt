@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.paging_sqldelight
+package com.saurabhsandav.core.thirdparty.sqldelight_paging
 
 import androidx.paging.PagingState
 import app.cash.sqldelight.*

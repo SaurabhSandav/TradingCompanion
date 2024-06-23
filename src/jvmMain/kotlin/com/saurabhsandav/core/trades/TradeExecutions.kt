@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
-import com.saurabhsandav.core.paging_sqldelight.QueryPagingSource
+import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
