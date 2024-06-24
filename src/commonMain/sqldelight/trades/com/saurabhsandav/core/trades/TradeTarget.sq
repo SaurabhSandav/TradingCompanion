@@ -38,10 +38,6 @@ delete {
   WHERE tradeId = :tradeId;
 }
 
-deleteByTrade:
-DELETE FROM TradeTarget
-WHERE tradeId = ?;
-
 setPrimary {
   UPDATE TradeTarget
   SET isPrimary = FALSE
