@@ -479,40 +479,7 @@ internal class TradeExecutions(
 
     private fun regenerateSupplementalTradeData(tradeId: TradeId) {
 
-        // Get newly regenerated trade
-        val trade = tradesDB.tradeQueries.getById(tradeId).executeAsOne()
-
-        // Get current stops
-        val stops = tradesDB.tradeStopQueries.getByTrade(trade.id).executeAsList()
-
-        // Remove stops from DB
-        tradesDB.tradeStopQueries.deleteByTrade(trade.id)
-
-        // Save regenerated stops
-        stops.forEach { stop ->
-
-            tradesDB.tradeStopQueries.insert(
-                tradeId = trade.id,
-                price = stop.price.stripTrailingZeros(),
-            )
-        }
-
-        // Get current targets
-        val targets = tradesDB.tradeTargetQueries.getByTrade(trade.id).executeAsList()
-
-        // Remove targets from DB
-        tradesDB.tradeTargetQueries.deleteByTrade(trade.id)
-
-        // Save regenerated targets
-        targets.forEach { target ->
-
-            tradesDB.tradeTargetQueries.insert(
-                tradeId = trade.id,
-                price = target.price.stripTrailingZeros(),
-            )
-        }
-
         // Remove Excursions from DB
-        tradesDB.tradeExcursionsQueries.delete(trade.id)
+        tradesDB.tradeExcursionsQueries.delete(tradeId)
     }
 }
