@@ -21,5 +21,5 @@ suspend fun String.isInt(
 
 context(ValidationScope)
 fun Int.isPositive() {
-    check(this > 0) { "Cannot be 0 or negative" }
+    validate(this > 0) { "Cannot be 0 or negative" }
 }

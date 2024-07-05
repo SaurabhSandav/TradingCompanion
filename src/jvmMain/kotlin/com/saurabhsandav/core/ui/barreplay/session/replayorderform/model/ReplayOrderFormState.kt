@@ -41,8 +41,8 @@ internal class ReplayOrderFormModel(
         isBigDecimal {
             isPositive()
 
-            check(
-                value = when {
+            validate(
+                isValid = when {
                     validated(isBuyField) -> this < validated(priceField).toBigDecimal()
                     else -> this > validated(priceField).toBigDecimal()
                 },
@@ -55,8 +55,8 @@ internal class ReplayOrderFormModel(
         isBigDecimal {
             isPositive()
 
-            check(
-                value = when {
+            validate(
+                isValid = when {
                     validated(isBuyField) -> this > validated(priceField).toBigDecimal()
                     else -> this < validated(priceField).toBigDecimal()
                 },

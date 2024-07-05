@@ -189,8 +189,8 @@ private class PnlFormModel(
 
             if (validatedFrom != null) {
 
-                check(
-                    value = validatedFrom <= this,
+                validate(
+                    isValid = validatedFrom <= this,
                     errorMessage = { "Cannot be less than from" },
                 )
             }

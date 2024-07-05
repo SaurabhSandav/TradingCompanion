@@ -22,5 +22,5 @@ suspend fun String.isBigDecimal(
 
 context(ValidationScope)
 fun BigDecimal.isPositive() {
-    check(this > BigDecimal.ZERO) { "Cannot be 0 or negative" }
+    validate(this > BigDecimal.ZERO) { "Cannot be 0 or negative" }
 }

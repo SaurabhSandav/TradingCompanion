@@ -148,8 +148,8 @@ private class TimeIntervalFormModel(
 
         if (this != null && validatedFrom != null) {
 
-            check(
-                value = validatedFrom <= this,
+            validate(
+                isValid = validatedFrom <= this,
                 errorMessage = { "Cannot be less than from" },
             )
         }
