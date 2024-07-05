@@ -29,8 +29,8 @@ internal class ProfileFormModel(
     val nameField = validator.addField(initial.name) {
         isRequired()
 
-        check(
-            value = isProfileNameUnique(this),
+        validate(
+            isValid = isProfileNameUnique(this),
             errorMessage = { "Profile already exists" }
         )
     }

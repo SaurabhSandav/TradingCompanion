@@ -42,8 +42,8 @@ internal class PNLCalculatorModel(
 
             isPositive()
 
-            check(
-                value = validated(entryField).toBigDecimal().compareTo(this) != 0,
+            validate(
+                isValid = validated(entryField).toBigDecimal().compareTo(this) != 0,
                 errorMessage = { "Entry and Exit cannot be the same" },
             )
         }

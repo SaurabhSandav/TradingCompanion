@@ -4,7 +4,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 interface ValidationScope {
 
-    fun check(value: Boolean, errorMessage: () -> String)
+    fun validate(isValid: Boolean, errorMessage: () -> String)
 
     suspend fun <T> validated(formField: FormField<T>): T
 }
@@ -23,12 +23,12 @@ internal class ValidationScopeImpl : ValidationScope {
     var result: ValidationResult = ValidationResult.Valid
     val dependencies = mutableSetOf<FormField<*>>()
 
-    override fun check(
-        value: Boolean,
+    override fun validate(
+        isValid: Boolean,
         errorMessage: () -> String,
     ) {
 
-        if (!value) {
+        if (!isValid) {
 
             result = ValidationResult.Invalid(errorMessage())
 

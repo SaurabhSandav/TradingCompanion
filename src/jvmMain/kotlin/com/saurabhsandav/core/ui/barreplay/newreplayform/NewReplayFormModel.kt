@@ -41,8 +41,8 @@ class NewReplayFormModel(
     val replayFromField = validator.addField(replayFrom) {
         isRequired()
 
-        check(
-            value = this < Clock.System.nowIn(TimeZone.currentSystemDefault()),
+        validate(
+            isValid = this < Clock.System.nowIn(TimeZone.currentSystemDefault()),
             errorMessage = { "Cannot be in the future" },
         )
     }
@@ -50,8 +50,8 @@ class NewReplayFormModel(
     val dataToField = validator.addField(dataTo) {
         isRequired()
 
-        check(
-            value = validated(replayFromField) < this,
+        validate(
+            isValid = validated(replayFromField) < this,
             errorMessage = { "Cannot be before or same as replay from" },
         )
     }

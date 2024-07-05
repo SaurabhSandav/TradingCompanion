@@ -21,8 +21,8 @@ internal class TagFormModel(
     val nameField = validator.addField(initial.name) {
         isRequired()
 
-        check(
-            value = isTagNameUnique(this),
+        validate(
+            isValid = isTagNameUnique(this),
             errorMessage = { "Tag already exists" }
         )
     }

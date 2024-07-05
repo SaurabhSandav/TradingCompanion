@@ -12,8 +12,8 @@ inline fun <reified T> T?.isRequired(
         returns() implies (this@isRequired != null)
     }
 
-    check(
-        value = when (this) {
+    validate(
+        isValid = when (this) {
             is String -> isNotBlank()
             else -> this != null
         },
