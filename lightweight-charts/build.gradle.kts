@@ -76,7 +76,7 @@ composeCompiler {
 }
 
 val downloadLWC by tasks.registering(Download::class) {
-    src("https://unpkg.com/lightweight-charts@4.1.4/dist/lightweight-charts.standalone.production.js")
+    src("https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js")
     dest("src/jvmMain/resources/charts_page")
     overwrite(false)
 }
