@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.controls
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,9 +18,9 @@ import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 fun ChipsSelectorBox(
-    addButton: @Composable () -> Unit,
+    addButton: @Composable FlowRowScope.() -> Unit,
     modifier: Modifier = Modifier,
-    selectedItems: @Composable () -> Unit,
+    selectedItems: @Composable FlowRowScope.() -> Unit,
 ) {
 
     FlowRow(
@@ -30,7 +31,6 @@ fun ChipsSelectorBox(
         ),
         verticalArrangement = Arrangement.spacedBy(
             space = MaterialTheme.dimens.rowVerticalSpacing,
-            alignment = Alignment.CenterVertically,
         ),
     ) {
 
@@ -43,11 +43,13 @@ fun ChipsSelectorBox(
 @Composable
 fun ChipsSelectorSelectedItem(
     name: String,
-    description: String? = null,
     onRemove: () -> Unit,
+    description: String? = null,
+    modifier: Modifier = Modifier,
 ) {
 
     TooltipArea(
+        modifier = modifier,
         tooltip = { if (description != null) Tooltip(description) },
     ) {
 
