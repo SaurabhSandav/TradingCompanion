@@ -36,6 +36,7 @@ fun main() = application {
     ) {
 
         App {
+            appModule.destroy()
             MyCefApp.dispose()
             exitApplication()
         }

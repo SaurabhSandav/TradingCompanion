@@ -3,9 +3,7 @@ package com.saurabhsandav.core
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Logger
-import co.touchlab.kermit.Severity
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
@@ -47,23 +45,19 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import java.nio.file.StandardOpenOption.APPEND
-import java.nio.file.StandardOpenOption.CREATE
 import java.util.*
 import java.util.prefs.Preferences
-import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.outputStream
 
 internal class AppModule {
 
     val appScope = MainScope()
+
+    private val fileLogWriter = FileLogWriter(appScope)
 
     init {
 
@@ -286,38 +280,6 @@ internal class AppModule {
 
     private fun setupLogging() {
 
-        // Current time
-        val currentTime = Clock.System.now().epochSeconds
-
-        // Log file path
-        val logDirectory = Path(AppPaths.getAppDataPath(), "logs")
-        val logFile = logDirectory.resolve("$currentTime.log")
-
-        // Create log directory
-        logDirectory.createDirectories()
-
-        // Create FileLogWriter
-        val fileLogWriter = object : LogWriter() {
-
-            private val writer by lazy {
-                logFile.outputStream(CREATE, APPEND).bufferedWriter()
-            }
-
-            override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
-
-                appScope.launch(Dispatchers.IO) {
-
-                    writer.write("$severity: ($tag) $message\n")
-
-                    throwable?.let {
-                        writer.write("${it.stackTraceToString()}\n")
-                    }
-
-                    writer.flush()
-                }
-            }
-        }
-
         // Set FileLogWriter as the only LogWriter
         Logger.addLogWriter(fileLogWriter)
 
@@ -339,5 +301,10 @@ internal class AppModule {
         startupJobs.forEach { job ->
             appScope.launch { job.run() }
         }
+    }
+
+    fun destroy() {
+        fileLogWriter.destroy()
+        appScope.cancel()
     }
 }
