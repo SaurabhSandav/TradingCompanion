@@ -63,7 +63,7 @@ internal class TagsPresenter(
                             Tag(
                                 id = tag.id,
                                 name = tag.name,
-                                description = tag.description,
+                                description = tag.description.ifBlank { null },
                             )
                         }
                     }

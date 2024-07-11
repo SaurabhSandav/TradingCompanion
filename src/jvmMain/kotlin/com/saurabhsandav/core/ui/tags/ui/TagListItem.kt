@@ -31,7 +31,7 @@ internal fun TagListItem(
     ListItem(
         modifier = Modifier.clickable(onClick = onEditTag),
         headlineContent = { Text(tag.name) },
-        supportingContent = { Text(tag.description) },
+        supportingContent = tag.description?.let { { Text(it) } },
         trailingContent = {
 
             Row {

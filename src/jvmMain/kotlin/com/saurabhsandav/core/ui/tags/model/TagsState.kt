@@ -10,6 +10,6 @@ data class TagsState(
     data class Tag(
         val id: TradeTagId,
         val name: String,
-        val description: String,
+        val description: String?,
     )
 }
