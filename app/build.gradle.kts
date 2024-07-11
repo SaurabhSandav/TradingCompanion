@@ -40,6 +40,7 @@ kotlin {
         freeCompilerArgs.addAll(
             "-Xexpect-actual-classes",
             "-Xcontext-receivers",
+            "-Xconsistent-data-class-copy-visibility",
         )
     }
 
@@ -116,12 +117,12 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:22.0.1:linux")
-            implementation("org.openjfx:javafx-controls:22.0.1:linux")
-            implementation("org.openjfx:javafx-graphics:22.0.1:linux")
-            implementation("org.openjfx:javafx-media:22.0.1:linux")
-            implementation("org.openjfx:javafx-swing:22.0.1:linux")
-            implementation("org.openjfx:javafx-web:22.0.1:linux")
+            implementation("org.openjfx:javafx-base:22.0.2:linux")
+            implementation("org.openjfx:javafx-controls:22.0.2:linux")
+            implementation("org.openjfx:javafx-graphics:22.0.2:linux")
+            implementation("org.openjfx:javafx-media:22.0.2:linux")
+            implementation("org.openjfx:javafx-swing:22.0.2:linux")
+            implementation("org.openjfx:javafx-web:22.0.2:linux")
 
             // cryptography-kotlin
             implementation("dev.whyoleg.cryptography:cryptography-core:0.3.1")
@@ -209,7 +210,6 @@ sqldelight {
 }
 
 composeCompiler {
-    enableStrongSkippingMode = true
     stabilityConfigurationFile = parent!!.layout.projectDirectory.file("compose-stability.conf")
 
     // Trigger this with:

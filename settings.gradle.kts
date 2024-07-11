@@ -45,7 +45,8 @@ dependencyResolutionManagement {
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.96.0")
+            from("com.saurabhsandav:common-versions:0.97.0")
+            version("jcefMaven", "122.1.10")
         }
     }
 }
