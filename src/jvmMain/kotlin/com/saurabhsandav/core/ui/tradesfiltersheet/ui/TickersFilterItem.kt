@@ -33,6 +33,7 @@ internal fun TickersFilterItem(
             addButton = {
 
                 AddTickerButton(
+                    modifier = Modifier.align(Alignment.CenterVertically),
                     tickerSuggestions = tickerSuggestions,
                     onAddTicker = onAddTicker,
                 )
@@ -44,6 +45,7 @@ internal fun TickersFilterItem(
                 key(ticker) {
 
                     ChipsSelectorSelectedItem(
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         name = ticker,
                         onRemove = { onRemoveTicker(ticker) },
                     )
@@ -55,6 +57,7 @@ internal fun TickersFilterItem(
 
 @Composable
 private fun AddTickerButton(
+    modifier: Modifier,
     tickerSuggestions: (String) -> Flow<List<String>>,
     onAddTicker: (String) -> Unit,
 ) {
@@ -62,7 +65,7 @@ private fun AddTickerButton(
     var expanded by state { false }
 
     Box(
-        modifier = Modifier.height(IntrinsicSize.Max),
+        modifier = Modifier.height(IntrinsicSize.Max).then(modifier),
         contentAlignment = Alignment.Center,
     ) {
 

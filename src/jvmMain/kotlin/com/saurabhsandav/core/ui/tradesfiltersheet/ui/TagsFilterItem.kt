@@ -54,6 +54,7 @@ internal fun TagsFilterItem(
                 addButton = {
 
                     AddTagButton(
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         tagSuggestions = tagSuggestions,
                         onAddTag = onAddTag,
                     )
@@ -65,6 +66,7 @@ internal fun TagsFilterItem(
                     key(tag.id) {
 
                         ChipsSelectorSelectedItem(
+                            modifier = Modifier.align(Alignment.CenterVertically),
                             name = tag.name,
                             description = tag.description,
                             onRemove = { onRemoveTag(tag.id) },
@@ -78,6 +80,7 @@ internal fun TagsFilterItem(
 
 @Composable
 private fun AddTagButton(
+    modifier: Modifier,
     tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
 ) {
@@ -85,7 +88,7 @@ private fun AddTagButton(
     var expanded by state { false }
 
     Box(
-        modifier = Modifier.height(IntrinsicSize.Max),
+        modifier = Modifier.height(IntrinsicSize.Max).then(modifier),
         contentAlignment = Alignment.Center,
     ) {
 
