@@ -197,7 +197,7 @@ sqldelight {
 
 composeCompiler {
     enableStrongSkippingMode = true
-    stabilityConfigurationFile = layout.projectDirectory.file("compose_compiler_config.conf")
+    stabilityConfigurationFile = layout.projectDirectory.file("compose-stability.conf")
 
     // Trigger this with:
     // ./gradlew build -PenableComposeCompilerReports --rerun-tasks
