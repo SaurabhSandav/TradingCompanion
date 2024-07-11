@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
@@ -55,11 +56,25 @@ internal fun Tags(
 
                 key(tag.id) {
 
+                    var confirmRemove by state { false }
+
                     ChipsSelectorSelectedItem(
                         name = tag.name,
                         description = tag.description,
-                        onRemove = { onRemoveTag(tag.id) },
+                        onRemove = { confirmRemove = true },
                     )
+
+                    if (confirmRemove) {
+
+                        ConfirmationDialog(
+                            text = "Remove tag \"${tag.name}\"?",
+                            onDismiss = { confirmRemove = false },
+                            onConfirm = {
+                                onRemoveTag(tag.id)
+                                confirmRemove = false
+                            },
+                        )
+                    }
                 }
             }
         }

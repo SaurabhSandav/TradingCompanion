@@ -53,21 +53,15 @@ fun ChipsSelectorSelectedItem(
 
         InputChip(
             selected = false,
-            onClick = {},
+            onClick = onRemove,
             label = { Text(name) },
             trailingIcon = {
 
-                IconButtonWithTooltip(
-                    onClick = onRemove,
-                    tooltipText = "Remove",
-                ) {
-
-                    Icon(
-                        modifier = Modifier.size(InputChipDefaults.IconSize),
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Remove",
-                    )
-                }
+                Icon(
+                    modifier = Modifier.size(InputChipDefaults.IconSize),
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remove",
+                )
             },
         )
     }
