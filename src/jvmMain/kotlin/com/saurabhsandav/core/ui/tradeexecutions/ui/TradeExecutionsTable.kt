@@ -38,7 +38,6 @@ internal fun TradeExecutionsTable(
     isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
-    onNewExecution: () -> Unit,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
@@ -63,7 +62,6 @@ internal fun TradeExecutionsTable(
             isMarked = isMarked,
             onClickExecution = onClickExecution,
             onMarkExecution = onMarkExecution,
-            onNewExecution = onNewExecution,
             onNewExecutionFromExisting = onNewExecutionFromExisting,
             onEditExecution = onEditExecution,
             onLockExecution = onLockExecution,
@@ -78,7 +76,6 @@ private fun TradeExecutionsTable(
     isMarked: (TradeExecutionId) -> Boolean,
     onClickExecution: (TradeExecutionId) -> Unit,
     onMarkExecution: (TradeExecutionId) -> Unit,
-    onNewExecution: () -> Unit,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
@@ -86,12 +83,7 @@ private fun TradeExecutionsTable(
 ) {
 
     LazyTable(
-        headerContent = {
-
-            Header(
-                onNewExecution = onNewExecution,
-            )
-        },
+        headerContent = { Header() },
     ) {
 
         items(
@@ -125,20 +117,7 @@ private fun TradeExecutionsTable(
 }
 
 @Composable
-private fun ColumnScope.Header(
-    onNewExecution: () -> Unit,
-) {
-
-    PrimaryOptionsBar {
-
-        Button(
-            onClick = onNewExecution,
-            shape = MaterialTheme.shapes.small,
-            content = { Text("New Execution") },
-        )
-    }
-
-    HorizontalDivider()
+private fun ColumnScope.Header() {
 
     TradeExecutionTableSchema.SimpleHeader {
         broker.text { "Broker" }

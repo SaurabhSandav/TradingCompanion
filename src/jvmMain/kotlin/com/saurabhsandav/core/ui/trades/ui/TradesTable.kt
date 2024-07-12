@@ -37,12 +37,8 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 internal fun TradesTable(
     tradeEntries: Flow<PagingData<TradeEntry>>,
-    isFocusModeEnabled: Boolean,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
-    onSetFocusModeEnabled: (Boolean) -> Unit,
-    onFilter: () -> Unit,
-    onNewExecution: () -> Unit,
 ) {
 
     val items = tradeEntries.collectAsLazyPagingItems()
@@ -60,12 +56,8 @@ internal fun TradesTable(
 
         TradesTable(
             items = items,
-            isFocusModeEnabled = isFocusModeEnabled,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
-            onSetFocusModeEnabled = onSetFocusModeEnabled,
-            onFilter = onFilter,
-            onNewExecution = onNewExecution,
         )
     }
 }
@@ -73,24 +65,12 @@ internal fun TradesTable(
 @Composable
 private fun TradesTable(
     items: LazyPagingItems<TradeEntry>,
-    isFocusModeEnabled: Boolean,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
-    onSetFocusModeEnabled: (Boolean) -> Unit,
-    onFilter: () -> Unit,
-    onNewExecution: () -> Unit,
 ) {
 
     LazyTable(
-        headerContent = {
-
-            Header(
-                isFocusModeEnabled = isFocusModeEnabled,
-                onSetFocusModeEnabled = onSetFocusModeEnabled,
-                onFilter = onFilter,
-                onNewExecution = onNewExecution,
-            )
-        },
+        headerContent = { Header() },
     ) {
 
         items(
@@ -118,21 +98,7 @@ private fun TradesTable(
 }
 
 @Composable
-private fun ColumnScope.Header(
-    isFocusModeEnabled: Boolean,
-    onSetFocusModeEnabled: (Boolean) -> Unit,
-    onFilter: () -> Unit,
-    onNewExecution: () -> Unit,
-) {
-
-    TradesOptionsBar(
-        isFocusModeEnabled = isFocusModeEnabled,
-        onSetFocusModeEnabled = onSetFocusModeEnabled,
-        onFilter = onFilter,
-        onNewExecution = onNewExecution,
-    )
-
-    HorizontalDivider()
+private fun ColumnScope.Header() {
 
     TradeTableSchema.SimpleHeader {
         id.text { "ID" }

@@ -1,11 +1,13 @@
 package com.saurabhsandav.core.ui.reviews
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.ReviewId
+import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.reviews.ui.ReviewsList
@@ -27,15 +29,28 @@ internal fun ReviewsScreen(
 
         Scaffold(
             modifier = Modifier.weight(1F),
-        ) {
+        ) { paddingValues ->
 
-            ReviewsList(
-                reviewEntries = reviewEntries,
-                onNewReview = onNewReview,
-                onOpenReview = onOpenReview,
-                onTogglePinReview = onTogglePinReview,
-                onDeleteReview = onDeleteReview,
-            )
+            Column(Modifier.padding(paddingValues)) {
+
+                PrimaryOptionsBar {
+
+                    Button(
+                        onClick = onNewReview,
+                        shape = MaterialTheme.shapes.small,
+                        content = { Text("New Review") },
+                    )
+                }
+
+                HorizontalDivider()
+
+                ReviewsList(
+                    reviewEntries = reviewEntries,
+                    onOpenReview = onOpenReview,
+                    onTogglePinReview = onTogglePinReview,
+                    onDeleteReview = onDeleteReview,
+                )
+            }
         }
     }
 }

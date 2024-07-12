@@ -1,8 +1,12 @@
 package com.saurabhsandav.core.ui.tags
 
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
 import com.saurabhsandav.core.ui.tags.ui.TagsList
 
@@ -15,14 +19,27 @@ fun TagsScreen(
     onDeleteTag: (TradeTagId) -> Unit,
 ) {
 
-    Scaffold {
+    Scaffold { paddingValues ->
 
-        TagsList(
-            tags = tags,
-            onNewTag = onNewTag,
-            onNewTagFromExisting = onNewTagFromExisting,
-            onEditTag = onEditTag,
-            onDeleteTag = onDeleteTag,
-        )
+        Column(Modifier.padding(paddingValues)) {
+
+            PrimaryOptionsBar {
+
+                Button(
+                    onClick = onNewTag,
+                    shape = MaterialTheme.shapes.small,
+                    content = { Text("New Tag") },
+                )
+            }
+
+            HorizontalDivider()
+
+            TagsList(
+                tags = tags,
+                onNewTagFromExisting = onNewTagFromExisting,
+                onEditTag = onEditTag,
+                onDeleteTag = onDeleteTag,
+            )
+        }
     }
 }
