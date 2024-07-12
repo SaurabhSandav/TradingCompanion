@@ -3,10 +3,12 @@ package com.saurabhsandav.core.ui.reviews.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,7 +23,6 @@ import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
-import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry.Item
@@ -32,7 +33,6 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 internal fun ReviewsList(
     reviewEntries: Flow<PagingData<ReviewEntry>>,
-    onNewReview: () -> Unit,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
@@ -53,7 +53,6 @@ internal fun ReviewsList(
 
         ReviewsList(
             items = items,
-            onNewReview = onNewReview,
             onOpenReview = onOpenReview,
             onTogglePinReview = onTogglePinReview,
             onDeleteReview = onDeleteReview,
@@ -64,20 +63,12 @@ internal fun ReviewsList(
 @Composable
 private fun ReviewsList(
     items: LazyPagingItems<ReviewEntry>,
-    onNewReview: () -> Unit,
     onOpenReview: (ReviewId) -> Unit,
     onTogglePinReview: (ReviewId) -> Unit,
     onDeleteReview: (ReviewId) -> Unit,
 ) {
 
     LazyColumn {
-
-        stickyHeader {
-
-            Header(
-                onNewReview = onNewReview,
-            )
-        }
 
         items(
             count = items.itemCount,
@@ -101,27 +92,6 @@ private fun ReviewsList(
                     onDelete = { onDeleteReview(entry.id) },
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun Header(onNewReview: () -> Unit) {
-
-    Surface {
-
-        Column {
-
-            PrimaryOptionsBar {
-
-                Button(
-                    onClick = onNewReview,
-                    shape = MaterialTheme.shapes.small,
-                    content = { Text("New Review") },
-                )
-            }
-
-            HorizontalDivider()
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.trades
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -16,6 +18,7 @@ import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.ui.TradesOptionsBar
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
@@ -65,18 +68,26 @@ internal fun TradesScreen(
             onDismissSheet = onDismissSheet,
         ) {
 
-            TradesTable(
-                tradeEntries = tradeEntries,
-                isFocusModeEnabled = isFocusModeEnabled,
-                onOpenDetails = onOpenDetails,
-                onOpenChart = onOpenChart,
-                onSetFocusModeEnabled = { isEnabled ->
-                    onSetFocusModeEnabled(isEnabled)
-                    if (isEnabled) filterConfig = FilterConfig()
-                },
-                onFilter = { sheetState = SideSheetState.Open },
-                onNewExecution = onNewExecution,
-            )
+            Column {
+
+                TradesOptionsBar(
+                    isFocusModeEnabled = isFocusModeEnabled,
+                    onSetFocusModeEnabled = { isEnabled ->
+                        onSetFocusModeEnabled(isEnabled)
+                        if (isEnabled) filterConfig = FilterConfig()
+                    },
+                    onFilter = { sheetState = SideSheetState.Open },
+                    onNewExecution = onNewExecution,
+                )
+
+                HorizontalDivider()
+
+                TradesTable(
+                    tradeEntries = tradeEntries,
+                    onOpenDetails = onOpenDetails,
+                    onOpenChart = onOpenChart,
+                )
+            }
         }
 
         // Errors
