@@ -52,3 +52,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "TradingCompanion"
+
+include("app")
