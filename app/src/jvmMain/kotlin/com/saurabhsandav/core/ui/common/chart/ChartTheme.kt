@@ -3,12 +3,12 @@ package com.saurabhsandav.core.ui.common.chart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.chart.options.ChartOptions
-import com.saurabhsandav.core.chart.options.ChartOptions.GridOptions
-import com.saurabhsandav.core.chart.options.ChartOptions.GridOptions.GridLineOptions
-import com.saurabhsandav.core.chart.options.ChartOptions.LayoutOptions
-import com.saurabhsandav.core.chart.options.common.Background
 import com.saurabhsandav.core.ui.theme.isDark
+import com.saurabhsandav.lightweight_charts.options.ChartOptions
+import com.saurabhsandav.lightweight_charts.options.ChartOptions.GridOptions
+import com.saurabhsandav.lightweight_charts.options.ChartOptions.GridOptions.GridLineOptions
+import com.saurabhsandav.lightweight_charts.options.ChartOptions.LayoutOptions
+import com.saurabhsandav.lightweight_charts.options.common.Background
 
 val ChartLightModeOptions = ChartOptions(
     layout = LayoutOptions(

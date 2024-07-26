@@ -1,16 +1,16 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.chart.data.Time
-import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
+import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.plugin.TradeExecutionMarkers
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
-import com.saurabhsandav.core.chart.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
-import com.saurabhsandav.core.chart.plugin.TradeMarkers.Trade as ActualTradeMarker
+import com.saurabhsandav.lightweight_charts.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
+import com.saurabhsandav.lightweight_charts.plugin.TradeMarkers.Trade as ActualTradeMarker
 
 class TradeExecutionMarker(
     private val instant: Instant,

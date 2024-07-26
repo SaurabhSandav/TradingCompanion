@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.chart.ISeriesApi
-import com.saurabhsandav.core.chart.data.CandlestickData
-import com.saurabhsandav.core.chart.options.CandlestickStyleOptions
-import com.saurabhsandav.core.chart.options.common.PriceFormat
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.data.CandlestickData
+import com.saurabhsandav.lightweight_charts.options.CandlestickStyleOptions
+import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

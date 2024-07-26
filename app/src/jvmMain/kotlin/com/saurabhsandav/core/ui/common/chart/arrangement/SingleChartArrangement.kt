@@ -1,9 +1,8 @@
 package com.saurabhsandav.core.ui.common.chart.arrangement
 
-import com.saurabhsandav.core.chart.IChartApi
-import com.saurabhsandav.core.chart.callbacks.ChartCallback
-import com.saurabhsandav.core.chart.createChart
-import com.saurabhsandav.core.chart.options.ChartOptions
+import com.saurabhsandav.lightweight_charts.IChartApi
+import com.saurabhsandav.lightweight_charts.callbacks.ChartCallback
+import com.saurabhsandav.lightweight_charts.options.ChartOptions
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -45,7 +44,7 @@ class SingleChartArrangement internal constructor() : ChartArrangement() {
         }
 
         // Create new chart
-        return createChart(
+        return com.saurabhsandav.lightweight_charts.createChart(
             container = "document.getElementById('$chartId')",
             options = options.copy(autoSize = true),
             name = chartId,

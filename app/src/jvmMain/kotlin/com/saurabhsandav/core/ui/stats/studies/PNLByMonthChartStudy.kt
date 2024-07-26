@@ -4,12 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import com.saurabhsandav.core.chart.baselineSeries
-import com.saurabhsandav.core.chart.data.LineData
-import com.saurabhsandav.core.chart.data.SingleValueData
-import com.saurabhsandav.core.chart.data.Time
-import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions
-import com.saurabhsandav.core.chart.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -21,6 +15,12 @@ import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.lightweight_charts.baselineSeries
+import com.saurabhsandav.lightweight_charts.data.LineData
+import com.saurabhsandav.lightweight_charts.data.SingleValueData
+import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
+import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map

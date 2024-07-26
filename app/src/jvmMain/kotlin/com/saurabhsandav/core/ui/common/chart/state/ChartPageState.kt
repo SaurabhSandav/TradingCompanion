@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.common.chart.state
 
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.chart.IChartApi
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.toHexString
 import com.saurabhsandav.core.ui.common.webview.WebViewState
+import com.saurabhsandav.lightweight_charts.IChartApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
