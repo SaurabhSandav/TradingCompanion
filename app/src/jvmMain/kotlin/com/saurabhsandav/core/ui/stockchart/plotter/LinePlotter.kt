@@ -1,13 +1,13 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.chart.ISeriesApi
-import com.saurabhsandav.core.chart.data.LineData
-import com.saurabhsandav.core.chart.data.SingleValueData
-import com.saurabhsandav.core.chart.options.LineStyleOptions
-import com.saurabhsandav.core.chart.options.common.LineWidth
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.data.LineData
+import com.saurabhsandav.lightweight_charts.data.SingleValueData
+import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
+import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

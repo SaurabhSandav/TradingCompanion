@@ -1,5 +1,5 @@
+
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
-    id("de.undercouch.download")
 }
 
 group = "com.saurabhsandav.apps"
@@ -66,6 +65,11 @@ kotlin {
                     "com.russhwolf.settings.ExperimentalSettingsApi",
                 ).forEach { optIn(it) }
             }
+        }
+
+        commonMain.dependencies {
+
+            implementation(projects.lightweightCharts)
         }
 
         jvmMain.dependencies {
@@ -222,14 +226,4 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
-}
-
-val downloadLWC by tasks.registering(Download::class) {
-    src("https://unpkg.com/lightweight-charts@4.1.4/dist/lightweight-charts.standalone.production.js")
-    dest("src/jvmMain/resources/charts_page")
-    overwrite(false)
-}
-
-tasks.withType<ProcessResources> {
-    dependsOn(downloadLWC)
 }

@@ -53,4 +53,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "TradingCompanion"
 
-include("app")
+include(
+    "app",
+    "lightweight-charts",
+)
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

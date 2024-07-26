@@ -1,14 +1,14 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.chart.ISeriesApi
-import com.saurabhsandav.core.chart.PriceScaleOptions
-import com.saurabhsandav.core.chart.PriceScaleOptions.PriceScaleMargins
-import com.saurabhsandav.core.chart.data.HistogramData
-import com.saurabhsandav.core.chart.data.SingleValueData
-import com.saurabhsandav.core.chart.options.HistogramStyleOptions
-import com.saurabhsandav.core.chart.options.common.PriceFormat
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.PriceScaleOptions
+import com.saurabhsandav.lightweight_charts.PriceScaleOptions.PriceScaleMargins
+import com.saurabhsandav.lightweight_charts.data.HistogramData
+import com.saurabhsandav.lightweight_charts.data.SingleValueData
+import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
+import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

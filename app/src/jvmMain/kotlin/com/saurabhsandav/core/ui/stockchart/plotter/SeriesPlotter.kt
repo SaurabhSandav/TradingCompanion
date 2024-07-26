@@ -3,12 +3,12 @@ package com.saurabhsandav.core.ui.stockchart.plotter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.saurabhsandav.core.chart.ISeriesApi
-import com.saurabhsandav.core.chart.data.SeriesData
-import com.saurabhsandav.core.chart.data.SeriesMarker
-import com.saurabhsandav.core.chart.options.SeriesOptionsCommon
 import com.saurabhsandav.core.ui.stockchart.Plotter
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.data.SeriesData
+import com.saurabhsandav.lightweight_charts.data.SeriesMarker
+import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
 
 abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
 
