@@ -1,21 +1,22 @@
 package com.saurabhsandav.lightweight_charts.data
 
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
 
-open class SingleValueData(
-    val time: Time,
-    val value: Double,
-) : SeriesData {
+@Serializable
+abstract class SingleValueData : SeriesData {
 
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        putSingleValueDataElements(this@SingleValueData)
-    }
+    abstract val time: Time
 
-    protected fun JsonObjectBuilder.putSingleValueDataElements(data: SingleValueData) = with(data) {
-        put("time", time.toJsonElement())
-        put("value", value)
+    abstract val value: Double
+
+    companion object {
+
+        operator fun invoke(
+            time: Time,
+            value: Double,
+        ): SingleValueData = object : SingleValueData() {
+            override val time: Time = time
+            override val value: Double = value
+        }
     }
 }

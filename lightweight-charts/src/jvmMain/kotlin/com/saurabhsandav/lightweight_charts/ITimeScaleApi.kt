@@ -8,8 +8,8 @@ import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.data.TimeRange
 import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
+import kotlinx.serialization.encodeToString
 
 class ITimeScaleApi internal constructor(
     private val receiver: String,
@@ -34,33 +34,31 @@ class ITimeScaleApi internal constructor(
     }
 
     suspend fun getVisibleRange(): TimeRange? {
+
         val result = executeJsWithResult("$receiver.timeScale().getVisibleRange()")
-        return TimeRange.fromJson(result)
+
+        return LwcJson.decodeFromString(result)
     }
 
     fun setVisibleRange(from: Time, to: Time) {
 
-        val rangeStr = buildJsonObject {
-            put("from", from.toJsonElement())
-            put("to", to.toJsonElement())
-        }
+        val rangeJson = LwcJson.encodeToString(TimeRange(from = from, to = to))
 
-        executeJs("$receiver.timeScale().setVisibleRange($rangeStr);")
+        executeJs("$receiver.timeScale().setVisibleRange($rangeJson);")
     }
 
     suspend fun getVisibleLogicalRange(): LogicalRange? {
+
         val result = executeJsWithResult("$receiver.timeScale().getVisibleLogicalRange()")
-        return LogicalRange.fromJson(result)
+
+        return LwcJson.decodeFromString(result)
     }
 
     fun setVisibleLogicalRange(from: Float, to: Float) {
 
-        val rangeStr = buildJsonObject {
-            put("from", from)
-            put("to", to)
-        }
+        val rangeJson = LwcJson.encodeToString(LogicalRange(from = from, to = to))
 
-        executeJs("$receiver.timeScale().setVisibleLogicalRange($rangeStr);")
+        executeJs("$receiver.timeScale().setVisibleLogicalRange($rangeJson);")
     }
 
     fun fitContent() {

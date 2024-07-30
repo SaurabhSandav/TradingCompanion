@@ -1,11 +1,12 @@
 package com.saurabhsandav.lightweight_charts.plugin
 
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.css.Color
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -38,26 +39,25 @@ class TradeExecutionMarkers(
 
     fun setExecutions(executions: List<Execution>) {
 
-        val markersJson = JsonArray(executions.map { it.toJsonElement() })
+        val markersJson = LwcJson.encodeToString(executions)
 
         callMember("executions = $markersJson")
     }
 
-    class Execution(
+    @Serializable
+    data class Execution(
         val time: Time,
         val price: Double,
-        val side: TradeExecutionSide,
-    ) : IsJsonElement {
+        val side: ExecutionSide,
+    )
 
-        override fun toJsonElement(): JsonElement = buildJsonObject {
-            put("time", time.toJsonElement())
-            put("price", price)
-            put("side", side.strValue)
-        }
-    }
+    @Serializable
+    enum class ExecutionSide {
 
-    enum class TradeExecutionSide(val strValue: String) {
-        Buy("buy"),
-        Sell("sell");
+        @SerialName("buy")
+        Buy,
+
+        @SerialName("sell")
+        Sell;
     }
 }

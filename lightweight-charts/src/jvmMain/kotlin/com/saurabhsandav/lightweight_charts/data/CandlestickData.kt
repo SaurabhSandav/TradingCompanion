@@ -1,29 +1,16 @@
 package com.saurabhsandav.lightweight_charts.data
 
-import kotlinx.css.Color
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.Serializable
 
+@Serializable
 class CandlestickData(
     val time: Time,
     val open: Double,
     val high: Double,
     val low: Double,
     val close: Double,
-    val color: Color? = null,
-    val borderColor: Color? = null,
-    val wickColor: Color? = null,
-) : SeriesData {
-
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        put("time", time.toJsonElement())
-        put("open", open)
-        put("high", high)
-        put("low", low)
-        put("close", close)
-        color?.let { put("color", it.value) }
-        borderColor?.let { put("borderColor", it.value) }
-        wickColor?.let { put("wickColor", it.value) }
-    }
-}
+    val color: SerializableColor? = null,
+    val borderColor: SerializableColor? = null,
+    val wickColor: SerializableColor? = null,
+) : SeriesData

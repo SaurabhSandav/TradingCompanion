@@ -4,6 +4,7 @@ import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import com.saurabhsandav.lightweight_charts.data.TimeRange
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
@@ -53,14 +54,14 @@ internal class CallbackDelegate(
 
             "subscribeVisibleTimeRangeChangeCallback" -> {
 
-                val range = TimeRange.fromJson(chartCallback.message)
+                val range = LwcJson.decodeFromString<TimeRange?>(chartCallback.message)
 
                 subscribeVisibleTimeRangeChangeCallbacks.forEach { it.onEvent(range) }
             }
 
             "subscribeVisibleLogicalRangeChangeCallback" -> {
 
-                val range = LogicalRange.fromJson(chartCallback.message)
+                val range = LwcJson.decodeFromString<LogicalRange?>(chartCallback.message)
 
                 subscribeVisibleLogicalRangeChangeCallbacks.forEach { it.onEvent(range) }
             }

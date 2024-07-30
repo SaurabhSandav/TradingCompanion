@@ -6,9 +6,13 @@ import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.data.SeriesMarker
 import com.saurabhsandav.lightweight_charts.options.PriceLineOptions
 import com.saurabhsandav.lightweight_charts.options.SeriesOptions
-import kotlinx.serialization.json.JsonArray
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encodeToString
 
-class ISeriesApi<T : SeriesData>(
+class ISeriesApi<D : SeriesData>(
+    private val dataSerializer: KSerializer<D>,
     private val executeJs: (String) -> Unit,
     private val executeJsWithResult: suspend (String) -> String,
     val name: String,
@@ -28,9 +32,11 @@ class ISeriesApi<T : SeriesData>(
 
     suspend fun barsInLogicalRange(range: LogicalRange): BarsInfo? {
 
-        val result = executeJsWithResult("$reference.barsInLogicalRange(${range.toJsonElement()})")
+        val rangeJson = LwcJson.encodeToString(range)
 
-        return BarsInfo.fromJson(result)
+        val result = executeJsWithResult("$reference.barsInLogicalRange(${rangeJson})")
+
+        return LwcJson.decodeFromString(result)
     }
 
     fun applyOptions(options: SeriesOptions) {
@@ -40,23 +46,23 @@ class ISeriesApi<T : SeriesData>(
         executeJs("$reference.applyOptions(${optionsJson})")
     }
 
-    fun setData(list: List<T>) {
+    fun setData(list: List<D>) {
 
-        val dataJson = JsonArray(list.map { it.toJsonElement() })
+        val dataJson = LwcJson.encodeToString(ListSerializer(dataSerializer), list)
 
         executeJs("$reference.setData($dataJson);")
     }
 
-    fun update(data: T) {
+    fun update(data: D) {
 
-        val dataJson = data.toJsonElement()
+        val dataJson = LwcJson.encodeToString(dataSerializer, data)
 
         executeJs("$reference.update($dataJson);")
     }
 
     fun setMarkers(list: List<SeriesMarker>) {
 
-        val markersJson = JsonArray(list.map { it.toJsonElement() })
+        val markersJson = LwcJson.encodeToString(list)
 
         executeJs("$reference.setMarkers($markersJson);")
     }

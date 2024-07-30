@@ -5,9 +5,12 @@ import com.saurabhsandav.lightweight_charts.callbacks.CommandCallback
 import com.saurabhsandav.lightweight_charts.callbacks.MouseEventHandler
 import com.saurabhsandav.lightweight_charts.data.*
 import com.saurabhsandav.lightweight_charts.options.*
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.encodeToString
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -56,6 +59,7 @@ class IChartApi internal constructor(
         options: BaselineStyleOptions = BaselineStyleOptions(),
         name: String = "baselineSeries",
     ): ISeriesApi<SingleValueData> = addSeries(
+        dataSerializer = SingleValueData.serializer(),
         options = options,
         funcName = "addBaselineSeries",
         name = name
@@ -65,6 +69,7 @@ class IChartApi internal constructor(
         options: CandlestickStyleOptions = CandlestickStyleOptions(),
         name: String = "candlestickSeries",
     ): ISeriesApi<CandlestickData> = addSeries(
+        dataSerializer = CandlestickData.serializer(),
         options = options,
         funcName = "addCandlestickSeries",
         name = name
@@ -74,6 +79,7 @@ class IChartApi internal constructor(
         options: HistogramStyleOptions = HistogramStyleOptions(),
         name: String = "histogramSeries",
     ): ISeriesApi<HistogramData> = addSeries(
+        dataSerializer = HistogramData.serializer(),
         options = options,
         funcName = "addHistogramSeries",
         name = name
@@ -83,6 +89,7 @@ class IChartApi internal constructor(
         options: LineStyleOptions = LineStyleOptions(),
         name: String = "lineSeries",
     ): ISeriesApi<LineData> = addSeries(
+        dataSerializer = LineData.serializer(),
         options = options,
         funcName = "addLineSeries",
         name = name
@@ -154,7 +161,10 @@ class IChartApi internal constructor(
         horizontalPosition: Time,
         seriesApi: ISeriesApi<*>,
     ) {
-        executeJs("$reference.setCrosshairPosition($price, ${horizontalPosition.toJsonElement()}, ${seriesApi.reference});")
+
+        val horizontalPositionJson = LwcJson.encodeToString(horizontalPosition)
+
+        executeJs("$reference.setCrosshairPosition($price, ${horizontalPositionJson}, ${seriesApi.reference});")
     }
 
     fun clearCrosshairPosition() {
@@ -172,13 +182,15 @@ class IChartApi internal constructor(
         callbacksDelegate.onCallback(callbackMessage)
     }
 
-    private fun <T : SeriesData> addSeries(
+    private fun <D : SeriesData> addSeries(
         options: SeriesOptions,
+        dataSerializer: KSerializer<D>,
         funcName: String,
         name: String,
-    ): ISeriesApi<T> {
+    ): ISeriesApi<D> {
 
-        val series = ISeriesApi<T>(
+        val series = ISeriesApi(
+            dataSerializer = dataSerializer,
             executeJs = ::executeJs,
             executeJsWithResult = ::executeJsWithResult,
             name = name,
