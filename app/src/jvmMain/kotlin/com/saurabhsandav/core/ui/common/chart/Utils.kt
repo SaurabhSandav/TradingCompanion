@@ -4,8 +4,8 @@ import com.saurabhsandav.lightweight_charts.IChartApi
 import com.saurabhsandav.lightweight_charts.ITimeScaleApi
 import com.saurabhsandav.lightweight_charts.callbacks.LogicalRangeChangeEventHandler
 import com.saurabhsandav.lightweight_charts.callbacks.MouseEventHandler
-import com.saurabhsandav.lightweight_charts.misc.LogicalRange
-import com.saurabhsandav.lightweight_charts.misc.MouseEventParams
+import com.saurabhsandav.lightweight_charts.data.LogicalRange
+import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

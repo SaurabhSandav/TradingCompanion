@@ -1,6 +1,6 @@
 package com.saurabhsandav.lightweight_charts.callbacks
 
-import com.saurabhsandav.lightweight_charts.misc.MouseEventParams
+import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 
 fun interface MouseEventHandler {
 

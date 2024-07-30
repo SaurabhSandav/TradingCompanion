@@ -4,9 +4,9 @@ import com.saurabhsandav.lightweight_charts.callbacks.CallbackDelegate
 import com.saurabhsandav.lightweight_charts.callbacks.LogicalRangeChangeEventHandler
 import com.saurabhsandav.lightweight_charts.callbacks.SizeChangeEventHandler
 import com.saurabhsandav.lightweight_charts.callbacks.TimeRangeChangeEventHandler
+import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.misc.LogicalRange
-import com.saurabhsandav.lightweight_charts.misc.TimeRange
+import com.saurabhsandav.lightweight_charts.data.TimeRange
 import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put

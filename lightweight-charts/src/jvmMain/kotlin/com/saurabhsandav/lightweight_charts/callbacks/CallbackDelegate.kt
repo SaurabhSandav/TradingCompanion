@@ -1,9 +1,9 @@
 package com.saurabhsandav.lightweight_charts.callbacks
 
 import com.saurabhsandav.lightweight_charts.ISeriesApi
-import com.saurabhsandav.lightweight_charts.misc.LogicalRange
-import com.saurabhsandav.lightweight_charts.misc.MouseEventParams
-import com.saurabhsandav.lightweight_charts.misc.TimeRange
+import com.saurabhsandav.lightweight_charts.data.LogicalRange
+import com.saurabhsandav.lightweight_charts.data.MouseEventParams
+import com.saurabhsandav.lightweight_charts.data.TimeRange
 import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
