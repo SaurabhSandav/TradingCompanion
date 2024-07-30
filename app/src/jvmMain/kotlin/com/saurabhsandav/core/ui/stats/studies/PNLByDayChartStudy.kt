@@ -16,7 +16,7 @@ import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.lightweight_charts.baselineSeries
-import com.saurabhsandav.lightweight_charts.data.LineData
+import com.saurabhsandav.lightweight_charts.data.BaselineData
 import com.saurabhsandav.lightweight_charts.data.SingleValueData
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
@@ -51,7 +51,7 @@ internal class PNLByDayChartStudy(
                         operation = { _, accumulator, trade -> accumulator + trade.brokerageAtExit()!!.netPNL },
                     )
                     .map { (localDate, bigDecimal) ->
-                        LineData(
+                        BaselineData.Item(
                             time = Time.BusinessDay(
                                 year = localDate.year,
                                 month = localDate.monthNumber,

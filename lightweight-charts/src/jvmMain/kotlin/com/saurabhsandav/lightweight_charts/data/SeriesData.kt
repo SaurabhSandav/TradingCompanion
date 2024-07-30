@@ -1,3 +1,8 @@
 package com.saurabhsandav.lightweight_charts.data
 
-sealed interface SeriesData
+interface SeriesData
+
+interface WhitespaceData : SeriesData {
+
+    val time: Time
+}

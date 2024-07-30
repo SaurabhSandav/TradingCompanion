@@ -42,7 +42,7 @@ data class MouseEventParams(
                 val data = it.jsonArray[1].jsonObject
 
                 val value = when {
-                    data.containsKey("open") -> CandlestickData(
+                    data.containsKey("open") -> CandlestickData.Item(
                         time = timeFromCallbackJson(data["time"])!!,
                         open = data["open"]!!.jsonPrimitive.double,
                         high = data["high"]!!.jsonPrimitive.double,
