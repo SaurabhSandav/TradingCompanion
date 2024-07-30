@@ -1,4 +1,4 @@
-package com.saurabhsandav.lightweight_charts.misc
+package com.saurabhsandav.lightweight_charts.data
 
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import kotlinx.serialization.json.*

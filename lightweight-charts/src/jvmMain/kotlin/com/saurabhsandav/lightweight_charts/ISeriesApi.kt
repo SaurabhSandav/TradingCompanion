@@ -1,9 +1,9 @@
 package com.saurabhsandav.lightweight_charts
 
+import com.saurabhsandav.lightweight_charts.data.BarsInfo
+import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.data.SeriesMarker
-import com.saurabhsandav.lightweight_charts.misc.BarsInfo
-import com.saurabhsandav.lightweight_charts.misc.LogicalRange
 import com.saurabhsandav.lightweight_charts.options.PriceLineOptions
 import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import kotlinx.serialization.json.JsonArray

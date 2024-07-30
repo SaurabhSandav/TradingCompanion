@@ -1,6 +1,6 @@
 package com.saurabhsandav.lightweight_charts.callbacks
 
-import com.saurabhsandav.lightweight_charts.misc.TimeRange
+import com.saurabhsandav.lightweight_charts.data.TimeRange
 
 fun interface TimeRangeChangeEventHandler {
 

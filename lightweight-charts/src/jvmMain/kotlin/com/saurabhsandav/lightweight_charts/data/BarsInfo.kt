@@ -1,7 +1,6 @@
-package com.saurabhsandav.lightweight_charts.misc
+package com.saurabhsandav.lightweight_charts.data
 
 import com.saurabhsandav.lightweight_charts.callbacks.timeFromCallbackJson
-import com.saurabhsandav.lightweight_charts.data.Time
 import kotlinx.serialization.json.*
 
 data class BarsInfo(

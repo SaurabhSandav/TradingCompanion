@@ -1,11 +1,7 @@
-package com.saurabhsandav.lightweight_charts.misc
+package com.saurabhsandav.lightweight_charts.data
 
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.callbacks.timeFromCallbackJson
-import com.saurabhsandav.lightweight_charts.data.CandlestickData
-import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.data.SingleValueData
-import com.saurabhsandav.lightweight_charts.data.Time
 import kotlinx.serialization.json.*
 
 data class MouseEventParams(
