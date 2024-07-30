@@ -1,8 +1,7 @@
 package com.saurabhsandav.lightweight_charts.options.common
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.IsJsonElement
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -15,7 +14,7 @@ sealed class Background : IsJsonElement {
 
         override fun toJsonElement(): JsonElement = buildJsonObject {
             put("type", "ColorType.Solid")
-            put("color", color.toHexString())
+            put("color", color.value)
         }
     }
 
@@ -26,8 +25,8 @@ sealed class Background : IsJsonElement {
 
         override fun toJsonElement() = buildJsonObject {
             put("type", "ColorType.VerticalGradient")
-            topColor?.let { put("topColor", it.toHexString()) }
-            bottomColor?.let { put("bottomColor", it.toHexString()) }
+            topColor?.let { put("topColor", it.value) }
+            bottomColor?.let { put("bottomColor", it.value) }
         }
     }
 }

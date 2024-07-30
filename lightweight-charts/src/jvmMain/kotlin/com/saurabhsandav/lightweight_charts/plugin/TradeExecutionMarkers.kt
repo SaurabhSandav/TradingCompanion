@@ -1,10 +1,9 @@
 package com.saurabhsandav.lightweight_charts.plugin
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
@@ -28,10 +27,10 @@ class TradeExecutionMarkers(
         _callMember = callMember
 
         val optionsJson = buildJsonObject {
-            buyFillColor?.let { put("buyFillColor", it.toHexString()) }
-            buyTextColor?.let { put("buyTextColor", it.toHexString()) }
-            sellFillColor?.let { put("sellFillColor", it.toHexString()) }
-            sellTextColor?.let { put("sellTextColor", it.toHexString()) }
+            buyFillColor?.let { put("buyFillColor", it.value) }
+            buyTextColor?.let { put("buyTextColor", it.value) }
+            sellFillColor?.let { put("sellFillColor", it.value) }
+            sellTextColor?.let { put("sellTextColor", it.value) }
         }
 
         return "new TradeExecutionMarkers($optionsJson)"

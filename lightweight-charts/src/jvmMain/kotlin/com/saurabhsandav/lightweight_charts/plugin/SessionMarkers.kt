@@ -1,9 +1,8 @@
 package com.saurabhsandav.lightweight_charts.plugin
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -23,7 +22,7 @@ class SessionMarkers(
         _callMember = callMember
 
         val optionsJson = buildJsonObject {
-            lineColor?.let { put("lineColor", it.toHexString()) }
+            lineColor?.let { put("lineColor", it.value) }
         }
 
         return "new SessionMarkers($optionsJson)"
