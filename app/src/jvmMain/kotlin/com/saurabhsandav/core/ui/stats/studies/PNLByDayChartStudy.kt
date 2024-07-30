@@ -57,7 +57,7 @@ internal class PNLByDayChartStudy(
                                 month = localDate.monthNumber,
                                 day = localDate.dayOfMonth,
                             ),
-                            value = bigDecimal,
+                            value = bigDecimal.toDouble(),
                         )
                     }
             }

@@ -7,10 +7,10 @@ import kotlinx.serialization.json.put
 
 class CandlestickData(
     val time: Time,
-    val open: Number,
-    val high: Number,
-    val low: Number,
-    val close: Number,
+    val open: Double,
+    val high: Double,
+    val low: Double,
+    val close: Double,
     val color: Color? = null,
     val borderColor: Color? = null,
     val wickColor: Color? = null,

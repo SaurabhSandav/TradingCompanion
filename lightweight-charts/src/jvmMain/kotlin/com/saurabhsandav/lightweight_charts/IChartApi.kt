@@ -150,7 +150,7 @@ class IChartApi internal constructor(
     }
 
     fun setCrosshairPosition(
-        price: Number,
+        price: Double,
         horizontalPosition: Time,
         seriesApi: ISeriesApi<*>,
     ) {

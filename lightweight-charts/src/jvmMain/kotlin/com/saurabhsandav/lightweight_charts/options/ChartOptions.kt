@@ -11,8 +11,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 data class ChartOptions(
-    val width: Number? = null,
-    val height: Number? = null,
+    val width: Double? = null,
+    val height: Double? = null,
     val autoSize: Boolean? = null,
     val layout: LayoutOptions? = null,
     val leftPriceScale: PriceScaleOptions? = null,

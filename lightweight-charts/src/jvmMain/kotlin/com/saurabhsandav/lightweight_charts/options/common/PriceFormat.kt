@@ -8,12 +8,12 @@ import kotlinx.serialization.json.put
 
 sealed class PriceFormat : IsJsonElement {
 
-    abstract val minMove: Number?
+    abstract val minMove: Double?
 
     data class BuiltIn(
         val type: Type? = null,
-        val precision: Number? = null,
-        override val minMove: Number? = null,
+        val precision: Double? = null,
+        override val minMove: Double? = null,
     ) : PriceFormat() {
 
         override fun toJsonElement(): JsonObject = buildJsonObject {
@@ -24,7 +24,7 @@ sealed class PriceFormat : IsJsonElement {
     }
 
     data class Custom(
-        override val minMove: Number? = null,
+        override val minMove: Double? = null,
     ) : PriceFormat() {
 
         override fun toJsonElement(): JsonObject = buildJsonObject {

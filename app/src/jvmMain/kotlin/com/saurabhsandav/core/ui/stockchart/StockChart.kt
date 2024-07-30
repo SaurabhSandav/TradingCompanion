@@ -269,24 +269,24 @@ class StockChart(
 
             CandlestickData(
                 time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                open = candle.open,
-                high = candle.high,
-                low = candle.low,
-                close = candle.close,
+                open = candle.open.toDouble(),
+                high = candle.high.toDouble(),
+                low = candle.low.toDouble(),
+                close = candle.close.toDouble(),
             )
         })
 
         ema9Plotter.setData(candleSeries.indices.map { index ->
             LineData(
                 time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN),
+                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
             )
         })
 
         ema21Plotter.setData(candleSeries.indices.map { index ->
             LineData(
                 time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN),
+                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
             )
         })
 
@@ -298,7 +298,7 @@ class StockChart(
 
                 HistogramData(
                     time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                    value = candle.volume,
+                    value = candle.volume.toDouble(),
                     color = when {
                         candle.isLong -> rgb(0, 150, 136)
                         else -> rgb(255, 82, 82)
@@ -314,7 +314,7 @@ class StockChart(
             vwapPlotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
+                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             })
         } else vwapPlotter.setData(emptyList())
@@ -326,7 +326,7 @@ class StockChart(
             sma50Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             })
         } else sma50Plotter.setData(emptyList())
@@ -338,7 +338,7 @@ class StockChart(
             sma100Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             })
         } else sma100Plotter.setData(emptyList())
@@ -350,7 +350,7 @@ class StockChart(
             sma200Plotter.setData(candleSeries.indices.map { index ->
                 LineData(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             })
         } else sma200Plotter.setData(emptyList())
@@ -367,24 +367,24 @@ class StockChart(
         candlestickPlotter.update(
             CandlestickData(
                 time = time,
-                open = candle.open,
-                high = candle.high,
-                low = candle.low,
-                close = candle.close,
+                open = candle.open.toDouble(),
+                high = candle.high.toDouble(),
+                low = candle.low.toDouble(),
+                close = candle.close.toDouble(),
             )
         )
 
         ema9Plotter.update(
             LineData(
                 time = time,
-                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN),
+                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
             )
         )
 
         ema21Plotter.update(
             LineData(
                 time = time,
-                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN),
+                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
             )
         )
 
@@ -393,7 +393,7 @@ class StockChart(
             volumePlotter.update(
                 HistogramData(
                     time = time,
-                    value = candle.volume,
+                    value = candle.volume.toDouble(),
                     color = when {
                         candle.isLong -> rgb(0, 150, 136)
                         else -> rgb(255, 82, 82)
@@ -409,7 +409,7 @@ class StockChart(
             vwapPlotter.update(
                 LineData(
                     time = time,
-                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN),
+                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             )
         }
@@ -421,7 +421,7 @@ class StockChart(
             sma50Plotter.update(
                 LineData(
                     time = time,
-                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             )
         }
@@ -433,7 +433,7 @@ class StockChart(
             sma100Plotter.update(
                 LineData(
                     time = time,
-                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             )
         }
@@ -445,7 +445,7 @@ class StockChart(
             sma200Plotter.update(
                 LineData(
                     time = time,
-                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN),
+                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
                 )
             )
         }

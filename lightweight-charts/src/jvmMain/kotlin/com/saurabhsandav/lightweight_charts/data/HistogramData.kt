@@ -7,7 +7,7 @@ import kotlinx.serialization.json.put
 
 class HistogramData(
     time: Time,
-    value: Number,
+    value: Double,
     val color: Color? = null,
 ) : SingleValueData(time, value) {
 

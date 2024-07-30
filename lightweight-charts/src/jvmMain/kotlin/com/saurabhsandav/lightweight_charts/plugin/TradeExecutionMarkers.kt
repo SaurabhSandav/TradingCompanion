@@ -45,7 +45,7 @@ class TradeExecutionMarkers(
 
     class Execution(
         val time: Time,
-        val price: Number,
+        val price: Double,
         val side: TradeExecutionSide,
     ) : IsJsonElement {
 

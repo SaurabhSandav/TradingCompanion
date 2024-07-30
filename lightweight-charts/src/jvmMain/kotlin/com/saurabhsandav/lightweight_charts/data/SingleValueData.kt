@@ -7,7 +7,7 @@ import kotlinx.serialization.json.put
 
 open class SingleValueData(
     val time: Time,
-    val value: Number,
+    val value: Double,
 ) : SeriesData {
 
     override fun toJsonElement(): JsonElement = buildJsonObject {

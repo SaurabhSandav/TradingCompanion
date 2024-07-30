@@ -34,8 +34,8 @@ data class PriceScaleOptions(
     }
 
     data class PriceScaleMargins(
-        val top: Number? = null,
-        val bottom: Number? = null,
+        val top: Double? = null,
+        val bottom: Double? = null,
     ) : IsJsonElement {
 
         override fun toJsonElement(): JsonElement = buildJsonObject {

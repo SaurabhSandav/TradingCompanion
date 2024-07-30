@@ -11,7 +11,7 @@ import kotlinx.serialization.json.put
 
 data class HistogramStyleOptions(
     val color: String? = null,
-    val base: Number? = null,
+    val base: Double? = null,
 
     override val lastValueVisible: Boolean? = null,
     override val title: String? = null,

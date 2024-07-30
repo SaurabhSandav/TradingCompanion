@@ -10,7 +10,7 @@ import kotlinx.serialization.json.put
 
 data class PriceLineOptions(
     val id: String? = null,
-    val price: Number? = null,
+    val price: Double? = null,
     val color: Color? = null,
     val lineWidth: LineWidth? = null,
     val lineStyle: LineStyle? = null,

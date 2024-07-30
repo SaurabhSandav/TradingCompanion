@@ -274,7 +274,7 @@ class StockChartsState(
 
                             // Set crosshair without price component
                             chart.actualChart.setCrosshairPosition(
-                                price = 0,
+                                price = 0.0,
                                 horizontalPosition = mouseEventParams.time ?: return@forEach,
                                 seriesApi = chart.candlestickPlotter.series,
                             )
