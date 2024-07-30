@@ -13,7 +13,7 @@ data class SeriesMarker(
     val color: Color,
     val id: String? = null,
     val text: String? = null,
-    val size: Number? = null,
+    val size: Double? = null,
 ) : IsJsonElement {
 
     override fun toJsonElement(): JsonElement = buildJsonObject {

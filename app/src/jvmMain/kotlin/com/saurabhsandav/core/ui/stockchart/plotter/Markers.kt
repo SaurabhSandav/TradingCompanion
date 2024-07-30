@@ -20,7 +20,7 @@ class TradeExecutionMarker(
 
     fun toActualMarker(candleSeries: CandleSeries) = ActualTradeExecutionMarker(
         time = Time.UTCTimestamp(instant.markerTime(candleSeries).offsetTimeForChart()),
-        price = price,
+        price = price.toDouble(),
         side = when (side) {
             TradeExecutionSide.Buy -> TradeExecutionMarkers.TradeExecutionSide.Buy
             TradeExecutionSide.Sell -> TradeExecutionMarkers.TradeExecutionSide.Sell
@@ -40,11 +40,11 @@ class TradeMarker(
     fun toActualMarker(candleSeries: CandleSeries): ActualTradeMarker {
         return ActualTradeMarker(
             entryTime = Time.UTCTimestamp(entryInstant.markerTime(candleSeries).offsetTimeForChart()),
-            entryPrice = entryPrice,
+            entryPrice = entryPrice.toDouble(),
             exitTime = Time.UTCTimestamp(exitInstant.markerTime(candleSeries).offsetTimeForChart()),
-            exitPrice = exitPrice,
-            stopPrice = stopPrice,
-            targetPrice = targetPrice,
+            exitPrice = exitPrice.toDouble(),
+            stopPrice = stopPrice.toDouble(),
+            targetPrice = targetPrice.toDouble(),
         )
     }
 }

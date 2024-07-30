@@ -37,7 +37,7 @@ class VolumePlotter(
             PriceScaleOptions(
                 scaleMargins = PriceScaleMargins(
                     top = 0.8,
-                    bottom = 0,
+                    bottom = 0.0,
                 )
             )
         )

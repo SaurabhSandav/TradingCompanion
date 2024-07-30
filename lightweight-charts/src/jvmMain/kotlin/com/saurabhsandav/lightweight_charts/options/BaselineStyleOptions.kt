@@ -19,12 +19,12 @@ data class BaselineStyleOptions(
     val lineType: LineType? = null,
     val lineVisible: Boolean? = null,
     val pointMarkersVisible: Boolean? = null,
-    val pointMarkersRadius: Number? = null,
+    val pointMarkersRadius: Double? = null,
     val crosshairMarkerVisible: Boolean? = null,
-    val crosshairMarkerRadius: Number? = null,
+    val crosshairMarkerRadius: Double? = null,
     val crosshairMarkerBorderColor: String? = null,
     val crosshairMarkerBackgroundColor: String? = null,
-    val crosshairMarkerBorderWidth: Number? = null,
+    val crosshairMarkerBorderWidth: Double? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
 
     override val lastValueVisible: Boolean? = null,
@@ -70,7 +70,7 @@ data class BaselineStyleOptions(
 
     data class BaseValuePrice(
         val type: String,
-        val price: Number,
+        val price: Double,
     ) : IsJsonElement {
 
         override fun toJsonElement(): JsonObject = buildJsonObject {

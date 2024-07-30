@@ -53,11 +53,11 @@ class TradeMarkers(
 
     class Trade(
         val entryTime: Time,
-        val entryPrice: Number,
+        val entryPrice: Double,
         val exitTime: Time,
-        val exitPrice: Number,
-        val stopPrice: Number,
-        val targetPrice: Number,
+        val exitPrice: Double,
+        val stopPrice: Double,
+        val targetPrice: Double,
     ) : IsJsonElement {
 
         override fun toJsonElement(): JsonElement = buildJsonObject {
