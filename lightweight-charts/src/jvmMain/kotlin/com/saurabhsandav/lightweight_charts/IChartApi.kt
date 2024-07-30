@@ -58,8 +58,8 @@ class IChartApi internal constructor(
     fun addBaselineSeries(
         options: BaselineStyleOptions = BaselineStyleOptions(),
         name: String = "baselineSeries",
-    ): ISeriesApi<SingleValueData> = addSeries(
-        dataSerializer = SingleValueData.serializer(),
+    ): ISeriesApi<BaselineData> = addSeries(
+        dataSerializer = BaselineData.serializer(),
         options = options,
         funcName = "addBaselineSeries",
         name = name

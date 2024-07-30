@@ -33,7 +33,7 @@ class CandlestickPlotter(
 
     override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
         val series = series
-        val candlestickSeriesPrices = params.seriesData[series] as? CandlestickData?
+        val candlestickSeriesPrices = params.seriesData[series] as? CandlestickData.Item?
         val open = candlestickSeriesPrices?.open?.toString().orEmpty()
         val high = candlestickSeriesPrices?.high?.toString().orEmpty()
         val low = candlestickSeriesPrices?.low?.toString().orEmpty()

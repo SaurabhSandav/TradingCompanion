@@ -3,9 +3,7 @@ package com.saurabhsandav.lightweight_charts.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-abstract class SingleValueData : SeriesData {
-
-    abstract val time: Time
+abstract class SingleValueData : WhitespaceData {
 
     abstract val value: Double
 
