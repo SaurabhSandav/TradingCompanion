@@ -32,6 +32,7 @@ kotlin {
                     "kotlin.ExperimentalStdlibApi",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "kotlinx.coroutines.FlowPreview",
+                    "kotlinx.serialization.ExperimentalSerializationApi",
                 ).forEach { optIn(it) }
             }
         }

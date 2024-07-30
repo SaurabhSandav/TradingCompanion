@@ -3,8 +3,10 @@ package com.saurabhsandav.lightweight_charts.plugin
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.css.Color
-import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -46,29 +48,20 @@ class TradeMarkers(
 
     fun setTrades(trades: List<Trade>) {
 
-        val tradesJson = JsonArray(trades.map { it.toJsonElement() })
+        val tradesJson = LwcJson.encodeToString(trades)
 
         callMember("trades = $tradesJson")
     }
 
-    class Trade(
+    @Serializable
+    data class Trade(
         val entryTime: Time,
         val entryPrice: Double,
         val exitTime: Time,
         val exitPrice: Double,
         val stopPrice: Double,
         val targetPrice: Double,
-    ) : IsJsonElement {
-
-        override fun toJsonElement(): JsonElement = buildJsonObject {
-            put("entryTime", entryTime.toJsonElement())
-            put("entryPrice", entryPrice)
-            put("exitTime", exitTime.toJsonElement())
-            put("exitPrice", exitPrice)
-            put("stopPrice", stopPrice)
-            put("targetPrice", targetPrice)
-        }
-    }
+    )
 
     data class LabelOptions(
         val labelColor: Color,

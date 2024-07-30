@@ -1,41 +1,45 @@
 package com.saurabhsandav.lightweight_charts.data
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
-import kotlinx.css.Color
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class SeriesMarker(
     val time: Time,
     val position: SeriesMarkerPosition,
     val shape: SeriesMarkerShape,
-    val color: Color,
+    val color: SerializableColor,
     val id: String? = null,
     val text: String? = null,
     val size: Double? = null,
-) : IsJsonElement {
+)
 
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        put("time", time.toJsonElement())
-        put("position", position.strValue)
-        put("shape", shape.strValue)
-        put("color", color.value)
-        id?.let { put("id", it) }
-        text?.let { put("text", it) }
-        size?.let { put("size", it) }
-    }
+@Serializable
+enum class SeriesMarkerPosition {
+
+    @SerialName("aboveBar")
+    AboveBar,
+
+    @SerialName("belowBar")
+    BelowBar,
+
+    @SerialName("inBar")
+    InBar;
 }
 
-enum class SeriesMarkerPosition(val strValue: String) {
-    AboveBar("aboveBar"),
-    BelowBar("belowBar"),
-    InBar("inBar");
-}
+@Serializable
+enum class SeriesMarkerShape {
 
-enum class SeriesMarkerShape(val strValue: String) {
-    Circle("circle"),
-    Square("square"),
-    ArrowUp("arrowUp"),
-    ArrowDown("arrowDown");
+    @SerialName("circle")
+    Circle,
+
+    @SerialName("square")
+    Square,
+
+    @SerialName("arrowUp")
+    ArrowUp,
+
+    @SerialName("arrowDown")
+    ArrowDown;
 }

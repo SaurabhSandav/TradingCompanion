@@ -11,7 +11,7 @@ internal fun timeFromCallbackJson(time: JsonElement?): Time? = when (time) {
     )
 
     is JsonPrimitive -> when {
-        time.isString -> Time.String(time.content)
+        time.isString -> Time.ISOString(time.content)
         else -> Time.UTCTimestamp(time.long)
     }
 

@@ -22,8 +22,8 @@ class TradeExecutionMarker(
         time = Time.UTCTimestamp(instant.markerTime(candleSeries).offsetTimeForChart()),
         price = price.toDouble(),
         side = when (side) {
-            TradeExecutionSide.Buy -> TradeExecutionMarkers.TradeExecutionSide.Buy
-            TradeExecutionSide.Sell -> TradeExecutionMarkers.TradeExecutionSide.Sell
+            TradeExecutionSide.Buy -> TradeExecutionMarkers.ExecutionSide.Buy
+            TradeExecutionSide.Sell -> TradeExecutionMarkers.ExecutionSide.Sell
         },
     )
 }

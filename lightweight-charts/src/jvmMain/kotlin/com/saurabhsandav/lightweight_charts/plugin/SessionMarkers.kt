@@ -2,8 +2,9 @@ package com.saurabhsandav.lightweight_charts.plugin
 
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.css.Color
-import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -30,7 +31,7 @@ class SessionMarkers(
 
     fun setTimes(times: List<Time>) {
 
-        val timesJson = JsonArray(times.map { it.toJsonElement() })
+        val timesJson = LwcJson.encodeToString(times)
 
         callMember("times = $timesJson")
     }
