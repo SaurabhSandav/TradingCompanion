@@ -1,10 +1,9 @@
 package com.saurabhsandav.lightweight_charts.plugin
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
@@ -33,12 +32,12 @@ class TradeMarkers(
 
         val optionsJson = buildJsonObject {
             entryLabelOptions?.let { put("entryLabelOptions", it.toJsonElement()) }
-            stopFillColor?.let { put("stopFillColor", it.toHexString()) }
+            stopFillColor?.let { put("stopFillColor", it.value) }
             stopLabelOptions?.let { put("stopLabelOptions", it.toJsonElement()) }
-            targetFillColor?.let { put("targetFillColor", it.toHexString()) }
+            targetFillColor?.let { put("targetFillColor", it.value) }
             targetLabelOptions?.let { put("targetLabelOptions", it.toJsonElement()) }
-            exitArrowColor?.let { put("exitArrowColor", it.toHexString()) }
-            separatorColor?.let { put("separatorColor", it.toHexString()) }
+            exitArrowColor?.let { put("exitArrowColor", it.value) }
+            separatorColor?.let { put("separatorColor", it.value) }
             showLabels?.let { put("showLabels", it) }
         }
 
@@ -77,8 +76,8 @@ class TradeMarkers(
     ) : IsJsonElement {
 
         override fun toJsonElement(): JsonElement = buildJsonObject {
-            put("labelColor", labelColor.toHexString())
-            put("labelTextColor", labelTextColor.toHexString())
+            put("labelColor", labelColor.value)
+            put("labelTextColor", labelTextColor.value)
         }
     }
 }

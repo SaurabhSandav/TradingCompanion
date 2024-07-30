@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
@@ -33,6 +32,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.css.Color
+import kotlinx.css.rgb
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.math.absoluteValue
@@ -55,12 +56,12 @@ class StockChart(
 
     internal val candlestickPlotter = CandlestickPlotter("candles")
     private val volumePlotter = VolumePlotter("volume")
-    private val vwapPlotter = LinePlotter("vwap", "VWAP", Color(0xFFA500))
-    private val ema9Plotter = LinePlotter("ema9", "EMA (9)", Color(0x2962FF))
-    private val ema21Plotter = LinePlotter("ema21", "EMA (21)", Color(0xF7525F))
-    private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color(0x0AB210))
-    private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color(0xB05F10))
-    private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color(0xB00C10))
+    private val vwapPlotter = LinePlotter("vwap", "VWAP", Color("#FFA500"))
+    private val ema9Plotter = LinePlotter("ema9", "EMA (9)", Color("#2962FF"))
+    private val ema21Plotter = LinePlotter("ema21", "EMA (21)", Color("#F7525F"))
+    private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color("#0AB210"))
+    private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color("#B05F10"))
+    private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color("#B00C10"))
     private val sessionMarkers = SessionMarkers()
     private val tradeExecutionMarkers = TradeExecutionMarkers()
     private val tradeMarkers = TradeMarkers()
@@ -299,8 +300,8 @@ class StockChart(
                     time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
                     value = candle.volume,
                     color = when {
-                        candle.isLong -> Color(0, 150, 136)
-                        else -> Color(255, 82, 82)
+                        candle.isLong -> rgb(0, 150, 136)
+                        else -> rgb(255, 82, 82)
                     },
                 )
             })
@@ -394,8 +395,8 @@ class StockChart(
                     time = time,
                     value = candle.volume,
                     color = when {
-                        candle.isLong -> Color(0, 150, 136)
-                        else -> Color(255, 82, 82)
+                        candle.isLong -> rgb(0, 150, 136)
+                        else -> rgb(255, 82, 82)
                     },
                 )
             )

@@ -1,7 +1,6 @@
 package com.saurabhsandav.lightweight_charts.data
 
-import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -16,6 +15,6 @@ class HistogramData(
 
         putSingleValueDataElements(this@HistogramData)
 
-        color?.let { put("color", it.toHexString()) }
+        color?.let { put("color", it.value) }
     }
 }

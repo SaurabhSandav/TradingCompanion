@@ -1,12 +1,11 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions
 import com.saurabhsandav.lightweight_charts.options.common.Background
 import com.saurabhsandav.lightweight_charts.options.common.LineStyle
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -42,7 +41,7 @@ data class ChartOptions(
 
         override fun toJsonElement() = buildJsonObject {
             background?.let { put("background", it.toJsonElement()) }
-            textColor?.let { put("textColor", it.toHexString()) }
+            textColor?.let { put("textColor", it.value) }
         }
     }
 
@@ -77,12 +76,12 @@ data class ChartOptions(
 
             override fun toJsonElement() = buildJsonObject {
 
-                color?.let { put("color", it.toHexString()) }
+                color?.let { put("color", it.value) }
                 style?.let { put("style", it.toJsonElement()) }
                 width?.let { put("width", it.toJsonElement()) }
                 visible?.let { put("visible", it) }
                 labelVisible?.let { put("labelVisible", it) }
-                labelBackgroundColor?.let { put("labelBackgroundColor", it.toHexString()) }
+                labelBackgroundColor?.let { put("labelBackgroundColor", it.value) }
             }
         }
     }
@@ -104,7 +103,7 @@ data class ChartOptions(
         ) : IsJsonElement {
 
             override fun toJsonElement() = buildJsonObject {
-                color?.let { put("color", it.toHexString()) }
+                color?.let { put("color", it.value) }
                 style?.let { put("style", it.toJsonElement()) }
                 visible?.let { put("visible", it) }
             }

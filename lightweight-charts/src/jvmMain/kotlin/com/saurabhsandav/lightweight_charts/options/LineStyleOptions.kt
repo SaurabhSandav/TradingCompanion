@@ -1,9 +1,8 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.*
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -41,7 +40,7 @@ data class LineStyleOptions(
 
     override fun toJsonElement(): JsonObject = buildJsonObject {
 
-        color?.let { put("color", it.toHexString()) }
+        color?.let { put("color", it.value) }
         lineStyle?.let { put("lineStyle", it.toJsonElement()) }
         lineWidth?.let { put("lineWidth", it.toJsonElement()) }
         lineType?.let { put("lineType", it.toJsonElement()) }
@@ -50,8 +49,8 @@ data class LineStyleOptions(
         pointMarkersRadius?.let { put("pointMarkersRadius", it) }
         crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
         crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
-        crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it.toHexString()) }
-        crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it.toHexString()) }
+        crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it.value) }
+        crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it.value) }
         crosshairMarkerBorderWidth?.let { put("crosshairMarkerBorderWidth", it) }
         lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
 

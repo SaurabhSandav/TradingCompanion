@@ -1,8 +1,7 @@
 package com.saurabhsandav.lightweight_charts.data
 
-import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.lightweight_charts.IsJsonElement
-import com.saurabhsandav.lightweight_charts.toHexString
+import kotlinx.css.Color
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -21,7 +20,7 @@ data class SeriesMarker(
         put("time", time.toJsonElement())
         put("position", position.strValue)
         put("shape", shape.strValue)
-        put("color", color.toHexString())
+        put("color", color.value)
         id?.let { put("id", it) }
         text?.let { put("text", it) }
         size?.let { put("size", it) }
