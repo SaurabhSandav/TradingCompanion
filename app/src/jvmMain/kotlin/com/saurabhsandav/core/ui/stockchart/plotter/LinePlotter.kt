@@ -4,7 +4,6 @@ import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.LineData
-import com.saurabhsandav.lightweight_charts.data.SingleValueData
 import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +34,13 @@ class LinePlotter(
     }
 
     override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
-        val value = (params.seriesData[series] as? SingleValueData?)?.value?.toString().orEmpty()
+
+        val value = series.getMouseEventDataFrom(params.seriesData)
+            ?.let { it as? LineData.Item }
+            ?.value
+            ?.toString()
+            .orEmpty()
+
         "$legendLabel $value"
     }
 }

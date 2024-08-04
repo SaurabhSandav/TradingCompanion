@@ -1,13 +1,17 @@
 package com.saurabhsandav.lightweight_charts.data
 
 import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 
-@Serializable
+@Serializable(with = CandlestickDataSerializer::class)
 sealed interface CandlestickData : WhitespaceData {
 
     @Serializable
-    class Item(
+    data class Item(
         override val time: Time,
         val open: Double,
         val high: Double,
@@ -19,7 +23,20 @@ sealed interface CandlestickData : WhitespaceData {
     ) : CandlestickData
 
     @Serializable
-    class WhiteSpace(
+    data class WhiteSpace(
         override val time: Time,
     ) : CandlestickData
+}
+
+private object CandlestickDataSerializer : JsonContentPolymorphicSerializer<CandlestickData>(CandlestickData::class) {
+
+    override fun selectDeserializer(element: JsonElement): KSerializer<out CandlestickData> {
+
+        val isItem = (element as? JsonObject)?.containsKey("open") == true
+
+        return when {
+            isItem -> CandlestickData.Item.serializer()
+            else -> CandlestickData.WhiteSpace.serializer()
+        }
+    }
 }

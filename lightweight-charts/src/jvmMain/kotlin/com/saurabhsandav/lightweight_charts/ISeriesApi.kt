@@ -10,6 +10,7 @@ import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonElement
 
 class ISeriesApi<D : SeriesData>(
     private val dataSerializer: KSerializer<D>,
@@ -109,5 +110,10 @@ class ISeriesApi<D : SeriesData>(
         executeJs("$reference.detachPrimitive($primitivesMapReference.get($id));")
 
         executeJs("$primitivesMapReference.delete($id);")
+    }
+
+    fun getMouseEventDataFrom(seriesData: Map<String, JsonElement>): D? {
+        val json = seriesData[name] ?: return null
+        return LwcJson.decodeFromJsonElement(dataSerializer, json)
     }
 }

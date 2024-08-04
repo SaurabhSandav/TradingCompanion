@@ -32,12 +32,21 @@ class CandlestickPlotter(
     }
 
     override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
-        val series = series
-        val candlestickSeriesPrices = params.seriesData[series] as? CandlestickData.Item?
-        val open = candlestickSeriesPrices?.open?.toString().orEmpty()
-        val high = candlestickSeriesPrices?.high?.toString().orEmpty()
-        val low = candlestickSeriesPrices?.low?.toString().orEmpty()
-        val close = candlestickSeriesPrices?.close?.toString().orEmpty()
-        "$legendLabel O $open H $high L $low C $close"
+
+        val candlestickData = series
+            .getMouseEventDataFrom(params.seriesData)
+            ?.let { it as? CandlestickData.Item }
+
+        buildString {
+            append(legendLabel)
+            append(" O ")
+            candlestickData?.let { append(it.open.toString()) }
+            append(" H ")
+            candlestickData?.let { append(it.high.toString()) }
+            append(" L ")
+            candlestickData?.let { append(it.low.toString()) }
+            append(" C ")
+            candlestickData?.let { append(it.close.toString()) }
+        }
     }
 }

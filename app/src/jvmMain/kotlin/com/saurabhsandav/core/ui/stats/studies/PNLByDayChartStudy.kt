@@ -17,7 +17,6 @@ import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.lightweight_charts.baselineSeries
 import com.saurabhsandav.lightweight_charts.data.BaselineData
-import com.saurabhsandav.lightweight_charts.data.SingleValueData
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
@@ -92,7 +91,13 @@ internal class PNLByDayChartStudy(
 
             // Update Legend
             chart.crosshairMove().onEach { params ->
-                val value = (params.seriesData[baselineSeries] as? SingleValueData?)?.value?.toString().orEmpty()
+
+                val value = baselineSeries.getMouseEventDataFrom(params.seriesData)
+                    ?.let { it as? BaselineData.Item }
+                    ?.value
+                    ?.toString()
+                    .orEmpty()
+
                 arrangement.setLegend(listOf("PNL $value"))
             }.launchIn(this)
 

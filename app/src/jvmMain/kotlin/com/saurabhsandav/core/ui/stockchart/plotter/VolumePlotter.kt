@@ -6,7 +6,6 @@ import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions.PriceScaleMargins
 import com.saurabhsandav.lightweight_charts.data.HistogramData
-import com.saurabhsandav.lightweight_charts.data.SingleValueData
 import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +45,13 @@ class VolumePlotter(
     }
 
     override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
-        val volume = (params.seriesData[series] as? SingleValueData?)?.value?.toString().orEmpty()
+
+        val volume = series.getMouseEventDataFrom(params.seriesData)
+            ?.let { it as? HistogramData.Item }
+            ?.value
+            ?.toString()
+            .orEmpty()
+
         "$legendLabel $volume"
     }
 }

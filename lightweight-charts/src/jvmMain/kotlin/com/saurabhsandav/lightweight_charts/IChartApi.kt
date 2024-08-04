@@ -28,7 +28,7 @@ class IChartApi internal constructor(
     private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
 
     private val seriesList = mutableListOf<ISeriesApi<*>>()
-    private val callbacksDelegate = CallbackDelegate(name, seriesList)
+    private val callbacksDelegate = CallbackDelegate(name)
     private var nextCommandCallbackId = 0
 
     val scripts: Flow<String> = _scripts.consumeAsFlow()
