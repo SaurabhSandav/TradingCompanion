@@ -93,7 +93,7 @@ function replacerSeriesByName(seriesMap) {
         namedMap.set(getByValue(seriesMap, key), value);
       });
 
-      return Array.from(namedMap.entries());
+      return Object.fromEntries(namedMap);
     } else {
       return value;
     }

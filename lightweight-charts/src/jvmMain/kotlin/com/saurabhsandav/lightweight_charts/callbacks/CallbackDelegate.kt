@@ -1,6 +1,5 @@
 package com.saurabhsandav.lightweight_charts.callbacks
 
-import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import com.saurabhsandav.lightweight_charts.data.TimeRange
@@ -9,7 +8,6 @@ import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
     private val chartName: String,
-    private val seriesList: List<ISeriesApi<*>>,
 ) {
 
     // Commands
@@ -40,14 +38,14 @@ internal class CallbackDelegate(
         when (chartCallback.callbackType) {
             "subscribeClickCallback" -> {
 
-                val params = MouseEventParams.fromJson(chartCallback.message, seriesList)
+                val params = LwcJson.decodeFromString<MouseEventParams>(chartCallback.message)
 
                 subscribeClickCallbacks.forEach { it.onEvent(params) }
             }
 
             "subscribeCrosshairMoveCallback" -> {
 
-                val params = MouseEventParams.fromJson(chartCallback.message, seriesList)
+                val params = LwcJson.decodeFromString<MouseEventParams>(chartCallback.message)
 
                 subscribeCrosshairMoveCallbacks.forEach { it.onEvent(params) }
             }
