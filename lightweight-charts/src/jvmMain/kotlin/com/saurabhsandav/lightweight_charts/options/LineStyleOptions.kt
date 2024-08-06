@@ -1,14 +1,12 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.*
-import kotlinx.css.Color
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class LineStyleOptions(
-    val color: Color? = null,
+    val color: SerializableColor? = null,
     val lineStyle: LineStyle? = null,
     val lineWidth: LineWidth? = null,
     val lineType: LineType? = null,
@@ -17,8 +15,8 @@ data class LineStyleOptions(
     val pointMarkersRadius: Double? = null,
     val crosshairMarkerVisible: Boolean? = null,
     val crosshairMarkerRadius: Double? = null,
-    val crosshairMarkerBorderColor: Color? = null,
-    val crosshairMarkerBackgroundColor: Color? = null,
+    val crosshairMarkerBorderColor: SerializableColor? = null,
+    val crosshairMarkerBackgroundColor: SerializableColor? = null,
     val crosshairMarkerBorderWidth: Double? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
 
@@ -36,24 +34,4 @@ data class LineStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon(), IsJsonElement {
-
-    override fun toJsonElement(): JsonObject = buildJsonObject {
-
-        color?.let { put("color", it.value) }
-        lineStyle?.let { put("lineStyle", it.toJsonElement()) }
-        lineWidth?.let { put("lineWidth", it.toJsonElement()) }
-        lineType?.let { put("lineType", it.toJsonElement()) }
-        lineVisible?.let { put("lineVisible", it) }
-        pointMarkersVisible?.let { put("pointMarkersVisible", it) }
-        pointMarkersRadius?.let { put("pointMarkersRadius", it) }
-        crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
-        crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
-        crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it.value) }
-        crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it.value) }
-        crosshairMarkerBorderWidth?.let { put("crosshairMarkerBorderWidth", it) }
-        lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
-
-        putSeriesOptionsCommonElements()
-    }
-}
+) : SeriesOptions

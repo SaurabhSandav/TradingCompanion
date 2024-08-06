@@ -1,6 +1,8 @@
 package com.saurabhsandav.lightweight_charts
 
 import com.saurabhsandav.lightweight_charts.options.PriceLineOptions
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
+import kotlinx.serialization.encodeToString
 
 class IPriceLine internal constructor(
     private val executeJs: (String) -> Unit,
@@ -10,7 +12,7 @@ class IPriceLine internal constructor(
 
     fun applyOptions(options: PriceLineOptions) {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         executeJs("$reference.applyOptions($optionsJson);")
     }

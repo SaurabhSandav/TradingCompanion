@@ -1,52 +1,43 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.LineStyle
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import com.saurabhsandav.lightweight_charts.options.common.PriceLineSource
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
 
-interface SeriesOptions : IsJsonElement
+interface SeriesOptions {
 
-open class SeriesOptionsCommon(
-    open val lastValueVisible: Boolean? = null,
-    open val title: String? = null,
-    open val priceScaleId: String? = null,
-    open val visible: Boolean? = null,
-    open val priceLineVisible: Boolean? = null,
-    open val priceLineSource: PriceLineSource? = null,
-    open val priceLineWidth: LineWidth? = null,
-    open val priceLineColor: String? = null,
-    open val priceLineStyle: LineStyle? = null,
-    open val priceFormat: PriceFormat? = null,
-    open val baseLineVisible: Boolean? = null,
-    open val baseLineColor: String? = null,
-    open val baseLineWidth: LineWidth? = null,
-    open val baseLineStyle: LineStyle? = null,
-) : SeriesOptions {
-
-    protected fun JsonObjectBuilder.putSeriesOptionsCommonElements() {
-        lastValueVisible?.let { put("lastValueVisible", it) }
-        title?.let { put("title", it) }
-        priceScaleId?.let { put("priceScaleId", it) }
-        visible?.let { put("visible", it) }
-        priceLineVisible?.let { put("priceLineVisible", it) }
-        priceLineSource?.let { put("priceLineSource", it.toJsonElement()) }
-        priceLineWidth?.let { put("priceLineWidth", it.toJsonElement()) }
-        priceLineColor?.let { put("priceLineColor", it) }
-        priceLineStyle?.let { put("priceLineStyle", it.toJsonElement()) }
-        priceFormat?.let { put("priceFormat", it.toJsonElement()) }
-        baseLineVisible?.let { put("baseLineVisible", it) }
-        baseLineColor?.let { put("baseLineColor", it) }
-        baseLineWidth?.let { put("baseLineWidth", it.toJsonElement()) }
-        baseLineStyle?.let { put("baseLineStyle", it.toJsonElement()) }
-    }
-
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        putSeriesOptionsCommonElements()
-    }
+    val lastValueVisible: Boolean?
+    val title: String?
+    val priceScaleId: String?
+    val visible: Boolean?
+    val priceLineVisible: Boolean?
+    val priceLineSource: PriceLineSource?
+    val priceLineWidth: LineWidth?
+    val priceLineColor: String?
+    val priceLineStyle: LineStyle?
+    val priceFormat: PriceFormat?
+    val baseLineVisible: Boolean?
+    val baseLineColor: String?
+    val baseLineWidth: LineWidth?
+    val baseLineStyle: LineStyle?
 }
+
+@Serializable
+class SeriesOptionsCommon(
+    override val lastValueVisible: Boolean? = null,
+    override val title: String? = null,
+    override val priceScaleId: String? = null,
+    override val visible: Boolean? = null,
+    override val priceLineVisible: Boolean? = null,
+    override val priceLineSource: PriceLineSource? = null,
+    override val priceLineWidth: LineWidth? = null,
+    override val priceLineColor: String? = null,
+    override val priceLineStyle: LineStyle? = null,
+    override val priceFormat: PriceFormat? = null,
+    override val baseLineVisible: Boolean? = null,
+    override val baseLineColor: String? = null,
+    override val baseLineWidth: LineWidth? = null,
+    override val baseLineStyle: LineStyle? = null,
+) : SeriesOptions

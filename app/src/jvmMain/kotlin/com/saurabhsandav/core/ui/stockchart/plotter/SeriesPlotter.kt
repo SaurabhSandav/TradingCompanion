@@ -8,9 +8,10 @@ import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.data.SeriesMarker
+import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
 
-abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
+abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
 
     private var _isEnabled by mutableStateOf(true)
     override var isEnabled: Boolean
@@ -22,11 +23,11 @@ abstract class SeriesPlotter<D : SeriesData> : Plotter<D> {
             series.applyOptions(SeriesOptionsCommon(visible = value))
         }
 
-    private var _series: ISeriesApi<D>? = null
-    val series: ISeriesApi<D>
+    private var _series: ISeriesApi<D, O>? = null
+    val series: ISeriesApi<D, O>
         get() = checkNotNull(_series) { "Series not initialized" }
 
-    abstract fun createSeries(chart: StockChart): ISeriesApi<D>
+    abstract fun createSeries(chart: StockChart): ISeriesApi<D, O>
 
     override fun onAttach(chart: StockChart) {
         check(_series == null) { "Plotter already attached" }

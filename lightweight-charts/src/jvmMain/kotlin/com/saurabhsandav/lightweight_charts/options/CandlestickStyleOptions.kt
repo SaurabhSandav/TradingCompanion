@@ -1,14 +1,12 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.LineStyle
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import com.saurabhsandav.lightweight_charts.options.common.PriceLineSource
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CandlestickStyleOptions(
     val upColor: String? = null,
     val downColor: String? = null,
@@ -35,21 +33,4 @@ data class CandlestickStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon(), IsJsonElement {
-
-    override fun toJsonElement(): JsonObject = buildJsonObject {
-
-        upColor?.let { put("upColor", it) }
-        downColor?.let { put("downColor", it) }
-        wickVisible?.let { put("wickVisible", it) }
-        borderVisible?.let { put("borderVisible", it) }
-        borderColor?.let { put("borderColor", it) }
-        borderUpColor?.let { put("borderUpColor", it) }
-        borderDownColor?.let { put("borderDownColor", it) }
-        wickColor?.let { put("wickColor", it) }
-        wickUpColor?.let { put("wickUpColor", it) }
-        wickDownColor?.let { put("wickDownColor", it) }
-
-        putSeriesOptionsCommonElements()
-    }
-}
+) : SeriesOptions

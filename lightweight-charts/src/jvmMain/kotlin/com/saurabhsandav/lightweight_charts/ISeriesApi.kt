@@ -6,14 +6,17 @@ import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.data.SeriesMarker
 import com.saurabhsandav.lightweight_charts.options.PriceLineOptions
 import com.saurabhsandav.lightweight_charts.options.SeriesOptions
+import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 
-class ISeriesApi<D : SeriesData>(
+class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     private val dataSerializer: KSerializer<D>,
+    private val optionsSerializer: KSerializer<O>,
     private val executeJs: (String) -> Unit,
     private val executeJsWithResult: suspend (String) -> String,
     val name: String,
@@ -40,9 +43,16 @@ class ISeriesApi<D : SeriesData>(
         return LwcJson.decodeFromString(result)
     }
 
-    fun applyOptions(options: SeriesOptions) {
+    fun applyOptions(options: SeriesOptionsCommon) {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToJsonElement(options)
+
+        executeJs("$reference.applyOptions(${optionsJson})")
+    }
+
+    fun applyOptions(options: O) {
+
+        val optionsJson = LwcJson.encodeToJsonElement(optionsSerializer, options)
 
         executeJs("$reference.applyOptions(${optionsJson})")
     }
@@ -70,7 +80,7 @@ class ISeriesApi<D : SeriesData>(
 
     fun createPriceLine(options: PriceLineOptions): IPriceLine {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         val id = nextPriceLineId++
 

@@ -14,9 +14,9 @@ class LinePlotter(
     override val key: String,
     override val legendLabel: String,
     private val color: Color? = null,
-) : SeriesPlotter<LineData>() {
+) : SeriesPlotter<LineData, LineStyleOptions>() {
 
-    override fun createSeries(chart: StockChart): ISeriesApi<LineData> {
+    override fun createSeries(chart: StockChart): ISeriesApi<LineData, LineStyleOptions> {
 
         var options = LineStyleOptions(
             lineWidth = LineWidth.One,

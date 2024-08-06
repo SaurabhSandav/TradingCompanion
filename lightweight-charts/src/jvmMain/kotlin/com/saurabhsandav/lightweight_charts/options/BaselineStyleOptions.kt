@@ -1,11 +1,9 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.*
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class BaselineStyleOptions(
     val baseValue: BaseValuePrice? = null,
     val topFillColor1: String? = null,
@@ -41,41 +39,11 @@ data class BaselineStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon(), IsJsonElement {
+) : SeriesOptions {
 
-    override fun toJsonElement(): JsonObject = buildJsonObject {
-
-        baseValue?.let { put("baseValue", it.toJsonElement()) }
-        topFillColor1?.let { put("topFillColor1", it) }
-        topFillColor2?.let { put("topFillColor2", it) }
-        topLineColor?.let { put("topLineColor", it) }
-        bottomFillColor1?.let { put("bottomFillColor1", it) }
-        bottomFillColor2?.let { put("bottomFillColor2", it) }
-        bottomLineColor?.let { put("bottomLineColor", it) }
-        lineWidth?.let { put("lineWidth", it.toJsonElement()) }
-        lineStyle?.let { put("lineStyle", it.toJsonElement()) }
-        lineType?.let { put("lineType", it.toJsonElement()) }
-        lineVisible?.let { put("lineVisible", it) }
-        pointMarkersVisible?.let { put("pointMarkersVisible", it) }
-        pointMarkersRadius?.let { put("pointMarkersRadius", it) }
-        crosshairMarkerVisible?.let { put("crosshairMarkerVisible", it) }
-        crosshairMarkerRadius?.let { put("crosshairMarkerRadius", it) }
-        crosshairMarkerBorderColor?.let { put("crosshairMarkerBorderColor", it) }
-        crosshairMarkerBackgroundColor?.let { put("crosshairMarkerBackgroundColor", it) }
-        crosshairMarkerBorderWidth?.let { put("crosshairMarkerBorderWidth", it) }
-        lastPriceAnimation?.let { put("lastPriceAnimation", it.toJsonElement()) }
-
-        putSeriesOptionsCommonElements()
-    }
-
+    @Serializable
     data class BaseValuePrice(
         val type: String,
         val price: Double,
-    ) : IsJsonElement {
-
-        override fun toJsonElement(): JsonObject = buildJsonObject {
-            put("type", type)
-            put("price", price)
-        }
-    }
+    )
 }

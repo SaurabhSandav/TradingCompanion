@@ -1,8 +1,8 @@
 package com.saurabhsandav.lightweight_charts
 
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.LwcJson
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 class IPriceScaleApi(
     receiver: String,
@@ -17,30 +17,21 @@ class IPriceScaleApi(
 
     fun applyOptions(options: PriceScaleOptions) {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         executeJs("$reference.applyOptions($optionsJson);")
     }
 }
 
+@Serializable
 data class PriceScaleOptions(
     val alignLabels: Boolean? = null,
     val scaleMargins: PriceScaleMargins? = null,
-) : IsJsonElement {
+) {
 
-    override fun toJsonElement(): JsonElement = buildJsonObject {
-        alignLabels?.let { put("alignLabels", it) }
-        scaleMargins?.let { put("scaleMargins", it.toJsonElement()) }
-    }
-
+    @Serializable
     data class PriceScaleMargins(
         val top: Double? = null,
         val bottom: Double? = null,
-    ) : IsJsonElement {
-
-        override fun toJsonElement(): JsonElement = buildJsonObject {
-            top?.let { put("top", it) }
-            bottom?.let { put("bottom", it) }
-        }
-    }
+    )
 }
