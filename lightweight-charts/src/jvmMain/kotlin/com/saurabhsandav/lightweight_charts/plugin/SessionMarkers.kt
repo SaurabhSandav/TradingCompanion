@@ -3,13 +3,13 @@ package com.saurabhsandav.lightweight_charts.plugin
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
-import kotlinx.css.Color
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
+@Serializable
 class SessionMarkers(
-    private val lineColor: Color? = null,
+    val options: Options = Options(),
 ) : ISeriesPrimitive {
 
     private var _callMember: ((String) -> Unit)? = null
@@ -22,9 +22,7 @@ class SessionMarkers(
 
         _callMember = callMember
 
-        val optionsJson = buildJsonObject {
-            lineColor?.let { put("lineColor", it.value) }
-        }
+        val optionsJson = LwcJson.encodeToString(options)
 
         return "new SessionMarkers($optionsJson)"
     }
@@ -35,4 +33,9 @@ class SessionMarkers(
 
         callMember("times = $timesJson")
     }
+
+    @Serializable
+    data class Options(
+        val lineColor: SerializableColor? = null,
+    )
 }
