@@ -3,18 +3,14 @@ package com.saurabhsandav.lightweight_charts.plugin
 import com.saurabhsandav.lightweight_charts.ISeriesPrimitive
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
-import kotlinx.css.Color
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
+@Serializable
 class TradeExecutionMarkers(
-    private val buyFillColor: Color? = null,
-    private val buyTextColor: Color? = null,
-    private val sellFillColor: Color? = null,
-    private val sellTextColor: Color? = null,
+    val options: Options = Options(),
 ) : ISeriesPrimitive {
 
     private var _callMember: ((String) -> Unit)? = null
@@ -27,12 +23,7 @@ class TradeExecutionMarkers(
 
         _callMember = callMember
 
-        val optionsJson = buildJsonObject {
-            buyFillColor?.let { put("buyFillColor", it.value) }
-            buyTextColor?.let { put("buyTextColor", it.value) }
-            sellFillColor?.let { put("sellFillColor", it.value) }
-            sellTextColor?.let { put("sellTextColor", it.value) }
-        }
+        val optionsJson = LwcJson.encodeToString(options)
 
         return "new TradeExecutionMarkers($optionsJson)"
     }
@@ -43,6 +34,14 @@ class TradeExecutionMarkers(
 
         callMember("executions = $markersJson")
     }
+
+    @Serializable
+    data class Options(
+        val buyFillColor: SerializableColor? = null,
+        val buyTextColor: SerializableColor? = null,
+        val sellFillColor: SerializableColor? = null,
+        val sellTextColor: SerializableColor? = null,
+    )
 
     @Serializable
     data class Execution(
