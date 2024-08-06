@@ -1,43 +1,73 @@
 package com.saurabhsandav.lightweight_charts.options.common
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.*
 
-sealed class PriceFormat : IsJsonElement {
+@Serializable(with = CustomTransformingSerializer::class)
+sealed class PriceFormat {
 
     abstract val minMove: Double?
 
+    @Serializable
     data class BuiltIn(
-        val type: Type? = null,
+        val type: Type,
         val precision: Double? = null,
         override val minMove: Double? = null,
-    ) : PriceFormat() {
+    ) : PriceFormat()
 
-        override fun toJsonElement(): JsonObject = buildJsonObject {
-            type?.let { put("type", it.toJsonElement()) }
-            precision?.let { put("precision", precision) }
-            minMove?.let { put("minMove", minMove) }
-        }
-    }
-
+    @Serializable
     data class Custom(
-        override val minMove: Double? = null,
-    ) : PriceFormat() {
+        override val minMove: Double?,
+    ) : PriceFormat()
 
-        override fun toJsonElement(): JsonObject = buildJsonObject {
-            put("type", "custom")
-            minMove?.let { put("minMove", minMove) }
-        }
+    @Serializable
+    enum class Type {
+
+        @SerialName("percent")
+        Percent,
+
+        @SerialName("price")
+        Price,
+
+        @SerialName("volume")
+        Volume;
     }
+}
 
-    enum class Type(private val strValue: String) : IsJsonElement {
-        Percent("percent"),
-        Price("price"),
-        Volume("volume");
+private object CustomTransformingSerializer : JsonTransformingSerializer<PriceFormat>(PriceFormatSerializer) {
 
-        override fun toJsonElement() = JsonPrimitive(strValue)
+    override fun transformSerialize(element: JsonElement): JsonElement {
+
+        require(element is JsonObject)
+
+        val type = (element as? JsonObject)
+            ?.get("type")
+            ?.let { it as? JsonPrimitive }
+            ?.takeIf { it.isString }
+            ?.contentOrNull
+
+        return if (type == null) {
+            val typePair = "type" to JsonPrimitive("custom")
+            JsonObject(element + typePair)
+        } else element
+    }
+}
+
+private object PriceFormatSerializer : JsonContentPolymorphicSerializer<PriceFormat>(PriceFormat::class) {
+
+    override fun selectDeserializer(element: JsonElement): KSerializer<out PriceFormat> {
+
+        val type = (element as? JsonObject)
+            ?.get("type")
+            ?.let { it as? JsonPrimitive }
+            ?.takeIf { it.isString }
+            ?.contentOrNull
+
+        return when {
+            type == "custom" -> PriceFormat.Custom.serializer()
+            else -> PriceFormat.BuiltIn.serializer()
+        }
     }
 }

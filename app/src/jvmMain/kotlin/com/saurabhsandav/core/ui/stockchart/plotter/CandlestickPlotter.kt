@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.map
 
 class CandlestickPlotter(
     override val key: String,
-) : SeriesPlotter<CandlestickData>() {
+) : SeriesPlotter<CandlestickData, CandlestickStyleOptions>() {
 
     override var legendLabel: String = ""
 
-    override fun createSeries(chart: StockChart): ISeriesApi<CandlestickData> {
+    override fun createSeries(chart: StockChart): ISeriesApi<CandlestickData, CandlestickStyleOptions> {
 
         val options = CandlestickStyleOptions(
             lastValueVisible = false,

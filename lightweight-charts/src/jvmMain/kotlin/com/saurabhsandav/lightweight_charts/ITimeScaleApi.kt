@@ -115,7 +115,7 @@ class ITimeScaleApi internal constructor(
 
     fun applyOptions(options: TimeScaleOptions) {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         executeJs("$receiver.timeScale().applyOptions($optionsJson);")
     }

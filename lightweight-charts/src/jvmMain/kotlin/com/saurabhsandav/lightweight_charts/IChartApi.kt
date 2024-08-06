@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.serializer
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -27,7 +28,7 @@ class IChartApi internal constructor(
     private val subscribeClickCallbackReference = "$chartInstanceReference.subscribeClickCallback"
     private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
 
-    private val seriesList = mutableListOf<ISeriesApi<*>>()
+    private val seriesList = mutableListOf<ISeriesApi<*, *>>()
     private val callbacksDelegate = CallbackDelegate(name)
     private var nextCommandCallbackId = 0
 
@@ -44,7 +45,7 @@ class IChartApi internal constructor(
 
     init {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         executeJs(
             """
@@ -58,8 +59,7 @@ class IChartApi internal constructor(
     fun addBaselineSeries(
         options: BaselineStyleOptions = BaselineStyleOptions(),
         name: String = "baselineSeries",
-    ): ISeriesApi<BaselineData> = addSeries(
-        dataSerializer = BaselineData.serializer(),
+    ): ISeriesApi<BaselineData, BaselineStyleOptions> = addSeries(
         options = options,
         funcName = "addBaselineSeries",
         name = name
@@ -68,8 +68,7 @@ class IChartApi internal constructor(
     fun addCandlestickSeries(
         options: CandlestickStyleOptions = CandlestickStyleOptions(),
         name: String = "candlestickSeries",
-    ): ISeriesApi<CandlestickData> = addSeries(
-        dataSerializer = CandlestickData.serializer(),
+    ): ISeriesApi<CandlestickData, CandlestickStyleOptions> = addSeries(
         options = options,
         funcName = "addCandlestickSeries",
         name = name
@@ -78,8 +77,7 @@ class IChartApi internal constructor(
     fun addHistogramSeries(
         options: HistogramStyleOptions = HistogramStyleOptions(),
         name: String = "histogramSeries",
-    ): ISeriesApi<HistogramData> = addSeries(
-        dataSerializer = HistogramData.serializer(),
+    ): ISeriesApi<HistogramData, HistogramStyleOptions> = addSeries(
         options = options,
         funcName = "addHistogramSeries",
         name = name
@@ -88,8 +86,7 @@ class IChartApi internal constructor(
     fun addLineSeries(
         options: LineStyleOptions = LineStyleOptions(),
         name: String = "lineSeries",
-    ): ISeriesApi<LineData> = addSeries(
-        dataSerializer = LineData.serializer(),
+    ): ISeriesApi<LineData, LineStyleOptions> = addSeries(
         options = options,
         funcName = "addLineSeries",
         name = name
@@ -111,7 +108,7 @@ class IChartApi internal constructor(
         executeJs("$reference.resize($width, $height);")
     }
 
-    fun removeSeries(series: ISeriesApi<*>) {
+    fun removeSeries(series: ISeriesApi<*, *>) {
 
         seriesList.remove(series)
 
@@ -159,7 +156,7 @@ class IChartApi internal constructor(
     fun setCrosshairPosition(
         price: Double,
         horizontalPosition: Time,
-        seriesApi: ISeriesApi<*>,
+        seriesApi: ISeriesApi<*, *>,
     ) {
 
         val horizontalPositionJson = LwcJson.encodeToString(horizontalPosition)
@@ -173,7 +170,7 @@ class IChartApi internal constructor(
 
     fun applyOptions(options: ChartOptions) {
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(options)
 
         executeJs("$reference.applyOptions($optionsJson);")
     }
@@ -182,22 +179,30 @@ class IChartApi internal constructor(
         callbacksDelegate.onCallback(callbackMessage)
     }
 
-    private fun <D : SeriesData> addSeries(
-        options: SeriesOptions,
-        dataSerializer: KSerializer<D>,
+    private inline fun <reified D : SeriesData, reified O : SeriesOptions> addSeries(
+        options: O,
         funcName: String,
         name: String,
-    ): ISeriesApi<D> {
+    ): ISeriesApi<D, O> = addSeries(options, serializer<D>(), serializer<O>(), funcName, name)
+
+    private fun <D : SeriesData, O : SeriesOptions> addSeries(
+        options: O,
+        dataSerializer: KSerializer<D>,
+        optionsSerializer: KSerializer<O>,
+        funcName: String,
+        name: String,
+    ): ISeriesApi<D, O> {
 
         val series = ISeriesApi(
             dataSerializer = dataSerializer,
+            optionsSerializer = optionsSerializer,
             executeJs = ::executeJs,
             executeJsWithResult = ::executeJsWithResult,
             name = name,
             seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
         )
 
-        val optionsJson = options.toJsonElement()
+        val optionsJson = LwcJson.encodeToString(optionsSerializer, options)
 
         seriesList.add(series)
 

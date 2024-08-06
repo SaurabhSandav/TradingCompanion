@@ -1,14 +1,12 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
 import com.saurabhsandav.lightweight_charts.options.common.LineStyle
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
 import com.saurabhsandav.lightweight_charts.options.common.PriceLineSource
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class HistogramStyleOptions(
     val color: String? = null,
     val base: Double? = null,
@@ -27,13 +25,4 @@ data class HistogramStyleOptions(
     override val baseLineColor: String? = null,
     override val baseLineWidth: LineWidth? = null,
     override val baseLineStyle: LineStyle? = null,
-) : SeriesOptionsCommon(), IsJsonElement {
-
-    override fun toJsonElement(): JsonObject = buildJsonObject {
-
-        color?.let { put("color", it) }
-        base?.let { put("base", it) }
-
-        putSeriesOptionsCommonElements()
-    }
-}
+) : SeriesOptions

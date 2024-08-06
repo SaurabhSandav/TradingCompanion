@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.map
 class VolumePlotter(
     override val key: String,
     override val legendLabel: String = "Vol",
-) : SeriesPlotter<HistogramData>() {
+) : SeriesPlotter<HistogramData, HistogramStyleOptions>() {
 
-    override fun createSeries(chart: StockChart): ISeriesApi<HistogramData> {
+    override fun createSeries(chart: StockChart): ISeriesApi<HistogramData, HistogramStyleOptions> {
 
         val options = HistogramStyleOptions(
             lastValueVisible = false,

@@ -27,16 +27,16 @@ fun IChartApi.lineSeries(
     options: LineStyleOptions = LineStyleOptions(),
 ) = SeriesProvider { name -> addLineSeries(options, name) }
 
-class SeriesProvider<T : SeriesData>(
-    private val seriesBuilder: (propertyName: String) -> ISeriesApi<T>,
+class SeriesProvider<D : SeriesData, O : SeriesOptions>(
+    private val seriesBuilder: (propertyName: String) -> ISeriesApi<D, O>,
 ) {
 
-    private var series: ISeriesApi<T>? = null
+    private var series: ISeriesApi<D, O>? = null
 
     operator fun provideDelegate(
         thisRef: Any?,
         prop: KProperty<*>,
-    ): ReadOnlyProperty<Any?, ISeriesApi<T>> {
+    ): ReadOnlyProperty<Any?, ISeriesApi<D, O>> {
 
         series = seriesBuilder(prop.name)
 

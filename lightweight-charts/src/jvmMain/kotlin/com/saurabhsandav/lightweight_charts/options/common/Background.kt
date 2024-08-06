@@ -1,32 +1,22 @@
 package com.saurabhsandav.lightweight_charts.options.common
 
-import com.saurabhsandav.lightweight_charts.IsJsonElement
-import kotlinx.css.Color
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.saurabhsandav.lightweight_charts.utils.SerializableColor
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-sealed class Background : IsJsonElement {
+@Serializable
+sealed class Background {
 
+    @Serializable
+    @SerialName("ColorType.Solid")
     data class SolidColor(
-        val color: Color,
-    ) : Background() {
+        val color: SerializableColor,
+    ) : Background()
 
-        override fun toJsonElement(): JsonElement = buildJsonObject {
-            put("type", "ColorType.Solid")
-            put("color", color.value)
-        }
-    }
-
+    @Serializable
+    @SerialName("ColorType.VerticalGradient")
     data class VerticalGradientColor(
-        val topColor: Color? = null,
-        val bottomColor: Color? = null,
-    ) : Background() {
-
-        override fun toJsonElement() = buildJsonObject {
-            put("type", "ColorType.VerticalGradient")
-            topColor?.let { put("topColor", it.value) }
-            bottomColor?.let { put("bottomColor", it.value) }
-        }
-    }
+        val topColor: SerializableColor? = null,
+        val bottomColor: SerializableColor? = null,
+    ) : Background()
 }
