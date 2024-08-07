@@ -1,13 +1,11 @@
 package com.saurabhsandav.core.ui.tradeexecutions.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -195,20 +193,13 @@ private fun Item(
                 onClick = onClick,
                 onLongClick = onLongClick,
             ) {
-                selected {
+                select {
 
-                    Checkbox(
-                        checked = isMarked,
-                        onCheckedChange = { onMarkExecution() },
-                    )
-                }
-                locked {
+                    AnimatedVisibility(!item.locked) {
 
-                    if (!item.locked) {
-
-                        TooltipArea(
-                            tooltip = { Tooltip("Not locked") },
-                            content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
+                        Checkbox(
+                            checked = isMarked,
+                            onCheckedChange = { onMarkExecution() },
                         )
                     }
                 }
@@ -254,8 +245,7 @@ private fun Item(
 
 private object TradeExecutionTableSchema : TableSchema() {
 
-    val selected = cell(Fixed(48.dp))
-    val locked = cell(Fixed(48.dp))
+    val select = cell(Fixed(48.dp))
     val broker = cell(Weight(2F))
     val ticker = cell(Weight(1.7F))
     val quantity = cell()

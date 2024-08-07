@@ -43,11 +43,6 @@ SELECT *
 FROM TradeExecution
 WHERE id = ?;
 
-getByIds:
-SELECT *
-FROM TradeExecution
-WHERE id IN ?;
-
 getTodayCount:
 SELECT count(*)
 FROM TradeExecution

@@ -21,7 +21,6 @@ import com.saurabhsandav.core.ui.theme.dimens
 @Composable
 internal fun TradeExecutionsSelectionBar(
     selectionManager: SelectionManager<TradeExecutionId>,
-    canSelectionLock: Boolean,
     onLockExecutions: (List<TradeExecutionId>) -> Unit,
     onDeleteExecutions: (List<TradeExecutionId>) -> Unit,
 ) {
@@ -57,12 +56,9 @@ internal fun TradeExecutionsSelectionBar(
 
                 VerticalDivider()
 
-                AnimatedVisibility(canSelectionLock) {
+                TextButton(onClick = { showLockConfirmationDialog = true }) {
 
-                    TextButton(onClick = { showLockConfirmationDialog = true }) {
-
-                        Text("LOCK")
-                    }
+                    Text("LOCK")
                 }
 
                 VerticalDivider()
