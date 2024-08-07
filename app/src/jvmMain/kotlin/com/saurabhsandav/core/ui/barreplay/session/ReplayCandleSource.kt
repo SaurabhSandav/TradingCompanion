@@ -68,7 +68,7 @@ internal class ReplayCandleSource(
 
         val beforeIndex = replaySeries
             .binarySearchByAsResult(currentBefore) { it.openInstant }
-            .indexOr { error("Candle at $currentBefore not found") }
+            .indexOrNaturalIndex
         val newBeforeIndex = (beforeIndex - loadCount).coerceAtLeast(0)
 
         return replaySeries[newBeforeIndex].openInstant
@@ -83,7 +83,7 @@ internal class ReplayCandleSource(
 
         val afterIndex = replaySeries
             .binarySearchByAsResult(currentAfter) { it.openInstant }
-            .indexOr { error("Candle at $currentAfter not found") }
+            .indexOrNaturalIndex
         val newAfterIndex = (afterIndex + loadCount).coerceAtMost(replaySeries.lastIndex)
 
         return replaySeries[newAfterIndex].openInstant
