@@ -23,7 +23,6 @@ internal fun TradeExecutionsScreen(
     onNewExecution: () -> Unit,
     executionEntries: Flow<PagingData<TradeExecutionEntry>>,
     selectionManager: SelectionManager<TradeExecutionId>,
-    canSelectionLock: Boolean,
     onNewExecutionFromExisting: (TradeExecutionId) -> Unit,
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecutions: (List<TradeExecutionId>) -> Unit,
@@ -83,7 +82,6 @@ internal fun TradeExecutionsScreen(
 
         TradeExecutionsSelectionBar(
             selectionManager = selectionManager,
-            canSelectionLock = canSelectionLock,
             onLockExecutions = onLockExecutions,
             onDeleteExecutions = onDeleteExecutions,
         )

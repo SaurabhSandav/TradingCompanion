@@ -21,7 +21,6 @@ internal class TradeExecutionsLandingSwitcherItem(
             onNewExecution = { state.eventSink(NewExecution) },
             executionEntries = state.executionEntries,
             selectionManager = state.selectionManager,
-            canSelectionLock = state.canSelectionLock,
             onNewExecutionFromExisting = { state.eventSink(NewExecutionFromExisting(it)) },
             onLockExecutions = { ids -> state.eventSink(LockExecutions(ids)) },
             onEditExecution = { state.eventSink(EditExecution(it)) },

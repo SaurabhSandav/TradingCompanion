@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutions
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.paging.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
@@ -22,10 +24,8 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
 import java.util.*
@@ -40,14 +40,12 @@ internal class TradeExecutionsPresenter(
     private val executions = coroutineScope.async { tradingProfiles.getRecord(profileId).executions }
     private val errors = mutableStateListOf<UIErrorMessage>()
     private val selectionManager = SelectionManager<TradeExecutionId>()
-    private var canSelectionLock by mutableStateOf(false)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradeExecutionsState(
             executionEntries = getExecutionEntries(),
             selectionManager = selectionManager,
-            canSelectionLock = canSelectionLock,
             errors = errors,
             eventSink = ::onEvent,
         )
@@ -61,18 +59,6 @@ internal class TradeExecutionsPresenter(
             is EditExecution -> onEditExecution(event.id)
             is LockExecutions -> onLockExecutions(event.ids)
             is DeleteExecutions -> onDeleteExecutions(event.ids)
-        }
-    }
-
-    init {
-
-        coroutineScope.launch {
-
-            snapshotFlow { selectionManager.selection.toList() }
-                .flatMapLatest { executions.await().getByIds(it) }
-                .collect { executions ->
-                    canSelectionLock = executions.any { !it.locked }
-                }
         }
     }
 

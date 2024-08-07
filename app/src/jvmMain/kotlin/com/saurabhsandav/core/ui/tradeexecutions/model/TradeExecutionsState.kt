@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 internal data class TradeExecutionsState(
     val executionEntries: Flow<PagingData<TradeExecutionEntry>>,
     val selectionManager: SelectionManager<TradeExecutionId>,
-    val canSelectionLock: Boolean,
     val errors: List<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {

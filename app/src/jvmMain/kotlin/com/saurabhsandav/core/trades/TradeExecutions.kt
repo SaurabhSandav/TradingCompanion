@@ -176,10 +176,6 @@ internal class TradeExecutions(
         return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
     }
 
-    fun getByIds(ids: List<TradeExecutionId>): Flow<List<TradeExecution>> {
-        return tradesDB.tradeExecutionQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
-    }
-
     fun getTodayCount(): Flow<Long> {
         return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(Dispatchers.IO)
     }
