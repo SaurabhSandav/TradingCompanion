@@ -12,6 +12,9 @@ object AppPaths {
     val appDataPath: Path
         get() {
 
+            val debugMode = System.getProperty("debugMode") == "true"
+            val appName = if (debugMode) "$appName [Debug]" else appName
+
             val pathStr = AppDirsFactory
                 .getInstance()
                 .getUserDataDir(appName, null, "SaurabhSandav")

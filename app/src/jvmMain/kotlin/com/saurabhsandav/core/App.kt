@@ -21,7 +21,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.flow.first
 
-fun main() = application {
+fun runApp() = application {
 
     val appModule = remember { AppModule() }
 

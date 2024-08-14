@@ -1,4 +1,3 @@
-
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -153,6 +152,9 @@ kotlin {
 
             // Jetpack Datastore
             implementation(libs.jetpack.datastore.preferences)
+
+            // Clikt
+            implementation("com.github.ajalt.clikt:clikt:4.4.0")
         }
 
         jvmTest.dependencies {
@@ -218,13 +220,18 @@ composeCompiler {
 
 compose.desktop {
     application {
+
         mainClass = "com.saurabhsandav.core.MainKt"
+
         jvmArgs += listOf(
             "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
             "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
-            "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
-            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
         )
+
+        if (findProperty("debugMode") == "true") {
+            args("--debug")
+        }
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TradingCompanion"
