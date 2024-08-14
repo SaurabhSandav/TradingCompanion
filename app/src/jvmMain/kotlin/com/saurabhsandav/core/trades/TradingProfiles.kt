@@ -15,11 +15,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
 internal class TradingProfiles(
-    private val appFilesPath: String,
+    private val appFilesPath: Path,
     private val appDB: AppDB,
 ) {
 
@@ -175,5 +174,5 @@ internal class TradingProfiles(
     private fun generateProfilePath(): String = UUID.randomUUID().toString()
 
     private val TradingProfile.filesPath: Path
-        get() = Path("$appFilesPath/Records/$path")
+        get() = appFilesPath.resolve("Records").resolve(path)
 }

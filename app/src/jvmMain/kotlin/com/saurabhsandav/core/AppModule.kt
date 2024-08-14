@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.prefs.Preferences
+import kotlin.io.path.absolutePathString
 
 internal class AppModule {
 
@@ -76,7 +77,7 @@ internal class AppModule {
     val appDB: AppDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/${AppPaths.appName}.db",
+            url = "jdbc:sqlite:${AppPaths.appDataPath.absolutePathString()}/${AppPaths.appName}.db",
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = AppDB.Schema,
         )
@@ -93,7 +94,7 @@ internal class AppModule {
 
     private val candleDBDriver: SqlDriver = run {
         JdbcSqliteDriver(
-            url = "jdbc:sqlite:${AppPaths.getAppDataPath()}/Candles.db",
+            url = "jdbc:sqlite:${AppPaths.appDataPath.absolutePathString()}/Candles.db",
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = CandleDB.Schema,
         )
@@ -145,7 +146,7 @@ internal class AppModule {
     )
 
     val tradingProfiles = TradingProfiles(
-        appFilesPath = AppPaths.getAppDataPath(),
+        appFilesPath = AppPaths.appDataPath,
         appDB = appDB,
     )
 

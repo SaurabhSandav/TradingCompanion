@@ -42,7 +42,7 @@ import org.cef.callback.CefMenuModel
 import org.cef.callback.CefQueryCallback
 import org.cef.handler.*
 import org.cef.network.CefRequest
-import java.io.File
+import kotlin.io.path.absolutePathString
 import kotlin.system.exitProcess
 
 class CefWebViewState : WebViewState {
@@ -276,7 +276,7 @@ object MyCefApp {
     val progress = _progress.asSharedFlow()
 
     val builder: CefAppBuilder = CefAppBuilder().apply {
-        setInstallDir(File(AppPaths.getAppDataPath() + "/jcef-bundle"))
+        setInstallDir(AppPaths.appDataPath.resolve("jcef-bundle").toFile())
         setProgressHandler { state, percent -> _progress.tryEmit(state to (percent / 100F)) }
 
         setAppHandler(object : MavenCefAppHandlerAdapter() {
@@ -288,7 +288,7 @@ object MyCefApp {
 
         with(cefSettings) {
             windowless_rendering_enabled = false
-            root_cache_path = "${AppPaths.getAppDataPath()}/CEF"
+            root_cache_path = AppPaths.appDataPath.resolve("CEF").absolutePathString()
         }
     }
 
