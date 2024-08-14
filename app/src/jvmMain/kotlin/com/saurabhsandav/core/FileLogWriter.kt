@@ -12,7 +12,6 @@ import kotlinx.datetime.Clock
 import java.io.Writer
 import java.nio.file.StandardOpenOption.APPEND
 import java.nio.file.StandardOpenOption.CREATE
-import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
 
@@ -56,7 +55,7 @@ class FileLogWriter(
 
     private fun getLogFileWriter(): Writer {
 
-        val logDirectory = Path(AppPaths.getAppDataPath(), "logs")
+        val logDirectory = AppPaths.appDataPath.resolve("logs")
 
         // Create log directory
         logDirectory.createDirectories()

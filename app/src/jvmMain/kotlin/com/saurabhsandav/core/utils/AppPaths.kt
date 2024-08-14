@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.utils
 
 import net.harawata.appdirs.AppDirsFactory
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
@@ -8,14 +9,13 @@ object AppPaths {
 
     val appName = "TradingCompanion"
 
-    fun getAppDataPath(): String {
+    val appDataPath: Path
+        get() {
 
-        val appDirs = AppDirsFactory.getInstance()
+            val pathStr = AppDirsFactory
+                .getInstance()
+                .getUserDataDir(appName, null, "SaurabhSandav")
 
-        val path = appDirs.getUserDataDir(appName, null, "SaurabhSandav")
-
-        Path(path).createDirectories()
-
-        return path
-    }
+            return Path(pathStr).also { it.createDirectories() }
+        }
 }
