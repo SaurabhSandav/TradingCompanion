@@ -18,4 +18,7 @@ object AppPaths {
 
             return Path(pathStr).also { it.createDirectories() }
         }
+
+    val prefsPath: Path
+        get() = appDataPath.resolve("Prefs").also { it.createDirectories() }
 }

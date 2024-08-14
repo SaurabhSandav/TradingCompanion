@@ -63,6 +63,7 @@ kotlin {
                     "androidx.compose.animation.ExperimentalAnimationApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
                     "com.russhwolf.settings.ExperimentalSettingsApi",
+                    "com.russhwolf.settings.ExperimentalSettingsImplementation",
                 ).forEach { optIn(it) }
             }
         }
@@ -110,6 +111,7 @@ kotlin {
             // Multiplatform Settings
             implementation(libs.multiplatformSettings.core)
             implementation(libs.multiplatformSettings.coroutines)
+            implementation(libs.multiplatformSettings.datastore)
 
             // kotlin-csv
             implementation(libs.kotlinCsvJvm)
@@ -148,6 +150,9 @@ kotlin {
 
             // Jetpack Paging
             implementation(libs.jetpack.paging.common)
+
+            // Jetpack Datastore
+            implementation(libs.jetpack.datastore.preferences)
         }
 
         jvmTest.dependencies {
