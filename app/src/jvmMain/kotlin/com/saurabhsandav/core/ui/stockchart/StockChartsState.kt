@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.mutableStateListOf
-import com.russhwolf.settings.PreferencesSettings
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.russhwolf.settings.coroutines.toFlowSettings
+import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
@@ -21,7 +21,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import java.util.prefs.Preferences
+import okio.Path.Companion.toOkioPath
 
 class StockChartsState(
     parentScope: CoroutineScope,
@@ -32,8 +32,11 @@ class StockChartsState(
     val webViewStateProvider: () -> WebViewState,
 ) {
 
-    private val chartPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName).node("StockChart"))
-        .toFlowSettings()
+    private val chartPrefs = DataStoreSettings(
+        datastore = PreferenceDataStoreFactory.createWithPath {
+            AppPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
+        },
+    )
 
     private val coroutineScope = parentScope.newChildScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)

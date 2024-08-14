@@ -1,11 +1,11 @@
 package com.saurabhsandav.core
 
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.Logger
-import com.russhwolf.settings.PreferencesSettings
-import com.russhwolf.settings.coroutines.toFlowSettings
+import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.fyers_api.FyersApi
 import com.saurabhsandav.core.trades.TradeExcursionsGenerator
 import com.saurabhsandav.core.trades.TradeManagementJob
@@ -44,14 +44,11 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterModule
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.PrefKeys
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
+import okio.Path.Companion.toOkioPath
 import java.util.*
-import java.util.prefs.Preferences
 import kotlin.io.path.absolutePathString
 
 internal class AppModule {
@@ -110,13 +107,17 @@ internal class AppModule {
         )
     }
 
-    private val _appPrefs = PreferencesSettings(Preferences.userRoot().node(AppPaths.appName))
-
-    val appPrefs = _appPrefs.toFlowSettings()
+    val appPrefs = DataStoreSettings(
+        datastore = PreferenceDataStoreFactory.createWithPath {
+            AppPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
+        },
+    )
 
     val webViewStateProvider = run {
 
-        val webViewBackend = _appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name);
+        val webViewBackend = runBlocking {
+            appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name)
+        };
 
         {
             when (webViewBackend) {
