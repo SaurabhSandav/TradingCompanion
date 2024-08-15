@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.tagform.model
 
+import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.CoroutineScope
@@ -29,8 +30,11 @@ internal class TagFormModel(
 
     val descriptionField = validator.addField(initial.description)
 
+    val colorField = validator.addField(initial.color)
+
     class Initial(
         val name: String = "",
         val description: String = "",
+        val color: Color? = null,
     )
 }

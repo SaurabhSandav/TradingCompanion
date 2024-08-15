@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -64,6 +65,7 @@ internal class TagsPresenter(
                                 id = tag.id,
                                 name = tag.name,
                                 description = tag.description.ifBlank { null },
+                                color = tag.color?.let(::Color),
                             )
                         }
                     }

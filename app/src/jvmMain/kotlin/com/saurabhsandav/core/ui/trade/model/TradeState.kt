@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.trade.model
 
+import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
@@ -87,7 +88,8 @@ internal data class TradeState(
     internal data class TradeTag(
         val id: TradeTagId,
         val name: String,
-        val description: String,
+        val description: String?,
+        val color: Color?,
     )
 
     internal data class TradeAttachment(

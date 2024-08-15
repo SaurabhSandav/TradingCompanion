@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.trade
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.*
@@ -325,7 +326,8 @@ internal class TradePresenter(
                     TradeTag(
                         id = tag.id,
                         name = tag.name,
-                        description = tag.description,
+                        description = tag.description.ifBlank { null },
+                        color = tag.color?.let(::Color),
                     )
                 }
                 .collect { value = it }
@@ -390,7 +392,8 @@ internal class TradePresenter(
                 TradeTag(
                     id = tag.id,
                     name = tag.name,
-                    description = tag.description,
+                    description = tag.description.ifBlank { null },
+                    color = tag.color?.let(::Color),
                 )
             }
             .emitInto(this)

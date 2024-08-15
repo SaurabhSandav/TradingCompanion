@@ -1,7 +1,11 @@
 package com.saurabhsandav.core.ui.trade.ui
 
+import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,9 +15,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
+import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
-import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
@@ -59,12 +63,38 @@ internal fun Tags(
 
                     var confirmRemove by state { false }
 
-                    ChipsSelectorSelectedItem(
+                    TooltipArea(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        name = tag.name,
-                        description = tag.description,
-                        onRemove = { confirmRemove = true },
-                    )
+                        tooltip = { if (tag.description != null) Tooltip(tag.description) },
+                    ) {
+
+                        InputChip(
+                            selected = false,
+                            onClick = { confirmRemove = true },
+                            label = {
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+
+                                    Text(tag.name)
+
+                                    tag.color?.let {
+                                        Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color))
+                                    }
+                                }
+                            },
+                            trailingIcon = {
+
+                                Icon(
+                                    modifier = Modifier.size(InputChipDefaults.IconSize),
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove",
+                                )
+                            },
+                        )
+                    }
 
                     if (confirmRemove) {
 
@@ -127,6 +157,9 @@ private fun AddTagButton(
 
                 DropdownMenuItem(
                     text = { Text(tag.name) },
+                    trailingIcon = tag.color?.let {
+                        { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
+                    },
                     onClick = {
                         expanded = false
                         onAddTag(tag.id)

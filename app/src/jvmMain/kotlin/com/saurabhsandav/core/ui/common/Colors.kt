@@ -13,3 +13,22 @@ object AppColor {
 fun Color.toHexString(): String {
     return toArgb().run { String.format("#%06X", 0xFFFFFF and this) }
 }
+
+fun Color.Companion.fromStringOrNull(hex: String): Color? {
+
+    if (!hex.startsWith("#")) return null
+    if (hex.length != 7) return null
+
+    val colorInt = hex.substring(1)
+
+    return try {
+
+        val r = Integer.parseInt(colorInt.substring(0, 2), 16)
+        val g = Integer.parseInt(colorInt.substring(2, 4), 16)
+        val b = Integer.parseInt(colorInt.substring(4, 6), 16)
+
+        Color(r, g, b)
+    } catch (e: NullPointerException) {
+        null
+    }
+}
