@@ -1,23 +1,26 @@
 package com.saurabhsandav.core.ui.tags.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NewLabel
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun TagListItem(
@@ -31,7 +34,20 @@ internal fun TagListItem(
 
     ListItem(
         modifier = Modifier.clickable(onClick = onEditTag),
-        headlineContent = { Text(tag.name) },
+        headlineContent = {
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Text(tag.name)
+
+                tag.color?.let {
+                    Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color))
+                }
+            }
+        },
         supportingContent = tag.description?.let { { Text(it) } },
         trailingContent = {
 

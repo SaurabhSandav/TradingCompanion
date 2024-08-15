@@ -382,11 +382,16 @@ internal class Trades(
             .mapToList(Dispatchers.IO)
     }
 
-    suspend fun createTag(name: String, description: String) = withContext(Dispatchers.IO) {
+    suspend fun createTag(
+        name: String,
+        description: String,
+        color: Int?,
+    ) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeTagQueries.insert(
             name = name,
             description = description,
+            color = color,
         )
     }
 
@@ -394,12 +399,14 @@ internal class Trades(
         id: TradeTagId,
         name: String,
         description: String,
+        color: Int?,
     ) = withContext(Dispatchers.IO) {
 
         tradesDB.tradeTagQueries.update(
             id = id,
             name = name,
             description = description,
+            color = color,
         )
     }
 

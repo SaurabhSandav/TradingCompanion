@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -60,6 +62,7 @@ internal class TagFormPresenter(
                         TagFormModel.Initial(
                             name = tag.name,
                             description = tag.description,
+                            color = tag.color?.let(::Color),
                         )
                     }
 
@@ -70,6 +73,7 @@ internal class TagFormPresenter(
                         TagFormModel.Initial(
                             name = tag.name,
                             description = tag.description,
+                            color = tag.color?.let(::Color),
                         )
                     }
                 },
@@ -86,12 +90,14 @@ internal class TagFormPresenter(
             is New, is NewFromExisting -> trades.createTag(
                 name = nameField.value,
                 description = descriptionField.value,
+                color = colorField.value?.toArgb(),
             )
 
             is Edit -> trades.updateTag(
                 id = formType.id,
                 name = nameField.value,
                 description = descriptionField.value,
+                color = colorField.value?.toArgb(),
             )
         }
 

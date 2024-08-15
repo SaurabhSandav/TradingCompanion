@@ -1,19 +1,21 @@
 import com.saurabhsandav.core.trades.model.TradeTagId;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS TradeTag (
 id INTEGER AS TradeTagId NOT NULL PRIMARY KEY,
 name TEXT NOT NULL UNIQUE,
 description TEXT NOT NULL,
+color INTEGER AS Int,
 UNIQUE (name COLLATE NOCASE)
 );
 
 insert:
-INSERT OR ROLLBACK INTO TradeTag(name, description)
-VALUES (?, ?);
+INSERT OR ROLLBACK INTO TradeTag(name, description, color)
+VALUES (?, ?, ?);
 
 update:
 UPDATE TradeTag
-SET name = ?, description = ?
+SET name = ?, description = ?, color = ?
 WHERE id = ?;
 
 delete:

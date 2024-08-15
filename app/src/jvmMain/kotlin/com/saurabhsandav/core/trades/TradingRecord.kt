@@ -76,6 +76,7 @@ internal class TradingRecord(
             ),
             TradeTagAdapter = TradeTag.Adapter(
                 idAdapter = TradeTagIdColumnAdapter,
+                colorAdapter = IntColumnAdapter,
             ),
             TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,
