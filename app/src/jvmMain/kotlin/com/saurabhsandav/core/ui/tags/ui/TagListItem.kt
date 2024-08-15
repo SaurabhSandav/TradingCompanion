@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NewLabel
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -62,6 +63,8 @@ internal fun TagListItem(
             }
         },
     )
+
+    HorizontalDivider()
 
     if (showDeleteConfirmationDialog) {
 
