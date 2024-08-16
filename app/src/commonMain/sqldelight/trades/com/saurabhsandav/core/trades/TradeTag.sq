@@ -23,20 +23,23 @@ DELETE FROM TradeTag
 WHERE id = ?;
 
 getAll:
-SELECT * FROM TradeTag;
+SELECT * FROM TradeTag
+ORDER BY name;
 
 getById:
 SELECT * FROM TradeTag WHERE id = ?;
 
 getAllByIds:
-SELECT * FROM TradeTag WHERE id IN ?;
+SELECT * FROM TradeTag WHERE id IN ?
+ORDER BY name;
 
 getSuggestedTags:
 SELECT *
 FROM TradeTag
 WHERE
 id NOT IN :ignore
-AND name LIKE '%' || :query || '%';
+AND name LIKE '%' || :query || '%'
+ORDER BY name;
 
 isTagNameUnique:
 SELECT NOT EXISTS(
