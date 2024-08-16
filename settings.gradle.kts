@@ -32,7 +32,6 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://androidx.dev/storage/compose-compiler/repository/")
         mavenLocal()
         maven {
             url = uri("https://maven.pkg.github.com/saurabhsandav/CommonVersions")
