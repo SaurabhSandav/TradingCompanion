@@ -5,11 +5,25 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
-object AppPaths {
+interface AppPaths {
 
-    val appName = "TradingCompanion"
+    val appName: String
 
     val appDataPath: Path
+
+    val prefsPath: Path
+
+    companion object {
+
+        operator fun invoke(): AppPaths = AppPathsImpl()
+    }
+}
+
+private class AppPathsImpl : AppPaths {
+
+    override val appName = "TradingCompanion"
+
+    override val appDataPath: Path
         get() {
 
             val debugMode = System.getProperty("debugMode") == "true"
@@ -22,6 +36,6 @@ object AppPaths {
             return Path(pathStr).also { it.createDirectories() }
         }
 
-    val prefsPath: Path
+    override val prefsPath: Path
         get() = appDataPath.resolve("Prefs").also { it.createDirectories() }
 }

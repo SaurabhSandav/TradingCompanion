@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
+import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.landing.LandingModule
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.profiles.ProfilesModule
@@ -55,7 +56,9 @@ internal class AppModule {
 
     val appScope = MainScope()
 
-    private val fileLogWriter = FileLogWriter(appScope)
+    private val appPaths = AppPaths()
+
+    private val fileLogWriter = FileLogWriter(appScope, appPaths)
 
     init {
 
@@ -74,7 +77,7 @@ internal class AppModule {
     val appDB: AppDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = "jdbc:sqlite:${AppPaths.appDataPath.absolutePathString()}/${AppPaths.appName}.db",
+            url = "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/${appPaths.appName}.db",
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = AppDB.Schema,
         )
@@ -91,7 +94,7 @@ internal class AppModule {
 
     private val candleDBDriver: SqlDriver = run {
         JdbcSqliteDriver(
-            url = "jdbc:sqlite:${AppPaths.appDataPath.absolutePathString()}/Candles.db",
+            url = "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/Candles.db",
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = CandleDB.Schema,
         )
@@ -109,15 +112,17 @@ internal class AppModule {
 
     val appPrefs = DataStoreSettings(
         datastore = PreferenceDataStoreFactory.createWithPath {
-            AppPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
+            appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
         },
     )
+
+    private val myCefApp = lazy { MyCefApp(appPaths) }
 
     private val chartPrefs by lazy {
 
         DataStoreSettings(
             datastore = PreferenceDataStoreFactory.createWithPath {
-                AppPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
+                appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
             },
         )
     }
@@ -130,7 +135,7 @@ internal class AppModule {
 
         {
             when (webViewBackend) {
-                WebViewBackend.JCEF.name -> CefWebViewState()
+                WebViewBackend.JCEF.name -> CefWebViewState(myCefApp.value)
                 WebViewBackend.JavaFX.name -> JavaFxWebViewState()
                 else -> error("Invalid WebView Backend: $webViewBackend")
             }
@@ -156,7 +161,7 @@ internal class AppModule {
     )
 
     val tradingProfiles = TradingProfiles(
-        appFilesPath = AppPaths.appDataPath,
+        appFilesPath = appPaths.appDataPath,
         appDB = appDB,
     )
 
@@ -317,6 +322,7 @@ internal class AppModule {
 
     fun destroy() {
         fileLogWriter.destroy()
+        if (myCefApp.isInitialized()) myCefApp.value.dispose()
         appScope.cancel()
     }
 }
