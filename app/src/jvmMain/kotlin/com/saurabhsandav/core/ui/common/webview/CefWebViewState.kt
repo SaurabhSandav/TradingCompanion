@@ -45,7 +45,9 @@ import org.cef.network.CefRequest
 import kotlin.io.path.absolutePathString
 import kotlin.system.exitProcess
 
-class CefWebViewState : WebViewState {
+class CefWebViewState(
+    private val myCefApp: MyCefApp,
+) : WebViewState {
 
     private val jsCallbacks = mutableMapOf<String, CefJSCallback>()
 
@@ -81,7 +83,7 @@ class CefWebViewState : WebViewState {
 
             else -> {
 
-                val initializationProgress by MyCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
+                val initializationProgress by myCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
 
                 Column(
                     modifier = modifier,
@@ -116,7 +118,7 @@ class CefWebViewState : WebViewState {
         if (::browser.isInitialized) return
 
         val cefApp = withContext(Dispatchers.IO) {
-            MyCefApp.builder.build()
+            myCefApp.builder.build()
         }
 
         val client = cefApp.createClient().apply {
@@ -269,7 +271,9 @@ class CefWebViewState : WebViewState {
     }
 }
 
-object MyCefApp {
+class MyCefApp(
+    appPaths: AppPaths,
+) {
 
     private val _progress = MutableSharedFlow<Pair<EnumProgress, Float>>(
         replay = 1,
@@ -278,7 +282,7 @@ object MyCefApp {
     val progress = _progress.asSharedFlow()
 
     val builder: CefAppBuilder = CefAppBuilder().apply {
-        setInstallDir(AppPaths.appDataPath.resolve("jcef-bundle").toFile())
+        setInstallDir(appPaths.appDataPath.resolve("jcef-bundle").toFile())
         setProgressHandler { state, percent -> _progress.tryEmit(state to (percent / 100F)) }
 
         setAppHandler(object : MavenCefAppHandlerAdapter() {
@@ -290,7 +294,7 @@ object MyCefApp {
 
         with(cefSettings) {
             windowless_rendering_enabled = false
-            root_cache_path = AppPaths.appDataPath.resolve("CEF").absolutePathString()
+            root_cache_path = appPaths.appDataPath.resolve("CEF").absolutePathString()
         }
     }
 

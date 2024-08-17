@@ -14,6 +14,7 @@ import kotlin.io.path.createDirectories
 
 class FileLogWriter(
     coroutineScope: CoroutineScope,
+    private val appPaths: AppPaths,
 ) : LogWriter() {
 
     // Current time
@@ -56,7 +57,7 @@ class FileLogWriter(
 
     private fun getLogFileWriter(): Writer {
 
-        val logDirectory = AppPaths.appDataPath.resolve("logs")
+        val logDirectory = appPaths.appDataPath.resolve("logs")
 
         // Create log directory
         logDirectory.createDirectories()
