@@ -151,6 +151,9 @@ kotlin {
 
             // godaddy / compose-color-picker
             implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+
+            // Apache Commons Compress
+            implementation("org.apache.commons:commons-compress:1.27.1")
         }
 
         jvmTest.dependencies {
