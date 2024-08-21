@@ -18,11 +18,11 @@ interface DbUrlProvider {
         ): DbUrlProvider = object : DbUrlProvider {
 
             override fun getAppDbUrl(): String {
-                return "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/${appPaths.appName}.db"
+                return "jdbc:sqlite:${appPaths.appDBPath.absolutePathString()}"
             }
 
             override fun getCandlesDbUrl(): String {
-                return "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/Candles.db"
+                return "jdbc:sqlite:${appPaths.candlesDBPath.absolutePathString()}"
             }
 
             override fun getTradingRecordDbUrl(path: Path): String {
