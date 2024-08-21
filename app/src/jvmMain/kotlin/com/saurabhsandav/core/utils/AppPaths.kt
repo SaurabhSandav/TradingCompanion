@@ -12,6 +12,16 @@ interface AppPaths {
     val appDataPath: Path
 
     val prefsPath: Path
+        get() = appDataPath.resolve("Prefs").also { it.createDirectories() }
+
+    val tradingRecordsPath: Path
+        get() = appDataPath.resolve("Records").also { it.createDirectories() }
+
+    val appDBPath: Path
+        get() = appDataPath.resolve("$appName.db")
+
+    val candlesDBPath: Path
+        get() = appDataPath.resolve("Candles.db")
 
     companion object {
 
@@ -35,7 +45,4 @@ private class AppPathsImpl : AppPaths {
 
             return Path(pathStr).also { it.createDirectories() }
         }
-
-    override val prefsPath: Path
-        get() = appDataPath.resolve("Prefs").also { it.createDirectories() }
 }

@@ -8,6 +8,7 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.utils.AppDispatchers
+import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,7 @@ import kotlin.uuid.Uuid
 
 internal class TradingProfiles(
     private val appDispatchers: AppDispatchers,
-    private val appFilesPath: Path,
+    private val appPaths: AppPaths,
     private val dbUrlProvider: DbUrlProvider,
     private val appDB: AppDB,
 ) {
@@ -193,5 +194,5 @@ internal class TradingProfiles(
     private fun generateProfilePath(): String = Uuid.random().toString()
 
     private val TradingProfile.filesPath: Path
-        get() = appFilesPath.resolve("Records").resolve(path)
+        get() = appPaths.tradingRecordsPath.resolve(path)
 }

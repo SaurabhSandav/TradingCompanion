@@ -9,6 +9,7 @@ import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
+import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -201,6 +202,12 @@ class TradingProfilesTest {
             url = JdbcSqliteDriver.IN_MEMORY,
             schema = AppDB.Schema,
         )
+
+        val appPaths = object : AppPaths {
+            override val appName: String = "TC"
+            override val appDataPath: Path = fakeFileSystem.getPath("/data").also { it.createDirectories() }
+        }
+
         val dbUrlProvider = object : DbUrlProvider {
             override fun getAppDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
             override fun getCandlesDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
@@ -209,7 +216,7 @@ class TradingProfilesTest {
 
         return TradingProfiles(
             appDispatchers = FakeAppDispatchers(this),
-            appFilesPath = fakeFileSystem.getPath("/app").also { it.createDirectories() },
+            appPaths = appPaths,
             dbUrlProvider = dbUrlProvider,
             appDB = AppDB(
                 driver = driver,

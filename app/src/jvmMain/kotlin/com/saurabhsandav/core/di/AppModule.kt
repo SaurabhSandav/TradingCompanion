@@ -160,7 +160,7 @@ internal class AppModule {
 
     val tradingProfiles = TradingProfiles(
         appDispatchers = appDispatchers,
-        appFilesPath = appPaths.appDataPath,
+        appPaths = appPaths,
         dbUrlProvider = dbUrlProvider,
         appDB = appDB,
     )
