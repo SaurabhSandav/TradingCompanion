@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -70,8 +71,7 @@ internal fun SettingsScreen(
         val scrollState = rememberScrollState()
 
         Column(
-            modifier = Modifier.verticalScroll(scrollState).padding(MaterialTheme.dimens.containerPadding),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
+            modifier = Modifier.verticalScroll(scrollState),
         ) {
 
             DarkModePreference(
@@ -79,30 +79,22 @@ internal fun SettingsScreen(
                 onDarkThemeEnabledChange = onDarkThemeEnabledChange,
             )
 
-            HorizontalDivider()
-
             LandingScreenPreference(
                 items = remember { enumValues<LandingScreen>().toList() },
                 selectedItem = landingScreen,
                 onLandingScreenChange = onLandingScreenChange,
             )
 
-            HorizontalDivider()
-
             DensityPreference(
                 densityFraction = densityFraction,
                 onDensityFractionChange = onDensityFractionChange,
             )
-
-            HorizontalDivider()
 
             DefaultTimeframePreference(
                 items = remember { enumValues<Timeframe>().toList() },
                 selectedItem = defaultTimeframe,
                 onDefaultTimeframeChange = onDefaultTimeframeChange,
             )
-
-            HorizontalDivider()
 
             WebViewBackendPreference(
                 items = remember { enumValues<WebViewBackend>().toList() },
@@ -119,12 +111,40 @@ internal fun SettingsScreen(
 }
 
 @Composable
+private fun Preference(
+    headlineContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    colors: ListItemColors = ListItemDefaults.colors(),
+    tonalElevation: Dp = ListItemDefaults.Elevation,
+    shadowElevation: Dp = ListItemDefaults.Elevation,
+) {
+
+    ListItem(
+        headlineContent = headlineContent,
+        modifier = modifier.padding(MaterialTheme.dimens.listItemPadding),
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        colors = colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation
+    )
+
+    HorizontalDivider()
+}
+
+@Composable
 private fun DarkModePreference(
     darkModeEnabled: Boolean,
     onDarkThemeEnabledChange: (Boolean) -> Unit,
 ) {
 
-    ListItem(
+    Preference(
         headlineContent = { Text("Dark Mode") },
         trailingContent = {
 
@@ -143,7 +163,7 @@ private fun LandingScreenPreference(
     onLandingScreenChange: (LandingScreen) -> Unit,
 ) {
 
-    ListItem(
+    Preference(
         headlineContent = { Text("Landing Screen") },
         trailingContent = {
 
@@ -163,7 +183,7 @@ private fun DensityPreference(
     onDensityFractionChange: (Float) -> Unit,
 ) {
 
-    ListItem(
+    Preference(
         headlineContent = {
 
             Row(
@@ -199,7 +219,7 @@ private fun DefaultTimeframePreference(
     onDefaultTimeframeChange: (Timeframe) -> Unit,
 ) {
 
-    ListItem(
+    Preference(
         headlineContent = { Text("Timeframe") },
         trailingContent = {
 
@@ -222,7 +242,7 @@ private fun WebViewBackendPreference(
 
     var newBackend by state<WebViewBackend?> { null }
 
-    ListItem(
+    Preference(
         headlineContent = { Text("WebView Backend") },
         trailingContent = {
 
