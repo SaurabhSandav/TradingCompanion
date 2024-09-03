@@ -1,8 +1,9 @@
 package com.saurabhsandav.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.*
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
@@ -30,7 +31,7 @@ fun runApp() = application {
 
     CompositionLocalProvider(
         LocalDensityFraction provides densityFraction,
-        LocalMinimumInteractiveComponentEnforcement provides false,
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
         LocalAppModule provides appModule,
     ) {
 

@@ -51,8 +51,8 @@ kotlin {
             implementation(libs.kermit)
 
             // cryptography-kotlin
-            implementation("dev.whyoleg.cryptography:cryptography-core:0.3.1")
-            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.1")
+            implementation("dev.whyoleg.cryptography:cryptography-core:0.4.0")
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0")
         }
 
         jvmTest.dependencies {
