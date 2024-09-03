@@ -3,17 +3,14 @@ package com.saurabhsandav.core
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.saurabhsandav.core.utils.AppPaths
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import java.io.Writer
 import java.nio.file.StandardOpenOption.APPEND
 import java.nio.file.StandardOpenOption.CREATE
+import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
-import kotlin.io.path.outputStream
 
 class FileLogWriter(
     coroutineScope: CoroutineScope,
@@ -28,13 +25,17 @@ class FileLogWriter(
 
     init {
 
-        coroutineScope.launch(Dispatchers.IO + NonCancellable) {
+        coroutineScope.launch {
 
             logs.collect { log ->
 
-                writer = writer ?: getLogFileWriter()
+                withContext(Dispatchers.IO + NonCancellable) {
 
-                writer!!.write(log)
+                    writer = writer ?: getLogFileWriter()
+
+                    writer!!.write(log)
+                    writer!!.flush()
+                }
             }
         }
     }
@@ -62,7 +63,7 @@ class FileLogWriter(
 
         val logFile = logDirectory.resolve("$currentTime.log")
 
-        return logFile.outputStream(CREATE, APPEND).bufferedWriter()
+        return logFile.bufferedWriter(options = arrayOf(CREATE, APPEND))
     }
 
     fun destroy() {
