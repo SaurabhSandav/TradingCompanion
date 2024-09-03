@@ -1,15 +1,16 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebViewState
-import com.saurabhsandav.core.utils.*
+import com.saurabhsandav.core.utils.PrefDefaults
+import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.newChildScope
 import com.saurabhsandav.lightweight_charts.options.ChartOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
@@ -21,22 +22,16 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import okio.Path.Companion.toOkioPath
 
 class StockChartsState(
     parentScope: CoroutineScope,
     private val initialParams: StockChartParams,
     loadConfig: LoadConfig,
     val marketDataProvider: MarketDataProvider,
-    val appPrefs: FlowSettings,
-    val webViewStateProvider: () -> WebViewState,
+    appPrefs: FlowSettings,
+    private val chartPrefs: FlowSettings,
+    private val webViewStateProvider: () -> WebViewState,
 ) {
-
-    private val chartPrefs = DataStoreSettings(
-        datastore = PreferenceDataStoreFactory.createWithPath {
-            AppPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
-        },
-    )
 
     private val coroutineScope = parentScope.newChildScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
