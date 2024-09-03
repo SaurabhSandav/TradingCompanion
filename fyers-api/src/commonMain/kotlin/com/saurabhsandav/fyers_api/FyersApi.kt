@@ -6,7 +6,7 @@ import com.saurabhsandav.fyers_api.model.request.AuthValidationRequest
 import com.saurabhsandav.fyers_api.model.request.RefreshValidationRequest
 import com.saurabhsandav.fyers_api.model.response.*
 import dev.whyoleg.cryptography.CryptographyProvider
-import dev.whyoleg.cryptography.algorithms.digest.SHA256
+import dev.whyoleg.cryptography.algorithms.SHA256
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*

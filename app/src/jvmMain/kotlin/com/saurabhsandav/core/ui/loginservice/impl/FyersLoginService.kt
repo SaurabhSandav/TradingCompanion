@@ -22,7 +22,6 @@ import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyers_api.FyersApi
 import com.saurabhsandav.fyers_api.model.response.isAuthError
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.request.*
@@ -52,7 +51,7 @@ internal class FyersLoginService private constructor(
     private val appPrefs: FlowSettings,
 ) : LoginService {
 
-    private var serverEngine: ApplicationEngine? = null
+    private var server: EmbeddedServer<*, *>? = null
 
     private var loginState by mutableStateOf<LoginState?>(null)
 
@@ -91,7 +90,7 @@ internal class FyersLoginService private constructor(
         loginState = if (reLogin) LoginState.ReLogin else LoginState.InitialLogin
 
         // Launch embedded server to capture redirect url
-        serverEngine = embeddedServer(
+        server = embeddedServer(
             factory = Netty,
             port = PORT,
         ) {
@@ -132,8 +131,8 @@ internal class FyersLoginService private constructor(
                         contentType = ContentType.Text.Html,
                     )
 
-                    serverEngine?.stop()
-                    serverEngine = null
+                    server?.stop()
+                    server = null
                 }
             }
         }.start(wait = false)
@@ -216,8 +215,8 @@ internal class FyersLoginService private constructor(
 
     private fun onLoginCancelled(failureMessage: String? = null) = coroutineScope.launchUnit {
 
-        serverEngine?.stop()
-        serverEngine = null
+        server?.stop()
+        server = null
 
         Logger.d(DebugTag) { if (failureMessage == null) "Login Cancelled" else "Login failed" }
 

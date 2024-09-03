@@ -112,12 +112,12 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:22.0.2:linux")
-            implementation("org.openjfx:javafx-controls:22.0.2:linux")
-            implementation("org.openjfx:javafx-graphics:22.0.2:linux")
-            implementation("org.openjfx:javafx-media:22.0.2:linux")
-            implementation("org.openjfx:javafx-swing:22.0.2:linux")
-            implementation("org.openjfx:javafx-web:22.0.2:linux")
+            implementation("org.openjfx:javafx-base:23:linux")
+            implementation("org.openjfx:javafx-controls:23:linux")
+            implementation("org.openjfx:javafx-graphics:23:linux")
+            implementation("org.openjfx:javafx-media:23:linux")
+            implementation("org.openjfx:javafx-swing:23:linux")
+            implementation("org.openjfx:javafx-web:23:linux")
 
             // kotlin-result
             implementation(libs.kotlinResult)
@@ -146,7 +146,7 @@ kotlin {
             implementation(libs.jetpack.datastore.preferences)
 
             // Clikt
-            implementation("com.github.ajalt.clikt:clikt:4.4.0")
+            implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
             // godaddy / compose-color-picker
             implementation("com.godaddy.android.colorpicker:compose-color-picker:0.7.0")

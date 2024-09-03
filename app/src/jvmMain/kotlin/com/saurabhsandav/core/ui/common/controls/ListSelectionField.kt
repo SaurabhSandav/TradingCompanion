@@ -38,21 +38,21 @@ fun <T : Any> OutlinedListSelectionField(
     ) {
 
         OutlinedTextField(
-            modifier = Modifier.menuAnchor().onKeyEvent {
-                when (it.key) {
-                    Key.Enter, Key.NumPadEnter -> {
-                        expanded = true
-                        true
+            modifier = Modifier
+                .menuAnchor(
+                    type = MenuAnchorType.PrimaryNotEditable,
+                    enabled = enabled,
+                )
+                .onKeyEvent {
+
+                    expanded = when (it.key) {
+                        Key.Enter, Key.NumPadEnter -> true
+                        Key.Escape -> false
+                        else -> return@onKeyEvent false
                     }
 
-                    Key.Escape -> {
-                        expanded = false
-                        true
-                    }
-
-                    else -> false
-                }
-            },
+                    return@onKeyEvent true
+                },
             value = selectedItemText,
             onValueChange = {},
             enabled = enabled,
@@ -141,21 +141,21 @@ fun <T : Any> ListSelectionField(
     ) {
 
         TextField(
-            modifier = Modifier.menuAnchor().onKeyEvent {
-                when (it.key) {
-                    Key.Enter, Key.NumPadEnter -> {
-                        expanded = true
-                        true
+            modifier = Modifier
+                .menuAnchor(
+                    type = MenuAnchorType.PrimaryNotEditable,
+                    enabled = enabled,
+                )
+                .onKeyEvent {
+
+                    expanded = when (it.key) {
+                        Key.Enter, Key.NumPadEnter -> true
+                        Key.Escape -> false
+                        else -> return@onKeyEvent false
                     }
 
-                    Key.Escape -> {
-                        expanded = false
-                        true
-                    }
-
-                    else -> false
-                }
-            },
+                    return@onKeyEvent true
+                },
             value = selectedItemText,
             onValueChange = {},
             enabled = enabled,

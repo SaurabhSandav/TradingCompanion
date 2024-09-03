@@ -8,13 +8,13 @@ import io.ktor.server.routing.*
 
 object ChartsPageServer {
 
-    private var serverEngine: ApplicationEngine? = null
+    private var server: EmbeddedServer<*, *>? = null
 
     suspend fun startIfNotStarted() {
 
-        if (serverEngine != null) return
+        if (server != null) return
 
-        serverEngine = embeddedServer(
+        server = embeddedServer(
             factory = Netty,
             port = 0,
         ) {
@@ -28,14 +28,14 @@ object ChartsPageServer {
             }
         }
 
-        serverEngine.let(::checkNotNull).start(wait = false)
+        server.let(::checkNotNull).start(wait = false)
 
         Logger.d { "Initialized Charts page at ${getUrl()}" }
     }
 
     suspend fun getUrl(): String {
-        val serverEngine = serverEngine ?: error("Server not initialized")
-        val port = serverEngine.resolvedConnectors()[0].port
+        val serverEngine = server ?: error("Server not initialized")
+        val port = serverEngine.engine.resolvedConnectors()[0].port
         return "http://localhost:$port"
     }
 }
