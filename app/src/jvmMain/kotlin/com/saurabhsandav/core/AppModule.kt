@@ -113,6 +113,15 @@ internal class AppModule {
         },
     )
 
+    private val chartPrefs by lazy {
+
+        DataStoreSettings(
+            datastore = PreferenceDataStoreFactory.createWithPath {
+                AppPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
+            },
+        )
+    }
+
     val webViewStateProvider = run {
 
         val webViewBackend = runBlocking {
@@ -270,6 +279,7 @@ internal class AppModule {
             initialParams = initialParams,
             marketDataProvider = marketDataProvider,
             appPrefs = appPrefs,
+            chartPrefs = chartPrefs,
             webViewStateProvider = webViewStateProvider,
             loadConfig = loadConfig,
         )
