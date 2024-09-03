@@ -113,6 +113,8 @@ class CefWebViewState : WebViewState {
 
     private suspend fun init() {
 
+        if (::browser.isInitialized) return
+
         val cefApp = withContext(Dispatchers.IO) {
             MyCefApp.builder.build()
         }

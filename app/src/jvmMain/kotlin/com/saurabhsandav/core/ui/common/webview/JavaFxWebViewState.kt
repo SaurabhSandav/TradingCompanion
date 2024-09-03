@@ -22,7 +22,8 @@ import javafx.scene.web.WebView as JFXWebView
 class JavaFxWebViewState : WebViewState {
 
     private lateinit var webView: JFXWebView
-    private lateinit var engine: WebEngine
+    private val engine: WebEngine
+        get() = webView.engine
     private var backgroundColor: JFXColor? = null
 
     private val isReady = CompletableDeferred<Unit>()
@@ -48,7 +49,7 @@ class JavaFxWebViewState : WebViewState {
 
         LaunchedEffect(Unit) {
 
-            check(!isReady.isCompleted) { "WebView already initialized" }
+            if (::webView.isInitialized) return@LaunchedEffect
 
             runInJavaFxThread {
 
@@ -58,7 +59,7 @@ class JavaFxWebViewState : WebViewState {
 
                 webView = JFXWebView()
 
-                setEngine(webView.engine)
+                setEngine()
 
                 webView.isContextMenuEnabled = false
 
@@ -134,9 +135,7 @@ class JavaFxWebViewState : WebViewState {
         }
     }
 
-    private fun setEngine(webEngine: WebEngine) {
-
-        engine = webEngine
+    private fun setEngine() {
 
         // Page background color
         backgroundColor?.let { webView.pageFill = it }
