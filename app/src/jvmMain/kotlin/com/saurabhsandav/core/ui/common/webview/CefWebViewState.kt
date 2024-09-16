@@ -15,9 +15,9 @@ import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +46,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.system.exitProcess
 
 class CefWebViewState(
+    private val appDispatchers: AppDispatchers,
     private val myCefApp: MyCefApp,
 ) : WebViewState {
 
@@ -117,7 +118,7 @@ class CefWebViewState(
 
         if (::browser.isInitialized) return
 
-        val cefApp = withContext(Dispatchers.IO) {
+        val cefApp = withContext(appDispatchers.IO) {
             myCefApp.builder.build()
         }
 

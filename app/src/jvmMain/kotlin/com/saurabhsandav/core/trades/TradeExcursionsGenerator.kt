@@ -5,18 +5,19 @@ import com.github.michaelbull.result.get
 import com.saurabhsandav.core.trades.model.TradeSide
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
-import kotlinx.coroutines.Dispatchers
+import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import java.math.BigDecimal
 
 internal class TradeExcursionsGenerator(
+    private val appDispatchers: AppDispatchers,
     private val tradingProfiles: TradingProfiles,
     private val candleRepo: CandleRepository,
 ) {
 
-    suspend fun generateExcursions() = withContext(Dispatchers.IO) {
+    suspend fun generateExcursions() = withContext(appDispatchers.IO) {
 
         // Suspend until logged in
         candleRepo.isLoggedIn().first { it }
@@ -77,7 +78,7 @@ internal class TradeExcursionsGenerator(
         trade: Trade,
         stop: TradeStop?,
         target: TradeTarget?,
-    ): TradeExcursions? = withContext(Dispatchers.IO) {
+    ): TradeExcursions? = withContext(appDispatchers.IO) {
 
         val exitInstant = trade.exitTimestamp ?: return@withContext null
 

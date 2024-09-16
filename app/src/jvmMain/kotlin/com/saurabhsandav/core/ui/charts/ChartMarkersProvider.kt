@@ -4,12 +4,13 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
 
 internal class ChartMarkersProvider(
+    private val appDispatchers: AppDispatchers,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -64,7 +65,7 @@ internal class ChartMarkersProvider(
                         else -> combine(flows) { it.toList().flatten() }
                     }
                 }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(appDispatchers.IO)
     }
 
     fun getTradeExecutionMarkers(
@@ -104,7 +105,7 @@ internal class ChartMarkersProvider(
                         price = execution.price,
                     )
                 }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(appDispatchers.IO)
     }
 
     fun setMarkedTrades(ids: List<ProfileTradeId>) {

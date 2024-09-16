@@ -6,13 +6,14 @@ import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.withoutNanoseconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
 class Reviews(
+    private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
 ) {
 
@@ -21,7 +22,7 @@ class Reviews(
         tradeIds: List<TradeId>,
         review: String,
         isMarkdown: Boolean,
-    ): ReviewId = withContext(Dispatchers.IO) {
+    ): ReviewId = withContext(appDispatchers.IO) {
 
         return@withContext tradesDB.transactionWithResult {
 
@@ -40,7 +41,7 @@ class Reviews(
     suspend fun setTitle(
         id: ReviewId,
         title: String,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.reviewQueries.setTitle(
             id = id,
@@ -48,7 +49,7 @@ class Reviews(
         )
     }
 
-    suspend fun toggleIsMarkdown(id: ReviewId) = withContext(Dispatchers.IO) {
+    suspend fun toggleIsMarkdown(id: ReviewId) = withContext(appDispatchers.IO) {
 
         tradesDB.reviewQueries.toggleMarkdown(id = id)
     }
@@ -57,7 +58,7 @@ class Reviews(
         id: ReviewId,
         review: String,
         tradeIds: List<TradeId>,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.reviewQueries.update(
             id = id,
@@ -66,34 +67,34 @@ class Reviews(
         )
     }
 
-    suspend fun togglePinned(id: ReviewId) = withContext(Dispatchers.IO) {
+    suspend fun togglePinned(id: ReviewId) = withContext(appDispatchers.IO) {
         tradesDB.reviewQueries.toggleIsPinned(id)
     }
 
-    suspend fun delete(id: ReviewId) = withContext(Dispatchers.IO) {
+    suspend fun delete(id: ReviewId) = withContext(appDispatchers.IO) {
         tradesDB.reviewQueries.delete(id)
     }
 
     fun exists(id: Long): Flow<Boolean> {
-        return tradesDB.reviewQueries.exists(ReviewId(id)).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.reviewQueries.exists(ReviewId(id)).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getById(id: ReviewId): Flow<Review> {
-        return tradesDB.reviewQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.reviewQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getAllPagingSource(): PagingSource<Int, Review> = QueryPagingSource(
         countQuery = tradesDB.reviewQueries.getAllCount(),
         transacter = tradesDB.reviewQueries,
-        context = Dispatchers.IO,
+        context = appDispatchers.IO,
         queryProvider = tradesDB.reviewQueries::getAllPaged,
     )
 
     fun getPinnedCount(): Flow<Long> {
-        return tradesDB.reviewQueries.getPinnedCount().asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.reviewQueries.getPinnedCount().asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getUnpinnedCount(): Flow<Long> {
-        return tradesDB.reviewQueries.getUnpinnedCount().asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.reviewQueries.getUnpinnedCount().asFlow().mapToOne(appDispatchers.IO)
     }
 }

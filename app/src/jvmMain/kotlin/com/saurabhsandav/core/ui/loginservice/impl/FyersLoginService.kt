@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.loginservice.LoginService
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import io.ktor.http.*
@@ -29,7 +30,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -45,6 +45,7 @@ import java.net.URI
 import kotlin.time.Duration.Companion.days
 
 internal class FyersLoginService private constructor(
+    private val appDispatchers: AppDispatchers,
     private val coroutineScope: CoroutineScope,
     private val resultHandle: LoginService.ResultHandle,
     private val fyersApi: FyersApi,
@@ -143,7 +144,7 @@ internal class FyersLoginService private constructor(
         val loginUrl = fyersApi.getLoginURL(redirectUrl = "http://127.0.0.1:$PORT")
 
         // Launch login url in browser
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(appDispatchers.IO) {
 
             Logger.d(DebugTag) { "Launched Fyers login page in browser" }
 
@@ -341,6 +342,7 @@ internal class FyersLoginService private constructor(
     }
 
     class Builder(
+        private val appDispatchers: AppDispatchers,
         private val fyersApi: FyersApi,
         private val appPrefs: FlowSettings,
     ) : LoginService.Builder {
@@ -351,6 +353,7 @@ internal class FyersLoginService private constructor(
             coroutineScope: CoroutineScope,
             resultHandle: LoginService.ResultHandle,
         ): LoginService = FyersLoginService(
+            appDispatchers = appDispatchers,
             coroutineScope = coroutineScope,
             resultHandle = resultHandle,
             fyersApi = fyersApi,

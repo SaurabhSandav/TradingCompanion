@@ -7,8 +7,8 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.withoutNanoseconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -24,6 +24,7 @@ import java.util.*
 import kotlin.io.path.*
 
 internal class Trades(
+    private val appDispatchers: AppDispatchers,
     recordPath: Path,
     private val tradesDB: TradesDB,
     private val executions: TradeExecutions,
@@ -32,26 +33,26 @@ internal class Trades(
     val attachmentsPath: Path = recordPath.resolve(AttachmentFolderName)
 
     val allTrades: Flow<List<Trade>>
-        get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+        get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(appDispatchers.IO)
 
     fun exists(id: Long): Flow<Boolean> {
-        return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun exists(ids: List<Long>): Flow<Map<Long, Boolean>> {
         return tradesDB.tradeQueries
             .getExistingIds(ids.map(::TradeId))
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
             .map { existingIds -> ids.associateWith { id -> TradeId(id) in existingIds } }
     }
 
     fun getById(id: TradeId): Flow<Trade> {
-        return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getByIds(ids: List<TradeId>): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getFilteredCount(filter: TradeFilter): Flow<Long> {
@@ -79,7 +80,7 @@ internal class Trades(
             tickersCount = filter.tickers.size.toLong(),
         )
 
-        return query.asFlow().mapToOne(Dispatchers.IO)
+        return query.asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getFiltered(
@@ -111,7 +112,7 @@ internal class Trades(
             sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
         )
 
-        return query.asFlow().mapToList(Dispatchers.IO)
+        return query.asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getFilteredPagingSource(
@@ -143,7 +144,7 @@ internal class Trades(
                 tickersCount = filter.tickers.size.toLong(),
             ),
             transacter = tradesDB.tradeQueries,
-            context = Dispatchers.IO,
+            context = appDispatchers.IO,
             queryProvider = { limit, offset ->
 
                 tradesDB.tradeQueries.getFilteredPaged(
@@ -184,7 +185,7 @@ internal class Trades(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     fun getByTickerAndIdsInInterval(
@@ -200,14 +201,14 @@ internal class Trades(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     fun getSuggestedTickers(
         query: String,
         ignore: List<String>,
     ): Flow<List<String>> {
-        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
@@ -218,14 +219,14 @@ internal class Trades(
         return tradesDB.tradeToExecutionMapQueries
             .getTradesByExecution(executionId)
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     fun getWithoutExcursionsBefore(instant: Instant): Flow<List<Trade>> {
         return tradesDB.tradeQueries
             .getWithoutExcursionsBeforeTimestamp(instant)
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     suspend fun setExcursions(
@@ -238,7 +239,7 @@ internal class Trades(
         sessionMfePnl: BigDecimal,
         sessionMaePrice: BigDecimal,
         sessionMaePnl: BigDecimal,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         // Save Excursions
         tradesDB.tradeExcursionsQueries.insert(
@@ -255,22 +256,22 @@ internal class Trades(
     }
 
     fun getExcursions(id: TradeId): Flow<TradeExcursions?> {
-        return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+        return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
     fun getStopsForTrade(id: TradeId): Flow<List<TradeStop>> {
-        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getPrimaryStop(id: TradeId): Flow<TradeStop?> {
-        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
     fun getPrimaryStops(ids: List<TradeId>): Flow<List<TradeStop>> {
-        return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         val trade = getById(id).first()
 
@@ -291,7 +292,7 @@ internal class Trades(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         // Delete stop
         tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
@@ -300,24 +301,24 @@ internal class Trades(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun setPrimaryStop(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun setPrimaryStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeStopQueries.setPrimary(tradeId = id, price = price)
     }
 
     fun getTargetsForTrade(id: TradeId): Flow<List<TradeTarget>> {
-        return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeTargetQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getPrimaryTarget(id: TradeId): Flow<TradeTarget?> {
-        return tradesDB.tradeTargetQueries.getPrimaryTargetByTrade(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+        return tradesDB.tradeTargetQueries.getPrimaryTargetByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
     fun getPrimaryTargets(ids: List<TradeId>): Flow<List<TradeTarget>> {
-        return tradesDB.tradeTargetQueries.getPrimaryTargetsByTrades(ids).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeTargetQueries.getPrimaryTargetsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun addTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun addTarget(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         val trade = getById(id).first()
 
@@ -338,7 +339,7 @@ internal class Trades(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun deleteTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun deleteTarget(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         // Delete target
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
@@ -347,46 +348,46 @@ internal class Trades(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun setPrimaryTarget(id: TradeId, price: BigDecimal) = withContext(Dispatchers.IO) {
+    suspend fun setPrimaryTarget(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeTargetQueries.setPrimary(tradeId = id, price = price)
     }
 
     fun getAllTags(): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getTagById(id: TradeTagId): Flow<TradeTag> {
-        return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getTagsByIds(ids: List<TradeTagId>): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getSuggestedTags(
         ignoreIds: List<TradeTagId>,
         query: String,
     ): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, query).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, query).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getTagsForTrade(id: TradeId): Flow<List<TradeTag>> {
-        return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getSuggestedTagsForTrade(tradeId: TradeId, filter: String): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries
             .getSuggestedTagsForTrade(tradeId, filter)
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     suspend fun createTag(
         name: String,
         description: String,
         color: Int?,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeTagQueries.insert(
             name = name,
@@ -400,7 +401,7 @@ internal class Trades(
         name: String,
         description: String,
         color: Int?,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeTagQueries.update(
             id = id,
@@ -410,14 +411,14 @@ internal class Trades(
         )
     }
 
-    suspend fun deleteTag(id: TradeTagId) = withContext(Dispatchers.IO) {
+    suspend fun deleteTag(id: TradeTagId) = withContext(appDispatchers.IO) {
         tradesDB.tradeTagQueries.delete(id)
     }
 
     suspend fun isTagNameUnique(
         name: String,
         ignoreTagId: TradeTagId? = null,
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(appDispatchers.IO) {
         return@withContext tradesDB.tradeTagQueries
             .run {
                 when {
@@ -428,7 +429,7 @@ internal class Trades(
             .executeAsOne()
     }
 
-    suspend fun addTag(tradeId: TradeId, tagId: TradeTagId) = withContext(Dispatchers.IO) {
+    suspend fun addTag(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.insert(
             tradeId = tradeId,
@@ -436,7 +437,7 @@ internal class Trades(
         )
     }
 
-    suspend fun removeTag(tradeId: TradeId, tagId: TradeTagId) = withContext(Dispatchers.IO) {
+    suspend fun removeTag(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.delete(
             tradeId = tradeId,
@@ -445,7 +446,7 @@ internal class Trades(
     }
 
     fun getAttachmentsForTrade(id: TradeId): Flow<List<GetAttachmentsByTrade>> {
-        return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
     suspend fun addAttachment(
@@ -453,7 +454,7 @@ internal class Trades(
         name: String,
         description: String,
         pathStr: String,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.transaction {
 
@@ -533,7 +534,7 @@ internal class Trades(
         attachmentId: TradeAttachmentId,
         name: String,
         description: String,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToAttachmentMapQueries.update(
             tradeId = tradeId,
@@ -546,7 +547,7 @@ internal class Trades(
     suspend fun removeAttachment(
         tradeId: TradeId,
         attachmentId: TradeAttachmentId,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.transaction {
 
@@ -576,14 +577,14 @@ internal class Trades(
     }
 
     fun getNotesForTrade(id: TradeId): Flow<List<TradeNote>> {
-        return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(Dispatchers.IO)
+        return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
     suspend fun addNote(
         tradeId: TradeId,
         note: String,
         isMarkdown: Boolean,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         val now = Clock.System.now().withoutNanoseconds()
 
@@ -600,7 +601,7 @@ internal class Trades(
         id: TradeNoteId,
         note: String,
         isMarkdown: Boolean,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeNoteQueries.update(
             id = id,
@@ -610,7 +611,7 @@ internal class Trades(
         )
     }
 
-    suspend fun deleteNote(id: TradeNoteId) = withContext(Dispatchers.IO) {
+    suspend fun deleteNote(id: TradeNoteId) = withContext(appDispatchers.IO) {
         tradesDB.tradeNoteQueries.delete(id)
     }
 

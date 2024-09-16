@@ -7,7 +7,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
-import kotlinx.coroutines.Dispatchers
+import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -20,6 +20,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 
 internal class TradingProfiles(
+    private val appDispatchers: AppDispatchers,
     private val appFilesPath: Path,
     private val appDB: AppDB,
 ) {
@@ -32,7 +33,7 @@ internal class TradingProfiles(
         description: String,
         isTraining: Boolean,
         path: String? = null,
-    ): Flow<TradingProfile> = withContext(Dispatchers.IO) {
+    ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
         appDB.transactionWithResult {
 
             // Insert into DB
@@ -47,7 +48,7 @@ internal class TradingProfiles(
             val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
 
             // Return TradingProfile
-            appDB.tradingProfileQueries.get(id).asFlow().mapToOne(Dispatchers.IO)
+            appDB.tradingProfileQueries.get(id).asFlow().mapToOne(appDispatchers.IO)
         }
     }
 
@@ -56,7 +57,7 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         appDB.tradingProfileQueries.update(
             id = id,
@@ -69,7 +70,7 @@ internal class TradingProfiles(
     suspend fun copyProfile(
         id: ProfileId,
         name: (String) -> String,
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(appDispatchers.IO) {
 
         // Get profile details to copy
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
@@ -107,7 +108,7 @@ internal class TradingProfiles(
         )
     }
 
-    suspend fun deleteProfile(id: ProfileId) = withContext(Dispatchers.IO) {
+    suspend fun deleteProfile(id: ProfileId) = withContext(appDispatchers.IO) {
 
         // Remove record
         records.remove(id)
@@ -121,28 +122,28 @@ internal class TradingProfiles(
     }
 
     val allProfiles: Flow<List<TradingProfile>> =
-        appDB.tradingProfileQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+        appDB.tradingProfileQueries.getAll().asFlow().mapToList(appDispatchers.IO)
 
     fun getProfile(id: ProfileId): Flow<TradingProfile> {
         return getProfileOrNull(id).map { it ?: error("Profile($id) not found") }
     }
 
     fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
-        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(Dispatchers.IO)
+        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
     fun getDefaultProfile(): Flow<TradingProfile> {
-        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(Dispatchers.IO)
+        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(appDispatchers.IO)
     }
 
-    suspend fun exists(id: ProfileId): Boolean = withContext(Dispatchers.IO) {
+    suspend fun exists(id: ProfileId): Boolean = withContext(appDispatchers.IO) {
         return@withContext appDB.tradingProfileQueries.exists(id).executeAsOne()
     }
 
     suspend fun isProfileNameUnique(
         name: String,
         ignoreProfileId: ProfileId? = null,
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(appDispatchers.IO) {
         return@withContext appDB.tradingProfileQueries
             .run {
                 when {
@@ -157,12 +158,13 @@ internal class TradingProfiles(
 
         records.getOrPut(id) {
 
-            withContext(Dispatchers.IO) {
+            withContext(appDispatchers.IO) {
 
                 val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
                 val profileFilesPath = profile.filesPath.createDirectories()
 
                 TradingRecord(
+                    appDispatchers = appDispatchers,
                     recordPath = profileFilesPath,
                     onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
 

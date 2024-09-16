@@ -11,6 +11,7 @@ internal class AccountModule(
     val presenter = {
 
         AccountPresenter(
+            appDispatchers = appModule.appDispatchers,
             coroutineScope = coroutineScope,
             appDB = appModule.appDB,
         )

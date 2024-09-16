@@ -6,9 +6,9 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -16,6 +16,7 @@ import java.math.BigDecimal
 import java.math.MathContext
 
 internal class TradeExecutions(
+    private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
@@ -30,7 +31,7 @@ internal class TradeExecutions(
         price: BigDecimal,
         timestamp: Instant,
         locked: Boolean,
-    ): TradeExecutionId = withContext(Dispatchers.IO) {
+    ): TradeExecutionId = withContext(appDispatchers.IO) {
 
         val executionId = tradesDB.transactionWithResult {
 
@@ -73,7 +74,7 @@ internal class TradeExecutions(
         side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: Instant,
-    ): TradeExecutionId = withContext(Dispatchers.IO) {
+    ): TradeExecutionId = withContext(appDispatchers.IO) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
 
@@ -121,7 +122,7 @@ internal class TradeExecutions(
         return@withContext id
     }
 
-    suspend fun delete(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
+    suspend fun delete(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
 
         val noneLocked = isLocked(ids).none { it.locked }
 
@@ -168,26 +169,26 @@ internal class TradeExecutions(
         onTradesUpdated()
     }
 
-    suspend fun lock(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
+    suspend fun lock(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
         tradesDB.tradeExecutionQueries.lock(ids)
     }
 
     fun getById(id: TradeExecutionId): Flow<TradeExecution> {
-        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getTodayCount(): Flow<Long> {
-        return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getBeforeTodayCount(): Flow<Long> {
-        return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(Dispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(appDispatchers.IO)
     }
 
     fun getAllPagingSource(): PagingSource<Int, TradeExecution> = QueryPagingSource(
         countQuery = tradesDB.tradeExecutionQueries.getAllCount(),
         transacter = tradesDB.tradeExecutionQueries,
-        context = Dispatchers.IO,
+        context = appDispatchers.IO,
         queryProvider = { limit, offset ->
 
             tradesDB.tradeExecutionQueries.getAllPaged(
@@ -201,7 +202,7 @@ internal class TradeExecutions(
         return tradesDB.tradeToExecutionMapQueries
             .getExecutionsByTrade(id, ::toTradeExecution)
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     fun getExecutionsByTickerInInterval(
@@ -215,7 +216,7 @@ internal class TradeExecutions(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
     fun getExecutionsByTickerAndTradeIdsInInterval(
@@ -232,10 +233,10 @@ internal class TradeExecutions(
                 mapper = ::toTradeExecution,
             )
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(appDispatchers.IO)
     }
 
-    private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(Dispatchers.IO) {
+    private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
         tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
 
