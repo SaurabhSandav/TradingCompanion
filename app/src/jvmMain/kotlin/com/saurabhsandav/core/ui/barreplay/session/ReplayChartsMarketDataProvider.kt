@@ -11,14 +11,15 @@ import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 
 internal class ReplayChartsMarketDataProvider(
+    private val appDispatchers: AppDispatchers,
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
@@ -101,7 +102,7 @@ internal class ReplayChartsMarketDataProvider(
                         }
                     }
                 }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(appDispatchers.IO)
     }
 
     private fun getTradeExecutionMarkers(
@@ -132,6 +133,6 @@ internal class ReplayChartsMarketDataProvider(
                         price = execution.price,
                     )
                 }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(appDispatchers.IO)
     }
 }

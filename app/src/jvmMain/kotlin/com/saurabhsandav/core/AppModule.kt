@@ -42,6 +42,7 @@ import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
 import com.saurabhsandav.core.ui.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.trades.TradesModule
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterModule
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.PrefKeys
@@ -58,7 +59,13 @@ internal class AppModule {
 
     private val appPaths = AppPaths()
 
-    private val fileLogWriter = FileLogWriter(appScope, appPaths)
+    val appDispatchers = AppDispatchers()
+
+    private val fileLogWriter = FileLogWriter(
+        appDispatchers = appDispatchers,
+        coroutineScope = appScope,
+        appPaths = appPaths,
+    )
 
     init {
 
@@ -135,7 +142,7 @@ internal class AppModule {
 
         {
             when (webViewBackend) {
-                WebViewBackend.JCEF.name -> CefWebViewState(myCefApp.value)
+                WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value)
                 WebViewBackend.JavaFX.name -> JavaFxWebViewState()
                 else -> error("Invalid WebView Backend: $webViewBackend")
             }
@@ -155,17 +162,23 @@ internal class AppModule {
             fyersApi = fyersApi,
         ),
         candleCache = CandleCacheDB(
+            appDispatchers = appDispatchers,
             candleDB = candleDB,
             candleQueriesCollection = candleQueriesCollection,
         ),
     )
 
     val tradingProfiles = TradingProfiles(
+        appDispatchers = appDispatchers,
         appFilesPath = appPaths.appDataPath,
         appDB = appDB,
     )
 
-    val tradeExcursionsGenerator = TradeExcursionsGenerator(tradingProfiles, candleRepo)
+    val tradeExcursionsGenerator = TradeExcursionsGenerator(
+        appDispatchers = appDispatchers,
+        tradingProfiles = tradingProfiles,
+        candleRepo = candleRepo,
+    )
 
     val tradeContentLauncher = TradeContentLauncher()
 

@@ -35,6 +35,7 @@ internal class ReplaySessionModule(
     )
 
     private val marketDataProvider = ReplayChartsMarketDataProvider(
+        appDispatchers = appModule.appDispatchers,
         coroutineScope = coroutineScope,
         profileId = replayParams.profileId,
         replaySeriesCache = replaySeriesCache,

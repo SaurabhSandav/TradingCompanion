@@ -18,10 +18,7 @@ import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import com.saurabhsandav.core.utils.NIFTY500
-import com.saurabhsandav.core.utils.PrefDefaults
-import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.core.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -31,6 +28,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 internal class ChartsPresenter(
+    private val appDispatchers: AppDispatchers,
     private val coroutineScope: CoroutineScope,
     stockChartsStateFactory: StockChartsStateFactory,
     private val markersProvider: ChartMarkersProvider,
@@ -144,8 +142,9 @@ internal class ChartsPresenter(
 
         loginServicesManager.addService(
             serviceBuilder = FyersLoginService.Builder(
+                appDispatchers = appDispatchers,
                 fyersApi = fyersApi,
-                appPrefs = appPrefs
+                appPrefs = appPrefs,
             ),
             resultHandle = ResultHandle(
                 onFailure = { message ->

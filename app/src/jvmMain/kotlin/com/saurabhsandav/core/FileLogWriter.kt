@@ -2,9 +2,13 @@ package com.saurabhsandav.core
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import java.io.Writer
 import java.nio.file.StandardOpenOption.APPEND
@@ -13,6 +17,7 @@ import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
 
 class FileLogWriter(
+    appDispatchers: AppDispatchers,
     coroutineScope: CoroutineScope,
     private val appPaths: AppPaths,
 ) : LogWriter() {
@@ -30,7 +35,7 @@ class FileLogWriter(
 
             logs.collect { log ->
 
-                withContext(Dispatchers.IO + NonCancellable) {
+                withContext(appDispatchers.IO + NonCancellable) {
 
                     writer = writer ?: getLogFileWriter()
 

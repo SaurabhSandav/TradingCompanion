@@ -5,6 +5,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.migrations.migrationAfterV1
 import com.saurabhsandav.core.trades.migrations.migrationAfterV2
 import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import java.nio.file.Path
@@ -12,6 +13,7 @@ import java.util.*
 import kotlin.io.path.absolutePathString
 
 internal class TradingRecord(
+    appDispatchers: AppDispatchers,
     recordPath: Path,
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
 ) {
@@ -113,6 +115,7 @@ internal class TradingRecord(
     }
 
     val executions = TradeExecutions(
+        appDispatchers = appDispatchers,
         tradesDB = tradesDB,
         onTradesUpdated = {
 
@@ -125,9 +128,20 @@ internal class TradingRecord(
         },
     )
 
-    val trades = Trades(recordPath, tradesDB, executions)
+    val trades = Trades(
+        appDispatchers = appDispatchers,
+        recordPath = recordPath,
+        tradesDB = tradesDB,
+        executions = executions,
+    )
 
-    val reviews = Reviews(tradesDB)
+    val reviews = Reviews(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
 
-    val sizingTrades = SizingTrades(tradesDB)
+    val sizingTrades = SizingTrades(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
 }

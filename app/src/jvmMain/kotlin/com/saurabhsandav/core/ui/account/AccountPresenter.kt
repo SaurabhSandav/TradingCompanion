@@ -8,11 +8,12 @@ import app.cash.molecule.launchMolecule
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 internal class AccountPresenter(
+    appDispatchers: AppDispatchers,
     coroutineScope: CoroutineScope,
     appDB: AppDB,
 ) {
@@ -23,7 +24,7 @@ internal class AccountPresenter(
             appDB.accountTransactionQueries
                 .getAll()
                 .asFlow()
-                .mapToList(Dispatchers.IO)
+                .mapToList(appDispatchers.IO)
                 .mapList { acTransaction ->
                     Transaction(
                         date = acTransaction.date,

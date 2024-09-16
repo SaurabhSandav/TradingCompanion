@@ -12,6 +12,7 @@ internal class ChartsModule(
 ) {
 
     private val markersProvider = ChartMarkersProvider(
+        appDispatchers = appModule.appDispatchers,
         tradingProfiles = appModule.tradingProfiles,
     )
 
@@ -23,6 +24,7 @@ internal class ChartsModule(
     val presenter = {
 
         ChartsPresenter(
+            appDispatchers = appModule.appDispatchers,
             coroutineScope = coroutineScope,
             stockChartsStateFactory = {
                     initialParams: StockChartParams,
