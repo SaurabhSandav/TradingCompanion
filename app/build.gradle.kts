@@ -155,6 +155,12 @@ kotlin {
         jvmTest.dependencies {
 
             implementation(kotlin("test"))
+
+            // KotlinX Coroutines
+            implementation(libs.kotlinx.coroutines.test)
+
+            // Jimfs
+            implementation("com.google.jimfs:jimfs:1.3.0")
         }
     }
 }

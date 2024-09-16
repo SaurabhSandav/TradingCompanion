@@ -16,9 +16,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteRecursively
+import kotlin.io.path.*
 
 internal class TradingProfiles(
     private val appDispatchers: AppDispatchers,
@@ -34,7 +32,6 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-        path: String? = null,
     ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
         appDB.transactionWithResult {
 
@@ -42,7 +39,7 @@ internal class TradingProfiles(
             appDB.tradingProfileQueries.insert(
                 name = name,
                 description = description,
-                path = path ?: generateProfilePath(),
+                path = generateProfilePath(),
                 isTraining = isTraining,
             )
 
@@ -59,7 +56,7 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-    ) = withContext(appDispatchers.IO) {
+    ): Unit = withContext(appDispatchers.IO) {
 
         appDB.tradingProfileQueries.update(
             id = id,
@@ -71,20 +68,22 @@ internal class TradingProfiles(
 
     suspend fun copyProfile(
         id: ProfileId,
-        name: (String) -> String,
-    ) = withContext(appDispatchers.IO) {
+        name: (fromProfileName: String) -> String,
+    ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
 
         // Get profile details to copy
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
 
         // Create new entry in DB
-        val newProfile = appDB.transactionWithResult {
+        appDB.transactionWithResult {
+
+            val newProfilePath = generateProfilePath()
 
             // Insert into DB
             appDB.tradingProfileQueries.insert(
                 name = name(profile.name),
                 description = profile.description,
-                path = generateProfilePath(),
+                path = newProfilePath,
                 isTraining = profile.isTraining,
             )
 
@@ -98,19 +97,25 @@ internal class TradingProfiles(
                 tradeCountOpen = profile.tradeCountOpen,
             )
 
-            // Return copied TradingProfile
-            appDB.tradingProfileQueries.get(newProfileId).executeAsOne()
-        }
+            // Copy associated files if exist
+            if (profile.filesPath.exists()) {
 
-        // Copy associated files
-        profile.filesPath.copyToRecursively(
-            target = newProfile.filesPath,
-            followLinks = false,
-            overwrite = false,
-        )
+                profile.filesPath.copyToRecursively(
+                    target = Path(newProfilePath),
+                    followLinks = false,
+                    overwrite = false
+                )
+            }
+
+            // Return TradingProfile
+            return@transactionWithResult appDB.tradingProfileQueries
+                .get(newProfileId)
+                .asFlow()
+                .mapToOne(appDispatchers.IO)
+        }
     }
 
-    suspend fun deleteProfile(id: ProfileId) = withContext(appDispatchers.IO) {
+    suspend fun deleteProfile(id: ProfileId): Unit = withContext(appDispatchers.IO) {
 
         // Remove record
         records.remove(id)
@@ -135,7 +140,10 @@ internal class TradingProfiles(
     }
 
     fun getDefaultProfile(): Flow<TradingProfile> {
-        return appDB.tradingProfileQueries.getDefault().asFlow().mapToOne(appDispatchers.IO)
+        return with(appDB.tradingProfileQueries) {
+            createDefaultIfEmpty()
+            getDefault().asFlow().mapToOne(appDispatchers.IO)
+        }
     }
 
     suspend fun exists(id: ProfileId): Boolean = withContext(appDispatchers.IO) {
