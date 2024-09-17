@@ -24,12 +24,12 @@ import java.util.*
 import kotlin.io.path.*
 
 internal class Trades(
-    recordPath: String,
+    recordPath: Path,
     private val tradesDB: TradesDB,
     private val executions: TradeExecutions,
 ) {
 
-    val attachmentsPath = Path(recordPath, AttachmentFolderName)
+    val attachmentsPath: Path = recordPath.resolve(AttachmentFolderName)
 
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(Dispatchers.IO)

@@ -15,7 +15,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
 
 internal class TradingProfiles(
     private val appFilesPath: Path,
@@ -98,7 +100,11 @@ internal class TradingProfiles(
         }
 
         // Copy associated files
-        profile.filesPath.toFile().copyRecursively(newProfile.filesPath.toFile())
+        profile.filesPath.copyToRecursively(
+            target = newProfile.filesPath,
+            followLinks = false,
+            overwrite = false,
+        )
     }
 
     suspend fun deleteProfile(id: ProfileId) = withContext(Dispatchers.IO) {
@@ -111,7 +117,7 @@ internal class TradingProfiles(
         appDB.tradingProfileQueries.delete(id)
 
         // Delete associated files
-        profile.filesPath.toFile().deleteRecursively()
+        profile.filesPath.deleteRecursively()
     }
 
     val allProfiles: Flow<List<TradingProfile>> =
@@ -157,7 +163,7 @@ internal class TradingProfiles(
                 val profileFilesPath = profile.filesPath.createDirectories()
 
                 TradingRecord(
-                    recordPath = profileFilesPath.toString(),
+                    recordPath = profileFilesPath,
                     onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
 
                         appDB.tradingProfileQueries.setTradeCounts(
