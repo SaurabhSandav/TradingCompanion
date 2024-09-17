@@ -41,17 +41,13 @@ import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
 import com.saurabhsandav.core.ui.tradereview.TradeReviewModule
 import com.saurabhsandav.core.ui.trades.TradesModule
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterModule
-import com.saurabhsandav.core.utils.AppDispatchers
-import com.saurabhsandav.core.utils.AppPaths
-import com.saurabhsandav.core.utils.InstantColumnAdapter
-import com.saurabhsandav.core.utils.PrefKeys
+import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.fyers_api.FyersApi
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path.Companion.toOkioPath
 import java.util.*
-import kotlin.io.path.absolutePathString
 
 internal class AppModule {
 
@@ -81,10 +77,12 @@ internal class AppModule {
         )
     )
 
+    private val dbUrlProvider = DbUrlProvider(appPaths)
+
     val appDB: AppDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/${appPaths.appName}.db",
+            url = dbUrlProvider.getAppDbUrl(),
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = AppDB.Schema,
         )
@@ -101,7 +99,7 @@ internal class AppModule {
 
     private val candleDBDriver: SqlDriver = run {
         JdbcSqliteDriver(
-            url = "jdbc:sqlite:${appPaths.appDataPath.absolutePathString()}/Candles.db",
+            url = dbUrlProvider.getCandlesDbUrl(),
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = CandleDB.Schema,
         )
@@ -171,6 +169,7 @@ internal class AppModule {
     val tradingProfiles = TradingProfiles(
         appDispatchers = appDispatchers,
         appFilesPath = appPaths.appDataPath,
+        dbUrlProvider = dbUrlProvider,
         appDB = appDB,
     )
 

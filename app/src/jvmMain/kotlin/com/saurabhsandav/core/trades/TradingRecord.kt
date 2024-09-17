@@ -7,21 +7,22 @@ import com.saurabhsandav.core.trades.migrations.migrationAfterV2
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
+import com.saurabhsandav.core.utils.DbUrlProvider
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.absolutePathString
 
 internal class TradingRecord(
     appDispatchers: AppDispatchers,
     recordPath: Path,
+    dbUrlProvider: DbUrlProvider,
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
 ) {
 
     private val tradesDB: TradesDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
+            url = dbUrlProvider.getTradingRecordDbUrl(recordPath),
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = TradesDB.Schema,
             callbacks = arrayOf(
