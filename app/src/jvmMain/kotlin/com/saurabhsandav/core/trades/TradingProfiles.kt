@@ -8,6 +8,7 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.utils.AppDispatchers
+import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -22,6 +23,7 @@ import kotlin.io.path.deleteRecursively
 internal class TradingProfiles(
     private val appDispatchers: AppDispatchers,
     private val appFilesPath: Path,
+    private val dbUrlProvider: DbUrlProvider,
     private val appDB: AppDB,
 ) {
 
@@ -166,6 +168,7 @@ internal class TradingProfiles(
                 TradingRecord(
                     appDispatchers = appDispatchers,
                     recordPath = profileFilesPath,
+                    dbUrlProvider = dbUrlProvider,
                     onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
 
                         appDB.tradingProfileQueries.setTradeCounts(
