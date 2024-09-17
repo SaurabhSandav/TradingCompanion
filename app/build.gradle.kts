@@ -55,6 +55,7 @@ kotlin {
                 listOf(
                     "kotlin.contracts.ExperimentalContracts",
                     "kotlin.ExperimentalStdlibApi",
+                    "kotlin.io.path.ExperimentalPathApi",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "kotlinx.coroutines.FlowPreview",
                     "androidx.compose.foundation.ExperimentalFoundationApi",
