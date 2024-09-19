@@ -28,4 +28,7 @@ class IndicatorCacheKeyBuilderScope {
     }
 }
 
-private class NoKeyException : Exception()
+private class NoKeyException : Exception() {
+
+    override fun fillInStackTrace(): Throwable = this
+}

@@ -54,4 +54,6 @@ internal class ValidationScopeImpl : ValidationScope {
 internal object ValidationException : CancellationException(null as String?) {
 
     private fun readResolve(): Any = ValidationException
+
+    override fun fillInStackTrace(): Throwable = this
 }
