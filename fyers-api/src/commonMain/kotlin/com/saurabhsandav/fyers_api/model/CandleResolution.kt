@@ -1,6 +1,6 @@
 package com.saurabhsandav.fyers_api.model
 
-enum class CandleResolution(val strValue: String) {
+public enum class CandleResolution(internal val strValue: String) {
     D1("D"),
     M1("1"),
     M2("2"),

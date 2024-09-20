@@ -4,14 +4,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Quotes(
+public data class Quotes(
 
     @SerialName("d")
     val quote: List<Quote>,
 )
 
 @Serializable
-data class Quote(
+public data class Quote(
 
     @SerialName("n")
     val symbol: String,
@@ -24,7 +24,7 @@ data class Quote(
 )
 
 @Serializable
-data class QuoteData(
+public data class QuoteData(
 
     @SerialName("ch")
     val changeValue: Double,
@@ -85,7 +85,7 @@ data class QuoteData(
 )
 
 @Serializable
-data class Cmd(
+public data class Cmd(
 
     @SerialName("t")
     val currentEpoch: Int,

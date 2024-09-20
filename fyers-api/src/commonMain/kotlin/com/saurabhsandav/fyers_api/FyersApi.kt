@@ -16,7 +16,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-class FyersApi {
+public class FyersApi {
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -31,7 +31,7 @@ class FyersApi {
 
     private val rateLimiter = FyersRateLimiter()
 
-    fun getLoginURL(redirectUrl: String): String {
+    public fun getLoginURL(redirectUrl: String): String {
         return URLBuilder("https://api-t1.fyers.in/api/v3/generate-authcode").apply {
             encodedParameters.apply {
                 append("client_id", BuildKonfig.FYERS_APP_ID)
@@ -42,7 +42,7 @@ class FyersApi {
         }.buildString()
     }
 
-    suspend fun validateLogin(redirectUrl: String): FyersResponse<AuthValidationResult> {
+    public suspend fun validateLogin(redirectUrl: String): FyersResponse<AuthValidationResult> {
 
         // Rate-limit
         rateLimiter.limit()
@@ -61,7 +61,7 @@ class FyersApi {
         return response.body()
     }
 
-    suspend fun refreshLogin(
+    public suspend fun refreshLogin(
         refreshToken: String,
         pin: String,
     ): FyersResponse<RefreshValidationResult> {
@@ -84,7 +84,7 @@ class FyersApi {
         return response.body()
     }
 
-    suspend fun getProfile(
+    public suspend fun getProfile(
         accessToken: String,
     ): FyersResponse<ProfileResult> {
 
@@ -98,7 +98,7 @@ class FyersApi {
         return response.body()
     }
 
-    suspend fun getHistoricalCandles(
+    public suspend fun getHistoricalCandles(
         accessToken: String,
         symbol: String,
         resolution: CandleResolution,
@@ -123,7 +123,7 @@ class FyersApi {
         return response.body()
     }
 
-    suspend fun getQuotes(
+    public suspend fun getQuotes(
         accessToken: String,
         symbols: List<String>,
     ): FyersResponse<Quotes> {

@@ -11,14 +11,14 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @Serializable(with = FyersSerializer::class)
-data class FyersResponse<T>(
+public data class FyersResponse<T>(
     val s: String?,
     val code: Int?,
     val message: String?,
     val result: T?,
 )
 
-val FyersResponse<*>.isAuthError: Boolean
+public val FyersResponse<*>.isAuthError: Boolean
     get() = code == -8
 
 internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<FyersResponse<T>> {

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthValidationRequest(
+internal data class AuthValidationRequest(
 
     @SerialName("grant_type")
     val grantType: String,
