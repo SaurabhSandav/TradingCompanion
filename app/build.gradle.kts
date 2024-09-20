@@ -1,4 +1,3 @@
-import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
@@ -8,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
-    alias(libs.plugins.buildKonfig)
 }
 
 group = "com.saurabhsandav.apps"
@@ -54,7 +52,6 @@ kotlin {
 
                 listOf(
                     "kotlin.contracts.ExperimentalContracts",
-                    "kotlin.ExperimentalStdlibApi",
                     "kotlin.io.path.ExperimentalPathApi",
                     "kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "kotlinx.coroutines.FlowPreview",
@@ -71,6 +68,7 @@ kotlin {
 
         commonMain.dependencies {
 
+            implementation(projects.fyersApi)
             implementation(projects.lightweightCharts)
         }
 
@@ -96,10 +94,6 @@ kotlin {
 
             // Ktor
             implementation(libs.ktor.server.netty)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.ktor.client.contentNegotiation)
-            implementation(libs.ktor.serialization.kotlinxJson)
 
             // SQLDelight
             implementation(libs.sqldelight.runtime)
@@ -124,10 +118,6 @@ kotlin {
             implementation("org.openjfx:javafx-media:22.0.2:linux")
             implementation("org.openjfx:javafx-swing:22.0.2:linux")
             implementation("org.openjfx:javafx-web:22.0.2:linux")
-
-            // cryptography-kotlin
-            implementation("dev.whyoleg.cryptography:cryptography-core:0.3.1")
-            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.3.1")
 
             // kotlin-result
             implementation(libs.kotlinResult)
@@ -166,21 +156,6 @@ kotlin {
 
             implementation(kotlin("test"))
         }
-    }
-}
-
-@Suppress("PropertyName")
-val FYERS_APP_ID: String? by project
-
-@Suppress("PropertyName")
-val FYERS_SECRET: String? by project
-
-buildkonfig {
-    packageName = ""
-
-    defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "FYERS_APP_ID", FYERS_APP_ID)
-        buildConfigField(FieldSpec.Type.STRING, "FYERS_SECRET", FYERS_SECRET)
     }
 }
 

@@ -1,10 +1,10 @@
-package com.saurabhsandav.core.fyers_api.model.request
+package com.saurabhsandav.fyers_api.model.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RefreshValidationRequest(
+data class AuthValidationRequest(
 
     @SerialName("grant_type")
     val grantType: String,
@@ -12,9 +12,6 @@ data class RefreshValidationRequest(
     @SerialName("appIdHash")
     val appIdHash: String,
 
-    @SerialName("refresh_token")
-    val refreshToken: String,
-
-    @SerialName("pin")
-    val pin: String,
+    @SerialName("code")
+    val code: String,
 )

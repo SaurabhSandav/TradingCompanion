@@ -55,6 +55,7 @@ rootProject.name = "TradingCompanion"
 
 include(
     "app",
+    "fyers-api",
     "lightweight-charts",
 )
 

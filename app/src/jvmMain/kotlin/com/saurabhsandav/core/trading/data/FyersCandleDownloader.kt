@@ -6,15 +6,15 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.fyers_api.FyersApi
-import com.saurabhsandav.core.fyers_api.model.CandleResolution
-import com.saurabhsandav.core.fyers_api.model.DateFormat
-import com.saurabhsandav.core.fyers_api.model.response.FyersResponse
-import com.saurabhsandav.core.fyers_api.model.response.HistoricalCandlesResult
-import com.saurabhsandav.core.fyers_api.model.response.isAuthError
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
+import com.saurabhsandav.fyers_api.FyersApi
+import com.saurabhsandav.fyers_api.model.CandleResolution
+import com.saurabhsandav.fyers_api.model.DateFormat
+import com.saurabhsandav.fyers_api.model.response.FyersResponse
+import com.saurabhsandav.fyers_api.model.response.HistoricalCandlesResult
+import com.saurabhsandav.fyers_api.model.response.isAuthError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
@@ -106,7 +106,7 @@ internal class FyersCandleDownloader(
     }
 
     private fun FyersResponse<HistoricalCandlesResult>.toResult(): Result<List<Candle>, CandleDownloader.Error> {
-        return when (result) {
+        return when (val result = result) {
             null -> when {
                 isAuthError -> Err(CandleDownloader.Error.AuthError(message))
                 else -> Err(CandleDownloader.Error.UnknownError(message ?: "Unknown Error"))

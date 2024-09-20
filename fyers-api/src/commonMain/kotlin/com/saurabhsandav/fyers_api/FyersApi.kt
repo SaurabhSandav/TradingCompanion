@@ -1,11 +1,10 @@
-package com.saurabhsandav.core.fyers_api
+package com.saurabhsandav.fyers_api
 
-import BuildKonfig
-import com.saurabhsandav.core.fyers_api.model.CandleResolution
-import com.saurabhsandav.core.fyers_api.model.DateFormat
-import com.saurabhsandav.core.fyers_api.model.request.AuthValidationRequest
-import com.saurabhsandav.core.fyers_api.model.request.RefreshValidationRequest
-import com.saurabhsandav.core.fyers_api.model.response.*
+import com.saurabhsandav.fyers_api.model.CandleResolution
+import com.saurabhsandav.fyers_api.model.DateFormat
+import com.saurabhsandav.fyers_api.model.request.AuthValidationRequest
+import com.saurabhsandav.fyers_api.model.request.RefreshValidationRequest
+import com.saurabhsandav.fyers_api.model.response.*
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.digest.SHA256
 import io.ktor.client.*
