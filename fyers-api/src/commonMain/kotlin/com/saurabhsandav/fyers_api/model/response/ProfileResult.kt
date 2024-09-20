@@ -4,14 +4,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProfileResult(
+public data class ProfileResult(
 
     @SerialName("data")
     var data: Profile,
 ) {
 
     @Serializable
-    data class Profile(
+    public data class Profile(
 
         @SerialName("name")
         var name: String,

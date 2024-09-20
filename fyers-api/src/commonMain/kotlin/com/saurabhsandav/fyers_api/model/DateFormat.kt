@@ -1,6 +1,6 @@
 package com.saurabhsandav.fyers_api.model
 
-enum class DateFormat(val intValue: Int) {
+public enum class DateFormat(internal val intValue: Int) {
     EPOCH(0),
 
     // yyyy-mm-dd

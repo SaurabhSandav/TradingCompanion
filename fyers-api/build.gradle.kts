@@ -24,6 +24,7 @@ kotlin {
             languageSettings {
 
                 progressiveMode = true
+                explicitApi()
 
                 listOf(
                     "kotlin.ExperimentalStdlibApi",

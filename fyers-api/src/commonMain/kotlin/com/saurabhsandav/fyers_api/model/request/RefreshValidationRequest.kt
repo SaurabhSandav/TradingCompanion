@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RefreshValidationRequest(
+internal data class RefreshValidationRequest(
 
     @SerialName("grant_type")
     val grantType: String,
