@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.fyers_api.model
+package com.saurabhsandav.fyers_api.model
 
 enum class CandleResolution(val strValue: String) {
     D1("D"),

@@ -1,14 +1,11 @@
-package com.saurabhsandav.core.fyers_api.model.response
+package com.saurabhsandav.fyers_api.model.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthValidationResult(
+data class RefreshValidationResult(
 
     @SerialName("access_token")
     val accessToken: String,
-
-    @SerialName("refresh_token")
-    val refreshToken: String,
 )

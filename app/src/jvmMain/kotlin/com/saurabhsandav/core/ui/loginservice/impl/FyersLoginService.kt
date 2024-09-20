@@ -12,8 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.fyers_api.FyersApi
-import com.saurabhsandav.core.fyers_api.model.response.isAuthError
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.loginservice.LoginService
@@ -21,6 +19,8 @@ import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.fyers_api.FyersApi
+import com.saurabhsandav.fyers_api.model.response.isAuthError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -158,13 +158,13 @@ internal class FyersLoginService private constructor(
 
         val response = fyersApi.validateLogin(redirectUrl)
 
-        when (response.result) {
+        when (val result = response.result) {
             null -> onLoginCancelled(response.message)
             else -> {
 
                 val authTokens = FyersAuthTokens(
-                    accessToken = response.result.accessToken,
-                    refreshToken = response.result.refreshToken,
+                    accessToken = result.accessToken,
+                    refreshToken = result.refreshToken,
                     initialLoginInstant = Clock.System.now(),
                 )
 
@@ -190,7 +190,7 @@ internal class FyersLoginService private constructor(
             pin = pin.await(),
         )
 
-        when (refreshResponse.result) {
+        when (val result = refreshResponse.result) {
             // Refresh failed. Login again
             null -> {
 
@@ -203,7 +203,7 @@ internal class FyersLoginService private constructor(
             // Refresh succeeded. Update access token
             else -> {
 
-                val refreshedAuthTokens = authTokens.copy(accessToken = refreshResponse.result.accessToken)
+                val refreshedAuthTokens = authTokens.copy(accessToken = result.accessToken)
 
                 saveAuthTokensToPrefs(appPrefs, refreshedAuthTokens)
 
