@@ -70,17 +70,22 @@ internal class TradeExecutionFormPresenter(
         val tz = TimeZone.currentSystemDefault()
 
         val executionId = when (formType) {
-            is Edit -> executions.edit(
-                id = formType.id,
-                broker = "Finvasia",
-                instrument = instrumentField.value!!,
-                ticker = tickerField.value!!,
-                quantity = quantityField.value.toBigDecimal(),
-                lots = lotsField.value.ifBlank { null }?.toInt(),
-                side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = priceField.value.toBigDecimal(),
-                timestamp = timestamp.toInstant(tz),
-            )
+            is Edit -> {
+
+                executions.edit(
+                    id = formType.id,
+                    broker = "Finvasia",
+                    instrument = instrumentField.value!!,
+                    ticker = tickerField.value!!,
+                    quantity = quantityField.value.toBigDecimal(),
+                    lots = lotsField.value.ifBlank { null }?.toInt(),
+                    side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                    price = priceField.value.toBigDecimal(),
+                    timestamp = timestamp.toInstant(tz),
+                )
+
+                formType.id
+            }
 
             else -> executions.new(
                 broker = "Finvasia",
