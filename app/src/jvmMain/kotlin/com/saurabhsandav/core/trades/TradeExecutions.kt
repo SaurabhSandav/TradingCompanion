@@ -4,12 +4,14 @@ import androidx.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
@@ -74,11 +76,11 @@ internal class TradeExecutions(
         side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: Instant,
-    ): TradeExecutionId = withContext(appDispatchers.IO) {
+    ): Unit = withContext(appDispatchers.IO) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
 
-        require(notLocked) { "Trade execution is locked and cannot be edited" }
+        require(notLocked) { "TradeExecution($id) is locked and cannot be edited" }
 
         tradesDB.transaction {
 
@@ -118,15 +120,13 @@ internal class TradeExecutions(
 
         // Notify updates
         onTradesUpdated()
-
-        return@withContext id
     }
 
     suspend fun delete(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
 
         val noneLocked = isLocked(ids).none { it.locked }
 
-        require(noneLocked) { "Trade execution(s) are locked and cannot be deleted" }
+        require(noneLocked) { "TradeExecution(s) are locked and cannot be deleted" }
 
         tradesDB.transaction {
 
@@ -174,7 +174,11 @@ internal class TradeExecutions(
     }
 
     fun getById(id: TradeExecutionId): Flow<TradeExecution> {
-        return tradesDB.tradeExecutionQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeExecutionQueries
+            .getById(id)
+            .asFlow()
+            .mapToOneOrNull(appDispatchers.IO)
+            .map { it ?: error("TradeExecution($id) not found") }
     }
 
     fun getTodayCount(): Flow<Long> {
