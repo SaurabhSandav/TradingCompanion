@@ -1,9 +1,8 @@
 package com.saurabhsandav.core.trades.testdata
 
+import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradeExecution
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trades.model.*
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -111,5 +110,133 @@ class SimpleTradesData {
             timestamp = LocalDateTime(2024, Month.MAY, 2, 11, 50).toInstant(TimeZone.UTC),
             locked = true,
         ),
+    )
+
+    fun trades(index: Int): List<Trade> {
+
+        return when (index) {
+            0 -> firstExecutionTrades
+            1 -> secondExecutionTrades
+            2 -> thirdExecutionTrades
+            3 -> fourthExecutionTrades
+            4 -> fifthExecutionTrades
+            5 -> sixthExecutionTrades
+            6 -> seventhExecutionTrades
+            else -> error("Invalid TradeExecution index ($index)")
+        }
+    }
+
+    private val firstExecutionTrades = listOf(
+        Trade(
+            id = TradeId(-1),
+            broker = executions[0].broker,
+            instrument = executions[0].instrument,
+            ticker = executions[0].ticker,
+            quantity = executions[0].quantity,
+            closedQuantity = BigDecimal.ZERO,
+            lots = executions[0].lots,
+            side = TradeSide.Short,
+            averageEntry = executions[0].price,
+            entryTimestamp = executions[0].timestamp,
+            averageExit = null,
+            exitTimestamp = null,
+            pnl = BigDecimal.ZERO,
+            fees = BigDecimal.ZERO,
+            netPnl = BigDecimal.ZERO,
+            isClosed = false,
+        ),
+    )
+
+    private val secondExecutionTrades = listOf(
+        firstExecutionTrades[0].copy(
+            closedQuantity = executions[1].quantity,
+            averageExit = executions[1].price,
+            exitTimestamp = executions[1].timestamp,
+            pnl = (-1000).toBigDecimal(),
+            fees = "0.12".toBigDecimal(),
+            netPnl = "-1000.12".toBigDecimal(),
+            isClosed = true,
+        ),
+    )
+
+    private val thirdExecutionTrades = listOf(
+        Trade(
+            id = TradeId(-1),
+            broker = executions[2].broker,
+            instrument = executions[2].instrument,
+            ticker = executions[2].ticker,
+            quantity = executions[2].quantity,
+            closedQuantity = BigDecimal.ZERO,
+            lots = executions[2].lots,
+            side = TradeSide.Long,
+            averageEntry = executions[2].price,
+            entryTimestamp = executions[2].timestamp,
+            averageExit = null,
+            exitTimestamp = null,
+            pnl = BigDecimal.ZERO,
+            fees = BigDecimal.ZERO,
+            netPnl = BigDecimal.ZERO,
+            isClosed = false,
+        ),
+        secondExecutionTrades[0],
+    )
+
+    private val fourthExecutionTrades = listOf(
+        Trade(
+            id = TradeId(-1),
+            broker = executions[3].broker,
+            instrument = executions[3].instrument,
+            ticker = executions[3].ticker,
+            quantity = executions[3].quantity,
+            closedQuantity = BigDecimal.ZERO,
+            lots = executions[3].lots,
+            side = TradeSide.Short,
+            averageEntry = executions[3].price,
+            entryTimestamp = executions[3].timestamp,
+            averageExit = null,
+            exitTimestamp = null,
+            pnl = BigDecimal.ZERO,
+            fees = BigDecimal.ZERO,
+            netPnl = BigDecimal.ZERO,
+            isClosed = false,
+        ),
+        thirdExecutionTrades[0],
+        secondExecutionTrades[0],
+    )
+
+    private val fifthExecutionTrades = listOf(
+        fourthExecutionTrades[0],
+        thirdExecutionTrades[0].copy(
+            quantity = 100.toBigDecimal(),
+            averageEntry = "12.5".toBigDecimal(),
+        ),
+        secondExecutionTrades[0],
+    )
+
+    private val sixthExecutionTrades = listOf(
+        fourthExecutionTrades[0],
+        fifthExecutionTrades[1].copy(
+            closedQuantity = 40.toBigDecimal(),
+            averageExit = executions[5].price,
+            exitTimestamp = executions[5].timestamp,
+            pnl = 300.toBigDecimal(),
+            fees = "0.05".toBigDecimal(),
+            netPnl = "299.95".toBigDecimal(),
+        ),
+        secondExecutionTrades[0],
+    )
+
+    private val seventhExecutionTrades = listOf(
+        fourthExecutionTrades[0],
+        fifthExecutionTrades[1].copy(
+            closedQuantity = 100.toBigDecimal(),
+            averageExit = 23.toBigDecimal(),
+            exitTimestamp = executions[6].timestamp,
+            pnl = 1050.toBigDecimal(),
+            fees = "1.14".toBigDecimal(),
+            netPnl = "1048.86".toBigDecimal(),
+            isClosed = true,
+        ),
+        secondExecutionTrades[0],
     )
 }
