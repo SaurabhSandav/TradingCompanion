@@ -55,7 +55,7 @@ internal class TagFormPresenter(
                     is New -> TagFormModel.Initial()
                     is NewFromExisting -> {
 
-                        val tag = tags.await().getTagById(formType.id).first()
+                        val tag = tags.await().getById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -66,7 +66,7 @@ internal class TagFormPresenter(
 
                     is Edit -> {
 
-                        val tag = tags.await().getTagById(formType.id).first()
+                        val tag = tags.await().getById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -83,13 +83,13 @@ internal class TagFormPresenter(
     private suspend fun TagFormModel.save() {
 
         when (formType) {
-            is New, is NewFromExisting -> tags.await().createTag(
+            is New, is NewFromExisting -> tags.await().create(
                 name = nameField.value,
                 description = descriptionField.value,
                 color = colorField.value?.toArgb(),
             )
 
-            is Edit -> tags.await().updateTag(
+            is Edit -> tags.await().update(
                 id = formType.id,
                 name = nameField.value,
                 description = descriptionField.value,
@@ -101,6 +101,6 @@ internal class TagFormPresenter(
     }
 
     private suspend fun isTagNameUnique(name: String): Boolean {
-        return tags.await().isTagNameUnique(name, (formType as? Edit)?.id)
+        return tags.await().isNameUnique(name, (formType as? Edit)?.id)
     }
 }

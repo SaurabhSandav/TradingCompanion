@@ -199,7 +199,7 @@ class Trades internal constructor(
         return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getTradesForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {
+    fun getForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {
         return tradesDB.tradeToExecutionMapQueries
             .getTradesByExecution(executionId)
             .asFlow()

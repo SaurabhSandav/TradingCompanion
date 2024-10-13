@@ -17,19 +17,19 @@ class Stops internal constructor(
     private val tradesDB: TradesDB,
 ) {
 
-    fun getStopsForTrade(id: TradeId): Flow<List<TradeStop>> {
+    fun getForTrade(id: TradeId): Flow<List<TradeStop>> {
         return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getPrimaryStop(id: TradeId): Flow<TradeStop?> {
+    fun getPrimary(id: TradeId): Flow<TradeStop?> {
         return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
-    fun getPrimaryStops(ids: List<TradeId>): Flow<List<TradeStop>> {
+    fun getPrimary(ids: List<TradeId>): Flow<List<TradeStop>> {
         return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun add(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         val trade = tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO).first()
 
@@ -50,7 +50,7 @@ class Stops internal constructor(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         // Delete stop
         tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
@@ -59,7 +59,7 @@ class Stops internal constructor(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun setPrimaryStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun setPrimary(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeStopQueries.setPrimary(tradeId = id, price = price)
     }

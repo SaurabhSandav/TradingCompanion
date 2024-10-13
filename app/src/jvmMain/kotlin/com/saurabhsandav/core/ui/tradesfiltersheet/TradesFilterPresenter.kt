@@ -79,7 +79,7 @@ internal class TradesFilterPresenter(
         return produceState(initial) {
 
             snapshotFlow { filterConfig.tags }
-                .flatMapLatest { tradingRecord.await().tags.getTagsByIds(it) }
+                .flatMapLatest { tradingRecord.await().tags.getByIds(it) }
                 .mapList { tag ->
 
                     TradeTag(
@@ -96,7 +96,7 @@ internal class TradesFilterPresenter(
 
         snapshotFlow { filterConfig.tags }
             .flatMapLatest { tagIds ->
-                tradingRecord.await().tags.getSuggestedTags(
+                tradingRecord.await().tags.getSuggested(
                     query = filterQuery,
                     ignoreIds = tagIds,
                 )

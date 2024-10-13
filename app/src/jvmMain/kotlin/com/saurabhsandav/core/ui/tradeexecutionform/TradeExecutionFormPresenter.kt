@@ -99,13 +99,13 @@ internal class TradeExecutionFormPresenter(
 
             // Single execution can close a trade and open a new one.
             // Make sure to choose the open trade
-            val trade = tradingRecord.await().trades.getTradesForExecution(executionId).first().single { !it.isClosed }
+            val trade = tradingRecord.await().trades.getForExecution(executionId).first().single { !it.isClosed }
 
             // Add stop
-            if (addStopField.value) tradingRecord.await().stops.addStop(trade.id, formType.stop)
+            if (addStopField.value) tradingRecord.await().stops.add(trade.id, formType.stop)
 
             // Add target
-            if (addTargetField.value) tradingRecord.await().targets.addTarget(trade.id, formType.target)
+            if (addTargetField.value) tradingRecord.await().targets.add(trade.id, formType.target)
         }
 
         // Close form

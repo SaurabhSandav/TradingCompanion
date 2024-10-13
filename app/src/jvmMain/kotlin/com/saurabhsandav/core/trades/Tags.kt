@@ -14,37 +14,37 @@ class Tags internal constructor(
     private val tradesDB: TradesDB,
 ) {
 
-    fun getAllTags(): Flow<List<TradeTag>> {
+    fun getAll(): Flow<List<TradeTag>> {
         return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getTagById(id: TradeTagId): Flow<TradeTag> {
+    fun getById(id: TradeTagId): Flow<TradeTag> {
         return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
     }
 
-    fun getTagsByIds(ids: List<TradeTagId>): Flow<List<TradeTag>> {
+    fun getByIds(ids: List<TradeTagId>): Flow<List<TradeTag>> {
         return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getSuggestedTags(
+    fun getSuggested(
         ignoreIds: List<TradeTagId>,
         query: String,
     ): Flow<List<TradeTag>> {
         return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, query).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getTagsForTrade(id: TradeId): Flow<List<TradeTag>> {
+    fun getForTrade(id: TradeId): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getSuggestedTagsForTrade(tradeId: TradeId, filter: String): Flow<List<TradeTag>> {
+    fun getSuggestedForTrade(tradeId: TradeId, filter: String): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries
             .getSuggestedTagsForTrade(tradeId, filter)
             .asFlow()
             .mapToList(appDispatchers.IO)
     }
 
-    suspend fun createTag(
+    suspend fun create(
         name: String,
         description: String,
         color: Int?,
@@ -57,7 +57,7 @@ class Tags internal constructor(
         )
     }
 
-    suspend fun updateTag(
+    suspend fun update(
         id: TradeTagId,
         name: String,
         description: String,
@@ -72,11 +72,11 @@ class Tags internal constructor(
         )
     }
 
-    suspend fun deleteTag(id: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: TradeTagId) = withContext(appDispatchers.IO) {
         tradesDB.tradeTagQueries.delete(id)
     }
 
-    suspend fun isTagNameUnique(
+    suspend fun isNameUnique(
         name: String,
         ignoreTagId: TradeTagId? = null,
     ): Boolean = withContext(appDispatchers.IO) {
@@ -90,7 +90,7 @@ class Tags internal constructor(
             .executeAsOne()
     }
 
-    suspend fun addTag(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun add(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.insert(
             tradeId = tradeId,
@@ -98,7 +98,7 @@ class Tags internal constructor(
         )
     }
 
-    suspend fun removeTag(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun remove(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.delete(
             tradeId = tradeId,

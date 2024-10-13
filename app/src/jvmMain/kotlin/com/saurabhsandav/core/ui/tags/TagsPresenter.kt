@@ -57,7 +57,7 @@ internal class TagsPresenter(
 
                 tags
                     .await()
-                    .getAllTags()
+                    .getAll()
                     .map { tags ->
                         tags.map { tag ->
 
@@ -100,6 +100,6 @@ internal class TagsPresenter(
 
     private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        tags.await().deleteTag(id)
+        tags.await().delete(id)
     }
 }

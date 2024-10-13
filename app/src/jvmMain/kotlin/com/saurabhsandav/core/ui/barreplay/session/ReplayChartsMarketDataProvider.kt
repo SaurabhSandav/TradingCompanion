@@ -82,8 +82,8 @@ internal class ReplayChartsMarketDataProvider(
                     val closedTradesIds = closedTrades.map { it.id }
 
                     combine(
-                        tradingRecord.stops.getPrimaryStops(closedTradesIds),
-                        tradingRecord.targets.getPrimaryTargets(closedTradesIds),
+                        tradingRecord.stops.getPrimary(closedTradesIds),
+                        tradingRecord.targets.getPrimary(closedTradesIds),
                     ) { stops, targets ->
 
                         closedTrades.mapNotNull { trade ->
@@ -124,7 +124,7 @@ internal class ReplayChartsMarketDataProvider(
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             tradingRecord.executions
-                .getExecutionsByTickerInInterval(ticker, instantRange)
+                .getByTickerInInterval(ticker, instantRange)
                 .mapList { execution ->
 
                     TradeExecutionMarker(

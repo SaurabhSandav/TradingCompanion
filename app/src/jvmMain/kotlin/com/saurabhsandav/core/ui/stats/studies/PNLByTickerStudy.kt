@@ -93,7 +93,7 @@ internal class PNLByTickerStudy(
                     val closedTrades = tradesByTicker.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    tradingRecord.stops.getPrimaryStops(closedTradesIds).map { stops ->
+                    tradingRecord.stops.getPrimary(closedTradesIds).map { stops ->
 
                         val tickerStats = closedTrades.filter { it.isClosed }.map { trade ->
 

@@ -169,7 +169,7 @@ class TradeExecutionsTest {
     }
 
     @Test
-    fun getExecutionsForTrade() = scope.runTest {
+    fun getForTrade() = scope.runTest {
 
         val data = SimpleTradesData()
 
@@ -178,7 +178,7 @@ class TradeExecutionsTest {
         // Trade #1
         assertEquals(
             expected = data.executions.take(2),
-            actual = executions.getExecutionsForTrade(TradeId(1))
+            actual = executions.getForTrade(TradeId(1))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) }
         )
@@ -186,7 +186,7 @@ class TradeExecutionsTest {
         // Trade #2
         assertEquals(
             expected = data.executions.subList(2, 3) + data.executions.subList(4, 7),
-            actual = executions.getExecutionsForTrade(TradeId(2))
+            actual = executions.getForTrade(TradeId(2))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) },
         )
@@ -194,14 +194,14 @@ class TradeExecutionsTest {
         // Trade #3
         assertEquals(
             expected = data.executions.subList(3, 4),
-            actual = executions.getExecutionsForTrade(TradeId(3))
+            actual = executions.getForTrade(TradeId(3))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) },
         )
     }
 
     @Test
-    fun getExecutionsByTickerInInterval() = scope.runTest {
+    fun getByTickerInInterval() = scope.runTest {
 
         val data = MultipleTickersInIntervalData()
 
@@ -212,7 +212,7 @@ class TradeExecutionsTest {
         val interval = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)
 
-        val executionsInInterval = executions.getExecutionsByTickerInInterval(
+        val executionsInInterval = executions.getByTickerInInterval(
             ticker = "TestTicker",
             range = interval,
         ).first()
@@ -220,7 +220,7 @@ class TradeExecutionsTest {
     }
 
     @Test
-    fun getExecutionsByTickerAndTradeIdsInInterval() = scope.runTest {
+    fun getByTickerAndTradeIdsInInterval() = scope.runTest {
 
         val data = MultipleTickersInIntervalData()
 
@@ -230,7 +230,7 @@ class TradeExecutionsTest {
 
         val interval1 = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 5, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval1 = executions.getExecutionsByTickerAndTradeIdsInInterval(
+        val executionsInInterval1 = executions.getByTickerAndTradeIdsInInterval(
             ticker = "TestTicker",
             ids = listOf(TradeId(1)),
             range = interval1,
@@ -241,7 +241,7 @@ class TradeExecutionsTest {
 
         val interval2 = LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 4, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval2 = executions.getExecutionsByTickerAndTradeIdsInInterval(
+        val executionsInInterval2 = executions.getByTickerAndTradeIdsInInterval(
             ticker = "TestTicker1",
             ids = listOf(TradeId(2)),
             range = interval2,
