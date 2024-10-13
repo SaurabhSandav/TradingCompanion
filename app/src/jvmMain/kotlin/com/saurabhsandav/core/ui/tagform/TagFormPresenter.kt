@@ -27,7 +27,7 @@ internal class TagFormPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
+    private val tags = coroutineScope.async { tradingProfiles.getRecord(profileId).tags }
 
     private var formModel by mutableStateOf<TagFormModel?>(null)
 
@@ -48,8 +48,6 @@ internal class TagFormPresenter(
 
         coroutineScope.launch {
 
-            val trades = trades.await()
-
             formModel = TagFormModel(
                 coroutineScope = coroutineScope,
                 isTagNameUnique = ::isTagNameUnique,
@@ -57,7 +55,7 @@ internal class TagFormPresenter(
                     is New -> TagFormModel.Initial()
                     is NewFromExisting -> {
 
-                        val tag = trades.getTagById(formType.id).first()
+                        val tag = tags.await().getTagById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -68,7 +66,7 @@ internal class TagFormPresenter(
 
                     is Edit -> {
 
-                        val tag = trades.getTagById(formType.id).first()
+                        val tag = tags.await().getTagById(formType.id).first()
 
                         TagFormModel.Initial(
                             name = tag.name,
@@ -84,16 +82,14 @@ internal class TagFormPresenter(
 
     private suspend fun TagFormModel.save() {
 
-        val trades = trades.await()
-
         when (formType) {
-            is New, is NewFromExisting -> trades.createTag(
+            is New, is NewFromExisting -> tags.await().createTag(
                 name = nameField.value,
                 description = descriptionField.value,
                 color = colorField.value?.toArgb(),
             )
 
-            is Edit -> trades.updateTag(
+            is Edit -> tags.await().updateTag(
                 id = formType.id,
                 name = nameField.value,
                 description = descriptionField.value,
@@ -105,6 +101,6 @@ internal class TagFormPresenter(
     }
 
     private suspend fun isTagNameUnique(name: String): Boolean {
-        return trades.await().isTagNameUnique(name, (formType as? Edit)?.id)
+        return tags.await().isTagNameUnique(name, (formType as? Edit)?.id)
     }
 }

@@ -30,7 +30,7 @@ internal class TagsPresenter(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    private val trades = coroutineScope.async { tradingProfiles.getRecord(profileId).trades }
+    private val tags = coroutineScope.async { tradingProfiles.getRecord(profileId).tags }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -55,7 +55,7 @@ internal class TagsPresenter(
         return remember {
             flow {
 
-                trades
+                tags
                     .await()
                     .getAllTags()
                     .map { tags ->
@@ -100,6 +100,6 @@ internal class TagsPresenter(
 
     private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        trades.await().deleteTag(id)
+        tags.await().deleteTag(id)
     }
 }
