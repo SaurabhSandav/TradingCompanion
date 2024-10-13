@@ -26,7 +26,7 @@ class TradeExecutionsTest {
 
     private val scope = TestScope()
     private val tradesDB = createTradesDB()
-    private var tradeExecutions = TradeExecutions(
+    private var executions = Executions(
         appDispatchers = FakeAppDispatchers(scope),
         tradesDB = tradesDB,
         onTradesUpdated = {},
@@ -37,8 +37,8 @@ class TradeExecutionsTest {
 
         val data = SimpleTradesData()
         val execution = data.executions.first()
-        val id = tradeExecutions.new(execution)
-        val insertedExecution = tradeExecutions.getById(id).first()
+        val id = executions.new(execution)
+        val insertedExecution = executions.getById(id).first()
 
         assertEquals(execution, insertedExecution.copy(id = TradeExecutionId(-1)))
     }
@@ -47,11 +47,11 @@ class TradeExecutionsTest {
     fun `Edit Locked`() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first())
+        val id = executions.new(data.executions.first())
 
         assertFailsWith<IllegalArgumentException>("TradeExecution($id) is locked and cannot be edited") {
 
-            tradeExecutions.edit(
+            executions.edit(
                 id = id,
                 broker = "EditedTestBroker",
                 instrument = Instrument.Options,
@@ -69,11 +69,11 @@ class TradeExecutionsTest {
     fun `Edit Unlocked`() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first().copy(locked = false))
+        val id = executions.new(data.executions.first().copy(locked = false))
         val currentTime = Clock.System.now()
 
         // Edit
-        tradeExecutions.edit(
+        executions.edit(
             id = id,
             broker = "EditedTestBroker",
             instrument = Instrument.Options,
@@ -85,7 +85,7 @@ class TradeExecutionsTest {
             timestamp = currentTime,
         )
 
-        val editedExecution = tradeExecutions.getById(id).first()
+        val editedExecution = executions.getById(id).first()
 
         assertEquals("EditedTestBroker", editedExecution.broker)
         assertEquals(Instrument.Options, editedExecution.instrument)
@@ -102,10 +102,10 @@ class TradeExecutionsTest {
     fun `Delete Locked`() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first())
+        val id = executions.new(data.executions.first())
 
         assertFailsWith<IllegalArgumentException>(message = "TradeExecution(s) are locked and cannot be deleted") {
-            tradeExecutions.delete(ids = listOf(id))
+            executions.delete(ids = listOf(id))
         }
     }
 
@@ -113,13 +113,13 @@ class TradeExecutionsTest {
     fun `Delete Unlocked`() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first().copy(locked = false))
+        val id = executions.new(data.executions.first().copy(locked = false))
 
         // Delete
-        tradeExecutions.delete(ids = listOf(id))
+        executions.delete(ids = listOf(id))
 
         assertFailsWith<IllegalStateException>(message = "TradeExecution(${id}) not found") {
-            tradeExecutions.getById(id).first()
+            executions.getById(id).first()
         }
     }
 
@@ -127,26 +127,26 @@ class TradeExecutionsTest {
     fun lock() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first().copy(locked = false))
+        val id = executions.new(data.executions.first().copy(locked = false))
 
         // Lock
-        tradeExecutions.lock(ids = listOf(id))
+        executions.lock(ids = listOf(id))
 
-        assertTrue(tradeExecutions.getById(id).first().locked)
+        assertTrue(executions.getById(id).first().locked)
     }
 
     @Test
     fun getById() = scope.runTest {
 
         val data = SimpleTradesData()
-        val id = tradeExecutions.new(data.executions.first())
+        val id = executions.new(data.executions.first())
 
         // Check existing
-        tradeExecutions.getById(id).first()
+        executions.getById(id).first()
 
         // Check non-existent
         assertFailsWith<IllegalStateException>(message = "TradeExecution(12) not found") {
-            tradeExecutions.getById(TradeExecutionId(12)).first()
+            executions.getById(TradeExecutionId(12)).first()
         }
     }
 
@@ -155,14 +155,14 @@ class TradeExecutionsTest {
 
         val data = SimpleTradesData()
 
-        val beforeTodayCount = tradeExecutions.getBeforeTodayCount()
-        val todayCount = tradeExecutions.getTodayCount()
+        val beforeTodayCount = executions.getBeforeTodayCount()
+        val todayCount = executions.getTodayCount()
 
         assertEquals(0, beforeTodayCount.first())
         assertEquals(0, todayCount.first())
 
-        tradeExecutions.new(data.executions)
-        tradeExecutions.new(data.executions.first().copy(timestamp = Clock.System.now()))
+        executions.new(data.executions)
+        executions.new(data.executions.first().copy(timestamp = Clock.System.now()))
 
         assertEquals(data.executions.size.toLong(), beforeTodayCount.first())
         assertEquals(1, todayCount.first())
@@ -173,12 +173,12 @@ class TradeExecutionsTest {
 
         val data = SimpleTradesData()
 
-        tradeExecutions.new(data.executions)
+        executions.new(data.executions)
 
         // Trade #1
         assertEquals(
             expected = data.executions.take(2),
-            actual = tradeExecutions.getExecutionsForTrade(TradeId(1))
+            actual = executions.getExecutionsForTrade(TradeId(1))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) }
         )
@@ -186,7 +186,7 @@ class TradeExecutionsTest {
         // Trade #2
         assertEquals(
             expected = data.executions.subList(2, 3) + data.executions.subList(4, 7),
-            actual = tradeExecutions.getExecutionsForTrade(TradeId(2))
+            actual = executions.getExecutionsForTrade(TradeId(2))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) },
         )
@@ -194,7 +194,7 @@ class TradeExecutionsTest {
         // Trade #3
         assertEquals(
             expected = data.executions.subList(3, 4),
-            actual = tradeExecutions.getExecutionsForTrade(TradeId(3))
+            actual = executions.getExecutionsForTrade(TradeId(3))
                 .first()
                 .map { it.copy(id = TradeExecutionId(-1)) },
         )
@@ -205,14 +205,14 @@ class TradeExecutionsTest {
 
         val data = MultipleTickersInIntervalData()
 
-        tradeExecutions.new(data.executions)
+        executions.new(data.executions)
 
         // Trade #1 and #4 have "TestTicker" ticker. Trade #4 should be ignored.
 
         val interval = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)
 
-        val executionsInInterval = tradeExecutions.getExecutionsByTickerInInterval(
+        val executionsInInterval = executions.getExecutionsByTickerInInterval(
             ticker = "TestTicker",
             range = interval,
         ).first()
@@ -224,13 +224,13 @@ class TradeExecutionsTest {
 
         val data = MultipleTickersInIntervalData()
 
-        tradeExecutions.new(data.executions)
+        executions.new(data.executions)
 
         // Trade #1, #4 and #5 have "TestTicker" ticker. Trade #4 and #5 should be ignored.
 
         val interval1 = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 5, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval1 = tradeExecutions.getExecutionsByTickerAndTradeIdsInInterval(
+        val executionsInInterval1 = executions.getExecutionsByTickerAndTradeIdsInInterval(
             ticker = "TestTicker",
             ids = listOf(TradeId(1)),
             range = interval1,
@@ -241,7 +241,7 @@ class TradeExecutionsTest {
 
         val interval2 = LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)..
                 LocalDateTime(2024, Month.MAY, 4, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval2 = tradeExecutions.getExecutionsByTickerAndTradeIdsInInterval(
+        val executionsInInterval2 = executions.getExecutionsByTickerAndTradeIdsInInterval(
             ticker = "TestTicker1",
             ids = listOf(TradeId(2)),
             range = interval2,
@@ -249,11 +249,11 @@ class TradeExecutionsTest {
         assertEquals(data.trade2Executions, executionsInInterval2.map { it.copy(id = TradeExecutionId(-1)) })
     }
 
-    private suspend fun TradeExecutions.new(executions: List<TradeExecution>) {
+    private suspend fun Executions.new(executions: List<TradeExecution>) {
         executions.forEach { execution -> new(execution) }
     }
 
-    private suspend fun TradeExecutions.new(execution: TradeExecution): TradeExecutionId {
+    private suspend fun Executions.new(execution: TradeExecution): TradeExecutionId {
 
         return new(
             broker = execution.broker,

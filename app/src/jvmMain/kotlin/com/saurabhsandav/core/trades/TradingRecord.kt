@@ -115,7 +115,7 @@ internal class TradingRecord(
         )
     }
 
-    val executions = TradeExecutions(
+    val executions = Executions(
         appDispatchers = appDispatchers,
         tradesDB = tradesDB,
         onTradesUpdated = {
@@ -131,9 +131,38 @@ internal class TradingRecord(
 
     val trades = Trades(
         appDispatchers = appDispatchers,
-        recordPath = recordPath,
         tradesDB = tradesDB,
-        executions = executions,
+    )
+
+    val stops = Stops(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
+
+    val targets = Targets(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
+
+    val tags = Tags(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
+
+    val notes = Notes(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+    )
+
+    val attachments = Attachments(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
+        recordPath = recordPath,
+    )
+
+    val excursions = Excursions(
+        appDispatchers = appDispatchers,
+        tradesDB = tradesDB,
     )
 
     val reviews = Reviews(

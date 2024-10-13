@@ -130,13 +130,13 @@ internal class PNLExcursionStudy(
             maxSize = 300,
         )
 
-        val trades = tradingProfiles.getRecord(profileId).trades
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
         Pager(
             config = pagingConfig,
             pagingSourceFactory = {
 
-                trades.getFilteredPagingSource(
+                tradingRecord.trades.getFilteredPagingSource(
                     filter = TradeFilter(isClosed = true),
                     sort = TradeSort.EntryDesc,
                 )
@@ -170,9 +170,9 @@ internal class PNLExcursionStudy(
                     duration = durationStr,
                     isProfitable = trade.pnl > BigDecimal.ZERO,
                     generated = combine(
-                        trades.getPrimaryStop(trade.id),
-                        trades.getPrimaryTarget(trade.id),
-                        trades.getExcursions(trade.id),
+                        tradingRecord.stops.getPrimaryStop(trade.id),
+                        tradingRecord.targets.getPrimaryTarget(trade.id),
+                        tradingRecord.excursions.getExcursions(trade.id),
                     ) { stop, target, excursions ->
 
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }

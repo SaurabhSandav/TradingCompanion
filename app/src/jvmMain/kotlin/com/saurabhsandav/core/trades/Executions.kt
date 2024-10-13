@@ -17,7 +17,7 @@ import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import java.math.MathContext
 
-internal class TradeExecutions(
+internal class Executions(
     private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
     private val onTradesUpdated: suspend () -> Unit,

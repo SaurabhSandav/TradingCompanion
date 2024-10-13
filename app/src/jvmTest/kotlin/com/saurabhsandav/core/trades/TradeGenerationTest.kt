@@ -21,7 +21,7 @@ class TradeGenerationTest {
 
     private val scope = TestScope()
     private val tradesDB = createTradesDB()
-    private var tradeExecutions = TradeExecutions(
+    private var executions = Executions(
         appDispatchers = FakeAppDispatchers(scope),
         tradesDB = tradesDB,
         onTradesUpdated = {},
@@ -35,7 +35,7 @@ class TradeGenerationTest {
 
         data.executions.forEachIndexed { index, execution ->
 
-            tradeExecutions.new(execution)
+            executions.new(execution)
 
             assertEquals(
                 expected = data.trades(index),
@@ -53,7 +53,7 @@ class TradeGenerationTest {
 
         data.executions.forEachIndexed { index, execution ->
 
-            tradeExecutions.new(execution)
+            executions.new(execution)
 
             assertEquals(
                 expected = data.trades(index),
@@ -71,7 +71,7 @@ class TradeGenerationTest {
 
         data.executions.forEachIndexed { index, execution ->
 
-            tradeExecutions.new(execution)
+            executions.new(execution)
 
             assertEquals(
                 expected = data.trades(index),
@@ -81,7 +81,7 @@ class TradeGenerationTest {
         }
     }
 
-    private suspend fun TradeExecutions.new(execution: TradeExecution): TradeExecutionId {
+    private suspend fun Executions.new(execution: TradeExecution): TradeExecutionId {
 
         return new(
             broker = execution.broker,

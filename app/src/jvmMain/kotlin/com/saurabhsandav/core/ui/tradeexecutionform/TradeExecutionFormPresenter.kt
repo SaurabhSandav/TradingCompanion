@@ -26,8 +26,6 @@ internal class TradeExecutionFormPresenter(
 ) {
 
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
-    private val trades = coroutineScope.async { tradingRecord.await().trades }
-    private val executions = coroutineScope.async { tradingRecord.await().executions }
     private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
     init {
@@ -64,15 +62,12 @@ internal class TradeExecutionFormPresenter(
 
     private suspend fun TradeExecutionFormModel.onSaveExecution() {
 
-        val executions = executions.await()
-        val trades = trades.await()
-
         val tz = TimeZone.currentSystemDefault()
 
         val executionId = when (formType) {
             is Edit -> {
 
-                executions.edit(
+                tradingRecord.await().executions.edit(
                     id = formType.id,
                     broker = "Finvasia",
                     instrument = instrumentField.value!!,
@@ -87,7 +82,7 @@ internal class TradeExecutionFormPresenter(
                 formType.id
             }
 
-            else -> executions.new(
+            else -> tradingRecord.await().executions.new(
                 broker = "Finvasia",
                 instrument = instrumentField.value!!,
                 ticker = tickerField.value!!,
@@ -104,13 +99,13 @@ internal class TradeExecutionFormPresenter(
 
             // Single execution can close a trade and open a new one.
             // Make sure to choose the open trade
-            val trade = trades.getTradesForExecution(executionId).first().single { !it.isClosed }
+            val trade = tradingRecord.await().trades.getTradesForExecution(executionId).first().single { !it.isClosed }
 
             // Add stop
-            if (addStopField.value) trades.addStop(trade.id, formType.stop)
+            if (addStopField.value) tradingRecord.await().stops.addStop(trade.id, formType.stop)
 
             // Add target
-            if (addTargetField.value) trades.addTarget(trade.id, formType.target)
+            if (addTargetField.value) tradingRecord.await().targets.addTarget(trade.id, formType.target)
         }
 
         // Close form
@@ -124,7 +119,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
 
-        val execution = executions.await().getById(id).first()
+        val execution = tradingRecord.await().executions.getById(id).first()
 
         setFormModel(
             initial = TradeExecutionFormModel.Initial(
@@ -145,7 +140,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
-        val trade = trades.await().getById(tradeId).first()
+        val trade = tradingRecord.await().trades.getById(tradeId).first()
 
         setFormModel(
             initial = TradeExecutionFormModel.Initial(
@@ -158,7 +153,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun closeTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
-        val trade = trades.await().getById(tradeId).first()
+        val trade = tradingRecord.await().trades.getById(tradeId).first()
 
         setFormModel(
             initial = TradeExecutionFormModel.Initial(
@@ -172,7 +167,7 @@ internal class TradeExecutionFormPresenter(
 
     private fun edit(id: TradeExecutionId) = coroutineScope.launchUnit {
 
-        val execution = executions.await().getById(id).first()
+        val execution = tradingRecord.await().executions.getById(id).first()
 
         setFormModel(
             initial = TradeExecutionFormModel.Initial(

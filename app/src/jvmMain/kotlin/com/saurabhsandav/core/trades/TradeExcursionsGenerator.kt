@@ -27,20 +27,20 @@ internal class TradeExcursionsGenerator(
 
             Logger.d(DebugTag) { "Generating Excursions for profile - ${profile.name}" }
 
-            val trades = tradingProfiles.getRecord(profile.id).trades
+            val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             val instant = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 .atTime(LocalTime(0, 0))
                 .toInstant(TimeZone.currentSystemDefault())
-            val tradesWithoutExcursions = trades.getWithoutExcursionsBefore(instant).first()
+            val tradesWithoutExcursions = tradingRecord.trades.getWithoutExcursionsBefore(instant).first()
 
             if (tradesWithoutExcursions.isEmpty()) {
                 Logger.d(DebugTag) { "No Trades found for profile - ${profile.name}" }
             } else {
 
                 val tradeIds = tradesWithoutExcursions.map { it.id }
-                val stops = trades.getPrimaryStops(tradeIds).first()
-                val targets = trades.getPrimaryTargets(tradeIds).first()
+                val stops = tradingRecord.stops.getPrimaryStops(tradeIds).first()
+                val targets = tradingRecord.targets.getPrimaryTargets(tradeIds).first()
 
                 tradesWithoutExcursions.forEach { trade ->
 
@@ -55,7 +55,7 @@ internal class TradeExcursionsGenerator(
                         Logger.d(DebugTag) { "Saving Excursions for Trade#(${trade.id})" }
 
                         // Save Excursions
-                        trades.setExcursions(
+                        tradingRecord.excursions.setExcursions(
                             id = excursions.tradeId,
                             tradeMfePrice = excursions.tradeMfePrice,
                             tradeMfePnl = excursions.tradeMfePnl,

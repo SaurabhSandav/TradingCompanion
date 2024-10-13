@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
-class Reviews(
+class Reviews internal constructor(
     private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
 ) {

@@ -1,0 +1,66 @@
+package com.saurabhsandav.core.trades
+
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.utils.AppDispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import java.math.BigDecimal
+
+class Stops internal constructor(
+    private val appDispatchers: AppDispatchers,
+    private val tradesDB: TradesDB,
+) {
+
+    fun getStopsForTrade(id: TradeId): Flow<List<TradeStop>> {
+        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
+    }
+
+    fun getPrimaryStop(id: TradeId): Flow<TradeStop?> {
+        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
+    }
+
+    fun getPrimaryStops(ids: List<TradeId>): Flow<List<TradeStop>> {
+        return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
+    }
+
+    suspend fun addStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+
+        val trade = tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO).first()
+
+        val stopIsValid = when (trade.side) {
+            TradeSide.Long -> price < trade.averageEntry
+            TradeSide.Short -> price > trade.averageEntry
+        }
+
+        if (!stopIsValid) error("Invalid stop for Trade (#$id)")
+
+        // Insert into DB
+        tradesDB.tradeStopQueries.insert(
+            tradeId = id,
+            price = price.stripTrailingZeros(),
+        )
+
+        // Delete Excursions. Excursions use primary stop to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
+    }
+
+    suspend fun deleteStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+
+        // Delete stop
+        tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
+
+        // Delete Excursions. Excursions use primary stop to generate session mfe/mae.
+        tradesDB.tradeExcursionsQueries.delete(id)
+    }
+
+    suspend fun setPrimaryStop(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+
+        tradesDB.tradeStopQueries.setPrimary(tradeId = id, price = price)
+    }
+}

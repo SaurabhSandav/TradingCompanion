@@ -115,7 +115,7 @@ internal class ReplayOrdersManager(
                     if (stop != null) {
 
                         // Add stop to trade stops
-                        tradingRecord.trades.addStop(trade.id, stop)
+                        tradingRecord.stops.addStop(trade.id, stop)
 
                         // Send stop order to broker
                         val openStopOrderId = backtestBroker.newOrder(
@@ -155,7 +155,7 @@ internal class ReplayOrdersManager(
                     if (target != null) {
 
                         // Add target to trade targets
-                        tradingRecord.trades.addTarget(trade.id, target)
+                        tradingRecord.targets.addTarget(trade.id, target)
 
                         // Send target order to broker
                         val openTargetOrderId = backtestBroker.newOrder(

@@ -90,9 +90,9 @@ internal class PNLByDayStudy(
 
     private val data: Flow<List<Model>> = flow {
 
-        val trades = tradingProfiles.getRecord(profileId).trades
+        val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        trades.allTrades.flatMapLatest { allTrades ->
+        tradingRecord.trades.allTrades.flatMapLatest { allTrades ->
 
             allTrades
                 .groupBy { it.entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).date }
@@ -101,7 +101,7 @@ internal class PNLByDayStudy(
                     val closedTrades = tradesByDay.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    trades.getPrimaryStops(closedTradesIds).map { stops ->
+                    tradingRecord.stops.getPrimaryStops(closedTradesIds).map { stops ->
 
                         val dailyStats = closedTrades.map { trade ->
 

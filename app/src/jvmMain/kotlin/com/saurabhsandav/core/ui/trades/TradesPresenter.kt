@@ -67,7 +67,8 @@ internal class TradesPresenter(
     private fun getTradeEntries(): Flow<PagingData<TradeEntry>> = remember {
         flow {
 
-            val trades = tradingProfiles.getRecord(profileId).trades
+            val tradingRecord = tradingProfiles.getRecord(profileId)
+            val trades = tradingRecord.trades
             val pagingConfig = PagingConfig(
                 pageSize = 70,
                 enablePlaceholders = false,
@@ -131,7 +132,7 @@ internal class TradesPresenter(
                                     type = TradeEntry.Section.Type.Today,
                                     count = trades.getFilteredCount(filter),
                                     stats = trades.getFiltered(filter)
-                                        .flatMapLatest { it.generateStats(trades) }
+                                        .flatMapLatest { it.generateStats(tradingRecord) }
                                 )
                             }
 
@@ -161,12 +162,12 @@ internal class TradesPresenter(
         }
     }
 
-    private fun List<Trade>.generateStats(trades: Trades): Flow<Stats> {
+    private fun List<Trade>.generateStats(tradingRecord: TradingRecord): Flow<Stats> {
 
         val closedTrades = filter { it.isClosed }.ifEmpty { return emptyFlow() }
         val closedTradesIds = closedTrades.map { it.id }
 
-        return trades.getPrimaryStops(closedTradesIds).map { tradeStops ->
+        return tradingRecord.stops.getPrimaryStops(closedTradesIds).map { tradeStops ->
 
             val stats = closedTrades.map { trade ->
 
