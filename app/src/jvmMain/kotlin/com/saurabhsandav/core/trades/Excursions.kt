@@ -13,7 +13,7 @@ class Excursions internal constructor(
     private val tradesDB: TradesDB,
 ) {
 
-    suspend fun setExcursions(
+    suspend fun set(
         id: TradeId,
         tradeMfePrice: BigDecimal,
         tradeMfePnl: BigDecimal,
@@ -39,7 +39,7 @@ class Excursions internal constructor(
         )
     }
 
-    fun getExcursions(id: TradeId): Flow<TradeExcursions?> {
+    fun get(id: TradeId): Flow<TradeExcursions?> {
         return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 }

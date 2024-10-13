@@ -101,7 +101,7 @@ internal class PNLByDayStudy(
                     val closedTrades = tradesByDay.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    tradingRecord.stops.getPrimaryStops(closedTradesIds).map { stops ->
+                    tradingRecord.stops.getPrimary(closedTradesIds).map { stops ->
 
                         val dailyStats = closedTrades.map { trade ->
 

@@ -60,7 +60,7 @@ internal class TradePresenter(
     )
     private val stopPreviewer = trade.map(::StopPreviewer)
     private val targetPreviewer = trade.flatMapLatest { trade ->
-        tradingRecord.await().stops.getPrimaryStop(trade.id).map { stop -> TargetPreviewer(trade, stop) }
+        tradingRecord.await().stops.getPrimary(trade.id).map { stop -> TargetPreviewer(trade, stop) }
     }
 
     private var newExecutionEnabled by mutableStateOf(false)
@@ -166,7 +166,7 @@ internal class TradePresenter(
 
                 newExecutionEnabled = !trade.isClosed
 
-                tradingRecord.await().stops.getPrimaryStop(trade.id).collect { stop ->
+                tradingRecord.await().stops.getPrimary(trade.id).collect { stop ->
 
                     val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
                     val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
@@ -198,7 +198,7 @@ internal class TradePresenter(
     private fun getTradeExecutions(): State<List<Execution>> {
         return produceState(emptyList()) {
 
-            tradingRecord.await().executions.getExecutionsForTrade(tradeId).collect { executions ->
+            tradingRecord.await().executions.getForTrade(tradeId).collect { executions ->
 
                 value = executions.map { execution ->
 
@@ -224,7 +224,7 @@ internal class TradePresenter(
     private fun getTradeStops(): State<List<TradeStop>> {
         return produceState(emptyList()) {
 
-            trade.combine(tradingRecord.await().stops.getStopsForTrade(tradeId)) { trade, stops ->
+            trade.combine(tradingRecord.await().stops.getForTrade(tradeId)) { trade, stops ->
 
                 stops.map { stop ->
 
@@ -250,8 +250,8 @@ internal class TradePresenter(
 
             combine(
                 trade,
-                tradingRecord.targets.getTargetsForTrade(tradeId),
-                tradingRecord.stops.getPrimaryStop(tradeId),
+                tradingRecord.targets.getForTrade(tradeId),
+                tradingRecord.stops.getPrimary(tradeId),
             ) { trade, targets, stop ->
 
                 targets.map { target ->
@@ -283,7 +283,7 @@ internal class TradePresenter(
     @Composable
     private fun showTargetRValues(): Boolean {
         return produceState(false) {
-            tradingRecord.await().stops.getPrimaryStop(tradeId).collect { value = it != null }
+            tradingRecord.await().stops.getPrimary(tradeId).collect { value = it != null }
         }.value
     }
 
@@ -294,10 +294,10 @@ internal class TradePresenter(
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
             combine(
-                tradingRecord.excursions.getExcursions(tradeId),
+                tradingRecord.excursions.get(tradeId),
                 trade,
-                tradingRecord.stops.getPrimaryStop(tradeId),
-                tradingRecord.targets.getPrimaryTarget(tradeId),
+                tradingRecord.stops.getPrimary(tradeId),
+                tradingRecord.targets.getPrimary(tradeId),
             ) { savedExcursions, trade, stop, target ->
 
                 val excursions = savedExcursions
@@ -320,7 +320,7 @@ internal class TradePresenter(
 
             tradingRecord.await()
                 .tags
-                .getTagsForTrade(tradeId)
+                .getForTrade(tradeId)
                 .mapList { tag ->
 
                     TradeTag(
@@ -341,7 +341,7 @@ internal class TradePresenter(
             val attachments = tradingRecord.await().attachments
 
             attachments
-                .getAttachmentsForTrade(tradeId)
+                .getForTrade(tradeId)
                 .mapList { attachment ->
 
                     val path = attachments.attachmentsPath.resolve(attachment.fileName)
@@ -362,7 +362,7 @@ internal class TradePresenter(
     private fun getTradeNotes(): State<List<TradeNote>> {
         return produceState(emptyList()) {
 
-            tradingRecord.await().notes.getNotesForTrade(tradeId)
+            tradingRecord.await().notes.getForTrade(tradeId)
                 .mapList { note ->
 
                     val tz = TimeZone.currentSystemDefault()
@@ -386,7 +386,7 @@ internal class TradePresenter(
     private fun tagSuggestions(filter: String): Flow<List<TradeTag>> = flow {
 
         tradingRecord.await().tags
-            .getSuggestedTagsForTrade(tradeId, filter)
+            .getSuggestedForTrade(tradeId, filter)
             .mapList { tag ->
 
                 TradeTag(
@@ -448,47 +448,47 @@ internal class TradePresenter(
 
     private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().stops.addStop(tradeId, price)
+        tradingRecord.await().stops.add(tradeId, price)
     }
 
     private fun onDeleteStop(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().stops.deleteStop(tradeId, price)
+        tradingRecord.await().stops.delete(tradeId, price)
     }
 
     private fun setPrimaryStop(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().stops.setPrimaryStop(tradeId, price)
+        tradingRecord.await().stops.setPrimary(tradeId, price)
     }
 
     private fun onAddTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().targets.addTarget(tradeId, price)
+        tradingRecord.await().targets.add(tradeId, price)
     }
 
     private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().targets.deleteTarget(tradeId, price)
+        tradingRecord.await().targets.delete(tradeId, price)
     }
 
     private fun setPrimaryTarget(price: BigDecimal) = coroutineScope.launchUnit {
 
-        tradingRecord.await().targets.setPrimaryTarget(tradeId, price)
+        tradingRecord.await().targets.setPrimary(tradeId, price)
     }
 
     private fun onAddTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().tags.addTag(tradeId, id)
+        tradingRecord.await().tags.add(tradeId, id)
     }
 
     private fun onRemoveTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().tags.removeTag(tradeId, id)
+        tradingRecord.await().tags.remove(tradeId, id)
     }
 
     private fun onAddAttachment(formModel: AttachmentFormModel) = coroutineScope.launchUnit {
 
-        tradingRecord.await().attachments.addAttachment(
+        tradingRecord.await().attachments.add(
             tradeId = tradeId,
             name = formModel.nameField.value,
             description = formModel.descriptionField.value,
@@ -501,7 +501,7 @@ internal class TradePresenter(
         formModel: AttachmentFormModel,
     ) = coroutineScope.launchUnit {
 
-        tradingRecord.await().attachments.updateAttachment(
+        tradingRecord.await().attachments.update(
             tradeId = tradeId,
             attachmentId = id,
             name = formModel.nameField.value,
@@ -511,22 +511,22 @@ internal class TradePresenter(
 
     private fun onRemoveAttachment(id: TradeAttachmentId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().attachments.removeAttachment(tradeId, id)
+        tradingRecord.await().attachments.remove(tradeId, id)
     }
 
     private fun onAddNote(note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
 
-        tradingRecord.await().notes.addNote(tradeId, note, isMarkdown)
+        tradingRecord.await().notes.add(tradeId, note, isMarkdown)
     }
 
     private fun onUpdateNote(id: TradeNoteId, note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
 
-        tradingRecord.await().notes.updateNote(id, note, isMarkdown)
+        tradingRecord.await().notes.update(id, note, isMarkdown)
     }
 
     private fun onDeleteNote(id: TradeNoteId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().notes.deleteNote(id)
+        tradingRecord.await().notes.delete(id)
     }
 
     private fun Trade.buildExcursionString(

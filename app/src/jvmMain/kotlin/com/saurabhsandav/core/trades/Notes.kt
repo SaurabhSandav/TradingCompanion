@@ -15,11 +15,11 @@ class Notes internal constructor(
     private val tradesDB: TradesDB,
 ) {
 
-    fun getNotesForTrade(id: TradeId): Flow<List<TradeNote>> {
+    fun getForTrade(id: TradeId): Flow<List<TradeNote>> {
         return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun addNote(
+    suspend fun add(
         tradeId: TradeId,
         note: String,
         isMarkdown: Boolean,
@@ -36,7 +36,7 @@ class Notes internal constructor(
         )
     }
 
-    suspend fun updateNote(
+    suspend fun update(
         id: TradeNoteId,
         note: String,
         isMarkdown: Boolean,
@@ -50,7 +50,7 @@ class Notes internal constructor(
         )
     }
 
-    suspend fun deleteNote(id: TradeNoteId) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: TradeNoteId) = withContext(appDispatchers.IO) {
         tradesDB.tradeNoteQueries.delete(id)
     }
 }

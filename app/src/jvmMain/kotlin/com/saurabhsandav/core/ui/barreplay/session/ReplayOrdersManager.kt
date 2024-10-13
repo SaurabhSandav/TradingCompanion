@@ -101,7 +101,7 @@ internal class ReplayOrdersManager(
                 if (target != null || stop != null) {
 
                     // Find generated trade for executed order
-                    val trade = tradingRecord.trades.getTradesForExecution(savedOrderId).first().single { !it.isClosed }
+                    val trade = tradingRecord.trades.getForExecution(savedOrderId).first().single { !it.isClosed }
 
                     val positionCloseParams = orderParams.copy(
                         side = when (orderParams.side) {
@@ -115,7 +115,7 @@ internal class ReplayOrdersManager(
                     if (stop != null) {
 
                         // Add stop to trade stops
-                        tradingRecord.stops.addStop(trade.id, stop)
+                        tradingRecord.stops.add(trade.id, stop)
 
                         // Send stop order to broker
                         val openStopOrderId = backtestBroker.newOrder(
@@ -155,7 +155,7 @@ internal class ReplayOrdersManager(
                     if (target != null) {
 
                         // Add target to trade targets
-                        tradingRecord.targets.addTarget(trade.id, target)
+                        tradingRecord.targets.add(trade.id, target)
 
                         // Send target order to broker
                         val openTargetOrderId = backtestBroker.newOrder(

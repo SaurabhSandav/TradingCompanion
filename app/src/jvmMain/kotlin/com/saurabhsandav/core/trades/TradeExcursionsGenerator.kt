@@ -39,8 +39,8 @@ internal class TradeExcursionsGenerator(
             } else {
 
                 val tradeIds = tradesWithoutExcursions.map { it.id }
-                val stops = tradingRecord.stops.getPrimaryStops(tradeIds).first()
-                val targets = tradingRecord.targets.getPrimaryTargets(tradeIds).first()
+                val stops = tradingRecord.stops.getPrimary(tradeIds).first()
+                val targets = tradingRecord.targets.getPrimary(tradeIds).first()
 
                 tradesWithoutExcursions.forEach { trade ->
 
@@ -55,7 +55,7 @@ internal class TradeExcursionsGenerator(
                         Logger.d(DebugTag) { "Saving Excursions for Trade#(${trade.id})" }
 
                         // Save Excursions
-                        tradingRecord.excursions.setExcursions(
+                        tradingRecord.excursions.set(
                             id = excursions.tradeId,
                             tradeMfePrice = excursions.tradeMfePrice,
                             tradeMfePnl = excursions.tradeMfePnl,

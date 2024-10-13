@@ -202,14 +202,14 @@ internal class Executions(
         },
     )
 
-    fun getExecutionsForTrade(id: TradeId): Flow<List<TradeExecution>> {
+    fun getForTrade(id: TradeId): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
             .getExecutionsByTrade(id, ::toTradeExecution)
             .asFlow()
             .mapToList(appDispatchers.IO)
     }
 
-    fun getExecutionsByTickerInInterval(
+    fun getByTickerInInterval(
         ticker: String,
         range: ClosedRange<Instant>,
     ): Flow<List<TradeExecution>> {
@@ -223,7 +223,7 @@ internal class Executions(
             .mapToList(appDispatchers.IO)
     }
 
-    fun getExecutionsByTickerAndTradeIdsInInterval(
+    fun getByTickerAndTradeIdsInInterval(
         ticker: String,
         ids: List<TradeId>,
         range: ClosedRange<Instant>,

@@ -170,9 +170,9 @@ internal class PNLExcursionStudy(
                     duration = durationStr,
                     isProfitable = trade.pnl > BigDecimal.ZERO,
                     generated = combine(
-                        tradingRecord.stops.getPrimaryStop(trade.id),
-                        tradingRecord.targets.getPrimaryTarget(trade.id),
-                        tradingRecord.excursions.getExcursions(trade.id),
+                        tradingRecord.stops.getPrimary(trade.id),
+                        tradingRecord.targets.getPrimary(trade.id),
+                        tradingRecord.excursions.get(trade.id),
                     ) { stop, target, excursions ->
 
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }

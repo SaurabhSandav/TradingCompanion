@@ -21,11 +21,11 @@ class Attachments internal constructor(
 
     val attachmentsPath: Path = recordPath.resolve("attachments")
 
-    fun getAttachmentsForTrade(id: TradeId): Flow<List<GetAttachmentsByTrade>> {
+    fun getForTrade(id: TradeId): Flow<List<GetAttachmentsByTrade>> {
         return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun addAttachment(
+    suspend fun add(
         tradeId: TradeId,
         name: String,
         description: String,
@@ -75,7 +75,7 @@ class Attachments internal constructor(
         }
     }
 
-    suspend fun updateAttachment(
+    suspend fun update(
         tradeId: TradeId,
         attachmentId: TradeAttachmentId,
         name: String,
@@ -90,7 +90,7 @@ class Attachments internal constructor(
         )
     }
 
-    suspend fun removeAttachment(
+    suspend fun remove(
         tradeId: TradeId,
         attachmentId: TradeAttachmentId,
     ) = withContext(appDispatchers.IO) {

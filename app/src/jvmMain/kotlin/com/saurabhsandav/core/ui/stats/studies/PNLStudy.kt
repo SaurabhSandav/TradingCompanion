@@ -168,8 +168,8 @@ internal class PNLStudy(
                     isNetProfitable = trade.netPnl > BigDecimal.ZERO,
                     fees = (trade.pnl - trade.netPnl).toPlainString(),
                     generated = combine(
-                        tradingRecord.stops.getPrimaryStop(trade.id),
-                        tradingRecord.targets.getPrimaryTarget(trade.id),
+                        tradingRecord.stops.getPrimary(trade.id),
+                        tradingRecord.targets.getPrimary(trade.id),
                     ) { stop, target ->
 
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }

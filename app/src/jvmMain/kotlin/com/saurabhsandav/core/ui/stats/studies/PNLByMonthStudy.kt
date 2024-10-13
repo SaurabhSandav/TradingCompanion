@@ -98,7 +98,7 @@ internal class PNLByMonthStudy(
                     val closedTrades = tradesByMonth.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
-                    tradingRecord.stops.getPrimaryStops(closedTradesIds).map { stops ->
+                    tradingRecord.stops.getPrimary(closedTradesIds).map { stops ->
 
                         val monthlyStats = closedTrades.map { trade ->
 

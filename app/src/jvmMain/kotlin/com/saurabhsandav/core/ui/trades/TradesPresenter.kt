@@ -167,7 +167,7 @@ internal class TradesPresenter(
         val closedTrades = filter { it.isClosed }.ifEmpty { return emptyFlow() }
         val closedTradesIds = closedTrades.map { it.id }
 
-        return tradingRecord.stops.getPrimaryStops(closedTradesIds).map { tradeStops ->
+        return tradingRecord.stops.getPrimary(closedTradesIds).map { tradeStops ->
 
             val stats = closedTrades.map { trade ->
 
