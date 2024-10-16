@@ -9,8 +9,8 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.math.BigDecimal
-import java.util.*
 import kotlin.random.Random
+import kotlin.uuid.Uuid
 
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
@@ -110,7 +110,7 @@ internal class ReplayOrdersManager(
                         }
                     )
 
-                    val exitOcoId = UUID.randomUUID()
+                    val exitOcoId = Uuid.random()
 
                     if (stop != null) {
 

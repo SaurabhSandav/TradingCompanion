@@ -5,7 +5,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import java.util.*
+import kotlin.uuid.Uuid
 
 internal data class SizingState(
     val sizedTrades: List<SizedTrade>,
@@ -27,7 +27,7 @@ internal data class SizingState(
     )
 
     internal data class TradeExecutionFormParams(
-        val id: UUID,
+        val id: Uuid,
         val profileId: ProfileId,
         val formType: TradeExecutionFormType,
     )

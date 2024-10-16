@@ -8,7 +8,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import java.util.*
+import kotlin.uuid.Uuid
 
 internal data class ReplaySessionState(
     val chartsState: StockChartsState,
@@ -32,7 +32,7 @@ internal data class ReplaySessionState(
     )
 
     internal data class OrderFormParams(
-        val id: UUID,
+        val id: Uuid,
         val stockChartParams: StockChartParams,
         val initialModel: ReplayOrderFormModel.Initial?,
     )
