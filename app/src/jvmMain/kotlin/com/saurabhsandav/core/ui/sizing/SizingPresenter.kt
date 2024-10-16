@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
+import kotlin.uuid.Uuid
 
 internal class SizingPresenter(
     private val coroutineScope: CoroutineScope,
@@ -138,7 +138,7 @@ internal class SizingPresenter(
         }
 
         val params = TradeExecutionFormParams(
-            id = UUID.randomUUID(),
+            id = Uuid.random(),
             profileId = profileId,
             formType = TradeExecutionFormType.NewSized(
                 initialModel = TradeExecutionFormModel.Initial(

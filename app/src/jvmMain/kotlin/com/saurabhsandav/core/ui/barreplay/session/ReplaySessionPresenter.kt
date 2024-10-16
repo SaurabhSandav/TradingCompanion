@@ -32,6 +32,7 @@ import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.Uuid
 
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
@@ -169,7 +170,7 @@ internal class ReplaySessionPresenter(
             .toPlainString()
 
         val params = OrderFormParams(
-            id = UUID.randomUUID(),
+            id = Uuid.random(),
             stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel.Initial(
                 isBuy = true,
@@ -189,7 +190,7 @@ internal class ReplaySessionPresenter(
             .toPlainString()
 
         val params = OrderFormParams(
-            id = UUID.randomUUID(),
+            id = Uuid.random(),
             stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel.Initial(
                 isBuy = false,

@@ -15,8 +15,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.*
+import kotlin.uuid.Uuid
 
 internal class TradingProfiles(
     private val appDispatchers: AppDispatchers,
@@ -190,7 +190,7 @@ internal class TradingProfiles(
         }
     }
 
-    private fun generateProfilePath(): String = UUID.randomUUID().toString()
+    private fun generateProfilePath(): String = Uuid.random().toString()
 
     private val TradingProfile.filesPath: Path
         get() = appFilesPath.resolve("Records").resolve(path)
