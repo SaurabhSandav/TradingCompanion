@@ -18,7 +18,6 @@ import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState.*
 import com.saurabhsandav.core.ui.trade.ui.*
@@ -48,6 +47,7 @@ internal fun TradeWindow(
     ) {
 
         TradeScreen(
+            profileTradeId = profileTradeId,
             details = state.details,
             executions = state.executions,
             newExecutionEnabled = state.newExecutionEnabled,
@@ -77,8 +77,6 @@ internal fun TradeWindow(
             onAddTag = { id -> state.eventSink(AddTag(id)) },
             onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
             attachments = state.attachments,
-            onAddAttachment = { formModel -> state.eventSink(AddAttachment(formModel)) },
-            onUpdateAttachment = { id, formModel -> state.eventSink(UpdateAttachment(id, formModel)) },
             onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
             notes = state.notes,
             onAddNote = { note, isMarkdown -> state.eventSink(AddNote(note, isMarkdown)) },
@@ -90,6 +88,7 @@ internal fun TradeWindow(
 
 @Composable
 internal fun TradeScreen(
+    profileTradeId: ProfileTradeId,
     details: Details?,
     executions: List<Execution>,
     newExecutionEnabled: Boolean,
@@ -117,8 +116,6 @@ internal fun TradeScreen(
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
     attachments: List<TradeAttachment>,
-    onAddAttachment: (AttachmentFormModel) -> Unit,
-    onUpdateAttachment: (AttachmentFileId, AttachmentFormModel) -> Unit,
     onRemoveAttachment: (AttachmentFileId) -> Unit,
     notes: List<TradeNote>,
     onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
@@ -186,9 +183,8 @@ internal fun TradeScreen(
                         )
 
                         Attachments(
+                            profileTradeId = profileTradeId,
                             attachments = attachments,
-                            onAddAttachment = onAddAttachment,
-                            onUpdateAttachment = onUpdateAttachment,
                             onRemoveAttachment = onRemoveAttachment,
                         )
 

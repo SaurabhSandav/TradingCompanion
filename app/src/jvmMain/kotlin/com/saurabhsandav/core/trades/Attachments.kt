@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trades
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.trades.model.AttachmentWithFile
 import com.saurabhsandav.core.trades.model.TradeId
@@ -22,25 +23,25 @@ class Attachments internal constructor(
 
     private val attachmentsPath = recordPath.resolve("attachments")
 
+    fun getByIdWithFile(
+        tradeId: TradeId,
+        fileId: AttachmentFileId,
+    ): Flow<AttachmentWithFile> {
+        return tradesDB.tradeAttachmentQueries
+            .getByIdWithFile(tradeId, fileId, ::toAttachmentWithFile)
+            .asFlow()
+            .mapToOne(appDispatchers.IO)
+    }
+
     fun getForTradeWithFile(id: TradeId): Flow<List<AttachmentWithFile>> {
         return tradesDB.tradeAttachmentQueries
-            .getByTradeWithFile(id) { tradeId, fileId, name, description, fileName, checksum ->
-
-                AttachmentWithFile(
-                    tradeId = tradeId,
-                    fileId = fileId,
-                    name = name,
-                    description = description,
-                    path = attachmentsPath.resolve(fileName),
-                    checksum = checksum,
-                )
-            }
+            .getByTradeWithFile(id, ::toAttachmentWithFile)
             .asFlow()
             .mapToList(appDispatchers.IO)
     }
 
     suspend fun add(
-        tradeId: TradeId,
+        tradeIds: List<TradeId>,
         name: String,
         description: String,
         pathStr: String,
@@ -79,13 +80,16 @@ class Attachments internal constructor(
                 else -> existingAttachment.id
             }
 
-            // Link Attachment to Trade
-            tradesDB.tradeAttachmentQueries.insert(
-                tradeId = tradeId,
-                fileId = fileId,
-                name = name,
-                description = description,
-            )
+            // Link Attachment to Trades
+            tradeIds.forEach { tradeId ->
+
+                tradesDB.tradeAttachmentQueries.insert(
+                    tradeId = tradeId,
+                    fileId = fileId,
+                    name = name,
+                    description = description,
+                )
+            }
         }
     }
 
@@ -165,4 +169,20 @@ class Attachments internal constructor(
             }
         }
     }
+
+    private fun toAttachmentWithFile(
+        tradeId: TradeId,
+        fileId: AttachmentFileId,
+        name: String,
+        description: String,
+        fileName: String,
+        checksum: String,
+    ) = AttachmentWithFile(
+        tradeId = tradeId,
+        fileId = fileId,
+        name = name,
+        description = description,
+        path = attachmentsPath.resolve(fileName),
+        checksum = checksum,
+    )
 }

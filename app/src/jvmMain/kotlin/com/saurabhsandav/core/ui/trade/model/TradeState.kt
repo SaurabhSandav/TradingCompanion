@@ -2,11 +2,8 @@ package com.saurabhsandav.core.ui.trade.model
 
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.trades.model.*
-import com.saurabhsandav.core.ui.common.form.FormValidator
-import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 
@@ -105,25 +102,5 @@ internal data class TradeState(
         val noteText: String,
         val dateText: String,
         val isMarkdown: Boolean,
-    )
-}
-
-internal class AttachmentFormModel(
-    coroutineScope: CoroutineScope,
-    initial: Initial,
-    onSubmit: suspend AttachmentFormModel.() -> Unit,
-) {
-
-    val validator = FormValidator(coroutineScope) { onSubmit() }
-
-    val nameField = validator.addField(initial.name) { isRequired() }
-
-    val descriptionField = validator.addField(initial.description)
-
-    var path = ""
-
-    class Initial(
-        val name: String = "",
-        val description: String = "",
     )
 }

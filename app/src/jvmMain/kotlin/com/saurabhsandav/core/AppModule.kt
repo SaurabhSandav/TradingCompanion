@@ -15,6 +15,7 @@ import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.account.AccountModule
+import com.saurabhsandav.core.ui.attachmentform.AttachmentFormModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
@@ -282,6 +283,10 @@ internal class AppModule {
             profileId: ProfileId,
         ->
         TradesFilterModule(this, coroutineScope, profileId)
+    }
+
+    val attachmentFormModule = { coroutineScope: CoroutineScope ->
+        AttachmentFormModule(this, coroutineScope)
     }
 
     val stockChartsState = StockChartsStateFactory {

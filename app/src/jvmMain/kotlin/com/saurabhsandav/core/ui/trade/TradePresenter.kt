@@ -8,7 +8,6 @@ import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
-import com.saurabhsandav.core.ui.trade.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
@@ -120,8 +119,6 @@ internal class TradePresenter(
             is SetPrimaryTarget -> setPrimaryTarget(event.price)
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
-            is AddAttachment -> onAddAttachment(event.formModel)
-            is UpdateAttachment -> onUpdateAttachment(event.fileId, event.formModel)
             is RemoveAttachment -> onRemoveAttachment(event.fileId)
             is AddNote -> onAddNote(event.note, event.isMarkdown)
             is UpdateNote -> onUpdateNote(event.id, event.note, event.isMarkdown)
@@ -482,29 +479,6 @@ internal class TradePresenter(
     private fun onRemoveTag(id: TradeTagId) = coroutineScope.launchUnit {
 
         tradingRecord.await().tags.remove(tradeId, id)
-    }
-
-    private fun onAddAttachment(formModel: AttachmentFormModel) = coroutineScope.launchUnit {
-
-        tradingRecord.await().attachments.add(
-            tradeId = tradeId,
-            name = formModel.nameField.value,
-            description = formModel.descriptionField.value,
-            pathStr = formModel.path,
-        )
-    }
-
-    private fun onUpdateAttachment(
-        fileId: AttachmentFileId,
-        formModel: AttachmentFormModel,
-    ) = coroutineScope.launchUnit {
-
-        tradingRecord.await().attachments.update(
-            tradeId = tradeId,
-            fileId = fileId,
-            name = formModel.nameField.value,
-            description = formModel.descriptionField.value,
-        )
     }
 
     private fun onRemoveAttachment(fileId: AttachmentFileId) = coroutineScope.launchUnit {
