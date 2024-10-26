@@ -29,7 +29,7 @@ value class TradeExecutionId(val value: Long) {
 }
 
 @JvmInline
-value class TradeAttachmentId(val value: Long) {
+value class AttachmentFileId(val value: Long) {
 
     override fun toString(): String = value.toString()
 }

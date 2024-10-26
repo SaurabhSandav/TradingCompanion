@@ -70,8 +70,12 @@ internal class TradingRecord(
                 tradeIdAdapter = TradeIdColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
             ),
+            AttachmentFileAdapter = AttachmentFile.Adapter(
+                idAdapter = AttachmentFileIdColumnAdapter,
+            ),
             TradeAttachmentAdapter = TradeAttachment.Adapter(
-                idAdapter = TradeAttachmentIdColumnAdapter,
+                tradeIdAdapter = TradeIdColumnAdapter,
+                fileIdAdapter = AttachmentFileIdColumnAdapter,
             ),
             TradeNoteAdapter = TradeNote.Adapter(
                 idAdapter = TradeNoteIdColumnAdapter,
@@ -87,10 +91,6 @@ internal class TradingRecord(
                 tradeIdAdapter = TradeIdColumnAdapter,
                 executionIdAdapter = TradeExecutionIdColumnAdapter,
                 overrideQuantityAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeToAttachmentMapAdapter = TradeToAttachmentMap.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                attachmentIdAdapter = TradeAttachmentIdColumnAdapter,
             ),
             TradeToTagMapAdapter = TradeToTagMap.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,

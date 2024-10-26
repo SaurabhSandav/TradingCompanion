@@ -1,21 +1,34 @@
-import com.saurabhsandav.core.trades.model.TradeAttachmentId;
+import com.saurabhsandav.core.trades.model.AttachmentFileId;
+import com.saurabhsandav.core.trades.model.TradeId;
 
 CREATE TABLE IF NOT EXISTS TradeAttachment (
-id INTEGER AS TradeAttachmentId NOT NULL PRIMARY KEY,
-fileName TEXT NOT NULL,
-checksum TEXT NOT NULL UNIQUE
+tradeId INTEGER AS TradeId NOT NULL,
+fileId INTEGER AS AttachmentFileId NOT NULL,
+name TEXT NOT NULL,
+description TEXT NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
+FOREIGN KEY(fileId) REFERENCES AttachmentFile(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, fileId)
 );
 
 insert:
-INSERT OR ROLLBACK INTO TradeAttachment(fileName, checksum)
-VALUES (?, ?);
+INSERT OR IGNORE INTO TradeAttachment(tradeId, fileId, name, description)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE TradeAttachment
+SET name = ?, description = ?
+WHERE tradeId = ? AND fileId = ? ;
 
 delete:
 DELETE FROM TradeAttachment
-WHERE id = ?;
+WHERE tradeId = ? AND fileId = ?;
 
-getById:
-SELECT * FROM TradeAttachment WHERE id = ?;
+isAttachmentLinked:
+SELECT EXISTS( SELECT * FROM TradeAttachment WHERE fileId = ? );
 
-getByChecksum:
-SELECT * FROM TradeAttachment WHERE checksum = ?;
+getByTradeWithFile:
+SELECT TradeAttachment.*, af.fileName, af.checksum FROM TradeAttachment
+INNER JOIN AttachmentFile af
+ON af.id = TradeAttachment.fileId
+WHERE TradeAttachment.tradeId = ?;
