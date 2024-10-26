@@ -121,8 +121,8 @@ internal class TradePresenter(
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
             is AddAttachment -> onAddAttachment(event.formModel)
-            is UpdateAttachment -> onUpdateAttachment(event.id, event.formModel)
-            is RemoveAttachment -> onRemoveAttachment(event.id)
+            is UpdateAttachment -> onUpdateAttachment(event.fileId, event.formModel)
+            is RemoveAttachment -> onRemoveAttachment(event.fileId)
             is AddNote -> onAddNote(event.note, event.isMarkdown)
             is UpdateNote -> onUpdateNote(event.id, event.note, event.isMarkdown)
             is DeleteNote -> onDeleteNote(event.id)
@@ -341,17 +341,15 @@ internal class TradePresenter(
             val attachments = tradingRecord.await().attachments
 
             attachments
-                .getForTrade(tradeId)
+                .getForTradeWithFile(tradeId)
                 .mapList { attachment ->
 
-                    val path = attachments.attachmentsPath.resolve(attachment.fileName)
-
                     TradeAttachment(
-                        id = attachment.id,
+                        fileId = attachment.fileId,
                         name = attachment.name,
                         description = attachment.description.ifBlank { null },
-                        path = path.toString(),
-                        extension = path.extension.uppercase().ifBlank { null },
+                        path = attachment.path.toString(),
+                        extension = attachment.path.extension.uppercase().ifBlank { null },
                     )
                 }
                 .collect { value = it }
@@ -497,21 +495,21 @@ internal class TradePresenter(
     }
 
     private fun onUpdateAttachment(
-        id: TradeAttachmentId,
+        fileId: AttachmentFileId,
         formModel: AttachmentFormModel,
     ) = coroutineScope.launchUnit {
 
         tradingRecord.await().attachments.update(
             tradeId = tradeId,
-            attachmentId = id,
+            fileId = fileId,
             name = formModel.nameField.value,
             description = formModel.descriptionField.value,
         )
     }
 
-    private fun onRemoveAttachment(id: TradeAttachmentId) = coroutineScope.launchUnit {
+    private fun onRemoveAttachment(fileId: AttachmentFileId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().attachments.remove(tradeId, id)
+        tradingRecord.await().attachments.remove(tradeId, fileId)
     }
 
     private fun onAddNote(note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {

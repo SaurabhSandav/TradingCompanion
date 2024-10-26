@@ -319,8 +319,12 @@ class TradeExecutionsTest {
                 tradeIdAdapter = TradeIdColumnAdapter,
                 priceAdapter = BigDecimalColumnAdapter,
             ),
+            AttachmentFileAdapter = AttachmentFile.Adapter(
+                idAdapter = AttachmentFileIdColumnAdapter,
+            ),
             TradeAttachmentAdapter = TradeAttachment.Adapter(
-                idAdapter = TradeAttachmentIdColumnAdapter,
+                tradeIdAdapter = TradeIdColumnAdapter,
+                fileIdAdapter = AttachmentFileIdColumnAdapter,
             ),
             TradeNoteAdapter = TradeNote.Adapter(
                 idAdapter = TradeNoteIdColumnAdapter,
@@ -336,10 +340,6 @@ class TradeExecutionsTest {
                 tradeIdAdapter = TradeIdColumnAdapter,
                 executionIdAdapter = TradeExecutionIdColumnAdapter,
                 overrideQuantityAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeToAttachmentMapAdapter = TradeToAttachmentMap.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                attachmentIdAdapter = TradeAttachmentIdColumnAdapter,
             ),
             TradeToTagMapAdapter = TradeToTagMap.Adapter(
                 tradeIdAdapter = TradeIdColumnAdapter,

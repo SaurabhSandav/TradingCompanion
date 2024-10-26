@@ -1,0 +1,3 @@
+ALTER TABLE TradeToAttachmentMap RENAME COLUMN attachmentId TO fileId;
+ALTER TABLE TradeAttachment RENAME TO AttachmentFile;
+ALTER TABLE TradeToAttachmentMap RENAME TO TradeAttachment;

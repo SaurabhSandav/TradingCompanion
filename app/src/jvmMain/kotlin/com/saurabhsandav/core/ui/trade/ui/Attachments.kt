@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
-import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -33,8 +33,8 @@ import java.io.File
 internal fun Attachments(
     attachments: List<TradeAttachment>,
     onAddAttachment: (AttachmentFormModel) -> Unit,
-    onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
-    onRemoveAttachment: (TradeAttachmentId) -> Unit,
+    onUpdateAttachment: (AttachmentFileId, AttachmentFormModel) -> Unit,
+    onRemoveAttachment: (AttachmentFileId) -> Unit,
 ) {
 
     Column(
@@ -56,8 +56,8 @@ internal fun Attachments(
 
                 AttachmentItem(
                     attachment = attachment,
-                    onUpdate = { formModel -> onUpdateAttachment(attachment.id, formModel) },
-                    onRemove = { onRemoveAttachment(attachment.id) },
+                    onUpdate = { formModel -> onUpdateAttachment(attachment.fileId, formModel) },
+                    onRemove = { onRemoveAttachment(attachment.fileId) },
                 )
             }
         }

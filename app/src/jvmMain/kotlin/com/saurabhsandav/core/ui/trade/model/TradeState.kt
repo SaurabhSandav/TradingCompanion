@@ -93,7 +93,7 @@ internal data class TradeState(
     )
 
     internal data class TradeAttachment(
-        val id: TradeAttachmentId,
+        val fileId: AttachmentFileId,
         val name: String,
         val description: String?,
         val path: String,

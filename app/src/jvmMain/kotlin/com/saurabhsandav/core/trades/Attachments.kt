@@ -2,7 +2,8 @@ package com.saurabhsandav.core.trades
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.AttachmentFileId
+import com.saurabhsandav.core.trades.model.AttachmentWithFile
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +20,23 @@ class Attachments internal constructor(
     recordPath: Path,
 ) {
 
-    val attachmentsPath: Path = recordPath.resolve("attachments")
+    private val attachmentsPath = recordPath.resolve("attachments")
 
-    fun getForTrade(id: TradeId): Flow<List<GetAttachmentsByTrade>> {
-        return tradesDB.tradeToAttachmentMapQueries.getAttachmentsByTrade(id).asFlow().mapToList(appDispatchers.IO)
+    fun getForTradeWithFile(id: TradeId): Flow<List<AttachmentWithFile>> {
+        return tradesDB.tradeAttachmentQueries
+            .getByTradeWithFile(id) { tradeId, fileId, name, description, fileName, checksum ->
+
+                AttachmentWithFile(
+                    tradeId = tradeId,
+                    fileId = fileId,
+                    name = name,
+                    description = description,
+                    path = attachmentsPath.resolve(fileName),
+                    checksum = checksum,
+                )
+            }
+            .asFlow()
+            .mapToList(appDispatchers.IO)
     }
 
     suspend fun add(
@@ -38,9 +52,9 @@ class Attachments internal constructor(
             val checksum = generateSHA1(inputFilepath)
 
             // Get Attachment from DB if it exists
-            val existingAttachment = tradesDB.tradeAttachmentQueries.getByChecksum(checksum).executeAsOneOrNull()
+            val existingAttachment = tradesDB.attachmentFileQueries.getByChecksum(checksum).executeAsOneOrNull()
 
-            val attachmentId = when {
+            val fileId = when {
                 existingAttachment == null -> {
 
                     val attachedFileName = "$checksum.${inputFilepath.extension}"
@@ -53,22 +67,22 @@ class Attachments internal constructor(
                     inputFilepath.copyTo(attachedFilePath)
 
                     // Save attachment entry to DB
-                    tradesDB.tradeAttachmentQueries.insert(
+                    tradesDB.attachmentFileQueries.insert(
                         fileName = attachedFileName,
                         checksum = checksum,
                     )
 
                     // Get id of attachment in DB
-                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeAttachmentId)
+                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::AttachmentFileId)
                 }
 
                 else -> existingAttachment.id
             }
 
             // Link Attachment to Trade
-            tradesDB.tradeToAttachmentMapQueries.insert(
+            tradesDB.tradeAttachmentQueries.insert(
                 tradeId = tradeId,
-                attachmentId = attachmentId,
+                fileId = fileId,
                 name = name,
                 description = description,
             )
@@ -77,14 +91,14 @@ class Attachments internal constructor(
 
     suspend fun update(
         tradeId: TradeId,
-        attachmentId: TradeAttachmentId,
+        fileId: AttachmentFileId,
         name: String,
         description: String,
     ) = withContext(appDispatchers.IO) {
 
-        tradesDB.tradeToAttachmentMapQueries.update(
+        tradesDB.tradeAttachmentQueries.update(
             tradeId = tradeId,
-            attachmentId = attachmentId,
+            fileId = fileId,
             name = name,
             description = description,
         )
@@ -92,29 +106,29 @@ class Attachments internal constructor(
 
     suspend fun remove(
         tradeId: TradeId,
-        attachmentId: TradeAttachmentId,
+        fileId: AttachmentFileId,
     ) = withContext(appDispatchers.IO) {
 
         tradesDB.transaction {
 
             // Delete attachment from trade in DB
-            tradesDB.tradeToAttachmentMapQueries.delete(
+            tradesDB.tradeAttachmentQueries.delete(
                 tradeId = tradeId,
-                attachmentId = attachmentId,
+                fileId = fileId,
             )
 
             // Check if attachment is still used
-            val isAttachmentStillUsed = tradesDB.tradeToAttachmentMapQueries
-                .isAttachmentLinked(attachmentId)
+            val isAttachmentStillUsed = tradesDB.tradeAttachmentQueries
+                .isAttachmentLinked(fileId)
                 .executeAsOne()
 
             // If attachment is not used, delete file
             if (!isAttachmentStillUsed) {
 
-                val attachment = tradesDB.tradeAttachmentQueries.getById(attachmentId).executeAsOne()
+                val attachment = tradesDB.attachmentFileQueries.getById(fileId).executeAsOne()
 
                 // Delete attachment DB entry
-                tradesDB.tradeAttachmentQueries.delete(attachmentId)
+                tradesDB.attachmentFileQueries.delete(fileId)
 
                 // Delete attachment file
                 attachmentsPath.resolve(attachment.fileName).deleteExisting()

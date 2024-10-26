@@ -25,10 +25,10 @@ object SizingTradeIdColumnAdapter : ColumnAdapter<SizingTradeId, Long> {
     override fun encode(value: SizingTradeId): Long = value.value
 }
 
-object TradeAttachmentIdColumnAdapter : ColumnAdapter<TradeAttachmentId, Long> {
+object AttachmentFileIdColumnAdapter : ColumnAdapter<AttachmentFileId, Long> {
 
-    override fun decode(databaseValue: Long): TradeAttachmentId = TradeAttachmentId(databaseValue)
-    override fun encode(value: TradeAttachmentId): Long = value.value
+    override fun decode(databaseValue: Long): AttachmentFileId = AttachmentFileId(databaseValue)
+    override fun encode(value: AttachmentFileId): Long = value.value
 }
 
 object TradeNoteIdColumnAdapter : ColumnAdapter<TradeNoteId, Long> {

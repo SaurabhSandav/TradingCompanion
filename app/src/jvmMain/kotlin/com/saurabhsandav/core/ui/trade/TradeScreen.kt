@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.trades.model.TradeTagId
@@ -118,8 +118,8 @@ internal fun TradeScreen(
     onRemoveTag: (TradeTagId) -> Unit,
     attachments: List<TradeAttachment>,
     onAddAttachment: (AttachmentFormModel) -> Unit,
-    onUpdateAttachment: (TradeAttachmentId, AttachmentFormModel) -> Unit,
-    onRemoveAttachment: (TradeAttachmentId) -> Unit,
+    onUpdateAttachment: (AttachmentFileId, AttachmentFormModel) -> Unit,
+    onRemoveAttachment: (AttachmentFileId) -> Unit,
     notes: List<TradeNote>,
     onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
     onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,

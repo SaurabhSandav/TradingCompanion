@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import com.saurabhsandav.core.trades.model.TradeAttachmentId
+import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.trades.model.TradeTagId
@@ -41,11 +41,11 @@ internal sealed class TradeEvent {
     data class AddAttachment(val formModel: AttachmentFormModel) : TradeEvent()
 
     data class UpdateAttachment(
-        val id: TradeAttachmentId,
+        val fileId: AttachmentFileId,
         val formModel: AttachmentFormModel,
     ) : TradeEvent()
 
-    data class RemoveAttachment(val id: TradeAttachmentId) : TradeEvent()
+    data class RemoveAttachment(val fileId: AttachmentFileId) : TradeEvent()
 
     data class AddNote(
         val note: String,
