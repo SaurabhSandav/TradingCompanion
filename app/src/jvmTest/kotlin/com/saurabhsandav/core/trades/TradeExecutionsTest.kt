@@ -20,6 +20,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.time.Month
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.test.*
 
 class TradeExecutionsTest {
@@ -29,6 +30,7 @@ class TradeExecutionsTest {
     private var executions = Executions(
         appDispatchers = FakeAppDispatchers(scope),
         tradesDB = tradesDB,
+        attachmentsPath = Path(""),
         onTradesUpdated = {},
     )
 

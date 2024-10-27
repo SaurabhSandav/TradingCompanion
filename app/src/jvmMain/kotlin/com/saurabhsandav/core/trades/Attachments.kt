@@ -18,10 +18,8 @@ import kotlin.io.path.*
 class Attachments internal constructor(
     private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
-    recordPath: Path,
+    private val attachmentsPath: Path,
 ) {
-
-    private val attachmentsPath = recordPath.resolve("attachments")
 
     fun getByIdWithFile(
         tradeId: TradeId,
