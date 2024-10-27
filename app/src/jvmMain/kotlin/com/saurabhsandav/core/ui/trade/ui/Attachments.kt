@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -10,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.*
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.AttachmentFileId
@@ -23,6 +25,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import java.awt.Desktop
 import java.io.File
+import java.net.URI
 
 @Composable
 internal fun Attachments(
@@ -31,8 +34,31 @@ internal fun Attachments(
     onRemoveAttachment: (AttachmentFileId) -> Unit,
 ) {
 
+    var showAddAttachmentDialog by state { false }
+    var path by state<String?> { null }
+
+    val callback = remember {
+        object : DragAndDropTarget {
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+
+                val file = (event.dragData() as DragData.FilesList).readFiles().firstOrNull() ?: return false
+
+                showAddAttachmentDialog = true
+                path = URI.create(file).path
+
+                return true
+            }
+        }
+    }
+
     Column(
-        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .dragAndDropTarget(
+                shouldStartDragAndDrop = { event ->
+                    event.action == DragAndDropTransferAction.Copy && event.dragData() is DragData.FilesList
+                },
+                target = callback,
+            ),
     ) {
 
         // Header
@@ -58,8 +84,6 @@ internal fun Attachments(
 
         HorizontalDivider()
 
-        var showAddAttachmentDialog by state { false }
-
         TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = { showAddAttachmentDialog = true },
@@ -71,8 +95,11 @@ internal fun Attachments(
 
             AttachmentFormWindow(
                 profileId = profileTradeId.profileId,
-                formType = remember { AttachmentFormType.New(listOf(profileTradeId.tradeId)) },
-                onCloseRequest = { showAddAttachmentDialog = false },
+                formType = remember { AttachmentFormType.New(listOf(profileTradeId.tradeId), path) },
+                onCloseRequest = {
+                    showAddAttachmentDialog = false
+                    path = null
+                },
             )
         }
     }
