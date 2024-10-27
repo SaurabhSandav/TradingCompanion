@@ -19,3 +19,18 @@ SELECT * FROM AttachmentFile WHERE id = ?;
 
 getByChecksum:
 SELECT * FROM AttachmentFile WHERE checksum = ?;
+
+getOrphaned:
+SELECT af.*
+FROM AttachmentFile af
+LEFT JOIN TradeAttachment ta ON af.id = ta.fileId
+WHERE ta.tradeId IS NULL;
+
+deleteOrphaned:
+DELETE FROM AttachmentFile
+WHERE id IN (
+    SELECT af.id
+    FROM AttachmentFile af
+    LEFT JOIN TradeAttachment ta ON af.id = ta.fileId
+    WHERE ta.tradeId IS NULL
+);

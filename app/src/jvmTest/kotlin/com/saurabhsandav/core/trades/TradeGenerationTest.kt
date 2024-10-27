@@ -14,6 +14,7 @@ import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,6 +25,7 @@ class TradeGenerationTest {
     private var executions = Executions(
         appDispatchers = FakeAppDispatchers(scope),
         tradesDB = tradesDB,
+        attachmentsPath = Path(""),
         onTradesUpdated = {},
     )
 

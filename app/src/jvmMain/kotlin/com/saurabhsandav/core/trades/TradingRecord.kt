@@ -115,9 +115,12 @@ internal class TradingRecord(
         )
     }
 
+    private val attachmentsPath = recordPath.resolve("attachments")
+
     val executions = Executions(
         appDispatchers = appDispatchers,
         tradesDB = tradesDB,
+        attachmentsPath = attachmentsPath,
         onTradesUpdated = {
 
             val (totalCount, openCount) = tradesDB.tradeQueries
@@ -157,7 +160,7 @@ internal class TradingRecord(
     val attachments = Attachments(
         appDispatchers = appDispatchers,
         tradesDB = tradesDB,
-        recordPath = recordPath,
+        attachmentsPath = attachmentsPath,
     )
 
     val excursions = Excursions(

@@ -16,10 +16,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import java.math.MathContext
+import java.nio.file.Path
+import kotlin.io.path.deleteExisting
 
 internal class Executions(
     private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
+    private val attachmentsPath: Path,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
 
@@ -150,8 +153,15 @@ internal class Executions(
                         .executeAsList()
 
                     when {
-                        // Delete Trade.
-                        executions.isEmpty() -> tradesDB.tradeQueries.delete(trade.id)
+                        executions.isEmpty() -> {
+
+                            // Delete Trade.
+                            tradesDB.tradeQueries.delete(trade.id)
+
+                            // Delete supplemental data
+                            deleteSupplementalTradeData()
+                        }
+
                         else -> {
 
                             // Update Trade
@@ -480,7 +490,37 @@ internal class Executions(
 
     private fun regenerateSupplementalTradeData(tradeId: TradeId) {
 
+        /*
+        * - Stops -> No action required
+        * - Targets -> No action required
+        * - Notes -> No action required
+        * - Attachments -> No action required
+        * - Excursions -> Delete, Will automatically regenerate through scheduled job
+        * */
+
         // Remove Excursions from DB
         tradesDB.tradeExcursionsQueries.delete(tradeId)
+    }
+
+    private fun deleteSupplementalTradeData() {
+
+        /*
+        * - Stops -> Cascade deleted in SQL
+        * - Targets -> Cascade deleted in SQL
+        * - Notes -> Cascade deleted in SQL
+        * - Attachments -> Cascade deleted in SQL, Delete orphaned AttachmentFile(s)
+        * - Excursions -> Cascade deleted in SQL
+        * */
+
+        // Delete orphaned AttachmentFiles
+        with(tradesDB.attachmentFileQueries) {
+
+            // Delete files
+            getOrphaned()
+                .executeAsList()
+                .forEach { attachmentsPath.resolve(it.fileName).deleteExisting() }
+
+            deleteOrphaned()
+        }
     }
 }
