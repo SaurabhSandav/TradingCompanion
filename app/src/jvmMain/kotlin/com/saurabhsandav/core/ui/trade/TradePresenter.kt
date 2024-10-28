@@ -473,7 +473,7 @@ internal class TradePresenter(
 
     private fun onAddTag(id: TradeTagId) = coroutineScope.launchUnit {
 
-        tradingRecord.await().tags.add(tradeId, id)
+        tradingRecord.await().tags.add(listOf(tradeId), id)
     }
 
     private fun onRemoveTag(id: TradeTagId) = coroutineScope.launchUnit {

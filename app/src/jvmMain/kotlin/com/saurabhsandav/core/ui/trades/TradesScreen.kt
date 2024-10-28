@@ -15,9 +15,11 @@ import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
+import com.saurabhsandav.core.ui.trades.model.TradesState.TradeTag
 import com.saurabhsandav.core.ui.trades.ui.TradesOptionsBar
 import com.saurabhsandav.core.ui.trades.ui.TradesSelectionBar
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
@@ -37,6 +39,8 @@ internal fun TradesScreen(
     onApplyFilter: (TradeFilter) -> Unit,
     onNewExecution: () -> Unit,
     onDeleteTrades: (List<TradeId>) -> Unit,
+    tagSuggestions: (String) -> Flow<List<TradeTag>>,
+    onAddTag: (List<TradeId>, TradeTagId) -> Unit,
     errors: List<UIErrorMessage>,
 ) {
 
@@ -109,6 +113,8 @@ internal fun TradesScreen(
             profileId = profileId,
             selectionManager = selectionManager,
             onDeleteTrades = onDeleteTrades,
+            tagSuggestions = tagSuggestions,
+            onAddTag = onAddTag,
         )
     }
 }
