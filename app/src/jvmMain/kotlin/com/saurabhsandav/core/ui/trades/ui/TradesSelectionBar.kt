@@ -28,6 +28,7 @@ internal fun TradesSelectionBar(
     onDeleteTrades: (List<TradeId>) -> Unit,
     tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (List<TradeId>, TradeTagId) -> Unit,
+    onOpenChart: (List<TradeId>) -> Unit,
 ) {
 
     SelectionBar(selectionManager) {
@@ -63,6 +64,14 @@ internal fun TradesSelectionBar(
                 text = "Add Tag",
             )
         }
+
+        Item(
+            onClick = {
+                onOpenChart(selectionManager.selection.toList())
+                selectionManager.clear()
+            },
+            text = "Chart",
+        )
 
         if (showDeleteConfirmationDialog) {
 
