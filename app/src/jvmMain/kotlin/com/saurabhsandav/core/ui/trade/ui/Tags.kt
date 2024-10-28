@@ -155,15 +155,25 @@ private fun AddTagButton(
 
             filteredTags.forEach { tag ->
 
-                DropdownMenuItem(
-                    text = { Text(tag.name) },
-                    trailingIcon = tag.color?.let {
-                        { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
+                TooltipArea(
+                    tooltip = {
+
+                        if (tag.description != null)
+                            Tooltip(tag.description)
                     },
-                    onClick = {
-                        expanded = false
-                        onAddTag(tag.id)
-                    },
+                    content = {
+
+                        DropdownMenuItem(
+                            text = { Text(tag.name) },
+                            trailingIcon = tag.color?.let {
+                                { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
+                            },
+                            onClick = {
+                                expanded = false
+                                onAddTag(tag.id)
+                            },
+                        )
+                    }
                 )
             }
         }
