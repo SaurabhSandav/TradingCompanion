@@ -106,6 +106,7 @@ internal fun TradesScreen(
         }
 
         TradesSelectionBar(
+            profileId = profileId,
             selectionManager = selectionManager,
             onDeleteTrades = onDeleteTrades,
         )
