@@ -3,10 +3,7 @@ package com.saurabhsandav.core.ui.trades.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +34,8 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 internal fun TradesTable(
     tradeEntries: Flow<PagingData<TradeEntry>>,
+    isMarked: (TradeId) -> Boolean,
+    onMarkExecution: (TradeId) -> Unit,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
 ) {
@@ -56,6 +55,8 @@ internal fun TradesTable(
 
         TradesTable(
             items = items,
+            isMarked = isMarked,
+            onMarkExecution = onMarkExecution,
             onOpenDetails = onOpenDetails,
             onOpenChart = onOpenChart,
         )
@@ -65,6 +66,8 @@ internal fun TradesTable(
 @Composable
 private fun TradesTable(
     items: LazyPagingItems<TradeEntry>,
+    isMarked: (TradeId) -> Boolean,
+    onMarkExecution: (TradeId) -> Unit,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
 ) {
@@ -89,6 +92,8 @@ private fun TradesTable(
                 is Section -> Section(entry)
                 is Item -> TradeItem(
                     item = entry,
+                    isMarked = isMarked(entry.id),
+                    onMarkExecution = { onMarkExecution(entry.id) },
                     onOpenDetails = { onOpenDetails(entry.id) },
                     onOpenChart = { onOpenChart(entry.id) },
                 )
@@ -159,6 +164,8 @@ private fun Section(
 @Composable
 private fun TradeItem(
     item: Item,
+    isMarked: Boolean,
+    onMarkExecution: () -> Unit,
     onOpenDetails: () -> Unit,
     onOpenChart: () -> Unit,
 ) {
@@ -177,6 +184,13 @@ private fun TradeItem(
             TradeTableSchema.SimpleRow(
                 onClick = onOpenDetails,
             ) {
+                select {
+
+                    Checkbox(
+                        checked = isMarked,
+                        onCheckedChange = { onMarkExecution() },
+                    )
+                }
                 id.text { item.id.toString() }
                 broker.text { item.broker }
                 ticker.text { item.ticker }
@@ -256,6 +270,7 @@ private fun StatsStrip(stats: Stats) {
 
 private object TradeTableSchema : TableSchema() {
 
+    val select = cell(Fixed(48.dp))
     val id = cell(Fixed(48.dp))
     val broker = cell(Weight(2F))
     val ticker = cell(Weight(1.7F))

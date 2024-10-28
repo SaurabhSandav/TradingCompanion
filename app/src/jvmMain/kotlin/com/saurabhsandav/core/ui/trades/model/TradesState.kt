@@ -2,12 +2,14 @@ package com.saurabhsandav.core.ui.trades.model
 
 import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradesState(
     val tradeEntries: Flow<PagingData<TradeEntry>>,
     val isFocusModeEnabled: Boolean,
+    val selectionManager: SelectionManager<TradeId>,
     val errors: List<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
