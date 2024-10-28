@@ -85,7 +85,7 @@ internal class TradesFilterPresenter(
                     TradeTag(
                         id = tag.id,
                         name = tag.name,
-                        description = tag.description,
+                        description = tag.description.ifBlank { null },
                     )
                 }
                 .collect { value = it }
@@ -106,7 +106,7 @@ internal class TradesFilterPresenter(
                 TradeTag(
                     id = tag.id,
                     name = tag.name,
-                    description = tag.description,
+                    description = tag.description.ifBlank { null },
                 )
             }
             .emitInto(this)

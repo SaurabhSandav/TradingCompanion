@@ -14,6 +14,6 @@ internal data class TradesFilterState(
     data class TradeTag(
         val id: TradeTagId,
         val name: String,
-        val description: String,
+        val description: String?,
     )
 }
