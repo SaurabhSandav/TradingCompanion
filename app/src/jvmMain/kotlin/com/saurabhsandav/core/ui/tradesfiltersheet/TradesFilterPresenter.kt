@@ -97,7 +97,7 @@ internal class TradesFilterPresenter(
         snapshotFlow { filterConfig.tags }
             .flatMapLatest { tagIds ->
                 tradingRecord.await().tags.getSuggested(
-                    query = filterQuery,
+                    filter = filterQuery,
                     ignoreIds = tagIds,
                 )
             }

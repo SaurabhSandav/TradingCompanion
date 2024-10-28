@@ -27,10 +27,10 @@ class Tags internal constructor(
     }
 
     fun getSuggested(
-        ignoreIds: List<TradeTagId>,
-        query: String,
+        filter: String,
+        ignoreIds: List<TradeTagId> = emptyList(),
     ): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, query).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, filter).asFlow().mapToList(appDispatchers.IO)
     }
 
     fun getForTrade(id: TradeId): Flow<List<TradeTag>> {
@@ -90,12 +90,21 @@ class Tags internal constructor(
             .executeAsOne()
     }
 
-    suspend fun add(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun add(
+        tradeIds: List<TradeId>,
+        tagId: TradeTagId,
+    ) = withContext(appDispatchers.IO) {
 
-        tradesDB.tradeToTagMapQueries.insert(
-            tradeId = tradeId,
-            tagId = tagId,
-        )
+        tradesDB.transaction {
+
+            tradeIds.forEach { tradeId ->
+
+                tradesDB.tradeToTagMapQueries.insert(
+                    tradeId = tradeId,
+                    tagId = tagId,
+                )
+            }
+        }
     }
 
     suspend fun remove(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {

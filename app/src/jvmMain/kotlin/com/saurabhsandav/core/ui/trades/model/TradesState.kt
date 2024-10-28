@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.ui.trades.model
 
+import androidx.compose.ui.graphics.Color
 import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +12,7 @@ internal data class TradesState(
     val tradeEntries: Flow<PagingData<TradeEntry>>,
     val isFocusModeEnabled: Boolean,
     val selectionManager: SelectionManager<TradeId>,
+    val tagSuggestions: (String) -> Flow<List<TradeTag>>,
     val errors: List<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
@@ -62,5 +65,12 @@ internal data class TradesState(
         val isProfitable: Boolean,
         val netPnl: String,
         val isNetProfitable: Boolean,
+    )
+
+    internal data class TradeTag(
+        val id: TradeTagId,
+        val name: String,
+        val description: String?,
+        val color: Color?,
     )
 }
