@@ -36,6 +36,7 @@ internal fun TradesScreen(
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onApplyFilter: (TradeFilter) -> Unit,
     onNewExecution: () -> Unit,
+    onDeleteTrades: (List<TradeId>) -> Unit,
     errors: List<UIErrorMessage>,
 ) {
 
@@ -106,6 +107,7 @@ internal fun TradesScreen(
 
         TradesSelectionBar(
             selectionManager = selectionManager,
+            onDeleteTrades = onDeleteTrades,
         )
     }
 }

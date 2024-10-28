@@ -22,6 +22,19 @@ ON TradeToExecutionMap.executionId = TradeExecution.id
 WHERE TradeToExecutionMap.tradeId = ?
 ORDER BY TradeExecution.timestamp ASC;
 
+deleteExecutionsAndTrades {
+  DELETE FROM TradeExecution
+  WHERE id IN (
+    SELECT te.id FROM TradeToExecutionMap ttem
+    INNER JOIN TradeExecution te
+    ON ttem.executionId = te.id
+    WHERE ttem.tradeId IN :tradeIds
+  );
+
+  DELETE FROM Trade
+  WHERE id IN :tradeIds;
+}
+
 getExecutionsByTickerAndTradeIdsInInterval:
 SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
 INNER JOIN TradeExecution

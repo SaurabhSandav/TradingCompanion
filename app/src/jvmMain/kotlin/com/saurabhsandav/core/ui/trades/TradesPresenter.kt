@@ -22,7 +22,9 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.*
@@ -33,12 +35,13 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 internal class TradesPresenter(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
 ) {
 
+    private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
     private var isFocusModeEnabled by mutableStateOf(true)
     private var tradeFilter by mutableStateOf(TradeFilter())
     private val errors = mutableStateListOf<UIErrorMessage>()
@@ -63,6 +66,7 @@ internal class TradesPresenter(
             is SetFocusModeEnabled -> onSetFocusModeEnabled(event.isEnabled)
             is ApplyFilter -> onApplyFilter(event.tradeFilter)
             is NewExecution -> onNewExecution()
+            is DeleteTrades -> onDeleteTrades(event.ids)
         }
     }
 
@@ -70,8 +74,7 @@ internal class TradesPresenter(
     private fun getTradeEntries(): Flow<PagingData<TradeEntry>> = remember {
         flow {
 
-            val tradingRecord = tradingProfiles.getRecord(profileId)
-            val trades = tradingRecord.trades
+            val trades = tradingRecord.await().trades
             val pagingConfig = PagingConfig(
                 pageSize = 70,
                 enablePlaceholders = false,
@@ -135,7 +138,7 @@ internal class TradesPresenter(
                                     type = TradeEntry.Section.Type.Today,
                                     count = trades.getFilteredCount(filter),
                                     stats = trades.getFiltered(filter)
-                                        .flatMapLatest { it.generateStats(tradingRecord) }
+                                        .flatMapLatest { it.generateStats(tradingRecord.await()) }
                                 )
                             }
 
@@ -273,5 +276,10 @@ internal class TradesPresenter(
 
     private fun onNewExecution() {
         tradeContentLauncher.openExecutionForm(profileId, TradeExecutionFormType.New)
+    }
+
+    private fun onDeleteTrades(ids: List<TradeId>) = coroutineScope.launchUnit {
+
+        tradingRecord.await().trades.delete(ids)
     }
 }

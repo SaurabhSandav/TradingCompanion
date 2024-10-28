@@ -18,7 +18,10 @@ import kotlinx.datetime.format.char
 class Trades internal constructor(
     private val appDispatchers: AppDispatchers,
     private val tradesDB: TradesDB,
+    private val executions: Executions,
 ) {
+
+    suspend fun delete(ids: List<TradeId>) = executions.deleteTrades(ids)
 
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(appDispatchers.IO)

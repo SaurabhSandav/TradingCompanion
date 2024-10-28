@@ -135,6 +135,7 @@ internal class TradingRecord(
     val trades = Trades(
         appDispatchers = appDispatchers,
         tradesDB = tradesDB,
+        executions = executions,
     )
 
     val stops = Stops(

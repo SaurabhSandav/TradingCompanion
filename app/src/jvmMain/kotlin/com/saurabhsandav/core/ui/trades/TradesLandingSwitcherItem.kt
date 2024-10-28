@@ -27,6 +27,7 @@ internal class TradesLandingSwitcherItem(
             onSetFocusModeEnabled = { state.eventSink(SetFocusModeEnabled(it)) },
             onApplyFilter = { state.eventSink(ApplyFilter(it)) },
             onNewExecution = { state.eventSink(NewExecution) },
+            onDeleteTrades = { ids -> state.eventSink(DeleteTrades(ids)) },
             errors = state.errors,
         )
     }
