@@ -19,6 +19,7 @@ import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradesOptionsBar
+import com.saurabhsandav.core.ui.trades.ui.TradesSelectionBar
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
@@ -29,6 +30,7 @@ internal fun TradesScreen(
     profileId: ProfileId,
     tradeEntries: Flow<PagingData<TradeEntry>>,
     isFocusModeEnabled: Boolean,
+    selectionManager: SelectionManager<TradeId>,
     onOpenDetails: (TradeId) -> Unit,
     onOpenChart: (TradeId) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
@@ -40,60 +42,70 @@ internal fun TradesScreen(
     // Set window title
     WindowTitle("Trades")
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    Column {
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { paddingValues ->
+        val snackbarHostState = remember { SnackbarHostState() }
 
-        var sheetState by state { SideSheetState.Closed }
-        val onDismissSheet = { sheetState = SideSheetState.Closed }
-        var filterConfig by saveableState(stateSaver = FilterConfig.Saver) { FilterConfig() }
+        Scaffold(
+            modifier = Modifier.weight(1F),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { paddingValues ->
 
-        SideSheetHost(
-            modifier = Modifier.padding(paddingValues),
-            sheetState = sheetState,
-            sheet = {
+            var sheetState by state { SideSheetState.Closed }
+            val onDismissSheet = { sheetState = SideSheetState.Closed }
+            var filterConfig by saveableState(stateSaver = FilterConfig.Saver) { FilterConfig() }
 
-                TradesFilterSheet(
-                    profileId = profileId,
-                    filter = filterConfig,
-                    onFilterChange = {
-                        filterConfig = it
-                        onApplyFilter(it.toTradeFilter())
-                        onDismissSheet()
-                    }
-                )
-            },
-            onDismissSheet = onDismissSheet,
-        ) {
+            SideSheetHost(
+                modifier = Modifier.padding(paddingValues),
+                sheetState = sheetState,
+                sheet = {
 
-            Column {
+                    TradesFilterSheet(
+                        profileId = profileId,
+                        filter = filterConfig,
+                        onFilterChange = {
+                            filterConfig = it
+                            onApplyFilter(it.toTradeFilter())
+                            onDismissSheet()
+                        }
+                    )
+                },
+                onDismissSheet = onDismissSheet,
+            ) {
 
-                TradesOptionsBar(
-                    isFocusModeEnabled = isFocusModeEnabled,
-                    onSetFocusModeEnabled = { isEnabled ->
-                        onSetFocusModeEnabled(isEnabled)
-                        if (isEnabled) filterConfig = FilterConfig()
-                    },
-                    onFilter = { sheetState = SideSheetState.Open },
-                    onNewExecution = onNewExecution,
-                )
+                Column {
 
-                HorizontalDivider()
+                    TradesOptionsBar(
+                        isFocusModeEnabled = isFocusModeEnabled,
+                        onSetFocusModeEnabled = { isEnabled ->
+                            onSetFocusModeEnabled(isEnabled)
+                            if (isEnabled) filterConfig = FilterConfig()
+                        },
+                        onFilter = { sheetState = SideSheetState.Open },
+                        onNewExecution = onNewExecution,
+                    )
 
-                TradesTable(
-                    tradeEntries = tradeEntries,
-                    onOpenDetails = onOpenDetails,
-                    onOpenChart = onOpenChart,
-                )
+                    HorizontalDivider()
+
+                    TradesTable(
+                        tradeEntries = tradeEntries,
+                        isMarked = { id -> id in selectionManager.selection },
+                        onMarkExecution = selectionManager::select,
+                        onOpenDetails = onOpenDetails,
+                        onOpenChart = onOpenChart,
+                    )
+                }
+            }
+
+            // Errors
+            errors.forEach { errorMessage ->
+
+                ErrorSnackbar(snackbarHostState, errorMessage)
             }
         }
 
-        // Errors
-        errors.forEach { errorMessage ->
-
-            ErrorSnackbar(snackbarHostState, errorMessage)
-        }
+        TradesSelectionBar(
+            selectionManager = selectionManager,
+        )
     }
 }

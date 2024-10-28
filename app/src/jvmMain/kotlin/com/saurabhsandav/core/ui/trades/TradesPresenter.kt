@@ -9,6 +9,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeSort
+import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
@@ -41,12 +42,14 @@ internal class TradesPresenter(
     private var isFocusModeEnabled by mutableStateOf(true)
     private var tradeFilter by mutableStateOf(TradeFilter())
     private val errors = mutableStateListOf<UIErrorMessage>()
+    private val selectionManager = SelectionManager<TradeId>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule TradesState(
             tradeEntries = getTradeEntries(),
             isFocusModeEnabled = isFocusModeEnabled,
+            selectionManager = selectionManager,
             errors = errors,
             eventSink = ::onEvent,
         )
