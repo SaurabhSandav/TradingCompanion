@@ -14,4 +14,6 @@ internal sealed class TradesEvent {
     data class ApplyFilter(val tradeFilter: TradeFilter) : TradesEvent()
 
     data object NewExecution : TradesEvent()
+
+    data class DeleteTrades(val ids: List<TradeId>) : TradesEvent()
 }

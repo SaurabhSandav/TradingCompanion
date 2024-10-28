@@ -250,6 +250,17 @@ internal class Executions(
             .mapToList(appDispatchers.IO)
     }
 
+    internal suspend fun deleteTrades(ids: List<TradeId>) = withContext(appDispatchers.IO) {
+
+        tradesDB.transaction {
+
+            // Delete trades and executions
+            tradesDB.tradeToExecutionMapQueries.deleteExecutionsAndTrades(ids)
+
+            deleteSupplementalTradeData()
+        }
+    }
+
     private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
         tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
