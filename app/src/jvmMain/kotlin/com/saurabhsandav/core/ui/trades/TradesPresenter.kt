@@ -62,7 +62,7 @@ internal class TradesPresenter(
 
         when (event) {
             is OpenDetails -> onOpenDetails(event.id)
-            is OpenChart -> onOpenChart(event.id)
+            is OpenChart -> onOpenChart(event.ids)
             is SetFocusModeEnabled -> onSetFocusModeEnabled(event.isEnabled)
             is ApplyFilter -> onApplyFilter(event.tradeFilter)
             is NewExecution -> onNewExecution()
@@ -276,9 +276,11 @@ internal class TradesPresenter(
         tradeContentLauncher.openTrade(ProfileTradeId(profileId = profileId, tradeId = id))
     }
 
-    private fun onOpenChart(id: TradeId) {
+    private fun onOpenChart(ids: List<TradeId>) {
 
-        tradeContentLauncher.openTradeReview(ProfileTradeId(profileId = profileId, tradeId = id))
+        tradeContentLauncher.openTradeReview(
+            tradeIds = ids.map { ProfileTradeId(profileId = profileId, tradeId = it) },
+        )
     }
 
     private fun onSetFocusModeEnabled(isEnabled: Boolean) {

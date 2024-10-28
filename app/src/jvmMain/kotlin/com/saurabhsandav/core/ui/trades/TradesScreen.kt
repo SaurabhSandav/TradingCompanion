@@ -34,7 +34,7 @@ internal fun TradesScreen(
     isFocusModeEnabled: Boolean,
     selectionManager: SelectionManager<TradeId>,
     onOpenDetails: (TradeId) -> Unit,
-    onOpenChart: (TradeId) -> Unit,
+    onOpenChart: (List<TradeId>) -> Unit,
     onSetFocusModeEnabled: (Boolean) -> Unit,
     onApplyFilter: (TradeFilter) -> Unit,
     onNewExecution: () -> Unit,
@@ -97,7 +97,7 @@ internal fun TradesScreen(
                         isMarked = { id -> id in selectionManager.selection },
                         onMarkExecution = selectionManager::select,
                         onOpenDetails = onOpenDetails,
-                        onOpenChart = onOpenChart,
+                        onOpenChart = { onOpenChart(listOf(it)) },
                     )
                 }
             }
@@ -115,6 +115,7 @@ internal fun TradesScreen(
             onDeleteTrades = onDeleteTrades,
             tagSuggestions = tagSuggestions,
             onAddTag = onAddTag,
+            onOpenChart = onOpenChart,
         )
     }
 }

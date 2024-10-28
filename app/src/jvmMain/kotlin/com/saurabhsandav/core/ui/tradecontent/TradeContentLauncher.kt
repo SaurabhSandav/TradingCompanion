@@ -129,6 +129,10 @@ internal class TradeContentLauncher {
     }
 
     fun openTradeReview(tradeId: ProfileTradeId? = null) {
+        openTradeReview(listOfNotNull(tradeId))
+    }
+
+    fun openTradeReview(tradeIds: List<ProfileTradeId>) {
 
         openCharts()
 
@@ -141,14 +145,15 @@ internal class TradeContentLauncher {
                 tradeReviewWindowsManager.newWindow(params)
             }
 
-            // Window already open. Bring to front.
-            else -> if (tradeId == null) existingWindow.owner.childrenToFront()
+            // Window already open. Bring to front if no trade ids were provided.
+            // If trade ids are provided, assume the user wants to see the trade(s) on the Chart.
+            // Or else, assume the user wants to see the Trade Review window.
+            else -> if (tradeIds.isEmpty()) existingWindow.owner.childrenToFront()
         }
 
-
-        if (tradeId != null) {
+        if (tradeIds.isNotEmpty()) {
             val tradeReviewHandle = tradeReviewWindowsManager.windows.single().params.tradeReviewHandle
-            tradeReviewHandle.markTrade(tradeId)
+            tradeReviewHandle.markTrades(tradeIds)
         }
     }
 
