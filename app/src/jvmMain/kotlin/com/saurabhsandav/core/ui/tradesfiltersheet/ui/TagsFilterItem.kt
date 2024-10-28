@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.ui
 
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.Tooltip
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
@@ -120,11 +122,21 @@ private fun AddTagButton(
 
             filteredTags.forEach { tag ->
 
-                DropdownMenuItem(
-                    text = { Text(tag.name) },
-                    onClick = {
-                        expanded = false
-                        onAddTag(tag.id)
+                TooltipArea(
+                    tooltip = {
+
+                        if (tag.description != null)
+                            Tooltip(tag.description)
+                    },
+                    content = {
+
+                        DropdownMenuItem(
+                            text = { Text(tag.name) },
+                            onClick = {
+                                expanded = false
+                                onAddTag(tag.id)
+                            },
+                        )
                     },
                 )
             }
