@@ -130,8 +130,8 @@ kotlin {
             // Kermit
             implementation(libs.kermit)
 
-            // Compose Multiplatform File Picker
-            implementation(libs.mpfilepicker)
+            // FileKit
+            implementation("io.github.vinceglb:filekit-core:0.8.7")
 
             // JCEF MAVEN
             implementation(libs.jcefMaven)
