@@ -19,7 +19,6 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
-import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormModel
@@ -30,6 +29,9 @@ import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.FileKitPlatformSettings
+import io.github.vinceglb.filekit.core.pickFile
 import java.awt.Desktop
 import java.io.File
 
@@ -55,9 +57,12 @@ internal fun AttachmentFormWindow(
         title = if (formType is Edit) "Edit Attachment" else "Add Attachment",
     ) {
 
+        val fileKitPlatformSettings = remember { FileKitPlatformSettings(parentWindow = window) }
+
         AttachmentFormScreen(
             formType = formType,
             formModel = state.formModel,
+            fileKitPlatformSettings = fileKitPlatformSettings,
         )
     }
 }
@@ -66,6 +71,7 @@ internal fun AttachmentFormWindow(
 private fun AttachmentFormScreen(
     formType: AttachmentFormType,
     formModel: AttachmentFormModel?,
+    fileKitPlatformSettings: FileKitPlatformSettings,
 ) {
 
     Box(Modifier.wrapContentSize()) {
@@ -74,6 +80,7 @@ private fun AttachmentFormScreen(
             formModel != null -> AttachmentForm(
                 formType = formType,
                 model = formModel,
+                fileKitPlatformSettings = fileKitPlatformSettings,
             )
 
             else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -85,6 +92,7 @@ private fun AttachmentFormScreen(
 private fun AttachmentForm(
     formType: AttachmentFormType,
     model: AttachmentFormModel,
+    fileKitPlatformSettings: FileKitPlatformSettings,
 ) {
 
     Column(
@@ -120,6 +128,18 @@ private fun AttachmentForm(
 
             var showFilePicker by state { formType.showPickerOnOpen }
 
+            LaunchedEffect(showFilePicker) {
+
+                if (!showFilePicker) return@LaunchedEffect
+
+                model.path = FileKit.pickFile(
+                    title = "Select Attachment",
+                    platformSettings = fileKitPlatformSettings,
+                )?.path ?: model.path
+
+                showFilePicker = false
+            }
+
             OutlinedTextField(
                 modifier = Modifier.pointerInput(Unit) {
                     awaitEachGesture {
@@ -134,16 +154,6 @@ private fun AttachmentForm(
                 label = { Text("File") },
                 readOnly = true,
             )
-
-            FilePicker(
-                show = showFilePicker,
-                title = "Select Attachment",
-            ) { fileDetails ->
-
-                showFilePicker = false
-
-                if (fileDetails != null) model.path = fileDetails.path
-            }
         }
 
         val ref = remember { Ref<String>() }
