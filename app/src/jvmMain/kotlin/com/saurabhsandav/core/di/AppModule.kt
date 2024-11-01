@@ -10,6 +10,8 @@ import com.saurabhsandav.core.AppConfig
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.FileLogWriter
 import com.saurabhsandav.core.TradingProfile
+import com.saurabhsandav.core.backup.BackupManager
+import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trades.TradeExcursionsGenerator
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
@@ -27,22 +29,26 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.fyers_api.FyersApi
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okio.Path.Companion.toOkioPath
 import java.util.*
 
-internal class AppModule {
+internal class AppModule(
+    val restoreScheduler: RestoreScheduler,
+) {
 
     val appScope = MainScope()
 
     private val appPaths = AppPaths()
 
     val appDispatchers = AppDispatchers()
+
+    val backupManager = BackupManager(
+        appPaths = appPaths,
+        appDispatchers = appDispatchers,
+    )
 
     private val fileLogWriter = FileLogWriter(
         appDispatchers = appDispatchers,
@@ -103,7 +109,7 @@ internal class AppModule {
     }
 
     val appPrefs = DataStoreSettings(
-        datastore = PreferenceDataStoreFactory.createWithPath {
+        datastore = PreferenceDataStoreFactory.createWithPath(scope = appScope + appDispatchers.IO) {
             appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
         },
     )
@@ -118,7 +124,7 @@ internal class AppModule {
     private val chartPrefs by lazy {
 
         DataStoreSettings(
-            datastore = PreferenceDataStoreFactory.createWithPath {
+            datastore = PreferenceDataStoreFactory.createWithPath(scope = appScope + appDispatchers.IO) {
                 appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
             },
         )
