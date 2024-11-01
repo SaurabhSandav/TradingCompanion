@@ -2,12 +2,10 @@ package com.saurabhsandav.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
+import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.di.ScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -26,26 +24,39 @@ import kotlinx.coroutines.flow.first
 
 suspend fun runApp() {
 
-    val appModule = AppModule()
-    val initialLandingProfileId = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id
+    val restoreScheduler = RestoreScheduler()
 
-    application {
+    restoreScheduler.withRestoreScope {
 
-        CompositionLocalProvider(
-            LocalAppConfig provides appModule.appConfig,
-            LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-            LocalAppModule provides appModule,
-            LocalScreensModule provides appModule.screensModule,
-        ) {
+        val appModule = AppModule(restoreScheduler)
+        val initialLandingProfileId = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id
 
-            App(
-                onCloseRequest = {
+        application(exitProcessOnExit = false) {
+
+            val onExit = remember {
+                {
                     appModule.destroy()
                     exitApplication()
-                },
-                initialLandingProfileId = initialLandingProfileId,
-                isDarkModeEnabled = appModule.appConfig.isDarkModeEnabled,
-            )
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                restoreScheduler.init(appModule.backupManager, onExit)
+            }
+
+            CompositionLocalProvider(
+                LocalAppConfig provides appModule.appConfig,
+                LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+                LocalAppModule provides appModule,
+                LocalScreensModule provides appModule.screensModule,
+            ) {
+
+                App(
+                    onCloseRequest = onExit,
+                    initialLandingProfileId = initialLandingProfileId,
+                    isDarkModeEnabled = appModule.appConfig.isDarkModeEnabled,
+                )
+            }
         }
     }
 }
