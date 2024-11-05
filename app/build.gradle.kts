@@ -150,7 +150,7 @@ kotlin {
             implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
             // godaddy / compose-color-picker
-            implementation("com.godaddy.android.colorpicker:compose-color-picker:0.7.0")
+            implementation("com.github.skydoves:colorpicker-compose:1.1.2")
         }
 
         jvmTest.dependencies {

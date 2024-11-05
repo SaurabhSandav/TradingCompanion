@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.style.TextAlign
-import com.godaddy.android.colorpicker.ClassicColorPicker
-import com.godaddy.android.colorpicker.HsvColor
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -44,18 +44,15 @@ fun ColorPickerDialog(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
-            var selectedColor by state { initialSelection ?: HsvColor.DEFAULT.toColor() }
-            var selectedColorHex by state { selectedColor.toHexString() }
+            val controller = rememberColorPickerController()
+            val selectedColor by controller.selectedColor
+            val selectedColorHex by derivedState { controller.selectedColor.value.toHexString() }
             var isHexError by state { false }
 
-            ClassicColorPicker(
+            HsvColorPicker(
                 modifier = Modifier.weight(1F),
-                color = HsvColor.from(color = selectedColor),
-                onColorChanged = { color ->
-                    selectedColor = color.toColor()
-                    selectedColorHex = selectedColor.toHexString()
-                },
-                showAlphaBar = false,
+                controller = controller,
+                initialColor = initialSelection,
             )
 
             HorizontalDivider()
@@ -65,11 +62,9 @@ fun ColorPickerDialog(
                 value = selectedColorHex,
                 onValueChange = { text ->
 
-                    selectedColorHex = text
-
                     val color = Color.fromStringOrNull(text)
 
-                    color?.let { selectedColor = it }
+                    color?.let { controller.wheelColor = it }
                     isHexError = color == null
                 },
                 isError = isHexError,
