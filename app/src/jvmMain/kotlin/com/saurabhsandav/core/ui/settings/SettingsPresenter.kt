@@ -100,7 +100,7 @@ internal class SettingsPresenter(
         backupManager.backup(Path(toDirPath)) { event ->
 
             backupProgress = when (event) {
-                BackupEvent.GeneratingArchive -> "Generating Archive"
+                is BackupEvent.GeneratingArchive -> "Generating Archive"
                 BackupEvent.SavingArchive -> "Saving Archive"
                 BackupEvent.Finished -> null
             }

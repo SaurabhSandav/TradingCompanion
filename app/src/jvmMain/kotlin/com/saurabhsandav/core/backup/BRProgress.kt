@@ -1,13 +1,27 @@
 package com.saurabhsandav.core.backup
 
-enum class BackupEvent {
-    GeneratingArchive,
-    SavingArchive,
-    Finished,
+sealed class BackupEvent {
+
+    data class GeneratingArchive(
+        val item: BackupItem?,
+        val copied: Long,
+        val size: Long,
+    ) : BackupEvent()
+
+    data object SavingArchive : BackupEvent()
+
+    data object Finished : BackupEvent()
 }
 
-enum class RestoreEvent {
-    ExtractingArchive,
-    ReplacingAppFiles,
-    Finished,
+sealed class RestoreEvent {
+
+    data class ExtractingArchive(
+        val item: BackupItem?,
+        val copied: Long,
+        val size: Long,
+    ) : RestoreEvent()
+
+    data object ReplacingAppFiles : RestoreEvent()
+
+    data object Finished : RestoreEvent()
 }

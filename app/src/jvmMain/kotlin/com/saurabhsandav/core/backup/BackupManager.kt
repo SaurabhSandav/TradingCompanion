@@ -6,6 +6,7 @@ import com.saurabhsandav.core.utils.ZipUtils
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.deleteRecursively
@@ -24,9 +25,6 @@ class BackupManager(
     ) = withContext(appDispatchers.IO) {
 
         if (items.isEmpty()) return@withContext null
-
-        // Notify progress
-        onProgress?.invoke(BackupEvent.GeneratingArchive)
 
         // Create temp dir
         val tempDir = appPaths.createTempDirectory("${appPaths.appName}_Backup")
@@ -50,6 +48,27 @@ class BackupManager(
         ZipUtils.zip(
             paths = paths,
             outPath = archivePath,
+            onProgress = { zipProgress ->
+
+                val path = zipProgress.pathProgress?.path
+
+                val item = when {
+                    path == null -> null
+                    path.startsWith(appPaths.prefsPath.absolutePathString()) -> BackupItem.Prefs
+                    path.startsWith(appPaths.appDBPath.absolutePathString()) -> BackupItem.AppDb
+                    path.startsWith(appPaths.tradingRecordsPath.absolutePathString()) -> BackupItem.TradingRecords
+                    path.startsWith(appPaths.candlesDBPath.absolutePathString()) -> BackupItem.Candles
+                    else -> null
+                }
+
+                val event = BackupEvent.GeneratingArchive(
+                    item = item,
+                    copied = zipProgress.copied,
+                    size = zipProgress.size,
+                )
+
+                onProgress?.invoke(event)
+            },
         )
 
         // Notify progress
@@ -70,9 +89,6 @@ class BackupManager(
         onProgress: ((RestoreEvent) -> Unit)? = null,
     ): Unit = withContext(appDispatchers.IO) {
 
-        // Notify progress
-        onProgress?.invoke(RestoreEvent.ExtractingArchive)
-
         // Create temp dir
         val tempDir = appPaths.createTempDirectory("${appPaths.appName}_Restore")
 
@@ -80,6 +96,27 @@ class BackupManager(
         ZipUtils.unzip(
             zipPath = archivePath,
             outDir = tempDir,
+            onProgress = { zipProgress ->
+
+                val path = zipProgress.pathProgress?.path
+
+                val item = when {
+                    path == null -> null
+                    path.startsWith(appPaths.prefsPath.name) -> BackupItem.Prefs
+                    path.startsWith(appPaths.appDBPath.name) -> BackupItem.AppDb
+                    path.startsWith(appPaths.tradingRecordsPath.name) -> BackupItem.TradingRecords
+                    path.startsWith(appPaths.candlesDBPath.name) -> BackupItem.Candles
+                    else -> null
+                }
+
+                val event = RestoreEvent.ExtractingArchive(
+                    item = item,
+                    copied = zipProgress.copied,
+                    size = zipProgress.size,
+                )
+
+                onProgress?.invoke(event)
+            },
         )
 
         // Notify progress
