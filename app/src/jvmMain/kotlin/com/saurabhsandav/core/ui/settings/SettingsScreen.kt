@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.settings
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -10,9 +12,9 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.backup.BackupItem
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -47,6 +50,7 @@ import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDefaultTimef
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDensityFraction
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeLandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Restore
+import com.saurabhsandav.core.ui.settings.model.SettingsState.BackupProgress
 import com.saurabhsandav.core.ui.theme.dimens
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
@@ -91,7 +95,7 @@ internal fun SettingsScreen(
     onDensityFractionChange: (Float) -> Unit,
     defaultTimeframe: Timeframe,
     onDefaultTimeframeChange: (Timeframe) -> Unit,
-    backupProgress: String?,
+    backupProgress: BackupProgress?,
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
 ) {
@@ -262,7 +266,7 @@ private fun DefaultTimeframePreference(
 
 @Composable
 internal fun BackupPreference(
-    backupProgress: String?,
+    backupProgress: BackupProgress?,
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
 ) {
@@ -331,22 +335,57 @@ internal fun BackupPreference(
     )
 
     if (backupProgress != null) {
+        BackupProgressDialog(backupProgress)
+    }
+}
 
-        Dialog(onDismissRequest = {}) {
+@Composable
+private fun BackupProgressDialog(backupProgress: BackupProgress) {
 
-            Card(
-                shape = RoundedCornerShape(16.dp),
+    Dialog(onDismissRequest = {}) {
+
+        ElevatedCard(
+            shape = RoundedCornerShape(16.dp),
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .padding(MaterialTheme.dimens.containerPadding)
+                    .animateContentSize(),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
-                Row(
-                    modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
-                ) {
+                when (backupProgress) {
+                    is BackupProgress.GeneratingArchive -> {
 
-                    Text(backupProgress)
+                        Text("Generating Archive")
 
-                    CircularProgressIndicator()
+                        val subtitle = when (backupProgress.item) {
+                            BackupItem.Prefs -> "Prefs"
+                            BackupItem.AppDb -> "App Database"
+                            BackupItem.TradingRecords -> "Trading Records"
+                            BackupItem.Candles -> "Candles Database"
+                        }
+
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                            progress = { backupProgress.progress },
+                        )
+                    }
+
+                    BackupProgress.SavingArchive -> {
+
+                        Text("Saving Archive")
+
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }

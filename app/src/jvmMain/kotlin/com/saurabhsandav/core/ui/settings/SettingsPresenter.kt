@@ -21,6 +21,7 @@ import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDensityFract
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeLandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Restore
 import com.saurabhsandav.core.ui.settings.model.SettingsState
+import com.saurabhsandav.core.ui.settings.model.SettingsState.BackupProgress
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -35,7 +36,7 @@ internal class SettingsPresenter(
     private val restoreScheduler: RestoreScheduler,
 ) {
 
-    private var backupProgress by mutableStateOf<String?>(null)
+    private var backupProgress by mutableStateOf<BackupProgress?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -100,8 +101,12 @@ internal class SettingsPresenter(
         backupManager.backup(Path(toDirPath)) { event ->
 
             backupProgress = when (event) {
-                is BackupEvent.GeneratingArchive -> "Generating Archive"
-                BackupEvent.SavingArchive -> "Saving Archive"
+                is BackupEvent.GeneratingArchive -> BackupProgress.GeneratingArchive(
+                    item = event.item ?: return@backup,
+                    progress = event.copied / event.size.toFloat(),
+                )
+
+                BackupEvent.SavingArchive -> BackupProgress.SavingArchive
                 BackupEvent.Finished -> null
             }
         }
