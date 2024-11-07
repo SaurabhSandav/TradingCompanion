@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -28,8 +28,8 @@ internal fun SettingsWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember { appModule.settingsModule(scope).presenter() }
+    val screensModule = LocalScreensModule.current
+    val presenter = remember { screensModule.settingsModule(scope).presenter() }
     val state by presenter.state.collectAsState()
 
     AppWindow(

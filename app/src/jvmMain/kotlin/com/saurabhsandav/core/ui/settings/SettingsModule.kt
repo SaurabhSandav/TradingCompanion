@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.settings
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import kotlinx.coroutines.CoroutineScope
 
 internal class SettingsModule(

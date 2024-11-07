@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradereview
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import kotlinx.coroutines.CoroutineScope
 

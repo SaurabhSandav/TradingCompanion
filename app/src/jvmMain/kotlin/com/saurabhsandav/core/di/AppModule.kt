@@ -1,4 +1,4 @@
-package com.saurabhsandav.core
+package com.saurabhsandav.core.di
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
@@ -6,48 +6,32 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.datastore.DataStoreSettings
+import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.FileLogWriter
+import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradeExcursionsGenerator
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
-import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
-import com.saurabhsandav.core.ui.account.AccountModule
-import com.saurabhsandav.core.ui.attachmentform.AttachmentFormModule
-import com.saurabhsandav.core.ui.barreplay.BarReplayModule
-import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
-import com.saurabhsandav.core.ui.landing.LandingModule
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
-import com.saurabhsandav.core.ui.profiles.ProfilesModule
-import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
-import com.saurabhsandav.core.ui.review.ReviewModule
-import com.saurabhsandav.core.ui.reviews.ReviewsModule
-import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.settings.model.WebViewBackend
-import com.saurabhsandav.core.ui.sizing.SizingModule
-import com.saurabhsandav.core.ui.stats.StatsModule
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
-import com.saurabhsandav.core.ui.tagform.TagFormModule
-import com.saurabhsandav.core.ui.tags.TagsModule
-import com.saurabhsandav.core.ui.trade.TradeModule
-import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
-import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
-import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsModule
-import com.saurabhsandav.core.ui.tradereview.TradeReviewModule
-import com.saurabhsandav.core.ui.trades.TradesModule
-import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterModule
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.fyers_api.FyersApi
-import kotlinx.coroutines.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okio.Path.Companion.toOkioPath
 import java.util.*
 
@@ -183,86 +167,6 @@ internal class AppModule {
 
     val tradeContentLauncher = TradeContentLauncher()
 
-    val accountModule: (CoroutineScope) -> AccountModule = { coroutineScope ->
-        AccountModule(this, coroutineScope)
-    }
-
-    val barReplayModule: (CoroutineScope) -> BarReplayModule = { coroutineScope ->
-        BarReplayModule(this, coroutineScope)
-    }
-
-    val chartsModule: (CoroutineScope) -> ChartsModule = { coroutineScope ->
-        ChartsModule(this, coroutineScope)
-    }
-
-    val tradeReviewModule: (CoroutineScope) -> TradeReviewModule = { coroutineScope ->
-        TradeReviewModule(this, coroutineScope)
-    }
-
-    val landingModule: (CoroutineScope, ProfileId) -> LandingModule = { coroutineScope, profileId ->
-        LandingModule(this, coroutineScope, profileId)
-    }
-
-    val profilesModule: (CoroutineScope) -> ProfilesModule = { coroutineScope ->
-        ProfilesModule(this, coroutineScope)
-    }
-
-    val profileFormModule: (CoroutineScope) -> ProfileFormModule = { coroutineScope ->
-        ProfileFormModule(this, coroutineScope)
-    }
-
-    val reviewsModule: (CoroutineScope, ProfileId) -> ReviewsModule = { coroutineScope, profileId ->
-        ReviewsModule(this, coroutineScope, profileId)
-    }
-
-    val reviewModule: (CoroutineScope, ProfileReviewId) -> ReviewModule = { coroutineScope, profileReviewId ->
-        ReviewModule(this, coroutineScope, profileReviewId)
-    }
-
-    val settingsModule: (CoroutineScope) -> SettingsModule = { coroutineScope ->
-        SettingsModule(this, coroutineScope)
-    }
-
-    val sizingModule: (CoroutineScope, ProfileId) -> SizingModule = { coroutineScope, profileId ->
-        SizingModule(this, coroutineScope, profileId)
-    }
-
-    val statsModule: (CoroutineScope, ProfileId) -> StatsModule = { coroutineScope, profileId ->
-        StatsModule(this, coroutineScope, profileId)
-    }
-
-    val tagsModule: (CoroutineScope, ProfileId) -> TagsModule = { coroutineScope, profileId ->
-        TagsModule(this, coroutineScope, profileId)
-    }
-
-    val tagFormModule: (CoroutineScope) -> TagFormModule = { coroutineScope ->
-        TagFormModule(this, coroutineScope)
-    }
-
-    val tradeModule: (CoroutineScope) -> TradeModule = { coroutineScope ->
-        TradeModule(this, coroutineScope)
-    }
-
-    val tradeExecutionFormModule: (CoroutineScope) -> TradeExecutionFormModule = { coroutineScope ->
-        TradeExecutionFormModule(this, coroutineScope)
-    }
-
-    val tradeExecutionsModule: (CoroutineScope, ProfileId) -> TradeExecutionsModule = { coroutineScope, profileId ->
-        TradeExecutionsModule(this, coroutineScope, profileId)
-    }
-
-    val tradesModule: (CoroutineScope, ProfileId) -> TradesModule = { coroutineScope, profileId ->
-        TradesModule(this, coroutineScope, profileId)
-    }
-
-    val tradesFilterModule: (CoroutineScope, ProfileId) -> TradesFilterModule = { coroutineScope, profileId ->
-        TradesFilterModule(this, coroutineScope, profileId)
-    }
-
-    val attachmentFormModule: (CoroutineScope) -> AttachmentFormModule = { coroutineScope ->
-        AttachmentFormModule(this, coroutineScope)
-    }
-
     val stockChartsState = StockChartsStateFactory {
             coroutineScope,
             initialParams,
@@ -280,6 +184,8 @@ internal class AppModule {
             loadConfig = loadConfig,
         )
     }
+
+    val screensModule = ScreensModule(this)
 
     init {
 

@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState

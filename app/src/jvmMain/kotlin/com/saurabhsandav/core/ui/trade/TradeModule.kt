@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.trade
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.CoroutineScope
 

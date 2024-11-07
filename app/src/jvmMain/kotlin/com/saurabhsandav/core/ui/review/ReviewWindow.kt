@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
@@ -31,8 +31,8 @@ internal fun ReviewWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val reviewModule = remember { appModule.reviewModule(scope, profileReviewId) }
+    val screensModule = LocalScreensModule.current
+    val reviewModule = remember { screensModule.reviewModule(scope, profileReviewId) }
     val presenter = remember { reviewModule.presenter() }
     val state = presenter.state.collectAsState().value ?: return
 

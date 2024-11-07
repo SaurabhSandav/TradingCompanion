@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.review
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import kotlinx.coroutines.CoroutineScope
 

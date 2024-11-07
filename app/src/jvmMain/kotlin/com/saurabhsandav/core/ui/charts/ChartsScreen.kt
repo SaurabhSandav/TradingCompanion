@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDeclined
 import com.saurabhsandav.core.ui.common.ErrorSnackbar
@@ -25,9 +25,9 @@ internal fun ChartsScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val screensModule = LocalScreensModule.current
 
-    val module = remember { appModule.chartsModule(scope) }
+    val module = remember { screensModule.chartsModule(scope) }
     val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
 

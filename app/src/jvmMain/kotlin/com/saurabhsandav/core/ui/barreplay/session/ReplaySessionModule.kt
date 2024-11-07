@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
