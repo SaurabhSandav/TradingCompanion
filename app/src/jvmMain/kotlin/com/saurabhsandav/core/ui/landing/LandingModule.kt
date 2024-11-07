@@ -10,7 +10,7 @@ internal class LandingModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
+    val presenter: () -> LandingPresenter = {
 
         LandingPresenter(
             coroutineScope = coroutineScope,

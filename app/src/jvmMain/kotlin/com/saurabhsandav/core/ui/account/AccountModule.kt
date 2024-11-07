@@ -8,7 +8,7 @@ internal class AccountModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
+    val presenter: () -> AccountPresenter = {
 
         AccountPresenter(
             appDispatchers = appModule.appDispatchers,

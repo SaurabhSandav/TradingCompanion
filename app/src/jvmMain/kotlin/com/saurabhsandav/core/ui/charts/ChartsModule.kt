@@ -21,7 +21,7 @@ internal class ChartsModule(
         candleRepo = appModule.candleRepo,
     )
 
-    val presenter = {
+    val presenter: () -> ChartsPresenter = {
 
         ChartsPresenter(
             appDispatchers = appModule.appDispatchers,

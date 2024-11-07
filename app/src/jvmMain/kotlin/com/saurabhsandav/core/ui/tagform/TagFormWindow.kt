@@ -36,7 +36,7 @@ fun TagFormWindow(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tagFormModule(scope).presenter(profileId, formType, onCloseRequest) }
+    val presenter = remember { appModule.tagFormModule(scope).presenter(onCloseRequest, profileId, formType) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(

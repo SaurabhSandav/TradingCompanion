@@ -10,7 +10,7 @@ internal class TagsModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
+    val presenter: () -> TagsPresenter = {
 
         TagsPresenter(
             coroutineScope = coroutineScope,

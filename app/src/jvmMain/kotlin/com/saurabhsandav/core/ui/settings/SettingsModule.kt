@@ -8,7 +8,7 @@ internal class SettingsModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
+    val presenter: () -> SettingsPresenter = {
 
         SettingsPresenter(
             coroutineScope = coroutineScope,

@@ -10,7 +10,7 @@ internal class ReviewModule(
     profileReviewId: ProfileReviewId,
 ) {
 
-    val presenter = {
+    val presenter: () -> ReviewPresenter = {
 
         ReviewPresenter(
             coroutineScope = coroutineScope,

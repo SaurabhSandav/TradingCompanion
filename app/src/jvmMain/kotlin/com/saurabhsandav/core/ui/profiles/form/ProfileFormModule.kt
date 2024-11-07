@@ -8,11 +8,11 @@ internal class ProfileFormModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
-            onCloseRequest: () -> Unit,
-            formType: ProfileFormType,
-            trainingOnly: Boolean,
-        ->
+    val presenter: (
+        onCloseRequest: () -> Unit,
+        ProfileFormType,
+        Boolean,
+    ) -> ProfileFormPresenter = { onCloseRequest, formType, trainingOnly ->
 
         ProfileFormPresenter(
             coroutineScope = coroutineScope,

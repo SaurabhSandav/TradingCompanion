@@ -10,11 +10,11 @@ internal class TagFormModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
-            profileId: ProfileId,
-            formType: TagFormType,
-            onCloseRequest: () -> Unit,
-        ->
+    val presenter: (
+        onCloseRequest: () -> Unit,
+        ProfileId,
+        TagFormType,
+    ) -> TagFormPresenter = { onCloseRequest, profileId, formType ->
 
         TagFormPresenter(
             coroutineScope = coroutineScope,

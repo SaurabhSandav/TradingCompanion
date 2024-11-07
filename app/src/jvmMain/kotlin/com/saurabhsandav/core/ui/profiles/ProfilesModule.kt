@@ -9,7 +9,7 @@ internal class ProfilesModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenterFactory = object : ProfilesPresenter.Factory {
+    val presenterFactory: ProfilesPresenter.Factory = object : ProfilesPresenter.Factory {
 
         override fun build(
             customSelectionMode: Boolean,

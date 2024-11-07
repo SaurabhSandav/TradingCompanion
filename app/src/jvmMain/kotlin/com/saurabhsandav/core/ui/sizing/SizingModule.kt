@@ -10,7 +10,7 @@ internal class SizingModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
+    val presenter: () -> SizingPresenter = {
 
         SizingPresenter(
             coroutineScope = coroutineScope,

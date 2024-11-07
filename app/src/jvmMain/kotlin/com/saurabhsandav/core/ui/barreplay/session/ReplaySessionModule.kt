@@ -42,7 +42,7 @@ internal class ReplaySessionModule(
         tradingProfiles = appModule.tradingProfiles,
     )
 
-    val presenter = {
+    val presenter: () -> ReplaySessionPresenter = {
 
         ReplaySessionPresenter(
             coroutineScope = coroutineScope,

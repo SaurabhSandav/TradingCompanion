@@ -11,7 +11,7 @@ internal class StatsModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
+    val presenter: () -> StatsPresenter = {
 
         StatsPresenter(
             coroutineScope = coroutineScope,
