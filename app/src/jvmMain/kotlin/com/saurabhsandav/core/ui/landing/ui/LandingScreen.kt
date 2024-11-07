@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
@@ -25,8 +25,8 @@ internal fun LandingScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val landingModule = remember { appModule.landingModule(scope, profileId) }
+    val screensModule = LocalScreensModule.current
+    val landingModule = remember { screensModule.landingModule(scope, profileId) }
     val presenter = remember { landingModule.presenter() }
     val state by presenter.state.collectAsState()
 
@@ -38,7 +38,7 @@ internal fun LandingScreen(
             switcherItems = landingModule.switcherItems,
             currentScreen = currentScreen,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
-            tradeContentLauncher = appModule.tradeContentLauncher,
+            tradeContentLauncher = landingModule.tradeContentLauncher,
             openTradesCount = state.openTradesCount,
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,

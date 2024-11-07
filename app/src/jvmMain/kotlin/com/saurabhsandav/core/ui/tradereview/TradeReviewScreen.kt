@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.paging.PagingData
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.ui.charts.ChartsHandle
@@ -36,8 +36,8 @@ internal fun TradeReviewWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradeReviewModule(scope).presenter(chartsHandle) }
+    val screensModule = LocalScreensModule.current
+    val presenter = remember { screensModule.tradeReviewModule(scope).presenter(chartsHandle) }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(state.eventSink) {

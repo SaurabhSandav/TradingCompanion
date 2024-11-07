@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay
 
-import com.saurabhsandav.core.AppModule
+import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.barreplay.session.ReplaySessionModule
 import kotlinx.coroutines.CoroutineScope

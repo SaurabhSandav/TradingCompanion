@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -28,9 +28,9 @@ internal fun ProfilesWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val screensModule = LocalScreensModule.current
     val presenter = remember {
-        appModule.profilesModule(scope).presenterFactory.build(
+        screensModule.profilesModule(scope).presenterFactory.build(
             customSelectionMode = false,
             trainingOnly = false,
         )
@@ -62,9 +62,9 @@ fun ProfileSelectorDialog(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val screensModule = LocalScreensModule.current
     val presenter = remember {
-        appModule.profilesModule(scope).presenterFactory.build(
+        screensModule.profilesModule(scope).presenterFactory.build(
             customSelectionMode = true,
             trainingOnly = trainingOnly,
             selectedProfileId = selectedProfileId,
@@ -107,9 +107,9 @@ fun ProfileSelectorField(
     var showSelectorDialog by state { false }
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val screensModule = LocalScreensModule.current
     val presenter = remember {
-        appModule.profilesModule(scope).presenterFactory.build(
+        screensModule.profilesModule(scope).presenterFactory.build(
             customSelectionMode = true,
             trainingOnly = trainingOnly,
             selectedProfileId = selectedProfileId,

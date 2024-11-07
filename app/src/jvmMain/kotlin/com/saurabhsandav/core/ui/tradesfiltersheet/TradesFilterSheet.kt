@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SideSheet
@@ -30,8 +30,8 @@ internal fun TradesFilterSheet(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradesFilterModule(scope, profileId).presenter(filter, onFilterChange) }
+    val screensModule = LocalScreensModule.current
+    val presenter = remember { screensModule.tradesFilterModule(scope, profileId).presenter(filter, onFilterChange) }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(filter) {

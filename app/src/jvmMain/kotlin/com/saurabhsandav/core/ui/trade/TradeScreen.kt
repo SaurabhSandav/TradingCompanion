@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeNoteId
@@ -32,8 +32,8 @@ internal fun TradeWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val presenter = remember { appModule.tradeModule(scope).presenter(profileTradeId, onCloseRequest) }
+    val screensModule = LocalScreensModule.current
+    val presenter = remember { screensModule.tradeModule(scope).presenter(profileTradeId, onCloseRequest) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
@@ -21,8 +21,8 @@ internal fun BarReplayWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
-    val module = remember { appModule.barReplayModule(scope) }
+    val screensModule = LocalScreensModule.current
+    val module = remember { screensModule.barReplayModule(scope) }
     val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
 

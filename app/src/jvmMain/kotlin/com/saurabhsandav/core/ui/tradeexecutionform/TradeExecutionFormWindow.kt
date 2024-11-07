@@ -12,7 +12,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.AppColor
@@ -43,9 +43,9 @@ internal fun TradeExecutionFormWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val screensModule = LocalScreensModule.current
     val presenter = remember {
-        appModule.tradeExecutionFormModule(scope).presenter(onCloseRequest, profileId, formType)
+        screensModule.tradeExecutionFormModule(scope).presenter(onCloseRequest, profileId, formType)
     }
     val state by presenter.state.collectAsState()
 

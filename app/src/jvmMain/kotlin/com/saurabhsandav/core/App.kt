@@ -5,6 +5,8 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
+import com.saurabhsandav.core.di.AppModule
+import com.saurabhsandav.core.di.ScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
@@ -33,6 +35,7 @@ fun runApp() = application {
         LocalDensityFraction provides densityFraction,
         LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
         LocalAppModule provides appModule,
+        LocalScreensModule provides appModule.screensModule,
     ) {
 
         App {
@@ -145,3 +148,4 @@ internal fun App(onCloseRequest: () -> Unit) {
 internal val LocalDensityFraction = staticCompositionLocalOf { PrefDefaults.DensityFraction }
 
 internal val LocalAppModule = staticCompositionLocalOf<AppModule> { error("AppModule is not provided") }
+internal val LocalScreensModule = staticCompositionLocalOf<ScreensModule> { error("ScreensModule is not provided") }
