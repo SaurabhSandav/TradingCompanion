@@ -10,7 +10,7 @@ internal class BarReplayModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
+    val presenter: () -> BarReplayPresenter = {
 
         BarReplayPresenter(
             coroutineScope = coroutineScope,
@@ -18,11 +18,10 @@ internal class BarReplayModule(
         )
     }
 
-    val replaySessionModule = {
-            coroutineScope: CoroutineScope,
-            replayParams: BarReplayState.ReplayParams,
-        ->
-
+    val replaySessionModule: (
+        CoroutineScope,
+        BarReplayState.ReplayParams,
+    ) -> ReplaySessionModule = { coroutineScope, replayParams ->
         ReplaySessionModule(appModule, coroutineScope, replayParams)
     }
 }

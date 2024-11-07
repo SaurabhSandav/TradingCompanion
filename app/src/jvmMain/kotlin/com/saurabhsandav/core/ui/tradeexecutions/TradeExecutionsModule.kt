@@ -10,7 +10,7 @@ internal class TradeExecutionsModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
+    val presenter: () -> TradeExecutionsPresenter = {
 
         TradeExecutionsPresenter(
             coroutineScope = coroutineScope,

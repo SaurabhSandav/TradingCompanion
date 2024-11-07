@@ -11,10 +11,10 @@ internal class TradesFilterModule(
     profileId: ProfileId,
 ) {
 
-    val presenter = {
-            filterConfig: FilterConfig,
-            onFilterChange: (FilterConfig) -> Unit,
-        ->
+    val presenter: (
+        FilterConfig,
+        onFilterChange: (FilterConfig) -> Unit,
+    ) -> TradesFilterPresenter = { filterConfig, onFilterChange ->
 
         TradesFilterPresenter(
             coroutineScope = coroutineScope,

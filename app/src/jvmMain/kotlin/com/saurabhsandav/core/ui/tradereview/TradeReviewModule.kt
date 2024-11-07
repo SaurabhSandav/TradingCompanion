@@ -9,7 +9,7 @@ internal class TradeReviewModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = { chartsHandle: ChartsHandle ->
+    val presenter: (ChartsHandle) -> TradeReviewPresenter = { chartsHandle ->
 
         TradeReviewPresenter(
             coroutineScope = coroutineScope,

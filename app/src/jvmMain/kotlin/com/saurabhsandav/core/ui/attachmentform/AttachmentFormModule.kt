@@ -10,11 +10,11 @@ internal class AttachmentFormModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
-            onCloseRequest: () -> Unit,
-            profileId: ProfileId,
-            formType: AttachmentFormType,
-        ->
+    val presenter: (
+        onCloseRequest: () -> Unit,
+        ProfileId,
+        AttachmentFormType,
+    ) -> AttachmentFormPresenter = { onCloseRequest, profileId, formType ->
 
         AttachmentFormPresenter(
             onCloseRequest = onCloseRequest,

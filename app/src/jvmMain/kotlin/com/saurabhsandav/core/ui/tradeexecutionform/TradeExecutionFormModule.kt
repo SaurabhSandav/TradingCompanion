@@ -10,11 +10,11 @@ internal class TradeExecutionFormModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
-            onCloseRequest: () -> Unit,
-            profileId: ProfileId,
-            formType: TradeExecutionFormType,
-        ->
+    val presenter: (
+        onCloseRequest: () -> Unit,
+        ProfileId,
+        TradeExecutionFormType,
+    ) -> TradeExecutionFormPresenter = { onCloseRequest, profileId, formType ->
 
         TradeExecutionFormPresenter(
             onCloseRequest = onCloseRequest,

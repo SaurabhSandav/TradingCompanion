@@ -9,10 +9,10 @@ internal class TradeModule(
     coroutineScope: CoroutineScope,
 ) {
 
-    val presenter = {
-            profileTradeId: ProfileTradeId,
-            onProfileStoppedExisting: () -> Unit,
-        ->
+    val presenter: (
+        ProfileTradeId,
+        onProfileStoppedExisting: () -> Unit,
+    ) -> TradePresenter = { profileTradeId, onProfileStoppedExisting ->
 
         TradePresenter(
             profileTradeId = profileTradeId,
