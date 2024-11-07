@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.attachmentform
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -15,7 +14,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
@@ -25,6 +23,7 @@ import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.Edit
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.New
+import com.saurabhsandav.core.ui.common.AnimatedVisibilityForNullable
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
@@ -156,16 +155,10 @@ private fun AttachmentForm(
             )
         }
 
-        val ref = remember { Ref<String>() }
-
-        ref.value = model.path ?: ref.value
-
-        AnimatedVisibility(model.path != null) {
+        AnimatedVisibilityForNullable(model.path) { path ->
 
             TextButton(
                 onClick = {
-
-                    val path = ref.value ?: return@TextButton
 
                     if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
                         error("Opening attachment not supported")
