@@ -9,19 +9,11 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.*
-import com.saurabhsandav.core.ui.reviews.ReviewsLandingSwitcherItem
-import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
-import com.saurabhsandav.core.ui.stats.StatsLandingSwitcherItem
-import com.saurabhsandav.core.ui.tags.TagsLandingSwitcherItem
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
-import com.saurabhsandav.core.ui.tradeexecutions.TradeExecutionsLandingSwitcherItem
-import com.saurabhsandav.core.ui.trades.TradesLandingSwitcherItem
 
 @Composable
 internal fun LandingScreen(
@@ -34,27 +26,16 @@ internal fun LandingScreen(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { appModule.landingModule(scope, profileId).presenter() }
+    val landingModule = remember { appModule.landingModule(scope, profileId) }
+    val presenter = remember { landingModule.presenter() }
     val state by presenter.state.collectAsState()
-
-    val switcherItems = remember {
-        mapOf(
-            Account to AccountLandingSwitcherItem(appModule.accountModule(scope)),
-            TradeSizing to SizingLandingSwitcherItem(appModule.sizingModule(scope, profileId)),
-            TradeExecutions to TradeExecutionsLandingSwitcherItem(appModule.tradeExecutionsModule(scope, profileId)),
-            Trades to TradesLandingSwitcherItem(appModule.tradesModule(scope, profileId)),
-            Tags to TagsLandingSwitcherItem(appModule.tagsModule(scope, profileId)),
-            Reviews to ReviewsLandingSwitcherItem(appModule.reviewsModule(scope, profileId)),
-            Stats to StatsLandingSwitcherItem(appModule.statsModule(scope, profileId)),
-        )
-    }
 
     val currentScreen = state.currentScreen
 
     if (currentScreen != null) {
 
         LandingScreen(
-            switcherItems = switcherItems,
+            switcherItems = landingModule.switcherItems,
             currentScreen = currentScreen,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
             tradeContentLauncher = appModule.tradeContentLauncher,
