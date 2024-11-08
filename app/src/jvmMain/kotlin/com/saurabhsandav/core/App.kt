@@ -23,31 +23,41 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.flow.first
 
-fun runApp() = application {
+suspend fun runApp() {
 
-    val appModule = remember { AppModule() }
+    val appModule = AppModule()
+    val initialLandingProfileId = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id
 
-    val densityFraction by remember {
-        appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
-    }.collectAsState(PrefDefaults.DensityFraction)
+    application {
 
-    CompositionLocalProvider(
-        LocalDensityFraction provides densityFraction,
-        LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-        LocalAppModule provides appModule,
-        LocalScreensModule provides appModule.screensModule,
-    ) {
+        val densityFraction by remember {
+            appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
+        }.collectAsState(PrefDefaults.DensityFraction)
 
-        App {
-            appModule.destroy()
-            exitApplication()
+        CompositionLocalProvider(
+            LocalDensityFraction provides densityFraction,
+            LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+            LocalAppModule provides appModule,
+            LocalScreensModule provides appModule.screensModule,
+        ) {
+
+            App(
+                onCloseRequest = {
+                    appModule.destroy()
+                    exitApplication()
+                },
+                initialLandingProfileId = initialLandingProfileId,
+            )
         }
     }
 }
 
 @Composable
 @Preview
-internal fun App(onCloseRequest: () -> Unit) {
+internal fun App(
+    onCloseRequest: () -> Unit,
+    initialLandingProfileId: ProfileId,
+) {
 
     val appModule = LocalAppModule.current
     val useDarkTheme by remember {
@@ -56,7 +66,7 @@ internal fun App(onCloseRequest: () -> Unit) {
 
     AppTheme(useDarkTheme = useDarkTheme) {
 
-        val landingWindowsManager = remember { AppWindowsManager<ProfileId>() }
+        val landingWindowsManager = remember { AppWindowsManager(listOf(initialLandingProfileId)) }
         val profilesWindowManager = remember { AppWindowManager() }
         val pnlCalculatorWindowManager = remember { AppWindowManager() }
         val barReplayWindowManager = remember { AppWindowManager() }
@@ -78,13 +88,6 @@ internal fun App(onCloseRequest: () -> Unit) {
                 onOpenPnlCalculator = pnlCalculatorWindowManager::openWindow,
                 onOpenBarReplay = barReplayWindowManager::openWindow,
                 onOpenSettings = settingsWindowManager::openWindow,
-            )
-        }
-
-        LaunchedEffect(landingWindowsManager) {
-
-            landingWindowsManager.newWindow(
-                params = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id,
             )
         }
 
