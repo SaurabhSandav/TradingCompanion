@@ -2,7 +2,10 @@ package com.saurabhsandav.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
 import com.saurabhsandav.core.di.AppModule
@@ -18,8 +21,6 @@ import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
-import com.saurabhsandav.core.utils.PrefDefaults
-import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.flow.first
 
@@ -30,12 +31,8 @@ suspend fun runApp() {
 
     application {
 
-        val densityFraction by remember {
-            appModule.appPrefs.getFloatFlow(PrefKeys.DensityFraction, PrefDefaults.DensityFraction)
-        }.collectAsState(PrefDefaults.DensityFraction)
-
         CompositionLocalProvider(
-            LocalDensityFraction provides densityFraction,
+            LocalAppConfig provides appModule.appConfig,
             LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
             LocalAppModule provides appModule,
             LocalScreensModule provides appModule.screensModule,
@@ -47,6 +44,7 @@ suspend fun runApp() {
                     exitApplication()
                 },
                 initialLandingProfileId = initialLandingProfileId,
+                isDarkModeEnabled = appModule.appConfig.isDarkModeEnabled,
             )
         }
     }
@@ -57,14 +55,12 @@ suspend fun runApp() {
 internal fun App(
     onCloseRequest: () -> Unit,
     initialLandingProfileId: ProfileId,
+    isDarkModeEnabled: Boolean,
 ) {
 
     val appModule = LocalAppModule.current
-    val useDarkTheme by remember {
-        appModule.appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
-    }.collectAsState(PrefDefaults.DarkModeEnabled)
 
-    AppTheme(useDarkTheme = useDarkTheme) {
+    AppTheme(useDarkTheme = isDarkModeEnabled) {
 
         val landingWindowsManager = remember { AppWindowsManager(listOf(initialLandingProfileId)) }
         val profilesWindowManager = remember { AppWindowManager() }
@@ -148,7 +144,7 @@ internal fun App(
     }
 }
 
-internal val LocalDensityFraction = staticCompositionLocalOf { PrefDefaults.DensityFraction }
+internal val LocalAppConfig = staticCompositionLocalOf<AppConfig> { error("AppConfig is not provided") }
 
 internal val LocalAppModule = staticCompositionLocalOf<AppModule> { error("AppModule is not provided") }
 internal val LocalScreensModule = staticCompositionLocalOf<ScreensModule> { error("ScreensModule is not provided") }

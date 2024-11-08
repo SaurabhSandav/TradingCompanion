@@ -6,6 +6,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.datastore.DataStoreSettings
+import com.saurabhsandav.core.AppConfig
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.FileLogWriter
 import com.saurabhsandav.core.TradingProfile
@@ -105,6 +106,11 @@ internal class AppModule {
         datastore = PreferenceDataStoreFactory.createWithPath {
             appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
         },
+    )
+
+    val appConfig = AppConfig(
+        scope = appScope,
+        appPrefs = appPrefs,
     )
 
     private val myCefApp = lazy { MyCefApp(appPaths) }

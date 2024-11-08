@@ -8,12 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.DialogState
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.DialogWindowScope
 import androidx.compose.ui.window.rememberDialogState
-import com.saurabhsandav.core.LocalDensityFraction
+import com.saurabhsandav.core.LocalAppConfig
+import com.saurabhsandav.core.adjustedDensity
 
 @Composable
 fun AppDialogWindow(
@@ -49,13 +49,10 @@ fun AppDialogWindow(
         onKeyEvent = onKeyEvent,
     ) {
 
-        val density = LocalDensity.current
-        val densityFraction = LocalDensityFraction.current
-
-        val newDensity = Density(density.density * densityFraction, density.fontScale)
+        val appConfig = LocalAppConfig.current
 
         CompositionLocalProvider(
-            LocalDensity provides newDensity,
+            LocalDensity provides appConfig.adjustedDensity(),
         ) {
 
             Surface(
