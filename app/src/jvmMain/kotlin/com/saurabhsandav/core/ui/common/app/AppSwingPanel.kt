@@ -8,8 +8,8 @@ import androidx.compose.ui.awt.NoOpUpdate
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import com.saurabhsandav.core.LocalDensityFraction
+import com.saurabhsandav.core.LocalAppConfig
+import com.saurabhsandav.core.originalDensity
 import java.awt.Component
 
 @Composable
@@ -20,13 +20,9 @@ fun <T : Component> AppSwingPanel(
     update: (T) -> Unit = NoOpUpdate,
 ) {
 
-    // Workaround SwingPanel weird behaviour on density change
-    val density = LocalDensity.current
-    val densityFraction = LocalDensityFraction.current
+    val appConfig = LocalAppConfig.current
 
-    val newDensity = Density(density.density / densityFraction, density.fontScale)
-
-    CompositionLocalProvider(LocalDensity provides newDensity) {
+    CompositionLocalProvider(LocalDensity provides appConfig.originalDensity()) {
 
         SwingPanel(
             background = background,

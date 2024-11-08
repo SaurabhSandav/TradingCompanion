@@ -8,14 +8,14 @@ import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
-import com.saurabhsandav.core.LocalDensityFraction
+import com.saurabhsandav.core.LocalAppConfig
+import com.saurabhsandav.core.adjustedDensity
 import kotlinx.coroutines.flow.drop
 
 @Composable
@@ -65,13 +65,10 @@ fun AppWindow(
 
         appWindowState.setWindow(window)
 
-        val density = LocalDensity.current
-        val densityFraction = LocalDensityFraction.current
-
-        val newDensity = Density(density.density * densityFraction, density.fontScale)
+        val appConfig = LocalAppConfig.current
 
         CompositionLocalProvider(
-            LocalDensity provides newDensity,
+            LocalDensity provides appConfig.adjustedDensity(),
             LocalAppWindowState provides appWindowState,
             // AppWindowOwner of this window should not operate on child windows
             LocalAppWindowOwner provides null,
