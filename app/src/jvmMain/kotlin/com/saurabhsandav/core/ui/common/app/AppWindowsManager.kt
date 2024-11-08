@@ -4,10 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 
-internal class AppWindowsManager<T> {
+internal class AppWindowsManager<T>(initialParams: List<T> = emptyList()) {
 
     private val _windows = mutableStateListOf<Window<T>>()
     val windows: List<Window<T>> get() = _windows
+
+    init {
+        initialParams.forEach(::newWindow)
+    }
 
     @Composable
     fun Windows(content: @Composable (Window<T>) -> Unit) {
