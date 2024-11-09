@@ -1,25 +1,24 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.*
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormWindow
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import java.awt.Desktop
@@ -31,6 +30,7 @@ internal fun Attachments(
     profileTradeId: ProfileTradeId,
     attachments: List<TradeAttachment>,
     onRemoveAttachment: (AttachmentFileId) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
     var showAddAttachmentDialog by state { false }
@@ -50,28 +50,29 @@ internal fun Attachments(
         }
     }
 
-    Column(
-        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant)
-            .dragAndDropTarget(
-                shouldStartDragAndDrop = { event ->
-                    event.action == DragAndDropTransferAction.Copy && event.dragData() is DragData.FilesList
-                },
-                target = callback,
-            ),
+    TradeSection(
+        modifier = Modifier.then(modifier).dragAndDropTarget(
+            shouldStartDragAndDrop = { event ->
+                event.action == DragAndDropTransferAction.Copy && event.dragData() is DragData.FilesList
+            },
+            target = callback,
+        ),
+        title = "Attachments",
+        subtitle = when {
+            attachments.isEmpty() -> "No Attachments"
+            attachments.size == 1 -> "1 Attachment"
+            else -> "${attachments.size} Attachments"
+        },
+        trailingContent = {
+
+            TradeSectionButton(
+                onClick = { showAddAttachmentDialog = true },
+                text = "Add Attachment",
+            )
+        },
     ) {
 
-        // Header
-        Text(
-            modifier = Modifier
-                .height(MaterialTheme.dimens.listHeaderHeight)
-                .fillMaxWidth()
-                .wrapContentSize(),
-            text = "Attachments",
-        )
-
-        HorizontalDivider()
-
-        attachments.take(10).forEach { attachment ->
+        attachments.forEach { attachment ->
 
             key(attachment) {
 
@@ -80,17 +81,10 @@ internal fun Attachments(
                     attachment = attachment,
                     onRemove = { onRemoveAttachment(attachment.fileId) },
                 )
+
+                HorizontalDivider()
             }
         }
-
-        HorizontalDivider()
-
-        TextButton(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = { showAddAttachmentDialog = true },
-            shape = RectangleShape,
-            content = { Text("Add Attachment") },
-        )
 
         if (showAddAttachmentDialog) {
 

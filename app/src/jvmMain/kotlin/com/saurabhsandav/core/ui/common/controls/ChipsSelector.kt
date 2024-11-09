@@ -17,7 +17,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 fun ChipsSelectorBox(
-    addButton: @Composable FlowRowScope.() -> Unit,
+    addButton: @Composable (FlowRowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
     selectedItems: @Composable FlowRowScope.() -> Unit,
 ) {
@@ -35,7 +35,7 @@ fun ChipsSelectorBox(
 
         selectedItems()
 
-        addButton()
+        addButton?.invoke(this)
     }
 }
 

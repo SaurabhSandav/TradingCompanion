@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.trade.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
-import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.model.TradeTag
@@ -31,85 +30,40 @@ internal fun Tags(
     tags: List<TradeTag>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
-    Column(
-        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    TradeSection(
+        modifier = modifier,
+        title = "Tags",
+        subtitle = when {
+            tags.isEmpty() -> "No Tags"
+            tags.size == 1 -> "1 Tag"
+            else -> "${tags.size} Tags"
+        },
+        trailingContent = {
+
+            AddTagButton(
+                profileTradeId = profileTradeId,
+                onAddTag = onAddTag,
+            )
+        },
     ) {
 
-        // Header
-        Text(
-            modifier = Modifier
-                .height(MaterialTheme.dimens.listHeaderHeight)
-                .fillMaxWidth()
-                .wrapContentSize(),
-            text = "Tags",
-        )
-
-        HorizontalDivider()
+        val tagsPadding by animateDpAsState(if (tags.isEmpty()) 0.dp else MaterialTheme.dimens.containerPadding)
 
         ChipsSelectorBox(
-            modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
-            addButton = {
-
-                AddTagButton(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    profileTradeId = profileTradeId,
-                    onAddTag = onAddTag
-                )
-            },
+            modifier = Modifier.fillMaxWidth().padding(tagsPadding),
         ) {
 
             tags.forEach { tag ->
 
                 key(tag.id) {
 
-                    var confirmRemove by state { false }
-
-                    SimpleTooltipBox(
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        tooltipText = tag.description,
-                    ) {
-
-                        InputChip(
-                            selected = false,
-                            onClick = { confirmRemove = true },
-                            label = {
-
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-
-                                    Text(tag.name)
-
-                                    tag.color?.let {
-                                        Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color))
-                                    }
-                                }
-                            },
-                            trailingIcon = {
-
-                                Icon(
-                                    modifier = Modifier.size(InputChipDefaults.IconSize),
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove",
-                                )
-                            },
-                        )
-                    }
-
-                    if (confirmRemove) {
-
-                        ConfirmationDialog(
-                            text = "Remove tag \"${tag.name}\"?",
-                            onDismiss = { confirmRemove = false },
-                            onConfirm = {
-                                onRemoveTag(tag.id)
-                                confirmRemove = false
-                            },
-                        )
-                    }
+                    TagChip(
+                        tag = tag,
+                        onRemoveTag = onRemoveTag,
+                    )
                 }
             }
         }
@@ -117,8 +71,61 @@ internal fun Tags(
 }
 
 @Composable
+private fun FlowRowScope.TagChip(
+    tag: TradeTag,
+    onRemoveTag: (TradeTagId) -> Unit,
+) {
+
+    var confirmRemove by state { false }
+
+    SimpleTooltipBox(
+        modifier = Modifier.align(Alignment.CenterVertically),
+        tooltipText = tag.description,
+    ) {
+
+        InputChip(
+            selected = false,
+            onClick = { confirmRemove = true },
+            label = {
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Text(tag.name)
+
+                    tag.color?.let {
+                        Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color))
+                    }
+                }
+            },
+            trailingIcon = {
+
+                Icon(
+                    modifier = Modifier.size(InputChipDefaults.IconSize),
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remove",
+                )
+            },
+        )
+    }
+
+    if (confirmRemove) {
+
+        ConfirmationDialog(
+            text = "Remove tag \"${tag.name}\"?",
+            onDismiss = { confirmRemove = false },
+            onConfirm = {
+                onRemoveTag(tag.id)
+                confirmRemove = false
+            },
+        )
+    }
+}
+
+@Composable
 private fun AddTagButton(
-    modifier: Modifier,
     profileTradeId: ProfileTradeId,
     onAddTag: (TradeTagId) -> Unit,
 ) {
@@ -126,12 +133,13 @@ private fun AddTagButton(
     var expanded by state { false }
 
     Box(
-        modifier = Modifier.height(IntrinsicSize.Max).then(modifier),
+        modifier = Modifier.height(IntrinsicSize.Min),
         contentAlignment = Alignment.Center,
     ) {
 
-        ChipsSelectorAddButton(
-            onAdd = { expanded = true },
+        TradeSectionButton(
+            onClick = { expanded = true },
+            text = "Add Tag",
         )
 
         TagSelectorDropdownMenu(

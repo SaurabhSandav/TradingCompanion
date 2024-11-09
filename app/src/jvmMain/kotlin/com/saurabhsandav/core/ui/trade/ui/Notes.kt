@@ -10,8 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
@@ -30,23 +28,27 @@ internal fun Notes(
     onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
     onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
-    Column(
-        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val addWindowManager = remember { AppWindowManager() }
+
+    TradeSection(
+        modifier = modifier,
+        title = "Notes",
+        subtitle = when {
+            notes.isEmpty() -> "No Notes"
+            notes.size == 1 -> "1 Note"
+            else -> "${notes.size} Notes"
+        },
+        trailingContent = {
+
+            TradeSectionButton(
+                onClick = addWindowManager::openWindow,
+                text = "Add Note",
+            )
+        },
     ) {
-
-        // Header
-        Text(
-            modifier = Modifier
-                .height(MaterialTheme.dimens.listHeaderHeight)
-                .fillMaxWidth()
-                .wrapContentSize(),
-            text = "Notes",
-        )
-
-        HorizontalDivider()
 
         notes.forEach { note ->
 
@@ -94,19 +96,10 @@ internal fun Notes(
                         )
                     }
                 }
+
+                HorizontalDivider()
             }
-
-            HorizontalDivider()
         }
-
-        val addWindowManager = remember { AppWindowManager() }
-
-        TextButton(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = addWindowManager::openWindow,
-            shape = RectangleShape,
-            content = { Text("Add Note") },
-        )
 
         addWindowManager.Window {
 
