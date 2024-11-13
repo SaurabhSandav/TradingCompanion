@@ -52,7 +52,7 @@ kotlin {
             // Kermit
             implementation(libs.kermit)
 
-            api("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.782")
+            api("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.839")
         }
 
         jvmTest.dependencies {
@@ -63,8 +63,10 @@ kotlin {
 }
 
 composeCompiler {
-    enableStrongSkippingMode = true
-    stabilityConfigurationFile = parent!!.layout.projectDirectory.file("compose-stability.conf")
+
+    stabilityConfigurationFiles.addAll(
+        parent!!.layout.projectDirectory.file("compose-stability.conf")
+    )
 
     // Trigger this with:
     // ./gradlew build -PenableComposeCompilerReports --rerun-tasks

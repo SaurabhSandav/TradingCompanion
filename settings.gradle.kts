@@ -10,7 +10,6 @@ pluginManagement {
         }
         gradlePluginPortal()
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
@@ -31,7 +30,6 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         mavenLocal()
         maven {
             url = uri("https://maven.pkg.github.com/saurabhsandav/CommonVersions")
@@ -45,7 +43,7 @@ dependencyResolutionManagement {
     versionCatalogs {
 
         create("libs") {
-            from("com.saurabhsandav:common-versions:0.98.0")
+            from("com.saurabhsandav:common-versions:0.99.0")
         }
     }
 }

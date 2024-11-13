@@ -113,12 +113,12 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:23:linux")
-            implementation("org.openjfx:javafx-controls:23:linux")
-            implementation("org.openjfx:javafx-graphics:23:linux")
-            implementation("org.openjfx:javafx-media:23:linux")
-            implementation("org.openjfx:javafx-swing:23:linux")
-            implementation("org.openjfx:javafx-web:23:linux")
+            implementation("org.openjfx:javafx-base:23.0.1:linux")
+            implementation("org.openjfx:javafx-controls:23.0.1:linux")
+            implementation("org.openjfx:javafx-graphics:23.0.1:linux")
+            implementation("org.openjfx:javafx-media:23.0.1:linux")
+            implementation("org.openjfx:javafx-swing:23.0.1:linux")
+            implementation("org.openjfx:javafx-web:23.0.1:linux")
 
             // kotlin-result
             implementation(libs.kotlinResult)
@@ -196,7 +196,10 @@ sqldelight {
 }
 
 composeCompiler {
-    stabilityConfigurationFile = parent!!.layout.projectDirectory.file("compose-stability.conf")
+
+    stabilityConfigurationFiles.addAll(
+        parent!!.layout.projectDirectory.file("compose-stability.conf")
+    )
 
     // Trigger this with:
     // ./gradlew build -PenableComposeCompilerReports --rerun-tasks
