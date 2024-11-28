@@ -19,23 +19,20 @@ kotlin {
         }
     }
 
+    compilerOptions {
+
+        progressiveMode = true
+
+        optIn = listOf(
+            "kotlin.contracts.ExperimentalContracts",
+            "kotlin.ExperimentalStdlibApi",
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlinx.coroutines.FlowPreview",
+            "kotlinx.serialization.ExperimentalSerializationApi",
+        )
+    }
+
     sourceSets {
-
-        configureEach {
-
-            languageSettings {
-
-                progressiveMode = true
-
-                listOf(
-                    "kotlin.contracts.ExperimentalContracts",
-                    "kotlin.ExperimentalStdlibApi",
-                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
-                    "kotlinx.coroutines.FlowPreview",
-                    "kotlinx.serialization.ExperimentalSerializationApi",
-                ).forEach { optIn(it) }
-            }
-        }
 
         jvmMain.dependencies {
 

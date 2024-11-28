@@ -16,21 +16,18 @@ kotlin {
             useJUnitPlatform()
         }
     }
+    compilerOptions {
+
+        progressiveMode = true
+
+        explicitApi()
+
+        optIn = listOf(
+            "kotlin.ExperimentalStdlibApi",
+        )
+    }
 
     sourceSets {
-
-        configureEach {
-
-            languageSettings {
-
-                progressiveMode = true
-                explicitApi()
-
-                listOf(
-                    "kotlin.ExperimentalStdlibApi",
-                ).forEach { optIn(it) }
-            }
-        }
 
         commonMain.dependencies {
 
