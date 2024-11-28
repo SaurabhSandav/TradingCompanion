@@ -73,17 +73,14 @@ private fun AttachmentFormScreen(
     fileKitPlatformSettings: FileKitPlatformSettings,
 ) {
 
-    Box(Modifier.wrapContentSize()) {
+    when {
+        formModel != null -> AttachmentForm(
+            formType = formType,
+            model = formModel,
+            fileKitPlatformSettings = fileKitPlatformSettings,
+        )
 
-        when {
-            formModel != null -> AttachmentForm(
-                formType = formType,
-                model = formModel,
-                fileKitPlatformSettings = fileKitPlatformSettings,
-            )
-
-            else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-        }
+        else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
     }
 }
 
