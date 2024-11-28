@@ -27,102 +27,99 @@ internal fun NewReplayForm(
     model: NewReplayFormModel,
 ) {
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize()
+            .width(IntrinsicSize.Min),
+        verticalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.columnVerticalSpacing,
+            alignment = Alignment.CenterVertically,
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        Column(
-            modifier = Modifier.width(IntrinsicSize.Min),
-            verticalArrangement = Arrangement.spacedBy(
-                space = MaterialTheme.dimens.columnVerticalSpacing,
-                alignment = Alignment.CenterVertically,
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        val initialFocusRequester = remember { FocusRequester() }
+
+        LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+
+        OutlinedListSelectionField(
+            modifier = Modifier.focusRequester(initialFocusRequester),
+            items = remember { enumValues<Timeframe>().toList() },
+            itemText = { it.toLabel() },
+            onSelection = { model.baseTimeframeField.value = it },
+            selection = model.baseTimeframeField.value,
+            label = { Text("Base Timeframe") },
+            placeholderText = "Select Timeframe...",
+            isError = model.baseTimeframeField.isError,
+            supportingText = model.baseTimeframeField.errorMessage?.let { { Text(it) } },
+        )
+
+        OutlinedTextField(
+            value = model.candlesBeforeField.value,
+            onValueChange = { model.candlesBeforeField.value = it.trim() },
+            label = { Text("Candles Before") },
+            isError = model.candlesBeforeField.isError,
+            supportingText = model.candlesBeforeField.errorMessage?.let { { Text(it) } },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+
+        DateTimePickerField(
+            value = model.replayFromField.value,
+            onValidValueChange = { model.replayFromField.value = it },
+            label = { Text("Replay From") },
+            isError = model.replayFromField.isError,
+            supportingText = model.replayFromField.errorMessage?.let { { Text(it) } },
+        )
+
+        DateTimePickerField(
+            value = model.dataToField.value,
+            onValidValueChange = { model.dataToField.value = it },
+            label = { Text("Data To") },
+            isError = model.dataToField.isError,
+            supportingText = model.dataToField.errorMessage?.let { { Text(it) } },
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            val initialFocusRequester = remember { FocusRequester() }
+            Text("OHLC")
 
-            LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
-
-            OutlinedListSelectionField(
-                modifier = Modifier.focusRequester(initialFocusRequester),
-                items = remember { enumValues<Timeframe>().toList() },
-                itemText = { it.toLabel() },
-                onSelection = { model.baseTimeframeField.value = it },
-                selection = model.baseTimeframeField.value,
-                label = { Text("Base Timeframe") },
-                placeholderText = "Select Timeframe...",
-                isError = model.baseTimeframeField.isError,
-                supportingText = model.baseTimeframeField.errorMessage?.let { { Text(it) } },
+            Switch(
+                checked = model.replayFullBar,
+                onCheckedChange = { model.replayFullBar = it },
             )
 
-            OutlinedTextField(
-                value = model.candlesBeforeField.value,
-                onValueChange = { model.candlesBeforeField.value = it.trim() },
-                label = { Text("Candles Before") },
-                isError = model.candlesBeforeField.isError,
-                supportingText = model.candlesBeforeField.errorMessage?.let { { Text(it) } },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            )
-
-            DateTimePickerField(
-                value = model.replayFromField.value,
-                onValidValueChange = { model.replayFromField.value = it },
-                label = { Text("Replay From") },
-                isError = model.replayFromField.isError,
-                supportingText = model.replayFromField.errorMessage?.let { { Text(it) } },
-            )
-
-            DateTimePickerField(
-                value = model.dataToField.value,
-                onValidValueChange = { model.dataToField.value = it },
-                label = { Text("Data To") },
-                isError = model.dataToField.isError,
-                supportingText = model.dataToField.errorMessage?.let { { Text(it) } },
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Text("OHLC")
-
-                Switch(
-                    checked = model.replayFullBar,
-                    onCheckedChange = { model.replayFullBar = it },
-                )
-
-                Text("Full Bar")
-            }
-
-            HorizontalDivider()
-
-            TickerSelectionField(
-                type = TickerSelectionType.Regular,
-                tickers = NIFTY500,
-                selected = model.initialTickerField.value,
-                onSelect = { model.initialTickerField.value = it },
-                isError = model.initialTickerField.isError,
-                supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
-            )
-
-            ProfileSelectorField(
-                selectedProfileId = model.profileField.value,
-                onProfileSelected = { model.profileField.value = it },
-                trainingOnly = true,
-            )
-
-            HorizontalDivider()
-
-            Button(
-                onClick = model.validator::submit,
-                enabled = model.validator.canSubmit,
-                content = { Text("Launch") },
-            )
+            Text("Full Bar")
         }
+
+        HorizontalDivider()
+
+        TickerSelectionField(
+            type = TickerSelectionType.Regular,
+            tickers = NIFTY500,
+            selected = model.initialTickerField.value,
+            onSelect = { model.initialTickerField.value = it },
+            isError = model.initialTickerField.isError,
+            supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
+        )
+
+        ProfileSelectorField(
+            selectedProfileId = model.profileField.value,
+            onProfileSelected = { model.profileField.value = it },
+            trainingOnly = true,
+        )
+
+        HorizontalDivider()
+
+        Button(
+            onClick = model.validator::submit,
+            enabled = model.validator.canSubmit,
+            content = { Text("Launch") },
+        )
     }
 }

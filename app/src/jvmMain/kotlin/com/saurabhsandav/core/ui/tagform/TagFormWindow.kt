@@ -51,12 +51,9 @@ fun TagFormWindow(
         title = state.title,
     ) {
 
-        Box(Modifier.fillMaxSize()) {
-
-            when (val model = state.formModel) {
-                null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                else -> Form(model = model)
-            }
+        when (val model = state.formModel) {
+            null -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
+            else -> Form(model = model)
         }
     }
 }

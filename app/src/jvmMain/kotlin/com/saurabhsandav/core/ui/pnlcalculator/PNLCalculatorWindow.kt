@@ -44,12 +44,9 @@ internal fun PNLCalculatorWindow(
         title = "Calculate PNL",
     ) {
 
-        Box(Modifier.wrapContentSize()) {
-
-            when {
-                state.isReady -> CalculatorForm(state)
-                else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            }
+        when {
+            state.isReady -> CalculatorForm(state)
+            else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
         }
     }
 }
@@ -67,6 +64,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 space = MaterialTheme.dimens.columnVerticalSpacing,
                 alignment = Alignment.CenterVertically,
             ),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
             Row(

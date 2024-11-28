@@ -47,18 +47,15 @@ internal fun ReplayOrderFormWindow(
         title = state.title,
     ) {
 
-        Box(Modifier.wrapContentSize()) {
+        val formModel = state.formModel
 
-            val formModel = state.formModel
+        when {
+            formModel != null -> ReplayOrderForm(
+                ticker = state.ticker,
+                model = formModel,
+            )
 
-            when {
-                formModel != null -> ReplayOrderForm(
-                    ticker = state.ticker,
-                    model = formModel,
-                )
-
-                else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            }
+            else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
         }
     }
 }
@@ -70,10 +67,11 @@ private fun ReplayOrderForm(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxHeight()
-            .padding(MaterialTheme.dimens.containerPadding)
+        modifier = Modifier.fillMaxSize()
+            .wrapContentWidth()
             .width(IntrinsicSize.Min)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(MaterialTheme.dimens.containerPadding),
         verticalArrangement = Arrangement.spacedBy(
             space = MaterialTheme.dimens.columnVerticalSpacing,
             alignment = Alignment.CenterVertically,

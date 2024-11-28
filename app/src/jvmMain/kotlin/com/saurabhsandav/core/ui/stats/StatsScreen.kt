@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.stats
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -33,10 +33,10 @@ internal fun StatsScreen(
             onOpenStudy = onOpenStudy,
         )
 
-        else -> Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-            content = { Text("No trades") },
+        else -> Text(
+            modifier = Modifier.fillMaxSize().wrapContentSize(),
+            text = "No Trades",
+            style = MaterialTheme.typography.titleLarge,
         )
     }
 }

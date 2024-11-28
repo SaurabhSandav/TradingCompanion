@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
@@ -31,21 +31,18 @@ internal fun BarReplayWindow(
         onCloseRequest = onCloseRequest,
     ) {
 
-        Box(Modifier.wrapContentSize()) {
+        when (val replayState = state.replayState) {
+            null -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
+            is NewReplay -> NewReplayForm(
+                model = replayState.model,
+            )
 
-            when (val replayState = state.replayState) {
-                null -> CircularProgressIndicator()
-                is NewReplay -> NewReplayForm(
-                    model = replayState.model,
-                )
-
-                is ReplayStarted -> ReplaySessionScreen(
-                    barReplayModule = module,
-                    onOpenProfile = { replayState.replayParams.profileId?.let(onOpenProfile) },
-                    onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
-                    replayParams = replayState.replayParams,
-                )
-            }
+            is ReplayStarted -> ReplaySessionScreen(
+                barReplayModule = module,
+                onOpenProfile = { replayState.replayParams.profileId?.let(onOpenProfile) },
+                onNewReplay = { state.eventSink(BarReplayEvent.NewReplay) },
+                replayParams = replayState.replayParams,
+            )
         }
     }
 }

@@ -282,37 +282,33 @@ internal class FyersLoginService private constructor(
                 ) {
 
                     var pin by state { "" }
+                    val focusRequester = remember { FocusRequester() }
 
-                    Box(
-                        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
-                        contentAlignment = Alignment.Center,
-                        propagateMinConstraints = true,
-                    ) {
+                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-                        val focusRequester = remember { FocusRequester() }
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(MaterialTheme.dimens.containerPadding)
+                            .wrapContentSize()
+                            .focusRequester(focusRequester),
+                        value = pin,
+                        onValueChange = {
+                            if (it.isEmpty() || (it.length <= 4 && it.toIntOrNull() != null)) {
+                                pin = it
+                            }
+                        },
+                        singleLine = true,
+                        trailingIcon = {
 
-                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-                        OutlinedTextField(
-                            modifier = Modifier.focusRequester(focusRequester),
-                            value = pin,
-                            onValueChange = {
-                                if (it.isEmpty() || (it.length <= 4 && it.toIntOrNull() != null)) {
-                                    pin = it
-                                }
-                            },
-                            singleLine = true,
-                            trailingIcon = {
-
-                                TextButton(
-                                    onClick = { loginState.pin.complete(pin) },
-                                    enabled = pin.length == 4,
-                                    content = { Text("Login") }
-                                )
-                            },
-                            visualTransformation = PasswordVisualTransformation(),
-                        )
-                    }
+                            TextButton(
+                                onClick = { loginState.pin.complete(pin) },
+                                enabled = pin.length == 4,
+                                content = { Text("Login") }
+                            )
+                        },
+                        visualTransformation = PasswordVisualTransformation(),
+                    )
                 }
             }
         }

@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -74,16 +76,13 @@ private fun TradeExecutionFormScreen(
     formModel: TradeExecutionFormModel?,
 ) {
 
-    Box(Modifier.wrapContentSize()) {
+    when {
+        formModel != null -> TradeExecutionForm(
+            formType = formType,
+            model = formModel,
+        )
 
-        when {
-            formModel != null -> TradeExecutionForm(
-                formType = formType,
-                model = formModel,
-            )
-
-            else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-        }
+        else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
     }
 }
 
@@ -94,9 +93,10 @@ private fun TradeExecutionForm(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxHeight()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
+            .wrapContentWidth()
             .width(IntrinsicSize.Min)
+            .verticalScroll(rememberScrollState())
             .padding(MaterialTheme.dimens.containerPadding),
         verticalArrangement = Arrangement.spacedBy(
             space = MaterialTheme.dimens.columnVerticalSpacing,
