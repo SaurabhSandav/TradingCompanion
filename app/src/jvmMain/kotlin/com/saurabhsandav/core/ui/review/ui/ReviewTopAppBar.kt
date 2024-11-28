@@ -14,10 +14,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.saurabhsandav.apps.app.generated.resources.Res
+import com.saurabhsandav.apps.app.generated.resources.markdown
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun ReviewTopAppBar(
@@ -89,7 +91,7 @@ internal fun ReviewTopAppBar(
 
                 when {
                     isMarkdown -> Icon(Icons.Default.Title, contentDescription = "Disable Markdown")
-                    else -> Icon(painterResource("icons/markdown.svg"), contentDescription = "Enable Markdown")
+                    else -> Icon(painterResource(Res.drawable.markdown), contentDescription = "Enable Markdown")
                 }
             }
 

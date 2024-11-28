@@ -68,6 +68,7 @@ kotlin {
         jvmMain.dependencies {
 
             implementation(compose.desktop.currentOs)
+            implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
             implementation(compose.material3)
 
@@ -202,24 +203,31 @@ composeCompiler {
     }
 }
 
-compose.desktop {
-    application {
+compose {
 
-        mainClass = "com.saurabhsandav.core.MainKt"
+    resources {
+        generateResClass = always
+    }
 
-        jvmArgs += listOf(
-            "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
-            "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
-        )
+    desktop {
+        application {
 
-        if (findProperty("debugMode") == "true") {
-            args("--debug")
-        }
+            mainClass = "com.saurabhsandav.core.MainKt"
 
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "TradingCompanion"
-            packageVersion = "1.0.0"
+            jvmArgs += listOf(
+                "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
+                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+            )
+
+            if (findProperty("debugMode") == "true") {
+                args("--debug")
+            }
+
+            nativeDistributions {
+                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+                packageName = "TradingCompanion"
+                packageVersion = "1.0.0"
+            }
         }
     }
 }
