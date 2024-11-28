@@ -9,14 +9,14 @@ fun buildIndicatorCacheKey(
 ): Indicator.CacheKey? {
 
     contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
 
     val scope = IndicatorCacheKeyBuilderScope()
 
     return try {
         scope.block()
-    } catch (ex: NoKeyException) {
+    } catch (_: NoKeyException) {
         null
     }
 }
