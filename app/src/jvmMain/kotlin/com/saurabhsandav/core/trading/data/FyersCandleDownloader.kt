@@ -107,11 +107,8 @@ internal class FyersCandleDownloader(
 
     private fun FyersResponse<HistoricalCandlesResult>.toResult(): Result<List<Candle>, CandleDownloader.Error> {
         return when (val result = result) {
-            null -> when {
-                isAuthError -> Err(CandleDownloader.Error.AuthError(message))
-                else -> Err(CandleDownloader.Error.UnknownError(message ?: "Unknown Error"))
-            }
-
+            null if isAuthError -> Err(CandleDownloader.Error.AuthError(message))
+            null -> Err(CandleDownloader.Error.UnknownError(message ?: "Unknown Error"))
             else -> {
 
                 val candles = result.candles.map { candle ->

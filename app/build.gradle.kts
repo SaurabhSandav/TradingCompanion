@@ -39,6 +39,7 @@ kotlin {
             "-Xexpect-actual-classes",
             "-Xcontext-receivers",
             "-Xconsistent-data-class-copy-visibility",
+            "-Xwhen-guards",
         )
 
         optIn = listOf(

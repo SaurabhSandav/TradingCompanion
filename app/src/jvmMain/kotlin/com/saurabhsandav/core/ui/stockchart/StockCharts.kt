@@ -98,11 +98,8 @@ private fun chartKeyboardShortcuts(
     if (!defaultCondition) return false
 
     when (keyEvent.key) {
-        Key.Tab -> when {
-            keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
-            else -> tabsState.selectNextTab()
-        }
-
+        Key.Tab if keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
+        Key.Tab -> tabsState.selectNextTab()
         Key.T -> tabsState.newTab()
         Key.W -> tabsState.closeCurrentTab()
         else -> return false

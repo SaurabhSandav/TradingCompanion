@@ -9,11 +9,7 @@ internal fun timeFromCallbackJson(time: JsonElement?): Time? = when (time) {
         month = time["month"]!!.jsonPrimitive.int,
         day = time["day"]!!.jsonPrimitive.int,
     )
-
-    is JsonPrimitive -> when {
-        time.isString -> Time.ISOString(time.content)
-        else -> Time.UTCTimestamp(time.long)
-    }
-
+    is JsonPrimitive if time.isString -> Time.ISOString(time.content)
+    is JsonPrimitive -> Time.UTCTimestamp(time.long)
     else -> null
 }

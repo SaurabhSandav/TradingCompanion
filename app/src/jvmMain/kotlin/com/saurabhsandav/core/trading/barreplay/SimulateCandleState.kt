@@ -17,29 +17,28 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
         )
 
         // First Extreme
-        BarReplay.CandleState.Extreme1 -> when {
-            // Bullish candle, update low first
-            isCandleBullish -> copy(
-                high = open,
-                close = low,
-                volume = BigDecimal.ZERO
-            )
+        // Bullish candle, update low first
+        BarReplay.CandleState.Extreme1 if isCandleBullish -> copy(
+            high = open,
+            close = low,
+            volume = BigDecimal.ZERO
+        )
 
-            // Bearish candle, update high first
-            else -> copy(
-                low = open,
-                close = high,
-                volume = BigDecimal.ZERO
-            )
-        }
+        // First Extreme
+        // Bearish candle, update high first
+        BarReplay.CandleState.Extreme1 -> copy(
+            low = open,
+            close = high,
+            volume = BigDecimal.ZERO
+        )
 
         // Second Extreme
-        BarReplay.CandleState.Extreme2 -> when {
-            // Bullish candle, update high second
-            isCandleBullish -> copy(close = high, volume = BigDecimal.ZERO)
-            // Bearish candle, update low second
-            else -> copy(close = low, volume = BigDecimal.ZERO)
-        }
+        // Bullish candle, update high second
+        BarReplay.CandleState.Extreme2 if isCandleBullish -> copy(close = high, volume = BigDecimal.ZERO)
+
+        // Second Extreme
+        // Bearish candle, update low second
+        BarReplay.CandleState.Extreme2 -> copy(close = low, volume = BigDecimal.ZERO)
 
         // Close
         BarReplay.CandleState.Close -> this

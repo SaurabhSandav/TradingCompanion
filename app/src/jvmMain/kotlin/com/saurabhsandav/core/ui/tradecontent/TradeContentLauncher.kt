@@ -148,7 +148,7 @@ internal class TradeContentLauncher {
             // Window already open. Bring to front if no trade ids were provided.
             // If trade ids are provided, assume the user wants to see the trade(s) on the Chart.
             // Or else, assume the user wants to see the Trade Review window.
-            else -> if (tradeIds.isEmpty()) existingWindow.owner.childrenToFront()
+            else if (tradeIds.isEmpty()) -> existingWindow.owner.childrenToFront()
         }
 
         if (tradeIds.isNotEmpty()) {

@@ -28,8 +28,8 @@ internal class OffsetQueryPagingSource<RowType : Any>(
             val offset = when (params) {
                 is LoadParams.Prepend<*> -> maxOf(0, key - params.loadSize)
                 is LoadParams.Append<*> -> key
-                is LoadParams.Refresh<*> -> if (key >= count) maxOf(0, count - params.loadSize) else key
-                else -> error("Unknown PagingSource.LoadParams ${params::class}")
+                is LoadParams.Refresh<*> if (key >= count) -> maxOf(0, count - params.loadSize)
+                is LoadParams.Refresh<*> -> key
             }
             val data = queryProvider(limit, offset)
                 .also { currentQuery = it }
