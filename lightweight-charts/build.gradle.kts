@@ -23,6 +23,10 @@ kotlin {
 
         progressiveMode = true
 
+        freeCompilerArgs.addAll(
+            "-Xwhen-guards",
+        )
+
         optIn = listOf(
             "kotlin.contracts.ExperimentalContracts",
             "kotlin.ExperimentalStdlibApi",
