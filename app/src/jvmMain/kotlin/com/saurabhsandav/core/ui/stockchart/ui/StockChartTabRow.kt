@@ -9,21 +9,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.intState
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
@@ -34,26 +27,17 @@ internal fun StockChartTabRow(
 
     Row(Modifier.fillMaxWidth()) {
 
-        ScrollableTabRow(
+        PrimaryScrollableTabRow(
             modifier = Modifier.weight(1F),
             selectedTabIndex = state.selectedTabIndex,
-            indicator = { tabPositions ->
+            indicator = {
 
-                var prevSelectedTabIndex by intState { 0 }
-
-                val selectedTabIndex = state.selectedTabIndex
-
-                val index = when {
-                    selectedTabIndex < tabPositions.size -> {
-                        prevSelectedTabIndex = selectedTabIndex
-                        selectedTabIndex
-                    }
-
-                    else -> prevSelectedTabIndex
-                }
-
-                SecondaryIndicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[index]),
+                TabRowDefaults.PrimaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(
+                        selectedTabIndex = state.selectedTabIndex,
+                        matchContentSize = true,
+                    ),
+                    width = Dp.Unspecified,
                 )
             }
         ) {
