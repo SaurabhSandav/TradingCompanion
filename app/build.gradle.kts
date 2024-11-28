@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -32,40 +31,33 @@ kotlin {
         }
     }
 
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
+
+        progressiveMode = true
 
         freeCompilerArgs.addAll(
             "-Xexpect-actual-classes",
             "-Xcontext-receivers",
             "-Xconsistent-data-class-copy-visibility",
         )
+
+        optIn = listOf(
+            "kotlin.contracts.ExperimentalContracts",
+            "kotlin.io.path.ExperimentalPathApi",
+            "kotlin.uuid.ExperimentalUuidApi",
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlinx.coroutines.FlowPreview",
+            "androidx.compose.foundation.ExperimentalFoundationApi",
+            "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "androidx.compose.ui.ExperimentalComposeUiApi",
+            "androidx.compose.animation.ExperimentalAnimationApi",
+            "androidx.compose.material3.ExperimentalMaterial3Api",
+            "com.russhwolf.settings.ExperimentalSettingsApi",
+            "com.russhwolf.settings.ExperimentalSettingsImplementation",
+        )
     }
 
     sourceSets {
-
-        configureEach {
-
-            languageSettings {
-
-                progressiveMode = true
-
-                listOf(
-                    "kotlin.contracts.ExperimentalContracts",
-                    "kotlin.io.path.ExperimentalPathApi",
-                    "kotlin.uuid.ExperimentalUuidApi",
-                    "kotlinx.coroutines.ExperimentalCoroutinesApi",
-                    "kotlinx.coroutines.FlowPreview",
-                    "androidx.compose.foundation.ExperimentalFoundationApi",
-                    "androidx.compose.foundation.layout.ExperimentalLayoutApi",
-                    "androidx.compose.ui.ExperimentalComposeUiApi",
-                    "androidx.compose.animation.ExperimentalAnimationApi",
-                    "androidx.compose.material3.ExperimentalMaterial3Api",
-                    "com.russhwolf.settings.ExperimentalSettingsApi",
-                    "com.russhwolf.settings.ExperimentalSettingsImplementation",
-                ).forEach { optIn(it) }
-            }
-        }
 
         commonMain.dependencies {
 
