@@ -1,8 +1,7 @@
 package com.saurabhsandav.core.ui.tradeexecutionform
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +17,8 @@ import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.Form
+import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
@@ -25,7 +26,6 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
@@ -53,7 +53,7 @@ internal fun TradeExecutionFormWindow(
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
-        size = DpSize(width = 300.dp, height = 650.dp),
+        size = DpSize(width = FormDefaults.PreferredWidth, height = 650.dp),
         preferredPlacement = WindowPlacement.Floating,
         forcePreferredPlacement = true,
     )
@@ -79,17 +79,7 @@ private fun TradeExecutionForm(
     model: TradeExecutionFormModel,
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .wrapContentWidth()
-            .width(IntrinsicSize.Min)
-            .verticalScroll(rememberScrollState())
-            .padding(MaterialTheme.dimens.containerPadding),
-        verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.columnVerticalSpacing,
-            alignment = Alignment.CenterVertically,
-        ),
-    ) {
+    Form {
 
         val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
         val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)

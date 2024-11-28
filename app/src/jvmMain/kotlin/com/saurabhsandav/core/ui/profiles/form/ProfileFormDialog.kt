@@ -1,7 +1,10 @@
 package com.saurabhsandav.core.ui.profiles.form
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,10 +14,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.ui.common.Form
+import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfileFormDialog(
@@ -28,7 +32,7 @@ internal fun ProfileFormDialog(
     val presenter = remember { screensModule.profileFormModule(scope).presenter(onCloseRequest, type, trainingOnly) }
     val state by presenter.state.collectAsState()
 
-    val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
+    val dialogState = rememberDialogState(size = DpSize(width = FormDefaults.PreferredWidth, height = 300.dp))
 
     val formModel = state.formModel ?: return
 
@@ -38,7 +42,7 @@ internal fun ProfileFormDialog(
         title = state.title,
     ) {
 
-        Form(
+        ProfileForm(
             model = formModel,
             trainingOnly = trainingOnly,
         )
@@ -46,16 +50,12 @@ internal fun ProfileFormDialog(
 }
 
 @Composable
-private fun Form(
+private fun ProfileForm(
     model: ProfileFormModel,
     trainingOnly: Boolean,
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Form {
 
         val initialFocusRequester = remember { FocusRequester() }
 

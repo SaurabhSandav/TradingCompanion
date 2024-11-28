@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,12 +13,13 @@ import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.Form
+import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
-import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplayOrderFormWindow(
@@ -37,7 +36,7 @@ internal fun ReplayOrderFormWindow(
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
-        size = DpSize(width = 300.dp, height = 450.dp),
+        size = DpSize(width = FormDefaults.PreferredWidth, height = 480.dp),
         preferredPlacement = WindowPlacement.Floating,
         forcePreferredPlacement = true,
     )
@@ -63,17 +62,7 @@ private fun ReplayOrderForm(
     model: ReplayOrderFormModel,
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .wrapContentWidth()
-            .width(IntrinsicSize.Min)
-            .verticalScroll(rememberScrollState())
-            .padding(MaterialTheme.dimens.containerPadding),
-        verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.columnVerticalSpacing,
-            alignment = Alignment.CenterVertically,
-        ),
-    ) {
+    Form {
 
         OutlinedTextField(
             value = ticker,

@@ -1,24 +1,23 @@
 package com.saurabhsandav.core.ui.barreplay.newreplayform
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.NIFTY500
@@ -28,17 +27,7 @@ internal fun NewReplayForm(
     model: NewReplayFormModel,
 ) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize()
-            .width(IntrinsicSize.Min),
-        verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.columnVerticalSpacing,
-            alignment = Alignment.CenterVertically,
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Form {
 
         val initialFocusRequester = remember { FocusRequester() }
 

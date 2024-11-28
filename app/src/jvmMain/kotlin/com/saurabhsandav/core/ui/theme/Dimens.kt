@@ -27,4 +27,6 @@ object Dimens {
     val dialogSize = DpSize(600.dp, 800.dp)
 
     val chartLegendPadding = 8.dp
+
+    val formWidth = 300.dp
 }

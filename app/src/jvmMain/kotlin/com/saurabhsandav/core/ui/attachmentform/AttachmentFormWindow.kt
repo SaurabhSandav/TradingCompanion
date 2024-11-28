@@ -1,11 +1,12 @@
 package com.saurabhsandav.core.ui.attachmentform
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -18,13 +19,9 @@ import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.Edit
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.New
-import com.saurabhsandav.core.ui.common.AnimatedVisibilityForNullable
+import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
-import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.theme.dimens
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.FileKitPlatformSettings
 import io.github.vinceglb.filekit.core.pickFile
@@ -45,7 +42,7 @@ internal fun AttachmentFormWindow(
     }
     val state by presenter.state.collectAsState()
 
-    val dialogState = rememberDialogState(size = DpSize(width = 300.dp, height = 400.dp))
+    val dialogState = rememberDialogState(size = DpSize(width = FormDefaults.PreferredWidth, height = 400.dp))
 
     val formModel = state.formModel ?: return
 
@@ -72,14 +69,7 @@ private fun AttachmentForm(
     fileKitPlatformSettings: FileKitPlatformSettings,
 ) {
 
-    Column(
-        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).width(IntrinsicSize.Min),
-        verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.columnVerticalSpacing,
-            alignment = Alignment.CenterVertically,
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Form {
 
         val initialFocusRequester = remember { FocusRequester() }
 

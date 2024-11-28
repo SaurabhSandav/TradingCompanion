@@ -1,0 +1,54 @@
+package com.saurabhsandav.core.ui.common
+
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import com.saurabhsandav.core.ui.theme.dimens
+
+@Composable
+fun Form(
+    modifier: Modifier = Modifier,
+    width: Dp = FormDefaults.PreferredWidth,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+
+    Box(
+        modifier = modifier,
+        propagateMinConstraints = true,
+    ) {
+
+        val verticalScrollState = rememberScrollState()
+
+        Column(
+            modifier = Modifier
+                .requiredWidth(width)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .verticalScroll(verticalScrollState)
+                .padding(MaterialTheme.dimens.containerPadding),
+            verticalArrangement = Arrangement.spacedBy(
+                space = MaterialTheme.dimens.columnVerticalSpacing,
+                alignment = Alignment.CenterVertically,
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = content,
+        )
+
+        VerticalScrollbar(
+            modifier = Modifier.matchParentSize().wrapContentWidth(Alignment.End),
+            adapter = rememberScrollbarAdapter(verticalScrollState),
+        )
+    }
+}
+
+object FormDefaults {
+
+    val PreferredWidth
+        get() = MaterialTheme.dimens.formWidth
+}

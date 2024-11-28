@@ -18,12 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.ColorPickerDialog
+import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.theme.dimens
@@ -41,7 +39,7 @@ fun TagFormWindow(
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
-        size = DpSize(width = 250.dp, height = 300.dp),
+        size = DpSize(width = FormDefaults.PreferredWidth, height = 300.dp),
         preferredPlacement = WindowPlacement.Floating,
         forcePreferredPlacement = true,
     )
@@ -54,20 +52,16 @@ fun TagFormWindow(
         title = state.title,
     ) {
 
-        Form(model = formModel)
+        TagForm(model = formModel)
     }
 }
 
 @Composable
-private fun Form(
+private fun TagForm(
     model: TagFormModel,
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(MaterialTheme.dimens.containerPadding),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Form {
 
         val initialFocusRequester = remember { FocusRequester() }
         var showColorPicker by state { false }
