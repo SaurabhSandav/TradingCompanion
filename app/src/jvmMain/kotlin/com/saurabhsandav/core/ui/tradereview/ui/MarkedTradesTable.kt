@@ -86,6 +86,7 @@ private fun MarkedTradesTable(
         ) { item ->
 
             MarkedTradeItem(
+                modifier = Modifier.animateItem(),
                 item = item,
                 onUnMarkTrade = { onUnMarkTrade(item.profileTradeId) },
                 onSelectTrade = { onSelectTrade(item.profileTradeId) },
@@ -97,21 +98,24 @@ private fun MarkedTradesTable(
 
 @Composable
 private fun MarkedTradeItem(
+    modifier: Modifier,
     item: MarkedTradeItem,
     onUnMarkTrade: () -> Unit,
     onSelectTrade: () -> Unit,
     onOpenDetails: () -> Unit,
 ) {
 
-    ContextMenuArea(
-        items = {
-            listOf(
-                ContextMenuItem("Open Details", onOpenDetails),
-            )
-        },
-    ) {
+    // Passing the animateItem() modifier to ListItem doesn't work.
+    // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
+    Column(modifier) {
 
-        Column {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open Details", onOpenDetails),
+                )
+            },
+        ) {
 
             MarkedTradesTableSchema.SimpleRow(
                 onClick = onSelectTrade,
@@ -150,9 +154,9 @@ private fun MarkedTradeItem(
                     Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }
-
-            HorizontalDivider()
         }
+
+        HorizontalDivider()
     }
 }
 

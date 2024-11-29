@@ -40,7 +40,7 @@ internal fun AccountScreen(
 
         items(items = transactions) { item ->
 
-            TransactionTableSchema.SimpleRow {
+            TransactionTableSchema.SimpleRow(Modifier.animateItem()) {
 
                 date.text { item.date }
                 type.text { item.type }

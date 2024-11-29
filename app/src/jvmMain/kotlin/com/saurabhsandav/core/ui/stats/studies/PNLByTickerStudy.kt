@@ -48,7 +48,7 @@ internal class PNLByTickerStudy(
                 items = items,
             ) { item ->
 
-                Column {
+                Column(Modifier.animateItem()) {
 
                     Schema.SimpleRow {
                         ticker.text { item.ticker }

@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayOrderListItem
 import com.saurabhsandav.core.ui.common.AppColor
@@ -44,20 +45,20 @@ internal fun ReplayOrdersTable(
 
             var showCancelConfirmationDialog by state { false }
 
-            ContextMenuArea(
-                items = {
+            Column(Modifier.animateItem()) {
 
-                    buildList {
-                        addAll(
-                            listOf(
-                                ContextMenuItem("Cancel") { showCancelConfirmationDialog = true },
+                ContextMenuArea(
+                    items = {
+
+                        buildList {
+                            addAll(
+                                listOf(
+                                    ContextMenuItem("Cancel") { showCancelConfirmationDialog = true },
+                                )
                             )
-                        )
-                    }
-                },
-            ) {
-
-                Column {
+                        }
+                    },
+                ) {
 
                     ReplayOrderTableSchema.SimpleRow {
                         executionType.text { item.executionType }
@@ -70,18 +71,18 @@ internal fun ReplayOrdersTable(
                         price.text { item.price }
                         time.text { item.timestamp }
                     }
-
-                    HorizontalDivider()
                 }
 
-                if (showCancelConfirmationDialog) {
+                HorizontalDivider()
+            }
 
-                    ConfirmationDialog(
-                        text = "Are you sure you want to cancel the order?",
-                        onDismiss = { showCancelConfirmationDialog = false },
-                        onConfirm = { onCancelOrder(item.id) },
-                    )
-                }
+            if (showCancelConfirmationDialog) {
+
+                ConfirmationDialog(
+                    text = "Are you sure you want to cancel the order?",
+                    onDismiss = { showCancelConfirmationDialog = false },
+                    onConfirm = { onCancelOrder(item.id) },
+                )
             }
         }
     }

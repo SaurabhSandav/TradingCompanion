@@ -93,6 +93,7 @@ private fun ProfileTradesTable(
             val item = items[index]!!
 
             TradeItem(
+                modifier = Modifier.animateItem(),
                 item = item,
                 onMarkTrade = { onMarkTrade(item.profileTradeId, it) },
                 onSelectTrade = { onSelectTrade(item.profileTradeId) },
@@ -104,21 +105,24 @@ private fun ProfileTradesTable(
 
 @Composable
 private fun TradeItem(
+    modifier: Modifier,
     item: TradeItem,
     onMarkTrade: (Boolean) -> Unit,
     onSelectTrade: () -> Unit,
     onOpenDetails: () -> Unit,
 ) {
 
-    ContextMenuArea(
-        items = {
-            listOf(
-                ContextMenuItem("Open Details", onOpenDetails),
-            )
-        },
-    ) {
+    // Passing the animateItem() modifier to ListItem doesn't work.
+    // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
+    Column(modifier) {
 
-        Column {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open Details", onOpenDetails),
+                )
+            },
+        ) {
 
             ProfileTradesTableSchema.SimpleRow(
                 onClick = onSelectTrade,
@@ -157,9 +161,9 @@ private fun TradeItem(
                     Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }
-
-            HorizontalDivider()
         }
+
+        HorizontalDivider()
     }
 }
 

@@ -152,7 +152,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 items = model.pnlEntries,
             ) { item ->
 
-                PNLTableSchema.SimpleRow {
+                PNLTableSchema.SimpleRow(Modifier.animateItem()) {
                     side {
                         Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                     }

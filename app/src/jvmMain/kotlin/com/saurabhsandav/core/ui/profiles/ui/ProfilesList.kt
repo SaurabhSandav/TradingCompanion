@@ -49,6 +49,7 @@ internal fun ProfilesList(
             ) { profile ->
 
                 ProfileListItem(
+                    modifier = Modifier.animateItem(),
                     profile = profile,
                     onSelectProfile = { onSelectProfile(profile.id) },
                     isCurrent = profile.id == currentProfileId,

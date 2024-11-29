@@ -97,8 +97,13 @@ private fun TradeExecutionsTable(
         ) { index ->
 
             when (val entry = items[index]!!) {
-                is Section -> Section(entry)
+                is Section -> Section(
+                    modifier = Modifier.animateItem(),
+                    section = entry
+                )
+
                 is Item -> Item(
+                    modifier = Modifier.animateItem(),
                     item = entry,
                     isMarked = isMarked(entry.id),
                     onClick = { onClickExecution(entry.id) },
@@ -128,10 +133,13 @@ private fun ColumnScope.Header() {
 }
 
 @Composable
-private fun Section(section: Section) {
+private fun Section(
+    modifier: Modifier,
+    section: Section,
+) {
 
     ListItem(
-        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
+        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding).then(modifier),
         headlineContent = {
             Text(
                 text = if (section.isToday) "Today" else "Past",
@@ -154,6 +162,7 @@ private fun Section(section: Section) {
 
 @Composable
 private fun Item(
+    modifier: Modifier,
     item: Item,
     isMarked: Boolean,
     onClick: () -> Unit,
@@ -168,26 +177,28 @@ private fun Item(
     var showLockConfirmationDialog by state { false }
     var showDeleteConfirmationDialog by state { false }
 
-    ContextMenuArea(
-        items = {
+    // Passing the animateItem() modifier to ListItem doesn't work.
+    // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
+    Column(modifier) {
 
-            buildList {
-                add(ContextMenuItem("New", onNewExecution))
+        ContextMenuArea(
+            items = {
 
-                if (!item.locked) {
-                    addAll(
-                        listOf(
-                            ContextMenuItem("Lock") { showLockConfirmationDialog = true },
-                            ContextMenuItem("Edit", onEditExecution),
-                            ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                buildList {
+                    add(ContextMenuItem("New", onNewExecution))
+
+                    if (!item.locked) {
+                        addAll(
+                            listOf(
+                                ContextMenuItem("Lock") { showLockConfirmationDialog = true },
+                                ContextMenuItem("Edit", onEditExecution),
+                                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                            )
                         )
-                    )
+                    }
                 }
-            }
-        },
-    ) {
-
-        Column {
+            },
+        ) {
 
             TradeExecutionTableSchema.SimpleRow(
                 onClick = onClick,
@@ -216,30 +227,30 @@ private fun Item(
                 price.text { item.price }
                 time.text { item.timestamp }
             }
-
-            HorizontalDivider()
         }
 
-        if (showLockConfirmationDialog) {
+        HorizontalDivider()
+    }
 
-            ConfirmationDialog(
-                text = "Are you sure you want to lock the execution?",
-                onDismiss = { showLockConfirmationDialog = false },
-                onConfirm = {
-                    showLockConfirmationDialog = false
-                    onLockExecution()
-                },
-            )
-        }
+    if (showLockConfirmationDialog) {
 
-        if (showDeleteConfirmationDialog) {
+        ConfirmationDialog(
+            text = "Are you sure you want to lock the execution?",
+            onDismiss = { showLockConfirmationDialog = false },
+            onConfirm = {
+                showLockConfirmationDialog = false
+                onLockExecution()
+            },
+        )
+    }
 
-            DeleteConfirmationDialog(
-                subject = "execution",
-                onDismiss = { showDeleteConfirmationDialog = false },
-                onConfirm = onDeleteExecution,
-            )
-        }
+    if (showDeleteConfirmationDialog) {
+
+        DeleteConfirmationDialog(
+            subject = "execution",
+            onDismiss = { showDeleteConfirmationDialog = false },
+            onConfirm = onDeleteExecution,
+        )
     }
 }
 
