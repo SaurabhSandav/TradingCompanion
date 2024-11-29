@@ -134,13 +134,21 @@ internal fun TradeScreen(
             val scrollState = rememberScrollState()
 
             Column(
-                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).verticalScroll(scrollState),
+                modifier = Modifier
+                    .verticalScroll(scrollState)
+                    .padding(MaterialTheme.dimens.containerPadding),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
                 Details(details)
 
-                TradeExecutionsTable(
+                FilledTonalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onOpenChart,
+                    content = { Text("Chart") },
+                )
+
+                ExecutionsTable(
                     items = executions,
                     newExecutionEnabled = newExecutionEnabled,
                     onAddToTrade = onAddToTrade,
@@ -149,12 +157,6 @@ internal fun TradeScreen(
                     onEditExecution = onEditExecution,
                     onLockExecution = onLockExecution,
                     onDeleteExecution = onDeleteExecution,
-                )
-
-                FilledTonalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onOpenChart,
-                    content = { Text("Chart") },
                 )
 
                 StopsAndTargets(

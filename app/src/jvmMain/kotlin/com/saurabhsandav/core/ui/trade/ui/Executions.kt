@@ -1,20 +1,21 @@
 package com.saurabhsandav.core.ui.trade.ui
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,10 +27,11 @@ import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.text
+import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState
 
 @Composable
-internal fun TradeExecutionsTable(
+internal fun ExecutionsTable(
     items: List<TradeState.Execution>,
     newExecutionEnabled: Boolean,
     onAddToTrade: () -> Unit,
@@ -38,10 +40,48 @@ internal fun TradeExecutionsTable(
     onEditExecution: (TradeExecutionId) -> Unit,
     onLockExecution: (TradeExecutionId) -> Unit,
     onDeleteExecution: (TradeExecutionId) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
-    Column(
-        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    TradeSection(
+        modifier = modifier,
+        title = "Executions",
+        subtitle = when {
+            items.isEmpty() -> "No Executions"
+            items.size == 1 -> "1 Execution"
+            else -> "${items.size} Executions"
+        },
+        trailingContent = {
+
+            AnimatedVisibility(
+                visible = newExecutionEnabled,
+                enter = fadeIn() + slideInHorizontally(initialOffsetX = { it / 2 }),
+                exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it / 2 }),
+            ) {
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+                ) {
+
+                    TradeSectionButton(
+                        onClick = onAddToTrade,
+                        text = "Add To Trade",
+                    )
+
+                    TradeSectionButton(
+                        onClick = onCloseTrade,
+                        text = "Close Trade",
+                        icon = {
+
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Close Trade"
+                            )
+                        },
+                    )
+                }
+            }
+        },
     ) {
 
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
@@ -53,8 +93,6 @@ internal fun TradeExecutionsTable(
                 time.text { "Time" }
             }
 
-            HorizontalDivider()
-
             items.forEach { item ->
 
                 key(item) {
@@ -65,26 +103,6 @@ internal fun TradeExecutionsTable(
                         onEditExecution = { onEditExecution(item.id) },
                         onLockExecution = { onLockExecution(item.id) },
                         onDeleteExecution = { onDeleteExecution(item.id) },
-                    )
-                }
-            }
-
-            if (newExecutionEnabled) {
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-
-                    TextButton(
-                        modifier = Modifier.weight(1F),
-                        onClick = onAddToTrade,
-                        shape = RectangleShape,
-                        content = { Text("Add to Trade") },
-                    )
-
-                    TextButton(
-                        modifier = Modifier.weight(1F),
-                        onClick = onCloseTrade,
-                        shape = RectangleShape,
-                        content = { Text("Close Trade") },
                     )
                 }
             }
