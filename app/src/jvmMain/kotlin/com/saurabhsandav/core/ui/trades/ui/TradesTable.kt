@@ -89,8 +89,13 @@ private fun TradesTable(
         ) { index ->
 
             when (val entry = items[index]!!) {
-                is Section -> Section(entry)
+                is Section -> Section(
+                    modifier = Modifier.animateItem(),
+                    section = entry,
+                )
+
                 is Item -> TradeItem(
+                    modifier = Modifier.animateItem(),
                     item = entry,
                     isMarked = isMarked(entry.id),
                     onMarkExecution = { onMarkExecution(entry.id) },
@@ -123,11 +128,12 @@ private fun ColumnScope.Header() {
 
 @Composable
 private fun Section(
+    modifier: Modifier,
     section: Section,
 ) {
 
     ListItem(
-        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
+        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding).then(modifier),
         headlineContent = {
             Text(
                 text = when (section.type) {
@@ -163,6 +169,7 @@ private fun Section(
 
 @Composable
 private fun TradeItem(
+    modifier: Modifier,
     item: Item,
     isMarked: Boolean,
     onMarkExecution: () -> Unit,
@@ -170,16 +177,18 @@ private fun TradeItem(
     onOpenChart: () -> Unit,
 ) {
 
-    ContextMenuArea(
-        items = {
-            listOf(
-                ContextMenuItem("Details", onOpenDetails),
-                ContextMenuItem("Chart", onOpenChart),
-            )
-        },
-    ) {
+    // Passing the animateItem() modifier to ListItem doesn't work.
+    // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
+    Column(modifier) {
 
-        Column {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Details", onOpenDetails),
+                    ContextMenuItem("Chart", onOpenChart),
+                )
+            },
+        ) {
 
             TradeTableSchema.SimpleRow(
                 onClick = onOpenDetails,
@@ -219,9 +228,9 @@ private fun TradeItem(
                 }
                 fees.text { item.fees }
             }
-
-            HorizontalDivider()
         }
+
+        HorizontalDivider()
     }
 }
 

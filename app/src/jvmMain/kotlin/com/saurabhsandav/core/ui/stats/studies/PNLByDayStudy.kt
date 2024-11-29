@@ -56,7 +56,7 @@ internal class PNLByDayStudy(
                 items = items,
             ) { item ->
 
-                Column {
+                Column(Modifier.animateItem()) {
 
                     Schema.SimpleRow {
                         day.text { item.day }

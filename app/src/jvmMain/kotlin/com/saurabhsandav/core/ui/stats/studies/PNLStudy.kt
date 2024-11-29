@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.stats.studies
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -75,43 +76,46 @@ internal class PNLStudy(
                 val item = items[index]!!
                 val generated = item.generated.collectAsState(null).value
 
-                Schema.SimpleRow {
-                    id.text { item.id.value.toString() }
-                    ticker.text { item.ticker }
-                    side {
-                        Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
-                    }
-                    quantity.text { item.quantity }
-                    avgEntry.text { item.entry }
-                    avgExit.text { item.exit }
-                    entryTime.text { item.entryTime }
-                    duration.text { item.duration }
+                Column(Modifier.animateItem()) {
 
-                    if (generated != null) {
-                        stop.text { generated.stop }
-                        target.text { generated.target }
+                    Schema.SimpleRow {
+                        id.text { item.id.value.toString() }
+                        ticker.text { item.ticker }
+                        side {
+                            Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
+                        }
+                        quantity.text { item.quantity }
+                        avgEntry.text { item.entry }
+                        avgExit.text { item.exit }
+                        entryTime.text { item.entryTime }
+                        duration.text { item.duration }
+
+                        if (generated != null) {
+                            stop.text { generated.stop }
+                            target.text { generated.target }
+                        }
+
+                        pnl {
+                            Text(
+                                item.pnl,
+                                color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                            )
+                        }
+                        netPnl {
+                            Text(
+                                item.netPnl,
+                                color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
+                            )
+                        }
+                        fees.text { item.fees }
+
+                        if (generated != null) {
+                            rValue.text { generated.rValue }
+                        }
                     }
 
-                    pnl {
-                        Text(
-                            item.pnl,
-                            color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-                        )
-                    }
-                    netPnl {
-                        Text(
-                            item.netPnl,
-                            color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
-                        )
-                    }
-                    fees.text { item.fees }
-
-                    if (generated != null) {
-                        rValue.text { generated.rValue }
-                    }
+                    HorizontalDivider()
                 }
-
-                HorizontalDivider()
             }
         }
     }

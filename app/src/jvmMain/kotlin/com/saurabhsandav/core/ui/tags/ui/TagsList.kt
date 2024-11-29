@@ -65,6 +65,7 @@ private fun TagsList(
             ) { tag ->
 
                 TagListItem(
+                    modifier = Modifier.animateItem(),
                     tag = tag,
                     onNewTag = { onNewTagFromExisting(tag.id) },
                     onEditTag = { onEditTag(tag.id) },

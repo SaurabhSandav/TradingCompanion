@@ -50,7 +50,7 @@ internal class PNLByMonthStudy(
                 items = items,
             ) { item ->
 
-                Column {
+                Column(Modifier.animateItem()) {
 
                     Schema.SimpleRow {
                         month.text { item.month }

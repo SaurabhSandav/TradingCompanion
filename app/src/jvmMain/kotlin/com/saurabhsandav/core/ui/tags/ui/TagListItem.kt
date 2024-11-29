@@ -28,12 +28,13 @@ internal fun TagListItem(
     onNewTag: () -> Unit,
     onEditTag: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable(onClick = onEditTag),
+        modifier = Modifier.clickable(onClick = onEditTag).then(modifier),
         headlineContent = {
 
             Row(

@@ -31,13 +31,17 @@ internal fun ProfileListItem(
     onDeleteProfile: () -> Unit,
     onCopyProfile: () -> Unit,
     trainingOnly: Boolean,
+    modifier: Modifier = Modifier,
 ) {
 
     var showEditProfileDialog by state { false }
     var showDeleteConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable(onClick = onSelectProfile).padding(MaterialTheme.dimens.listItemPadding),
+        modifier = Modifier
+            .clickable(onClick = onSelectProfile)
+            .padding(MaterialTheme.dimens.listItemPadding)
+            .then(modifier),
         headlineContent = {
 
             Row(

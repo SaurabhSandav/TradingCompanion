@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.reviews.ui
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
@@ -83,8 +84,13 @@ private fun ReviewsList(
         ) { index ->
 
             when (val entry = items[index]!!) {
-                is Section -> Section(entry)
+                is Section -> Section(
+                    modifier = Modifier.animateItem(),
+                    section = entry,
+                )
+
                 is Item -> Item(
+                    modifier = Modifier.animateItem(),
                     item = entry,
                     onOpen = { onOpenReview(entry.id) },
                     isPinned = entry.isPinned,
@@ -97,10 +103,13 @@ private fun ReviewsList(
 }
 
 @Composable
-private fun Section(section: Section) {
+private fun Section(
+    modifier: Modifier,
+    section: Section,
+) {
 
     ListItem(
-        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
+        modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding).then(modifier),
         headlineContent = {
             Text(
                 text = if (section.isPinned) "Pinned" else "Unpinned",
@@ -123,6 +132,7 @@ private fun Section(section: Section) {
 
 @Composable
 private fun Item(
+    modifier: Modifier,
     item: Item,
     onOpen: () -> Unit,
     isPinned: Boolean,
@@ -132,18 +142,23 @@ private fun Item(
 
     var showDeleteConfirmationDialog by state { false }
 
-    ContextMenuArea(items = {
-        listOf(
-            ContextMenuItem("Open", onOpen),
-            ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
-            ContextMenuItem("Delete") { showDeleteConfirmationDialog = true }
-        )
-    }) {
+    // Passing the animateItem() modifier to ListItem doesn't work.
+    // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
+    Column(modifier) {
 
-        ListItem(
-            modifier = Modifier.clickable(onClick = onOpen),
-            headlineContent = { Text(item.title) },
-        )
+        ContextMenuArea(items = {
+            listOf(
+                ContextMenuItem("Open", onOpen),
+                ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
+                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true }
+            )
+        }) {
+
+            ListItem(
+                modifier = Modifier.clickable(onClick = onOpen),
+                headlineContent = { Text(item.title) },
+            )
+        }
 
         HorizontalDivider()
     }

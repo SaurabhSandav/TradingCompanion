@@ -77,10 +77,12 @@ fun TickerSelectionDialog(
                 ) { ticker ->
 
                     ListItem(
-                        modifier = Modifier.clickable {
-                            onSelect(ticker)
-                            onCloseRequest()
-                        },
+                        modifier = Modifier
+                            .clickable {
+                                onSelect(ticker)
+                                onCloseRequest()
+                            }
+                            .animateItem(),
                         headlineContent = { Text(ticker) },
                         trailingContent = (type as? Chart)?.let { type ->
                             {
