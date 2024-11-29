@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.border
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -24,7 +23,6 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
@@ -32,7 +30,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.text
-import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import kotlinx.coroutines.CoroutineScope
@@ -49,23 +47,60 @@ internal fun StopsList(
     onAddStop: (BigDecimal) -> Unit,
     onDeleteStop: (BigDecimal) -> Unit,
     onSetPrimaryStop: (BigDecimal) -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
 
-    Column(
-        modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    var showForm by state { false }
+
+    TradeSection(
+        modifier = modifier,
+        title = "Stops",
+        subtitle = when {
+            stops.isEmpty() -> "No Stops"
+            stops.size == 1 -> "1 Stop"
+            else -> "${stops.size} Stops"
+        },
+        trailingContent = {
+
+            TradeSectionButton(
+                onClick = { showForm = !showForm },
+                text = "Add Stop",
+            )
+        },
     ) {
 
         ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
 
-            // Header
-            StopTableSchema.SimpleHeader {
-                stop.text { "Stop" }
-                risk.text { "Risk" }
-                netRisk.text { "Net Risk" }
-            }
+            AnimatedVisibility(stops.isNotEmpty() || showForm) {
 
-            HorizontalDivider()
+                AnimatedContent(showForm) { showFormT ->
+
+                    Column(
+                        modifier = Modifier.thenIf(showForm) {
+                            background(TradeSectionDefaults.backgroundLow)
+                        },
+                    ) {
+
+                        if (showFormT) {
+
+                            AddStopForm(
+                                previewer = stopPreviewer,
+                                onAdd = onAddStop,
+                                onDismiss = { showForm = false },
+                            )
+
+                            HorizontalDivider()
+                        } else {
+
+                            StopTableSchema.SimpleHeader {
+                                stop.text { "Stop" }
+                                risk.text { "Risk" }
+                                netRisk.text { "Net Risk" }
+                            }
+                        }
+                    }
+                }
+            }
 
             // Stops list
             stops.forEach { stop ->
@@ -95,14 +130,6 @@ internal fun StopsList(
                     }
                 }
             }
-
-            HorizontalDivider()
-
-            // Add Stop Form
-            AddStopForm(
-                previewer = stopPreviewer,
-                onAdd = onAddStop,
-            )
         }
     }
 }
@@ -111,120 +138,94 @@ internal fun StopsList(
 private fun AddStopForm(
     previewer: Flow<StopPreviewer>,
     onAdd: (BigDecimal) -> Unit,
+    onDismiss: () -> Unit,
 ) {
 
-    var showForm by state { false }
+    val coroutineScope = rememberCoroutineScope()
+    val formState = remember(coroutineScope, previewer, onAdd) {
 
-    AnimatedContent(
-        targetState = showForm,
-    ) { showFormT ->
+        AddStopFormState(coroutineScope, previewer) {
+            onAdd(it)
+            onDismiss()
+        }
+    }
 
-        when {
-            showFormT -> {
+    val textFieldModifier = Modifier.fillMaxWidth().onKeyEvent {
 
-                val coroutineScope = rememberCoroutineScope()
-                val formState = remember(coroutineScope, previewer, onAdd) {
+        when (it.key) {
+            Key.Enter, Key.NumPadEnter -> formState.submit()
+            Key.Escape -> onDismiss()
+            else -> return@onKeyEvent false
+        }
 
-                    AddStopFormState(coroutineScope, previewer) {
-                        onAdd(it)
-                        showForm = false
-                    }
-                }
+        true
+    }
 
-                Row(
-                    modifier = Modifier.padding(MaterialTheme.dimens.listItemPadding),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+    val textFieldColors = TextFieldDefaults.colors(
+        focusedContainerColor = TradeSectionDefaults.backgroundLow,
+        unfocusedContainerColor = TradeSectionDefaults.backgroundLow,
+        errorContainerColor = TradeSectionDefaults.backgroundLow,
+    )
 
-                    val textFieldModifier = Modifier.fillMaxWidth().onKeyEvent {
+    StopTableSchema.SimpleRow {
 
-                        when (it.key) {
-                            Key.Enter, Key.NumPadEnter -> formState.submit()
-                            Key.Escape -> showForm = false
-                            else -> return@onKeyEvent false
-                        }
+        stop {
 
-                        true
-                    }
-                    val textFieldColors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.background,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                        errorContainerColor = MaterialTheme.colorScheme.background,
+            val focusRequester = remember { FocusRequester() }
+
+            TextField(
+                modifier = textFieldModifier.focusRequester(focusRequester),
+                value = formState.price,
+                onValueChange = formState::onPriceChange,
+                isError = formState.priceIsError,
+                singleLine = true,
+                colors = textFieldColors,
+                placeholder = {
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Stop",
                     )
+                },
+            )
 
-                    StopTableSchema.SimpleRow {
-
-                        stop {
-
-                            val focusRequester = remember { FocusRequester() }
-
-                            TextField(
-                                modifier = textFieldModifier.focusRequester(focusRequester),
-                                value = formState.price,
-                                onValueChange = formState::onPriceChange,
-                                isError = formState.priceIsError,
-                                singleLine = true,
-                                colors = textFieldColors,
-                                placeholder = {
-
-                                    Text(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        text = "Stop",
-                                    )
-                                },
-                            )
-
-                            LaunchedEffect(focusRequester) {
-                                focusRequester.requestFocus()
-                            }
-                        }
-                        risk {
-
-                            TextField(
-                                modifier = textFieldModifier,
-                                value = formState.risk,
-                                onValueChange = formState::onRiskChange,
-                                isError = formState.riskIsError,
-                                singleLine = true,
-                                colors = textFieldColors,
-                                placeholder = {
-
-                                    Text(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        text = "Risk",
-                                    )
-                                },
-                                visualTransformation = riskVisualTransformation,
-                            )
-                        }
-                        netRisk {
-
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = formState.netRisk,
-                            )
-                        }
-                        options {
-
-                            IconButtonWithTooltip(
-                                onClick = { showForm = false },
-                                tooltipText = "Cancel",
-                                content = { Icon(Icons.Default.Close, contentDescription = "Cancel") },
-                            )
-                        }
-                    }
-                }
+            LaunchedEffect(focusRequester) {
+                focusRequester.requestFocus()
             }
+        }
+        risk {
 
-            else -> {
+            TextField(
+                modifier = textFieldModifier,
+                value = formState.risk,
+                onValueChange = formState::onRiskChange,
+                isError = formState.riskIsError,
+                singleLine = true,
+                colors = textFieldColors,
+                placeholder = {
 
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { showForm = true },
-                    shape = RectangleShape,
-                    content = { Text("Add Stop") },
-                )
-            }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Risk",
+                    )
+                },
+                visualTransformation = riskVisualTransformation,
+            )
+        }
+        netRisk {
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = formState.netRisk,
+            )
+        }
+        options {
+
+            IconButtonWithTooltip(
+                onClick = onDismiss,
+                tooltipText = "Cancel",
+                content = { Icon(Icons.Default.Close, contentDescription = "Cancel") },
+            )
         }
     }
 }
@@ -323,8 +324,10 @@ private val riskVisualTransformation = VisualTransformation { text ->
                 return if (text.isEmpty()) 0 else offset + 1
             }
 
-            override fun transformedToOriginal(offset: Int): Int {
-                return if (offset == 0) 0 else offset - 1
+            override fun transformedToOriginal(offset: Int) = when {
+                text.isEmpty() -> 0
+                offset == 0 -> 0
+                else -> offset - 1
             }
         },
     )
