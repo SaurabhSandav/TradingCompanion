@@ -36,11 +36,11 @@ internal data class TradeState(
         val entry: String,
         val exit: String?,
         val duration: Duration,
-        val pnl: String,
+        val pnl: String?,
         val isProfitable: Boolean,
-        val netPnl: String,
+        val netPnl: String?,
         val isNetProfitable: Boolean,
-        val fees: String,
+        val fees: String?,
     ) {
 
         sealed class Duration {

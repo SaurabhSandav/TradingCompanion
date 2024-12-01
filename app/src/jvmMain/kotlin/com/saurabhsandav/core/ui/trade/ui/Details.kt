@@ -1,108 +1,148 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.AnimatedVisibilityForNullable
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table.SimpleHeader
-import com.saurabhsandav.core.ui.common.table.SimpleRow
-import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
-import com.saurabhsandav.core.ui.common.table.TableSchema
-import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details.Duration.Closed
 import com.saurabhsandav.core.ui.trade.model.TradeState.Details.Duration.Open
 
 @Composable
-internal fun Details(details: Details) {
+internal fun Details(
+    details: Details,
+    onOpenChart: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
 
-    Column(
-        modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
+    TradeTileContainer(modifier) {
 
-        ProvideTextStyle(TextStyle(textAlign = TextAlign.Center)) {
+        TradeTile(
+            title = "Broker",
+            value = details.broker,
+        )
 
-            DetailsTableSchema.SimpleHeader {
-                broker.text { "Broker" }
-                ticker.text { "Ticker" }
-                side.text { "Side" }
-                quantity.text { "Quantity" }
-                avgEntry.text { "Avg. Entry" }
-                avgExit.text { "Avg. Exit" }
-                duration.text { "Duration" }
-                pnl.text { "PNL" }
-                netPnl.text { "Net PNL" }
-                fees.text { "Fees" }
-            }
+        TradeTile(
+            title = "Ticker",
+            value = details.ticker,
+        )
 
-            HorizontalDivider()
+        TradeTile(
+            title = "Side",
+            value = {
 
-            DetailsTableSchema.SimpleRow {
-                broker.text { details.broker }
-                ticker.text { details.ticker }
-                side {
+                Text(
+                    text = details.side,
+                    color = if (details.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
+                )
+            },
+        )
+
+        TradeTile(
+            title = "Quantity",
+            value = details.quantity,
+        )
+
+        TradeTile(
+            title = "Avg. Entry",
+            value = details.entry,
+        )
+
+        AnimatedVisibilityForNullable(details.exit) { exit ->
+
+            TradeTile(
+                title = "Avg. Exit",
+                value = exit,
+            )
+        }
+
+        TradeTile(
+            title = "Duration",
+            value = when (val duration = details.duration) {
+                is Open -> duration.flow.collectAsState("").value
+                is Closed -> duration.str
+            },
+        )
+
+        AnimatedVisibilityForNullable(details.pnl) { pnl ->
+
+            TradeTile(
+                title = "PNL",
+                value = {
 
                     Text(
-                        text = details.side,
-                        modifier = Modifier.fillMaxWidth(),
-                        color = if (details.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed,
-                    )
-                }
-                quantity.text { details.quantity }
-                avgEntry.text { details.entry }
-                avgExit.text { details.exit ?: "NA" }
-                duration {
-
-                    Text(
-                        text = when (val duration = details.duration) {
-                            is Open -> duration.flow.collectAsState("").value
-                            is Closed -> duration.str
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                pnl {
-
-                    Text(
-                        text = details.pnl,
-                        modifier = Modifier.fillMaxWidth(),
+                        text = pnl,
                         color = if (details.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                     )
-                }
-                netPnl {
+                },
+            )
+        }
+
+        AnimatedVisibilityForNullable(details.netPnl) { netPnl ->
+
+            TradeTile(
+                title = "Net PNL",
+                value = {
 
                     Text(
-                        text = details.netPnl,
-                        modifier = Modifier.fillMaxWidth(),
+                        text = netPnl,
                         color = if (details.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                     )
-                }
-                fees.text { details.fees }
+                },
+            )
+        }
+
+        AnimatedVisibilityForNullable(details.fees) { fees ->
+
+            TradeTile(
+                title = "Fees",
+                value = fees,
+            )
+        }
+
+        Card(
+            modifier = Modifier.fillMaxRowHeight(),
+        ) {
+
+            TextButton(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clickable(onClick = onOpenChart),
+                onClick = onOpenChart,
+                shape = CardDefaults.shape,
+            ) {
+
+                Text("CHART")
+
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+
+                Icon(
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    contentDescription = "Open Chart",
+                )
             }
         }
     }
 }
 
-private object DetailsTableSchema : TableSchema() {
+@Composable
+private fun TradeTile(
+    title: String,
+    value: String,
+) {
 
-    val broker = cell(Weight(2F))
-    val ticker = cell(Weight(1.7F))
-    val side = cell()
-    val quantity = cell()
-    val avgEntry = cell()
-    val avgExit = cell()
-    val duration = cell(Weight(1.5F))
-    val pnl = cell()
-    val netPnl = cell()
-    val fees = cell()
+    TradeTile(
+        title = title,
+        value = { Text(value) },
+    )
 }

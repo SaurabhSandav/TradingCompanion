@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -140,12 +138,10 @@ internal fun TradeScreen(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
-                Details(details)
-
-                FilledTonalButton(
+                Details(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onOpenChart,
-                    content = { Text("Chart") },
+                    details = details,
+                    onOpenChart = onOpenChart,
                 )
 
                 ExecutionsTable(
@@ -174,7 +170,11 @@ internal fun TradeScreen(
                 )
 
                 if (excursions != null) {
-                    Excursions(excursions)
+
+                    Excursions(
+                        modifier = Modifier.fillMaxWidth(),
+                        excursions = excursions,
+                    )
                 }
 
                 Tags(

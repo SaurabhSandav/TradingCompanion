@@ -169,6 +169,8 @@ internal class TradePresenter(
                     val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
                     val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
 
+                    val isPartiallyClosed = trade.isClosed || trade.closedQuantity > BigDecimal.ZERO
+
                     value = Details(
                         id = trade.id,
                         broker = "${trade.broker} ($instrumentCapitalized)",
@@ -179,13 +181,13 @@ internal class TradePresenter(
                             else -> trade.quantity.toPlainString()
                         },
                         entry = trade.averageEntry.toPlainString(),
-                        exit = trade.averageExit?.toPlainString() ?: "",
+                        exit = trade.averageExit?.toPlainString(),
                         duration = duration,
-                        pnl = "${trade.pnl.toPlainString()}${rValueStr}",
+                        pnl = if (isPartiallyClosed) "${trade.pnl.toPlainString()}${rValueStr}" else null,
                         isProfitable = trade.pnl > BigDecimal.ZERO,
-                        netPnl = trade.netPnl.toPlainString(),
+                        netPnl = if (isPartiallyClosed) trade.netPnl.toPlainString() else null,
                         isNetProfitable = trade.netPnl > BigDecimal.ZERO,
-                        fees = trade.fees.toPlainString(),
+                        fees = if (isPartiallyClosed) trade.fees.toPlainString() else null,
                     )
                 }
             }
