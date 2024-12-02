@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -24,9 +25,9 @@ configurations.configureEach {
 
 kotlin {
 
-    jvmToolchain(17)
-
     jvm {
+
+        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
 
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
@@ -128,9 +129,6 @@ kotlin {
 
             // FileKit
             implementation("io.github.vinceglb:filekit-core:0.8.7")
-
-            // JCEF MAVEN
-            implementation(libs.jcefMaven)
 
             // compose-richtext
             implementation("com.halilibo.compose-richtext:richtext-ui-material3:1.0.0-alpha01")
@@ -249,10 +247,22 @@ compose {
                     "jdk.jsobject",
                     "jdk.unsupported.desktop",
                     "java.net.http",
+                    // JCEF
+                    "jcef",
                     // FileKit
                     "jdk.security.auth",
                 )
             }
         }
     }
+}
+
+// Fix jcef_helper file is not executable in Jetbrains JCEF
+val fixDistributablePermissions by tasks.registering(Exec::class) {
+    workingDir(layout.buildDirectory.file("compose/binaries/main/app/TradingCompanion/lib/runtime/lib/"))
+    commandLine("chmod", "+x", "jcef_helper")
+}
+
+tasks.withType<AbstractJPackageTask> {
+    finalizedBy(fixDistributablePermissions)
 }
