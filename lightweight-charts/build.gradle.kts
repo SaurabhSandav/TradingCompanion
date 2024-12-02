@@ -10,9 +10,9 @@ plugins {
 
 kotlin {
 
-    jvmToolchain(17)
-
     jvm {
+
+        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
 
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
