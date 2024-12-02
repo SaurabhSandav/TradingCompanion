@@ -1,24 +1,19 @@
 package com.saurabhsandav.core.ui.common.webview
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.jetbrains.cef.JCefAppConfig
 import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,15 +23,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import me.friwi.jcefmaven.CefAppBuilder
-import me.friwi.jcefmaven.EnumProgress
-import me.friwi.jcefmaven.MavenCefAppHandlerAdapter
 import org.cef.CefApp
 import org.cef.CefApp.CefAppState
-import org.cef.OS
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.browser.CefMessageRouter
+import org.cef.browser.CefRendering
 import org.cef.callback.CefContextMenuParams
 import org.cef.callback.CefMenuModel
 import org.cef.callback.CefQueryCallback
@@ -82,35 +74,7 @@ class CefWebViewState(
                 factory = { browser.uiComponent },
             )
 
-            else -> {
-
-                val initializationProgress by myCefApp.progress.collectAsState(EnumProgress.LOCATING to -1F)
-
-                Column(
-                    modifier = modifier,
-                    verticalArrangement = Arrangement.spacedBy(
-                        space = MaterialTheme.dimens.columnVerticalSpacing,
-                        alignment = Alignment.CenterVertically
-                    ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-
-                    val progressText = when (initializationProgress.first) {
-                        EnumProgress.LOCATING -> "Locating WebView"
-                        EnumProgress.DOWNLOADING -> "Downloading WebView"
-                        EnumProgress.EXTRACTING -> "Extracting WebView"
-                        EnumProgress.INSTALL -> "Installing WebView"
-                        EnumProgress.INITIALIZING -> "Initializing WebView"
-                        EnumProgress.INITIALIZED -> "Initialized"
-                    }
-
-                    Text(progressText)
-
-                    LinearProgressIndicator(
-                        progress = { initializationProgress.second },
-                    )
-                }
-            }
+            else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
         }
     }
 
@@ -118,9 +82,7 @@ class CefWebViewState(
 
         if (::browser.isInitialized) return
 
-        val cefApp = withContext(appDispatchers.IO) {
-            myCefApp.builder.build()
-        }
+        val cefApp = withContext(appDispatchers.IO) { myCefApp.getInstance() }
 
         val client = cefApp.createClient().apply {
 
@@ -205,7 +167,7 @@ class CefWebViewState(
 
         browser = client.createBrowser(
             /* url = */ null,
-            /* isOffscreenRendered = */ OS.isLinux(),
+            /* rendering = */ CefRendering.DEFAULT,
             /* isTransparent = */ true,
         )
     }
@@ -273,42 +235,32 @@ class CefWebViewState(
 }
 
 class MyCefApp(
-    appPaths: AppPaths,
+    private val appPaths: AppPaths,
 ) {
 
-    private val _progress = MutableSharedFlow<Pair<EnumProgress, Float>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-    val progress = _progress.asSharedFlow()
+    fun getInstance(): CefApp {
 
-    val builder: CefAppBuilder = CefAppBuilder().apply {
-        setInstallDir(appPaths.appDataPath.resolve("jcef-bundle").toFile())
-        setProgressHandler { state, percent -> _progress.tryEmit(state to (percent / 100F)) }
+        CefApp.getInstanceIfAny()?.let { return it }
 
-        setAppHandler(object : MavenCefAppHandlerAdapter() {
+        CefApp.startup(emptyArray())
+
+        val jCefAppConfig = JCefAppConfig.getInstance()
+
+        CefApp.addAppHandler(object : CefAppHandlerAdapter(jCefAppConfig.appArgs) {
             override fun stateHasChanged(state: CefAppState) {
                 // Shutdown the app if the native CEF part is terminated
                 if (state == CefAppState.TERMINATED) exitProcess(0)
             }
         })
 
-        with(cefSettings) {
-            windowless_rendering_enabled = false
-            root_cache_path = appPaths.appDataPath.resolve("CEF").absolutePathString()
+        val cefSettings = jCefAppConfig.cefSettings.apply {
+            cache_path = appPaths.appDataPath.resolve("CEF").absolutePathString()
         }
+
+        return CefApp.getInstance(cefSettings)
     }
 
     fun dispose() {
-
-        when (CefApp.getState()) {
-            CefAppState.NEW,
-            CefAppState.INITIALIZING,
-            CefAppState.INITIALIZED,
-            CefAppState.INITIALIZATION_FAILED,
-            -> CefApp.getInstance().dispose()
-
-            else -> return
-        }
+        CefApp.getInstanceIfAny()?.dispose()
     }
 }
