@@ -8,6 +8,7 @@ dependencies {
     compileOnly(libs.plugins.kotlin.multiplatform.asDep())
     compileOnly(libs.plugins.kotlin.plugin.compose.asDep())
     compileOnly(libs.plugins.jetbrains.compose.asDep())
+    compileOnly(libs.plugins.jetbrains.composeHotReload.asDep())
 }
 
 fun Provider<PluginDependency>.asDep() = map {

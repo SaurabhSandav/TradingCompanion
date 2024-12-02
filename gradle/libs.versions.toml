@@ -9,7 +9,8 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
 kotlinx-collectionsImmutable = "0.4.0"
-jetbrainsCompose = "1.9.1"
+jetbrains-compose = "1.9.1"
+jetbrains-composeHotReload = "1.0.0-rc02"
 ktor = "3.3.1"
 
 # Jetpack
@@ -52,7 +53,10 @@ kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization"
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 # Jebrains Compose
-jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+
+# Jebrains Compose Hot Reload
+jetbrains-composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "jetbrains-composeHotReload" }
 
 # SQLDelight
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

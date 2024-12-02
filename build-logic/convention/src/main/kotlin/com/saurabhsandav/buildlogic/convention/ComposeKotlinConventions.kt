@@ -4,8 +4,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.desktop.DesktopExtension
+import org.jetbrains.compose.reload.gradle.ComposeHotRun
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
@@ -17,6 +19,9 @@ class ComposeMultiplatformAppConventionPlugin : Plugin<Project> {
             apply(KotlinMultiplatformConventionPlugin::class)
             apply(ComposeConventionPlugin::class)
             apply(libs.findPlugin("jetbrains-compose").get().get().pluginId)
+            if (!isReleaseBuild) {
+                apply(libs.findPlugin("jetbrains-composeHotReload").get().get().pluginId)
+            }
         }
 
         val enableDebugFlag = project.enableDebugFlag()
@@ -41,6 +46,10 @@ class ComposeMultiplatformAppConventionPlugin : Plugin<Project> {
                     if (enableDebugFlag) args("-D")
                 }
             }
+        }
+
+        tasks.withType<ComposeHotRun>().configureEach {
+            if (enableDebugFlag) args("-D")
         }
 
         // Fix jcef_helper file is not executable in JetBrains JCEF

@@ -16,12 +16,6 @@ plugins {
 group = "com.saurabhsandav.apps"
 version = "1.0-SNAPSHOT"
 
-configurations.configureEach {
-
-    // App doesn't use Material. Don't want suggestions in autocomplete.
-    exclude("org.jetbrains.compose.material", "material")
-}
-
 kotlin {
 
     jvm {
@@ -75,7 +69,10 @@ kotlin {
 
         jvmMain.dependencies {
 
-            implementation(compose.desktop.currentOs)
+            implementation(compose.desktop.currentOs) {
+                // App doesn't use Material. Don't want suggestions in autocomplete.
+                exclude("org.jetbrains.compose.material", "material")
+            }
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
             implementation(compose.material3)
