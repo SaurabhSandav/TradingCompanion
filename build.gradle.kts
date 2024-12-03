@@ -8,3 +8,10 @@ plugins {
     alias(libs.plugins.buildKonfig) apply false
     id("de.undercouch.download") version "5.6.0" apply false
 }
+
+tasks.register<Delete>("cleanAll") {
+    delete(
+        rootProject.layout.buildDirectory,
+        subprojects.map { it.layout.buildDirectory }
+    )
+}
