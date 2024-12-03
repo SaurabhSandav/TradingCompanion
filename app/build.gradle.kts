@@ -239,6 +239,19 @@ compose {
                 targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
                 packageName = "TradingCompanion"
                 packageVersion = "1.0.0"
+
+                modules(
+                    // SQL
+                    "java.sql",
+                    // Datastore
+                    "jdk.unsupported",
+                    // JavaFX
+                    "jdk.jsobject",
+                    "jdk.unsupported.desktop",
+                    "java.net.http",
+                    // FileKit
+                    "jdk.security.auth",
+                )
             }
         }
     }
