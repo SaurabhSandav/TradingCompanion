@@ -14,8 +14,8 @@ class Main : SuspendingCliktCommand() {
 
     override suspend fun run() {
 
-        System.setProperty("debugMode", debugMode.toString())
+        val isDebugMode = BuildKonfig.DEBUG_MODE || debugMode
 
-        runApp()
+        runApp(isDebugMode)
     }
 }

@@ -28,19 +28,20 @@ interface AppPaths {
 
     companion object {
 
-        operator fun invoke(): AppPaths = AppPathsImpl()
+        operator fun invoke(isDebugMode: Boolean): AppPaths = AppPathsImpl(isDebugMode)
     }
 }
 
-private class AppPathsImpl : AppPaths {
+private class AppPathsImpl(
+    private val isDebugMode: Boolean,
+) : AppPaths {
 
     override val appName = "TradingCompanion"
 
     override val appDataPath: Path
         get() {
 
-            val debugMode = System.getProperty("debugMode") == "true"
-            val appName = if (debugMode) "$appName [Debug]" else appName
+            val appName = if (isDebugMode) "$appName [Debug]" else appName
 
             val pathStr = AppDirsFactory
                 .getInstance()

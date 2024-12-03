@@ -36,12 +36,13 @@ import okio.Path.Companion.toOkioPath
 import java.util.*
 
 internal class AppModule(
+    isDebugMode: Boolean,
     val restoreScheduler: RestoreScheduler,
 ) {
 
     val appScope = MainScope()
 
-    private val appPaths = AppPaths()
+    private val appPaths = AppPaths(isDebugMode)
 
     val appDispatchers = AppDispatchers()
 
