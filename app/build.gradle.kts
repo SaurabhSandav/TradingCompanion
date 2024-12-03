@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.buildKonfig)
 }
 
 group = "com.saurabhsandav.apps"
@@ -189,6 +191,19 @@ sqldelight {
     }
 }
 
+buildkonfig {
+    packageName = "com.saurabhsandav.core"
+
+    defaultConfigs {
+
+        buildConfigField(
+            type = FieldSpec.Type.BOOLEAN,
+            name = "DEBUG_MODE",
+            value = (findProperty("debugMode")?.toString()?.lowercase() == "true").toString(),
+        )
+    }
+}
+
 composeCompiler {
 
     stabilityConfigurationFiles.addAll(
@@ -219,10 +234,6 @@ compose {
                 "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
                 "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
             )
-
-            if (findProperty("debugMode") == "true") {
-                args("--debug")
-            }
 
             nativeDistributions {
                 targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

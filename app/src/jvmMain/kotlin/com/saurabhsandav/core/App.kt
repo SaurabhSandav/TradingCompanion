@@ -22,13 +22,15 @@ import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.flow.first
 
-suspend fun runApp() {
+suspend fun runApp(
+    isDebugMode: Boolean,
+) {
 
     val restoreScheduler = RestoreScheduler()
 
     restoreScheduler.withRestoreScope {
 
-        val appModule = AppModule(restoreScheduler)
+        val appModule = AppModule(isDebugMode, restoreScheduler)
         val initialLandingProfileId = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id
 
         application(exitProcessOnExit = false) {
