@@ -120,8 +120,6 @@ internal class AppModule(
         appPrefs = appPrefs,
     )
 
-    private val myCefApp = lazy { MyCefApp(appPaths) }
-
     private val chartPrefs by lazy {
 
         DataStoreSettings(
@@ -131,18 +129,18 @@ internal class AppModule(
         )
     }
 
-    val webViewStateProvider = run {
+    val myCefApp = lazy { MyCefApp(appPaths) }
+
+    val webViewStateProvider = {
 
         val webViewBackend = runBlocking {
             appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name)
-        };
+        }
 
-        {
-            when (webViewBackend) {
-                WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value)
-                WebViewBackend.JavaFX.name -> JavaFxWebViewState()
-                else -> error("Invalid WebView Backend: $webViewBackend")
-            }
+        when (webViewBackend) {
+            WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value)
+            WebViewBackend.JavaFX.name -> JavaFxWebViewState()
+            else -> error("Invalid WebView Backend: $webViewBackend")
         }
     }
 
