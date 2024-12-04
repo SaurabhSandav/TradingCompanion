@@ -258,8 +258,6 @@ private fun WebViewBackendPreference(
     onWebViewBackendChange: (WebViewBackend) -> Unit,
 ) {
 
-    var newBackend by state<WebViewBackend?> { null }
-
     Preference(
         headlineContent = { Text("WebView Backend") },
         trailingContent = {
@@ -268,22 +266,10 @@ private fun WebViewBackendPreference(
                 items = items,
                 itemText = { it.name },
                 selection = selectedItem,
-                onSelection = { if (selectedItem != it) newBackend = it },
+                onSelection = { if (selectedItem != it) onWebViewBackendChange(it) },
             )
         },
     )
-
-    if (newBackend != null) {
-
-        ConfirmationDialog(
-            text = "Are you sure you want to change the WebView Backend? (App will restart)",
-            onDismiss = { newBackend = null },
-            onConfirm = {
-                onWebViewBackendChange(newBackend!!)
-                newBackend = null
-            },
-        )
-    }
 }
 
 @Composable

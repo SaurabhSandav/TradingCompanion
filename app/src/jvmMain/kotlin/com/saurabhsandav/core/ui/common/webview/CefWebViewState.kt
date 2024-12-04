@@ -15,16 +15,16 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.cef.CefApp
 import org.cef.CefApp.CefAppState
+import org.cef.CefClient
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.browser.CefMessageRouter
@@ -42,23 +42,13 @@ class CefWebViewState(
     private val myCefApp: MyCefApp,
 ) : WebViewState {
 
-    private val jsCallbacks = mutableMapOf<String, CefJSCallback>()
+    private val browserProps = BrowserProps()
 
     private lateinit var browser: CefBrowser
 
-    private val isReady = CompletableDeferred<Unit>()
-
-    private val _loadState = MutableSharedFlow<LoadState>(
-        replay = 1,
-        extraBufferCapacity = 10,
-    )
-    override val loadState: Flow<LoadState> = _loadState.distinctUntilChanged()
-
-    private val _location = MutableSharedFlow<String>(replay = 1)
-    override val location: Flow<String> = _location.asSharedFlow()
-
-    private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
-    override val errors: Flow<Throwable> = _errors.asSharedFlow()
+    override val loadState: Flow<LoadState> = browserProps.mutableLoadState.asStateFlow()
+    override val location: Flow<String> = browserProps.mutableLocation.asSharedFlow()
+    override val errors: Flow<Throwable> = browserProps.mutableErrors.asSharedFlow()
 
     @Composable
     override fun WebView(modifier: Modifier) {
@@ -66,6 +56,7 @@ class CefWebViewState(
         val isReady by produceState(false) {
             init()
             value = true
+            awaitDispose { myCefApp.closeBrowser(browser) }
         }
 
         when {
@@ -82,97 +73,10 @@ class CefWebViewState(
 
         if (::browser.isInitialized) return
 
-        val cefApp = withContext(appDispatchers.IO) { myCefApp.getInstance() }
-
-        val client = cefApp.createClient().apply {
-
-            val msgRouter = CefMessageRouter.create(object : CefMessageRouterHandlerAdapter() {
-                override fun onQuery(
-                    browser: CefBrowser?,
-                    frame: CefFrame?,
-                    queryId: Long,
-                    request: String,
-                    persistent: Boolean,
-                    callback: CefQueryCallback,
-                ): Boolean {
-
-                    val jsonElement = Json.parseToJsonElement(request)
-
-                    val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
-                    val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
-
-                    jsCallbacks[id]?.mutableSharedFlow?.tryEmit(message)
-
-                    callback.success("")
-                    return true
-                }
-            })
-
-            addMessageRouter(msgRouter)
-        }
-
-        client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
-            override fun onAfterCreated(browser: CefBrowser?) {
-                isReady.complete(Unit)
-            }
-        })
-
-        // Disable context menu
-        client.addContextMenuHandler(object : CefContextMenuHandlerAdapter() {
-
-            override fun onBeforeContextMenu(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                params: CefContextMenuParams?,
-                model: CefMenuModel,
-            ) {
-                model.clear()
-            }
-        })
-
-        client.addLoadHandler(object : CefLoadHandlerAdapter() {
-
-            init {
-                emitLoadState(LoadState.INITIALIZED)
-            }
-
-            override fun onLoadStart(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                transitionType: CefRequest.TransitionType?,
-            ) {
-                emitLoadState(LoadState.LOADING)
-            }
-
-            override fun onLoadEnd(browser: CefBrowser, frame: CefFrame?, httpStatusCode: Int) {
-                emitLoadState(LoadState.LOADED)
-                if (!_location.tryEmit(browser.url)) error("Could not emit WebView location")
-            }
-
-            override fun onLoadError(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                errorCode: CefLoadHandler.ErrorCode?,
-                errorText: String?,
-                failedUrl: String?,
-            ) {
-                emitLoadState(LoadState.FAILED)
-                if (!_errors.tryEmit(Throwable(errorText))) error("Could not emit WebView errors")
-            }
-
-            private fun emitLoadState(loadState: LoadState) {
-                if (!_loadState.tryEmit(loadState)) error("Could not emit WebView load state")
-            }
-        })
-
-        browser = client.createBrowser(
-            /* url = */ null,
-            /* rendering = */ CefRendering.DEFAULT,
-            /* isTransparent = */ true,
-        )
+        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
     }
 
-    override suspend fun awaitReady() = isReady.await()
+    override suspend fun awaitReady() = browserProps.isReady.await()
 
     override suspend fun load(url: String) {
 
@@ -211,13 +115,13 @@ class CefWebViewState(
 
             override suspend fun remove() {
 
-                jsCallbacks.remove(jsFuncName)
+                browserProps.jsCallbacks.remove(jsFuncName)
 
                 browser.executeJavaScript("$jsFuncName = function(){}", null, 0)
             }
         }
 
-        jsCallbacks[jsFuncName] = callback
+        browserProps.jsCallbacks[jsFuncName] = callback
 
         return callback
     }
@@ -225,20 +129,17 @@ class CefWebViewState(
     override suspend fun setBackgroundColor(color: AwtColor) {
         // Not supported
     }
-
-    private abstract class CefJSCallback(
-        val mutableSharedFlow: MutableSharedFlow<String>,
-    ) : WebViewState.JSCallback {
-
-        override val messages: Flow<String> = mutableSharedFlow.asSharedFlow()
-    }
 }
 
 class MyCefApp(
     private val appPaths: AppPaths,
 ) {
 
-    fun getInstance(): CefApp {
+    private val mutex = Mutex()
+    private var client: CefClient? = null
+    private val browserPropsMap = mutableMapOf<CefBrowser, BrowserProps>()
+
+    private suspend fun getInstance(): CefApp {
 
         CefApp.getInstanceIfAny()?.let { return it }
 
@@ -246,10 +147,16 @@ class MyCefApp(
 
         val jCefAppConfig = JCefAppConfig.getInstance()
 
+        val contextInitialized = CompletableDeferred<Unit>()
+
         CefApp.addAppHandler(object : CefAppHandlerAdapter(jCefAppConfig.appArgs) {
             override fun stateHasChanged(state: CefAppState) {
                 // Shutdown the app if the native CEF part is terminated
                 if (state == CefAppState.TERMINATED) exitProcess(0)
+            }
+
+            override fun onContextInitialized() {
+                contextInitialized.complete(Unit)
             }
         })
 
@@ -257,10 +164,144 @@ class MyCefApp(
             cache_path = appPaths.appDataPath.resolve("CEF").absolutePathString()
         }
 
-        return CefApp.getInstance(cefSettings)
+        val instance = CefApp.getInstance(cefSettings)
+
+        contextInitialized.await()
+
+        return instance
+    }
+
+    private suspend fun getClient(): CefClient {
+
+        client?.let { return it }
+
+        val client = getInstance().createClient().apply {
+
+            val msgRouter = CefMessageRouter.create(object : CefMessageRouterHandlerAdapter() {
+                override fun onQuery(
+                    browser: CefBrowser,
+                    frame: CefFrame?,
+                    queryId: Long,
+                    request: String,
+                    persistent: Boolean,
+                    callback: CefQueryCallback,
+                ): Boolean {
+
+                    val jsonElement = Json.parseToJsonElement(request)
+
+                    val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
+                    val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
+
+                    browserPropsMap[browser]?.jsCallbacks?.get(id)?.mutableSharedFlow?.tryEmit(message)
+
+                    callback.success("")
+                    return true
+                }
+            })
+
+            addMessageRouter(msgRouter)
+        }
+
+        client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
+            override fun onAfterCreated(browser: CefBrowser) {
+                browserPropsMap[browser]?.isReady?.complete(Unit)
+            }
+        })
+
+        // Disable context menu
+        client.addContextMenuHandler(object : CefContextMenuHandlerAdapter() {
+
+            override fun onBeforeContextMenu(
+                browser: CefBrowser?,
+                frame: CefFrame?,
+                params: CefContextMenuParams?,
+                model: CefMenuModel,
+            ) {
+                model.clear()
+            }
+        })
+
+        client.addLoadHandler(object : CefLoadHandlerAdapter() {
+
+            override fun onLoadStart(
+                browser: CefBrowser,
+                frame: CefFrame?,
+                transitionType: CefRequest.TransitionType?,
+            ) {
+                emitLoadState(browser, LoadState.LOADING)
+            }
+
+            override fun onLoadEnd(browser: CefBrowser, frame: CefFrame?, httpStatusCode: Int) {
+                emitLoadState(browser, LoadState.LOADED)
+                browserPropsMap[browser]?.mutableLocation?.tryEmit(browser.url)
+            }
+
+            override fun onLoadError(
+                browser: CefBrowser,
+                frame: CefFrame?,
+                errorCode: CefLoadHandler.ErrorCode?,
+                errorText: String?,
+                failedUrl: String?,
+            ) {
+                emitLoadState(browser, LoadState.FAILED)
+                browserPropsMap[browser]?.mutableErrors?.tryEmit(Throwable(errorText))
+            }
+
+            private fun emitLoadState(browser: CefBrowser, loadState: LoadState) {
+                browserPropsMap[browser]?.mutableLoadState?.tryEmit(loadState)
+            }
+        })
+
+        this.client = client
+
+        return client
+    }
+
+    internal suspend fun createBrowser(browserProps: BrowserProps): CefBrowser = mutex.withLock {
+
+        val browser = getClient().createBrowser(
+            /* url = */ null,
+            /* rendering = */ CefRendering.DEFAULT,
+            /* isTransparent = */ true,
+        )
+
+        browserPropsMap[browser] = browserProps
+
+        return@withLock browser
+    }
+
+    fun closeBrowser(browser: CefBrowser) {
+        browser.close(false)
+        browserPropsMap.remove(browser)
+    }
+
+    fun disposeClient() {
+        client?.dispose()
+        client = null
     }
 
     fun dispose() {
+        disposeClient()
         CefApp.getInstanceIfAny()?.dispose()
     }
+}
+
+internal class BrowserProps {
+
+    val jsCallbacks = mutableMapOf<String, CefJSCallback>()
+
+    val isReady = CompletableDeferred<Unit>()
+
+    val mutableLoadState = MutableStateFlow(LoadState.INITIALIZED)
+
+    val mutableLocation = MutableSharedFlow<String>(replay = 1)
+
+    val mutableErrors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
+}
+
+internal abstract class CefJSCallback(
+    val mutableSharedFlow: MutableSharedFlow<String>,
+) : WebViewState.JSCallback {
+
+    override val messages: Flow<String> = mutableSharedFlow.asSharedFlow()
 }
