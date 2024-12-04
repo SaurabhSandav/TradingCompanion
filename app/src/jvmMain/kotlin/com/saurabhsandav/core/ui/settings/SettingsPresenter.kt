@@ -8,6 +8,7 @@ import com.saurabhsandav.core.backup.BackupEvent
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
@@ -18,13 +19,12 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import java.io.File
 import kotlin.io.path.Path
-import kotlin.system.exitProcess
 
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
+    private val myCefApp: Lazy<MyCefApp>,
     private val backupManager: BackupManager,
     private val restoreScheduler: RestoreScheduler,
 ) {
@@ -100,7 +100,9 @@ internal class SettingsPresenter(
 
         appPrefs.putString(PrefKeys.WebViewBackend, webViewBackend.name)
 
-        restartApplication()
+        if (webViewBackend == WebViewBackend.JavaFX && myCefApp.isInitialized()) {
+            myCefApp.value.disposeClient()
+        }
     }
 
     private fun onBackup(toDirPath: String) = coroutineScope.launchUnit {
@@ -117,20 +119,5 @@ internal class SettingsPresenter(
 
     private fun onRestore(archivePath: String) {
         restoreScheduler.schedule(Path(archivePath))
-    }
-
-    private fun restartApplication() {
-
-        val javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java"
-        val currentJar = File(SettingsPresenter::class.java.protectionDomain.codeSource.location.toURI())
-
-        // If file is not a jar file, this could be a debugging session. Force user to restart manually by crashing app.
-        if (!currentJar.name.endsWith(".jar")) error("App jar file not found. Restart manually")
-
-        // Execute command: $javaBin -jar $currentJar
-        ProcessBuilder(javaBin, "-jar", currentJar.path).start()
-
-        // Exit current App instance
-        exitProcess(0)
     }
 }
