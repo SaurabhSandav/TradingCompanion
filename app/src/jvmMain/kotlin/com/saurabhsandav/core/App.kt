@@ -5,6 +5,7 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
+import co.touchlab.kermit.Logger
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.di.ScreensModule
@@ -21,10 +22,13 @@ import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.flow.first
+import java.awt.Toolkit
 
 suspend fun runApp(
     isDebugMode: Boolean,
 ) {
+
+    setWM_CLASS()
 
     val restoreScheduler = RestoreScheduler()
 
@@ -60,6 +64,22 @@ suspend fun runApp(
                 )
             }
         }
+    }
+}
+
+@Suppress("FunctionName")
+private fun setWM_CLASS() {
+
+    val xToolkit = Toolkit.getDefaultToolkit()
+
+    try {
+
+        xToolkit.javaClass.getDeclaredField("awtAppClassName").apply {
+            isAccessible = true
+            set(xToolkit, "Trading Companion")
+        }
+    } catch (e: Exception) {
+        Logger.d(e) { "Could not set WM_CLASS" }
     }
 }
 

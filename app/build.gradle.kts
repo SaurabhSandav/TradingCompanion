@@ -235,6 +235,8 @@ compose {
             jvmArgs += listOf(
                 "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
                 "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+                // For setting WM_CLASS
+                "--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED",
             )
 
             nativeDistributions {
