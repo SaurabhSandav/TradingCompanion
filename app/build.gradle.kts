@@ -258,6 +258,10 @@ compose {
                     // FileKit
                     "jdk.security.auth",
                 )
+
+                linux {
+                    iconFile.set(project.file("src/jvmMain/composeResources/drawable/icon.png"))
+                }
             }
         }
     }
