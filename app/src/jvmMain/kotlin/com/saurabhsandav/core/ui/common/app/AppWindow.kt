@@ -14,9 +14,12 @@ import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
+import com.saurabhsandav.apps.app.generated.resources.Res
+import com.saurabhsandav.apps.app.generated.resources.icon
 import com.saurabhsandav.core.LocalAppConfig
 import com.saurabhsandav.core.adjustedDensity
 import kotlinx.coroutines.flow.drop
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AppWindow(
@@ -24,7 +27,7 @@ fun AppWindow(
     state: AppWindowState = rememberAppWindowState(),
     visible: Boolean = true,
     title: String = "Untitled",
-    icon: Painter? = null,
+    icon: Painter? = painterResource(Res.drawable.icon),
     undecorated: Boolean = false,
     transparent: Boolean = false,
     resizable: Boolean = true,
