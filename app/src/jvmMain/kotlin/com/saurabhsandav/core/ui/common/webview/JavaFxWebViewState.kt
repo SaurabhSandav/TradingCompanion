@@ -31,8 +31,8 @@ class JavaFxWebViewState : WebViewState {
     private val _loadState = MutableStateFlow(LoadState.INITIALIZED)
     override val loadState: Flow<LoadState> = _loadState.asStateFlow()
 
-    private val _location = MutableStateFlow<String?>(null)
-    override val location: Flow<String> = _location.filterNotNull()
+    private val _location = MutableStateFlow("")
+    override val location: Flow<String> = _location.asStateFlow()
 
     private val _errors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
     override val errors: Flow<Throwable> = _errors.asSharedFlow()
