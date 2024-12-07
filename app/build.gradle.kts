@@ -114,7 +114,7 @@ kotlin {
             implementation("org.openjfx:javafx-controls:23.0.1:linux")
             implementation("org.openjfx:javafx-graphics:23.0.1:linux")
             implementation("org.openjfx:javafx-media:23.0.1:linux")
-            implementation("org.openjfx:javafx-swing:23.0.1:linux")
+            implementation("org.openjfx:javafx-swing:24-ea+19:linux")
             implementation("org.openjfx:javafx-web:23.0.1:linux")
 
             // kotlin-result
