@@ -3,6 +3,7 @@
   "baseBranches": [
     "exp"
   ],
+  "prHourlyLimit": 0,
   "extends": [
     "config:recommended"
   ]
