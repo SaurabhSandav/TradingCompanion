@@ -141,7 +141,7 @@ kotlin {
             implementation(libs.jetpack.datastore.preferences)
 
             // Clikt
-            implementation("com.github.ajalt.clikt:clikt:5.0.1")
+            implementation("com.github.ajalt.clikt:clikt:5.0.2")
 
             // godaddy / compose-color-picker
             implementation("com.github.skydoves:colorpicker-compose:1.1.2")
