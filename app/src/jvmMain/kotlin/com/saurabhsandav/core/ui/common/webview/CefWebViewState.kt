@@ -47,7 +47,7 @@ class CefWebViewState(
     private lateinit var browser: CefBrowser
 
     override val loadState: Flow<LoadState> = browserProps.mutableLoadState.asStateFlow()
-    override val location: Flow<String> = browserProps.mutableLocation.asSharedFlow()
+    override val location: Flow<String> = browserProps.mutableLocation.asStateFlow()
     override val errors: Flow<Throwable> = browserProps.mutableErrors.asSharedFlow()
 
     @Composable
@@ -221,6 +221,15 @@ class MyCefApp(
             }
         })
 
+        // URL
+        client.addDisplayHandler(object : CefDisplayHandlerAdapter() {
+
+            override fun onAddressChange(browser: CefBrowser, frame: CefFrame?, url: String) {
+                super.onAddressChange(browser, frame, url)
+                browserPropsMap[browser]?.mutableLocation?.value = url
+            }
+        })
+
         client.addLoadHandler(object : CefLoadHandlerAdapter() {
 
             override fun onLoadStart(
@@ -233,7 +242,6 @@ class MyCefApp(
 
             override fun onLoadEnd(browser: CefBrowser, frame: CefFrame?, httpStatusCode: Int) {
                 emitLoadState(browser, LoadState.LOADED)
-                browserPropsMap[browser]?.mutableLocation?.tryEmit(browser.url)
             }
 
             override fun onLoadError(
@@ -294,7 +302,7 @@ internal class BrowserProps {
 
     val mutableLoadState = MutableStateFlow(LoadState.INITIALIZED)
 
-    val mutableLocation = MutableSharedFlow<String>(replay = 1)
+    val mutableLocation = MutableStateFlow("")
 
     val mutableErrors = MutableSharedFlow<Throwable>(extraBufferCapacity = 10)
 }
