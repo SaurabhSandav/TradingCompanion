@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +28,7 @@ internal fun MainTabRow(
     onProfileSelected: (ProfileId?) -> Unit,
 ) {
 
-    TabRow(
+    SecondaryTabRow(
         selectedTabIndex = if (selectedTab == TradeReviewState.Tab.Profile) 0 else 1,
     ) {
 

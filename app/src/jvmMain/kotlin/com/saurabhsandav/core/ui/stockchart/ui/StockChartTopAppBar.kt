@@ -116,7 +116,7 @@ internal fun StockChartTopBar(
             modifier = Modifier.fillMaxHeight(),
             onClick = onGoToLatest,
             tooltipText = "Go to latest",
-//            shape = RectangleShape, TODO CMP 1.8
+            shape = RectangleShape,
             content = { Icon(Icons.AutoMirrored.Filled.LastPage, contentDescription = "Go to latest") },
         )
 
@@ -208,7 +208,7 @@ private fun GoTo(
         modifier = modifier,
         onClick = { showDateTimePickerDialog = true },
         tooltipText = "Go to",
-//            shape = RectangleShape, TODO CMP 1.8
+        shape = RectangleShape,
         content = { Icon(AppIcons.EventUpcoming, contentDescription = "Go to") },
     )
 
@@ -282,7 +282,7 @@ private fun Sync(
         IconButtonWithTooltip(
             onClick = { expanded = true },
             tooltipText = "Sync",
-//            shape = RectangleShape, TODO CMP 1.8
+            shape = RectangleShape,
             content = { Icon(Icons.Default.Sync, contentDescription = "Sync") },
         )
 

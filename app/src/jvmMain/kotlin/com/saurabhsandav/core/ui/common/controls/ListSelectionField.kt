@@ -5,12 +5,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,10 +64,7 @@ fun <T : Any> OutlinedListSelectionField(
 
         OutlinedTextBox(
             modifier = Modifier
-                .menuAnchor(
-                    type = MenuAnchorType.PrimaryNotEditable,
-                    enabled = enabled,
-                )
+                .menuAnchor(type = PrimaryNotEditable, enabled = enabled)
                 .onKeyEvent { keyEvent ->
 
                     if (keyEvent.type != KeyEventType.KeyDown) return@onKeyEvent false
