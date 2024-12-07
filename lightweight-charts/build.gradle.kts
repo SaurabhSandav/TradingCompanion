@@ -53,7 +53,8 @@ kotlin {
             // Kermit
             implementation(libs.kermit)
 
-            api("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.839")
+            // kotlin css
+            api(libs.kotlinWrappers.kotlinCss)
         }
 
         jvmTest.dependencies {

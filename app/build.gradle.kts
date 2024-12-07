@@ -110,12 +110,19 @@ kotlin {
             implementation(libs.kotlinCsvJvm)
 
             // JavaFx
-            implementation("org.openjfx:javafx-base:23.0.1:linux")
-            implementation("org.openjfx:javafx-controls:23.0.1:linux")
-            implementation("org.openjfx:javafx-graphics:23.0.1:linux")
-            implementation("org.openjfx:javafx-media:23.0.1:linux")
-            implementation("org.openjfx:javafx-swing:23.0.1:linux")
-            implementation("org.openjfx:javafx-web:23.0.1:linux")
+            fun Provider<MinimalExternalModuleDependency>.linuxVariant() = map {
+                project.dependencies.create(it, closureOf<ExternalModuleDependency> {
+                    artifact {
+                        classifier = "linux"
+                    }
+                })
+            }
+            implementation(libs.javafx.base.linuxVariant())
+            implementation(libs.javafx.controls.linuxVariant())
+            implementation(libs.javafx.graphics.linuxVariant())
+            implementation(libs.javafx.media.linuxVariant())
+            implementation(libs.javafx.swing.linuxVariant())
+            implementation(libs.javafx.web.linuxVariant())
 
             // kotlin-result
             implementation(libs.kotlinResult)
@@ -128,11 +135,11 @@ kotlin {
             implementation(libs.kermit)
 
             // FileKit
-            implementation("io.github.vinceglb:filekit-core:0.8.7")
+            implementation(libs.filekit.core)
 
             // compose-richtext
-            implementation("com.halilibo.compose-richtext:richtext-ui-material3:1.0.0-alpha01")
-            implementation("com.halilibo.compose-richtext:richtext-commonmark:1.0.0-alpha01")
+            implementation(libs.composeRichtext.commonmark)
+            implementation(libs.composeRichtext.ui.material3)
 
             // Jetpack Paging
             implementation(libs.jetpack.paging.common)
@@ -141,13 +148,13 @@ kotlin {
             implementation(libs.jetpack.datastore.preferences)
 
             // Clikt
-            implementation("com.github.ajalt.clikt:clikt:5.0.1")
+            implementation(libs.clikt)
 
-            // godaddy / compose-color-picker
-            implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+            // ColorPicker Compose
+            implementation(libs.colorpickerCompose)
 
             // Apache Commons Compress
-            implementation("org.apache.commons:commons-compress:1.27.1")
+            implementation(libs.apacheCommons.compress)
         }
 
         jvmTest.dependencies {
@@ -158,7 +165,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
 
             // Jimfs
-            implementation("com.google.jimfs:jimfs:1.3.0")
+            implementation(libs.jimfs)
         }
     }
 }
