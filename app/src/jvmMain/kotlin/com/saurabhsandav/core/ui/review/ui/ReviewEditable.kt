@@ -18,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.input.TextFieldValue
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.RichTextStyle
@@ -64,7 +67,7 @@ internal fun ReviewEditable(
                                     keyEvent.isCtrlPressed
                                             && keyEvent.type == KeyEventType.KeyDown
                                             && keyEvent.key == Key.S
-                                    -> {
+                                        -> {
                                         onSaveReview()
                                         true
                                     }
@@ -80,18 +83,33 @@ internal fun ReviewEditable(
                     )
                 }
 
-                isMarkdown -> RichText(
-                    modifier = modifier,
-                    // TODO Temporary style. Built-in styling for link is terrible in dark mode.
-                    //  Replace if library updated with better defaults
-                    style = RichTextStyle(
-                        stringStyle = RichTextStringStyle(
-                            linkStyle = SpanStyle(color = MaterialTheme.colorScheme.inversePrimary),
-                        ),
-                    ),
-                    linkClickHandler = onMarkdownLinkClicked,
-                    children = { Markdown(content = review) },
-                )
+                isMarkdown -> {
+
+                    val onMarkdownLinkClickedUpdated by rememberUpdatedState(onMarkdownLinkClicked)
+
+                    val uriHandler = remember {
+                        object : UriHandler {
+                            override fun openUri(uri: String) {
+                                onMarkdownLinkClickedUpdated(uri)
+                            }
+                        }
+                    }
+
+                    CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+
+                        RichText(
+                            modifier = modifier,
+                            // TODO Temporary style. Built-in styling for link is terrible in dark mode.
+                            //  Replace if library updated with better defaults
+                            style = RichTextStyle(
+                                stringStyle = RichTextStringStyle(
+                                    linkStyle = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.inversePrimary)),
+                                ),
+                            ),
+                            children = { Markdown(content = review) },
+                        )
+                    }
+                }
 
                 else -> Text(
                     modifier = modifier,
