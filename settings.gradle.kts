@@ -34,6 +34,7 @@ include(
     "app",
     "fyers-api",
     "lightweight-charts",
+    "jcef-compose",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

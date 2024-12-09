@@ -152,6 +152,9 @@ kotlin {
 
             // Apache Commons Compress
             implementation(libs.apacheCommons.compress)
+
+            // JCEF Compose
+            implementation(projects.jcefCompose)
         }
 
         jvmTest.dependencies {

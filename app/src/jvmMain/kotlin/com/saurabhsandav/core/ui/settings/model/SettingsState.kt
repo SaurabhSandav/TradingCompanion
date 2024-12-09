@@ -15,5 +15,6 @@ internal data class SettingsState(
 
 enum class WebViewBackend {
     JavaFX,
-    JCEF;
+    JCEF,
+    JCEF_OSR;
 }

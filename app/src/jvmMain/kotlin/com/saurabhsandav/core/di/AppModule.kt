@@ -20,6 +20,7 @@ import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
+import com.saurabhsandav.core.ui.common.webview.ComposeCefRendering
 import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
@@ -138,7 +139,12 @@ internal class AppModule(
         }
 
         when (webViewBackend) {
-            WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value)
+            WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value, ComposeCefRendering.Windowed)
+            WebViewBackend.JCEF_OSR.name -> CefWebViewState(
+                appDispatchers = appDispatchers,
+                myCefApp = myCefApp.value,
+                rendering = ComposeCefRendering.OffScreen,
+            )
             WebViewBackend.JavaFX.name -> JavaFxWebViewState()
             else -> error("Invalid WebView Backend: $webViewBackend")
         }

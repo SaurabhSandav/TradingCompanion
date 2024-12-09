@@ -4,15 +4,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import com.jetbrains.cef.JCefAppConfig
+import com.saurabhsandav.core.LocalAppConfig
+import com.saurabhsandav.core.originalDensity
 import com.saurabhsandav.core.ui.common.AwtColor
 import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.libs.jcefcompose.ComposeCefOSRBrowser
+import com.saurabhsandav.libs.jcefcompose.WebView
+import com.saurabhsandav.libs.jcefcompose.createComposeOffScreenBrowser
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -40,6 +47,7 @@ import kotlin.system.exitProcess
 class CefWebViewState(
     private val appDispatchers: AppDispatchers,
     private val myCefApp: MyCefApp,
+    private val rendering: ComposeCefRendering,
 ) : WebViewState {
 
     private val browserProps = BrowserProps()
@@ -60,10 +68,30 @@ class CefWebViewState(
         }
 
         when {
-            isReady -> AppSwingPanel(
-                modifier = modifier,
-                factory = { browser.uiComponent },
-            )
+            isReady -> {
+                when (rendering) {
+                    ComposeCefRendering.Windowed -> {
+
+                        AppSwingPanel(
+                            modifier = modifier,
+                            factory = { browser.uiComponent },
+                        )
+                    }
+
+                    ComposeCefRendering.OffScreen -> {
+
+                        val appConfig = LocalAppConfig.current
+
+                        CompositionLocalProvider(LocalDensity provides appConfig.originalDensity()) {
+
+                            WebView(
+                                modifier = modifier,
+                                browser = browser as ComposeCefOSRBrowser,
+                            )
+                        }
+                    }
+                }
+            }
 
             else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
         }
@@ -73,7 +101,7 @@ class CefWebViewState(
 
         if (::browser.isInitialized) return
 
-        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
+        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps, rendering) }
     }
 
     override suspend fun awaitReady() = browserProps.isReady.await()
@@ -266,13 +294,22 @@ class MyCefApp(
         return client
     }
 
-    internal suspend fun createBrowser(browserProps: BrowserProps): CefBrowser = mutex.withLock {
+    internal suspend fun createBrowser(
+        browserProps: BrowserProps,
+        rendering: ComposeCefRendering,
+    ): CefBrowser = mutex.withLock {
 
-        val browser = getClient().createBrowser(
-            /* url = */ null,
-            /* rendering = */ CefRendering.DEFAULT,
-            /* isTransparent = */ true,
-        )
+        val client = getClient()
+
+        val browser = when (rendering) {
+            ComposeCefRendering.Windowed -> client.createBrowser(
+                /* url = */ null,
+                /* rendering = */ CefRendering.DEFAULT,
+                /* isTransparent = */ true,
+            )
+
+            ComposeCefRendering.OffScreen -> client.createComposeOffScreenBrowser()
+        }
 
         browserPropsMap[browser] = browserProps
 
@@ -324,4 +361,11 @@ internal abstract class CefJSCallback(
 ) : WebViewState.JSCallback {
 
     override val messages: Flow<String> = mutableSharedFlow.asSharedFlow()
+}
+
+sealed class ComposeCefRendering {
+
+    data object Windowed : ComposeCefRendering()
+
+    data object OffScreen : ComposeCefRendering()
 }
