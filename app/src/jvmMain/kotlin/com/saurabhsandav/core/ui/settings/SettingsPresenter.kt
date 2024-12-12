@@ -101,7 +101,7 @@ internal class SettingsPresenter(
         appPrefs.putString(PrefKeys.WebViewBackend, webViewBackend.name)
 
         if (webViewBackend == WebViewBackend.JavaFX && myCefApp.isInitialized()) {
-            myCefApp.value.disposeClient()
+            myCefApp.value.scheduleDisposeClient()
         }
     }
 

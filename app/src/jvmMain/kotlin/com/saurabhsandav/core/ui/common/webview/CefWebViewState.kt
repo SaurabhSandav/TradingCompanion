@@ -137,6 +137,7 @@ class MyCefApp(
 
     private val mutex = Mutex()
     private var client: CefClient? = null
+    private var clientDisposeScheduled = false
     private val browserPropsMap = mutableMapOf<CefBrowser, BrowserProps>()
 
     private suspend fun getInstance(): CefApp {
@@ -281,17 +282,28 @@ class MyCefApp(
     fun closeBrowser(browser: CefBrowser) {
         browser.close(false)
         browserPropsMap.remove(browser)
+
+        // If client dispose was scheduled and all browsers are closed, dispose client.
+        if (clientDisposeScheduled && browserPropsMap.isEmpty()) {
+            disposeClient()
+            clientDisposeScheduled = false
+        }
     }
 
-    fun disposeClient() {
+    private fun disposeClient() {
         client?.dispose()
         client = null
     }
 
-    fun dispose() {
-        disposeClient()
-        CefApp.getInstanceIfAny()?.dispose()
+    fun scheduleDisposeClient() {
+        // If browsers are open, wait until the last browser is closed.
+        when {
+            browserPropsMap.isEmpty() -> disposeClient()
+            else -> clientDisposeScheduled = true
+        }
     }
+
+    fun dispose() = CefApp.getInstanceIfAny()?.dispose()
 }
 
 internal class BrowserProps {
