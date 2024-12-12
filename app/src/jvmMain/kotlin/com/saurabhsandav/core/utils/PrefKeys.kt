@@ -5,6 +5,7 @@ object PrefKeys {
     const val DarkModeEnabled = "dark_mode_enabled"
     const val LandingScreen = "landing_screen"
     const val DensityFraction = "density_fraction"
+    const val WindowPlacement = "window_placement"
     const val DefaultTimeframe = "default_timeframe"
     const val WebViewBackend = "webview_backend"
     const val FyersAuthTokens = "fyers_auth_tokens"

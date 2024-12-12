@@ -94,7 +94,7 @@ fun rememberAppWindowState(
     titleTransform: ((String) -> String)? = null,
 ): AppWindowState {
 
-    val windowConfig = LocalAppWindowConfig.current
+    val appConfig = LocalAppConfig.current
 
     val state = remember {
 
@@ -102,7 +102,7 @@ fun rememberAppWindowState(
             windowState = WindowState(
                 placement = when {
                     forcePreferredPlacement -> preferredPlacement
-                    else -> windowConfig.windowPlacement ?: preferredPlacement
+                    else -> appConfig.windowPlacement ?: preferredPlacement
                 } ?: WindowPlacement.Floating,
                 size = size,
             ),
@@ -112,7 +112,7 @@ fun rememberAppWindowState(
     }
 
     LaunchedEffect(Unit) {
-        snapshotFlow { state.placement }.drop(1).collect { windowConfig.windowPlacement = it }
+        snapshotFlow { state.placement }.drop(1).collect { appConfig.windowPlacement = it }
     }
 
     return state
