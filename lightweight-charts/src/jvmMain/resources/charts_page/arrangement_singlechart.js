@@ -25,7 +25,7 @@ function prepareSingleChartContainer(chartId) {
   legendDiv.style.position = 'absolute';
   legendDiv.style.left = '12px';
   legendDiv.style.top = '12px';
-  legendDiv.style.zIndex = '10';
+  legendDiv.style.zIndex = '2';
   legendDiv.style.fontSize = '12px';
   legendDiv.style.lineHeight = '18px';
   legendDiv.style.fontWeight = '300';
