@@ -50,6 +50,9 @@ kotlin {
             // cryptography-kotlin
             implementation(libs.cryptography.core)
             implementation(libs.cryptography.provider.jdk)
+
+            // EitherNet
+            implementation(libs.eithernet)
         }
 
         jvmTest.dependencies {

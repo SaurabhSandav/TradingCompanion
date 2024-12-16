@@ -13,13 +13,10 @@ import kotlinx.serialization.json.*
 @Serializable(with = FyersSerializer::class)
 public data class FyersResponse<T>(
     val s: String?,
-    val code: Int?,
+    val code: Int,
     val message: String?,
     val result: T?,
 )
-
-public val FyersResponse<*>.isAuthError: Boolean
-    get() = code == -8
 
 internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<FyersResponse<T>> {
 
@@ -42,7 +39,7 @@ internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : 
 
         return FyersResponse(
             s = jsonObject["s"]?.jsonPrimitive?.content,
-            code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
+            code = jsonObject["code"]?.jsonPrimitive?.intOrNull!!,
             message = jsonObject["message"]?.jsonPrimitive?.content,
             result = when {
                 resultMap.isEmpty() -> null
@@ -54,5 +51,52 @@ internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : 
         )
     }
 }
+
+public fun FyersResponse<*>.getError(): FyersError = FyersError(FyersError.Type.fromCode(code), message.orEmpty())
+
+public data class FyersError(
+    public val type: Type,
+    public val message: String,
+) {
+
+    public enum class Type {
+        TokenExpired,
+        TokenInvalid,
+        TokenAuthFailed,
+        TokenInvalidOrExpired,
+        InvalidParameters,
+        InvalidOrderId,
+        InvalidPositionId,
+        OrderPlacementRejected,
+        InvalidSymbol,
+        InvalidAppId,
+        NoPositionToExit,
+        RateLimitExceeded,
+        MultiLegOrderInvalidInput;
+
+        public companion object {
+
+            public fun fromCode(code: Int): Type = when (code) {
+                -8 -> TokenExpired
+                -15 -> TokenInvalid
+                -16 -> TokenAuthFailed
+                -17 -> TokenInvalidOrExpired
+                -50 -> InvalidParameters
+                -51 -> InvalidOrderId
+                -53 -> InvalidPositionId
+                -99 -> OrderPlacementRejected
+                -300 -> InvalidSymbol
+                -352 -> InvalidAppId
+//            -352 -> NoPositionToExit
+                -429 -> RateLimitExceeded
+                -400 -> MultiLegOrderInvalidInput
+                else -> error("Fyers: Unexpected error code $code")
+            }
+        }
+    }
+}
+
+public val FyersError.isTokenExpired: Boolean
+    get() = type == FyersError.Type.TokenExpired
 
 private val FyersResponseCommonKeys = listOf("s", "code", "message")

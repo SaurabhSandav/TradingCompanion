@@ -5,6 +5,7 @@ import com.saurabhsandav.fyers_api.model.DateFormat
 import com.saurabhsandav.fyers_api.model.request.AuthValidationRequest
 import com.saurabhsandav.fyers_api.model.request.RefreshValidationRequest
 import com.saurabhsandav.fyers_api.model.response.*
+import com.slack.eithernet.ApiResult
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.SHA256
 import io.ktor.client.*
@@ -14,7 +15,9 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.json.Json
+import java.io.IOException
 
 public class FyersApi {
 
@@ -42,7 +45,9 @@ public class FyersApi {
         }.buildString()
     }
 
-    public suspend fun validateLogin(redirectUrl: String): FyersResponse<AuthValidationResult> {
+    public suspend fun validateLogin(
+        redirectUrl: String,
+    ): ApiResult<AuthValidationResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
@@ -53,18 +58,18 @@ public class FyersApi {
             code = Url(redirectUrl).parameters["auth_code"] ?: error("Invalid redirectionUrl"),
         )
 
-        val response = client.post("https://api-t1.fyers.in/api/v3/validate-authcode") {
+        return client.runRequestAndGetApiResult {
+            method = HttpMethod.Post
+            url("https://api-t1.fyers.in/api/v3/validate-authcode")
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }
-
-        return response.body()
     }
 
     public suspend fun refreshLogin(
         refreshToken: String,
         pin: String,
-    ): FyersResponse<RefreshValidationResult> {
+    ): ApiResult<RefreshValidationResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
@@ -76,26 +81,26 @@ public class FyersApi {
             pin = pin,
         )
 
-        val response = client.post("https://api-t1.fyers.in/api/v3/validate-refresh-token") {
+        return client.runRequestAndGetApiResult {
+            method = HttpMethod.Post
+            url("https://api-t1.fyers.in/api/v3/validate-refresh-token")
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }
-
-        return response.body()
     }
 
     public suspend fun getProfile(
         accessToken: String,
-    ): FyersResponse<ProfileResult> {
+    ): ApiResult<ProfileResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api-t1.fyers.in/api/v3/profile") {
+        return client.runRequestAndGetApiResult {
+            method = HttpMethod.Get
+            url("https://api-t1.fyers.in/api/v3/profile")
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
         }
-
-        return response.body()
     }
 
     public suspend fun getHistoricalCandles(
@@ -105,12 +110,14 @@ public class FyersApi {
         dateFormat: DateFormat,
         rangeFrom: String,
         rangeTo: String,
-    ): FyersResponse<HistoricalCandlesResult> {
+    ): ApiResult<HistoricalCandlesResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api-t1.fyers.in/data/history") {
+        return client.runRequestAndGetApiResult {
+            method = HttpMethod.Get
+            url("https://api-t1.fyers.in/data/history")
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
             parameter("symbol", symbol)
             parameter("resolution", resolution.strValue)
@@ -119,27 +126,46 @@ public class FyersApi {
             parameter("range_to", rangeTo)
             parameter("cont_flag", "")
         }
-
-        return response.body()
     }
 
     public suspend fun getQuotes(
         accessToken: String,
         symbols: List<String>,
-    ): FyersResponse<Quotes> {
+    ): ApiResult<Quotes, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
 
-        val response = client.get("https://api-t1.fyers.in/data/quotes") {
+        return client.runRequestAndGetApiResult {
+            method = HttpMethod.Get
+            url("https://api-t1.fyers.in/data/quotes")
             header("Authorization", "${BuildKonfig.FYERS_APP_ID}:$accessToken")
             parameter("symbols", symbols.joinToString(","))
         }
-
-        return response.body()
     }
 
     private suspend fun String.sha256(): String {
         return CryptographyProvider.Default.get(SHA256).hasher().hash(encodeToByteArray()).toHexString()
+    }
+
+    private suspend inline fun <reified T : Any> HttpClient.runRequestAndGetApiResult(
+        block: HttpRequestBuilder.() -> Unit,
+    ): ApiResult<T, FyersError> = try {
+
+        val response = request(block)
+        val responseCode = response.status.value
+        val fyersResponse = response.body<FyersResponse<T>>()
+
+        when {
+            responseCode in 400..599 -> ApiResult.httpFailure(responseCode, fyersResponse.getError())
+            response.status.isSuccess() && fyersResponse.code != 200 -> ApiResult.apiFailure(fyersResponse.getError())
+            response.status.isSuccess() -> ApiResult.success(fyersResponse.result!!)
+            else -> ApiResult.apiFailure()
+        }
+    } catch (e: IOException) {
+        ApiResult.networkFailure(e)
+    } catch (e: Exception) {
+        ensureActive()
+        ApiResult.unknownFailure(e)
     }
 }

@@ -140,6 +140,9 @@ kotlin {
 
             // JCEF Compose
             implementation(projects.jcefCompose)
+
+            // EitherNet
+            implementation(libs.eithernet)
         }
 
         jvmTest.dependencies {

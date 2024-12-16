@@ -20,7 +20,9 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyers_api.FyersApi
-import com.saurabhsandav.fyers_api.model.response.isAuthError
+import com.slack.eithernet.ApiResult
+import com.slack.eithernet.ApiResult.Failure.*
+import com.slack.eithernet.successOrNull
 import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -64,7 +66,7 @@ internal class FyersLoginService private constructor(
         val authTokens = getAuthTokensFromPrefs(appPrefs).first()
 
         suspend fun isLoggedIn(authTokens: FyersAuthTokens): Boolean {
-            return !fyersApi.getProfile(authTokens.accessToken).isAuthError
+            return fyersApi.getProfile(authTokens.accessToken).successOrNull() != null
         }
 
         Logger.d(DebugTag) { "Checking login status" }
@@ -155,15 +157,14 @@ internal class FyersLoginService private constructor(
 
         Logger.d(DebugTag) { "Initiating login stage 2 (Login Validation)" }
 
-        val response = fyersApi.validateLogin(redirectUrl)
+        val result = fyersApi.validateLogin(redirectUrl)
 
-        when (val result = response.result) {
-            null -> onLoginCancelled(response.message)
-            else -> {
+        when (result) {
+            is ApiResult.Success -> {
 
                 val authTokens = FyersAuthTokens(
-                    accessToken = result.accessToken,
-                    refreshToken = result.refreshToken,
+                    accessToken = result.value.accessToken,
+                    refreshToken = result.value.refreshToken,
                     initialLoginInstant = Clock.System.now(),
                 )
 
@@ -173,6 +174,11 @@ internal class FyersLoginService private constructor(
 
                 Logger.d(DebugTag) { "Login successful" }
             }
+
+            is ApiFailure -> onLoginCancelled(result.error?.message)
+            is HttpFailure -> onLoginCancelled(result.error?.message)
+            is NetworkFailure -> onLoginCancelled(result.error.message)
+            is UnknownFailure -> onLoginCancelled(result.error.message)
         }
     }
 
@@ -184,31 +190,39 @@ internal class FyersLoginService private constructor(
 
         loginState = LoginState.RefreshLogin(pin)
 
-        val refreshResponse = fyersApi.refreshLogin(
+        val result = fyersApi.refreshLogin(
             refreshToken = authTokens.refreshToken,
             pin = pin.await(),
         )
 
-        when (val result = refreshResponse.result) {
-            // Refresh failed. Login again
-            null -> {
+        when (result) {
+            is ApiResult.Success -> {
 
-                saveAuthTokensToPrefs(appPrefs, null)
-
-                loginStage1(reLogin = true)
-
-                Logger.d(DebugTag) { "Refresh login failed" }
-            }
-            // Refresh succeeded. Update access token
-            else -> {
-
-                val refreshedAuthTokens = authTokens.copy(accessToken = result.accessToken)
+                val refreshedAuthTokens = authTokens.copy(accessToken = result.value.accessToken)
 
                 saveAuthTokensToPrefs(appPrefs, refreshedAuthTokens)
 
                 resultHandle.onSuccess()
 
                 Logger.d(DebugTag) { "Refresh login successful" }
+            }
+
+            is ApiResult.Failure -> {
+
+                when (result) {
+                    is ApiFailure -> {
+
+                        saveAuthTokensToPrefs(appPrefs, null)
+
+                        loginStage1(reLogin = true)
+                    }
+
+                    is HttpFailure -> onLoginCancelled(result.error?.message)
+                    is NetworkFailure -> onLoginCancelled(result.error.message)
+                    is UnknownFailure -> onLoginCancelled(result.error.message)
+                }
+
+                Logger.d(DebugTag) { "Refresh login failed" }
             }
         }
     }

@@ -12,9 +12,13 @@ import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
 import com.saurabhsandav.fyers_api.FyersApi
 import com.saurabhsandav.fyers_api.model.CandleResolution
 import com.saurabhsandav.fyers_api.model.DateFormat
-import com.saurabhsandav.fyers_api.model.response.FyersResponse
+import com.saurabhsandav.fyers_api.model.response.FyersError
 import com.saurabhsandav.fyers_api.model.response.HistoricalCandlesResult
-import com.saurabhsandav.fyers_api.model.response.isAuthError
+import com.saurabhsandav.fyers_api.model.response.isTokenExpired
+import com.slack.eithernet.ApiResult
+import com.slack.eithernet.ApiResult.Failure
+import com.slack.eithernet.ApiResult.Success
+import com.slack.eithernet.successOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Instant
@@ -31,7 +35,7 @@ internal class FyersCandleDownloader(
             if (authTokens == null) return@map false
 
             // Check if access token expired
-            !fyersApi.getProfile(authTokens.accessToken).isAuthError
+            fyersApi.getProfile(authTokens.accessToken).successOrNull() != null
         }
         .shareIn(
             scope = coroutineScope,
@@ -105,13 +109,12 @@ internal class FyersCandleDownloader(
         }
     }
 
-    private fun FyersResponse<HistoricalCandlesResult>.toResult(): Result<List<Candle>, CandleDownloader.Error> {
-        return when (val result = result) {
-            null if isAuthError -> Err(CandleDownloader.Error.AuthError(message))
-            null -> Err(CandleDownloader.Error.UnknownError(message ?: "Unknown Error"))
-            else -> {
+    private fun ApiResult<HistoricalCandlesResult, FyersError>.toResult(): Result<List<Candle>, CandleDownloader.Error> {
 
-                val candles = result.candles.map { candle ->
+        return when (this) {
+            is Success -> {
+
+                val candles = value.candles.map { candle ->
                     Candle(
                         openInstant = Instant.fromEpochSeconds(candle[0].toLong()),
                         open = candle[1].toBigDecimal(),
@@ -124,6 +127,15 @@ internal class FyersCandleDownloader(
 
                 Ok(candles)
             }
+
+            is Failure.ApiFailure -> when {
+                error?.isTokenExpired == true -> Err(CandleDownloader.Error.AuthError(error?.message))
+                else -> Err(CandleDownloader.Error.AuthError(error?.message ?: "Unknown Error"))
+            }
+
+            is Failure.HttpFailure -> Err(CandleDownloader.Error.UnknownError(error?.message ?: "Unknown Error"))
+            is Failure.NetworkFailure -> Err(CandleDownloader.Error.UnknownError(error.message ?: "Unknown Error"))
+            is Failure.UnknownFailure -> Err(CandleDownloader.Error.UnknownError(error.message ?: "Unknown Error"))
         }
     }
 }
