@@ -7,10 +7,10 @@
   "packageRules": [
     {
       "groupName": "JavaFX",
-      "matchPackagePrefixes": [
-        "org.openjfx"
-      ],
-      "allowedVersions": "!/ea/"
+      "allowedVersions": "!/ea/",
+      "matchPackageNames": [
+        "org.openjfx{/,}**"
+      ]
     }
   ]
 }
