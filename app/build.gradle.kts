@@ -15,11 +15,8 @@ version = "1.0-SNAPSHOT"
 
 configurations.configureEach {
 
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("org.jetbrains.compose.material:material"))
-            .using(module("org.jetbrains.compose.material3:material3:${libs.versions.jetbrainsCompose.get()}"))
-            .because("Material 3 is newer")
-    }
+    // App doesn't use Material. Don't want suggestions in autocomplete.
+    exclude("org.jetbrains.compose.material", "material")
 }
 
 kotlin {
