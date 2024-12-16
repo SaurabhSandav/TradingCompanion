@@ -65,11 +65,13 @@ val FYERS_APP_ID: String? by project
 @Suppress("PropertyName")
 val FYERS_SECRET: String? by project
 
+val isInCI = providers.environmentVariable("CI").isPresent
+
 buildkonfig {
     packageName = "com.saurabhsandav.fyers_api"
 
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "FYERS_APP_ID", FYERS_APP_ID)
-        buildConfigField(FieldSpec.Type.STRING, "FYERS_SECRET", FYERS_SECRET)
+        buildConfigField(FieldSpec.Type.STRING, "FYERS_APP_ID", if (isInCI) "" else FYERS_APP_ID)
+        buildConfigField(FieldSpec.Type.STRING, "FYERS_SECRET", if (isInCI) "" else FYERS_SECRET)
     }
 }
