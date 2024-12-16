@@ -3,5 +3,14 @@
   "prHourlyLimit": 0,
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "groupName": "JavaFX",
+      "matchPackagePrefixes": [
+        "org.openjfx"
+      ],
+      "allowedVersions": "!/ea/"
+    }
   ]
 }
