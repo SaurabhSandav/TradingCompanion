@@ -10,7 +10,7 @@ kotlinx-serialization = "1.7.3"
 kotlinx-datetime = "0.6.1"
 kotlinx-collectionsImmutable = "0.3.8"
 jetbrainsCompose = "1.7.1"
-ktor = "3.0.2"
+ktor = "3.0.3"
 
 # Jetpack
 jetpack-datastore = "1.1.1"
