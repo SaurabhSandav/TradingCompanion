@@ -3,18 +3,5 @@
   "prHourlyLimit": 0,
   "extends": [
     "config:recommended"
-  ],
-  "packageRules": [
-    {
-      "matchPackageNames": [
-        "org.openjfx:javafx-base",
-        "org.openjfx:javafx-controls",
-        "org.openjfx:javafx-graphics",
-        "org.openjfx:javafx-media",
-        "org.openjfx:javafx-swing",
-        "org.openjfx:javafx-web"
-      ],
-      "allowedVersions": "!/.*ea.*/"
-    }
   ]
 }

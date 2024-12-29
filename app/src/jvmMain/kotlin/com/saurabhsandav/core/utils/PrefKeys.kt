@@ -7,7 +7,6 @@ object PrefKeys {
     const val DensityFraction = "density_fraction"
     const val WindowPlacement = "window_placement"
     const val DefaultTimeframe = "default_timeframe"
-    const val WebViewBackend = "webview_backend"
     const val FyersAuthTokens = "fyers_auth_tokens"
     const val CurrentTradingProfile = "current_trading_profile"
     const val ReplayFormModel = "replay_form_model"

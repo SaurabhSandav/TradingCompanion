@@ -22,7 +22,6 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
-import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.theme.dimens
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
@@ -52,8 +51,6 @@ internal fun SettingsWindow(
             onDensityFractionChange = { state.eventSink(ChangeDensityFraction(it)) },
             defaultTimeframe = state.defaultTimeframe,
             onDefaultTimeframeChange = { state.eventSink(ChangeDefaultTimeframe(it)) },
-            webViewBackend = state.webViewBackend,
-            onWebViewBackendChange = { state.eventSink(ChangeWebViewBackend(it)) },
             backupProgress = state.backupProgress,
             onBackup = { toDirPath -> state.eventSink(Backup(toDirPath)) },
             onRestore = { archivePath -> state.eventSink(Restore(archivePath)) },
@@ -71,8 +68,6 @@ internal fun SettingsScreen(
     onDensityFractionChange: (Float) -> Unit,
     defaultTimeframe: Timeframe,
     onDefaultTimeframeChange: (Timeframe) -> Unit,
-    webViewBackend: WebViewBackend,
-    onWebViewBackendChange: (WebViewBackend) -> Unit,
     backupProgress: String?,
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
@@ -106,12 +101,6 @@ internal fun SettingsScreen(
                 items = remember { enumValues<Timeframe>().toList() },
                 selectedItem = defaultTimeframe,
                 onDefaultTimeframeChange = onDefaultTimeframeChange,
-            )
-
-            WebViewBackendPreference(
-                items = remember { enumValues<WebViewBackend>().toList() },
-                selectedItem = webViewBackend,
-                onWebViewBackendChange = onWebViewBackendChange,
             )
 
             BackupPreference(
@@ -246,27 +235,6 @@ private fun DefaultTimeframePreference(
                 itemText = { it.toLabel() },
                 selection = selectedItem,
                 onSelection = onDefaultTimeframeChange,
-            )
-        },
-    )
-}
-
-@Composable
-private fun WebViewBackendPreference(
-    items: List<WebViewBackend>,
-    selectedItem: WebViewBackend,
-    onWebViewBackendChange: (WebViewBackend) -> Unit,
-) {
-
-    Preference(
-        headlineContent = { Text("WebView Backend") },
-        trailingContent = {
-
-            OutlinedListSelectionField(
-                items = items,
-                itemText = { it.name },
-                selection = selectedItem,
-                onSelection = { if (selectedItem != it) onWebViewBackendChange(it) },
             )
         },
     )

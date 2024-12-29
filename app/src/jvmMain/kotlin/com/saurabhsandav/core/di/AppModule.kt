@@ -20,19 +20,22 @@ import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.*
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
-import com.saurabhsandav.core.ui.common.webview.ComposeCefRendering
-import com.saurabhsandav.core.ui.common.webview.JavaFxWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
-import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
-import com.saurabhsandav.core.utils.*
+import com.saurabhsandav.core.utils.AppDispatchers
+import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.core.utils.DbUrlProvider
+import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.fyers_api.FyersApi
-import kotlinx.coroutines.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
 import java.util.*
 
@@ -132,23 +135,7 @@ internal class AppModule(
 
     val myCefApp = lazy { MyCefApp(appPaths) }
 
-    val webViewStateProvider = {
-
-        val webViewBackend = runBlocking {
-            appPrefs.getString(PrefKeys.WebViewBackend, WebViewBackend.JCEF.name)
-        }
-
-        when (webViewBackend) {
-            WebViewBackend.JCEF.name -> CefWebViewState(appDispatchers, myCefApp.value, ComposeCefRendering.Windowed)
-            WebViewBackend.JCEF_OSR.name -> CefWebViewState(
-                appDispatchers = appDispatchers,
-                myCefApp = myCefApp.value,
-                rendering = ComposeCefRendering.OffScreen,
-            )
-            WebViewBackend.JavaFX.name -> JavaFxWebViewState()
-            else -> error("Invalid WebView Backend: $webViewBackend")
-        }
-    }
+    val webViewStateProvider = { CefWebViewState(appDispatchers, myCefApp.value) }
 
     val loginServicesManager by lazy { LoginServicesManager() }
 

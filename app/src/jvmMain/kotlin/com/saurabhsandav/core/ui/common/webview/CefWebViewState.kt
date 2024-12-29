@@ -13,7 +13,6 @@ import com.jetbrains.cef.JCefAppConfig
 import com.saurabhsandav.core.LocalAppConfig
 import com.saurabhsandav.core.originalDensity
 import com.saurabhsandav.core.ui.common.AwtColor
-import com.saurabhsandav.core.ui.common.app.AppSwingPanel
 import com.saurabhsandav.core.ui.common.webview.WebViewState.LoadState
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
@@ -35,7 +34,6 @@ import org.cef.CefClient
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.browser.CefMessageRouter
-import org.cef.browser.CefRendering
 import org.cef.callback.CefContextMenuParams
 import org.cef.callback.CefMenuModel
 import org.cef.callback.CefQueryCallback
@@ -47,7 +45,6 @@ import kotlin.system.exitProcess
 class CefWebViewState(
     private val appDispatchers: AppDispatchers,
     private val myCefApp: MyCefApp,
-    private val rendering: ComposeCefRendering,
 ) : WebViewState {
 
     private val browserProps = BrowserProps()
@@ -69,27 +66,15 @@ class CefWebViewState(
 
         when {
             isReady -> {
-                when (rendering) {
-                    ComposeCefRendering.Windowed -> {
 
-                        AppSwingPanel(
-                            modifier = modifier,
-                            factory = { browser.uiComponent },
-                        )
-                    }
+                val appConfig = LocalAppConfig.current
 
-                    ComposeCefRendering.OffScreen -> {
+                CompositionLocalProvider(LocalDensity provides appConfig.originalDensity()) {
 
-                        val appConfig = LocalAppConfig.current
-
-                        CompositionLocalProvider(LocalDensity provides appConfig.originalDensity()) {
-
-                            WebView(
-                                modifier = modifier,
-                                browser = browser as ComposeCefOSRBrowser,
-                            )
-                        }
-                    }
+                    WebView(
+                        modifier = modifier,
+                        browser = browser as ComposeCefOSRBrowser,
+                    )
                 }
             }
 
@@ -101,7 +86,7 @@ class CefWebViewState(
 
         if (::browser.isInitialized) return
 
-        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps, rendering) }
+        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
     }
 
     override suspend fun awaitReady() = browserProps.isReady.await()
@@ -165,7 +150,6 @@ class MyCefApp(
 
     private val mutex = Mutex()
     private var client: CefClient? = null
-    private var clientDisposeScheduled = false
     private val browserPropsMap = mutableMapOf<CefBrowser, BrowserProps>()
 
     private suspend fun getInstance(): CefApp {
@@ -296,20 +280,10 @@ class MyCefApp(
 
     internal suspend fun createBrowser(
         browserProps: BrowserProps,
-        rendering: ComposeCefRendering,
     ): CefBrowser = mutex.withLock {
 
         val client = getClient()
-
-        val browser = when (rendering) {
-            ComposeCefRendering.Windowed -> client.createBrowser(
-                /* url = */ null,
-                /* rendering = */ CefRendering.DEFAULT,
-                /* isTransparent = */ true,
-            )
-
-            ComposeCefRendering.OffScreen -> client.createComposeOffScreenBrowser()
-        }
+        val browser = client.createComposeOffScreenBrowser()
 
         browserPropsMap[browser] = browserProps
 
@@ -320,24 +294,13 @@ class MyCefApp(
         browser.close(false)
         browserPropsMap.remove(browser)
 
-        // If client dispose was scheduled and all browsers are closed, dispose client.
-        if (clientDisposeScheduled && browserPropsMap.isEmpty()) {
-            disposeClient()
-            clientDisposeScheduled = false
-        }
+        // If all browsers are closed, dispose client.
+        if (browserPropsMap.isEmpty()) disposeClient()
     }
 
     private fun disposeClient() {
         client?.dispose()
         client = null
-    }
-
-    fun scheduleDisposeClient() {
-        // If browsers are open, wait until the last browser is closed.
-        when {
-            browserPropsMap.isEmpty() -> disposeClient()
-            else -> clientDisposeScheduled = true
-        }
     }
 
     fun dispose() = CefApp.getInstanceIfAny()?.dispose()
@@ -361,11 +324,4 @@ internal abstract class CefJSCallback(
 ) : WebViewState.JSCallback {
 
     override val messages: Flow<String> = mutableSharedFlow.asSharedFlow()
-}
-
-sealed class ComposeCefRendering {
-
-    data object Windowed : ComposeCefRendering()
-
-    data object OffScreen : ComposeCefRendering()
 }

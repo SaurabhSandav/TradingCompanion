@@ -27,7 +27,6 @@ kotlinCsv = "1.9.3"
 kotlinResult = "2.0.1"
 appdirs = "1.3.0"
 buildKonfig = "0.16.0"
-openjfx = "23.0.1"
 filekit = "0.8.8"
 clikt = "5.0.3"
 colorpickerCompose = "1.1.2"
@@ -113,14 +112,6 @@ kotlinResult-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-resu
 
 # AppDirs
 appdirs = { module = "net.harawata:appdirs", version.ref = "appdirs" }
-
-# JavaFX
-javafx-base = { module = "org.openjfx:javafx-base", version.ref = "openjfx" }
-javafx-controls = { module = "org.openjfx:javafx-controls", version.ref = "openjfx" }
-javafx-graphics = { module = "org.openjfx:javafx-graphics", version.ref = "openjfx" }
-javafx-media = { module = "org.openjfx:javafx-media", version.ref = "openjfx" }
-javafx-swing = { module = "org.openjfx:javafx-swing", version.ref = "openjfx" }
-javafx-web = { module = "org.openjfx:javafx-web", version.ref = "openjfx" }
 
 # FileKit
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }

@@ -106,21 +106,6 @@ kotlin {
             // kotlin-csv
             implementation(libs.kotlinCsvJvm)
 
-            // JavaFx
-            fun Provider<MinimalExternalModuleDependency>.linuxVariant() = map {
-                project.dependencies.create(it, closureOf<ExternalModuleDependency> {
-                    artifact {
-                        classifier = "linux"
-                    }
-                })
-            }
-            implementation(libs.javafx.base.linuxVariant())
-            implementation(libs.javafx.controls.linuxVariant())
-            implementation(libs.javafx.graphics.linuxVariant())
-            implementation(libs.javafx.media.linuxVariant())
-            implementation(libs.javafx.swing.linuxVariant())
-            implementation(libs.javafx.web.linuxVariant())
-
             // kotlin-result
             implementation(libs.kotlinResult)
             implementation(libs.kotlinResult.coroutines)
@@ -252,10 +237,6 @@ compose {
                     "java.sql",
                     // Datastore
                     "jdk.unsupported",
-                    // JavaFX
-                    "jdk.jsobject",
-                    "jdk.unsupported.desktop",
-                    "java.net.http",
                     // JCEF
                     "jcef",
                     // FileKit

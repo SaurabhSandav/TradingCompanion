@@ -8,12 +8,10 @@ import com.saurabhsandav.core.backup.BackupEvent
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.*
 import com.saurabhsandav.core.ui.settings.model.SettingsState
-import com.saurabhsandav.core.ui.settings.model.WebViewBackend
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -24,7 +22,6 @@ import kotlin.io.path.Path
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
-    private val myCefApp: Lazy<MyCefApp>,
     private val backupManager: BackupManager,
     private val restoreScheduler: RestoreScheduler,
 ) {
@@ -51,17 +48,11 @@ internal class SettingsPresenter(
                 .map { kotlin.runCatching { Timeframe.valueOf(it) }.getOrNull() ?: PrefDefaults.DefaultTimeframe }
         }.collectAsState(PrefDefaults.DefaultTimeframe)
 
-        val webViewBackend by remember {
-            appPrefs.getStringFlow(PrefKeys.WebViewBackend, PrefDefaults.WebViewBackend.name)
-                .map { kotlin.runCatching { WebViewBackend.valueOf(it) }.getOrNull() ?: PrefDefaults.WebViewBackend }
-        }.collectAsState(PrefDefaults.WebViewBackend)
-
         return@launchMolecule SettingsState(
             darkModeEnabled = darkModeEnabled,
             landingScreen = landingScreen,
             densityFraction = densityFraction,
             defaultTimeframe = defaultTimeframe,
-            webViewBackend = webViewBackend,
             backupProgress = backupProgress,
             eventSink = ::onEvent,
         )
@@ -74,7 +65,6 @@ internal class SettingsPresenter(
             is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
             is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
             is ChangeDefaultTimeframe -> onDefaultTimeframeChange(event.timeframe)
-            is ChangeWebViewBackend -> onWebViewBackendChange(event.webViewBackend)
             is Backup -> onBackup(event.toDirPath)
             is Restore -> onRestore(event.archivePath)
         }
@@ -94,15 +84,6 @@ internal class SettingsPresenter(
 
     private fun onDefaultTimeframeChange(defaultTimeframe: Timeframe) = coroutineScope.launchUnit {
         appPrefs.putString(PrefKeys.DefaultTimeframe, defaultTimeframe.name)
-    }
-
-    private fun onWebViewBackendChange(webViewBackend: WebViewBackend) = coroutineScope.launchUnit {
-
-        appPrefs.putString(PrefKeys.WebViewBackend, webViewBackend.name)
-
-        if (webViewBackend == WebViewBackend.JavaFX && myCefApp.isInitialized()) {
-            myCefApp.value.scheduleDisposeClient()
-        }
     }
 
     private fun onBackup(toDirPath: String) = coroutineScope.launchUnit {
