@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.landing.ui
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 
@@ -36,18 +35,14 @@ internal fun LandingNavigationRail(
 
         landingItems.forEach { screen ->
 
-            TooltipArea(
-                tooltip = {
+            val tooltipText = when {
+                screen == LandingState.LandingScreen.Trades
+                        && openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
 
-                    val text = when {
-                        screen == LandingState.LandingScreen.Trades
-                                && openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
-                        else -> screen.title
-                    }
+                else -> screen.title
+            }
 
-                    Tooltip(text)
-                },
-            ) {
+            SimpleTooltipBox(tooltipText) {
 
                 NavigationRailItem(
                     icon = {
@@ -79,15 +74,16 @@ internal fun LandingNavigationRail(
 
         HorizontalDivider(Modifier.align(Alignment.CenterHorizontally).width(64.dp))
 
-        NavigationRailItem(
-            icon = { Icon(Icons.Default.SwitchAccount, contentDescription = "Profiles") },
-            selected = false,
-            onClick = onOpenProfiles,
-        )
+        SimpleTooltipBox("Profiles") {
 
-        TooltipArea(
-            tooltip = { Tooltip("Charts") },
-        ) {
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.SwitchAccount, contentDescription = "Profiles") },
+                selected = false,
+                onClick = onOpenProfiles,
+            )
+        }
+
+        SimpleTooltipBox("Charts") {
 
             NavigationRailItem(
                 icon = { Icon(Icons.Filled.CandlestickChart, contentDescription = "Charts") },
@@ -96,9 +92,7 @@ internal fun LandingNavigationRail(
             )
         }
 
-        TooltipArea(
-            tooltip = { Tooltip("PNL Calculator") },
-        ) {
+        SimpleTooltipBox("PNL Calculator") {
 
             NavigationRailItem(
                 icon = { Icon(Icons.Filled.Calculate, contentDescription = "PNL Calculator") },
@@ -107,9 +101,7 @@ internal fun LandingNavigationRail(
             )
         }
 
-        TooltipArea(
-            tooltip = { Tooltip("Bar Replay") },
-        ) {
+        SimpleTooltipBox("Bar Replay") {
 
             NavigationRailItem(
                 icon = { Icon(Icons.Filled.Replay, contentDescription = "Bar Replay") },
@@ -118,9 +110,7 @@ internal fun LandingNavigationRail(
             )
         }
 
-        TooltipArea(
-            tooltip = { Tooltip("Settings") },
-        ) {
+        SimpleTooltipBox("Settings") {
 
             NavigationRailItem(
                 icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },

@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.stats.studies
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.HorizontalDivider
@@ -25,7 +24,7 @@ import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
@@ -67,17 +66,15 @@ internal class PNLExcursionStudy(
                     pnl.text { "PNL" }
                     excursionsInTrade {
 
-                        TooltipArea(
-                            tooltip = { Tooltip("Excursions In Trade") },
-                            content = { Text("In Trade") },
-                        )
+                        SimpleTooltipBox("Excursions In Trade") {
+                            Text("In Trade")
+                        }
                     }
                     excursionsInSession {
 
-                        TooltipArea(
-                            tooltip = { Tooltip("Excursions In Session") },
-                            content = { Text("In Session") },
-                        )
+                        SimpleTooltipBox("Excursions In Session") {
+                            Text("In Session")
+                        }
                     }
                 }
             },

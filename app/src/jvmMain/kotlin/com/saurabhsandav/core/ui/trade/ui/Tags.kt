@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -15,7 +14,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
-import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.state
@@ -65,9 +64,9 @@ internal fun Tags(
 
                     var confirmRemove by state { false }
 
-                    TooltipArea(
+                    SimpleTooltipBox(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        tooltip = { if (tag.description != null) Tooltip(tag.description) },
+                        tooltipText = tag.description,
                     ) {
 
                         InputChip(
@@ -157,26 +156,19 @@ private fun AddTagButton(
 
             filteredTags.forEach { tag ->
 
-                TooltipArea(
-                    tooltip = {
+                SimpleTooltipBox(tag.description) {
 
-                        if (tag.description != null)
-                            Tooltip(tag.description)
-                    },
-                    content = {
-
-                        DropdownMenuItem(
-                            text = { Text(tag.name) },
-                            trailingIcon = tag.color?.let {
-                                { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
-                            },
-                            onClick = {
-                                expanded = false
-                                onAddTag(tag.id)
-                            },
-                        )
-                    }
-                )
+                    DropdownMenuItem(
+                        text = { Text(tag.name) },
+                        trailingIcon = tag.color?.let {
+                            { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
+                        },
+                        onClick = {
+                            expanded = false
+                            onAddTag(tag.id)
+                        },
+                    )
+                }
             }
         }
     }

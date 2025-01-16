@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.trade.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -131,10 +130,9 @@ private fun TradeExecutionItem(
 
                     if (!item.locked) {
 
-                        TooltipArea(
-                            tooltip = { Tooltip("Not locked") },
-                            content = { Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked") },
-                        )
+                        SimpleTooltipBox("Not locked") {
+                            Icon(Icons.Default.LockOpen, contentDescription = "Execution not locked")
+                        }
                     }
                 }
                 quantity.text { item.quantity }

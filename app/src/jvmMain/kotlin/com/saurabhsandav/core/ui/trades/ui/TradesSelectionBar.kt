@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.trades.ui
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -140,26 +139,19 @@ private fun AddTagContainer(
 
             filteredTags.forEach { tag ->
 
-                TooltipArea(
-                    tooltip = {
+                SimpleTooltipBox(tag.description) {
 
-                        if (tag.description != null)
-                            Tooltip(tag.description)
-                    },
-                    content = {
-
-                        DropdownMenuItem(
-                            text = { Text(tag.name) },
-                            trailingIcon = tag.color?.let {
-                                { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
-                            },
-                            onClick = {
-                                onDismissRequest()
-                                onAddTag(tag.id)
-                            },
-                        )
-                    },
-                )
+                    DropdownMenuItem(
+                        text = { Text(tag.name) },
+                        trailingIcon = tag.color?.let {
+                            { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            onAddTag(tag.id)
+                        },
+                    )
+                }
             }
         }
     }

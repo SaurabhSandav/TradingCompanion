@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowScope
@@ -13,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.Tooltip
+import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
@@ -48,9 +47,9 @@ fun ChipsSelectorSelectedItem(
     modifier: Modifier = Modifier,
 ) {
 
-    TooltipArea(
+    SimpleTooltipBox(
         modifier = modifier,
-        tooltip = { if (description != null) Tooltip(description) },
+        tooltipText = description,
     ) {
 
         InputChip(
