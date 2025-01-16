@@ -78,8 +78,8 @@ private fun setWM_CLASS() {
             isAccessible = true
             set(xToolkit, "Trading Companion")
         }
-    } catch (e: Exception) {
-        Logger.d(e) { "Could not set WM_CLASS" }
+    } catch (_: Exception) {
+        Logger.d { "Could not set WM_CLASS" }
     }
 }
 
