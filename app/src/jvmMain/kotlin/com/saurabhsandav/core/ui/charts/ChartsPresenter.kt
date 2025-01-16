@@ -1,18 +1,17 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
-import com.saurabhsandav.core.ui.charts.model.ChartsEvent.*
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.MarkTrades
+import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.charts.model.ChartsState
 import com.saurabhsandav.core.ui.common.UIMessageDuration
+import com.saurabhsandav.core.ui.common.UIMessageResult
 import com.saurabhsandav.core.ui.common.UIMessagesState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
@@ -54,7 +53,6 @@ internal class ChartsPresenter(
             loadConfig = LoadConfig(initialLoadBefore = { Clock.System.now() }),
         )
     }
-    private var showCandleDataLoginConfirmation by mutableStateOf(false)
 
     init {
         loginFlowLauncher()
@@ -64,7 +62,6 @@ internal class ChartsPresenter(
 
         return@launchMolecule ChartsState(
             chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
-            showCandleDataLoginConfirmation = showCandleDataLoginConfirmation,
             eventSink = ::onEvent,
         )
     }
@@ -74,8 +71,6 @@ internal class ChartsPresenter(
         when (event) {
             is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
             is MarkTrades -> onMarkTrades(event.tradeIds)
-            CandleDataLoginConfirmed -> onCandleDataLoginConfirmed()
-            CandleDataLoginDeclined -> onCandleDataLoginDeclined()
         }
     }
 
@@ -139,38 +134,39 @@ internal class ChartsPresenter(
         markersProvider.setMarkedTrades(tradeIds)
     }
 
-    private fun onCandleDataLoginConfirmed() {
-
-        showCandleDataLoginConfirmation = false
-
-        loginServicesManager.addService(
-            serviceBuilder = FyersLoginService.Builder(
-                appDispatchers = appDispatchers,
-                fyersApi = fyersApi,
-                appPrefs = appPrefs,
-            ),
-            resultHandle = ResultHandle(
-                onFailure = { message ->
-                    coroutineScope.launch {
-                        uiMessagesState.showMessage(
-                            message = message ?: "Unknown Error",
-                            duration = UIMessageDuration.Long,
-                        )
-                    }
-                }
-            ),
-        )
-    }
-
-    private fun onCandleDataLoginDeclined() {
-        showCandleDataLoginConfirmation = false
-    }
-
     private fun loginFlowLauncher() = coroutineScope.launchUnit {
 
         val isLoggedIn = candleRepo.isLoggedIn().first()
 
+        if (isLoggedIn) return@launchUnit
+
         // If not logged in, show login confirmation
-        if (!isLoggedIn) showCandleDataLoginConfirmation = true
+        val result = uiMessagesState.showMessage(
+            message = "Login required to fetch candle data",
+            actionLabel = "LOGIN",
+            withDismissAction = true,
+            duration = UIMessageDuration.Indefinite,
+        )
+
+        if (result == UIMessageResult.ActionPerformed) {
+
+            loginServicesManager.addService(
+                serviceBuilder = FyersLoginService.Builder(
+                    appDispatchers = appDispatchers,
+                    fyersApi = fyersApi,
+                    appPrefs = appPrefs,
+                ),
+                resultHandle = ResultHandle(
+                    onFailure = { message ->
+                        coroutineScope.launch {
+                            uiMessagesState.showMessage(
+                                message = message ?: "Unknown Error",
+                                duration = UIMessageDuration.Long,
+                            )
+                        }
+                    }
+                ),
+            )
+        }
     }
 }

@@ -12,8 +12,4 @@ internal sealed class ChartsEvent {
     ) : ChartsEvent()
 
     data class MarkTrades(val tradeIds: List<ProfileTradeId>) : ChartsEvent()
-
-    data object CandleDataLoginConfirmed : ChartsEvent()
-
-    data object CandleDataLoginDeclined : ChartsEvent()
 }
