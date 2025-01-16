@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,13 +48,7 @@ internal fun ChartsScreen(
             state = chartsState,
             windowTitle = "Charts",
             onCloseRequest = onCloseRequest,
-            snackbarHost = {
-
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier.animateContentSize().align(Alignment.CenterHorizontally),
-                )
-            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             customControls = {
 
                 Button(

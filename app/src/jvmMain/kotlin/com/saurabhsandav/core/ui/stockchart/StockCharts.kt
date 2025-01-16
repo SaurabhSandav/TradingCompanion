@@ -1,11 +1,10 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.WindowPlacement
@@ -21,7 +20,7 @@ fun StockCharts(
     state: StockChartsState,
     windowTitle: String,
     onCloseRequest: () -> Unit,
-    snackbarHost: @Composable ColumnScope.() -> Unit = {},
+    snackbarHost: (@Composable () -> Unit)? = null,
     customShortcuts: ((KeyEvent) -> Boolean)? = null,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
@@ -45,10 +44,10 @@ fun StockCharts(
 
                 chartWindow.appWindowState = LocalAppWindowState.current
 
-                Column {
+                Box {
 
                     Row(
-                        modifier = Modifier.weight(1F)
+                        modifier = Modifier.fillMaxSize()
                     ) {
 
                         val stockChart = chartWindow.selectedStockChart
@@ -81,7 +80,14 @@ fun StockCharts(
                         }
                     }
 
-                    snackbarHost()
+                    if (snackbarHost != null) {
+
+                        Box(
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            propagateMinConstraints = true,
+                            content = { snackbarHost() }
+                        )
+                    }
                 }
             }
         }
