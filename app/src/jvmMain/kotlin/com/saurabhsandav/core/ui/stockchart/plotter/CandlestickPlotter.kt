@@ -43,7 +43,7 @@ class CandlestickPlotter(
 
     override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val candlestickData = seriesData?.let { it as? CandlestickData.Item }
+        val candlestickData = (seriesData ?: latestValue) as? CandlestickData.Item
 
         legendText = when (candlestickData) {
             null -> AnnotatedString(" O H L C")

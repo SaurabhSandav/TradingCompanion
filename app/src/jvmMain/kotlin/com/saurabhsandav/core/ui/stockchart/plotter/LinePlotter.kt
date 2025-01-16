@@ -52,7 +52,7 @@ class LinePlotter(
 
     override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val value = seriesData
+        val value = (seriesData ?: latestValue)
             ?.let { it as? LineData.Item }
             ?.value
             ?.toString()

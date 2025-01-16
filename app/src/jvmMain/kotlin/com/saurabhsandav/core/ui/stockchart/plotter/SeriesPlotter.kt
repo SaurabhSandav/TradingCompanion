@@ -14,6 +14,8 @@ import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
 
 abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
 
+    protected var latestValue: D? = null
+
     private var _isEnabled by mutableStateOf(true)
     override var isEnabled: Boolean
         get() = _isEnabled
@@ -42,18 +44,20 @@ abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
 
     override fun setData(data: List<D>) {
         series.setData(data)
+        latestValue = data.lastOrNull()
     }
 
     override fun update(item: D) {
         series.update(item)
+        latestValue = item
     }
 
     fun setMarkers(markers: List<SeriesMarker>) {
         series.setMarkers(markers)
     }
 
-    fun updateLegendValues(params: MouseEventParams) {
-        val seriesData = series.getMouseEventDataFrom(params.seriesData)
+    fun updateLegendValues(params: MouseEventParams?) {
+        val seriesData = params?.seriesData?.let(series::getMouseEventDataFrom)
         onUpdateLegendValues(seriesData)
     }
 

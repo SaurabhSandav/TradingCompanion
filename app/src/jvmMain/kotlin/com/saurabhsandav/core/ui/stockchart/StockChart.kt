@@ -225,6 +225,11 @@ class StockChart(
 
             setupMarkers()
 
+            // Set latest values to legend
+            plotters.forEach { plotter ->
+                if (plotter is SeriesPlotter<*, *>) plotter.updateLegendValues(null)
+            }
+
             // Signal initialization completion
             initialized.complete(Unit)
         }

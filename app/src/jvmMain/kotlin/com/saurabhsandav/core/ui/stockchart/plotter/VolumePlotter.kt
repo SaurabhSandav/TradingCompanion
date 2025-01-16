@@ -56,7 +56,7 @@ class VolumePlotter(
 
     override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val histogramData = seriesData?.let { it as? HistogramData.Item }
+        val histogramData = (seriesData ?: latestValue) as? HistogramData.Item
 
         legendText = when (histogramData) {
             null -> AnnotatedString("")
