@@ -50,8 +50,4 @@ class SingleChartArrangement internal constructor() : ChartArrangement() {
             name = chartId,
         ).also { this.chart = it }
     }
-
-    fun setLegend(legendHtmlItems: List<String>) {
-        executeJs("setSingleLegendTexts([${legendHtmlItems.joinToString(", ") { "'$it'" }}]);")
-    }
 }

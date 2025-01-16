@@ -190,7 +190,6 @@ class StockChartsState(
             actualChart = actualChart,
             initialData = candleLoader.getStockChartData(params ?: initialParams),
             initialVisibleRange = initialVisibleRange,
-            onLegendUpdate = { arrangement.setLegend(actualChart, it) },
         )
 
         // Initial theme

@@ -1,16 +1,15 @@
 package com.saurabhsandav.core.ui.common.chart
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toAwtColor
@@ -21,16 +20,29 @@ import com.saurabhsandav.core.ui.common.webview.WebViewState
 fun ChartPage(
     state: ChartPageState,
     modifier: Modifier = Modifier,
+    legend: (@Composable () -> Unit)? = null,
 ) {
 
     Column(modifier) {
 
         WebViewLoadingIndicator(state.webViewState)
 
-        WebView(
-            webViewState = state.webViewState,
-            modifier = Modifier.fillMaxSize(),
-        )
+        Box(Modifier.fillMaxSize()) {
+
+            WebView(
+                webViewState = state.webViewState,
+                modifier = Modifier.fillMaxSize(),
+            )
+
+            if (legend != null) {
+
+                Box(
+                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
+                ) {
+                    legend()
+                }
+            }
+        }
 
         val backgroundColor = MaterialTheme.colorScheme.background
 
@@ -38,13 +50,6 @@ fun ChartPage(
         LaunchedEffect(backgroundColor) {
             state.webViewState.setBackgroundColor(backgroundColor.toAwtColor())
             state.setPageBackgroundColor(backgroundColor)
-        }
-
-        val textColor = LocalContentColor.current
-
-        // Set Material text color on chart text
-        LaunchedEffect(textColor) {
-            state.setLegendTextColor(textColor)
         }
     }
 }

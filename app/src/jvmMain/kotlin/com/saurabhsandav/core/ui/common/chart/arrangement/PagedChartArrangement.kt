@@ -90,11 +90,4 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
         // Hide all chart divs, then show selected chart div
         executeJs("showPagedChart('${chart.name}');")
     }
-
-    fun setLegend(
-        chart: IChartApi,
-        legendHtmlItems: List<String>,
-    ) {
-        executeJs("setPagedLegendTexts('${chart.name}', [${legendHtmlItems.joinToString(", ") { "'$it'" }}]);")
-    }
 }

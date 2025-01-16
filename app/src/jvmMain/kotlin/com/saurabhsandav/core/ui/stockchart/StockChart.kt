@@ -2,22 +2,21 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
-import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
-import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
-import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
-import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
+import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
+import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.core.utils.BinarySearchResult.NotFound
@@ -49,7 +48,6 @@ class StockChart(
     val actualChart: IChartApi,
     initialData: StockChartData,
     initialVisibleRange: ClosedRange<Float>? = null,
-    onLegendUpdate: (List<String>) -> Unit,
 ) {
 
     private val coroutineScope = parentScope.newChildScope()
@@ -105,13 +103,6 @@ class StockChart(
             TimeScaleOptions(timeVisible = true)
         )
 
-        // Legend updates
-        snapshotFlow { plotters }.flatMapLatest {
-            combine(plotters.map { it.legendText(this) }) {
-                onLegendUpdate(it.toList())
-            }
-        }.launchIn(coroutineScope)
-
         // Observe plotter enabled prefs
         plotters.forEach { plotter ->
             prefs
@@ -122,6 +113,17 @@ class StockChart(
 
         // Set initial StockChartData
         setData(initialData)
+
+        // Legend updates
+        actualChart
+            .crosshairMove()
+            .onEach { params ->
+
+                plotters.forEach { plotter ->
+                    if (plotter is SeriesPlotter<*, *>) plotter.updateLegendValues(params)
+                }
+            }
+            .launchIn(coroutineScope)
     }
 
     fun setData(data: StockChartData) {
@@ -135,7 +137,7 @@ class StockChart(
         params = data.params
 
         // Update legend title for candles
-        candlestickPlotter.legendLabel = title
+        candlestickPlotter.legendLabel = AnnotatedString(title)
 
         // Cancel CoroutineScope for the previous StockChartData
         dataCoroutineScope.cancel()

@@ -18,19 +18,6 @@ function preparePagedChartContainer(chartId) {
       ))
     );
   });
-
-  // Legend
-  let legendDiv = document.createElement('div');
-  legendDiv.id = `${chartId}_legend`;
-  legendDiv.className = 'legendTextColor';
-  chartDiv.appendChild(legendDiv);
-  legendDiv.style.position = 'absolute';
-  legendDiv.style.left = '12px';
-  legendDiv.style.top = '12px';
-  legendDiv.style.zIndex = '2';
-  legendDiv.style.fontSize = '12px';
-  legendDiv.style.lineHeight = '18px';
-  legendDiv.style.fontWeight = '300';
 }
 
 function showPagedChart(chartId) {
@@ -42,24 +29,4 @@ function showPagedChart(chartId) {
   }
 
   document.getElementById(chartId).style.visibility = "visible";
-}
-
-function setPagedLegendTexts(chartId, list) {
-
-  let legendDiv = document.getElementById(`${chartId}_legend`);
-
-  if (list.length != legendDiv.childElementCount) {
-
-    let newElements = Array(list.length).fill().map(function (_, index) {
-      let div = document.createElement('div');
-      div.id = `${chartId}_legendItem${index}`;
-      return div;
-    })
-
-    legendDiv.replaceChildren(...newElements);
-  }
-
-  list.forEach(function (item, index) {
-    document.getElementById(`${chartId}_legendItem${index}`).innerText = item;
-  });
 }

@@ -8,12 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.window.WindowPlacement
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
+import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun StockCharts(
@@ -37,59 +40,88 @@ fun StockCharts(
 
                     when {
                         chartKeyboardShortcuts(keyEvent, chartWindow.tabsState) -> true
-                        else -> customShortcuts?.invoke(keyEvent) ?: false
+                        else -> customShortcuts?.invoke(keyEvent) == true
                     }
                 },
             ) {
 
                 chartWindow.appWindowState = LocalAppWindowState.current
 
-                Box {
-
-                    Row(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-
-                        val stockChart = chartWindow.selectedStockChart
-
-                        // Controls
-                        StockChartControls(
-                            stockChart = stockChart,
-                            tickers = state.marketDataProvider.symbols().collectAsState().value,
-                            onChangeTicker = { ticker -> state.onChangeTicker(stockChart, ticker) },
-                            timeframes = state.marketDataProvider.timeframes().collectAsState().value,
-                            onChangeTimeframe = { timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
-                            onOpenInNewTab = state::onOpenInNewTab,
-                            onGoToDateTime = { dateTime -> state.goToDateTime(stockChart, dateTime) },
-                            customControls = customControls,
-                        )
-
-                        Column {
-
-                            // Tabs
-                            StockChartTabRow(
-                                state = chartWindow.tabsState,
-                                onNewWindow = { state.newWindow(stockChart) },
-                            )
-
-                            // Chart page
-                            ChartPage(
-                                state = chartWindow.pageState,
-                                modifier = Modifier.weight(1F),
-                            )
-                        }
-                    }
-
-                    if (snackbarHost != null) {
-
-                        Box(
-                            modifier = Modifier.align(Alignment.BottomCenter),
-                            propagateMinConstraints = true,
-                            content = { snackbarHost() }
-                        )
-                    }
-                }
+                StockChartScreen(
+                    chartWindow = chartWindow,
+                    tickers = state.marketDataProvider.symbols().collectAsState().value,
+                    onChangeTicker = { stockChart, ticker -> state.onChangeTicker(stockChart, ticker) },
+                    timeframes = state.marketDataProvider.timeframes().collectAsState().value,
+                    onChangeTimeframe = { stockChart, timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
+                    onNewWindow = { stockChart -> state.newWindow(stockChart) },
+                    onOpenInNewTab = state::onOpenInNewTab,
+                    onGoToDateTime = { stockChart, dateTime -> state.goToDateTime(stockChart, dateTime) },
+                    snackbarHost = snackbarHost,
+                    customControls = customControls,
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun StockChartScreen(
+    chartWindow: StockChartWindow,
+    tickers: List<String>,
+    onChangeTicker: (StockChart, String) -> Unit,
+    timeframes: List<Timeframe>,
+    onChangeTimeframe: (StockChart, Timeframe) -> Unit,
+    onNewWindow: (StockChart) -> Unit,
+    onOpenInNewTab: (String, Timeframe) -> Unit,
+    onGoToDateTime: (StockChart, LocalDateTime?) -> Unit,
+    snackbarHost: (@Composable () -> Unit)?,
+    customControls: (@Composable ColumnScope.(StockChart) -> Unit)?,
+) {
+
+    Box {
+
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            val stockChart = chartWindow.selectedStockChart
+
+            // Controls
+            StockChartControls(
+                stockChart = stockChart,
+                tickers = tickers,
+                onChangeTicker = { ticker -> onChangeTicker(stockChart, ticker) },
+                timeframes = timeframes,
+                onChangeTimeframe = { timeframe -> onChangeTimeframe(stockChart, timeframe) },
+                onOpenInNewTab = onOpenInNewTab,
+                onGoToDateTime = { dateTime -> onGoToDateTime(stockChart, dateTime) },
+                customControls = customControls,
+            )
+
+            Column {
+
+                // Tabs
+                StockChartTabRow(
+                    state = chartWindow.tabsState,
+                    onNewWindow = { onNewWindow(stockChart) },
+                )
+
+                // Chart page
+                ChartPage(
+                    state = chartWindow.pageState,
+                    modifier = Modifier.fillMaxSize(),
+                    legend = { Legend(stockChart) },
+                )
+            }
+        }
+
+        if (snackbarHost != null) {
+
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                propagateMinConstraints = true,
+                content = { snackbarHost() }
+            )
         }
     }
 }

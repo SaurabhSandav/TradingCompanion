@@ -1,20 +1,30 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions.PriceScaleMargins
 import com.saurabhsandav.lightweight_charts.data.HistogramData
+import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class VolumePlotter(
     override val key: String,
-    override val legendLabel: String = "Vol",
+    override val legendLabel: AnnotatedString = AnnotatedString("Vol"),
 ) : SeriesPlotter<HistogramData, HistogramStyleOptions>() {
+
+    override var legendText by mutableStateOf(AnnotatedString(""))
+        private set
 
     override fun createSeries(chart: StockChart): ISeriesApi<HistogramData, HistogramStyleOptions> {
 
@@ -44,14 +54,24 @@ class VolumePlotter(
         return series
     }
 
-    override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
+    override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val volume = series.getMouseEventDataFrom(params.seriesData)
-            ?.let { it as? HistogramData.Item }
-            ?.value
-            ?.toString()
-            .orEmpty()
+        val histogramData = seriesData?.let { it as? HistogramData.Item }
 
-        "$legendLabel $volume"
+        legendText = when (histogramData) {
+            null -> AnnotatedString("")
+            else -> {
+
+                val color = histogramData.color?.let { Color.hex(it.value) } ?: Color.Unspecified
+                val valueStyle = SpanStyle(color = color)
+
+                buildAnnotatedString {
+                    append(" ")
+                    withStyle(valueStyle) {
+                        append(histogramData.value.toString())
+                    }
+                }
+            }
+        }
     }
 }

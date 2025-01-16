@@ -1,19 +1,29 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.CandlestickData
+import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.options.CandlestickStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class CandlestickPlotter(
     override val key: String,
 ) : SeriesPlotter<CandlestickData, CandlestickStyleOptions>() {
 
-    override var legendLabel: String = ""
+    override var legendLabel by mutableStateOf(AnnotatedString(""))
+
+    override var legendText by mutableStateOf(AnnotatedString(""))
+        private set
 
     override fun createSeries(chart: StockChart): ISeriesApi<CandlestickData, CandlestickStyleOptions> {
 
@@ -31,22 +41,28 @@ class CandlestickPlotter(
         )
     }
 
-    override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
+    override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val candlestickData = series
-            .getMouseEventDataFrom(params.seriesData)
-            ?.let { it as? CandlestickData.Item }
+        val candlestickData = seriesData?.let { it as? CandlestickData.Item }
 
-        buildString {
-            append(legendLabel)
-            append(" O ")
-            candlestickData?.let { append(it.open.toString()) }
-            append(" H ")
-            candlestickData?.let { append(it.high.toString()) }
-            append(" L ")
-            candlestickData?.let { append(it.low.toString()) }
-            append(" C ")
-            candlestickData?.let { append(it.close.toString()) }
+        legendText = when (candlestickData) {
+            null -> AnnotatedString(" O H L C")
+            else -> {
+
+                val color = candlestickData.color?.let { Color.hex(it.value) }
+                val valueStyle = SpanStyle(color = color ?: Color.Unspecified)
+
+                buildAnnotatedString {
+                    append(" O ")
+                    withStyle(valueStyle) { append(candlestickData.open.toString()) }
+                    append(" H ")
+                    withStyle(valueStyle) { append(candlestickData.high.toString()) }
+                    append(" L ")
+                    withStyle(valueStyle) { append(candlestickData.low.toString()) }
+                    append(" C ")
+                    withStyle(valueStyle) { append(candlestickData.close.toString()) }
+                }
+            }
         }
     }
 }

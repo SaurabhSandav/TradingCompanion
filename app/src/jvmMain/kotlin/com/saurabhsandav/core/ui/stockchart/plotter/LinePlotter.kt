@@ -1,21 +1,37 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.LineData
+import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class LinePlotter(
     override val key: String,
-    override val legendLabel: String,
+    override val legendLabel: AnnotatedString,
     private val color: Color? = null,
 ) : SeriesPlotter<LineData, LineStyleOptions>() {
+
+    constructor(
+        key: String,
+        legendLabel: String,
+        color: Color? = null,
+    ) : this(key, AnnotatedString(legendLabel), color)
+
+    private val legendValueStyle = SpanStyle(color = color ?: Color.Unspecified)
+
+    override var legendText by mutableStateOf(AnnotatedString(""))
+        private set
 
     override fun createSeries(chart: StockChart): ISeriesApi<LineData, LineStyleOptions> {
 
@@ -34,14 +50,19 @@ class LinePlotter(
         )
     }
 
-    override fun legendText(chart: StockChart): Flow<String> = chart.actualChart.crosshairMove().map { params ->
+    override fun onUpdateLegendValues(seriesData: SeriesData?) {
 
-        val value = series.getMouseEventDataFrom(params.seriesData)
+        val value = seriesData
             ?.let { it as? LineData.Item }
             ?.value
             ?.toString()
             .orEmpty()
 
-        "$legendLabel $value"
+        legendText = buildAnnotatedString {
+            append(" ")
+            withStyle(legendValueStyle) {
+                append(value)
+            }
+        }
     }
 }

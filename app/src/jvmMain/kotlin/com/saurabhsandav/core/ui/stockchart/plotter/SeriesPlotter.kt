@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.stockchart.Plotter
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.data.SeriesMarker
 import com.saurabhsandav.lightweight_charts.options.SeriesOptions
@@ -50,4 +51,11 @@ abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
     fun setMarkers(markers: List<SeriesMarker>) {
         series.setMarkers(markers)
     }
+
+    fun updateLegendValues(params: MouseEventParams) {
+        val seriesData = series.getMouseEventDataFrom(params.seriesData)
+        onUpdateLegendValues(seriesData)
+    }
+
+    protected abstract fun onUpdateLegendValues(seriesData: SeriesData?)
 }

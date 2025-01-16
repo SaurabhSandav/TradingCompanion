@@ -1,9 +1,7 @@
 package com.saurabhsandav.core.ui.stats.studies
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
@@ -11,8 +9,10 @@ import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import com.saurabhsandav.core.ui.common.chart.legend.LegendItem
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.lightweight_charts.baselineSeries
@@ -80,7 +80,15 @@ internal class PNLByDayChartStudy(
             arrangement.newChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
         }
 
-        ChartPage(chartPageState)
+        var legendValue by state { "" }
+
+        ChartPage(chartPageState) {
+
+            LegendItem(
+                label = { Text("PNL") },
+                values = { Text(legendValue) },
+            )
+        }
 
         LaunchedEffect(chart) {
 
@@ -92,13 +100,11 @@ internal class PNLByDayChartStudy(
             // Update Legend
             chart.crosshairMove().onEach { params ->
 
-                val value = baselineSeries.getMouseEventDataFrom(params.seriesData)
+                legendValue = baselineSeries.getMouseEventDataFrom(params.seriesData)
                     ?.let { it as? BaselineData.Item }
                     ?.value
                     ?.toString()
                     .orEmpty()
-
-                arrangement.setLegend(listOf("PNL $value"))
             }.launchIn(this)
 
             // Set Data

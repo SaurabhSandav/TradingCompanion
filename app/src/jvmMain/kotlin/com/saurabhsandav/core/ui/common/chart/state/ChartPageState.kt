@@ -67,10 +67,6 @@ class ChartPageState(
         scripts.trySend("setPageBackgroundColor('${color.toHexString()}');")
     }
 
-    fun setLegendTextColor(color: Color) {
-        scripts.trySend("setLegendTextColor('${color.toHexString()}');")
-    }
-
     fun connect(chart: IChartApi) {
 
         // Cache chart
