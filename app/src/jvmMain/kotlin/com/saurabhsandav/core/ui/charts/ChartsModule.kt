@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.di.AppModule
+import com.saurabhsandav.core.ui.common.UIMessagesState
 import com.saurabhsandav.core.ui.stockchart.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
@@ -10,6 +11,8 @@ internal class ChartsModule(
     appModule: AppModule,
     coroutineScope: CoroutineScope,
 ) {
+
+    val uiMessagesState = UIMessagesState()
 
     private val markersProvider = ChartMarkersProvider(
         appDispatchers = appModule.appDispatchers,
@@ -26,6 +29,7 @@ internal class ChartsModule(
         ChartsPresenter(
             appDispatchers = appModule.appDispatchers,
             coroutineScope = coroutineScope,
+            uiMessagesState = uiMessagesState,
             stockChartsStateFactory = {
                     initialParams: StockChartParams,
                     loadConfig: LoadConfig,

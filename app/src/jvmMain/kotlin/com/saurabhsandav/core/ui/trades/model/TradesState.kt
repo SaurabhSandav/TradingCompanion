@@ -5,7 +5,6 @@ import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SelectionManager
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradesState(
@@ -13,7 +12,6 @@ internal data class TradesState(
     val isFocusModeEnabled: Boolean,
     val selectionManager: SelectionManager<TradeId>,
     val tagSuggestions: (String) -> Flow<List<TradeTag>>,
-    val errors: List<UIErrorMessage>,
     val eventSink: (TradesEvent) -> Unit,
 ) {
 

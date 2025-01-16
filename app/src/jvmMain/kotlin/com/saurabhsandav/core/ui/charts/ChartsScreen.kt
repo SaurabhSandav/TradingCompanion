@@ -12,8 +12,8 @@ import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginConfirmed
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.CandleDataLoginDeclined
-import com.saurabhsandav.core.ui.common.ErrorSnackbar
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.showAsSnackbarsIn
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -39,19 +39,17 @@ internal fun ChartsScreen(
 
     if (chartsState != null) {
 
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(snackbarHostState) {
+            module.uiMessagesState.showAsSnackbarsIn(snackbarHostState)
+        }
+
         StockCharts(
             state = chartsState,
             windowTitle = "Charts",
             onCloseRequest = onCloseRequest,
             snackbarHost = {
-
-                val snackbarHostState = remember { SnackbarHostState() }
-
-                // Errors
-                state.errors.forEach { errorMessage ->
-
-                    ErrorSnackbar(snackbarHostState, errorMessage)
-                }
 
                 SnackbarHost(
                     hostState = snackbarHostState,

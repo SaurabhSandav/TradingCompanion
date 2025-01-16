@@ -6,7 +6,6 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent
@@ -42,8 +41,6 @@ internal class TradesFilterPresenter(
             eventSink = ::onEvent,
         )
     }
-
-    val errors = mutableStateListOf<UIErrorMessage>()
 
     private fun onEvent(event: TradesFilterEvent) {
 

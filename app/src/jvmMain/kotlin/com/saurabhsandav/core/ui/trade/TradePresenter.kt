@@ -7,7 +7,6 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
@@ -98,8 +97,6 @@ internal class TradePresenter(
             eventSink = ::onEvent,
         )
     }
-
-    val errors = mutableStateListOf<UIErrorMessage>()
 
     private fun onEvent(event: TradeEvent) {
 

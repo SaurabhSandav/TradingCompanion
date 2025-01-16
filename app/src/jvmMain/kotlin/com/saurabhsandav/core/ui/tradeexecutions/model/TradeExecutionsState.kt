@@ -3,13 +3,11 @@ package com.saurabhsandav.core.ui.tradeexecutions.model
 import androidx.paging.PagingData
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradeExecutionsState(
     val executionEntries: Flow<PagingData<TradeExecutionEntry>>,
     val selectionManager: SelectionManager<TradeExecutionId>,
-    val errors: List<UIErrorMessage>,
     val eventSink: (TradeExecutionsEvent) -> Unit,
 ) {
 

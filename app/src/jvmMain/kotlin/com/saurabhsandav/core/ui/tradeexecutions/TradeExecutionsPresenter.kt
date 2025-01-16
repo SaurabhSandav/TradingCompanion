@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.paging.*
 import app.cash.molecule.RecompositionMode
@@ -12,7 +11,6 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
-import com.saurabhsandav.core.ui.common.UIErrorMessage
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
@@ -38,7 +36,6 @@ internal class TradeExecutionsPresenter(
 ) {
 
     private val executions = coroutineScope.async { tradingProfiles.getRecord(profileId).executions }
-    private val errors = mutableStateListOf<UIErrorMessage>()
     private val selectionManager = SelectionManager<TradeExecutionId>()
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -46,7 +43,6 @@ internal class TradeExecutionsPresenter(
         return@launchMolecule TradeExecutionsState(
             executionEntries = getExecutionEntries(),
             selectionManager = selectionManager,
-            errors = errors,
             eventSink = ::onEvent,
         )
     }

@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -9,7 +12,8 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.*
 import com.saurabhsandav.core.ui.charts.model.ChartsState
-import com.saurabhsandav.core.ui.common.UIErrorMessage
+import com.saurabhsandav.core.ui.common.UIMessageDuration
+import com.saurabhsandav.core.ui.common.UIMessagesState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
@@ -30,6 +34,7 @@ import kotlinx.datetime.Instant
 internal class ChartsPresenter(
     private val appDispatchers: AppDispatchers,
     private val coroutineScope: CoroutineScope,
+    private val uiMessagesState: UIMessagesState,
     stockChartsStateFactory: StockChartsStateFactory,
     private val markersProvider: ChartMarkersProvider,
     private val appPrefs: FlowSettings,
@@ -50,7 +55,6 @@ internal class ChartsPresenter(
         )
     }
     private var showCandleDataLoginConfirmation by mutableStateOf(false)
-    private val errors = mutableStateListOf<UIErrorMessage>()
 
     init {
         loginFlowLauncher()
@@ -61,7 +65,6 @@ internal class ChartsPresenter(
         return@launchMolecule ChartsState(
             chartsState = produceState<StockChartsState?>(null) { value = chartsState.await() }.value,
             showCandleDataLoginConfirmation = showCandleDataLoginConfirmation,
-            errors = errors,
             eventSink = ::onEvent,
         )
     }
@@ -148,7 +151,12 @@ internal class ChartsPresenter(
             ),
             resultHandle = ResultHandle(
                 onFailure = { message ->
-                    errors += UIErrorMessage(message ?: "Unknown Error") { errors -= it }
+                    coroutineScope.launch {
+                        uiMessagesState.showMessage(
+                            message = message ?: "Unknown Error",
+                            duration = UIMessageDuration.Long,
+                        )
+                    }
                 }
             ),
         )

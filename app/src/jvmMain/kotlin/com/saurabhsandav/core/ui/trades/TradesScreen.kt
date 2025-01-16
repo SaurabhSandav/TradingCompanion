@@ -4,11 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
@@ -41,7 +38,6 @@ internal fun TradesScreen(
     onDeleteTrades: (List<TradeId>) -> Unit,
     tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (List<TradeId>, TradeTagId) -> Unit,
-    errors: List<UIErrorMessage>,
 ) {
 
     // Set window title
@@ -49,11 +45,8 @@ internal fun TradesScreen(
 
     Column {
 
-        val snackbarHostState = remember { SnackbarHostState() }
-
         Scaffold(
             modifier = Modifier.weight(1F),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
 
             var sheetState by state { SideSheetState.Closed }
@@ -100,12 +93,6 @@ internal fun TradesScreen(
                         onOpenChart = { onOpenChart(listOf(it)) },
                     )
                 }
-            }
-
-            // Errors
-            errors.forEach { errorMessage ->
-
-                ErrorSnackbar(snackbarHostState, errorMessage)
             }
         }
 
