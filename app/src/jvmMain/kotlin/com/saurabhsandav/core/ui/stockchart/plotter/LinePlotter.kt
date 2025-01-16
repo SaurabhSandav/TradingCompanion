@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
+import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.LineData
@@ -8,7 +10,6 @@ import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
 import com.saurabhsandav.lightweight_charts.options.common.LineWidth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.css.Color
 
 class LinePlotter(
     override val key: String,
@@ -25,7 +26,7 @@ class LinePlotter(
             priceLineVisible = false,
         )
 
-        if (color != null) options = options.copy(color = color)
+        if (color != null) options = options.copy(color = color.toCssColor())
 
         return chart.actualChart.addLineSeries(
             name = key,

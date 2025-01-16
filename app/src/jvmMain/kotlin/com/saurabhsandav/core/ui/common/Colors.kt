@@ -14,7 +14,7 @@ fun Color.toHexString(): String {
     return toArgb().run { String.format("#%06X", 0xFFFFFF and this) }
 }
 
-fun Color.Companion.fromStringOrNull(hex: String): Color? {
+fun Color.Companion.hex(hex: String): Color? {
 
     if (!hex.startsWith("#")) return null
     if (hex.length != 7) return null
@@ -28,7 +28,9 @@ fun Color.Companion.fromStringOrNull(hex: String): Color? {
         val b = Integer.parseInt(colorInt.substring(4, 6), 16)
 
         Color(r, g, b)
-    } catch (e: NullPointerException) {
+    } catch (_: NullPointerException) {
         null
     }
 }
+
+fun Color.toCssColor() = kotlinx.css.Color(toHexString())

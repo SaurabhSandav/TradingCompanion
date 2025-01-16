@@ -62,7 +62,7 @@ fun ColorPickerDialog(
                 value = selectedColorHex,
                 onValueChange = { text ->
 
-                    val color = Color.fromStringOrNull(text)
+                    val color = Color.hex(text)
 
                     color?.let { controller.wheelColor = it }
                     isHexError = color == null

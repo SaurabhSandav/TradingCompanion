@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
@@ -11,6 +12,8 @@ import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
+import com.saurabhsandav.core.ui.common.hex
+import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
@@ -32,8 +35,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.css.Color
-import kotlinx.css.rgb
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 import kotlin.math.absoluteValue
@@ -56,12 +57,12 @@ class StockChart(
 
     internal val candlestickPlotter = CandlestickPlotter("candles")
     private val volumePlotter = VolumePlotter("volume")
-    private val vwapPlotter = LinePlotter("vwap", "VWAP", Color("#FFA500"))
-    private val ema9Plotter = LinePlotter("ema9", "EMA (9)", Color("#2962FF"))
-    private val ema21Plotter = LinePlotter("ema21", "EMA (21)", Color("#F7525F"))
-    private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color("#0AB210"))
-    private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color("#B05F10"))
-    private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color("#B00C10"))
+    private val vwapPlotter = LinePlotter("vwap", "VWAP", Color.hex("#FFA500"))
+    private val ema9Plotter = LinePlotter("ema9", "EMA (9)", Color.hex("#2962FF"))
+    private val ema21Plotter = LinePlotter("ema21", "EMA (21)", Color.hex("#F7525F"))
+    private val sma50Plotter = LinePlotter("sma50", "SMA (50)", Color.hex("#0AB210"))
+    private val sma100Plotter = LinePlotter("sma100", "SMA (100)", Color.hex("#B05F10"))
+    private val sma200Plotter = LinePlotter("sma200", "SMA (200)", Color.hex("#B00C10"))
     private val sessionMarkers = SessionMarkers()
     private val tradeExecutionMarkers = TradeExecutionMarkers()
     private val tradeMarkers = TradeMarkers()
@@ -299,10 +300,7 @@ class StockChart(
                 HistogramData.Item(
                     time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
                     value = candle.volume.toDouble(),
-                    color = when {
-                        candle.isLong -> rgb(0, 150, 136)
-                        else -> rgb(255, 82, 82)
-                    },
+                    color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
                 )
             })
         } else volumePlotter.setData(emptyList())
@@ -394,10 +392,7 @@ class StockChart(
                 HistogramData.Item(
                     time = time,
                     value = candle.volume.toDouble(),
-                    color = when {
-                        candle.isLong -> rgb(0, 150, 136)
-                        else -> rgb(255, 82, 82)
-                    },
+                    color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
                 )
             )
         }
