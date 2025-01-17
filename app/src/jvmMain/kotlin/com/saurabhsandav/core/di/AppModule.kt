@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.di
 
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.emptyPreferences
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
@@ -114,9 +116,11 @@ internal class AppModule(
     }
 
     val appPrefs = DataStoreSettings(
-        datastore = PreferenceDataStoreFactory.createWithPath(scope = appScope + appDispatchers.IO) {
-            appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath()
-        },
+        datastore = PreferenceDataStoreFactory.createWithPath(
+            scope = appScope + appDispatchers.IO,
+            corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
+            produceFile = { appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath() },
+        ),
     )
 
     val appConfig = AppConfig(
@@ -127,9 +131,11 @@ internal class AppModule(
     private val chartPrefs by lazy {
 
         DataStoreSettings(
-            datastore = PreferenceDataStoreFactory.createWithPath(scope = appScope + appDispatchers.IO) {
-                appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath()
-            },
+            datastore = PreferenceDataStoreFactory.createWithPath(
+                scope = appScope + appDispatchers.IO,
+                corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
+                produceFile = { appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath() }
+            ),
         )
     }
 
