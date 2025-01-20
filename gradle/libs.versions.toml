@@ -13,7 +13,7 @@ jetbrainsCompose = "1.7.3"
 ktor = "3.0.3"
 
 # Jetpack
-jetpack-datastore = "1.1.1"
+jetpack-datastore = "1.1.2"
 jetpack-paging = "3.3.5"
 
 # Square
