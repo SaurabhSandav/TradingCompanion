@@ -55,10 +55,13 @@ class CefWebViewState(
     override val location: Flow<String> = browserProps.mutableLocation.asStateFlow()
     override val errors: Flow<Throwable> = browserProps.mutableErrors.asSharedFlow()
 
+    private val isCreatedAndReady
+        get() = browserProps.run { isCreated.isCompleted && isReady.isCompleted }
+
     @Composable
     override fun WebView(modifier: Modifier) {
 
-        val isReady by produceState(false) {
+        val isReady by produceState(isCreatedAndReady) {
             init()
             value = true
             awaitDispose { myCefApp.closeBrowser(browser) }
@@ -87,9 +90,14 @@ class CefWebViewState(
         if (::browser.isInitialized) return
 
         browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
+
+        browserProps.isReady.complete(Unit)
     }
 
-    override suspend fun awaitReady() = browserProps.isReady.await()
+    override suspend fun awaitReady() {
+        browserProps.isCreated.await()
+        browserProps.isReady.await()
+    }
 
     override suspend fun load(url: String) {
 
@@ -217,7 +225,7 @@ class MyCefApp(
 
         client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
             override fun onAfterCreated(browser: CefBrowser) {
-                browserPropsMap[browser]?.isReady?.complete(Unit)
+                browserPropsMap[browser]?.isCreated?.complete(Unit)
             }
         })
 
@@ -280,14 +288,14 @@ class MyCefApp(
 
     internal suspend fun createBrowser(
         browserProps: BrowserProps,
-    ): CefBrowser = mutex.withLock {
+    ): CefBrowser {
 
-        val client = getClient()
+        val client = mutex.withLock { getClient() }
         val browser = client.createComposeOffScreenBrowser()
 
         browserPropsMap[browser] = browserProps
 
-        return@withLock browser
+        return browser
     }
 
     fun closeBrowser(browser: CefBrowser) {
@@ -309,6 +317,8 @@ class MyCefApp(
 internal class BrowserProps {
 
     val jsCallbacks = mutableMapOf<String, CefJSCallback>()
+
+    val isCreated = CompletableDeferred<Unit>()
 
     val isReady = CompletableDeferred<Unit>()
 
