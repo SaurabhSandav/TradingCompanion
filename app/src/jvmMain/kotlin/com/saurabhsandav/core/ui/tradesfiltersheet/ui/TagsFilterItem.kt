@@ -38,16 +38,31 @@ internal fun TagsFilterItem(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+            ) {
 
-                Text("Match all tags")
+                Text("Match")
 
                 Spacer(Modifier.weight(1F))
 
-                Switch(
-                    checked = matchAllTags,
-                    onCheckedChange = onMatchAllTagsChange,
-                )
+                SingleChoiceSegmentedButtonRow {
+
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        onClick = { onMatchAllTagsChange(false) },
+                        selected = !matchAllTags,
+                        label = { Text("Any") },
+                    )
+
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        onClick = { onMatchAllTagsChange(true) },
+                        selected = matchAllTags,
+                        label = { Text("All") },
+                    )
+                }
             }
 
             ChipsSelectorBox(

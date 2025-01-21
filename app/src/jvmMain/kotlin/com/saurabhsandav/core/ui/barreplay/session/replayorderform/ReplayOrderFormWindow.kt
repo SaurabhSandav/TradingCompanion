@@ -99,23 +99,33 @@ private fun ReplayOrderForm(
             singleLine = true,
         )
 
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(
-                MaterialTheme.dimens.rowHorizontalSpacing,
-                Alignment.CenterHorizontally
-            ),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Text("SELL", color = AppColor.LossRed)
+            val isBuy = model.isBuyField.value
 
-            Switch(
-                checked = model.isBuyField.value,
-                onCheckedChange = { model.isBuyField.value = it },
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                onClick = { model.isBuyField.value = false },
+                selected = !isBuy,
+                colors = SegmentedButtonDefaults.colors(
+                    activeContentColor = AppColor.LossRed,
+                    inactiveContentColor = AppColor.LossRed,
+                ),
+                label = { Text("SELL") },
             )
 
-            Text("BUY", color = AppColor.ProfitGreen)
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                onClick = { model.isBuyField.value = true },
+                selected = isBuy,
+                colors = SegmentedButtonDefaults.colors(
+                    activeContentColor = AppColor.ProfitGreen,
+                    inactiveContentColor = AppColor.ProfitGreen,
+                ),
+                label = { Text("BUY") },
+            )
         }
 
         OutlinedTextField(

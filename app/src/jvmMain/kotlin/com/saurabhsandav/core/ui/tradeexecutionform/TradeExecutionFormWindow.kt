@@ -159,24 +159,35 @@ private fun TradeExecutionForm(
             singleLine = true,
         )
 
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(
-                space = MaterialTheme.dimens.rowHorizontalSpacing,
-                alignment = Alignment.CenterHorizontally,
-            ),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Text("SELL", color = AppColor.LossRed)
+            val isBuy = model.isBuyField.value
 
-            Switch(
-                checked = model.isBuyField.value,
-                onCheckedChange = { model.isBuyField.value = it },
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                onClick = { model.isBuyField.value = false },
+                selected = !isBuy,
+                colors = SegmentedButtonDefaults.colors(
+                    activeContentColor = AppColor.LossRed,
+                    inactiveContentColor = AppColor.LossRed,
+                ),
                 enabled = isSideSelectable,
+                label = { Text("SELL") },
             )
 
-            Text("BUY", color = AppColor.ProfitGreen)
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                onClick = { model.isBuyField.value = true },
+                selected = isBuy,
+                colors = SegmentedButtonDefaults.colors(
+                    activeContentColor = AppColor.ProfitGreen,
+                    inactiveContentColor = AppColor.ProfitGreen,
+                ),
+                enabled = isSideSelectable,
+                label = { Text("BUY") },
+            )
         }
 
         OutlinedTextField(

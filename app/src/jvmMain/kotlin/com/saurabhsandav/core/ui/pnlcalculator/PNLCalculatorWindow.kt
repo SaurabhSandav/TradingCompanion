@@ -67,24 +67,31 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(
-                    space = MaterialTheme.dimens.rowHorizontalSpacing,
-                    alignment = Alignment.CenterHorizontally
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            SingleChoiceSegmentedButtonRow {
 
-                Text("Short")
+                val isLong = model.isLongField.value
 
-                Switch(
-                    checked = model.isLongField.value,
-                    onCheckedChange = { model.isLongField.value = it },
-                    enabled = model.enableModification,
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                    onClick = { model.isLongField.value = false },
+                    selected = !isLong,
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContentColor = AppColor.LossRed,
+                        inactiveContentColor = AppColor.LossRed,
+                    ),
+                    label = { Text("Short") },
                 )
 
-                Text("Long")
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    onClick = { model.isLongField.value = true },
+                    selected = isLong,
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContentColor = AppColor.ProfitGreen,
+                        inactiveContentColor = AppColor.ProfitGreen,
+                    ),
+                    label = { Text("Long") },
+                )
             }
 
             val initialFocusRequester = remember { FocusRequester() }

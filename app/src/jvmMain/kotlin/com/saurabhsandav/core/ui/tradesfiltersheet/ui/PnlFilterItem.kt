@@ -39,16 +39,33 @@ internal fun PnlFilterItem(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+            ) {
 
-                Text("Filter by Net PNL")
+                Text("Filter By")
 
                 Spacer(Modifier.weight(1F))
 
-                Switch(
-                    checked = filterByNetPnl,
-                    onCheckedChange = onFilterByNetPnlChange,
-                )
+                SingleChoiceSegmentedButtonRow {
+
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        onClick = { onFilterByNetPnlChange(false) },
+                        selected = !filterByNetPnl,
+                        label = { Text("PNL") },
+                    )
+
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        onClick = { onFilterByNetPnlChange(true) },
+                        selected = filterByNetPnl,
+                        // SegmentedButton breaks it into 2 lines. Forcing single line causes weird layout.
+                        // Works fine with NBSP.
+                        label = { Text("Net\u00A0PNL") },
+                    )
+                }
             }
 
             FlowRow(

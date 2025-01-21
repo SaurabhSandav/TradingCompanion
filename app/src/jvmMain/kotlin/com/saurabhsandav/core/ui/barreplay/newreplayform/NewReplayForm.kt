@@ -81,20 +81,25 @@ internal fun NewReplayForm(
             supportingText = model.dataToField.errorMessage?.let { { Text(it) } },
         )
 
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Text("OHLC")
-
-            Switch(
-                checked = model.replayFullBar,
-                onCheckedChange = { model.replayFullBar = it },
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                onClick = { model.replayFullBar = false },
+                selected = !model.replayFullBar,
+                label = { Text("OHLC") },
             )
 
-            Text("Full Bar")
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                onClick = { model.replayFullBar = true },
+                selected = model.replayFullBar,
+                // SegmentedButton breaks it into 2 lines. Forcing single line causes weird layout.
+                // Works fine with NBSP.
+                label = { Text("Full\u00A0Bar") },
+            )
         }
 
         HorizontalDivider()
