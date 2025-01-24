@@ -16,7 +16,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
 import kotlin.uuid.Uuid
 
 internal class TradingProfiles(
@@ -102,7 +105,7 @@ internal class TradingProfiles(
             if (profile.filesPath.exists()) {
 
                 profile.filesPath.copyToRecursively(
-                    target = Path(newProfilePath),
+                    target = appPaths.tradingRecordsPath.resolve(newProfilePath),
                     followLinks = false,
                     overwrite = false
                 )

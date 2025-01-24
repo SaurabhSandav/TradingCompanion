@@ -15,6 +15,10 @@ import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
+import kotlin.io.path.exists
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class TradingProfilesTest {
@@ -56,7 +60,16 @@ class TradingProfilesTest {
     @Test
     fun copyProfile() = runTradingProfilesTest {
 
-        val profile = tradingProfiles.createInitialProfile()
+        // Not possible to create a SQLite DB in a FakeFileSystem. Use a file as a stand-in.
+        val testFileText = "Hello! This is a test file"
+        fun TradingProfile.testFilePath() = appPaths.tradingRecordsPath.resolve(path).resolve("test.txt")
+
+        val profile = tradingProfiles.createInitialProfile().also {
+            // Create Records directory
+            tradingProfiles.getRecord(it.id)
+            // Create test file
+            it.testFilePath().writeText(testFileText, options = arrayOf(StandardOpenOption.CREATE_NEW))
+        }
 
         // Copy
         val newProfile = tradingProfiles.copyProfile(
@@ -69,6 +82,11 @@ class TradingProfilesTest {
         assertTrue(newProfile.isTraining)
         assertEquals(0, newProfile.tradeCount)
         assertEquals(0, newProfile.tradeCountOpen)
+
+        // Check Records copied
+        val newTestFilePath = newProfile.testFilePath()
+        assertTrue { newTestFilePath.exists() }
+        assertEquals(testFileText, newTestFilePath.readText())
     }
 
     @Test
