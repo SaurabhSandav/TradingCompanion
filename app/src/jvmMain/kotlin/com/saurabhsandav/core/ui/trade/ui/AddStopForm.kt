@@ -324,7 +324,7 @@ private val riskVisualTransformation = VisualTransformation { text ->
             }
 
             override fun transformedToOriginal(offset: Int): Int {
-                return if (text.isEmpty()) 0 else offset - 1
+                return if (offset == 0) 0 else offset - 1
             }
         },
     )
