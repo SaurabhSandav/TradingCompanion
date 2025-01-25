@@ -10,9 +10,9 @@ import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
+import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import kotlin.test.*
@@ -20,9 +20,8 @@ import kotlin.test.*
 class TradingProfilesTest {
 
     @Test
-    fun newProfile() = runTest {
+    fun newProfile() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         assertEquals("Test Name", profile.name)
@@ -33,9 +32,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun updateProfile() = runTest {
+    fun updateProfile() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Update
@@ -56,9 +54,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun copyProfile() = runTest {
+    fun copyProfile() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Copy
@@ -75,9 +72,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun deleteProfile() = runTest {
+    fun deleteProfile() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Delete
@@ -87,9 +83,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getProfile() = runTest {
+    fun getProfile() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -102,9 +97,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getProfileOrNull() = runTest {
+    fun getProfileOrNull() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -115,9 +109,7 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getDefault() = runTest {
-
-        val tradingProfiles = createTradingProfiles()
+    fun getDefault() = runTradingProfilesTest {
 
         // Check default profile exists as initial state
         val initialDefaultProfile = tradingProfiles.getDefaultProfile().first()
@@ -152,9 +144,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun exists() = runTest {
+    fun exists() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -165,9 +156,7 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun isProfileNameUnique() = runTest {
-
-        val tradingProfiles = createTradingProfiles()
+    fun isProfileNameUnique() = runTradingProfilesTest {
 
         tradingProfiles.createInitialProfile()
 
@@ -179,9 +168,8 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getRecord() = runTest {
+    fun getRecord() = runTradingProfilesTest {
 
-        val tradingProfiles = createTradingProfiles()
         val profile = tradingProfiles.createInitialProfile()
 
         tradingProfiles.getRecord(profile.id)
@@ -193,7 +181,9 @@ class TradingProfilesTest {
         isTraining = true,
     ).first()
 
-    private fun TestScope.createTradingProfiles(): TradingProfiles {
+    private fun runTradingProfilesTest(
+        block: suspend TradingProfilesTestScope.() -> Unit,
+    ) = runTest {
 
         val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
 
@@ -202,15 +192,17 @@ class TradingProfilesTest {
             schema = AppDB.Schema,
         )
 
+        val appPaths = FakeAppPaths(fakeFileSystem)
+
         val dbUrlProvider = object : DbUrlProvider {
             override fun getAppDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
             override fun getCandlesDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
             override fun getTradingRecordDbUrl(path: Path): String = JdbcSqliteDriver.IN_MEMORY
         }
 
-        return TradingProfiles(
+        val tradingProfiles = TradingProfiles(
             appDispatchers = FakeAppDispatchers(this),
-            appPaths = FakeAppPaths(fakeFileSystem),
+            appPaths = appPaths,
             dbUrlProvider = dbUrlProvider,
             appDB = AppDB(
                 driver = driver,
@@ -221,5 +213,19 @@ class TradingProfilesTest {
                 ),
             ),
         )
+
+        val scope = object : TradingProfilesTestScope {
+            override val appPaths: AppPaths = appPaths
+            override val tradingProfiles: TradingProfiles = tradingProfiles
+        }
+
+        scope.block()
+    }
+
+    private interface TradingProfilesTestScope {
+
+        val appPaths: AppPaths
+
+        val tradingProfiles: TradingProfiles
     }
 }
