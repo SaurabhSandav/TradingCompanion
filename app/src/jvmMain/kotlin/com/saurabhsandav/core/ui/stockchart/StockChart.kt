@@ -466,19 +466,17 @@ class StockChart(
             .launchIn(dataCoroutineScope)
 
         // Trade execution markers
-        data.tradeExecutionMarkers
-            .onEach { markers ->
-                val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
-                tradeExecutionMarkers.setExecutions(actualMarkers)
-            }
+        combine(markersAreEnabled, data.tradeExecutionMarkers) { markersEnabled, tradeExecutionMarkers ->
+            if (markersEnabled) tradeExecutionMarkers else emptyList()
+        }.mapList { it.toActualMarker(candleSeries) }
+            .onEach(tradeExecutionMarkers::setExecutions)
             .launchIn(dataCoroutineScope)
 
         // Trade execution markers
-        data.tradeMarkers
-            .onEach { markers ->
-                val actualMarkers = markers.map { it.toActualMarker(candleSeries) }
-                tradeMarkers.setTrades(actualMarkers)
-            }
+        combine(markersAreEnabled, data.tradeMarkers) { markersEnabled, tradeMarkers ->
+            if (markersEnabled) tradeMarkers else emptyList()
+        }.mapList { it.toActualMarker(candleSeries) }
+            .onEach(tradeMarkers::setTrades)
             .launchIn(dataCoroutineScope)
     }
 
