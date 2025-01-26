@@ -112,7 +112,7 @@ internal class ChartsPresenter(
             // Get existing chart for params or create a new one
             val chartExists = chartsState.charts.any { it.params == params }
 
-            if (!chartExists) chartsState.newChart(params)
+            if (!chartExists) chartsState.newChart(params, null)
         }
 
         // Navigate to specified interval, 1 ticker chart for every timeframe. Rest will automatically sync.

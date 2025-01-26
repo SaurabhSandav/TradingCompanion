@@ -54,7 +54,7 @@ fun StockCharts(
                     timeframes = state.marketDataProvider.timeframes().collectAsState().value,
                     onChangeTimeframe = { stockChart, timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
                     onNewWindow = { stockChart -> state.newWindow(stockChart) },
-                    onOpenInNewTab = state::onOpenInNewTab,
+                    onOpenInNewTab = { ticker, timeframe -> state.onOpenInNewTab(chartWindow, ticker, timeframe) },
                     onGoToDateTime = { stockChart, dateTime -> state.goToDateTime(stockChart, dateTime) },
                     snackbarHost = snackbarHost,
                     customControls = customControls,

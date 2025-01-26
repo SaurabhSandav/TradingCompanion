@@ -107,13 +107,16 @@ class StockChartsState(
         return true
     }
 
-    fun newChart(params: StockChartParams): StockChart {
+    fun newChart(
+        params: StockChartParams,
+        window: StockChartWindow?,
+    ): StockChart {
 
-        // Get last active chart
-        val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
-
-        // Get last active window based on last active chart
-        val window = windows.first { lastActiveChart in it.charts }
+        val window = window ?: run {
+            // Get last active window based on last active chart
+            val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
+            windows.first { lastActiveChart in it.charts }
+        }
 
         // Create new StockChart
         val stockChart = newStockChart(window.pagedArrangement, params)
@@ -153,8 +156,8 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
-    fun onOpenInNewTab(ticker: String, timeframe: Timeframe) {
-        newChart(StockChartParams(ticker, timeframe))
+    fun onOpenInNewTab(window: StockChartWindow, ticker: String, timeframe: Timeframe) {
+        newChart(StockChartParams(ticker, timeframe), window)
     }
 
     fun goToDateTime(
