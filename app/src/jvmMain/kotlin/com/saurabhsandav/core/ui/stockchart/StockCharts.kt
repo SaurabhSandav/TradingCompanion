@@ -50,12 +50,12 @@ fun StockCharts(
                 StockChartScreen(
                     chartWindow = chartWindow,
                     tickers = state.marketDataProvider.symbols().collectAsState().value,
-                    onChangeTicker = { stockChart, ticker -> state.onChangeTicker(stockChart, ticker) },
+                    onChangeTicker = { ticker -> state.onChangeTicker(chartWindow, ticker) },
                     timeframes = state.marketDataProvider.timeframes().collectAsState().value,
-                    onChangeTimeframe = { stockChart, timeframe -> state.onChangeTimeframe(stockChart, timeframe) },
-                    onNewWindow = { stockChart -> state.newWindow(stockChart) },
+                    onChangeTimeframe = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
+                    onNewWindow = { state.newWindow(chartWindow) },
                     onOpenInNewTab = { ticker, timeframe -> state.onOpenInNewTab(chartWindow, ticker, timeframe) },
-                    onGoToDateTime = { stockChart, dateTime -> state.goToDateTime(stockChart, dateTime) },
+                    onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                     snackbarHost = snackbarHost,
                     customControls = customControls,
                 )
@@ -68,12 +68,12 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     tickers: List<String>,
-    onChangeTicker: (StockChart, String) -> Unit,
+    onChangeTicker: (String) -> Unit,
     timeframes: List<Timeframe>,
-    onChangeTimeframe: (StockChart, Timeframe) -> Unit,
-    onNewWindow: (StockChart) -> Unit,
+    onChangeTimeframe: (Timeframe) -> Unit,
+    onNewWindow: () -> Unit,
     onOpenInNewTab: (String, Timeframe) -> Unit,
-    onGoToDateTime: (StockChart, LocalDateTime?) -> Unit,
+    onGoToDateTime: (LocalDateTime?) -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)?,
 ) {
@@ -90,11 +90,11 @@ private fun StockChartScreen(
             StockChartControls(
                 stockChart = stockChart,
                 tickers = tickers,
-                onChangeTicker = { ticker -> onChangeTicker(stockChart, ticker) },
+                onChangeTicker = onChangeTicker,
                 timeframes = timeframes,
-                onChangeTimeframe = { timeframe -> onChangeTimeframe(stockChart, timeframe) },
+                onChangeTimeframe = onChangeTimeframe,
                 onOpenInNewTab = onOpenInNewTab,
-                onGoToDateTime = { dateTime -> onGoToDateTime(stockChart, dateTime) },
+                onGoToDateTime = onGoToDateTime,
                 customControls = customControls,
             )
 
@@ -103,7 +103,7 @@ private fun StockChartScreen(
                 // Tabs
                 StockChartTabRow(
                     state = chartWindow.tabsState,
-                    onNewWindow = { onNewWindow(stockChart) },
+                    onNewWindow = onNewWindow,
                 )
 
                 // Chart page
