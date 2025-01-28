@@ -206,7 +206,7 @@ private class PnlFormModel(
         isRequired(false)
         isBigDecimal()?.apply {
 
-            val validatedFrom = validated(fromField).toBigDecimalOrNull()
+            val validatedFrom = fromField.validatedValue().toBigDecimalOrNull()
 
             if (validatedFrom != null && validatedFrom > this) reportInvalid("Cannot be less than from")
         }

@@ -147,7 +147,7 @@ private class TimeIntervalFormModel(
     val toField = validator.addField(to) {
         isRequired(false)
 
-        val validatedFrom = validated(fromField)
+        val validatedFrom = fromField.validatedValue()
 
         if (this != null && validatedFrom != null && validatedFrom > this)
             reportInvalid("Cannot be less than from")

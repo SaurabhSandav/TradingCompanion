@@ -43,7 +43,7 @@ class NewReplayFormModel(
 
     val dataToField = validator.addField(dataTo) {
         isRequired()
-        if (this <= validated(replayFromField)) reportInvalid("Cannot be before or same as replay from")
+        if (this <= replayFromField.validatedValue()) reportInvalid("Cannot be before or same as replay from")
     }
 
     var replayFullBar by mutableStateOf(replayFullBar)

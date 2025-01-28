@@ -6,7 +6,7 @@ interface ValidationScope {
 
     fun reportInvalid(message: String)
 
-    suspend fun <T> validated(formField: FormField<T>): T
+    suspend fun <T> FormField<T>.validatedValue(): T
 
     /**
      * Run validation without interrupting on failed validations.
@@ -52,18 +52,18 @@ internal class ValidationScopeImpl : ValidationScope {
         throw ValidationInterruptedException
     }
 
-    override suspend fun <T> validated(formField: FormField<T>): T {
+    override suspend fun <T> FormField<T>.validatedValue(): T {
 
-        dependencies += formField
+        dependencies += this
 
-        if (!formField.validate()) {
+        if (!validate()) {
 
             result = ValidationResult.DependencyInvalid
 
             throw ValidationInterruptedException
         }
 
-        return formField.value
+        return value
     }
 }
 

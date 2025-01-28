@@ -39,8 +39,8 @@ internal class ReplayOrderFormModel(
             isPositive()
 
             val isValid = when {
-                validated(isBuyField) -> this < validated(priceField).toBigDecimal()
-                else -> this > validated(priceField).toBigDecimal()
+                isBuyField.validatedValue() -> this < priceField.validatedValue().toBigDecimal()
+                else -> this > priceField.validatedValue().toBigDecimal()
             }
 
             if (!isValid) reportInvalid("Invalid Stop")
@@ -53,8 +53,8 @@ internal class ReplayOrderFormModel(
             isPositive()
 
             val isValid = when {
-                validated(isBuyField) -> this > validated(priceField).toBigDecimal()
-                else -> this < validated(priceField).toBigDecimal()
+                isBuyField.validatedValue() -> this > priceField.validatedValue().toBigDecimal()
+                else -> this < priceField.validatedValue().toBigDecimal()
             }
 
             if (!isValid) reportInvalid("Invalid Target")
