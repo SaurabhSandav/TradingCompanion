@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 interface FormField<T> : MutableState<T> {
 
-    val errorMessage: String?
+    val errorMessages: List<String>
 
     val isValid: Boolean
 
@@ -29,8 +29,7 @@ internal class FormFieldImpl<T> internal constructor(
     private var isUpToDate = validation == null
     private var dependencies = mutableStateListOf<FormField<*>>()
 
-    override var errorMessage: String? by mutableStateOf(null)
-        private set
+    override var errorMessages = mutableStateListOf<String>()
 
     override var isValid by mutableStateOf(true)
         private set
@@ -86,19 +85,22 @@ internal class FormFieldImpl<T> internal constructor(
                     value.validate()
                 }
             }
-        } catch (_: ValidationException) {
-            // Validation interrupted because a field was invalid. Validation result is in `ValidationScopeImpl`.
+        } catch (_: ValidationInterruptedException) {
+            // Validation interrupted. Validation result is in `ValidationScopeImpl`.
         }
 
         val result = receiver.result
 
-        val (isValid, errorMessage) = when (result) {
-            is Invalid -> false to result.errorMessage
-            DependencyInvalid, Valid -> true to null
+        val (isValid, errorMessages) = when (result) {
+            is Invalid -> false to result.errorMessages
+            DependencyInvalid, Valid -> true to emptyList()
         }
 
         this.isValid = isValid
-        this.errorMessage = errorMessage
+        this.errorMessages.apply {
+            clear()
+            addAll(errorMessages)
+        }
 
         // Update dependencies
         dependencies.clear()

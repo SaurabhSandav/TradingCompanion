@@ -21,6 +21,7 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.ColorPickerDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tagform.model.TagFormModel
@@ -80,7 +81,7 @@ private fun Form(
             onValueChange = { model.nameField.value = it },
             label = { Text("Name") },
             isError = model.nameField.isError,
-            supportingText = model.nameField.errorMessage?.let { { Text(it) } },
+            supportingText = model.nameField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 

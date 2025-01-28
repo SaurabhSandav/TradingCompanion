@@ -23,45 +23,41 @@ internal class ReplayOrderFormModel(
 
     val quantityField = validator.addField(initial.quantity) {
         isRequired()
-        isInt {
-            isPositive()
-        }
+        isInt()?.isPositive()
     }
 
     val isBuyField = validator.addField(initial.isBuy)
 
     val priceField = validator.addField(initial.price) {
         isRequired()
-        isBigDecimal {
-            isPositive()
-        }
+        isBigDecimal()?.isPositive()
     }
 
     val stop = validator.addField(initial.stop) {
-        isBigDecimal {
+        isRequired(false)
+        isBigDecimal()?.apply {
             isPositive()
 
-            validate(
-                isValid = when {
-                    validated(isBuyField) -> this < validated(priceField).toBigDecimal()
-                    else -> this > validated(priceField).toBigDecimal()
-                },
-                errorMessage = { "Invalid Stop" },
-            )
+            val isValid = when {
+                validated(isBuyField) -> this < validated(priceField).toBigDecimal()
+                else -> this > validated(priceField).toBigDecimal()
+            }
+
+            if (!isValid) reportInvalid("Invalid Stop")
         }
     }
 
     val target = validator.addField(initial.target) {
-        isBigDecimal {
+        isRequired(false)
+        isBigDecimal()?.apply {
             isPositive()
 
-            validate(
-                isValid = when {
-                    validated(isBuyField) -> this > validated(priceField).toBigDecimal()
-                    else -> this < validated(priceField).toBigDecimal()
-                },
-                errorMessage = { "Invalid Target" },
-            )
+            val isValid = when {
+                validated(isBuyField) -> this > validated(priceField).toBigDecimal()
+                else -> this < validated(priceField).toBigDecimal()
+            }
+
+            if (!isValid) reportInvalid("Invalid Target")
         }
     }
 

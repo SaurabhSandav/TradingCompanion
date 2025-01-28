@@ -1,26 +1,24 @@
 package com.saurabhsandav.core.ui.common.form.validations
 
-import com.saurabhsandav.core.ui.common.form.Validation
 import com.saurabhsandav.core.ui.common.form.ValidationScope
 import java.math.BigDecimal
 
 context(ValidationScope)
-suspend fun String.isBigDecimal(
-    validation: Validation<BigDecimal>? = null,
-) {
-
-    ifBlank { return }
+fun String.isBigDecimal(
+    errorMessage: () -> String = { "Not a valid number" },
+): BigDecimal? {
 
     val bdValue = toBigDecimalOrNull()
 
-    bdValue.isRequired { "Not a valid number" }
+    if (bdValue == null) reportInvalid(message = errorMessage())
 
-    validation?.apply {
-        bdValue.validate()
-    }
+    return bdValue
 }
 
 context(ValidationScope)
-fun BigDecimal.isPositive() {
-    validate(this > BigDecimal.ZERO) { "Cannot be 0 or negative" }
+fun BigDecimal.isPositive(
+    errorMessage: () -> String = { "Cannot be 0 or negative" },
+): BigDecimal {
+    if (this < BigDecimal.ZERO) reportInvalid(message = errorMessage())
+    return this
 }

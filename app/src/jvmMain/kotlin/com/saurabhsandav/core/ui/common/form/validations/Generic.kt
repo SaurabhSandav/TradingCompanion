@@ -1,22 +1,27 @@
 package com.saurabhsandav.core.ui.common.form.validations
 
 import com.saurabhsandav.core.ui.common.form.ValidationScope
-import kotlin.contracts.contract
 
 context(ValidationScope)
 inline fun <reified T> T?.isRequired(
+    value: Boolean = true,
     noinline errorMessage: () -> String = { "Required" },
 ) {
 
-    contract {
-        returns() implies (this@isRequired != null)
-    }
+    if (this != null) return
+    if (!value) finishValidation()
 
-    validate(
-        isValid = when (this) {
-            is String -> isNotBlank()
-            else -> this != null
-        },
-        errorMessage = errorMessage,
-    )
+    reportInvalid(errorMessage())
+}
+
+context(ValidationScope)
+inline fun String.isRequired(
+    value: Boolean = true,
+    errorMessage: () -> String = { "Required" },
+) {
+
+    if (isNotBlank()) return
+    if (!value) finishValidation()
+
+    reportInvalid(errorMessage())
 }

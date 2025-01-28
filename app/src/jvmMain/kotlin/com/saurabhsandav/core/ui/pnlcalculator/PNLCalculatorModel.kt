@@ -22,30 +22,24 @@ internal class PNLCalculatorModel(
 
     val quantityField = validator.addField(quantity) {
         isRequired()
-        isInt {
-            isPositive()
-        }
+        isInt()?.isPositive()
     }
 
     val isLongField = validator.addField(isLong)
 
     val entryField = validator.addField(entry) {
         isRequired()
-        isBigDecimal {
-            isPositive()
-        }
+        isBigDecimal()?.isPositive()
     }
 
     val exitField = validator.addField(exit) {
         isRequired()
-        isBigDecimal {
+        isBigDecimal()?.apply {
 
             isPositive()
 
-            validate(
-                isValid = validated(entryField).toBigDecimal().compareTo(this) != 0,
-                errorMessage = { "Entry and Exit cannot be the same" },
-            )
+            if (validated(entryField).toBigDecimal().compareTo(this) == 0)
+                reportInvalid("Entry and Exit cannot be the same")
         }
     }
 

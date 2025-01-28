@@ -22,6 +22,7 @@ import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
@@ -104,7 +105,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.quantityField.value = it.trim() },
                 label = { Text("Quantity") },
                 isError = model.quantityField.isError,
-                supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
+                supportingText = model.quantityField.errorsMessagesAsSupportingText(),
                 singleLine = true,
                 enabled = model.enableModification,
             )
@@ -114,7 +115,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.entryField.value = it.trim() },
                 label = { Text("Entry") },
                 isError = model.entryField.isError,
-                supportingText = model.entryField.errorMessage?.let { { Text(it) } },
+                supportingText = model.entryField.errorsMessagesAsSupportingText(),
                 singleLine = true,
                 enabled = model.enableModification,
             )
@@ -124,7 +125,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
                 onValueChange = { model.exitField.value = it.trim() },
                 label = { Text("Exit") },
                 isError = model.exitField.isError,
-                supportingText = model.exitField.errorMessage?.let { { Text(it) } },
+                supportingText = model.exitField.errorsMessagesAsSupportingText(),
                 singleLine = true,
             )
 

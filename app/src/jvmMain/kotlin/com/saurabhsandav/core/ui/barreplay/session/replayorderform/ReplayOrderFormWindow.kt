@@ -17,6 +17,7 @@ import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayO
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.theme.dimens
@@ -95,7 +96,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.quantityField.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
-            supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
+            supportingText = model.quantityField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -133,7 +134,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.priceField.value = it.trim() },
             label = { Text("Price") },
             isError = model.priceField.isError,
-            supportingText = model.priceField.errorMessage?.let { { Text(it) } },
+            supportingText = model.priceField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -142,7 +143,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.stop.value = it.trim() },
             label = { Text("Stop") },
             isError = model.stop.isError,
-            supportingText = model.stop.errorMessage?.let { { Text(it) } },
+            supportingText = model.stop.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -151,7 +152,7 @@ private fun ReplayOrderForm(
             onValueChange = { model.target.value = it.trim() },
             label = { Text("Target") },
             isError = model.target.isError,
-            supportingText = model.target.errorMessage?.let { { Text(it) } },
+            supportingText = model.target.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 

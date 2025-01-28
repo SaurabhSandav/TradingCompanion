@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
@@ -52,7 +53,7 @@ internal fun NewReplayForm(
             label = { Text("Base Timeframe") },
             placeholderText = "Select Timeframe...",
             isError = model.baseTimeframeField.isError,
-            supportingText = model.baseTimeframeField.errorMessage?.let { { Text(it) } },
+            supportingText = model.baseTimeframeField.errorsMessagesAsSupportingText(),
         )
 
         OutlinedTextField(
@@ -60,7 +61,7 @@ internal fun NewReplayForm(
             onValueChange = { model.candlesBeforeField.value = it.trim() },
             label = { Text("Candles Before") },
             isError = model.candlesBeforeField.isError,
-            supportingText = model.candlesBeforeField.errorMessage?.let { { Text(it) } },
+            supportingText = model.candlesBeforeField.errorsMessagesAsSupportingText(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
@@ -70,7 +71,7 @@ internal fun NewReplayForm(
             onValidValueChange = { model.replayFromField.value = it },
             label = { Text("Replay From") },
             isError = model.replayFromField.isError,
-            supportingText = model.replayFromField.errorMessage?.let { { Text(it) } },
+            supportingText = model.replayFromField.errorsMessagesAsSupportingText(),
         )
 
         DateTimePickerField(
@@ -78,7 +79,7 @@ internal fun NewReplayForm(
             onValidValueChange = { model.dataToField.value = it },
             label = { Text("Data To") },
             isError = model.dataToField.isError,
-            supportingText = model.dataToField.errorMessage?.let { { Text(it) } },
+            supportingText = model.dataToField.errorsMessagesAsSupportingText(),
         )
 
         SingleChoiceSegmentedButtonRow(
@@ -110,7 +111,7 @@ internal fun NewReplayForm(
             selected = model.initialTickerField.value,
             onSelect = { model.initialTickerField.value = it },
             isError = model.initialTickerField.isError,
-            supportingText = model.initialTickerField.errorMessage?.let { { Text(it) } },
+            supportingText = model.initialTickerField.errorsMessagesAsSupportingText(),
         )
 
         ProfileSelectorField(

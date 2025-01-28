@@ -33,27 +33,17 @@ class NewReplayFormModel(
 
     val candlesBeforeField = validator.addField(candlesBefore) {
         isRequired()
-        isInt {
-            isPositive()
-        }
+        isInt()?.isPositive()
     }
 
     val replayFromField = validator.addField(replayFrom) {
         isRequired()
-
-        validate(
-            isValid = this < Clock.System.nowIn(TimeZone.currentSystemDefault()),
-            errorMessage = { "Cannot be in the future" },
-        )
+        if (this >= Clock.System.nowIn(TimeZone.currentSystemDefault())) reportInvalid("Cannot be in the future")
     }
 
     val dataToField = validator.addField(dataTo) {
         isRequired()
-
-        validate(
-            isValid = validated(replayFromField) < this,
-            errorMessage = { "Cannot be before or same as replay from" },
-        )
+        if (this <= validated(replayFromField)) reportInvalid("Cannot be before or same as replay from")
     }
 
     var replayFullBar by mutableStateOf(replayFullBar)

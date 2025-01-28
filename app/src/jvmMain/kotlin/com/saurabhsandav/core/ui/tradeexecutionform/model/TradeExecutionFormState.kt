@@ -32,32 +32,27 @@ internal class TradeExecutionFormModel(
 
     val quantityField = validator.addField(initial.quantity) {
         isRequired()
-        isInt {
-            isPositive()
-        }
+        isInt()?.isPositive()
     }
 
     val lotsField = validator.addField(initial.lots) {
-        isInt {
-            isPositive()
-        }
+        isRequired(false)
+        isInt()?.isPositive()
     }
 
     val isBuyField = validator.addField(initial.isBuy)
 
     val priceField = validator.addField(initial.price) {
         isRequired()
-        isBigDecimal {
-            isPositive()
-        }
+        isBigDecimal()?.isPositive()
     }
 
     val dateField = validator.addField(initial.timestamp.date) {
-        validate(this <= currentLocalDateTime().date) { "Cannot be in the future" }
+        if (this > currentLocalDateTime().date) reportInvalid("Cannot be in the future")
     }
 
     val timeField = validator.addField(initial.timestamp.time) {
-        validate(validated(dateField).atTime(this) < currentLocalDateTime()) { "Cannot be in the future" }
+        if (validated(dateField).atTime(this) >= currentLocalDateTime()) reportInvalid("Cannot be in the future")
     }
 
     private fun currentLocalDateTime() = Clock.System.nowIn(TimeZone.currentSystemDefault())

@@ -1,25 +1,23 @@
 package com.saurabhsandav.core.ui.common.form.validations
 
-import com.saurabhsandav.core.ui.common.form.Validation
 import com.saurabhsandav.core.ui.common.form.ValidationScope
 
 context(ValidationScope)
-suspend fun String.isInt(
-    validation: Validation<Int>? = null,
-) {
-
-    ifBlank { return }
+fun String.isInt(
+    errorMessage: () -> String = { "Not a valid integer" },
+): Int? {
 
     val intValue = toIntOrNull()
 
-    intValue.isRequired { "Not a valid integer" }
+    if (intValue == null) reportInvalid(message = errorMessage())
 
-    validation?.apply {
-        intValue.validate()
-    }
+    return intValue
 }
 
 context(ValidationScope)
-fun Int.isPositive() {
-    validate(this > 0) { "Cannot be 0 or negative" }
+fun Int.isPositive(
+    errorMessage: () -> String = { "Cannot be 0 or negative" },
+): Int {
+    if (this < 0) reportInvalid(message = errorMessage())
+    return this
 }

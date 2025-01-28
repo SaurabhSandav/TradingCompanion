@@ -23,6 +23,7 @@ import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
@@ -127,7 +128,7 @@ private fun TradeExecutionForm(
             label = { Text("Instrument") },
             enabled = isTickerEditable,
             isError = model.instrumentField.isError,
-            supportingText = model.instrumentField.errorMessage?.let { { Text(it) } },
+            supportingText = model.instrumentField.errorsMessagesAsSupportingText(),
         )
 
         TickerSelectionField(
@@ -137,7 +138,7 @@ private fun TradeExecutionForm(
             onSelect = { model.tickerField.value = it },
             enabled = isTickerEditable,
             isError = model.tickerField.isError,
-            supportingText = model.tickerField.errorMessage?.let { { Text(it) } },
+            supportingText = model.tickerField.errorsMessagesAsSupportingText(),
         )
 
         OutlinedTextField(
@@ -146,7 +147,7 @@ private fun TradeExecutionForm(
             onValueChange = { model.quantityField.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
-            supportingText = model.quantityField.errorMessage?.let { { Text(it) } },
+            supportingText = model.quantityField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -155,7 +156,7 @@ private fun TradeExecutionForm(
             onValueChange = { model.lotsField.value = it.trim() },
             label = { Text("Lots") },
             isError = model.lotsField.isError,
-            supportingText = model.lotsField.errorMessage?.let { { Text(it) } },
+            supportingText = model.lotsField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -195,7 +196,7 @@ private fun TradeExecutionForm(
             onValueChange = { model.priceField.value = it.trim() },
             label = { Text("Price") },
             isError = model.priceField.isError,
-            supportingText = model.priceField.errorMessage?.let { { Text(it) } },
+            supportingText = model.priceField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 
@@ -204,7 +205,7 @@ private fun TradeExecutionForm(
             onValidValueChange = { model.dateField.value = it },
             label = { Text("Entry Date") },
             isError = model.dateField.isError,
-            supportingText = model.dateField.errorMessage?.let { { Text(it) } },
+            supportingText = model.dateField.errorsMessagesAsSupportingText(),
             yearRange = remember {
                 1900..Clock.System.nowIn(TimeZone.currentSystemDefault()).year
             }
@@ -215,7 +216,7 @@ private fun TradeExecutionForm(
             onValidValueChange = { model.timeField.value = it },
             label = { Text("Entry Time") },
             isError = model.timeField.isError,
-            supportingText = model.timeField.errorMessage?.let { { Text(it) } },
+            supportingText = model.timeField.errorsMessagesAsSupportingText(),
             trailingIcon = {
 
                 TextButton(

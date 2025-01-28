@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -67,7 +68,7 @@ private fun Form(
             onValueChange = { model.nameField.value = it },
             label = { Text("Name") },
             isError = model.nameField.isError,
-            supportingText = model.nameField.errorMessage?.let { { Text(it) } },
+            supportingText = model.nameField.errorsMessagesAsSupportingText(),
             singleLine = true,
         )
 

@@ -22,10 +22,7 @@ internal class TagFormModel(
     val nameField = validator.addField(initial.name) {
         isRequired()
 
-        validate(
-            isValid = isTagNameUnique(this),
-            errorMessage = { "Tag already exists" }
-        )
+        if (!isTagNameUnique(this)) reportInvalid("Tag already exists")
     }
 
     val descriptionField = validator.addField(initial.description)

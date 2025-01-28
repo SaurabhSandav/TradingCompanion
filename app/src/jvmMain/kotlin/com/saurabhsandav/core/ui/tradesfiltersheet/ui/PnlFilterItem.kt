@@ -11,11 +11,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import kotlinx.coroutines.flow.map
@@ -184,7 +186,7 @@ private fun RowScope.CustomField(
             }
         },
         isError = formField.isError,
-        supportingText = formField.errorMessage?.let { { Text(it) } },
+        supportingText = formField.errorsMessagesAsSupportingText(),
         singleLine = true,
     )
 }
@@ -196,21 +198,17 @@ private class PnlFormModel(
 ) {
 
     val fromField = validator.addField(from?.toPlainString().orEmpty()) {
+        isRequired(false)
         isBigDecimal()
     }
 
     val toField = validator.addField(to?.toPlainString().orEmpty()) {
-        isBigDecimal {
+        isRequired(false)
+        isBigDecimal()?.apply {
 
             val validatedFrom = validated(fromField).toBigDecimalOrNull()
 
-            if (validatedFrom != null) {
-
-                validate(
-                    isValid = validatedFrom <= this,
-                    errorMessage = { "Cannot be less than from" },
-                )
-            }
+            if (validatedFrom != null && validatedFrom > this) reportInvalid("Cannot be less than from")
         }
     }
 }

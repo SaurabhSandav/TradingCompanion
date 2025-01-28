@@ -4,9 +4,16 @@ import kotlin.coroutines.cancellation.CancellationException
 
 interface ValidationScope {
 
-    fun validate(isValid: Boolean, errorMessage: () -> String)
+    fun reportInvalid(message: String)
 
     suspend fun <T> validated(formField: FormField<T>): T
+
+    /**
+     * Run validation without interrupting on failed validations.
+     */
+    suspend fun collect(scope: suspend context(ValidationScope) () -> Unit)
+
+    fun finishValidation()
 }
 
 internal sealed class ValidationResult {
@@ -15,7 +22,7 @@ internal sealed class ValidationResult {
 
     data object DependencyInvalid : ValidationResult()
 
-    data class Invalid(val errorMessage: String) : ValidationResult()
+    data class Invalid(val errorMessages: List<String>) : ValidationResult()
 }
 
 internal class ValidationScopeImpl : ValidationScope {
@@ -23,17 +30,26 @@ internal class ValidationScopeImpl : ValidationScope {
     var result: ValidationResult = ValidationResult.Valid
     val dependencies = mutableSetOf<FormField<*>>()
 
-    override fun validate(
-        isValid: Boolean,
-        errorMessage: () -> String,
-    ) {
+    private var stopValidationOnInvalid = true
 
-        if (!isValid) {
+    override fun reportInvalid(message: String) {
 
-            result = ValidationResult.Invalid(errorMessage())
-
-            throw ValidationException
+        when (val currentResult = result) {
+            is ValidationResult.Invalid -> (currentResult.errorMessages as MutableList<String>).add(message)
+            else -> result = ValidationResult.Invalid(mutableListOf(message))
         }
+
+        if (stopValidationOnInvalid) throw ValidationInterruptedException
+    }
+
+    override suspend fun collect(block: suspend context(ValidationScope) () -> Unit) {
+        stopValidationOnInvalid = false
+        block(this)
+        stopValidationOnInvalid = true
+    }
+
+    override fun finishValidation() {
+        throw ValidationInterruptedException
     }
 
     override suspend fun <T> validated(formField: FormField<T>): T {
@@ -44,16 +60,17 @@ internal class ValidationScopeImpl : ValidationScope {
 
             result = ValidationResult.DependencyInvalid
 
-            throw ValidationException
+            throw ValidationInterruptedException
         }
 
         return formField.value
     }
 }
 
-internal object ValidationException : CancellationException(null as String?) {
+internal object ValidationInterruptedException : CancellationException(null as String?) {
 
-    private fun readResolve(): Any = ValidationException
+    @Suppress("unused")
+    private fun readResolve(): Any = ValidationInterruptedException
 
     override fun fillInStackTrace(): Throwable = this
 }

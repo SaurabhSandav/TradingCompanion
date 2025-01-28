@@ -15,10 +15,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.controls.TimeField
+import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
 import kotlinx.coroutines.flow.map
@@ -130,7 +132,7 @@ private fun RowScope.TimePicker(
             }
         },
         isError = formField.isError,
-        supportingText = formField.errorMessage?.let { { Text(it) } },
+        supportingText = formField.errorsMessagesAsSupportingText(),
     )
 }
 
@@ -143,15 +145,11 @@ private class TimeIntervalFormModel(
     val fromField = validator.addField(from)
 
     val toField = validator.addField(to) {
+        isRequired(false)
 
         val validatedFrom = validated(fromField)
 
-        if (this != null && validatedFrom != null) {
-
-            validate(
-                isValid = validatedFrom <= this,
-                errorMessage = { "Cannot be less than from" },
-            )
-        }
+        if (this != null && validatedFrom != null && validatedFrom > this)
+            reportInvalid("Cannot be less than from")
     }
 }
