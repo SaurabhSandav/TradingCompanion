@@ -77,19 +77,7 @@ internal class FormFieldImpl<T> internal constructor(
 
         if (isUpToDate) return isValid
 
-        val receiver = ValidationScopeImpl()
-
-        try {
-            with(receiver) {
-                with(validation) {
-                    value.validate()
-                }
-            }
-        } catch (_: ValidationInterruptedException) {
-            // Validation interrupted. Validation result is in `ValidationScopeImpl`.
-        }
-
-        val result = receiver.result
+        val (result, dependencies) = runValidation(value, validation)
 
         val (isValid, errorMessages) = when (result) {
             is Invalid -> false to result.errorMessages
@@ -101,10 +89,10 @@ internal class FormFieldImpl<T> internal constructor(
             clear()
             addAll(errorMessages)
         }
-
-        // Update dependencies
-        dependencies.clear()
-        dependencies.addAll(receiver.dependencies)
+        this.dependencies.apply {
+            clear()
+            addAll(dependencies)
+        }
 
         isUpToDate = true
 

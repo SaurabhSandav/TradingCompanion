@@ -1,0 +1,88 @@
+package com.saurabhsandav.core.ui.common.form
+
+import com.saurabhsandav.core.ui.common.form.ValidationResult.*
+import com.saurabhsandav.core.ui.common.form.validations.isInt
+import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.runTest
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+class ValidationTest {
+
+    @Test
+    fun Valid() = runTest {
+
+        val validation = Validation<String> {
+            isRequired()
+        }
+        val (result, dependencies) = runValidation("test", validation)
+
+        assertIs<Valid>(result)
+        assertEquals(emptySet(), dependencies)
+    }
+
+    @Test
+    fun Invalid() = runTest {
+
+        val validation = Validation<String> {
+            isRequired()
+        }
+        val (result, dependencies) = runValidation("", validation)
+
+        assertIs<Invalid>(result)
+        assertEquals(listOf("Required"), result.errorMessages)
+        assertEquals(emptySet(), dependencies)
+    }
+
+    @Test
+    fun `Dependency Invalid`() = runTest {
+
+        val scope = CoroutineScope(EmptyCoroutineContext)
+
+        val formField = FormFieldImpl(-1, scope) {
+            if (this < 0) reportInvalid("Cannot be negative")
+        }
+        val validation = Validation<Int> {
+            isRequired()
+            if (formField.validatedValue() != this) reportInvalid("Not equal")
+        }
+
+        runValidation(3, validation).let { (result, dependencies) ->
+            assertIs<DependencyInvalid>(result)
+            assertEquals(setOf(formField), dependencies)
+        }
+
+        // Update dependee
+        formField.value = 3
+        runValidation(3, validation).let { (result, dependencies) ->
+            assertIs<Valid>(result)
+            assertEquals(setOf(formField), dependencies)
+        }
+
+        scope.cancel()
+    }
+
+    @Test
+    fun `Multiple errors`() = runTest {
+
+        val lengthErrorMessages = "Length required to be 6"
+        val allNumbersErrorMessage = "Needs to be all numbers"
+
+        val validation = Validation<String> {
+            isRequired()
+            collect {
+                if (length != 6) reportInvalid(lengthErrorMessages)
+                isInt { allNumbersErrorMessage }
+            }
+        }
+        val (result, dependencies) = runValidation("Test", validation)
+
+        assertIs<Invalid>(result)
+        assertEquals(listOf(lengthErrorMessages, allNumbersErrorMessage), result.errorMessages)
+        assertEquals(emptySet(), dependencies)
+    }
+}
