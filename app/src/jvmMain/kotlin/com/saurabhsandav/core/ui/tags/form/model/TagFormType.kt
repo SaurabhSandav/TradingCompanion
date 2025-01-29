@@ -4,7 +4,7 @@ import com.saurabhsandav.core.trades.model.TradeTagId
 
 sealed class TagFormType {
 
-    data object New : TagFormType()
+    data class New(val name: String? = null) : TagFormType()
 
     data class NewFromExisting(val id: TradeTagId) : TagFormType()
 

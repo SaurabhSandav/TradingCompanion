@@ -122,6 +122,7 @@ private fun AddTagButton(
             profileId = profileId,
             type = tagSelectorType,
             onSelectTag = onAddTag,
+            allowCreate = false,
         )
     }
 }

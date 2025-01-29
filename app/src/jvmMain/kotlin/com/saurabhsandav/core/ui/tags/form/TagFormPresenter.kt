@@ -52,7 +52,7 @@ internal class TagFormPresenter(
                 coroutineScope = coroutineScope,
                 isTagNameUnique = ::isTagNameUnique,
                 initial = when (formType) {
-                    is New -> TagFormModel.Initial()
+                    is New -> TagFormModel.Initial(name = formType.name ?: "")
                     is NewFromExisting -> {
 
                         val tag = tags.await().getById(formType.id).first()

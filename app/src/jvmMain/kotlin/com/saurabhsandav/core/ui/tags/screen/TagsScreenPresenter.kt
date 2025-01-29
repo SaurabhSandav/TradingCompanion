@@ -78,7 +78,7 @@ internal class TagsScreenPresenter(
 
         tradeContentLauncher.openTagForm(
             profileId = profileId,
-            formType = TagFormType.New,
+            formType = TagFormType.New(),
         )
     }
 
