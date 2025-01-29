@@ -1,16 +1,16 @@
-package com.saurabhsandav.core.ui.tags
+package com.saurabhsandav.core.ui.tags.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.*
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.*
 
 internal class TagsLandingSwitcherItem(
-    tagsModule: TagsModule,
+    tagsScreenModule: TagsScreenModule,
 ) : LandingSwitcherItem {
 
-    private val presenter = tagsModule.presenter()
+    private val presenter = tagsScreenModule.presenter()
 
     @Composable
     override fun Content() {

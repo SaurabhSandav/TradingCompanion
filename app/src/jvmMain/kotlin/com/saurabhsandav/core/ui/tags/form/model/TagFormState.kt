@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tagform.model
+package com.saurabhsandav.core.ui.tags.form.model
 
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.form.FormValidator

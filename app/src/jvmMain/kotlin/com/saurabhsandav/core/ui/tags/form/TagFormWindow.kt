@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tagform
+package com.saurabhsandav.core.ui.tags.form
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -24,8 +24,8 @@ import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tagform.model.TagFormModel
-import com.saurabhsandav.core.ui.tagform.model.TagFormType
+import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable

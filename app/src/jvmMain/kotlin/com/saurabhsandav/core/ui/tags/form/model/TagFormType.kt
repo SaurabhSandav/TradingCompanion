@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tagform.model
+package com.saurabhsandav.core.ui.tags.form.model
 
 import com.saurabhsandav.core.trades.model.TradeTagId
 

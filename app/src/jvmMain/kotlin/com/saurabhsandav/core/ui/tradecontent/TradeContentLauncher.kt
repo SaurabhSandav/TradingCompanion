@@ -6,8 +6,8 @@ import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.review.ReviewWindow
-import com.saurabhsandav.core.ui.tagform.TagFormWindow
-import com.saurabhsandav.core.ui.tagform.model.TagFormType
+import com.saurabhsandav.core.ui.tags.form.TagFormWindow
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType

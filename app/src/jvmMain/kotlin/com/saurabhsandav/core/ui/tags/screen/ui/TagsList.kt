@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags.ui
+package com.saurabhsandav.core.ui.tags.screen.ui
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
-import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
 
 @Composable
 fun TagsList(

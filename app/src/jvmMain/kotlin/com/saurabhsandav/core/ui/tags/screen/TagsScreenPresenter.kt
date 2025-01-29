@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags
+package com.saurabhsandav.core.ui.tags.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -10,11 +10,11 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.tagform.model.TagFormType
-import com.saurabhsandav.core.ui.tags.model.TagsEvent
-import com.saurabhsandav.core.ui.tags.model.TagsEvent.*
-import com.saurabhsandav.core.ui.tags.model.TagsState
-import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.*
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
@@ -23,7 +23,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-internal class TagsPresenter(
+internal class TagsScreenPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
@@ -34,13 +34,13 @@ internal class TagsPresenter(
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
-        return@launchMolecule TagsState(
+        return@launchMolecule TagsScreenState(
             tags = getTags().value,
             eventSink = ::onEvent,
         )
     }
 
-    private fun onEvent(event: TagsEvent) {
+    private fun onEvent(event: TagsScreenEvent) {
 
         when (event) {
             NewTag -> onNewTag()

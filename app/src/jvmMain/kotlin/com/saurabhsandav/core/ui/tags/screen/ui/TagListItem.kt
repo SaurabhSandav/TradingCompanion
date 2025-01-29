@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags.ui
+package com.saurabhsandav.core.ui.tags.screen.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable

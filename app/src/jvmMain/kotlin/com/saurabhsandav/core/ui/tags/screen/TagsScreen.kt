@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tags
+package com.saurabhsandav.core.ui.tags.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
-import com.saurabhsandav.core.ui.tags.model.TagsState.Tag
-import com.saurabhsandav.core.ui.tags.ui.TagsList
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
+import com.saurabhsandav.core.ui.tags.screen.ui.TagsList
 
 @Composable
 fun TagsScreen(

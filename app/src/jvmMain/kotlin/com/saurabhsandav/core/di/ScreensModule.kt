@@ -13,8 +13,8 @@ import com.saurabhsandav.core.ui.reviews.ReviewsModule
 import com.saurabhsandav.core.ui.settings.SettingsModule
 import com.saurabhsandav.core.ui.sizing.SizingModule
 import com.saurabhsandav.core.ui.stats.StatsModule
-import com.saurabhsandav.core.ui.tagform.TagFormModule
-import com.saurabhsandav.core.ui.tags.TagsModule
+import com.saurabhsandav.core.ui.tags.form.TagFormModule
+import com.saurabhsandav.core.ui.tags.screen.TagsScreenModule
 import com.saurabhsandav.core.ui.trade.TradeModule
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
@@ -76,8 +76,8 @@ internal class ScreensModule(
         StatsModule(appModule, coroutineScope, profileId)
     }
 
-    val tagsModule: (CoroutineScope, ProfileId) -> TagsModule = { coroutineScope, profileId ->
-        TagsModule(appModule, coroutineScope, profileId)
+    val tagsScreenModule: (CoroutineScope, ProfileId) -> TagsScreenModule = { coroutineScope, profileId ->
+        TagsScreenModule(appModule, coroutineScope, profileId)
     }
 
     val tagFormModule: (CoroutineScope) -> TagFormModule = { coroutineScope ->

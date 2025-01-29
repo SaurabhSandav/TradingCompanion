@@ -1,8 +1,8 @@
-package com.saurabhsandav.core.ui.tagform
+package com.saurabhsandav.core.ui.tags.form
 
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.tagform.model.TagFormType
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import kotlinx.coroutines.CoroutineScope
 
 internal class TagFormModule(
