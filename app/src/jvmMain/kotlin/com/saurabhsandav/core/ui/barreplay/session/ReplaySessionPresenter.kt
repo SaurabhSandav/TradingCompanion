@@ -14,7 +14,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.stockchart.LoadConfig
+import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.utils.emitInto

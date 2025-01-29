@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.stockchart
+package com.saurabhsandav.core.ui.stockchart.data
 
 import kotlinx.datetime.Instant
 

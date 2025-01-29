@@ -7,6 +7,9 @@ import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebViewState
+import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
+import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
+import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit

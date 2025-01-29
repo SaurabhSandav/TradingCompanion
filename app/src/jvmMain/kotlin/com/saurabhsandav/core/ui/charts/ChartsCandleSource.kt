@@ -2,7 +2,7 @@ package com.saurabhsandav.core.ui.charts
 
 import com.github.michaelbull.result.Result
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.stockchart.CandleSource
+import com.saurabhsandav.core.ui.stockchart.data.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker

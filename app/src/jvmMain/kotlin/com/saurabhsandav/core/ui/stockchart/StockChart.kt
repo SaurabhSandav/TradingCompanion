@@ -13,7 +13,10 @@ import com.saurabhsandav.core.ui.common.chart.*
 import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.common.toLabel
-import com.saurabhsandav.core.ui.stockchart.StockChartData.LoadState
+import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
+import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
+import com.saurabhsandav.core.ui.stockchart.data.StockChartData
+import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
 import com.saurabhsandav.core.ui.stockchart.plotter.CandlestickPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.LinePlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter

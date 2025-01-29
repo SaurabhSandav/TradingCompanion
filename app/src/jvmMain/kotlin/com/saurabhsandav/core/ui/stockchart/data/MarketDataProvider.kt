@@ -1,7 +1,8 @@
-package com.saurabhsandav.core.ui.stockchart
+package com.saurabhsandav.core.ui.stockchart.data
 
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import kotlinx.coroutines.flow.StateFlow
 
 interface MarketDataProvider {

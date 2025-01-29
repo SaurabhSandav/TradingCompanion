@@ -6,8 +6,8 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.stockchart.CandleSource
-import com.saurabhsandav.core.ui.stockchart.MarketDataProvider
+import com.saurabhsandav.core.ui.stockchart.data.CandleSource
+import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker

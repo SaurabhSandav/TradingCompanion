@@ -1,6 +1,7 @@
-package com.saurabhsandav.core.ui.stockchart
+package com.saurabhsandav.core.ui.stockchart.data
 
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
