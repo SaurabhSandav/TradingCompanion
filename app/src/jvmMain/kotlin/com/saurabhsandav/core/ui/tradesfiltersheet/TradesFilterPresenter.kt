@@ -37,7 +37,6 @@ internal class TradesFilterPresenter(
         return@launchMolecule TradesFilterState(
             filterConfig = filterConfig,
             selectedTags = getSelectedTags(),
-            tagSuggestions = ::tagSuggestions,
             tickerSuggestions = ::tickerSuggestions,
             eventSink = ::onEvent,
         )
@@ -89,27 +88,6 @@ internal class TradesFilterPresenter(
                 }
                 .collect { value = it }
         }.value
-    }
-
-    private fun tagSuggestions(filterQuery: String): Flow<List<TradeTag>> = flow {
-
-        snapshotFlow { filterConfig.tags }
-            .flatMapLatest { tagIds ->
-                tradingRecord.await().tags.getSuggested(
-                    filter = filterQuery,
-                    ignoreIds = tagIds,
-                )
-            }
-            .mapList { tag ->
-
-                TradeTag(
-                    id = tag.id,
-                    name = tag.name,
-                    description = tag.description.ifBlank { null },
-                    color = tag.color?.let(::Color),
-                )
-            }
-            .emitInto(this)
     }
 
     private fun tickerSuggestions(filterQuery: String): Flow<List<String>> = flow {

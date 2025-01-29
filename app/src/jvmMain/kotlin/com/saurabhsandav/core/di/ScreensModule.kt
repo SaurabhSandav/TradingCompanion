@@ -15,6 +15,7 @@ import com.saurabhsandav.core.ui.sizing.SizingModule
 import com.saurabhsandav.core.ui.stats.StatsModule
 import com.saurabhsandav.core.ui.tags.form.TagFormModule
 import com.saurabhsandav.core.ui.tags.screen.TagsScreenModule
+import com.saurabhsandav.core.ui.tags.selector.TagSelectorStateFactory
 import com.saurabhsandav.core.ui.trade.TradeModule
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormModule
@@ -83,6 +84,8 @@ internal class ScreensModule(
     val tagFormModule: (CoroutineScope) -> TagFormModule = { coroutineScope ->
         TagFormModule(appModule, coroutineScope)
     }
+
+    val tagSelectorStateFactory: () -> TagSelectorStateFactory = { TagSelectorStateFactory(appModule.tradingProfiles) }
 
     val tradeModule: (CoroutineScope) -> TradeModule = { coroutineScope ->
         TradeModule(appModule, coroutineScope)

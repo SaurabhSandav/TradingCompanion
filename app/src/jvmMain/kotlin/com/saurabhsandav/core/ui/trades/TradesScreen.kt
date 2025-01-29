@@ -15,7 +15,6 @@ import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.*
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.ui.TradesOptionsBar
 import com.saurabhsandav.core.ui.trades.ui.TradesSelectionBar
@@ -36,7 +35,6 @@ internal fun TradesScreen(
     onApplyFilter: (TradeFilter) -> Unit,
     onNewExecution: () -> Unit,
     onDeleteTrades: (List<TradeId>) -> Unit,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (List<TradeId>, TradeTagId) -> Unit,
 ) {
 
@@ -100,7 +98,6 @@ internal fun TradesScreen(
             profileId = profileId,
             selectionManager = selectionManager,
             onDeleteTrades = onDeleteTrades,
-            tagSuggestions = tagSuggestions,
             onAddTag = onAddTag,
             onOpenChart = onOpenChart,
         )

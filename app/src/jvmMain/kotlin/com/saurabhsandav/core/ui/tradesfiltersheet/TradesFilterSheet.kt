@@ -39,6 +39,7 @@ internal fun TradesFilterSheet(
     }
 
     TradesFilterSheet(
+        profileId = profileId,
         openClosed = state.filterConfig.openClosed,
         onOpenClosedChange = { state.eventSink(FilterOpenClosed(it)) },
         side = state.filterConfig.side,
@@ -54,7 +55,6 @@ internal fun TradesFilterSheet(
         notes = state.filterConfig.notes,
         onNotesChange = { state.eventSink(FilterNotes(it)) },
         selectedTags = state.selectedTags,
-        tagSuggestions = state.tagSuggestions,
         onAddTag = { state.eventSink(AddTag(it)) },
         onRemoveTag = { state.eventSink(RemoveTag(it)) },
         matchAllTags = state.filterConfig.matchAllTags,
@@ -70,6 +70,7 @@ internal fun TradesFilterSheet(
 
 @Composable
 private fun TradesFilterSheet(
+    profileId: ProfileId,
     openClosed: OpenClosed,
     onOpenClosedChange: (OpenClosed) -> Unit,
     side: Side,
@@ -85,7 +86,6 @@ private fun TradesFilterSheet(
     notes: Notes,
     onNotesChange: (Notes) -> Unit,
     selectedTags: List<TradeTag>?,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
     matchAllTags: Boolean,
@@ -127,8 +127,8 @@ private fun TradesFilterSheet(
             HorizontalDivider()
 
             TagsFilterItem(
+                profileId = profileId,
                 selectedTags = selectedTags,
-                tagSuggestions = tagSuggestions,
                 onAddTag = onAddTag,
                 onRemoveTag = onRemoveTag,
                 matchAllTags = matchAllTags,

@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.trades
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.paging.*
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
@@ -9,7 +8,6 @@ import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
-import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -21,7 +19,6 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -51,7 +48,6 @@ internal class TradesPresenter(
             tradeEntries = getTradeEntries(),
             isFocusModeEnabled = isFocusModeEnabled,
             selectionManager = selectionManager,
-            tagSuggestions = ::tagSuggestions,
             eventSink = ::onEvent,
         )
     }
@@ -251,22 +247,6 @@ internal class TradesPresenter(
             isNetProfitable = netPnl > BigDecimal.ZERO,
             fees = fees.toPlainString(),
         )
-    }
-
-    private fun tagSuggestions(filter: String): Flow<List<TradeTag>> = flow {
-
-        tradingRecord.await().tags
-            .getSuggested(filter)
-            .mapList { tag ->
-
-                TradeTag(
-                    id = tag.id,
-                    name = tag.name,
-                    description = tag.description.ifBlank { null },
-                    color = tag.color?.let(::Color),
-                )
-            }
-            .emitInto(this)
     }
 
     private fun onOpenDetails(id: TradeId) {

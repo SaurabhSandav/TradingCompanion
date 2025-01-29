@@ -23,7 +23,6 @@ internal data class TradeState(
     val excursions: Excursions?,
     val notes: List<TradeNote>,
     val tags: List<TradeTag>,
-    val tagSuggestions: (String) -> Flow<List<TradeTag>>,
     val attachments: List<TradeAttachment>,
     val eventSink: (TradeEvent) -> Unit,
 ) {

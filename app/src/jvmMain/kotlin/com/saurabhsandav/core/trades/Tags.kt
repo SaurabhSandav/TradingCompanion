@@ -37,9 +37,9 @@ class Tags internal constructor(
         return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getSuggestedForTrade(tradeId: TradeId, filter: String): Flow<List<TradeTag>> {
+    fun getSuggestedForTrades(tradeIds: List<TradeId>, filterQuery: String): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries
-            .getSuggestedTagsForTrade(tradeId, filter)
+            .getSuggestedTagsForTrades(tradeIds, filterQuery)
             .asFlow()
             .mapToList(appDispatchers.IO)
     }

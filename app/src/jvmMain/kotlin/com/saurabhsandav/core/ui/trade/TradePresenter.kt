@@ -91,7 +91,6 @@ internal class TradePresenter(
             targetPreviewer = targetPreviewer,
             excursions = getExcursions().value,
             tags = getTradeTags().value,
-            tagSuggestions = ::tagSuggestions,
             attachments = getTradeAttachments().value,
             notes = getTradeNotes().value,
             eventSink = ::onEvent,
@@ -373,22 +372,6 @@ internal class TradePresenter(
                 }
                 .collect { value = it }
         }
-    }
-
-    private fun tagSuggestions(filter: String): Flow<List<TradeTag>> = flow {
-
-        tradingRecord.await().tags
-            .getSuggestedForTrade(tradeId, filter)
-            .mapList { tag ->
-
-                TradeTag(
-                    id = tag.id,
-                    name = tag.name,
-                    description = tag.description.ifBlank { null },
-                    color = tag.color?.let(::Color),
-                )
-            }
-            .emitInto(this)
     }
 
     private fun onAddToTrade() {

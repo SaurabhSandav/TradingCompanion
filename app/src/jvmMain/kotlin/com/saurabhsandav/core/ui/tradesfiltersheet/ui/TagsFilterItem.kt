@@ -5,23 +5,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.model.TradeTag
+import com.saurabhsandav.core.ui.tags.selector.TagSelectorDropdownMenu
+import com.saurabhsandav.core.ui.tags.selector.TagSelectorType
 import com.saurabhsandav.core.ui.theme.dimens
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 
 @Composable
 internal fun TagsFilterItem(
+    profileId: ProfileId,
     selectedTags: List<TradeTag>?,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
     matchAllTags: Boolean,
@@ -69,9 +67,14 @@ internal fun TagsFilterItem(
                 modifier = Modifier.fillMaxWidth(),
                 addButton = {
 
+                    val updatedSelectedTags by rememberUpdatedState(selectedTags)
+
                     AddTagButton(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        tagSuggestions = tagSuggestions,
+                        profileId = profileId,
+                        tagSelectorType = {
+                            TagSelectorType.All(updatedSelectedTags?.map { it.id } ?: emptyList())
+                        },
                         onAddTag = onAddTag,
                     )
                 },
@@ -97,7 +100,8 @@ internal fun TagsFilterItem(
 @Composable
 private fun AddTagButton(
     modifier: Modifier,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
+    profileId: ProfileId,
+    tagSelectorType: () -> TagSelectorType,
     onAddTag: (TradeTagId) -> Unit,
 ) {
 
@@ -112,41 +116,12 @@ private fun AddTagButton(
             onAdd = { expanded = true },
         )
 
-        DropdownMenu(
+        TagSelectorDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-
-            var filter by state { "" }
-            val filteredTags by remember {
-                snapshotFlow { filter }.flatMapLatest(tagSuggestions)
-            }.collectAsState(emptyList())
-            val focusRequester = remember { FocusRequester() }
-
-            OutlinedTextField(
-                modifier = Modifier.focusRequester(focusRequester),
-                value = filter,
-                onValueChange = { filter = it },
-                singleLine = true,
-            )
-
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-
-            filteredTags.forEach { tag ->
-
-                SimpleTooltipBox(tag.description) {
-
-                    DropdownMenuItem(
-                        text = { Text(tag.name) },
-                        onClick = {
-                            expanded = false
-                            onAddTag(tag.id)
-                        },
-                    )
-                }
-            }
-        }
+            onDismissRequest = { expanded = false },
+            profileId = profileId,
+            type = tagSelectorType,
+            onSelectTag = onAddTag,
+        )
     }
 }

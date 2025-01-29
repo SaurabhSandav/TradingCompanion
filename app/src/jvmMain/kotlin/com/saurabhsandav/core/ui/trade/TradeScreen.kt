@@ -74,7 +74,6 @@ internal fun TradeWindow(
             onSetPrimaryTarget = { state.eventSink(SetPrimaryTarget(it)) },
             excursions = state.excursions,
             tags = state.tags,
-            tagSuggestions = state.tagSuggestions,
             onAddTag = { id -> state.eventSink(AddTag(id)) },
             onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
             attachments = state.attachments,
@@ -113,7 +112,6 @@ internal fun TradeScreen(
     onSetPrimaryTarget: (BigDecimal) -> Unit,
     excursions: Excursions?,
     tags: List<TradeTag>,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
     attachments: List<TradeAttachment>,
@@ -177,8 +175,8 @@ internal fun TradeScreen(
                         }
 
                         Tags(
+                            profileTradeId = profileTradeId,
                             tags = tags,
-                            tagSuggestions = tagSuggestions,
                             onAddTag = onAddTag,
                             onRemoveTag = onRemoveTag,
                         )

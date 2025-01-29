@@ -28,7 +28,6 @@ internal class TradesLandingSwitcherItem(
             onApplyFilter = { state.eventSink(ApplyFilter(it)) },
             onNewExecution = { state.eventSink(NewExecution) },
             onDeleteTrades = { ids -> state.eventSink(DeleteTrades(ids)) },
-            tagSuggestions = state.tagSuggestions,
             onAddTag = { tradeIds, tagId -> state.eventSink(AddTag(tradeIds, tagId)) },
         )
     }

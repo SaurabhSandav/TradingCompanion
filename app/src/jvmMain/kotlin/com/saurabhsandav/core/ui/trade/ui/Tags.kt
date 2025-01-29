@@ -6,11 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -19,14 +20,15 @@ import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.model.TradeTag
+import com.saurabhsandav.core.ui.tags.selector.TagSelectorDropdownMenu
+import com.saurabhsandav.core.ui.tags.selector.TagSelectorType
 import com.saurabhsandav.core.ui.theme.dimens
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 @Composable
 internal fun Tags(
+    profileTradeId: ProfileTradeId,
     tags: List<TradeTag>,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
     onAddTag: (TradeTagId) -> Unit,
     onRemoveTag: (TradeTagId) -> Unit,
 ) {
@@ -52,7 +54,7 @@ internal fun Tags(
 
                 AddTagButton(
                     modifier = Modifier.align(Alignment.CenterVertically),
-                    tagSuggestions = tagSuggestions,
+                    profileTradeId = profileTradeId,
                     onAddTag = onAddTag
                 )
             },
@@ -117,7 +119,7 @@ internal fun Tags(
 @Composable
 private fun AddTagButton(
     modifier: Modifier,
-    tagSuggestions: (String) -> Flow<List<TradeTag>>,
+    profileTradeId: ProfileTradeId,
     onAddTag: (TradeTagId) -> Unit,
 ) {
 
@@ -132,44 +134,12 @@ private fun AddTagButton(
             onAdd = { expanded = true },
         )
 
-        DropdownMenu(
+        TagSelectorDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-
-            var filter by state { "" }
-            val filteredTags by remember {
-                snapshotFlow { filter }.flatMapLatest(tagSuggestions)
-            }.collectAsState(emptyList())
-            val focusRequester = remember { FocusRequester() }
-
-            OutlinedTextField(
-                modifier = Modifier.focusRequester(focusRequester),
-                value = filter,
-                onValueChange = { filter = it },
-                singleLine = true,
-            )
-
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-
-            filteredTags.forEach { tag ->
-
-                SimpleTooltipBox(tag.description) {
-
-                    DropdownMenuItem(
-                        text = { Text(tag.name) },
-                        trailingIcon = tag.color?.let {
-                            { Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color)) }
-                        },
-                        onClick = {
-                            expanded = false
-                            onAddTag(tag.id)
-                        },
-                    )
-                }
-            }
-        }
+            onDismissRequest = { expanded = false },
+            profileId = profileTradeId.profileId,
+            type = { TagSelectorType.ForTrades(listOf(profileTradeId.tradeId)) },
+            onSelectTag = onAddTag,
+        )
     }
 }
