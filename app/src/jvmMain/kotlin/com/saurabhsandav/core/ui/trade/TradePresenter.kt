@@ -7,6 +7,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.*
 import com.saurabhsandav.core.trades.model.*
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.*
 import com.saurabhsandav.core.ui.trade.model.TradeState
@@ -15,7 +16,6 @@ import com.saurabhsandav.core.ui.trade.model.TradeState.Excursions
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher

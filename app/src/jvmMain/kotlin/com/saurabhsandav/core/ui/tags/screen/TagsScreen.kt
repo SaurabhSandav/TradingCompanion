@@ -7,12 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.screen.ui.TagsList
 
 @Composable
 fun TagsScreen(
-    tags: List<Tag>?,
+    tags: List<TradeTag>?,
     onNewTag: () -> Unit,
     onNewTagFromExisting: (TradeTagId) -> Unit,
     onEditTag: (TradeTagId) -> Unit,

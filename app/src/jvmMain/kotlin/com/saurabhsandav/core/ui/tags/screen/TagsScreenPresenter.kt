@@ -11,10 +11,10 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.*
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
@@ -51,7 +51,7 @@ internal class TagsScreenPresenter(
     }
 
     @Composable
-    private fun getTags(): State<List<Tag>?> {
+    private fun getTags(): State<List<TradeTag>?> {
         return remember {
             flow {
 
@@ -61,7 +61,7 @@ internal class TagsScreenPresenter(
                     .map { tags ->
                         tags.map { tag ->
 
-                            Tag(
+                            TradeTag(
                                 id = tag.id,
                                 name = tag.name,
                                 description = tag.description.ifBlank { null },

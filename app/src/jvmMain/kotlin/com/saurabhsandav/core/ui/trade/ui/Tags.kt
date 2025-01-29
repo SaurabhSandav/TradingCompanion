@@ -18,8 +18,8 @@ import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 

@@ -12,11 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 
 @Composable
 fun TagsList(
-    tags: List<Tag>?,
+    tags: List<TradeTag>?,
     onNewTagFromExisting: (TradeTagId) -> Unit,
     onEditTag: (TradeTagId) -> Unit,
     onDeleteTag: (TradeTagId) -> Unit,
@@ -45,7 +45,7 @@ fun TagsList(
 @JvmName("TagsListActual")
 @Composable
 private fun TagsList(
-    tags: List<Tag>,
+    tags: List<TradeTag>,
     onNewTagFromExisting: (TradeTagId) -> Unit,
     onEditTag: (TradeTagId) -> Unit,
     onDeleteTag: (TradeTagId) -> Unit,

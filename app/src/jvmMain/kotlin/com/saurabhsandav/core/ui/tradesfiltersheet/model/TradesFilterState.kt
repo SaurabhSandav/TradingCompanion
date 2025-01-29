@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
-import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradesFilterState(
@@ -9,11 +9,4 @@ internal data class TradesFilterState(
     val tagSuggestions: (String) -> Flow<List<TradeTag>>,
     val tickerSuggestions: (String) -> Flow<List<String>>,
     val eventSink: (TradesFilterEvent) -> Unit,
-) {
-
-    data class TradeTag(
-        val id: TradeTagId,
-        val name: String,
-        val description: String?,
-    )
-}
+)

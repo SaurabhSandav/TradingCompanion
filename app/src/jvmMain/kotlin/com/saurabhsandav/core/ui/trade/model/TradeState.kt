@@ -1,7 +1,10 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.trades.model.AttachmentFileId
+import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
 import kotlinx.coroutines.flow.Flow
@@ -80,13 +83,6 @@ internal data class TradeState(
         val profit: String,
         val netProfit: String,
         val isPrimary: Boolean,
-    )
-
-    internal data class TradeTag(
-        val id: TradeTagId,
-        val name: String,
-        val description: String?,
-        val color: Color?,
     )
 
     internal data class TradeAttachment(

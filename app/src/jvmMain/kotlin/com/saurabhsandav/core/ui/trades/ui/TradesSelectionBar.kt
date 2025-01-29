@@ -16,7 +16,7 @@ import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormWindow
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.common.*
-import com.saurabhsandav.core.ui.trades.model.TradesState.TradeTag
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 

@@ -14,11 +14,11 @@ import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SideSheet
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.*
 import kotlinx.coroutines.flow.Flow
 

@@ -19,12 +19,12 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState.Tag
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun TagListItem(
-    tag: Tag,
+    tag: TradeTag,
     onNewTag: () -> Unit,
     onEditTag: () -> Unit,
     onDelete: () -> Unit,

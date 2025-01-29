@@ -1,17 +1,18 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.*
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState.TradeTag
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.CoroutineScope
@@ -83,6 +84,7 @@ internal class TradesFilterPresenter(
                         id = tag.id,
                         name = tag.name,
                         description = tag.description.ifBlank { null },
+                        color = tag.color?.let(::Color),
                     )
                 }
                 .collect { value = it }
@@ -104,6 +106,7 @@ internal class TradesFilterPresenter(
                     id = tag.id,
                     name = tag.name,
                     description = tag.description.ifBlank { null },
+                    color = tag.color?.let(::Color),
                 )
             }
             .emitInto(this)
