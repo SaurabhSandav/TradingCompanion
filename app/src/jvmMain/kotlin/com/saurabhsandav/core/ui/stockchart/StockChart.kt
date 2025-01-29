@@ -43,7 +43,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
-class StockChart(
+class StockChart internal constructor(
     parentScope: CoroutineScope,
     private val prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
@@ -70,10 +70,10 @@ class StockChart(
 
     private var indicators: Indicators? = null
 
-    var visibleRange: ClosedRange<Float>? = initialVisibleRange
-
-    var data: StockChartData = initialData
+    internal var data: StockChartData = initialData
         private set
+
+    var visibleRange: ClosedRange<Float>? = initialVisibleRange
     var params by mutableStateOf(initialData.params)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotters = mutableStateListOf<Plotter<*>>()
@@ -129,7 +129,7 @@ class StockChart(
             .launchIn(coroutineScope)
     }
 
-    fun setData(data: StockChartData) {
+    internal fun setData(data: StockChartData) {
 
         if (!initialized.isCompleted) initialized.cancel()
         initialized = CompletableDeferred()

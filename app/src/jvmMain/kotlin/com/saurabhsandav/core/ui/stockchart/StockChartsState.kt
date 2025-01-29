@@ -41,7 +41,7 @@ class StockChartsState(
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChart = MutableStateFlow<StockChart?>(null)
 
-    val windows = mutableStateListOf<StockChartWindow>()
+    internal val windows = mutableStateListOf<StockChartWindow>()
     val charts
         get() = windows.flatMap { it.charts }
     private val candleLoader = CandleLoader(
@@ -62,7 +62,7 @@ class StockChartsState(
         }
     }
 
-    fun newWindow(launchedFrom: StockChartWindow?) {
+    internal fun newWindow(launchedFrom: StockChartWindow?) {
 
         val fromStockChart = launchedFrom?.selectedStockChart
 
@@ -149,7 +149,7 @@ class StockChartsState(
         }
     }
 
-    fun onChangeTicker(window: StockChartWindow, ticker: String) {
+    internal fun onChangeTicker(window: StockChartWindow, ticker: String) {
 
         val stockChart = window.selectedStockChart
 
@@ -157,7 +157,7 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(ticker = ticker))
     }
 
-    fun onChangeTimeframe(window: StockChartWindow, timeframe: Timeframe) {
+    internal fun onChangeTimeframe(window: StockChartWindow, timeframe: Timeframe) {
 
         val stockChart = window.selectedStockChart
 
@@ -165,11 +165,11 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
-    fun onOpenInNewTab(window: StockChartWindow, ticker: String, timeframe: Timeframe) {
+    internal fun onOpenInNewTab(window: StockChartWindow, ticker: String, timeframe: Timeframe) {
         newChart(StockChartParams(ticker, timeframe), window)
     }
 
-    fun goToDateTime(
+    internal fun goToDateTime(
         window: StockChartWindow,
         dateTime: LocalDateTime?,
     ) = coroutineScope.launchUnit {

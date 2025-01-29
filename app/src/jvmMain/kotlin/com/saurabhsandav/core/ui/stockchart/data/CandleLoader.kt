@@ -10,7 +10,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
 import kotlin.math.ceil
 
-class CandleLoader(
+internal class CandleLoader(
     private val marketDataProvider: MarketDataProvider,
     val loadConfig: LoadConfig,
     private val onCandlesLoaded: (StockChartParams) -> Unit,

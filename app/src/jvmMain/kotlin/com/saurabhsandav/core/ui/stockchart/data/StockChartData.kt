@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
-class StockChartData(
+internal class StockChartData(
     val params: StockChartParams,
     val source: CandleSource,
     private val onCandlesLoaded: () -> Unit,
@@ -21,16 +21,16 @@ class StockChartData(
 
     val loadState = MutableSharedFlow<LoadState>(replay = 1)
 
-    internal var coroutineScope = MainScope()
+    var coroutineScope = MainScope()
     private var loadScope = MainScope()
 
-    internal var isCollectingLive = false
+    var isCollectingLive = false
         private set
 
-    internal var hasBefore = true
+    var hasBefore = true
         private set
 
-    internal var hasAfter = true
+    var hasAfter = true
         private set
 
     private val mutableCandleSeries = MutableCandleSeries(timeframe = params.timeframe)
@@ -74,7 +74,7 @@ class StockChartData(
         coroutineScope.cancel()
     }
 
-    internal fun load(interval: ClosedRange<Instant>): Job = coroutineScope.launch {
+    fun load(interval: ClosedRange<Instant>): Job = coroutineScope.launch {
 
         loadScope.cancel()
         loadScope = MainScope()
@@ -111,11 +111,11 @@ class StockChartData(
         loadState.emit(LoadState.Loaded)
     }
 
-    internal fun setHasBefore(value: Boolean) {
+    fun setHasBefore(value: Boolean) {
         hasBefore = value
     }
 
-    internal fun setHasAfter(value: Boolean) {
+    fun setHasAfter(value: Boolean) {
         hasAfter = value
     }
 

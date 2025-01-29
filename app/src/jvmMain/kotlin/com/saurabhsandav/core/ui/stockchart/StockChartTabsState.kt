@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 
-class StockChartTabsState(
+internal class StockChartTabsState(
     private val onNew: (tabId: Int) -> Unit,
     private val onSelect: (tabId: Int) -> Unit,
     private val onClose: (tabId: Int) -> Unit,

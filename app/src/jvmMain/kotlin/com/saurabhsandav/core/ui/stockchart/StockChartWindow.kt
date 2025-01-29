@@ -38,7 +38,7 @@ class StockChartWindow(
     private var currentStockChart: StockChart? = null
     private val queuedCharts = mutableListOf<StockChart>()
 
-    val tabsState = StockChartTabsState(
+    internal val tabsState = StockChartTabsState(
         onNew = ::onNewTab,
         onSelect = ::onSelectTab,
         onClose = ::onCloseTab,
