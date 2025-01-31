@@ -7,25 +7,25 @@ import kotlin.reflect.KProperty
 
 fun createChart(
     container: String = "document.body",
-    options: ChartOptions = ChartOptions(),
+    options: ChartOptions? = null,
     name: String = "chart",
 ): IChartApi = IChartApi(container, options, name)
 
 fun IChartApi.baselineSeries(
-    options: BaselineStyleOptions = BaselineStyleOptions(),
-) = SeriesProvider { name -> addBaselineSeries(options, name) }
+    options: BaselineStyleOptions? = null,
+) = SeriesProvider { name -> addSeries(SeriesDefinition.BaselineSeries, name, options) }
 
 fun IChartApi.candlestickSeries(
-    options: CandlestickStyleOptions = CandlestickStyleOptions(),
-) = SeriesProvider { name -> addCandlestickSeries(options, name) }
+    options: CandlestickStyleOptions? = null,
+) = SeriesProvider { name -> addSeries(SeriesDefinition.CandlestickSeries, name, options) }
 
 fun IChartApi.histogramSeries(
-    options: HistogramStyleOptions = HistogramStyleOptions(),
-) = SeriesProvider { name -> addHistogramSeries(options, name) }
+    options: HistogramStyleOptions? = null,
+) = SeriesProvider { name -> addSeries(SeriesDefinition.HistogramSeries, name, options) }
 
 fun IChartApi.lineSeries(
-    options: LineStyleOptions = LineStyleOptions(),
-) = SeriesProvider { name -> addLineSeries(options, name) }
+    options: LineStyleOptions? = null,
+) = SeriesProvider { name -> addSeries(SeriesDefinition.LineSeries, name, options) }
 
 class SeriesProvider<D : SeriesData, O : SeriesOptions>(
     private val seriesBuilder: (propertyName: String) -> ISeriesApi<D, O>,

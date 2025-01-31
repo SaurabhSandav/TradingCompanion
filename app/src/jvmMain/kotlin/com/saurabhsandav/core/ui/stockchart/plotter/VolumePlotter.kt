@@ -13,6 +13,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions
 import com.saurabhsandav.lightweight_charts.PriceScaleOptions.PriceScaleMargins
+import com.saurabhsandav.lightweight_charts.SeriesDefinition
 import com.saurabhsandav.lightweight_charts.data.HistogramData
 import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
@@ -37,7 +38,8 @@ class VolumePlotter(
             priceLineVisible = false,
         )
 
-        val series = chart.actualChart.addHistogramSeries(
+        val series = chart.actualChart.addSeries(
+            definition = SeriesDefinition.HistogramSeries,
             name = key,
             options = options,
         )

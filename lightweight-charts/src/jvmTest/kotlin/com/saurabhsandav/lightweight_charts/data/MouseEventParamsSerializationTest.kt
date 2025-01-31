@@ -19,6 +19,7 @@ class MouseEventParamsSerializationTest {
             |    "x": 224,
             |    "y": 479
             |  },
+            |  "paneIndex":0,
             |  "seriesData": {
             |    "candles": {
             |      "open": 24838.4,
@@ -44,6 +45,7 @@ class MouseEventParamsSerializationTest {
                 time = Time.UTCTimestamp(1722266400),
                 logical = 323F,
                 point = Point(x = 224F, y = 479F),
+                paneIndex = 0,
                 seriesData = mapOf(
                     "candles" to buildJsonObject {
                         put("open", 24838.4)

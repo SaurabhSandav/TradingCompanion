@@ -4,12 +4,11 @@ import com.saurabhsandav.lightweight_charts.callbacks.CallbackDelegate
 import com.saurabhsandav.lightweight_charts.callbacks.LogicalRangeChangeEventHandler
 import com.saurabhsandav.lightweight_charts.callbacks.SizeChangeEventHandler
 import com.saurabhsandav.lightweight_charts.callbacks.TimeRangeChangeEventHandler
+import com.saurabhsandav.lightweight_charts.data.IRange
 import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.data.TimeRange
 import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
-import kotlinx.serialization.encodeToString
 
 class ITimeScaleApi internal constructor(
     private val receiver: String,
@@ -33,7 +32,11 @@ class ITimeScaleApi internal constructor(
         executeJs("$receiver.timeScale().scrollToPosition($position, $animated);")
     }
 
-    suspend fun getVisibleRange(): TimeRange? {
+    fun scrollToRealTime() {
+        executeJs("$receiver.timeScale().scrollToRealTime();")
+    }
+
+    suspend fun getVisibleRange(): IRange<Time>? {
 
         val result = executeJsWithResult("$receiver.timeScale().getVisibleRange()")
 
@@ -42,7 +45,7 @@ class ITimeScaleApi internal constructor(
 
     fun setVisibleRange(from: Time, to: Time) {
 
-        val rangeJson = LwcJson.encodeToString(TimeRange(from = from, to = to))
+        val rangeJson = LwcJson.encodeToString(IRange(from = from, to = to))
 
         executeJs("$receiver.timeScale().setVisibleRange($rangeJson);")
     }
@@ -59,6 +62,10 @@ class ITimeScaleApi internal constructor(
         val rangeJson = LwcJson.encodeToString(LogicalRange(from = from, to = to))
 
         executeJs("$receiver.timeScale().setVisibleLogicalRange($rangeJson);")
+    }
+
+    fun resetTimeScale() {
+        executeJs("$receiver.timeScale().resetTimeScale();")
     }
 
     fun fitContent() {

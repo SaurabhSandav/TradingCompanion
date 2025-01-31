@@ -3,7 +3,9 @@ package com.saurabhsandav.lightweight_charts.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LogicalRange(
-    val from: Float,
-    val to: Float,
+data class IRange<T>(
+    val from: T,
+    val to: T,
 )
+
+typealias LogicalRange = IRange<Float>

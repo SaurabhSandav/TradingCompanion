@@ -8,6 +8,7 @@ data class MouseEventParams(
     val time: Time?,
     val logical: Float?,
     val point: Point?,
+    val paneIndex: Int?,
     val seriesData: Map<String, JsonElement>,
 )
 

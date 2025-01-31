@@ -7,6 +7,7 @@ class ChartInstance {
     this.chart = chart;
     var seriesMap = new Map();
     this.seriesMap = seriesMap;
+    this.panesMap = new Map();
     this.subscribeClickCallback = (function (params) {
       chartCallback(
         JSON.stringify(new ChartCallback(
@@ -59,6 +60,7 @@ class SeriesInstance {
 
   constructor(series) {
     this.series = series;
+    this.pane = null;
     this.priceLinesMap = new Map();
     this.primitivesMap = new Map();
   }

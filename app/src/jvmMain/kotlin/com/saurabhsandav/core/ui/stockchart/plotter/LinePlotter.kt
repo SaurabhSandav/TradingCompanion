@@ -11,6 +11,7 @@ import androidx.compose.ui.text.withStyle
 import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
+import com.saurabhsandav.lightweight_charts.SeriesDefinition
 import com.saurabhsandav.lightweight_charts.data.LineData
 import com.saurabhsandav.lightweight_charts.data.SeriesData
 import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
@@ -44,7 +45,8 @@ class LinePlotter(
 
         if (color != null) options = options.copy(color = color.toCssColor())
 
-        return chart.actualChart.addLineSeries(
+        return chart.actualChart.addSeries(
+            definition = SeriesDefinition.LineSeries,
             name = key,
             options = options,
         )

@@ -3,21 +3,20 @@ package com.saurabhsandav.lightweight_charts
 import com.saurabhsandav.lightweight_charts.callbacks.CallbackDelegate
 import com.saurabhsandav.lightweight_charts.callbacks.CommandCallback
 import com.saurabhsandav.lightweight_charts.callbacks.MouseEventHandler
-import com.saurabhsandav.lightweight_charts.data.*
-import com.saurabhsandav.lightweight_charts.options.*
+import com.saurabhsandav.lightweight_charts.data.SeriesData
+import com.saurabhsandav.lightweight_charts.data.Time
+import com.saurabhsandav.lightweight_charts.options.ChartOptions
+import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.serializer
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class IChartApi internal constructor(
     container: String = "document.body",
-    options: ChartOptions = ChartOptions(),
+    options: ChartOptions? = null,
     val name: String = "chart",
 ) {
 
@@ -56,42 +55,6 @@ class IChartApi internal constructor(
         )
     }
 
-    fun addBaselineSeries(
-        options: BaselineStyleOptions = BaselineStyleOptions(),
-        name: String = "baselineSeries",
-    ): ISeriesApi<BaselineData, BaselineStyleOptions> = addSeries(
-        options = options,
-        funcName = "addBaselineSeries",
-        name = name
-    )
-
-    fun addCandlestickSeries(
-        options: CandlestickStyleOptions = CandlestickStyleOptions(),
-        name: String = "candlestickSeries",
-    ): ISeriesApi<CandlestickData, CandlestickStyleOptions> = addSeries(
-        options = options,
-        funcName = "addCandlestickSeries",
-        name = name
-    )
-
-    fun addHistogramSeries(
-        options: HistogramStyleOptions = HistogramStyleOptions(),
-        name: String = "histogramSeries",
-    ): ISeriesApi<HistogramData, HistogramStyleOptions> = addSeries(
-        options = options,
-        funcName = "addHistogramSeries",
-        name = name
-    )
-
-    fun addLineSeries(
-        options: LineStyleOptions = LineStyleOptions(),
-        name: String = "lineSeries",
-    ): ISeriesApi<LineData, LineStyleOptions> = addSeries(
-        options = options,
-        funcName = "addLineSeries",
-        name = name
-    )
-
     fun remove() {
 
         // Destroy chart
@@ -104,8 +67,58 @@ class IChartApi internal constructor(
         _scripts.close()
     }
 
-    fun resize(width: Int, height: Int) {
-        executeJs("$reference.resize($width, $height);")
+    fun resize(width: Int, height: Int, forceRepaint: Boolean?) {
+
+        val arguments = buildString {
+            append(width)
+            append(", ")
+            append(height)
+            forceRepaint?.let {
+                append(", ")
+                append(it)
+            }
+        }
+
+        executeJs("$reference.resize($arguments);")
+    }
+
+    fun <D : SeriesData, O : SeriesOptions> addSeries(
+        definition: SeriesDefinition<D, O>,
+        name: String,
+        options: O? = null,
+        paneIndex: Int? = null,
+    ): ISeriesApi<D, O> {
+
+        val series = ISeriesApi<D, O>(
+            definition = definition,
+            executeJs = ::executeJs,
+            executeJsWithResult = ::executeJsWithResult,
+            name = name,
+            seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
+        )
+
+        seriesList.add(series)
+
+        val seriesArguments = buildString {
+            append(definition.jsStatement)
+            options?.let {
+                append(", ")
+                append(LwcJson.encodeToString(definition.optionsSerializer, it))
+            }
+            paneIndex?.let {
+                append(", ")
+                append(it)
+            }
+        }
+
+        executeJs(
+            """
+            |$seriesMapReference.set("$name", new SeriesInstance(
+            |  $reference.addSeries($seriesArguments)
+            |));""".trimMargin()
+        )
+
+        return series
     }
 
     fun removeSeries(series: ISeriesApi<*, *>) {
@@ -168,6 +181,14 @@ class IChartApi internal constructor(
         executeJs("$reference.clearCrosshairPosition();")
     }
 
+    fun removePane(index: Int) {
+        executeJs("$reference.removePane($index);")
+    }
+
+    fun swapPanes(first: Int, second: Int) {
+        executeJs("$reference.swapPanes($first, $second);")
+    }
+
     fun applyOptions(options: ChartOptions) {
 
         val optionsJson = LwcJson.encodeToString(options)
@@ -177,38 +198,6 @@ class IChartApi internal constructor(
 
     fun onCallback(callbackMessage: String) {
         callbacksDelegate.onCallback(callbackMessage)
-    }
-
-    private inline fun <reified D : SeriesData, reified O : SeriesOptions> addSeries(
-        options: O,
-        funcName: String,
-        name: String,
-    ): ISeriesApi<D, O> = addSeries(options, serializer<D>(), serializer<O>(), funcName, name)
-
-    private fun <D : SeriesData, O : SeriesOptions> addSeries(
-        options: O,
-        dataSerializer: KSerializer<D>,
-        optionsSerializer: KSerializer<O>,
-        funcName: String,
-        name: String,
-    ): ISeriesApi<D, O> {
-
-        val series = ISeriesApi(
-            dataSerializer = dataSerializer,
-            optionsSerializer = optionsSerializer,
-            executeJs = ::executeJs,
-            executeJsWithResult = ::executeJsWithResult,
-            name = name,
-            seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
-        )
-
-        val optionsJson = LwcJson.encodeToString(optionsSerializer, options)
-
-        seriesList.add(series)
-
-        executeJs("$seriesMapReference.set(\"$name\", new SeriesInstance($reference.$funcName(${optionsJson})));")
-
-        return series
     }
 
     private fun executeJs(script: String) {

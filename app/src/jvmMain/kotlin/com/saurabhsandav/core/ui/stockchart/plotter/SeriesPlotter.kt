@@ -8,7 +8,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.lightweight_charts.ISeriesApi
 import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.data.SeriesMarker
 import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
 
@@ -50,10 +49,6 @@ abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
     override fun update(item: D) {
         series.update(item)
         latestValue = item
-    }
-
-    fun setMarkers(markers: List<SeriesMarker>) {
-        series.setMarkers(markers)
     }
 
     fun updateLegendValues(params: MouseEventParams?) {
