@@ -28,8 +28,8 @@ internal class ProfileFormModel(
 
     val nameField = validator.addField(initial.name) {
         isRequired()
-
-        if (!isProfileNameUnique(this)) reportInvalid("Profile already exists")
+        if (length > 200) reportInvalid("Max 200 characters")
+        if (!isProfileNameUnique(this)) reportInvalid("Name already taken")
     }
 
     val descriptionField = validator.addField(initial.description)

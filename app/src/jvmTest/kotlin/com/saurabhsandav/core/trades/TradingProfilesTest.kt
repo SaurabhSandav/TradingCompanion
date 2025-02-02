@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.exists
+import kotlin.io.path.notExists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.*
@@ -36,7 +37,7 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun updateProfile() = runTradingProfilesTest {
+    fun `Update Profile with no Record`() = runTradingProfilesTest {
 
         val profile = tradingProfiles.createInitialProfile()
 
@@ -52,9 +53,36 @@ class TradingProfilesTest {
 
         assertEquals("New Name", updatedProfile.name)
         assertEquals("New Desc", updatedProfile.description)
+        assertTrue { profile.filesPath.notExists() }
+        assertTrue { profile.filesSymbolicLinkPath.notExists() }
         assertFalse(updatedProfile.isTraining)
         assertEquals(0, updatedProfile.tradeCount)
         assertEquals(0, updatedProfile.tradeCountOpen)
+    }
+
+    @Test
+    fun `Update Profile with Record`() = runTradingProfilesTest {
+
+        val profile = tradingProfiles.createInitialProfile()
+
+        // Create Record
+        tradingProfiles.getRecord(profile.id)
+
+        // Update
+        tradingProfiles.updateProfile(
+            id = profile.id,
+            name = "New Name",
+            description = "New Desc",
+            isTraining = false,
+        )
+
+        val updatedProfile = tradingProfiles.getProfile(profile.id).first()
+
+        assertEquals("New Name", updatedProfile.name)
+        assertTrue { profile.filesPath.exists() }
+        // Record Symbolic link updated
+        assertTrue { profile.filesSymbolicLinkPath.notExists() }
+        assertTrue { updatedProfile.filesSymbolicLinkPath.exists() }
     }
 
     @Test
@@ -62,14 +90,15 @@ class TradingProfilesTest {
 
         // Not possible to create a SQLite DB in a FakeFileSystem. Use a file as a stand-in.
         val testFileText = "Hello! This is a test file"
-        fun TradingProfile.testFilePath() = appPaths.tradingRecordsPath.resolve(path).resolve("test.txt")
+        fun TradingProfile.testFilePath() = filesPath.resolve("test.txt")
 
-        val profile = tradingProfiles.createInitialProfile().also {
-            // Create Records directory
-            tradingProfiles.getRecord(it.id)
-            // Create test file
-            it.testFilePath().writeText(testFileText, options = arrayOf(StandardOpenOption.CREATE_NEW))
-        }
+        val profile = tradingProfiles.createInitialProfile()
+
+        // Create Record
+        tradingProfiles.getRecord(profile.id)
+
+        // Create test file
+        profile.testFilePath().writeText(testFileText, options = arrayOf(StandardOpenOption.CREATE_NEW))
 
         // Copy
         val newProfile = tradingProfiles.copyProfile(
@@ -79,14 +108,13 @@ class TradingProfilesTest {
 
         assertEquals("Duplicate of Test Name", newProfile.name)
         assertEquals("Test Desc", newProfile.description)
+        assertTrue { newProfile.filesPath.exists() }
+        // Record Symbolic link created
+        assertTrue { newProfile.filesSymbolicLinkPath.exists() }
+        assertEquals(testFileText, newProfile.testFilePath().readText())
         assertTrue(newProfile.isTraining)
         assertEquals(0, newProfile.tradeCount)
         assertEquals(0, newProfile.tradeCountOpen)
-
-        // Check Records copied
-        val newTestFilePath = newProfile.testFilePath()
-        assertTrue { newTestFilePath.exists() }
-        assertEquals(testFileText, newTestFilePath.readText())
     }
 
     @Test
@@ -94,10 +122,17 @@ class TradingProfilesTest {
 
         val profile = tradingProfiles.createInitialProfile()
 
+        // Create Record
+        tradingProfiles.getRecord(profile.id)
+
         // Delete
         tradingProfiles.deleteProfile(profile.id)
 
         assertNull(tradingProfiles.getProfileOrNull(profile.id).first())
+        assertFails { tradingProfiles.getRecord(profile.id) }
+        // Check Records symbolic link deleted first. `notExists()` returns true if target is deleted first
+        assertTrue { profile.filesSymbolicLinkPath.notExists() }
+        assertTrue { profile.filesPath.notExists() }
     }
 
     @Test
@@ -129,31 +164,52 @@ class TradingProfilesTest {
     @Test
     fun getDefault() = runTradingProfilesTest {
 
-        // Check default profile exists as initial state
-        val initialDefaultProfile = tradingProfiles.getDefaultProfile().first()
-        assertEquals("Default", initialDefaultProfile.name)
-        assertTrue { initialDefaultProfile.description.isEmpty() }
-        assertEquals("DEFAULT", initialDefaultProfile.path)
-        assertEquals(true, initialDefaultProfile.isTraining)
-        assertEquals(0, initialDefaultProfile.tradeCount)
-        assertEquals(0, initialDefaultProfile.tradeCountOpen)
+        val defaultProfile = tradingProfiles.getDefaultProfile().first()
 
-        // Check default profile deletion
-        tradingProfiles.deleteProfile(initialDefaultProfile.id)
+        assertEquals("Default", defaultProfile.name)
+        assertTrue { defaultProfile.description.isEmpty() }
+        assertEquals(true, defaultProfile.isTraining)
+        assertEquals(0, defaultProfile.tradeCount)
+        assertEquals(0, defaultProfile.tradeCountOpen)
+    }
+
+    @Test
+    fun `Default profile deletion`() = runTradingProfilesTest {
+
+        val defaultProfile = tradingProfiles.getDefaultProfile().first()
+
+        tradingProfiles.deleteProfile(defaultProfile.id)
         assertTrue { tradingProfiles.allProfiles.first().isEmpty() }
+        assertTrue { defaultProfile.filesPath.notExists() }
+    }
+
+    @Test
+    fun `If default was deleted, new profile is set as default`() = runTradingProfilesTest {
+
+        val defaultProfile = tradingProfiles.getDefaultProfile().first()
+
+        // Delete Default profile
+        tradingProfiles.deleteProfile(defaultProfile.id)
 
         // New profile
         val newProfile = tradingProfiles.createInitialProfile()
 
-        // Check new profile is considered default profile
         assertEquals(newProfile.id, tradingProfiles.getDefaultProfile().first().id)
+    }
 
-        // Delete new profile
-        tradingProfiles.deleteProfile(newProfile.id)
+    @Test
+    fun `Default profile auto created if none available`() = runTradingProfilesTest {
+
+        val defaultProfile = tradingProfiles.getDefaultProfile().first()
+
+        // Delete Default profile
+        tradingProfiles.deleteProfile(defaultProfile.id)
         assertTrue { tradingProfiles.allProfiles.first().isEmpty() }
 
         // Check default profile created when none available
         val newDefaultProfile = tradingProfiles.getDefaultProfile().first()
+
+        assertEquals("Default", defaultProfile.name)
         assertTrue { newDefaultProfile.description.isEmpty() }
         assertEquals("DEFAULT", newDefaultProfile.path)
         assertEquals(true, newDefaultProfile.isTraining)
@@ -190,7 +246,13 @@ class TradingProfilesTest {
 
         val profile = tradingProfiles.createInitialProfile()
 
+        assertTrue { profile.filesSymbolicLinkPath.notExists() }
+        assertTrue { profile.filesPath.notExists() }
+
         tradingProfiles.getRecord(profile.id)
+
+        assertTrue { profile.filesPath.exists() }
+        assertTrue { profile.filesSymbolicLinkPath.exists() }
     }
 
     private suspend fun TradingProfiles.createInitialProfile(): TradingProfile = newProfile(
@@ -245,5 +307,11 @@ class TradingProfilesTest {
         val appPaths: AppPaths
 
         val tradingProfiles: TradingProfiles
+
+        val TradingProfile.filesPath: Path
+            get() = appPaths.tradingRecordsPath.resolve(path)
+
+        val TradingProfile.filesSymbolicLinkPath: Path
+            get() = appPaths.tradingRecordsPath.resolve(name)
     }
 }

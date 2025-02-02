@@ -16,10 +16,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.exists
+import kotlin.io.path.*
 import kotlin.uuid.Uuid
 
 internal class TradingProfiles(
@@ -62,12 +59,25 @@ internal class TradingProfiles(
         isTraining: Boolean,
     ): Unit = withContext(appDispatchers.IO) {
 
+        // Get profile details before update
+        val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
+
         appDB.tradingProfileQueries.update(
             id = id,
             name = name,
             description = description,
             isTraining = isTraining,
         )
+
+        // If name changed, update symbolic link for record
+        val oldName = profile.name
+        if (oldName != name && profile.filesPath.exists()) {
+
+            appPaths.tradingRecordsPath.apply {
+                resolve(oldName).deleteIfExists()
+                resolve(name).createSymbolicLinkPointingTo(profile.filesPath)
+            }
+        }
     }
 
     suspend fun copyProfile(
@@ -81,13 +91,14 @@ internal class TradingProfiles(
         // Create new entry in DB
         appDB.transactionWithResult {
 
-            val newProfilePath = generateProfilePath()
+            val newName = name(profile.name)
+            val newProfileDir = generateProfilePath()
 
             // Insert into DB
             appDB.tradingProfileQueries.insert(
-                name = name(profile.name),
+                name = newName,
                 description = profile.description,
-                path = newProfilePath,
+                path = newProfileDir,
                 isTraining = profile.isTraining,
             )
 
@@ -104,11 +115,17 @@ internal class TradingProfiles(
             // Copy associated files if exist
             if (profile.filesPath.exists()) {
 
+                val newProfilePath = appPaths.tradingRecordsPath.resolve(newProfileDir)
+
                 profile.filesPath.copyToRecursively(
-                    target = appPaths.tradingRecordsPath.resolve(newProfilePath),
+                    target = newProfilePath,
                     followLinks = false,
                     overwrite = false
                 )
+
+                // Create a symbolic link (labeled with profile name) for new profile record
+                val linkPath = appPaths.tradingRecordsPath.resolve(newName)
+                linkPath.createSymbolicLinkPointingTo(newProfilePath)
             }
 
             // Return TradingProfile
@@ -127,6 +144,9 @@ internal class TradingProfiles(
         // Delete from DB
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
         appDB.tradingProfileQueries.delete(id)
+
+        // Delete symbolic link
+        profile.filesSymbolicLinkPath.deleteIfExists()
 
         // Delete associated files
         profile.filesPath.deleteRecursively()
@@ -175,7 +195,15 @@ internal class TradingProfiles(
             withContext(appDispatchers.IO) {
 
                 val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
-                val profileFilesPath = profile.filesPath.createDirectories()
+                val profileFilesPath = profile.filesPath
+
+                if (profileFilesPath.notExists()) {
+
+                    profileFilesPath.createDirectories()
+
+                    // Create a symbolic link (labeled with profile name) for record
+                    profile.filesSymbolicLinkPath.createSymbolicLinkPointingTo(profileFilesPath)
+                }
 
                 TradingRecord(
                     appDispatchers = appDispatchers,
@@ -198,4 +226,7 @@ internal class TradingProfiles(
 
     private val TradingProfile.filesPath: Path
         get() = appPaths.tradingRecordsPath.resolve(path)
+
+    val TradingProfile.filesSymbolicLinkPath: Path
+        get() = appPaths.tradingRecordsPath.resolve(name)
 }
