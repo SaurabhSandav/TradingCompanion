@@ -8,6 +8,7 @@ import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.lightweight_charts.IChartApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -34,11 +35,14 @@ class ChartPageState(
 
         coroutineScope.launch {
 
-            // Wait for WebView initialization
-            webViewState.awaitReady()
+            coroutineScope {
 
-            // Start server for serving chart page
-            ChartsPageServer.startIfNotStarted()
+                // Wait for WebView initialization
+                launch { webViewState.awaitReady() }
+
+                // Start server for serving chart page
+                launch { ChartsPageServer.startIfNotStarted() }
+            }
 
             // Load chart webpage
             webViewState.load(ChartsPageServer.getUrl())
