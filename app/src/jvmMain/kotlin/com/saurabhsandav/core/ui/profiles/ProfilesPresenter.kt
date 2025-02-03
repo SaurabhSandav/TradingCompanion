@@ -61,7 +61,6 @@ internal class ProfilesPresenter(
             is SetCurrentProfile -> onSetCurrentProfile(event.id)
             is UpdateSelectedProfile -> onUpdateSelectedProfile(event.id)
             is DeleteProfile -> onDeleteProfile(event.id)
-            is CopyProfile -> onCopyProfile(event.id)
         }
     }
 
@@ -107,14 +106,6 @@ internal class ProfilesPresenter(
 
     private fun onDeleteProfile(id: ProfileId) = coroutineScope.launchUnit {
         tradingProfiles.deleteProfile(id)
-    }
-
-    private fun onCopyProfile(id: ProfileId) = coroutineScope.launchUnit {
-
-        tradingProfiles.copyProfile(
-            id = id,
-            name = { "Copy of $it" },
-        )
     }
 
     private fun toProfileState(profile: TradingProfile) = Profile(

@@ -48,7 +48,6 @@ internal fun ProfilesWindow(
             currentProfileId = state.currentProfile?.id,
             onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
             onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-            onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
         )
     }
 }
@@ -91,7 +90,6 @@ fun ProfileSelectorDialog(
             currentProfileId = state.currentProfile?.id,
             onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
             onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-            onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
             trainingOnly = trainingOnly,
         )
     }
@@ -176,7 +174,6 @@ fun ProfileSelectorField(
                 currentProfileId = state.currentProfile?.id,
                 onSetCurrentProfile = { id -> state.eventSink(SetCurrentProfile(id)) },
                 onDeleteProfile = { id -> state.eventSink(DeleteProfile(id)) },
-                onCopyProfile = { id -> state.eventSink(CopyProfile(id)) },
                 trainingOnly = trainingOnly,
             )
         }
@@ -190,32 +187,32 @@ private fun ProfilesScreen(
     currentProfileId: ProfileId?,
     onSetCurrentProfile: (ProfileId) -> Unit,
     onDeleteProfile: (ProfileId) -> Unit,
-    onCopyProfile: (ProfileId) -> Unit,
     trainingOnly: Boolean = false,
 ) {
 
-    var showNewProfileDialog by state { false }
+    var shownProfileFormType by state<ProfileFormType?> { null }
 
     Scaffold {
 
         ProfilesList(
             profiles = profiles,
-            onNewProfile = { showNewProfileDialog = true },
+            onNewProfile = { shownProfileFormType = ProfileFormType.New },
             onSelectProfile = onSelectProfile,
             currentProfileId = currentProfileId,
             onSetCurrentProfile = onSetCurrentProfile,
             onDeleteProfile = onDeleteProfile,
-            onCopyProfile = onCopyProfile,
+            onCopyProfile = { id -> shownProfileFormType = ProfileFormType.Copy(id) },
             trainingOnly = trainingOnly,
         )
     }
 
-    if (showNewProfileDialog) {
+    val formType = shownProfileFormType
+    if (formType != null) {
 
         ProfileFormDialog(
-            type = ProfileFormType.New,
+            type = formType,
             trainingOnly = trainingOnly,
-            onCloseRequest = { showNewProfileDialog = false },
+            onCloseRequest = { shownProfileFormType = null },
         )
     }
 }

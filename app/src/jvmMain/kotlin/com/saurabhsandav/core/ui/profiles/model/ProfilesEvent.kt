@@ -9,6 +9,4 @@ internal sealed class ProfilesEvent {
     data class UpdateSelectedProfile(val id: ProfileId?) : ProfilesEvent()
 
     data class DeleteProfile(val id: ProfileId) : ProfilesEvent()
-
-    data class CopyProfile(val id: ProfileId) : ProfilesEvent()
 }

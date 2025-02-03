@@ -34,6 +34,9 @@ internal class TradingProfiles(
         description: String,
         isTraining: Boolean,
     ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
+
+        require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
+
         appDB.transactionWithResult {
 
             // Insert into DB
@@ -61,6 +64,10 @@ internal class TradingProfiles(
 
         // Get profile details before update
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
+        val oldName = profile.name
+
+        if (oldName != name)
+            require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
 
         appDB.tradingProfileQueries.update(
             id = id,
@@ -70,7 +77,6 @@ internal class TradingProfiles(
         )
 
         // If name changed, update symbolic link for record
-        val oldName = profile.name
         if (oldName != name && profile.filesPath.exists()) {
 
             appPaths.tradingRecordsPath.apply {
@@ -81,25 +87,28 @@ internal class TradingProfiles(
     }
 
     suspend fun copyProfile(
-        id: ProfileId,
-        name: (fromProfileName: String) -> String,
+        copyId: ProfileId,
+        name: String,
+        description: String,
+        isTraining: Boolean,
     ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
 
+        require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
+
         // Get profile details to copy
-        val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
+        val copyingProfile = appDB.tradingProfileQueries.get(copyId).executeAsOne()
 
         // Create new entry in DB
         appDB.transactionWithResult {
 
-            val newName = name(profile.name)
             val newProfileDir = generateProfilePath()
 
             // Insert into DB
             appDB.tradingProfileQueries.insert(
-                name = newName,
-                description = profile.description,
+                name = name,
+                description = description,
                 path = newProfileDir,
-                isTraining = profile.isTraining,
+                isTraining = isTraining,
             )
 
             // Get id of last inserted row
@@ -108,23 +117,23 @@ internal class TradingProfiles(
             // Set counts
             appDB.tradingProfileQueries.setTradeCounts(
                 id = newProfileId,
-                tradeCount = profile.tradeCount,
-                tradeCountOpen = profile.tradeCountOpen,
+                tradeCount = copyingProfile.tradeCount,
+                tradeCountOpen = copyingProfile.tradeCountOpen,
             )
 
             // Copy associated files if exist
-            if (profile.filesPath.exists()) {
+            if (copyingProfile.filesPath.exists()) {
 
                 val newProfilePath = appPaths.tradingRecordsPath.resolve(newProfileDir)
 
-                profile.filesPath.copyToRecursively(
+                copyingProfile.filesPath.copyToRecursively(
                     target = newProfilePath,
                     followLinks = false,
                     overwrite = false
                 )
 
                 // Create a symbolic link (labeled with profile name) for new profile record
-                val linkPath = appPaths.tradingRecordsPath.resolve(newName)
+                val linkPath = appPaths.tradingRecordsPath.resolve(name)
                 linkPath.createSymbolicLinkPointingTo(newProfilePath)
             }
 

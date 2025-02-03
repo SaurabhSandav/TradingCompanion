@@ -28,7 +28,7 @@ internal class ProfileFormPresenter(
         return@launchMolecule ProfileFormState(
             title = remember {
                 when (formType) {
-                    is ProfileFormType.New -> "New Profile"
+                    is ProfileFormType.New, is ProfileFormType.Copy -> "New Profile"
                     is ProfileFormType.Edit -> "Edit Profile"
                 }
             },
@@ -45,6 +45,17 @@ internal class ProfileFormPresenter(
                 isProfileNameUnique = ::isProfileNameUnique,
                 initial = when (formType) {
                     is ProfileFormType.New -> ProfileFormModel.Initial(isTraining = trainingOnly)
+                    is ProfileFormType.Copy -> {
+
+                        val profile = tradingProfiles.getProfile(formType.id).first()
+
+                        ProfileFormModel.Initial(
+                            name = profile.name,
+                            description = profile.description,
+                            isTraining = profile.isTraining,
+                        )
+                    }
+
                     is ProfileFormType.Edit -> {
 
                         val profile = tradingProfiles.getProfileOrNull(formType.id).first()
@@ -79,6 +90,13 @@ internal class ProfileFormPresenter(
 
         when (formType) {
             is ProfileFormType.New -> tradingProfiles.newProfile(
+                name = nameField.value,
+                description = descriptionField.value,
+                isTraining = isTrainingField.value,
+            )
+
+            is ProfileFormType.Copy -> tradingProfiles.copyProfile(
+                copyId = formType.id,
                 name = nameField.value,
                 description = descriptionField.value,
                 isTraining = isTrainingField.value,

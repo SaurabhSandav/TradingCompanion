@@ -25,7 +25,7 @@ import kotlin.test.*
 class TradingProfilesTest {
 
     @Test
-    fun newProfile() = runTradingProfilesTest {
+    fun `New Profile`() = runTradingProfilesTest {
 
         val profile = tradingProfiles.createInitialProfile()
 
@@ -34,6 +34,16 @@ class TradingProfilesTest {
         assertTrue(profile.isTraining)
         assertEquals(0, profile.tradeCount)
         assertEquals(0, profile.tradeCountOpen)
+    }
+
+    @Test
+    fun `New Profile fails on non-unique name`() = runTradingProfilesTest {
+
+        tradingProfiles.createInitialProfile()
+
+        assertFailsWith<IllegalArgumentException>("Profile name (Test Name) is not unique") {
+            tradingProfiles.createInitialProfile()
+        }
     }
 
     @Test
@@ -86,7 +96,31 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun copyProfile() = runTradingProfilesTest {
+    fun `Update Profile fails on non-unique name`() = runTradingProfilesTest {
+
+        val profile = tradingProfiles.createInitialProfile()
+
+        // Create another profile
+        tradingProfiles.newProfile(
+            name = "New Name",
+            description = "",
+            isTraining = false,
+        )
+
+        assertFailsWith<IllegalArgumentException>("Profile name (Test Name) is not unique") {
+
+            // Update initial profile
+            tradingProfiles.updateProfile(
+                id = profile.id,
+                name = "New Name",
+                description = "New Desc",
+                isTraining = false,
+            )
+        }
+    }
+
+    @Test
+    fun `Copy Profile`() = runTradingProfilesTest {
 
         // Not possible to create a SQLite DB in a FakeFileSystem. Use a file as a stand-in.
         val testFileText = "Hello! This is a test file"
@@ -102,19 +136,45 @@ class TradingProfilesTest {
 
         // Copy
         val newProfile = tradingProfiles.copyProfile(
-            id = profile.id,
-            name = { "Duplicate of $it" },
+            copyId = profile.id,
+            name = "New Name",
+            description = "New Desc",
+            isTraining = false,
         ).first()
 
-        assertEquals("Duplicate of Test Name", newProfile.name)
-        assertEquals("Test Desc", newProfile.description)
+        assertEquals("New Name", newProfile.name)
+        assertEquals("New Desc", newProfile.description)
         assertTrue { newProfile.filesPath.exists() }
         // Record Symbolic link created
         assertTrue { newProfile.filesSymbolicLinkPath.exists() }
         assertEquals(testFileText, newProfile.testFilePath().readText())
-        assertTrue(newProfile.isTraining)
+        assertFalse(newProfile.isTraining)
         assertEquals(0, newProfile.tradeCount)
         assertEquals(0, newProfile.tradeCountOpen)
+    }
+
+    @Test
+    fun `Copy Profile fails on non-unique name`() = runTradingProfilesTest {
+
+        val profile = tradingProfiles.createInitialProfile()
+
+        // Create another profile
+        tradingProfiles.newProfile(
+            name = "New Name",
+            description = "",
+            isTraining = false,
+        )
+
+        assertFailsWith<IllegalArgumentException>("Profile name (Test Name) is not unique") {
+
+            // Copy initial profile
+            tradingProfiles.copyProfile(
+                copyId = profile.id,
+                name = "New Name",
+                description = "New Desc",
+                isTraining = false,
+            )
+        }
     }
 
     @Test

@@ -14,6 +14,8 @@ sealed class ProfileFormType {
 
     data object New : ProfileFormType()
 
+    data class Copy(val id: ProfileId) : ProfileFormType()
+
     data class Edit(val id: ProfileId) : ProfileFormType()
 }
 
