@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeFilter
@@ -40,6 +41,10 @@ class Trades internal constructor(
 
     fun getById(id: TradeId): Flow<Trade> {
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
+    }
+
+    fun getByIdOrNull(id: TradeId): Flow<Trade?> {
+        return tradesDB.tradeQueries.getById(id).asFlow().mapToOneOrNull(appDispatchers.IO)
     }
 
     fun getByIds(ids: List<TradeId>): Flow<List<Trade>> {

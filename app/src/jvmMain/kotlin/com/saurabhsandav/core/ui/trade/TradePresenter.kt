@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class TradePresenter(
     private val profileTradeId: ProfileTradeId,
-    private val onProfileStoppedExisting: () -> Unit,
+    private val onCloseRequest: () -> Unit,
     private val coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -51,7 +51,12 @@ internal class TradePresenter(
     private val tradeId = profileTradeId.tradeId
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
 
-    private val trade = flow { tradingRecord.await().trades.getById(tradeId).emitInto(this) }.shareIn(
+    private val trade = flow {
+        tradingRecord.await().trades.getByIdOrNull(tradeId)
+            .onEach { if (it == null) onCloseRequest() }
+            .filterNotNull()
+            .emitInto(this)
+    }.shareIn(
         scope = coroutineScope,
         started = SharingStarted.Eagerly,
         replay = 1,
@@ -69,7 +74,7 @@ internal class TradePresenter(
         tradingProfiles
             .getProfileOrNull(profileId)
             .filter { it == null }
-            .onEach { onProfileStoppedExisting() }
+            .onEach { onCloseRequest() }
             .launchIn(coroutineScope)
     }
 

@@ -11,12 +11,12 @@ internal class TradeModule(
 
     val presenter: (
         ProfileTradeId,
-        onProfileStoppedExisting: () -> Unit,
-    ) -> TradePresenter = { profileTradeId, onProfileStoppedExisting ->
+        onCloseRequest: () -> Unit,
+    ) -> TradePresenter = { profileTradeId, onCloseRequest ->
 
         TradePresenter(
             profileTradeId = profileTradeId,
-            onProfileStoppedExisting = onProfileStoppedExisting,
+            onCloseRequest = onCloseRequest,
             coroutineScope = coroutineScope,
             tradeContentLauncher = appModule.tradeContentLauncher,
             tradingProfiles = appModule.tradingProfiles,
