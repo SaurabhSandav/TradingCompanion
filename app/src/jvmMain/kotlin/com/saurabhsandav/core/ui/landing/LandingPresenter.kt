@@ -59,8 +59,8 @@ internal class LandingPresenter(
             flow {
 
                 tradingProfiles
-                    .getProfile(profileId)
-                    .map { profile -> profile.tradeCountOpen.takeUnless { it == 0 } }
+                    .getProfileOrNull(profileId)
+                    .map { profile -> profile?.tradeCountOpen?.takeUnless { it == 0 } }
                     .emitInto(this)
             }.collect { value = it }
         }.value
