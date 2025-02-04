@@ -33,7 +33,7 @@ class StockChartsState(
     val marketDataProvider: MarketDataProvider,
     appPrefs: FlowSettings,
     private val chartPrefs: FlowSettings,
-    private val webViewStateProvider: () -> WebViewState,
+    private val webViewStateProvider: (CoroutineScope) -> WebViewState,
 ) {
 
     private val coroutineScope = parentScope.newChildScope()
@@ -68,7 +68,7 @@ class StockChartsState(
 
         val window = StockChartWindow(
             parentScope = coroutineScope,
-            webViewState = webViewStateProvider(),
+            webViewStateProvider = webViewStateProvider,
             onNewChart = { arrangement, currentStockChart ->
 
                 newStockChart(

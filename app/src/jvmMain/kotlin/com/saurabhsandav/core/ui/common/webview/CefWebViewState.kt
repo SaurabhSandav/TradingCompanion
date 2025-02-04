@@ -19,12 +19,11 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.libs.jcefcompose.ComposeCefOSRBrowser
 import com.saurabhsandav.libs.jcefcompose.WebView
 import com.saurabhsandav.libs.jcefcompose.createComposeOffScreenBrowser
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -43,13 +42,16 @@ import kotlin.io.path.absolutePathString
 import kotlin.system.exitProcess
 
 class CefWebViewState(
+    private val coroutineScope: CoroutineScope,
     private val appDispatchers: AppDispatchers,
     private val myCefApp: MyCefApp,
 ) : WebViewState {
 
     private val browserProps = BrowserProps()
 
-    private lateinit var browser: CefBrowser
+    private var _browser: CefBrowser? = null
+    private val browser: CefBrowser
+        get() = checkNotNull(_browser) { "Browser not initialized" }
 
     override val loadState: Flow<LoadState> = browserProps.mutableLoadState.asStateFlow()
     override val location: Flow<String> = browserProps.mutableLocation.asStateFlow()
@@ -64,7 +66,6 @@ class CefWebViewState(
         val isReady by produceState(isCreatedAndReady) {
             init()
             value = true
-            awaitDispose { myCefApp.closeBrowser(browser) }
         }
 
         when {
@@ -87,11 +88,21 @@ class CefWebViewState(
 
     private suspend fun init() {
 
-        if (::browser.isInitialized) return
+        if (_browser != null) return
 
-        browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
+        _browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
 
         browserProps.isReady.complete(Unit)
+
+        coroutineScope.launch {
+
+            try {
+                awaitCancellation()
+            } finally {
+                myCefApp.closeBrowser(browser)
+                _browser = null
+            }
+        }
     }
 
     override suspend fun awaitReady() {

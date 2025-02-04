@@ -32,12 +32,9 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.fyers_api.FyersApi
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
 import java.util.*
 
@@ -141,7 +138,9 @@ internal class AppModule(
 
     val myCefApp = lazy { MyCefApp(appPaths) }
 
-    val webViewStateProvider = { CefWebViewState(appDispatchers, myCefApp.value) }
+    val webViewStateProvider = { coroutineScope: CoroutineScope ->
+        CefWebViewState(coroutineScope, appDispatchers, myCefApp.value)
+    }
 
     val loginServicesManager by lazy { LoginServicesManager() }
 

@@ -13,23 +13,20 @@ import kotlinx.coroutines.CoroutineScope
 
 class StockChartWindow(
     parentScope: CoroutineScope,
-    webViewState: WebViewState,
-    private val onNewChart: (
-        pagedArrangement: PagedChartArrangement,
-        currentStockChart: StockChart?,
-    ) -> StockChart,
+    webViewStateProvider: (CoroutineScope) -> WebViewState,
+    private val onNewChart: (PagedChartArrangement, StockChart?) -> StockChart,
     private val onSelectChart: (StockChart) -> Unit,
     private val onCloseChart: (StockChart) -> Unit,
 ) {
 
-    val coroutineScope = parentScope.newChildScope()
+    internal val coroutineScope = parentScope.newChildScope()
     internal var appWindowState: AppWindowState? = null
 
     val pagedArrangement = ChartArrangement.paged()
     val pageState = ChartPageState(
         coroutineScope = coroutineScope,
         arrangement = pagedArrangement,
-        webViewState = webViewState,
+        webViewState = webViewStateProvider(coroutineScope),
     )
     val tabCharts = mutableMapOf<Int, StockChart>()
     val charts

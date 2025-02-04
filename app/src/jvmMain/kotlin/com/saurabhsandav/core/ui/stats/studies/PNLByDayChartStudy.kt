@@ -20,6 +20,8 @@ import com.saurabhsandav.lightweight_charts.data.BaselineData
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -31,7 +33,7 @@ import java.math.BigDecimal
 internal class PNLByDayChartStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
-    private val webViewStateProvider: () -> WebViewState,
+    private val webViewStateProvider: (CoroutineScope) -> WebViewState,
 ) : Study {
 
     private val data = flow {
@@ -69,11 +71,11 @@ internal class PNLByDayChartStudy(
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
         val arrangement = remember { ChartArrangement.single() }
-        val chartPageState = remember {
+        val chartPageState = remember(coroutineScope) {
             ChartPageState(
                 coroutineScope = coroutineScope,
                 arrangement = arrangement,
-                webViewState = webViewStateProvider(),
+                webViewState = webViewStateProvider(coroutineScope),
             )
         }
         val chart = remember {
@@ -94,6 +96,15 @@ internal class PNLByDayChartStudy(
 
             // Show chart
             chartPageState.connect(chart)
+
+            try {
+                awaitCancellation()
+            } finally {
+                chartPageState.disconnect(chart)
+            }
+        }
+
+        LaunchedEffect(chart) {
 
             val baselineSeries by chart.baselineSeries()
 
@@ -122,7 +133,7 @@ internal class PNLByDayChartStudy(
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
-        private val webViewStateProvider: () -> WebViewState,
+        private val webViewStateProvider: (CoroutineScope) -> WebViewState,
     ) : Study.Factory<PNLByDayChartStudy> {
 
         override val name: String = "PNL By Day (Chart)"
