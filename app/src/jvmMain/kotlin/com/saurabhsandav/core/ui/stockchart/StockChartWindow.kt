@@ -14,9 +14,10 @@ import kotlinx.coroutines.CoroutineScope
 class StockChartWindow(
     parentScope: CoroutineScope,
     webViewStateProvider: (CoroutineScope) -> WebViewState,
-    private val onNewChart: (PagedChartArrangement, StockChart?) -> StockChart,
-    private val onSelectChart: (StockChart) -> Unit,
-    private val onCloseChart: (StockChart) -> Unit,
+    private val getStockChart: (ChartId) -> StockChart,
+    private val onNewChart: (PagedChartArrangement, ChartId?) -> ChartId,
+    private val onSelectChart: (ChartId) -> Unit,
+    private val onCloseChart: (ChartId) -> Unit,
 ) {
 
     internal val coroutineScope = parentScope.newChildScope()
@@ -28,29 +29,29 @@ class StockChartWindow(
         arrangement = pagedArrangement,
         webViewState = webViewStateProvider(coroutineScope),
     )
-    val tabCharts = mutableMapOf<Int, StockChart>()
-    val charts
-        get() = tabCharts.values.toList()
+    val tabChartIdMap = mutableMapOf<Int, ChartId>()
+    val chartIds
+        get() = tabChartIdMap.values
 
-    private val queuedCharts = mutableListOf<StockChart>()
+    private val queuedChartIds = mutableListOf<ChartId>()
 
     internal val tabsState = StockChartTabsState(
         onNew = ::onNewTab,
         onSelect = ::onSelectTab,
         onClose = ::onCloseTab,
-        title = { tabId -> tabCharts.getValue(tabId).title }
+        title = { tabId -> getStockChart(getChartId(tabId)).title }
     )
 
-    val selectedStockChart by derivedStateOf {
-        tabsState.tabIds.getOrNull(tabsState.selectedTabIndex)?.let(tabCharts::get)
+    val selectedChartId by derivedStateOf {
+        tabsState.tabIds.getOrNull(tabsState.selectedTabIndex)?.let(tabChartIdMap::get)
     }
 
-    fun openChart(stockChart: StockChart) {
+    fun openChart(chartId: ChartId) {
 
-        // Queue provided chart
-        queuedCharts.add(stockChart)
+        // Queue provided chart id
+        queuedChartIds.add(chartId)
 
-        // Open a new tab for queued chart
+        // Open a new tab for queued chart id
         tabsState.newTab()
     }
 
@@ -60,11 +61,12 @@ class StockChartWindow(
 
     private fun onNewTab(tabId: Int) {
 
-        // Get queued chart if available or request new chart
-        val stockChart = queuedCharts.removeFirstOrNull() ?: onNewChart(pagedArrangement, selectedStockChart)
+        // Get queued chart id if available or request new chart and get id
+        val chartId = queuedChartIds.removeFirstOrNull() ?: onNewChart(pagedArrangement, selectedChartId)
+        val stockChart = getStockChart(chartId)
 
-        // Save chart
-        tabCharts[tabId] = stockChart
+        // Save chart id
+        tabChartIdMap[tabId] = chartId
 
         // Connect chart to web page
         pageState.connect(chart = stockChart.actualChart)
@@ -72,21 +74,23 @@ class StockChartWindow(
 
     private fun onSelectTab(tabId: Int) {
 
-        val stockChart = tabCharts.getValue(tabId)
+        val chartId = getChartId(tabId)
+        val stockChart = getStockChart(chartId)
 
         // Show selected chart
         pagedArrangement.showChart(stockChart.actualChart)
 
         // Notify observer
-        onSelectChart(stockChart)
+        onSelectChart(chartId)
     }
 
     private fun onCloseTab(tabId: Int) {
 
-        val stockChart = tabCharts.getValue(tabId)
+        val chartId = getChartId(tabId)
+        val stockChart = getStockChart(chartId)
 
-        // Remove saved chart
-        tabCharts.remove(tabId)
+        // Remove saved chart id
+        tabChartIdMap.remove(tabId)
 
         // Remove chart page
         pagedArrangement.removeChart(stockChart.actualChart)
@@ -95,6 +99,10 @@ class StockChartWindow(
         pageState.disconnect(stockChart.actualChart)
 
         // Notify observer
-        onCloseChart(stockChart)
+        onCloseChart(chartId)
+    }
+
+    private fun getChartId(tabId: Int): ChartId {
+        return tabChartIdMap[tabId] ?: error("Tab(${tabId} doesn't exist)")
     }
 }

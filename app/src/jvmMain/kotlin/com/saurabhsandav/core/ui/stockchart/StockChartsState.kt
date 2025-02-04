@@ -25,6 +25,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlin.uuid.Uuid
 
 class StockChartsState(
     parentScope: CoroutineScope,
@@ -39,11 +40,13 @@ class StockChartsState(
     private val coroutineScope = parentScope.newChildScope()
     private val isDark = appPrefs.getBooleanFlow(PrefKeys.DarkModeEnabled, PrefDefaults.DarkModeEnabled)
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
-    private val lastActiveChart = MutableStateFlow<StockChart?>(null)
+    private val lastActiveChartId = MutableStateFlow<ChartId?>(null)
 
     internal val windows = mutableStateListOf<StockChartWindow>()
+    internal val idChartsMap = mutableMapOf<ChartId, StockChart>()
     val charts
-        get() = windows.flatMap { it.charts }
+        get() = idChartsMap.values
+
     private val candleLoader = CandleLoader(
         marketDataProvider = marketDataProvider,
         loadConfig = loadConfig,
@@ -67,34 +70,38 @@ class StockChartsState(
         window: StockChartWindow?,
     ): StockChart {
 
-        val lastActiveChart = lastActiveChart.value
+        val lastActiveChartId = lastActiveChartId.value
         val window = when {
             window != null -> window
             // Get last active window based on last active chart
-            lastActiveChart != null -> windows.first { lastActiveChart in it.charts }
+            lastActiveChartId != null -> windows.first { lastActiveChartId in it.chartIds }
             else -> windows.first()
         }
 
+        val chartId = ChartId(Uuid.random().toString())
+
         // Create new StockChart
-        val stockChart = newStockChart(window.pagedArrangement, params)
+        val stockChart = newStockChart(chartId, window.pagedArrangement, params)
+
+        idChartsMap[chartId] = stockChart
 
         // Add our new chart to the window
-        window.openChart(stockChart)
+        window.openChart(chartId)
 
         return stockChart
     }
 
     fun bringToFront(stockChart: StockChart) {
 
-        val window = windows.first { stockChart in it.charts }
+        val window = windows.first { stockChart.chartId in it.chartIds }
 
         // Bring window to front
         window.toFront()
 
         // Select tab
-        window.tabCharts.forEach { (tabId, chart) ->
+        window.tabChartIdMap.forEach { (tabId, chartId) ->
 
-            if (stockChart == chart) {
+            if (stockChart.chartId == chartId) {
                 window.tabsState.selectTab(tabId)
                 return@forEach
             }
@@ -110,20 +117,32 @@ class StockChartsState(
         val window = StockChartWindow(
             parentScope = coroutineScope,
             webViewStateProvider = webViewStateProvider,
-            onNewChart = { arrangement, selectedStockChart ->
+            getStockChart = ::getStockChart,
+            onNewChart = { arrangement, selectedChartId ->
 
-                newStockChart(
+                val selectedStockChart = selectedChartId?.let(::getStockChart)
+
+                val chartId = ChartId(Uuid.random().toString())
+
+                val stockChart = newStockChart(
+                    chartId = chartId,
                     arrangement = arrangement,
                     params = selectedStockChart?.params ?: initialParams,
                     initialVisibleRange = selectedStockChart?.visibleRange,
                 )
+
+                idChartsMap[chartId] = stockChart
+
+                chartId
             },
-            onSelectChart = { stockChart ->
+            onSelectChart = { chartId ->
 
                 // Set selected chart as lastActiveChart
-                lastActiveChart.value = stockChart
+                lastActiveChartId.value = chartId
             },
-            onCloseChart = { stockChart ->
+            onCloseChart = { chartId ->
+
+                val stockChart = getStockChart(chartId)
 
                 // Destroy chart
                 stockChart.destroy()
@@ -138,14 +157,20 @@ class StockChartsState(
 
         // Update last active chart
         window.pagedArrangement.lastActiveChart
-            .onEach { actualChart -> lastActiveChart.value = window.charts.first { it.actualChart == actualChart } }
+            .onEach { actualChart ->
+                lastActiveChartId.value = charts.first { it.actualChart == actualChart }.chartId
+            }
             .launchIn(window.coroutineScope)
 
         // Create an initial chart in the new window
         newChart(
-            params = launchedFrom?.selectedStockChart?.params ?: initialParams,
+            params = launchedFrom?.selectedChartId?.let(::getStockChart)?.params ?: initialParams,
             window = window,
         )
+    }
+
+    internal fun getStockChart(chartId: ChartId): StockChart {
+        return idChartsMap[chartId] ?: error("Chart(${chartId.value} doesn't exist)")
     }
 
     internal fun closeWindow(window: StockChartWindow): Boolean {
@@ -161,7 +186,7 @@ class StockChartsState(
 
     internal fun onChangeTicker(window: StockChartWindow, ticker: String) {
 
-        val stockChart = window.selectedStockChart ?: return
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
         // New chart params
         stockChart.newParams(stockChart.params.copy(ticker = ticker))
@@ -169,7 +194,7 @@ class StockChartsState(
 
     internal fun onChangeTimeframe(window: StockChartWindow, timeframe: Timeframe) {
 
-        val stockChart = window.selectedStockChart ?: return
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
         // New chart params
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
@@ -184,7 +209,7 @@ class StockChartsState(
         dateTime: LocalDateTime?,
     ) {
 
-        val stockChart = window.selectedStockChart ?: return
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
         // Navigate to datetime
         coroutineScope.launch {
@@ -193,6 +218,7 @@ class StockChartsState(
     }
 
     private fun newStockChart(
+        chartId: ChartId,
         arrangement: PagedChartArrangement,
         params: StockChartParams,
         initialVisibleRange: ClosedRange<Float>? = null,
@@ -206,6 +232,7 @@ class StockChartsState(
         // New StockChart
         val stockChart = StockChart(
             parentScope = coroutineScope,
+            chartId = chartId,
             prefs = chartPrefs,
             marketDataProvider = marketDataProvider,
             candleLoader = candleLoader,
@@ -224,7 +251,7 @@ class StockChartsState(
             .onEach { logicalRange ->
 
                 // If chart is not active (user hasn't interacted), skip sync
-                if (lastActiveChart.value != stockChart) return@onEach
+                if (lastActiveChartId.value != stockChart.chartId) return@onEach
 
                 // Current instant range. If not populated, skip sync
                 val instantRange = stockChart.data.candleSeries.instantRange.value ?: return@onEach
@@ -275,7 +302,7 @@ class StockChartsState(
             .onEach { mouseEventParams ->
 
                 // If chart is not active (user hasn't interacted), skip sync
-                if (lastActiveChart.value != stockChart) return@onEach
+                if (lastActiveChartId.value != stockChart.chartId) return@onEach
 
                 if (mouseEventParams.logical == null) {
                     // Crosshair doesn't exist on current chart. Clear cross-hairs on other charts
@@ -339,3 +366,6 @@ class StockChartsState(
         return start..end
     }
 }
+
+@JvmInline
+value class ChartId(val value: String)

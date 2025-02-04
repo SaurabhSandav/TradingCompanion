@@ -45,6 +45,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class StockChart internal constructor(
     parentScope: CoroutineScope,
+    val chartId: ChartId,
     private val prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
     private val candleLoader: CandleLoader,
