@@ -61,6 +61,7 @@ class CefWebViewState(
     private val myCefApp: MyCefApp,
 ) : WebViewState {
 
+    private val initMutex = Mutex()
     private val browserProps = BrowserProps()
 
     @Suppress("ktlint:standard:backing-property-naming")
@@ -101,9 +102,9 @@ class CefWebViewState(
         }
     }
 
-    private suspend fun init() {
+    override suspend fun init() = initMutex.withLock {
 
-        if (_browser != null) return
+        if (_browser != null) return@withLock
 
         _browser = withContext(appDispatchers.IO) { myCefApp.createBrowser(browserProps) }
 

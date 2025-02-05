@@ -22,6 +22,8 @@ interface WebViewState {
 
     val errors: Flow<Throwable>
 
+    suspend fun init()
+
     suspend fun awaitReady()
 
     suspend fun load(url: String)
