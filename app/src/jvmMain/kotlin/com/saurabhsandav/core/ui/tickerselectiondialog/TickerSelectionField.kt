@@ -31,6 +31,7 @@ fun TickerSelectionField(
         readOnly = true,
         singleLine = true,
         label = { Text("Ticker") },
+        placeholder = { Text("Select...") },
         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTickerSelectionDialog) },
         supportingText = supportingText,
         isError = isError,
@@ -40,7 +41,7 @@ fun TickerSelectionField(
     if (showTickerSelectionDialog) {
 
         TickerSelectionDialog(
-            onCloseRequest = { showTickerSelectionDialog = false },
+            onDismissRequest = { showTickerSelectionDialog = false },
             tickers = tickers,
             onSelect = onSelect,
             type = type,

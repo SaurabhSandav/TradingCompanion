@@ -228,7 +228,7 @@ private fun AddTradeCard(
         if (showTickerSelectionDialog) {
 
             TickerSelectionDialog(
-                onCloseRequest = { showTickerSelectionDialog = false },
+                onDismissRequest = { showTickerSelectionDialog = false },
                 tickers = NIFTY500,
                 onSelect = { ticker ->
                     onAddTrade(ticker)
