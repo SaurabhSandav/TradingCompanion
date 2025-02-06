@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,17 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.controls.DateTimeField
-import com.saurabhsandav.core.ui.common.controls.ListSelectionFieldDefaults
-import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -34,11 +27,6 @@ import kotlinx.datetime.TimeZone
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
-    tickers: List<String>,
-    onChangeTicker: (String) -> Unit,
-    timeframes: List<Timeframe>,
-    onChangeTimeframe: (Timeframe) -> Unit,
-    onOpenInNewTab: (String, Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
@@ -69,30 +57,6 @@ internal fun StockChartControls(
 
             if (customControls != null)
                 customControls(stockChart)
-
-            HorizontalDivider()
-
-            TickerSelectionField(
-                type = TickerSelectionType.Chart(
-                    onOpenInNewTab = { ticker -> onOpenInNewTab(ticker, stockChart.params.timeframe) }
-                ),
-                tickers = tickers,
-                selected = stockChart.params.ticker,
-                onSelect = onChangeTicker,
-            )
-
-            OutlinedListSelectionField(
-                items = timeframes,
-                itemText = { it.toLabel() },
-                selection = stockChart.params.timeframe,
-                onSelect = onChangeTimeframe,
-                label = { Text("Timeframe") },
-                trailingIcon = ListSelectionFieldDefaults.TrailingIcon(
-                    icon = Icons.AutoMirrored.Default.OpenInNew,
-                    contentDescription = "Open in new tab",
-                    onClick = { onOpenInNewTab(stockChart.params.ticker, it) }
-                ),
-            )
 
             HorizontalDivider()
 

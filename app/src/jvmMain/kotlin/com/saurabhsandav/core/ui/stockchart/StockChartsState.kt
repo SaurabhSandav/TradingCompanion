@@ -218,7 +218,16 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
-    internal fun onOpenInNewTab(window: StockChartWindow, ticker: String, timeframe: Timeframe) {
+    internal fun onOpenInNewTab(
+        window: StockChartWindow,
+        ticker: String? = null,
+        timeframe: Timeframe? = null,
+    ) {
+
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
+        val ticker = ticker ?: stockChart.params.ticker
+        val timeframe = timeframe ?: stockChart.params.timeframe
+
         newChart(StockChartParams(ticker, timeframe), window)
     }
 
@@ -257,6 +266,14 @@ class StockChartsState(
             actualChart = actualChart,
             initialData = candleLoader.getStockChartData(params),
             initialVisibleRange = initialVisibleRange,
+            onShowTickerSelector = {
+                val window = windows.first { window -> chartId in window.chartIds }
+                window.showTickerSelectionDialog = true
+            },
+            onShowTimeframeSelector = {
+                val window = windows.first { window -> chartId in window.chartIds }
+                window.showTimeframeSelectionDialog = true
+            },
         )
 
         // Initial theme

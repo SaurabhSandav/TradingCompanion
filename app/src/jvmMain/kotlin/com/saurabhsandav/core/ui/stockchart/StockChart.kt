@@ -2,7 +2,9 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.*
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
@@ -51,6 +53,8 @@ class StockChart internal constructor(
     private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
     initialData: StockChartData,
+    private val onShowTickerSelector: () -> Unit,
+    private val onShowTimeframeSelector: () -> Unit,
     initialVisibleRange: ClosedRange<Float>? = null,
 ) {
 
@@ -141,7 +145,15 @@ class StockChart internal constructor(
         params = data.params
 
         // Update legend title for candles
-        candlestickPlotter.legendLabel = AnnotatedString(title)
+        candlestickPlotter.legendLabel = buildAnnotatedString {
+            withLink(LinkAnnotation.Clickable("ticker") { onShowTickerSelector() }) {
+                append(params.ticker)
+            }
+            append(" • ")
+            withLink(LinkAnnotation.Clickable("timeframe") { onShowTimeframeSelector() }) {
+                append(params.timeframe.toLabel())
+            }
+        }
 
         // Cancel CoroutineScope for the previous StockChartData
         dataCoroutineScope.cancel()

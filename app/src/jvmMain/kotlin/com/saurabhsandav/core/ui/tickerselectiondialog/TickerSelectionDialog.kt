@@ -17,6 +17,7 @@ fun TickerSelectionDialog(
     tickers: List<String>,
     onSelect: (String) -> Unit,
     type: TickerSelectionType = Regular,
+    initialFilterQuery: String = "",
 ) {
 
     val scope = rememberCoroutineScope()
@@ -46,5 +47,6 @@ fun TickerSelectionDialog(
                 }
             }
         },
+        initialFilterQuery = initialFilterQuery,
     )
 }

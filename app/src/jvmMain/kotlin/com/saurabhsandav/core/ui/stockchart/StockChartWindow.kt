@@ -2,6 +2,8 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.app.AppWindowState
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
@@ -32,6 +34,9 @@ class StockChartWindow(
     val tabChartIdMap = mutableMapOf<Int, ChartId>()
     val chartIds
         get() = tabChartIdMap.values
+
+    internal var showTickerSelectionDialog by mutableStateOf(false)
+    internal var showTimeframeSelectionDialog by mutableStateOf(false)
 
     private val queuedChartIds = mutableListOf<ChartId>()
 

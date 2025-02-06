@@ -25,6 +25,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.derivedState
@@ -40,6 +42,7 @@ fun <T : Any> ListSelectionDialog(
     itemText: (T) -> String,
     onSelect: (T) -> Unit,
     title: @Composable (() -> Unit)? = null,
+    initialFilterQuery: String = "",
     dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
     itemTrailingContent: @Composable ((T) -> Unit)? = null,
 ) {
@@ -55,9 +58,11 @@ fun <T : Any> ListSelectionDialog(
             val scrollState = rememberScrollState()
             val focusRequester = remember { FocusRequester() }
 
-            var filterQuery by state { "" }
+            var filterQuery by state {
+                TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length))
+            }
             val filteredItems by derivedState {
-                items.filter { item -> itemText(item).contains(filterQuery, ignoreCase = true) }
+                items.filter { item -> itemText(item).contains(filterQuery.text, ignoreCase = true) }
             }
 
             LaunchedEffect(Unit) {
@@ -145,6 +150,7 @@ fun <T : Any> LazyListSelectionDialog(
     onSelect: (T) -> Unit,
     onFilter: (String) -> Unit,
     title: @Composable (() -> Unit)? = null,
+    initialFilterQuery: String = "",
     dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
     itemTrailingContent: @Composable ((T) -> Unit)? = null,
 ) {
@@ -160,7 +166,9 @@ fun <T : Any> LazyListSelectionDialog(
             val lazyListState = rememberLazyListState()
             val focusRequester = remember { FocusRequester() }
 
-            var filterQuery by state { "" }
+            var filterQuery by state {
+                TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length))
+            }
 
             // Scroll selected item to center of list
             LaunchedEffect(Unit) {
@@ -202,7 +210,7 @@ fun <T : Any> LazyListSelectionDialog(
                 onValueChange = {
                     selectedIndex = -1
                     filterQuery = it
-                    onFilter(it)
+                    onFilter(it.text)
                 },
                 singleLine = true,
                 placeholder = title,

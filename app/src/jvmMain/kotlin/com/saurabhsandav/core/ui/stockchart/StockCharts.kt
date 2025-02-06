@@ -1,21 +1,34 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.isTypedEvent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
+import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
+import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import kotlinx.datetime.LocalDateTime
 
 @Composable
@@ -32,6 +45,8 @@ fun StockCharts(
 
         key(chartWindow) {
 
+            var initialFilterQuery by state<String> { "" }
+
             AppWindow(
                 title = windowTitle,
                 onCloseRequest = { if (!state.closeWindow(chartWindow)) onCloseRequest() },
@@ -39,7 +54,7 @@ fun StockCharts(
                 onPreviewKeyEvent = { keyEvent ->
 
                     when {
-                        chartKeyboardShortcuts(keyEvent, chartWindow.tabsState) -> true
+                        chartKeyboardShortcuts(chartWindow, keyEvent) { initialFilterQuery = it.toString() } -> true
                         else -> customShortcuts?.invoke(keyEvent) == true
                     }
                 },
@@ -47,14 +62,14 @@ fun StockCharts(
 
                 chartWindow.appWindowState = LocalAppWindowState.current
 
+                val tickers by state.marketDataProvider.symbols().collectAsState()
+                val timeframes by state.marketDataProvider.timeframes().collectAsState()
+
                 Box {
 
                     val selectedStockChart = remember(chartWindow.selectedChartId) {
                         chartWindow.selectedChartId?.let(state::getStockChart)
                     }
-
-                    val tickers by state.marketDataProvider.symbols().collectAsState()
-                    val timeframes by state.marketDataProvider.timeframes().collectAsState()
 
                     when {
                         !state.isInitializedWithParams -> NewChartForm(
@@ -72,19 +87,62 @@ fun StockCharts(
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
-                            tickers = tickers,
-                            onChangeTicker = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                            timeframes = timeframes,
-                            onChangeTimeframe = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
                             onNewWindow = { state.newWindow(chartWindow) },
-                            onOpenInNewTab = { ticker, timeframe ->
-                                state.onOpenInNewTab(chartWindow, ticker, timeframe)
-                            },
                             onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                             snackbarHost = snackbarHost,
                             customControls = customControls,
                         )
                     }
+                }
+
+                if (chartWindow.showTickerSelectionDialog) {
+
+                    TickerSelectionDialog(
+                        onDismissRequest = {
+                            chartWindow.showTickerSelectionDialog = false
+                            initialFilterQuery = ""
+                        },
+                        tickers = tickers,
+                        onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
+                        type = TickerSelectionType.Chart { ticker ->
+                            state.onOpenInNewTab(chartWindow, ticker, null)
+                        },
+                        initialFilterQuery = initialFilterQuery,
+                    )
+                }
+
+                if (chartWindow.showTimeframeSelectionDialog) {
+
+                    val onDismiss = remember {
+                        {
+                            chartWindow.showTimeframeSelectionDialog = false
+                            initialFilterQuery = ""
+                        }
+                    }
+
+                    ListSelectionDialog(
+                        onDismissRequest = onDismiss,
+                        items = timeframes,
+                        itemText = { it.toLabel() },
+                        onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
+                        title = { Text("Select Timeframe") },
+                        itemTrailingContent = { timeframe ->
+
+                            IconButton(
+                                onClick = {
+                                    state.onOpenInNewTab(chartWindow, null, timeframe)
+                                    onDismiss()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.OpenInNew,
+                                    contentDescription = "Open in new tab"
+                                )
+                            }
+                        },
+                        initialFilterQuery = initialFilterQuery,
+                        dialogSize = DpSize(width = 250.dp, height = Dp.Unspecified),
+                    )
                 }
             }
         }
@@ -95,12 +153,7 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     stockChart: StockChart,
-    tickers: List<String>,
-    onChangeTicker: (String) -> Unit,
-    timeframes: List<Timeframe>,
-    onChangeTimeframe: (Timeframe) -> Unit,
     onNewWindow: () -> Unit,
-    onOpenInNewTab: (String, Timeframe) -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)?,
@@ -115,11 +168,6 @@ private fun StockChartScreen(
             // Controls
             StockChartControls(
                 stockChart = stockChart,
-                tickers = tickers,
-                onChangeTicker = onChangeTicker,
-                timeframes = timeframes,
-                onChangeTimeframe = onChangeTimeframe,
-                onOpenInNewTab = onOpenInNewTab,
                 onGoToDateTime = onGoToDateTime,
                 customControls = customControls,
             )
@@ -153,13 +201,26 @@ private fun StockChartScreen(
 }
 
 private fun chartKeyboardShortcuts(
+    window: StockChartWindow,
     keyEvent: KeyEvent,
-    tabsState: StockChartTabsState,
-): Boolean {
+    onSetFilterChar: (Char) -> Unit,
+): Boolean = with(keyEvent) {
+
+    if (window.selectedChartId == null) return false
+    if (window.showTickerSelectionDialog || window.showTimeframeSelectionDialog) return false
+
+    if (isTypedEvent) {
+        val char = utf16CodePoint.toChar()
+        if (char.isLetter()) window.showTickerSelectionDialog = true
+        if (char.isDigit()) window.showTimeframeSelectionDialog = true
+        onSetFilterChar(char)
+        return@with true
+    }
 
     val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
-
     if (!defaultCondition) return false
+
+    val tabsState = window.tabsState
 
     when (keyEvent.key) {
         Key.Tab if keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
