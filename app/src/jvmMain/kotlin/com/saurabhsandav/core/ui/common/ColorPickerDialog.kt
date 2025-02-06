@@ -8,35 +8,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.text.style.TextAlign
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 fun ColorPickerDialog(
-    onCloseRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
     onColorSelected: (Color) -> Unit,
     initialSelection: Color? = null,
 ) {
 
-    AppDialogWindow(
-        onCloseRequest = onCloseRequest,
-        title = "Select color",
-        onKeyEvent = {
-
-            when (it.key) {
-                Key.Escape -> {
-                    onCloseRequest()
-                    true
-                }
-
-                else -> false
-            }
-        }
+    AppDialog(
+        onDismissRequest = onDismissRequest,
+        size = MaterialTheme.dimens.dialogSize,
     ) {
 
         Column(
@@ -84,7 +71,7 @@ fun ColorPickerDialog(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onColorSelected(selectedColor)
-                    onCloseRequest()
+                    onDismissRequest()
                 },
                 content = { Text("Select") },
             )

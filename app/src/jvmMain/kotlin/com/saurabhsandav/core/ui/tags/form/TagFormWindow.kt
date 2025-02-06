@@ -138,7 +138,7 @@ private fun Form(
         if (showColorPicker) {
 
             ColorPickerDialog(
-                onCloseRequest = { showColorPicker = false },
+                onDismissRequest = { showColorPicker = false },
                 onColorSelected = { model.colorField.value = it },
                 initialSelection = model.colorField.value,
             )
