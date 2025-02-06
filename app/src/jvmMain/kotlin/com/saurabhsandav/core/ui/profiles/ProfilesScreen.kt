@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.app.AppDialogWindow
+import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
@@ -16,6 +16,7 @@ import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.ui.profiles.ui.ProfilesList
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ProfilesWindow(
@@ -50,7 +51,7 @@ internal fun ProfilesWindow(
 
 @Composable
 fun ProfileSelectorDialog(
-    onCloseRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
     selectedProfileId: ProfileId?,
     onProfileSelected: (ProfileId?) -> Unit,
     trainingOnly: Boolean = false,
@@ -65,7 +66,7 @@ fun ProfileSelectorDialog(
             selectedProfileId = selectedProfileId,
             onProfileSelected = { id ->
                 onProfileSelected(id)
-                onCloseRequest()
+                onDismissRequest()
             },
         )
     }
@@ -75,9 +76,9 @@ fun ProfileSelectorDialog(
         state.eventSink(UpdateSelectedProfile(selectedProfileId))
     }
 
-    AppDialogWindow(
-        title = "Select Profile",
-        onCloseRequest = onCloseRequest,
+    AppDialog(
+        onDismissRequest = onDismissRequest,
+        size = MaterialTheme.dimens.dialogSize,
     ) {
 
         ProfilesScreen(
@@ -146,9 +147,9 @@ fun ProfileSelectorField(
 
     if (showSelectorDialog) {
 
-        AppDialogWindow(
-            title = "Select Profile",
-            onCloseRequest = { showSelectorDialog = false },
+        AppDialog(
+            onDismissRequest = { showSelectorDialog = false },
+            size = MaterialTheme.dimens.dialogSize,
         ) {
 
             ProfilesScreen(

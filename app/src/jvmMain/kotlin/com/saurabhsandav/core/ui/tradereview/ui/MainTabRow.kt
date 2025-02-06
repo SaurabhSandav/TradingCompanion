@@ -63,7 +63,7 @@ internal fun MainTabRow(
                     if (showProfileSelector) {
 
                         ProfileSelectorDialog(
-                            onCloseRequest = { showProfileSelector = false },
+                            onDismissRequest = { showProfileSelector = false },
                             selectedProfileId = selectedProfileId,
                             onProfileSelected = onProfileSelected,
                         )
