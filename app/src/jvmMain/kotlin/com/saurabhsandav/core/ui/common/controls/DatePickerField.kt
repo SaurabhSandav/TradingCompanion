@@ -1,17 +1,13 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import com.saurabhsandav.core.ui.common.derivedState
+import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.*
 import kotlinx.datetime.format.DateTimeFormat
@@ -35,13 +31,7 @@ fun DatePickerField(
     var showDialog by state { false }
 
     OutlinedTextField(
-        modifier = modifier.pointerInput(Unit) {
-            awaitEachGesture {
-                awaitFirstDown(pass = PointerEventPass.Initial)
-                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                if (upEvent != null) showDialog = true
-            }
-        },
+        modifier = modifier.onTextFieldClickOrEnter { showDialog = true },
         value = dateText,
         onValueChange = {},
         enabled = enabled,

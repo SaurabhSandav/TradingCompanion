@@ -1,8 +1,5 @@
 package com.saurabhsandav.core.ui.attachmentform
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -12,8 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
@@ -27,6 +22,7 @@ import com.saurabhsandav.core.ui.common.AnimatedVisibilityForNullable
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import io.github.vinceglb.filekit.core.FileKit
@@ -138,16 +134,9 @@ private fun AttachmentForm(
             }
 
             OutlinedTextField(
-                modifier = Modifier.pointerInput(Unit) {
-                    awaitEachGesture {
-                        awaitFirstDown(pass = PointerEventPass.Initial)
-                        waitForUpOrCancellation(pass = PointerEventPass.Initial) ?: return@awaitEachGesture
-
-                        showFilePicker = true
-                    }
-                },
+                modifier = Modifier.onTextFieldClickOrEnter { showFilePicker = true },
                 value = model.path ?: "Select...",
-                onValueChange = { },
+                onValueChange = {},
                 label = { Text("File") },
                 readOnly = true,
             )

@@ -1,8 +1,5 @@
 package com.saurabhsandav.core.ui.tickerselectiondialog
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -10,8 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
+import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 
 @Composable
@@ -28,17 +24,7 @@ fun TickerSelectionField(
     var showTickerSelectionDialog by state { false }
 
     OutlinedTextField(
-        modifier = Modifier.pointerInput(Unit) {
-            awaitEachGesture {
-                // Must be PointerEventPass.Initial to observe events before the text field consumes them
-                // in the Main pass
-                awaitFirstDown(pass = PointerEventPass.Initial)
-                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                if (upEvent != null) {
-                    showTickerSelectionDialog = !showTickerSelectionDialog
-                }
-            }
-        },
+        modifier = Modifier.onTextFieldClickOrEnter { showTickerSelectionDialog = true },
         value = selected ?: "",
         onValueChange = {},
         enabled = enabled,

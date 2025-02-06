@@ -1,19 +1,15 @@
 package com.saurabhsandav.core.ui.profiles
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.app.AppWindow
+import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
@@ -124,20 +120,7 @@ fun ProfileSelectorField(
     }
 
     OutlinedTextField(
-        modifier = Modifier.pointerInput(selectedProfileId) {
-
-            if (selectedProfileId != null) return@pointerInput
-
-            awaitEachGesture {
-                // Must be PointerEventPass.Initial to observe events before the text field consumes them
-                // in the Main pass
-                awaitFirstDown(pass = PointerEventPass.Initial)
-                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                if (upEvent != null) {
-                    showSelectorDialog = !showSelectorDialog
-                }
-            }
-        },
+        modifier = Modifier.onTextFieldClickOrEnter { showSelectorDialog = true },
         value = state.currentProfile?.name ?: "",
         onValueChange = {},
         enabled = true,
