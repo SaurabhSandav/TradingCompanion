@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.luminance
@@ -90,6 +87,9 @@ fun ColorScheme.isLight() = remember(background) { background.luminance() > 0.5 
 
 @Composable
 fun ColorScheme.isDark() = !isLight()
+
+@Composable
+fun keyboardSelectionBackgroundColor() = LocalContentColor.current.copy(alpha = 0.12F)
 
 @Composable
 fun AppTheme(

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
 @Suppress("UnusedReceiverParameter")
@@ -22,4 +23,6 @@ object Dimens {
     val listItemPadding = 8.dp
 
     val listHeaderHeight = 64.dp
+
+    val dialogSize = DpSize(600.dp, 800.dp)
 }
