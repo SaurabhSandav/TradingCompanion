@@ -85,7 +85,7 @@ internal fun StockChartControls(
                 items = timeframes,
                 itemText = { it.toLabel() },
                 selection = stockChart.params.timeframe,
-                onSelection = onChangeTimeframe,
+                onSelect = onChangeTimeframe,
                 label = { Text("Timeframe") },
                 trailingIcon = ListSelectionFieldDefaults.TrailingIcon(
                     icon = Icons.AutoMirrored.Default.OpenInNew,

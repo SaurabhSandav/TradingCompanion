@@ -178,7 +178,7 @@ private fun LandingScreenPreference(
                 items = items,
                 itemText = { it.title },
                 selection = selectedItem,
-                onSelection = onLandingScreenChange,
+                onSelect = onLandingScreenChange,
             )
         },
     )
@@ -234,7 +234,7 @@ private fun DefaultTimeframePreference(
                 items = items,
                 itemText = { it.toLabel() },
                 selection = selectedItem,
-                onSelection = onDefaultTimeframeChange,
+                onSelect = onDefaultTimeframeChange,
             )
         },
     )

@@ -123,7 +123,7 @@ private fun TradeExecutionForm(
                     if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
                 }
             },
-            onSelection = { model.instrumentField.value = it },
+            onSelect = { model.instrumentField.value = it },
             selection = model.instrumentField.value,
             label = { Text("Instrument") },
             enabled = isTickerEditable,

@@ -48,7 +48,7 @@ internal fun NewReplayForm(
             modifier = Modifier.focusRequester(initialFocusRequester),
             items = remember { enumValues<Timeframe>().toList() },
             itemText = { it.toLabel() },
-            onSelection = { model.baseTimeframeField.value = it },
+            onSelect = { model.baseTimeframeField.value = it },
             selection = model.baseTimeframeField.value,
             label = { Text("Base Timeframe") },
             placeholderText = "Select Timeframe...",
