@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
@@ -47,18 +48,32 @@ fun StockCharts(
 
                 chartWindow.appWindowState = LocalAppWindowState.current
 
-                StockChartScreen(
-                    chartWindow = chartWindow,
-                    tickers = state.marketDataProvider.symbols().collectAsState().value,
-                    onChangeTicker = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                    timeframes = state.marketDataProvider.timeframes().collectAsState().value,
-                    onChangeTimeframe = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
-                    onNewWindow = { state.newWindow(chartWindow) },
-                    onOpenInNewTab = { ticker, timeframe -> state.onOpenInNewTab(chartWindow, ticker, timeframe) },
-                    onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
-                    snackbarHost = snackbarHost,
-                    customControls = customControls,
-                )
+                Box {
+
+                    val selectedStockChart = chartWindow.selectedStockChart
+
+                    if (selectedStockChart == null) {
+
+                        CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
+                    } else {
+
+                        StockChartScreen(
+                            chartWindow = chartWindow,
+                            stockChart = selectedStockChart,
+                            tickers = state.marketDataProvider.symbols().collectAsState().value,
+                            onChangeTicker = { ticker -> state.onChangeTicker(chartWindow, ticker) },
+                            timeframes = state.marketDataProvider.timeframes().collectAsState().value,
+                            onChangeTimeframe = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
+                            onNewWindow = { state.newWindow(chartWindow) },
+                            onOpenInNewTab = { ticker, timeframe ->
+                                state.onOpenInNewTab(chartWindow, ticker, timeframe)
+                            },
+                            onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
+                            snackbarHost = snackbarHost,
+                            customControls = customControls,
+                        )
+                    }
+                }
             }
         }
     }
@@ -67,6 +82,7 @@ fun StockCharts(
 @Composable
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
+    stockChart: StockChart,
     tickers: List<String>,
     onChangeTicker: (String) -> Unit,
     timeframes: List<Timeframe>,
@@ -83,8 +99,6 @@ private fun StockChartScreen(
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
-
-            val stockChart = chartWindow.selectedStockChart
 
             // Controls
             StockChartControls(

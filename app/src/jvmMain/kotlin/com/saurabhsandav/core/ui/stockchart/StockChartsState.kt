@@ -151,7 +151,7 @@ class StockChartsState(
 
     internal fun onChangeTicker(window: StockChartWindow, ticker: String) {
 
-        val stockChart = window.selectedStockChart
+        val stockChart = window.selectedStockChart ?: return
 
         // New chart params
         stockChart.newParams(stockChart.params.copy(ticker = ticker))
@@ -159,7 +159,7 @@ class StockChartsState(
 
     internal fun onChangeTimeframe(window: StockChartWindow, timeframe: Timeframe) {
 
-        val stockChart = window.selectedStockChart
+        val stockChart = window.selectedStockChart ?: return
 
         // New chart params
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
@@ -172,10 +172,14 @@ class StockChartsState(
     internal fun goToDateTime(
         window: StockChartWindow,
         dateTime: LocalDateTime?,
-    ) = coroutineScope.launchUnit {
+    ) {
+
+        val stockChart = window.selectedStockChart ?: return
 
         // Navigate to datetime
-        window.selectedStockChart.navigateTo(instant = dateTime?.toInstant(TimeZone.currentSystemDefault()))
+        coroutineScope.launch {
+            stockChart.navigateTo(instant = dateTime?.toInstant(TimeZone.currentSystemDefault()))
+        }
     }
 
     fun reset() = coroutineScope.launchUnit {

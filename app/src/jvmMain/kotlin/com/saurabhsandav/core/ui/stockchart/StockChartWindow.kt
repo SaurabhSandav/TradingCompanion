@@ -42,7 +42,9 @@ class StockChartWindow(
         title = { tabId -> tabCharts.getValue(tabId).title }
     )
 
-    val selectedStockChart by derivedStateOf { tabCharts.getValue(tabsState.tabIds[tabsState.selectedTabIndex]) }
+    val selectedStockChart by derivedStateOf {
+        tabsState.tabIds.getOrNull(tabsState.selectedTabIndex)?.let(tabCharts::get)
+    }
 
     fun openChart(stockChart: StockChart) {
 
@@ -55,10 +57,6 @@ class StockChartWindow(
 
     fun toFront() {
         appWindowState?.toFront()
-    }
-
-    fun toBack() {
-        appWindowState?.toBack()
     }
 
     private fun onNewTab(tabId: Int) {
