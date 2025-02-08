@@ -19,10 +19,6 @@ internal class StockChartTabsState(
     var selectedTabIndex by mutableIntStateOf(-1)
         private set
 
-    init {
-        newTab()
-    }
-
     fun newTab() {
 
         val id = nextId++

@@ -67,10 +67,12 @@ class StockChartsState(
         window: StockChartWindow?,
     ): StockChart {
 
-        val window = window ?: run {
+        val lastActiveChart = lastActiveChart.value
+        val window = when {
+            window != null -> window
             // Get last active window based on last active chart
-            val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
-            windows.first { lastActiveChart in it.charts }
+            lastActiveChart != null -> windows.first { lastActiveChart in it.charts }
+            else -> windows.first()
         }
 
         // Create new StockChart
@@ -105,17 +107,15 @@ class StockChartsState(
 
     internal fun newWindow(launchedFrom: StockChartWindow?) {
 
-        val fromStockChart = launchedFrom?.selectedStockChart
-
         val window = StockChartWindow(
             parentScope = coroutineScope,
             webViewStateProvider = webViewStateProvider,
-            onNewChart = { arrangement, currentStockChart ->
+            onNewChart = { arrangement, selectedStockChart ->
 
                 newStockChart(
                     arrangement = arrangement,
-                    params = (currentStockChart ?: fromStockChart)?.params,
-                    initialVisibleRange = (currentStockChart ?: fromStockChart)?.visibleRange,
+                    params = selectedStockChart?.params ?: initialParams,
+                    initialVisibleRange = selectedStockChart?.visibleRange,
                 )
             },
             onSelectChart = { stockChart ->
@@ -140,6 +140,12 @@ class StockChartsState(
         window.pagedArrangement.lastActiveChart
             .onEach { actualChart -> lastActiveChart.value = window.charts.first { it.actualChart == actualChart } }
             .launchIn(window.coroutineScope)
+
+        // Create an initial chart in the new window
+        newChart(
+            params = launchedFrom?.selectedStockChart?.params ?: initialParams,
+            window = window,
+        )
     }
 
     internal fun closeWindow(window: StockChartWindow): Boolean {
@@ -188,7 +194,7 @@ class StockChartsState(
 
     private fun newStockChart(
         arrangement: PagedChartArrangement,
-        params: StockChartParams?,
+        params: StockChartParams,
         initialVisibleRange: ClosedRange<Float>? = null,
     ): StockChart {
 
@@ -204,7 +210,7 @@ class StockChartsState(
             marketDataProvider = marketDataProvider,
             candleLoader = candleLoader,
             actualChart = actualChart,
-            initialData = candleLoader.getStockChartData(params ?: initialParams),
+            initialData = candleLoader.getStockChartData(params),
             initialVisibleRange = initialVisibleRange,
         )
 
