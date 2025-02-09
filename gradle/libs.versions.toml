@@ -34,7 +34,7 @@ colorpickerCompose = "1.1.2"
 apacheCommons-compress = "1.27.1"
 composeRichtext = "1.0.0-alpha02"
 cryptography = "0.4.0"
-kotlinWrappers-kotlinCss = "2025.1.1"
+kotlinWrappers-kotlinCss = "2025.2.4"
 jimfs = "1.3.0"
 
 [plugins]
