@@ -53,7 +53,7 @@ class StockChart internal constructor(
     initialVisibleRange: ClosedRange<Float>? = null,
 ) {
 
-    private val coroutineScope = parentScope.newChildScope()
+    internal val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
     internal val candlestickPlotter = CandlestickPlotter("candles")

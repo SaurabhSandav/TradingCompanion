@@ -267,7 +267,7 @@ class StockChartsState(
                         )
                     }
             }
-            .launchIn(coroutineScope)
+            .launchIn(stockChart.coroutineScope)
 
         // Sync crosshair position across charts
         actualChart
@@ -300,7 +300,7 @@ class StockChartsState(
                         }
                 }
             }
-            .launchIn(coroutineScope)
+            .launchIn(stockChart.coroutineScope)
 
         return stockChart
     }
