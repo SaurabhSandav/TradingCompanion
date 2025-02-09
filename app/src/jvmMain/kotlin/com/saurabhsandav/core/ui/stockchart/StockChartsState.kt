@@ -62,6 +62,47 @@ class StockChartsState(
         }
     }
 
+    fun newChart(
+        params: StockChartParams,
+        window: StockChartWindow?,
+    ): StockChart {
+
+        val window = window ?: run {
+            // Get last active window based on last active chart
+            val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
+            windows.first { lastActiveChart in it.charts }
+        }
+
+        // Create new StockChart
+        val stockChart = newStockChart(window.pagedArrangement, params)
+
+        // Add our new chart to the window
+        window.openChart(stockChart)
+
+        return stockChart
+    }
+
+    fun bringToFront(stockChart: StockChart) {
+
+        val window = windows.first { stockChart in it.charts }
+
+        // Bring window to front
+        window.toFront()
+
+        // Select tab
+        window.tabCharts.forEach { (tabId, chart) ->
+
+            if (stockChart == chart) {
+                window.tabsState.selectTab(tabId)
+                return@forEach
+            }
+        }
+    }
+
+    fun reset() = coroutineScope.launchUnit {
+        candleLoader.reset()
+    }
+
     internal fun newWindow(launchedFrom: StockChartWindow?) {
 
         val fromStockChart = launchedFrom?.selectedStockChart
@@ -101,7 +142,7 @@ class StockChartsState(
             .launchIn(window.coroutineScope)
     }
 
-    fun closeWindow(window: StockChartWindow): Boolean {
+    internal fun closeWindow(window: StockChartWindow): Boolean {
 
         if (windows.size == 1) return false
 
@@ -110,43 +151,6 @@ class StockChartsState(
         window.coroutineScope.cancel()
 
         return true
-    }
-
-    fun newChart(
-        params: StockChartParams,
-        window: StockChartWindow?,
-    ): StockChart {
-
-        val window = window ?: run {
-            // Get last active window based on last active chart
-            val lastActiveChart = checkNotNull(lastActiveChart.value) { "No last active chart" }
-            windows.first { lastActiveChart in it.charts }
-        }
-
-        // Create new StockChart
-        val stockChart = newStockChart(window.pagedArrangement, params)
-
-        // Add our new chart to the window
-        window.openChart(stockChart)
-
-        return stockChart
-    }
-
-    fun bringToFront(stockChart: StockChart) {
-
-        val window = windows.first { stockChart in it.charts }
-
-        // Bring window to front
-        window.toFront()
-
-        // Select tab
-        window.tabCharts.forEach { (tabId, chart) ->
-
-            if (stockChart == chart) {
-                window.tabsState.selectTab(tabId)
-                return@forEach
-            }
-        }
     }
 
     internal fun onChangeTicker(window: StockChartWindow, ticker: String) {
@@ -180,10 +184,6 @@ class StockChartsState(
         coroutineScope.launch {
             stockChart.navigateTo(instant = dateTime?.toInstant(TimeZone.currentSystemDefault()))
         }
-    }
-
-    fun reset() = coroutineScope.launchUnit {
-        candleLoader.reset()
     }
 
     private fun newStockChart(
