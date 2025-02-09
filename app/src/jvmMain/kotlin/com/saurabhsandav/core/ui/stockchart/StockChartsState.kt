@@ -98,14 +98,8 @@ class StockChartsState(
         // Bring window to front
         window.toFront()
 
-        // Select tab
-        window.tabChartIdMap.forEach { (tabId, chartId) ->
-
-            if (stockChart.chartId == chartId) {
-                window.tabsState.selectTab(tabId)
-                return@forEach
-            }
-        }
+        // Select chart
+        window.selectChart(stockChart.chartId)
     }
 
     fun reset() = coroutineScope.launchUnit {

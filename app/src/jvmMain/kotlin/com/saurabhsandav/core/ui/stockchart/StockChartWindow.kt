@@ -55,6 +55,13 @@ class StockChartWindow(
         tabsState.newTab()
     }
 
+    fun selectChart(chartId: ChartId) {
+
+        val tabId = tabChartIdMap.filterValues { it == chartId }.keys.single()
+
+        tabsState.selectTab(tabId)
+    }
+
     fun toFront() {
         appWindowState?.toFront()
     }
