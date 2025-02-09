@@ -231,6 +231,19 @@ class StockChartsState(
         newChart(StockChartParams(ticker, timeframe), window)
     }
 
+    internal fun onOpenInNewWindow(
+        window: StockChartWindow,
+        ticker: String? = null,
+        timeframe: Timeframe? = null,
+    ) {
+
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
+        val ticker = ticker ?: stockChart.params.ticker
+        val timeframe = timeframe ?: stockChart.params.timeframe
+
+        newChart(StockChartParams(ticker, timeframe), newWindow(null))
+    }
+
     internal fun goToDateTime(
         window: StockChartWindow,
         dateTime: LocalDateTime?,

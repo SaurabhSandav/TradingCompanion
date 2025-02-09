@@ -6,5 +6,6 @@ sealed class TickerSelectionType {
 
     data class Chart(
         val onOpenInNewTab: (String) -> Unit,
+        val onOpenInNewWindow: (String) -> Unit,
     ) : TickerSelectionType()
 }

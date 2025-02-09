@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.ui.tickerselectiondialog
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,16 +36,31 @@ fun TickerSelectionDialog(
         itemTrailingContent = (type as? Chart)?.let { type ->
             { ticker ->
 
-                IconButton(
-                    onClick = {
-                        type.onOpenInNewTab(ticker)
-                        onDismissRequest()
+                Row {
+
+                    IconButton(
+                        onClick = {
+                            type.onOpenInNewWindow(ticker)
+                            onDismissRequest()
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.OpenInBrowser,
+                            contentDescription = "Open in new window"
+                        )
                     }
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Default.OpenInNew,
-                        contentDescription = "Open in new tab"
-                    )
+
+                    IconButton(
+                        onClick = {
+                            type.onOpenInNewTab(ticker)
+                            onDismissRequest()
+                        }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Default.OpenInNew,
+                            contentDescription = "Open in new tab"
+                        )
+                    }
                 }
             }
         },

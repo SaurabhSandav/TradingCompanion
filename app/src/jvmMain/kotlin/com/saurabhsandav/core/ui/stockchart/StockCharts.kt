@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -104,9 +105,10 @@ fun StockCharts(
                         },
                         tickers = tickers,
                         onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                        type = TickerSelectionType.Chart { ticker ->
-                            state.onOpenInNewTab(chartWindow, ticker, null)
-                        },
+                        type = TickerSelectionType.Chart(
+                            onOpenInNewTab = { ticker -> state.onOpenInNewTab(chartWindow, ticker, null) },
+                            onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
+                        ),
                         initialFilterQuery = initialFilterQuery,
                     )
                 }
@@ -128,16 +130,31 @@ fun StockCharts(
                         title = { Text("Select Timeframe") },
                         itemTrailingContent = { timeframe ->
 
-                            IconButton(
-                                onClick = {
-                                    state.onOpenInNewTab(chartWindow, null, timeframe)
-                                    onDismiss()
+                            Row {
+
+                                IconButton(
+                                    onClick = {
+                                        state.onOpenInNewWindow(chartWindow, null, timeframe)
+                                        onDismiss()
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.OpenInBrowser,
+                                        contentDescription = "Open in new window"
+                                    )
                                 }
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.OpenInNew,
-                                    contentDescription = "Open in new tab"
-                                )
+
+                                IconButton(
+                                    onClick = {
+                                        state.onOpenInNewTab(chartWindow, null, timeframe)
+                                        onDismiss()
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Default.OpenInNew,
+                                        contentDescription = "Open in new tab"
+                                    )
+                                }
                             }
                         },
                         initialFilterQuery = initialFilterQuery,
