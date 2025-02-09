@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
@@ -29,7 +32,7 @@ import kotlin.uuid.Uuid
 
 class StockChartsState(
     parentScope: CoroutineScope,
-    private val initialParams: StockChartParams,
+    initialParams: StockChartParams?,
     loadConfig: LoadConfig,
     val marketDataProvider: MarketDataProvider,
     appPrefs: FlowSettings,
@@ -42,6 +45,7 @@ class StockChartsState(
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
     private val lastActiveChartId = MutableStateFlow<ChartId?>(null)
 
+    internal var isInitializedWithParams by mutableStateOf(initialParams != null)
     internal val windows = mutableStateListOf<StockChartWindow>()
     internal val idChartsMap = mutableMapOf<ChartId, StockChart>()
     val charts
@@ -55,7 +59,8 @@ class StockChartsState(
 
     init {
 
-        newWindow(null)
+        val window = newWindow(null)
+        if (initialParams != null) newChart(initialParams, window)
 
         // Setting dark mode according to settings
         coroutineScope.launch {
@@ -106,7 +111,18 @@ class StockChartsState(
         candleLoader.reset()
     }
 
-    internal fun newWindow(launchedFrom: StockChartWindow?) {
+    internal fun onInitializeChart(
+        window: StockChartWindow,
+        ticker: String,
+        timeframe: Timeframe,
+    ) {
+
+        onOpenInNewTab(window, ticker, timeframe)
+
+        isInitializedWithParams = true
+    }
+
+    internal fun newWindow(launchedFrom: StockChartWindow?): StockChartWindow {
 
         val window = StockChartWindow(
             parentScope = coroutineScope,
@@ -114,15 +130,17 @@ class StockChartsState(
             getStockChart = ::getStockChart,
             onNewChart = { arrangement, selectedChartId ->
 
-                val selectedStockChart = selectedChartId?.let(::getStockChart)
+                val fromStockChart = (selectedChartId ?: lastActiveChartId.value)
+                    ?.let(::getStockChart)
+                    ?: error("No chart params to open")
 
                 val chartId = ChartId(Uuid.random().toString())
 
                 val stockChart = newStockChart(
                     chartId = chartId,
                     arrangement = arrangement,
-                    params = selectedStockChart?.params ?: initialParams,
-                    initialVisibleRange = selectedStockChart?.visibleRange,
+                    params = fromStockChart.params,
+                    initialVisibleRange = fromStockChart.visibleRange,
                 )
 
                 idChartsMap[chartId] = stockChart
@@ -157,10 +175,16 @@ class StockChartsState(
             .launchIn(window.coroutineScope)
 
         // Create an initial chart in the new window
-        newChart(
-            params = launchedFrom?.selectedChartId?.let(::getStockChart)?.params ?: initialParams,
-            window = window,
-        )
+        val launchedFromStockChart = launchedFrom?.selectedChartId?.let(::getStockChart)
+        if (launchedFromStockChart != null) {
+
+            newChart(
+                params = launchedFromStockChart.params,
+                window = window,
+            )
+        }
+
+        return window
     }
 
     internal fun getStockChart(chartId: ChartId): StockChart {

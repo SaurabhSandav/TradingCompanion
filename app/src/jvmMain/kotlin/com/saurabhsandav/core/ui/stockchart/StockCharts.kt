@@ -2,10 +2,7 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
@@ -16,6 +13,7 @@ import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.stockchart.ui.Legend
+import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 import kotlinx.datetime.LocalDateTime
@@ -55,17 +53,28 @@ fun StockCharts(
                         chartWindow.selectedChartId?.let(state::getStockChart)
                     }
 
-                    if (selectedStockChart == null) {
+                    val tickers by state.marketDataProvider.symbols().collectAsState()
+                    val timeframes by state.marketDataProvider.timeframes().collectAsState()
 
-                        CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize(Alignment.Center))
-                    } else {
+                    when {
+                        !state.isInitializedWithParams -> NewChartForm(
+                            tickers = tickers,
+                            timeframes = timeframes,
+                            onInitializeChart = { ticker, timeframe ->
+                                state.onInitializeChart(chartWindow, ticker, timeframe)
+                            },
+                        )
 
-                        StockChartScreen(
+                        selectedStockChart == null -> CircularProgressIndicator(
+                            modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
+                        )
+
+                        else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
-                            tickers = state.marketDataProvider.symbols().collectAsState().value,
+                            tickers = tickers,
                             onChangeTicker = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                            timeframes = state.marketDataProvider.timeframes().collectAsState().value,
+                            timeframes = timeframes,
                             onChangeTimeframe = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
                             onNewWindow = { state.newWindow(chartWindow) },
                             onOpenInNewTab = { ticker, timeframe ->
