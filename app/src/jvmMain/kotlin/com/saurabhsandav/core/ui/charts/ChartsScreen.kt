@@ -1,14 +1,11 @@
 package com.saurabhsandav.core.ui.charts
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.showAsSnackbarsIn
+import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 
 @Composable
@@ -40,17 +37,10 @@ internal fun ChartsScreen(
     }
 
     StockCharts(
+        onCloseRequest = onCloseRequest,
         state = chartsState,
         windowTitle = "Charts",
-        onCloseRequest = onCloseRequest,
+        decorationType = StockChartDecorationType.Charts(onOpenTradeReview = onOpenTradeReview),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        customControls = {
-
-            Button(
-                modifier = Modifier.fillMaxSize(),
-                onClick = onOpenTradeReview,
-                content = { Text("Trade Review") },
-            )
-        },
     )
 }

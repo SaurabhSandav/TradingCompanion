@@ -21,12 +21,12 @@ import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun StockCharts(
+    onCloseRequest: () -> Unit,
     state: StockChartsState,
     windowTitle: String,
-    onCloseRequest: () -> Unit,
+    decorationType: StockChartDecorationType,
     snackbarHost: (@Composable () -> Unit)? = null,
     customShortcuts: ((KeyEvent) -> Boolean)? = null,
-    customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
     state.windows.forEach { chartWindow ->
@@ -75,13 +75,13 @@ fun StockCharts(
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
+                            decorationType = decorationType,
                             onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
                             onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                             onGoToLatest = { state.goToLatest(chartWindow) },
                             onNewWindow = { state.newWindow(chartWindow) },
                             snackbarHost = snackbarHost,
-                            customControls = customControls,
                         )
                     }
                 }
@@ -126,13 +126,13 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     stockChart: StockChart,
+    decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     onGoToLatest: () -> Unit,
     onNewWindow: () -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
-    customControls: (@Composable ColumnScope.(StockChart) -> Unit)?,
 ) {
 
     Box {
@@ -141,6 +141,7 @@ private fun StockChartScreen(
 
             StockChartTopBar(
                 stockChart = stockChart,
+                decorationType = decorationType,
                 onOpenTickerSelection = onOpenTickerSelection,
                 onOpenTimeframeSelection = onOpenTimeframeSelection,
                 onGoToDateTime = onGoToDateTime,
@@ -154,12 +155,12 @@ private fun StockChartScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
 
-                // Controls
-                if (customControls != null) {
+                // Replay Controls
+                if (decorationType is StockChartDecorationType.BarReplay) {
 
                     StockChartControls(
                         stockChart = stockChart,
-                        customControls = customControls,
+                        customControls = decorationType.customControls,
                     )
                 }
 

@@ -23,12 +23,14 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.icons.AppIcons
 import com.saurabhsandav.core.ui.icons.EventUpcoming
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.*
 
 @Composable
 fun StockChartTopBar(
     stockChart: StockChart,
+    decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime) -> Unit,
@@ -85,6 +87,16 @@ fun StockChartTopBar(
 //            shape = RectangleShape, TODO CMP 1.8
             content = { Icon(Icons.AutoMirrored.Filled.LastPage, contentDescription = "Go to latest") },
         )
+
+        VerticalDivider()
+
+        if (decorationType is StockChartDecorationType.Charts) {
+
+            TextButton(
+                onClick = decorationType.onOpenTradeReview,
+                text = { Text("Trade Review") },
+            )
+        }
 
         VerticalDivider()
 
