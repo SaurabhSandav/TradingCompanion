@@ -263,8 +263,10 @@ class StockChart internal constructor(
         prefs.putBoolean(PrefMarkersEnabled, isEnabled)
     }
 
+    suspend fun navigateToLatest() = navigateTo(null)
+
     suspend fun navigateTo(
-        instant: Instant? = null,
+        instant: Instant?,
         to: Instant? = null,
     ) {
 

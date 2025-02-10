@@ -258,6 +258,15 @@ class StockChartsState(
         }
     }
 
+    internal fun goToLatest(window: StockChartWindow) {
+
+        val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
+
+        coroutineScope.launch {
+            stockChart.navigateToLatest()
+        }
+    }
+
     private fun newStockChart(
         chartId: ChartId,
         arrangement: PagedChartArrangement,

@@ -7,7 +7,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -15,19 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.controls.DateTimeField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.utils.nowIn
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
 
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
-    onGoToDateTime: (LocalDateTime?) -> Unit,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
 ) {
 
@@ -57,32 +54,6 @@ internal fun StockChartControls(
 
             if (customControls != null)
                 customControls(stockChart)
-
-            HorizontalDivider()
-
-            var goToDate by state {
-                Clock.System.nowIn(TimeZone.currentSystemDefault())
-            }
-
-            DateTimeField(
-                value = goToDate,
-                onValidValueChange = { goToDate = it },
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-            ) {
-
-                Button(onClick = { onGoToDateTime(null) }) {
-                    Text("Now")
-                }
-
-                Button(onClick = { onGoToDateTime(goToDate) }) {
-                    Text("Go")
-                }
-            }
         }
     }
 }

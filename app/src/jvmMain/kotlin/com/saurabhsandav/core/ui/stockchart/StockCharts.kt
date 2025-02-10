@@ -79,6 +79,7 @@ fun StockCharts(
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
                             onNewWindow = { state.newWindow(chartWindow) },
                             onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
+                            onGoToLatest = { state.goToLatest(chartWindow) },
                             snackbarHost = snackbarHost,
                             customControls = customControls,
                         )
@@ -129,6 +130,7 @@ private fun StockChartScreen(
     onOpenTimeframeSelection: () -> Unit,
     onNewWindow: () -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
+    onGoToLatest: () -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
     customControls: (@Composable ColumnScope.(StockChart) -> Unit)?,
 ) {
@@ -141,6 +143,8 @@ private fun StockChartScreen(
                 stockChart = stockChart,
                 onOpenTickerSelection = onOpenTickerSelection,
                 onOpenTimeframeSelection = onOpenTimeframeSelection,
+                onGoToDateTime = onGoToDateTime,
+                onGoToLatest = onGoToLatest,
             )
 
             HorizontalDivider()
@@ -152,7 +156,6 @@ private fun StockChartScreen(
                 // Controls
                 StockChartControls(
                     stockChart = stockChart,
-                    onGoToDateTime = onGoToDateTime,
                     customControls = customControls,
                 )
 

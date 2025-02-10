@@ -2,21 +2,36 @@ package com.saurabhsandav.core.ui.stockchart.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LastPage
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
+import com.saurabhsandav.core.ui.common.controls.TimePickerDialog
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.icons.AppIcons
+import com.saurabhsandav.core.ui.icons.EventUpcoming
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.utils.nowIn
+import kotlinx.datetime.*
 
 @Composable
 fun StockChartTopBar(
     stockChart: StockChart,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
+    onGoToDateTime: (LocalDateTime) -> Unit,
+    onGoToLatest: () -> Unit,
 ) {
 
     Row(
@@ -53,6 +68,23 @@ fun StockChartTopBar(
         )
 
         VerticalDivider()
+
+        GoTo(
+            modifier = Modifier.fillMaxHeight(),
+            onGoToDateTime = onGoToDateTime,
+        )
+
+        VerticalDivider()
+
+        IconButtonWithTooltip(
+            modifier = Modifier.fillMaxHeight(),
+            onClick = onGoToLatest,
+            tooltipText = "Go to latest",
+//            shape = RectangleShape, TODO CMP 1.8
+            content = { Icon(Icons.AutoMirrored.Filled.LastPage, contentDescription = "Go to latest") },
+        )
+
+        VerticalDivider()
     }
 }
 
@@ -81,5 +113,135 @@ private fun TextButton(
         }
 
         text()
+    }
+}
+
+@Composable
+private fun GoTo(
+    modifier: Modifier,
+    onGoToDateTime: (LocalDateTime) -> Unit,
+) {
+
+    var showDateDialog by state { false }
+    var showTimeDialog by state { false }
+
+    var goToDateTime by state(showDateDialog || showTimeDialog) {
+        Clock.System.nowIn(TimeZone.currentSystemDefault())
+    }
+
+    IconButtonWithTooltip(
+        modifier = modifier,
+        onClick = { showDateDialog = true },
+        tooltipText = "Go to",
+//            shape = RectangleShape, TODO CMP 1.8
+        content = { Icon(AppIcons.EventUpcoming, contentDescription = "Go to") },
+    )
+
+    if (showDateDialog) {
+
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = remember {
+                goToDateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+            },
+            selectableDates = remember {
+
+                val currentMillis = Clock.System.now().toEpochMilliseconds()
+                val currentTime = Clock.System.nowIn(TimeZone.currentSystemDefault())
+
+                object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= currentMillis
+                    override fun isSelectableYear(year: Int): Boolean = year <= currentTime.year
+                }
+            }
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDateDialog = false },
+            confirmButton = {
+
+                TextButton(
+                    onClick = onClick@{
+
+                        val selectedDateMillis = datePickerState.selectedDateMillis ?: return@onClick
+
+                        goToDateTime = Instant.fromEpochMilliseconds(selectedDateMillis)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                            .atTime(goToDateTime.time)
+
+                        showDateDialog = false
+                        showTimeDialog = true
+                    },
+                    content = { Text("Next") },
+                )
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = { showDateDialog = false },
+                    content = { Text("Cancel") },
+                )
+            }
+
+        ) {
+
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimeDialog) {
+
+        val timePickerState = rememberTimePickerState(
+            initialHour = goToDateTime.hour,
+            initialMinute = goToDateTime.minute,
+            is24Hour = true,
+        )
+        var showingPicker by state { true }
+
+        TimePickerDialog(
+            title = when {
+                showingPicker -> "Select Time"
+                else -> "Enter Time"
+            },
+            onCancel = { showTimeDialog = false },
+            onConfirm = {
+
+                goToDateTime = goToDateTime.date.atTime(
+                    hour = timePickerState.hour,
+                    minute = timePickerState.minute,
+                )
+
+                showTimeDialog = false
+
+                onGoToDateTime(goToDateTime)
+            },
+            toggle = {
+
+                val hint = when {
+                    showingPicker -> "Switch to Text Input"
+                    else -> "Switch to Picker Input"
+                }
+
+                IconButtonWithTooltip(
+                    onClick = { showingPicker = !showingPicker },
+                    tooltipText = hint,
+                ) {
+
+                    Icon(
+                        imageVector = when {
+                            showingPicker -> Icons.Outlined.Keyboard
+                            else -> Icons.Outlined.Schedule
+                        },
+                        contentDescription = hint
+                    )
+                }
+            }
+        ) {
+
+            when {
+                showingPicker -> TimePicker(state = timePickerState)
+                else -> TimeInput(state = timePickerState)
+            }
+        }
     }
 }
