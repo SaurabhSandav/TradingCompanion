@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,6 +75,8 @@ fun StockCharts(
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
+                            onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
+                            onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
                             onNewWindow = { state.newWindow(chartWindow) },
                             onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                             snackbarHost = snackbarHost,
@@ -122,6 +125,8 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     stockChart: StockChart,
+    onOpenTickerSelection: () -> Unit,
+    onOpenTimeframeSelection: () -> Unit,
     onNewWindow: () -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
@@ -130,31 +135,42 @@ private fun StockChartScreen(
 
     Box {
 
-        Row(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column {
 
-            // Controls
-            StockChartControls(
+            StockChartTopBar(
                 stockChart = stockChart,
-                onGoToDateTime = onGoToDateTime,
-                customControls = customControls,
+                onOpenTickerSelection = onOpenTickerSelection,
+                onOpenTimeframeSelection = onOpenTimeframeSelection,
             )
 
-            Column {
+            HorizontalDivider()
 
-                // Tabs
-                StockChartTabRow(
-                    state = chartWindow.tabsState,
-                    onNewWindow = onNewWindow,
+            Row(
+                modifier = Modifier.fillMaxSize()
+            ) {
+
+                // Controls
+                StockChartControls(
+                    stockChart = stockChart,
+                    onGoToDateTime = onGoToDateTime,
+                    customControls = customControls,
                 )
 
-                // Chart page
-                ChartPage(
-                    state = chartWindow.pageState,
-                    modifier = Modifier.fillMaxSize(),
-                    legend = { Legend(stockChart) },
-                )
+                Column {
+
+                    // Tabs
+                    StockChartTabRow(
+                        state = chartWindow.tabsState,
+                        onNewWindow = onNewWindow,
+                    )
+
+                    // Chart page
+                    ChartPage(
+                        state = chartWindow.pageState,
+                        modifier = Modifier.weight(1F),
+                        legend = { Legend(stockChart) },
+                    )
+                }
             }
         }
 
