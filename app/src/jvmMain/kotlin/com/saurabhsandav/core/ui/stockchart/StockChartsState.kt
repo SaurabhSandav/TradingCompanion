@@ -20,6 +20,7 @@ import com.saurabhsandav.core.utils.newChildScope
 import com.saurabhsandav.lightweight_charts.options.ChartOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
@@ -266,7 +267,10 @@ class StockChartsState(
 
         // New chart
         val actualChart = arrangement.newChart(
-            options = ChartOptions(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)),
+            options = ChartOptions(
+                crosshair = CrosshairOptions(mode = CrosshairMode.Normal),
+                timeScale = TimeScaleOptions(lockVisibleTimeRangeOnResize = true),
+            ),
         )
 
         // New StockChart

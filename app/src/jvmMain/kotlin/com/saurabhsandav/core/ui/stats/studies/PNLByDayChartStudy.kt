@@ -20,6 +20,7 @@ import com.saurabhsandav.lightweight_charts.data.BaselineData
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
@@ -79,7 +80,12 @@ internal class PNLByDayChartStudy(
             )
         }
         val chart = remember {
-            arrangement.newChart(options = themedOptions.copy(crosshair = CrosshairOptions(mode = CrosshairMode.Normal)))
+            arrangement.newChart(
+                options = themedOptions.copy(
+                    crosshair = CrosshairOptions(mode = CrosshairMode.Normal),
+                    timeScale = TimeScaleOptions(lockVisibleTimeRangeOnResize = true),
+                ),
+            )
         }
 
         var legendValue by state { "" }
