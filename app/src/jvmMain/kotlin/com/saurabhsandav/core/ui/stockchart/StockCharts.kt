@@ -154,10 +154,13 @@ private fun StockChartScreen(
             ) {
 
                 // Controls
-                StockChartControls(
-                    stockChart = stockChart,
-                    customControls = customControls,
-                )
+                if (customControls != null) {
+
+                    StockChartControls(
+                        stockChart = stockChart,
+                        customControls = customControls,
+                    )
+                }
 
                 Column {
 

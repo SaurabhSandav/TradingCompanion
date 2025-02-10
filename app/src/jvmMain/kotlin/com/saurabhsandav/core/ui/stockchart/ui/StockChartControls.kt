@@ -25,7 +25,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 @Composable
 internal fun StockChartControls(
     stockChart: StockChart,
-    customControls: (@Composable ColumnScope.(StockChart) -> Unit)? = null,
+    customControls: @Composable ColumnScope.(StockChart) -> Unit,
 ) {
 
     var isCollapsed by state { false }
@@ -52,8 +52,7 @@ internal fun StockChartControls(
                 content = { Text("Hide Pane") },
             )
 
-            if (customControls != null)
-                customControls(stockChart)
+            customControls(stockChart)
         }
     }
 }
