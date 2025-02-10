@@ -2,32 +2,18 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.isTypedEvent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.ChartPage
-import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.common.toLabel
-import com.saurabhsandav.core.ui.stockchart.ui.Legend
-import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
-import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
-import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
+import com.saurabhsandav.core.ui.stockchart.ui.*
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import kotlinx.datetime.LocalDateTime
@@ -115,50 +101,16 @@ fun StockCharts(
 
                 if (chartWindow.showTimeframeSelectionDialog) {
 
-                    val onDismiss = remember {
-                        {
+                    TimeframeSelectionDialog(
+                        onDismissRequest = {
                             chartWindow.showTimeframeSelectionDialog = false
                             initialFilterQuery = ""
-                        }
-                    }
-
-                    ListSelectionDialog(
-                        onDismissRequest = onDismiss,
-                        items = timeframes,
-                        itemText = { it.toLabel() },
-                        onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
-                        title = { Text("Select Timeframe") },
-                        itemTrailingContent = { timeframe ->
-
-                            Row {
-
-                                IconButton(
-                                    onClick = {
-                                        state.onOpenInNewWindow(chartWindow, null, timeframe)
-                                        onDismiss()
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Default.OpenInBrowser,
-                                        contentDescription = "Open in new window"
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        state.onOpenInNewTab(chartWindow, null, timeframe)
-                                        onDismiss()
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Default.OpenInNew,
-                                        contentDescription = "Open in new tab"
-                                    )
-                                }
-                            }
                         },
+                        timeframes = timeframes,
                         initialFilterQuery = initialFilterQuery,
-                        dialogSize = DpSize(width = 250.dp, height = Dp.Unspecified),
+                        onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
+                        onOpenInNewTab = { timeframe -> state.onOpenInNewTab(chartWindow, null, timeframe) },
+                        onOpenInNewWindow = { timeframe -> state.onOpenInNewWindow(chartWindow, null, timeframe) },
                     )
                 }
             }
