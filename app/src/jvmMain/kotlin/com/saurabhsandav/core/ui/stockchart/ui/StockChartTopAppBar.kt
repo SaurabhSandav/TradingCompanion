@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.stockchart.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LastPage
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.Schedule
@@ -32,6 +33,7 @@ fun StockChartTopBar(
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime) -> Unit,
     onGoToLatest: () -> Unit,
+    onNewWindow: () -> Unit,
 ) {
 
     Row(
@@ -85,6 +87,17 @@ fun StockChartTopBar(
         )
 
         VerticalDivider()
+
+        Spacer(Modifier.weight(1F))
+
+        VerticalDivider()
+
+        IconButtonWithTooltip(
+            modifier = Modifier.fillMaxHeight(),
+            onClick = onNewWindow,
+            tooltipText = "New window",
+            content = { Icon(Icons.Default.OpenInBrowser, contentDescription = "New window") }
+        )
     }
 }
 

@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -22,7 +25,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 @Composable
 internal fun StockChartTabRow(
     state: StockChartTabsState,
-    onNewWindow: () -> Unit,
 ) {
 
     Row(Modifier.fillMaxWidth()) {
@@ -57,17 +59,13 @@ internal fun StockChartTabRow(
             }
         }
 
-        StockChartTabControlsRow(
-            state = state,
-            onNewWindow = onNewWindow,
-        )
+        StockChartTabControlsRow(state = state)
     }
 }
 
 @Composable
 private fun StockChartTabControlsRow(
     state: StockChartTabsState,
-    onNewWindow: () -> Unit,
 ) {
 
     IconButtonWithTooltip(
@@ -107,14 +105,6 @@ private fun StockChartTabControlsRow(
         tooltipText = "Move tab forward",
         content = {
             Icon(Icons.Default.FastForward, contentDescription = "Move tab forward")
-        }
-    )
-
-    IconButtonWithTooltip(
-        onClick = onNewWindow,
-        tooltipText = "New window",
-        content = {
-            Icon(Icons.Default.OpenInBrowser, contentDescription = "New window")
         }
     )
 }
