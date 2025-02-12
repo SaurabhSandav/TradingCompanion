@@ -8,7 +8,7 @@ import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.serialization.json.*
 
 internal class CallbackDelegate(
-    private val chartName: String,
+    private val chartId: String,
 ) {
 
     // Commands
@@ -28,13 +28,13 @@ internal class CallbackDelegate(
         val callbackElement = Json.parseToJsonElement(callbackStr)
 
         val chartCallback = ChartCallback(
-            chartName = callbackElement.jsonObject["chartName"]!!.jsonPrimitive.content,
+            chartId = callbackElement.jsonObject["chartId"]!!.jsonPrimitive.content,
             callbackType = callbackElement.jsonObject["callbackType"]!!.jsonPrimitive.content,
             message = callbackElement.jsonObject["message"]!!.toString(),
         )
 
         // Callback not related to this chart
-        if (chartCallback.chartName != chartName) return
+        if (chartCallback.chartId != chartId) return
 
         when (chartCallback.callbackType) {
             "subscribeClickCallback" -> {

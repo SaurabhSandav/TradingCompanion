@@ -21,7 +21,7 @@ class SingleChartArrangement internal constructor() : ChartArrangement() {
         val callbackElement = Json.parseToJsonElement(message)
 
         val chartCallback = ChartCallback(
-            chartName = callbackElement.jsonObject["chartName"]!!.jsonPrimitive.content,
+            chartId = callbackElement.jsonObject["chartId"]!!.jsonPrimitive.content,
             callbackType = callbackElement.jsonObject["callbackType"]!!.jsonPrimitive.content,
             message = callbackElement.jsonObject["message"]!!.toString(),
         )
@@ -47,7 +47,7 @@ class SingleChartArrangement internal constructor() : ChartArrangement() {
         return com.saurabhsandav.lightweight_charts.createChart(
             container = "document.getElementById('$chartId')",
             options = options.copy(autoSize = true),
-            name = chartId,
+            id = chartId,
         ).also { this.chart = it }
     }
 }

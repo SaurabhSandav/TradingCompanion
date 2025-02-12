@@ -8,8 +8,8 @@ import kotlin.reflect.KProperty
 fun createChart(
     container: String = "document.body",
     options: ChartOptions? = null,
-    name: String = "chart",
-): IChartApi = IChartApi(container, options, name)
+    id: String = "chart",
+): IChartApi = IChartApi(container, options, id)
 
 fun IChartApi.baselineSeries(
     options: BaselineStyleOptions? = null,

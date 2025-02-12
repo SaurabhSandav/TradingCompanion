@@ -15,7 +15,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     private val definition: SeriesDefinition<D, O>,
     private val executeJs: (String) -> Unit,
     private val executeJsWithResult: suspend (String) -> String,
-    val name: String,
+    val id: String,
     seriesInstanceReference: String,
 ) {
 
@@ -120,7 +120,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     }
 
     fun getMouseEventDataFrom(seriesData: Map<String, JsonElement>): D? {
-        val json = seriesData[name] ?: return null
+        val json = seriesData[id] ?: return null
         return LwcJson.decodeFromJsonElement(definition.dataSerializer, json)
     }
 

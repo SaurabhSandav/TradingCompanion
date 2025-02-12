@@ -26,12 +26,12 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
         val callbackElement = Json.parseToJsonElement(message)
 
         val chartCallback = ChartCallback(
-            chartName = callbackElement.jsonObject["chartName"]!!.jsonPrimitive.content,
+            chartId = callbackElement.jsonObject["chartId"]!!.jsonPrimitive.content,
             callbackType = callbackElement.jsonObject["callbackType"]!!.jsonPrimitive.content,
             message = callbackElement.jsonObject["message"]!!.toString(),
         )
 
-        val chart = charts.find { it.name == chartCallback.chartName }
+        val chart = charts.find { it.id == chartCallback.chartId }
 
         return when {
             chartCallback.callbackType == "ChartInteraction" && chart != null -> {
@@ -54,20 +54,19 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
 
     fun newChart(
         options: ChartOptions = ChartOptions(),
+        id: String = "chart_${Random.nextLong()}",
     ): IChartApi {
 
-        val chartId = "chart_${Random.nextLong()}"
-
-        // Error if chart name already exists
-        check(!charts.any { it.name == chartId })
+        // Error if chart id already exists
+        check(!charts.any { it.id == id })
 
         // Configure hidden chart container
-        executeJs("preparePagedChartContainer('$chartId');")
+        executeJs("preparePagedChartContainer('$id');")
 
         val chart = com.saurabhsandav.lightweight_charts.createChart(
-            container = "document.getElementById('$chartId')",
+            container = "document.getElementById('$id')",
             options = options.copy(autoSize = true),
-            name = chartId,
+            id = id,
         )
 
         // Add to tabs
@@ -79,7 +78,7 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
     fun removeChart(chart: IChartApi) {
 
         // Delete chart div
-        executeJs("document.getElementById('${chart.name}').remove();")
+        executeJs("document.getElementById('${chart.id}').remove();")
 
         // Remove tab
         charts.remove(chart)
@@ -88,6 +87,6 @@ class PagedChartArrangement internal constructor() : ChartArrangement() {
     fun showChart(chart: IChartApi) {
 
         // Hide all chart divs, then show selected chart div
-        executeJs("showPagedChart('${chart.name}');")
+        executeJs("showPagedChart('${chart.id}');")
     }
 }

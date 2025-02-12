@@ -3,7 +3,7 @@ const charts = new Map();
 
 class ChartInstance {
 
-  constructor(name, chart) {
+  constructor(id, chart) {
     this.chart = chart;
     var seriesMap = new Map();
     this.seriesMap = seriesMap;
@@ -11,7 +11,7 @@ class ChartInstance {
     this.subscribeClickCallback = (function (params) {
       chartCallback(
         JSON.stringify(new ChartCallback(
-          name,
+          id,
           "subscribeClickCallback",
           params,
         ), replacerSeriesByName(seriesMap))
@@ -20,7 +20,7 @@ class ChartInstance {
     this.subscribeCrosshairMoveCallback = (function (params) {
       chartCallback(
         JSON.stringify(new ChartCallback(
-          name,
+          id,
           "subscribeCrosshairMoveCallback",
           params,
         ), replacerSeriesByName(seriesMap))
@@ -29,7 +29,7 @@ class ChartInstance {
     this.subscribeVisibleTimeRangeChangeCallback = (function (timeRange) {
       chartCallback(
         JSON.stringify(new ChartCallback(
-          name,
+          id,
           "subscribeVisibleTimeRangeChangeCallback",
           timeRange,
         ))
@@ -38,7 +38,7 @@ class ChartInstance {
     this.subscribeVisibleLogicalRangeChangeCallback = (function (logicalRange) {
       chartCallback(
         JSON.stringify(new ChartCallback(
-          name,
+          id,
           "subscribeVisibleLogicalRangeChangeCallback",
           logicalRange,
         ))
@@ -47,7 +47,7 @@ class ChartInstance {
     this.subscribeSizeChangeCallback = (function (width, height) {
       chartCallback(
         JSON.stringify(new ChartCallback(
-          name,
+          id,
           "subscribeSizeChangeCallback",
           { width: width, height: height },
         ))
@@ -68,8 +68,8 @@ class SeriesInstance {
 
 class ChartCallback {
 
-  constructor(chartName, callbackType, message) {
-    this.chartName = chartName;
+  constructor(chartId, callbackType, message) {
+    this.chartId = chartId;
     this.callbackType = callbackType;
     this.message = message;
   }

@@ -47,7 +47,7 @@ class LinePlotter(
 
         return chart.actualChart.addSeries(
             definition = SeriesDefinition.LineSeries,
-            name = key,
+            id = key,
             options = options,
         )
     }

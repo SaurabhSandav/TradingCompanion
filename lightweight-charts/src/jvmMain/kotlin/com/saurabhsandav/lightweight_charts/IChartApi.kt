@@ -17,18 +17,18 @@ import kotlin.coroutines.suspendCoroutine
 class IChartApi internal constructor(
     container: String = "document.body",
     options: ChartOptions? = null,
-    val name: String = "chart",
+    val id: String = "chart",
 ) {
 
     private val _scripts = Channel<String>(Channel.UNLIMITED)
 
-    private val chartInstanceReference = "charts.get(\"$name\")"
+    private val chartInstanceReference = "charts.get(\"$id\")"
     private val seriesMapReference = "$chartInstanceReference.seriesMap"
     private val subscribeClickCallbackReference = "$chartInstanceReference.subscribeClickCallback"
     private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
 
     private val seriesList = mutableListOf<ISeriesApi<*, *>>()
-    private val callbacksDelegate = CallbackDelegate(name)
+    private val callbacksDelegate = CallbackDelegate(id)
     private var nextCommandCallbackId = 0
 
     val scripts: Flow<String> = _scripts.consumeAsFlow()
@@ -48,8 +48,8 @@ class IChartApi internal constructor(
 
         executeJs(
             """
-            |charts.set("$name", new ChartInstance(
-            |  "$name",
+            |charts.set("$id", new ChartInstance(
+            |  "$id",
             |  LightweightCharts.createChart($container, $optionsJson),
             |));""".trimMargin()
         )
@@ -61,7 +61,7 @@ class IChartApi internal constructor(
         executeJs("$reference.remove();")
 
         // Remove from JS cache
-        executeJs("charts.delete(\"$name\")")
+        executeJs("charts.delete(\"$id\")")
 
         // Close scripts stream
         _scripts.close()
@@ -84,17 +84,18 @@ class IChartApi internal constructor(
 
     fun <D : SeriesData, O : SeriesOptions> addSeries(
         definition: SeriesDefinition<D, O>,
-        name: String,
+        id: String,
         options: O? = null,
         paneIndex: Int? = null,
     ): ISeriesApi<D, O> {
 
+        val seriesId = id
         val series = ISeriesApi<D, O>(
             definition = definition,
             executeJs = ::executeJs,
             executeJsWithResult = ::executeJsWithResult,
-            name = name,
-            seriesInstanceReference = "$seriesMapReference.get(\"$name\")",
+            id = seriesId,
+            seriesInstanceReference = "$seriesMapReference.get(\"$seriesId\")",
         )
 
         seriesList.add(series)
@@ -113,7 +114,7 @@ class IChartApi internal constructor(
 
         executeJs(
             """
-            |$seriesMapReference.set("$name", new SeriesInstance(
+            |$seriesMapReference.set("$seriesId", new SeriesInstance(
             |  $reference.addSeries($seriesArguments)
             |));""".trimMargin()
         )
@@ -127,7 +128,7 @@ class IChartApi internal constructor(
 
         executeJs("$reference.removeSeries(${series.reference});")
 
-        executeJs("$seriesMapReference.delete(\"$name\");")
+        executeJs("$seriesMapReference.delete(\"${series.id}\");")
     }
 
     fun subscribeClick(handler: MouseEventHandler) {
@@ -206,6 +207,7 @@ class IChartApi internal constructor(
 
     private suspend fun executeJsWithResult(command: String): String = suspendCoroutine { continuation ->
 
+        val chartId = id
         val id = nextCommandCallbackId++
 
         val commandCallback = CommandCallback(
@@ -221,7 +223,7 @@ class IChartApi internal constructor(
             |  var result = $command;
             |  chartCallback(
             |    JSON.stringify(new ChartCallback(
-            |      "$name",
+            |      "$chartId",
             |      "commandCallback",
             |      { id: $id, result: result },
             |    ))
