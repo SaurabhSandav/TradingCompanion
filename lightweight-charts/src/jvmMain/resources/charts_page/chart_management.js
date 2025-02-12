@@ -5,7 +5,7 @@ class ChartInstance {
 
   constructor(id, chart) {
     this.chart = chart;
-    var seriesMap = new Map();
+    let seriesMap = new Map();
     this.seriesMap = seriesMap;
     this.panesMap = new Map();
     this.subscribeClickCallback = (function (params) {
@@ -16,7 +16,7 @@ class ChartInstance {
           params,
         ), replacerSeriesByName(seriesMap))
       );
-    })
+    });
     this.subscribeCrosshairMoveCallback = (function (params) {
       chartCallback(
         JSON.stringify(new ChartCallback(
@@ -25,7 +25,7 @@ class ChartInstance {
           params,
         ), replacerSeriesByName(seriesMap))
       );
-    })
+    });
     this.subscribeVisibleTimeRangeChangeCallback = (function (timeRange) {
       chartCallback(
         JSON.stringify(new ChartCallback(
@@ -34,7 +34,7 @@ class ChartInstance {
           timeRange,
         ))
       );
-    })
+    });
     this.subscribeVisibleLogicalRangeChangeCallback = (function (logicalRange) {
       chartCallback(
         JSON.stringify(new ChartCallback(
@@ -43,7 +43,7 @@ class ChartInstance {
           logicalRange,
         ))
       );
-    })
+    });
     this.subscribeSizeChangeCallback = (function (width, height) {
       chartCallback(
         JSON.stringify(new ChartCallback(
@@ -52,7 +52,7 @@ class ChartInstance {
           { width: width, height: height },
         ))
       );
-    })
+    });
   }
 }
 
@@ -86,10 +86,10 @@ function replacerSeriesByName(seriesMap) {
 
   return function (key, value) {
     if (key == 'sourceEvent' || key == 'hoveredSeries') {
-      return undefined
+      return undefined;
     } else if (key == 'seriesData' && value instanceof Map) {
 
-      var namedMap = new Map();
+      let namedMap = new Map();
 
       value.forEach(function (value, key) {
         namedMap.set(getByValue(seriesMap, key), value);

@@ -22,7 +22,7 @@ function preparePagedChartContainer(chartId) {
 
 function showPagedChart(chartId) {
 
-  var tabcontent = document.getElementsByClassName("tabcontent");
+  let tabcontent = document.getElementsByClassName("tabcontent");
 
   for (i = 0; i < tabcontent.length; i++) {
     tabcontent[i].style.visibility = "hidden";
