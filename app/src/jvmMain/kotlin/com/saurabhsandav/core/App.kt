@@ -21,8 +21,14 @@ import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.awt.Toolkit
+import kotlin.system.exitProcess
+import kotlin.time.Duration.Companion.seconds
 
 suspend fun runApp(
     isDebugMode: Boolean,
@@ -39,10 +45,18 @@ suspend fun runApp(
 
         application(exitProcessOnExit = false) {
 
-            val onExit = remember {
+            val onExit = remember<() -> Unit> {
                 {
                     appModule.destroy()
                     exitApplication()
+
+                    // App process doesn't exit if browser(charts) was initialized at any point.
+                    // Workaround: Wait 10 seconds (arbitrary) and force exit app.
+                    @OptIn(DelicateCoroutinesApi::class)
+                    GlobalScope.launch {
+                        delay(10.seconds)
+                        exitProcess(0)
+                    }
                 }
             }
 
