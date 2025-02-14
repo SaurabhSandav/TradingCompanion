@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
@@ -75,6 +77,7 @@ fun StockCharts(
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
+                            onChartActive = { state.onChartActive(selectedStockChart.chartId) },
                             decorationType = decorationType,
                             onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
@@ -126,6 +129,7 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     stockChart: StockChart,
+    onChartActive: () -> Unit,
     decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
@@ -174,7 +178,9 @@ private fun StockChartScreen(
                     // Chart page
                     ChartPage(
                         state = chartWindow.pageState,
-                        modifier = Modifier.weight(1F),
+                        modifier = Modifier
+                            .weight(1F)
+                            .onPointerEvent(PointerEventType.Enter) { onChartActive() },
                         legend = { Legend(stockChart) },
                     )
                 }

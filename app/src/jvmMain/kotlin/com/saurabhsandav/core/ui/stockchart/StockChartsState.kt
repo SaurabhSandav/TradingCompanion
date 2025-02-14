@@ -123,6 +123,12 @@ class StockChartsState(
         isInitializedWithParams = true
     }
 
+    internal fun onChartActive(id: ChartId) {
+
+        // Update last active chart
+        lastActiveChartId.value = id
+    }
+
     internal fun newWindow(launchedFrom: StockChartWindow?): StockChartWindow {
 
         val window = StockChartWindow(
@@ -167,13 +173,6 @@ class StockChartsState(
         )
 
         windows += window
-
-        // Update last active chart
-        window.pagedArrangement.lastActiveChart
-            .onEach { actualChart ->
-                lastActiveChartId.value = charts.first { it.actualChart == actualChart }.chartId
-            }
-            .launchIn(window.coroutineScope)
 
         // Create an initial chart in the new window
         val launchedFromStockChart = launchedFrom?.selectedChartId?.let(::getStockChart)

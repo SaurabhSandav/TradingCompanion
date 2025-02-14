@@ -53,18 +53,14 @@ class ChartPageState(
             // Forward callbacks
             webViewState.createJSCallback("chartCallback")
                 .messages
-                .onEach(::onCallback)
+                .onEach { message ->
+                    charts.forEach { chart -> chart.onCallback(message) }
+                }
                 .launchIn(coroutineScope)
 
             // Execute chart scripts
             merge(arrangement.scripts, scripts.consumeAsFlow()).onEach(webViewState::executeScript).collect()
         }
-    }
-
-    private fun onCallback(message: String) {
-        // If arrangement does not consume callback, forward it to the charts
-        if (!arrangement.onCallback(message))
-            charts.forEach { it.onCallback(message) }
     }
 
     fun setPageBackgroundColor(color: Color) {

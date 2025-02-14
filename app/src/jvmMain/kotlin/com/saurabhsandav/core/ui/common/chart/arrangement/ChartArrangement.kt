@@ -12,7 +12,5 @@ abstract class ChartArrangement {
         _scripts.trySend(script)
     }
 
-    abstract fun onCallback(message: String): Boolean
-
     companion object
 }
