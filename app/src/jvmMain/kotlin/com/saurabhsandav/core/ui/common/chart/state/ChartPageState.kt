@@ -2,25 +2,15 @@ package com.saurabhsandav.core.ui.common.chart.state
 
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.toHexString
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.lightweight_charts.IChartApi
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
-fun ChartPageState(
-    coroutineScope: CoroutineScope,
-    webViewState: WebViewState,
-    chart: IChartApi,
-) = ChartPageState(
-    coroutineScope = coroutineScope,
-    arrangement = ChartArrangement.single(),
-    webViewState = webViewState,
-).apply { connect(chart) }
 
 class ChartPageState(
     private val coroutineScope: CoroutineScope,
@@ -29,7 +19,7 @@ class ChartPageState(
 ) {
 
     private val scripts = Channel<String>(Channel.UNLIMITED)
-    private val charts = mutableListOf<IChartApi>()
+    private val charts = mutableMapOf<IChartApi, Job>()
 
     init {
 
@@ -54,7 +44,7 @@ class ChartPageState(
             webViewState.createJSCallback("chartCallback")
                 .messages
                 .onEach { message ->
-                    charts.forEach { chart -> chart.onCallback(message) }
+                    charts.keys.forEach { chart -> chart.onCallback(message) }
                 }
                 .launchIn(coroutineScope)
 
@@ -69,16 +59,13 @@ class ChartPageState(
 
     fun connect(chart: IChartApi) {
 
-        // Cache chart
-        charts.add(chart)
-
-        // Send chart js scripts to web engine
-        coroutineScope.launch {
+        // Cache chart and send chart js scripts to web engine
+        charts[chart] = coroutineScope.launch {
             chart.scripts.collect(scripts::trySend)
         }
     }
 
     fun disconnect(chart: IChartApi) {
-        charts.remove(chart)
+        charts.remove(chart)!!.cancel()
     }
 }
