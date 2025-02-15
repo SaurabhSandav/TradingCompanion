@@ -382,7 +382,7 @@ class StockChartsState(
                             chart.actualChart.setCrosshairPosition(
                                 price = 0.0,
                                 horizontalPosition = mouseEventParams.time ?: return@forEach,
-                                seriesApi = chart.candlestickPlotter.series,
+                                seriesApi = chart.plotterManager.candlestickPlotter.series,
                             )
                         }
                 }
@@ -407,7 +407,7 @@ class StockChartsState(
     private fun onCandlesLoaded(params: StockChartParams) {
         charts
             .filter { stockChart -> stockChart.params == params }
-            .forEach { stockChart -> stockChart.setDataToChart() }
+            .forEach { stockChart -> stockChart.plotterManager.setData() }
     }
 
     private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {

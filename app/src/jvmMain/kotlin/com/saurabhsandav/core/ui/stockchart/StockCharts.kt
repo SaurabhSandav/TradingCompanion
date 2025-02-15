@@ -181,7 +181,7 @@ private fun StockChartScreen(
                         modifier = Modifier
                             .weight(1F)
                             .onPointerEvent(PointerEventType.Enter) { onChartActive() },
-                        legend = { Legend(stockChart) },
+                        legend = { Legend(stockChart.plotterManager) },
                     )
                 }
             }

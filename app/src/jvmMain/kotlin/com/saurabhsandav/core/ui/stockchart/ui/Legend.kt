@@ -8,16 +8,16 @@ import androidx.compose.runtime.key
 import com.saurabhsandav.core.ui.common.chart.legend.Legend
 import com.saurabhsandav.core.ui.common.chart.legend.LegendItem
 import com.saurabhsandav.core.ui.common.chart.legend.LegendVisibilityButton
-import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.core.ui.stockchart.PlotterManager
 
 @Composable
 fun Legend(
-    stockChart: StockChart,
+    plotterManager: PlotterManager,
 ) {
 
     Legend {
 
-        stockChart.plotters.forEach { plotter ->
+        plotterManager.plotters.forEach { plotter ->
 
             key(plotter) {
 
@@ -27,7 +27,7 @@ fun Legend(
 
                         LegendVisibilityButton(
                             isEnabled = plotter.isEnabled,
-                            onToggleIsEnabled = { stockChart.setPlotterIsEnabled(plotter, !plotter.isEnabled) },
+                            onToggleIsEnabled = { plotterManager.setPlotterEnabled(plotter, !plotter.isEnabled) },
                         )
                     },
                     values = { Text(plotter.legendText) },
@@ -39,11 +39,11 @@ fun Legend(
             label = { Text("Markers") },
             controls = {
 
-                val isEnabled by stockChart.markersAreEnabled.collectAsState(false)
+                val isEnabled by plotterManager.areMarkersEnabled.collectAsState(false)
 
                 LegendVisibilityButton(
                     isEnabled = isEnabled,
-                    onToggleIsEnabled = { stockChart.setMarkersAreEnabled(!isEnabled) },
+                    onToggleIsEnabled = { plotterManager.setMarkersEnabled(!isEnabled) },
                 )
             },
             values = {},
