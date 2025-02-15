@@ -6,8 +6,6 @@ import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.chart.ChartPage
-import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.single
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.legend.LegendItem
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
@@ -71,16 +69,14 @@ internal class PNLByDayChartStudy(
 
         val themedOptions = themedChartOptions()
         val coroutineScope = rememberCoroutineScope()
-        val arrangement = remember { ChartArrangement.single() }
-        val chartPageState = remember(coroutineScope) {
+        val pageState = remember(coroutineScope) {
             ChartPageState(
                 coroutineScope = coroutineScope,
-                arrangement = arrangement,
                 webViewState = webViewStateProvider(coroutineScope),
             )
         }
         val chart = remember {
-            arrangement.newChart(
+            pageState.addChart(
                 options = themedOptions.copy(
                     crosshair = CrosshairOptions(mode = CrosshairMode.Normal),
                     timeScale = TimeScaleOptions(lockVisibleTimeRangeOnResize = true),
@@ -90,7 +86,7 @@ internal class PNLByDayChartStudy(
 
         var legendValue by state { "" }
 
-        ChartPage(chartPageState) {
+        ChartPage(pageState) {
 
             LegendItem(
                 label = { Text("PNL") },
@@ -101,12 +97,12 @@ internal class PNLByDayChartStudy(
         LaunchedEffect(chart) {
 
             // Show chart
-            chartPageState.connect(chart)
+            pageState.showChart(chart)
 
             try {
                 awaitCancellation()
             } finally {
-                chartPageState.disconnect(chart)
+                pageState.removeChart(chart)
             }
         }
 

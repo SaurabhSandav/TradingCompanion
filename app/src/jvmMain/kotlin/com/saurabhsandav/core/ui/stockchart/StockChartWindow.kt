@@ -5,9 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.app.AppWindowState
-import com.saurabhsandav.core.ui.common.chart.arrangement.ChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
-import com.saurabhsandav.core.ui.common.chart.arrangement.paged
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.utils.newChildScope
@@ -17,7 +14,7 @@ class StockChartWindow(
     parentScope: CoroutineScope,
     webViewStateProvider: (CoroutineScope) -> WebViewState,
     private val getStockChart: (ChartId) -> StockChart,
-    private val onNewChart: (PagedChartArrangement, ChartId?) -> ChartId,
+    private val onNewChart: (ChartPageState, ChartId?) -> ChartId,
     private val onSelectChart: (ChartId) -> Unit,
     private val onCloseChart: (ChartId) -> Unit,
 ) {
@@ -25,10 +22,8 @@ class StockChartWindow(
     internal val coroutineScope = parentScope.newChildScope()
     internal var appWindowState: AppWindowState? = null
 
-    val pagedArrangement = ChartArrangement.paged()
     val pageState = ChartPageState(
         coroutineScope = coroutineScope,
-        arrangement = pagedArrangement,
         webViewState = webViewStateProvider(coroutineScope),
     )
     val tabChartIdMap = mutableMapOf<Int, ChartId>()
@@ -74,23 +69,26 @@ class StockChartWindow(
     private fun onNewTab(tabId: Int) {
 
         // Get queued chart id if available or request new chart and get id
-        val chartId = queuedChartIds.removeFirstOrNull() ?: onNewChart(pagedArrangement, selectedChartId)
-        val stockChart = getStockChart(chartId)
+        val chartId = queuedChartIds.removeFirstOrNull() ?: onNewChart(pageState, selectedChartId)
 
         // Save chart id
         tabChartIdMap[tabId] = chartId
-
-        // Connect chart to web page
-        pageState.connect(chart = stockChart.actualChart)
     }
 
     private fun onSelectTab(tabId: Int) {
 
         val chartId = getChartId(tabId)
-        val stockChart = getStockChart(chartId)
 
         // Show selected chart
-        pagedArrangement.showChart(stockChart.actualChart)
+        chartIds.forEach { iChartId ->
+
+            val stockChart = getStockChart(iChartId)
+
+            when (iChartId) {
+                chartId -> pageState.showChart(stockChart.actualChart)
+                else -> pageState.hideChart(stockChart.actualChart)
+            }
+        }
 
         // Notify observer
         onSelectChart(chartId)
@@ -101,17 +99,14 @@ class StockChartWindow(
         val chartId = getChartId(tabId)
         val stockChart = getStockChart(chartId)
 
+        // Notify observer
+        onCloseChart(chartId)
+
         // Remove saved chart id
         tabChartIdMap.remove(tabId)
 
-        // Remove chart page
-        pagedArrangement.removeChart(stockChart.actualChart)
-
-        // Disconnect chart from web page
-        pageState.disconnect(stockChart.actualChart)
-
-        // Notify observer
-        onCloseChart(chartId)
+        // Remove chart container from page
+        pageState.removeChart(stockChart.actualChart)
     }
 
     private fun getChartId(tabId: Int): ChartId {

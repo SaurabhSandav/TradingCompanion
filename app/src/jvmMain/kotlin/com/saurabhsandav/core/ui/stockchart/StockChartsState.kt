@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.chart.arrangement.PagedChartArrangement
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
+import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
@@ -87,7 +87,7 @@ class StockChartsState(
         val chartId = ChartId(Uuid.random().toString())
 
         // Create new StockChart
-        val stockChart = newStockChart(chartId, window.pagedArrangement, params)
+        val stockChart = newStockChart(chartId, window.pageState, params)
 
         idChartsMap[chartId] = stockChart
 
@@ -135,7 +135,7 @@ class StockChartsState(
             parentScope = coroutineScope,
             webViewStateProvider = webViewStateProvider,
             getStockChart = ::getStockChart,
-            onNewChart = { arrangement, selectedChartId ->
+            onNewChart = { pageState, selectedChartId ->
 
                 val fromStockChart = (selectedChartId ?: lastActiveChartId.value)
                     ?.let(::getStockChart)
@@ -145,7 +145,7 @@ class StockChartsState(
 
                 val stockChart = newStockChart(
                     chartId = chartId,
-                    arrangement = arrangement,
+                    pageState = pageState,
                     params = fromStockChart.params,
                     initialVisibleRange = fromStockChart.visibleRange,
                 )
@@ -268,13 +268,13 @@ class StockChartsState(
 
     private fun newStockChart(
         chartId: ChartId,
-        arrangement: PagedChartArrangement,
+        pageState: ChartPageState,
         params: StockChartParams,
         initialVisibleRange: ClosedRange<Float>? = null,
     ): StockChart {
 
         // New chart
-        val actualChart = arrangement.newChart(
+        val actualChart = pageState.addChart(
             options = ChartOptions(
                 crosshair = CrosshairOptions(mode = CrosshairMode.Normal),
                 timeScale = TimeScaleOptions(lockVisibleTimeRangeOnResize = true),
