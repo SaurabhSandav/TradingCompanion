@@ -201,6 +201,14 @@ class StockChartsState(
         return idChartsMap[chartId] ?: error("Chart(${chartId.value} doesn't exist)")
     }
 
+    internal fun getStockChartOrNull(
+        window: StockChartWindow,
+        chartIndex: Int,
+    ): StockChart? {
+        val chartId = window.getChartId(chartIndex) ?: return null
+        return getStockChart(chartId)
+    }
+
     internal fun closeWindow(window: StockChartWindow): Boolean {
 
         if (windows.size == 1) return false

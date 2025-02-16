@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,8 +34,9 @@ import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.common.chart.SimpleChart
+import com.saurabhsandav.core.ui.common.chart.ChartPage
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.stockchart.ui.ChartOverlay
 import com.saurabhsandav.core.ui.stockchart.ui.ChartsLayout
 import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
@@ -102,7 +104,8 @@ fun StockCharts(
 
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
-                            stockChart = selectedStockChart,
+                            selectedStockChart = selectedStockChart,
+                            getStockChartOrNull = { chartIndex -> state.getStockChartOrNull(chartWindow, chartIndex) },
                             decorationType = decorationType,
                             onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
@@ -174,7 +177,8 @@ fun StockCharts(
 @Composable
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
-    stockChart: StockChart,
+    selectedStockChart: StockChart,
+    getStockChartOrNull: (Int) -> StockChart?,
     decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
@@ -191,7 +195,7 @@ private fun StockChartScreen(
         Column {
 
             StockChartTopBar(
-                stockChart = stockChart,
+                stockChart = selectedStockChart,
                 decorationType = decorationType,
                 onOpenTickerSelection = onOpenTickerSelection,
                 onOpenTimeframeSelection = onOpenTimeframeSelection,
@@ -212,7 +216,7 @@ private fun StockChartScreen(
                 if (decorationType is StockChartDecorationType.BarReplay) {
 
                     StockChartControls(
-                        stockChart = stockChart,
+                        stockChart = selectedStockChart,
                         customControls = decorationType.customControls,
                     )
                 }
@@ -230,23 +234,34 @@ private fun StockChartScreen(
                         )
                     }
 
-                    val chartInteraction = chartWindow.chartInteraction
+                    Box(Modifier.weight(1F).fillMaxWidth()) {
 
-                    // Chart page
-                    SimpleChart(
-                        modifier = Modifier
-                            .weight(1F)
-                            .onSizeChanged { size -> chartInteraction.size = size.toSize() }
-                            .pointerInput(Unit) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        chartInteraction.onEvent(awaitPointerEvent())
+                        val chartInteraction = chartWindow.chartInteraction
+
+                        // Chart page
+                        ChartPage(
+                            modifier = Modifier
+                                .onSizeChanged { size -> chartInteraction.size = size.toSize() }
+                                .pointerInput(Unit) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            chartInteraction.onEvent(awaitPointerEvent())
+                                        }
                                     }
-                                }
-                            },
-                        pageState = chartWindow.pageState,
-                        legend = { Legend(stockChart.plotterManager) },
-                    )
+                                },
+                            state = chartWindow.pageState,
+                        )
+
+                        ChartOverlay(
+                            modifier = Modifier.matchParentSize(),
+                            layout = chartWindow.layout,
+                        ) { chartIndex ->
+
+                            val plotterManager = getStockChartOrNull(chartIndex)?.plotterManager ?: return@ChartOverlay
+
+                            Legend(plotterManager)
+                        }
+                    }
                 }
             }
         }

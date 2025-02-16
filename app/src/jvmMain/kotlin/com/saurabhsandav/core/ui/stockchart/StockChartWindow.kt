@@ -78,6 +78,13 @@ class StockChartWindow(
         appWindowState?.toFront()
     }
 
+    internal fun getChartId(chartIndex: Int): ChartId? {
+        return when (layout) {
+            is Tabs -> selectedChartId
+            is PanesLayout -> chartIds.getOrNull(chartIndex)
+        }
+    }
+
     internal fun getChartTitle(chartId: ChartId): String {
         return getStockChart(chartId).title
     }
