@@ -54,16 +54,20 @@ fun TickerSelectionDialog(
                         )
                     }
 
-                    IconButton(
-                        onClick = {
-                            type.onOpenInNewTab(ticker)
-                            onDismissRequest()
-                        },
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Default.OpenInNew,
-                            contentDescription = "Open in new tab",
-                        )
+                    val onOpenInCurrentWindow = type.onOpenInCurrentWindow
+                    if (onOpenInCurrentWindow != null) {
+
+                        IconButton(
+                            onClick = {
+                                onOpenInCurrentWindow(ticker)
+                                onDismissRequest()
+                            },
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Default.OpenInNew,
+                                contentDescription = "Open in current Window",
+                            )
+                        }
                     }
                 }
             }

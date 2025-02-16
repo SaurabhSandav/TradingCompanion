@@ -21,7 +21,7 @@ internal fun TimeframeSelectionDialog(
     timeframes: List<Timeframe>,
     initialFilterQuery: String,
     onSelect: (Timeframe) -> Unit,
-    onOpenInNewTab: (Timeframe) -> Unit,
+    onOpenInCurrentWindow: ((Timeframe) -> Unit)?,
     onOpenInNewWindow: (Timeframe) -> Unit,
 ) {
 
@@ -47,16 +47,19 @@ internal fun TimeframeSelectionDialog(
                     )
                 }
 
-                IconButton(
-                    onClick = {
-                        onOpenInNewTab(timeframe)
-                        onDismissRequest()
-                    },
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Default.OpenInNew,
-                        contentDescription = "Open in new tab",
-                    )
+                if (onOpenInCurrentWindow != null) {
+
+                    IconButton(
+                        onClick = {
+                            onOpenInCurrentWindow(timeframe)
+                            onDismissRequest()
+                        },
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Default.OpenInNew,
+                            contentDescription = "Open in current Window",
+                        )
+                    }
                 }
             }
         },

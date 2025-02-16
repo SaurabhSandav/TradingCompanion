@@ -9,6 +9,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindowState
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.stockchart.ui.ChartsLayout
+import com.saurabhsandav.core.ui.stockchart.ui.PanesLayout
 import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
@@ -37,16 +38,28 @@ class StockChartWindow(
     private val queuedChartIds = mutableListOf<ChartId>()
 
     internal var layout: ChartsLayout by mutableStateOf(Tabs)
+    private var queuedLayout: ChartsLayout? = null
 
     internal var showTickerSelectionDialog by mutableStateOf(false)
     internal var showTimeframeSelectionDialog by mutableStateOf(false)
+    internal var showLayoutChangeConfirmationDialog by mutableStateOf(false)
+    internal var canOpenNewChart by mutableStateOf(true)
 
     internal val chartInteraction = ChartInteraction(
-        onChartHover = { selectedChartId?.let(onChartActive) },
-        onChartSelected = { selectedChartId?.let(onChartActive) },
+        layout = { layout },
+        onChartHover = { chartIndex ->
+            val chartId = getChartId(chartIndex) ?: return@ChartInteraction
+            onChartActive(chartId)
+        },
+        onChartSelected = { chartIndex ->
+            val chartId = getChartId(chartIndex) ?: return@ChartInteraction
+            onSelectChart(chartId)
+        },
     )
 
     fun openChart(chartId: ChartId) {
+
+        if (layout is PanesLayout && layout.rects.size == chartIds.size) return
 
         // Queue provided chart id
         queuedChartIds.add(chartId)
@@ -71,10 +84,107 @@ class StockChartWindow(
 
     internal fun onSetLayout(layout: ChartsLayout) {
 
-        this.layout = layout
+        val layoutChanged = when (layout) {
+            is Tabs -> setTabsLayout(layout)
+            is PanesLayout -> setPanesLayout(layout)
+        }
+
+        if (layoutChanged) {
+            this.layout = layout
+        }
+    }
+
+    private fun setTabsLayout(layout: Tabs): Boolean {
+
+        if (this.layout is Tabs) return false
+
+        val rect = layout.rects.single()
+
+        chartIds.forEach { chartId ->
+
+            setChartLayout(chartId, layout, rect)
+
+            when (chartId) {
+                selectedChartId -> pageState.showChart(chartId.value)
+                else -> pageState.hideChart(chartId.value)
+            }
+        }
+
+        canOpenNewChart = true
+
+        return true
+    }
+
+    private fun setPanesLayout(layout: PanesLayout): Boolean {
+
+        // If current layout contains more charts than can fit into new layout, ask confirmation for closing extra charts.
+        if (chartIds.size > layout.rects.size) {
+            queuedLayout = layout
+            showLayoutChangeConfirmationDialog = true
+            return false
+        }
+
+        // Set charts as panes by order in chartIds list
+        layout.rects.forEachIndexed { chartIndex, rect ->
+
+            val chartId = chartIds.getOrNull(chartIndex) ?: return@forEachIndexed
+
+            setChartLayout(chartId, layout, rect)
+
+            pageState.showChart(chartId.value)
+        }
+
+        canOpenNewChart = chartIds.size < layout.rects.size
+
+        return true
+    }
+
+    private fun setChartLayout(
+        chartId: ChartId,
+        layout: ChartsLayout,
+        rect: ChartsLayout.GridRect,
+    ) {
+
+        val gridColumns = layout.gridSize.columns.toFloat()
+        val gridRows = layout.gridSize.rows.toFloat()
+
+        val left = (rect.left / gridColumns) * 100
+        val top = (rect.top / gridRows) * 100
+        val width = (rect.columns / gridColumns) * 100
+        val height = (rect.rows / gridRows) * 100
+
+        pageState.setChartLayout(
+            id = chartId.value,
+            left = "$left%",
+            top = "$top%",
+            width = "$width%",
+            height = "$height%",
+        )
+    }
+
+    internal fun onLayoutChangeConfirmed() {
+
+        showLayoutChangeConfirmationDialog = false
+
+        val layout = queuedLayout!!
+        queuedLayout = null
+
+        // Close extra charts
+        chartIds
+            .drop(layout.rects.size)
+            .forEach(::onCloseChart)
+
+        onSetLayout(layout)
+    }
+
+    internal fun onLayoutChangeCancelled() {
+        showLayoutChangeConfirmationDialog = false
+        queuedLayout = null
     }
 
     internal fun onNewChart() {
+
+        if (layout is PanesLayout && layout.rects.size == chartIds.size) return
 
         // Get queued chart id if available or request new chart and get id
         val chartId = queuedChartIds.removeFirstOrNull() ?: onCreateChart(pageState, selectedChartId)
@@ -83,18 +193,23 @@ class StockChartWindow(
         chartIds.add(selectedChartIndex + 1, chartId)
 
         onSelectChart(chartId)
+
+        onSetLayout(layout)
     }
 
     internal fun onSelectChart(chartId: ChartId) {
 
         selectedChartId = chartId
 
-        // Show selected chart
-        chartIds.forEach { iChartId ->
+        if (layout is Tabs) {
 
-            when (iChartId) {
-                chartId -> pageState.showChart(iChartId.value)
-                else -> pageState.hideChart(iChartId.value)
+            // Show selected chart
+            chartIds.forEach { iChartId ->
+
+                when (iChartId) {
+                    chartId -> pageState.showChart(iChartId.value)
+                    else -> pageState.hideChart(iChartId.value)
+                }
             }
         }
 
@@ -126,6 +241,8 @@ class StockChartWindow(
 
         // Remove chart container from page
         pageState.removeChart(chartId.value)
+
+        onSetLayout(layout)
     }
 
     internal fun onCloseCurrentChart() {

@@ -11,6 +11,7 @@ import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
+import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -80,6 +81,8 @@ class StockChartsState(
         window: StockChartWindow?,
     ): StockChart {
 
+        val isCalledExternally = window == null
+
         val lastActiveChartId = lastActiveChartId.value
         val window = when {
             window != null -> window
@@ -87,6 +90,9 @@ class StockChartsState(
             lastActiveChartId != null -> windows.first { lastActiveChartId in it.chartIds }
             else -> windows.first()
         }
+
+        // Charts opened from outside should be opened in Tabs layout
+        if (isCalledExternally && window.layout != Tabs) window.onSetLayout(Tabs)
 
         val chartId = ChartId(Uuid.random().toString())
 
@@ -122,7 +128,7 @@ class StockChartsState(
         timeframe: Timeframe,
     ) {
 
-        onOpenInNewTab(window, ticker, timeframe)
+        onOpenInCurrentWindow(window, ticker, timeframe)
 
         isInitializedWithParams = true
     }
@@ -228,7 +234,7 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(timeframe = timeframe))
     }
 
-    internal fun onOpenInNewTab(
+    internal fun onOpenInCurrentWindow(
         window: StockChartWindow,
         ticker: String? = null,
         timeframe: Timeframe? = null,

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.WindowPlacement
+import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
@@ -60,7 +61,7 @@ fun StockCharts(
 
         key(chartWindow) {
 
-            var initialFilterQuery by state<String> { "" }
+            var initialFilterQuery by state { "" }
 
             AppWindow(
                 title = windowTitle,
@@ -125,7 +126,12 @@ fun StockCharts(
                         tickers = tickers,
                         onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
                         type = TickerSelectionType.Chart(
-                            onOpenInNewTab = { ticker -> state.onOpenInNewTab(chartWindow, ticker, null) },
+                            onOpenInCurrentWindow = when {
+                                chartWindow.canOpenNewChart -> { ticker ->
+                                    state.onOpenInCurrentWindow(chartWindow, ticker, null)
+                                }
+                                else -> null
+                            },
                             onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
                         ),
                         initialFilterQuery = initialFilterQuery,
@@ -142,8 +148,22 @@ fun StockCharts(
                         timeframes = timeframes,
                         initialFilterQuery = initialFilterQuery,
                         onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
-                        onOpenInNewTab = { timeframe -> state.onOpenInNewTab(chartWindow, null, timeframe) },
+                        onOpenInCurrentWindow = when {
+                            chartWindow.canOpenNewChart -> { timeframe ->
+                                state.onOpenInCurrentWindow(chartWindow, null, timeframe)
+                            }
+                            else -> null
+                        },
                         onOpenInNewWindow = { timeframe -> state.onOpenInNewWindow(chartWindow, null, timeframe) },
+                    )
+                }
+
+                if (chartWindow.showLayoutChangeConfirmationDialog) {
+
+                    ConfirmationDialog(
+                        text = "Changing layout will close some charts. Do you want to proceed?",
+                        onDismiss = chartWindow::onLayoutChangeCancelled,
+                        onConfirm = chartWindow::onLayoutChangeConfirmed,
                     )
                 }
             }

@@ -343,7 +343,6 @@ private fun ChartLayout(
 
                 Text(text)
             },
-            enabled = false,
         )
 
         DropdownMenu(
