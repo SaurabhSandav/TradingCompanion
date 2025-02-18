@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.app.AppWindowState
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.webview.WebViewState
+import com.saurabhsandav.core.ui.stockchart.ui.ChartsLayout
+import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
 
@@ -34,6 +36,8 @@ class StockChartWindow(
     internal var showTimeframeSelectionDialog by mutableStateOf(false)
 
     private val queuedChartIds = mutableListOf<ChartId>()
+
+    internal var layout: ChartsLayout by mutableStateOf(Tabs)
 
     internal val tabsState = StockChartTabsState(
         onNew = ::onNewTab,
@@ -64,6 +68,11 @@ class StockChartWindow(
 
     fun toFront() {
         appWindowState?.toFront()
+    }
+
+    internal fun onSetLayout(layout: ChartsLayout) {
+
+        this.layout = layout
     }
 
     private fun onNewTab(tabId: Int) {

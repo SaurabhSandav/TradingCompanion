@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LastPage
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Keyboard
@@ -16,6 +18,8 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -58,6 +62,8 @@ fun StockChartTopBar(
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime) -> Unit,
     onGoToLatest: () -> Unit,
+    layout: ChartsLayout,
+    onSetLayout: (ChartsLayout) -> Unit,
     onNewWindow: () -> Unit,
 ) {
 
@@ -127,6 +133,13 @@ fun StockChartTopBar(
 
         VerticalDivider()
 
+        ChartLayout(
+            layout = layout,
+            onSetLayout = onSetLayout,
+        )
+
+        VerticalDivider()
+
         IconButtonWithTooltip(
             modifier = Modifier.fillMaxHeight(),
             onClick = onNewWindow,
@@ -140,6 +153,7 @@ fun StockChartTopBar(
 private fun TextButton(
     onClick: () -> Unit,
     icon: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
     text: @Composable () -> Unit,
 ) {
 
@@ -147,6 +161,7 @@ private fun TextButton(
         modifier = Modifier.fillMaxHeight(),
         onClick = onClick,
         shape = RectangleShape,
+        enabled = enabled,
         contentPadding = when {
             icon == null -> ButtonDefaults.TextButtonContentPadding
             else -> ButtonDefaults.TextButtonWithIconContentPadding
@@ -291,5 +306,115 @@ private fun GoTo(
                 else -> TimeInput(state = timePickerState)
             }
         }
+    }
+}
+
+@Composable
+private fun ChartLayout(
+    layout: ChartsLayout,
+    onSetLayout: (ChartsLayout) -> Unit,
+) {
+
+    var expanded by state { false }
+    var show2PanesSelectionDialog by state { false }
+    var show3PanesSelectionDialog by state { false }
+    var show4PanesSelectionDialog by state { false }
+
+    Box {
+
+        TextButton(
+            onClick = { expanded = true },
+            icon = {
+
+                Icon(
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
+                    imageVector = Icons.Default.GridView,
+                    contentDescription = "Charts Layout",
+                )
+            },
+            text = {
+
+                val text = when (layout) {
+                    Tabs -> "Tabs"
+                    is TwoPanes -> "2 Panes"
+                    is ThreePanes -> "3 Panes"
+                    is FourPanes -> "4 Panes"
+                }
+
+                Text(text)
+            },
+            enabled = false,
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+
+            DropdownMenuItem(
+                text = { Text("Tabs") },
+                onClick = {
+                    onSetLayout(Tabs)
+                    expanded = false
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("2 panes") },
+                onClick = {
+                    show2PanesSelectionDialog = true
+                    expanded = false
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("3 panes") },
+                onClick = {
+                    show3PanesSelectionDialog = true
+                    expanded = false
+                },
+            )
+
+            DropdownMenuItem(
+                text = { Text("4 panes") },
+                onClick = {
+                    show4PanesSelectionDialog = true
+                    expanded = false
+                },
+            )
+        }
+    }
+
+    if (show2PanesSelectionDialog) {
+
+        Panes2SelectionDialog(
+            onDismissRequest = { show2PanesSelectionDialog = false },
+            onSetLayout = { layout ->
+                onSetLayout(layout)
+                show2PanesSelectionDialog = false
+            },
+        )
+    }
+
+    if (show3PanesSelectionDialog) {
+
+        Panes3SelectionDialog(
+            onDismissRequest = { show3PanesSelectionDialog = false },
+            onSetLayout = { layout ->
+                onSetLayout(layout)
+                show3PanesSelectionDialog = false
+            },
+        )
+    }
+
+    if (show4PanesSelectionDialog) {
+
+        Panes4SelectionDialog(
+            onDismissRequest = { show4PanesSelectionDialog = false },
+            onSetLayout = { layout ->
+                onSetLayout(layout)
+                show4PanesSelectionDialog = false
+            },
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,11 +33,13 @@ import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.chart.SimpleChart
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.stockchart.ui.ChartsLayout
 import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTopBar
+import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.ui.stockchart.ui.TimeframeSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
@@ -104,6 +107,8 @@ fun StockCharts(
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
                             onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                             onGoToLatest = { state.goToLatest(chartWindow) },
+                            layout = chartWindow.layout,
+                            onSetLayout = chartWindow::onSetLayout,
                             onNewWindow = { state.newWindow(chartWindow) },
                             snackbarHost = snackbarHost,
                         )
@@ -156,6 +161,8 @@ private fun StockChartScreen(
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     onGoToLatest: () -> Unit,
+    layout: ChartsLayout,
+    onSetLayout: (ChartsLayout) -> Unit,
     onNewWindow: () -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
 ) {
@@ -171,6 +178,8 @@ private fun StockChartScreen(
                 onOpenTimeframeSelection = onOpenTimeframeSelection,
                 onGoToDateTime = onGoToDateTime,
                 onGoToLatest = onGoToLatest,
+                layout = layout,
+                onSetLayout = onSetLayout,
                 onNewWindow = onNewWindow,
             )
 
@@ -191,10 +200,13 @@ private fun StockChartScreen(
 
                 Column {
 
-                    // Tabs
-                    StockChartTabRow(
-                        state = chartWindow.tabsState,
-                    )
+                    AnimatedVisibility(layout is Tabs) {
+
+                        // Tabs
+                        StockChartTabRow(
+                            state = chartWindow.tabsState,
+                        )
+                    }
 
                     // Chart page
                     SimpleChart(
