@@ -25,4 +25,6 @@ object Dimens {
     val listHeaderHeight = 64.dp
 
     val dialogSize = DpSize(600.dp, 800.dp)
+
+    val chartLegendPadding = 8.dp
 }

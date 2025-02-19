@@ -5,7 +5,7 @@ import androidx.compose.runtime.*
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.common.chart.SimpleChart
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.legend.LegendItem
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
@@ -86,13 +86,16 @@ internal class PNLByDayChartStudy(
 
         var legendValue by state { "" }
 
-        ChartPage(pageState) {
+        SimpleChart(
+            pageState = pageState,
+            legend = {
 
-            LegendItem(
-                label = { Text("PNL") },
-                values = { Text(legendValue) },
-            )
-        }
+                LegendItem(
+                    label = { Text("PNL") },
+                    values = { Text(legendValue) },
+                )
+            },
+        )
 
         LaunchedEffect(chart) {
 

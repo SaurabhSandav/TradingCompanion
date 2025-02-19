@@ -14,7 +14,7 @@ import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.common.chart.ChartPage
+import com.saurabhsandav.core.ui.common.chart.SimpleChart
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.stockchart.ui.*
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
@@ -176,11 +176,11 @@ private fun StockChartScreen(
                     )
 
                     // Chart page
-                    ChartPage(
-                        state = chartWindow.pageState,
+                    SimpleChart(
                         modifier = Modifier
                             .weight(1F)
                             .onPointerEvent(PointerEventType.Enter) { onChartActive() },
+                        pageState = chartWindow.pageState,
                         legend = { Legend(stockChart.plotterManager) },
                     )
                 }
