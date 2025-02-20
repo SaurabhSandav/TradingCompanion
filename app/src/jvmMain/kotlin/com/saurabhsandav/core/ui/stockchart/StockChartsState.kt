@@ -275,6 +275,7 @@ class StockChartsState(
 
         // New chart
         val actualChart = pageState.addChart(
+            id = chartId.value,
             options = ChartOptions(
                 crosshair = CrosshairOptions(mode = CrosshairMode.Normal),
                 timeScale = TimeScaleOptions(lockVisibleTimeRangeOnResize = true),

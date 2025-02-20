@@ -20,7 +20,7 @@ class ChartPageState(
 ) {
 
     private val scripts = Channel<String>(Channel.UNLIMITED)
-    private val charts = mutableMapOf<IChartApi, Job>()
+    private val charts = mutableMapOf<String, ChartAndJob>()
 
     init {
 
@@ -45,7 +45,7 @@ class ChartPageState(
             webViewState.createJSCallback("chartCallback")
                 .messages
                 .onEach { message ->
-                    charts.keys.forEach { chart -> chart.onCallback(message) }
+                    charts.values.forEach { chartAndJob -> chartAndJob.chart.onCallback(message) }
                 }
                 .launchIn(coroutineScope)
 
@@ -64,7 +64,7 @@ class ChartPageState(
     ): IChartApi {
 
         // Error if chart id already exists
-        check(!charts.keys.any { it.id == id })
+        check(!charts.containsKey(id))
 
         // Create hidden chart container
         executeJs("createChartContainer('$id');")
@@ -76,35 +76,43 @@ class ChartPageState(
         )
 
         // Cache chart and send chart js scripts to WebView
-        charts[chart] = coroutineScope.launch {
-            chart.scripts.collect(::executeJs)
-        }
+        charts[id] = ChartAndJob(
+            chart = chart,
+            job = coroutineScope.launch {
+                chart.scripts.collect(::executeJs)
+            },
+        )
 
         return chart
     }
 
-    fun removeChart(chart: IChartApi) {
+    fun removeChart(id: String) {
 
         // Delete chart container div
-        executeJs("deleteChartContainer('${chart.id}');")
+        executeJs("deleteChartContainer('$id');")
 
         // Remove chart from cache and stop collecting scripts
-        charts.remove(chart)!!.cancel()
+        charts.remove(id)!!.job.cancel()
     }
 
-    fun hideChart(chart: IChartApi) = executeJs("hideChart('${chart.id}');")
+    fun hideChart(id: String) = executeJs("hideChart('$id');")
 
-    fun showChart(chart: IChartApi) = executeJs("showChart('${chart.id}');")
+    fun showChart(id: String) = executeJs("showChart('$id');")
 
     fun setChartLayout(
-        chart: IChartApi,
+        id: String,
         left: String,
         top: String,
         width: String,
         height: String,
-    ) = executeJs("""setChartLayout("${chart.id}", "$left", "$top", "$width", "$height");""")
+    ) = executeJs("""setChartLayout("$id", "$left", "$top", "$width", "$height");""")
 
     private fun executeJs(script: String) {
         scripts.trySend(script)
     }
+
+    class ChartAndJob(
+        val chart: IChartApi,
+        val job: Job,
+    )
 }

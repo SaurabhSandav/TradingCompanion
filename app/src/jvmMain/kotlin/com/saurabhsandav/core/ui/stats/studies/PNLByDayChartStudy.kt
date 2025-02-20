@@ -97,12 +97,12 @@ internal class PNLByDayChartStudy(
         LaunchedEffect(chart) {
 
             // Show chart
-            pageState.showChart(chart)
+            pageState.showChart(chart.id)
 
             try {
                 awaitCancellation()
             } finally {
-                pageState.removeChart(chart)
+                pageState.removeChart(chart.id)
             }
         }
 

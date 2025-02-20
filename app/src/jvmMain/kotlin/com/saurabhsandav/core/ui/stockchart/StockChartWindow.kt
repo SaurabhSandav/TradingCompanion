@@ -82,11 +82,9 @@ class StockChartWindow(
         // Show selected chart
         chartIds.forEach { iChartId ->
 
-            val stockChart = getStockChart(iChartId)
-
             when (iChartId) {
-                chartId -> pageState.showChart(stockChart.actualChart)
-                else -> pageState.hideChart(stockChart.actualChart)
+                chartId -> pageState.showChart(iChartId.value)
+                else -> pageState.hideChart(iChartId.value)
             }
         }
 
@@ -97,7 +95,6 @@ class StockChartWindow(
     private fun onCloseTab(tabId: Int) {
 
         val chartId = getChartId(tabId)
-        val stockChart = getStockChart(chartId)
 
         // Notify observer
         onCloseChart(chartId)
@@ -106,7 +103,7 @@ class StockChartWindow(
         tabChartIdMap.remove(tabId)
 
         // Remove chart container from page
-        pageState.removeChart(stockChart.actualChart)
+        pageState.removeChart(chartId.value)
     }
 
     private fun getChartId(tabId: Int): ChartId {
