@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -142,7 +141,7 @@ private fun ReplayOrderForm(
         )
 
         Button(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth(),
             onClick = model.validator::submit,
             enabled = model.validator.canSubmit,
             content = { Text("Add") },

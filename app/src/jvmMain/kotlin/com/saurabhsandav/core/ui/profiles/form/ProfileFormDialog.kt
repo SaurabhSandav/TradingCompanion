@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.profiles.form
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -91,6 +92,7 @@ private fun ProfileForm(
         }
 
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = model.validator::submit,
             enabled = model.validator.canSubmit,
             content = { Text("Save Profile") },

@@ -112,6 +112,7 @@ internal fun NewReplayForm(
         HorizontalDivider()
 
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = model.validator::submit,
             enabled = model.validator.canSubmit,
             content = { Text("Launch") },

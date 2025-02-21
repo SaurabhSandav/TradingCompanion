@@ -239,7 +239,7 @@ private fun TradeExecutionForm(
         }
 
         Button(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth(),
             onClick = model.validator::submit,
             enabled = model.validator.canSubmit,
             content = { Text("Add") },

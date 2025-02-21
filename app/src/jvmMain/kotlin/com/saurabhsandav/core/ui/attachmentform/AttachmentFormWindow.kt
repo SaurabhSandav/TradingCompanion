@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.attachmentform
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -142,6 +143,7 @@ private fun AttachmentForm(
         }
 
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = model.validator::submit,
             enabled = model.validator.canSubmit,
             content = { Text(if (formType is New) "Add" else "Save") },
