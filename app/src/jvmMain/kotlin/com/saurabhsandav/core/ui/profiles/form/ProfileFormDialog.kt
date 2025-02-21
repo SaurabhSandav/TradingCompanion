@@ -30,19 +30,18 @@ internal fun ProfileFormDialog(
 
     val dialogState = rememberDialogState(size = DpSize(width = 250.dp, height = 300.dp))
 
+    val formModel = state.formModel ?: return
+
     AppDialogWindow(
         onCloseRequest = onCloseRequest,
         state = dialogState,
         title = state.title,
     ) {
 
-        when (val model = state.formModel) {
-            null -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
-            else -> Form(
-                model = model,
-                trainingOnly = trainingOnly,
-            )
-        }
+        Form(
+            model = formModel,
+            trainingOnly = trainingOnly,
+        )
     }
 }
 

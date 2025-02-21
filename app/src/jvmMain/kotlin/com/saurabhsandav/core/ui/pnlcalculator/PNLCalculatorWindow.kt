@@ -39,16 +39,15 @@ internal fun PNLCalculatorWindow(
         forcePreferredPlacement = true,
     )
 
+    if (!state.isReady) return
+
     AppWindow(
         onCloseRequest = state.params.onCloseRequest,
         state = windowState,
         title = "Calculate PNL",
     ) {
 
-        when {
-            state.isReady -> CalculatorForm(state)
-            else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
-        }
+        CalculatorForm(state)
     }
 }
 

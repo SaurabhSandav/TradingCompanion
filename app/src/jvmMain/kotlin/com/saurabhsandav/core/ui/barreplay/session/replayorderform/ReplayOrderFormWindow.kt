@@ -42,22 +42,18 @@ internal fun ReplayOrderFormWindow(
         forcePreferredPlacement = true,
     )
 
+    val formModel = state.formModel ?: return
+
     AppWindow(
         onCloseRequest = onCloseRequest,
         state = windowState,
         title = state.title,
     ) {
 
-        val formModel = state.formModel
-
-        when {
-            formModel != null -> ReplayOrderForm(
-                ticker = state.ticker,
-                model = formModel,
-            )
-
-            else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
-        }
+        ReplayOrderForm(
+            ticker = state.ticker,
+            model = formModel,
+        )
     }
 }
 

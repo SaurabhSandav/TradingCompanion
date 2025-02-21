@@ -46,16 +46,15 @@ fun TagFormWindow(
         forcePreferredPlacement = true,
     )
 
+    val formModel = state.formModel ?: return
+
     AppWindow(
         onCloseRequest = onCloseRequest,
         state = windowState,
         title = state.title,
     ) {
 
-        when (val model = state.formModel) {
-            null -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
-            else -> Form(model = model)
-        }
+        Form(model = formModel)
     }
 }
 

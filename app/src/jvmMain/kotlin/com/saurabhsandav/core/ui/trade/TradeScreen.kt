@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +44,8 @@ internal fun TradeWindow(
         preferredPlacement = WindowPlacement.Maximized,
     )
 
+    val details = state.details ?: return
+
     AppWindow(
         state = windowState,
         title = state.title,
@@ -49,7 +54,7 @@ internal fun TradeWindow(
 
         TradeScreen(
             profileTradeId = profileTradeId,
-            details = state.details,
+            details = details,
             executions = state.executions,
             newExecutionEnabled = state.newExecutionEnabled,
             onAddToTrade = { state.eventSink(AddToTrade) },
@@ -89,7 +94,7 @@ internal fun TradeWindow(
 @Composable
 internal fun TradeScreen(
     profileTradeId: ProfileTradeId,
-    details: Details?,
+    details: Details,
     executions: List<Execution>,
     newExecutionEnabled: Boolean,
     onAddToTrade: () -> Unit,
@@ -126,81 +131,75 @@ internal fun TradeScreen(
 
         Box(Modifier.fillMaxSize()) {
 
-            when (details) {
-                null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                else -> {
+            val scrollState = rememberScrollState()
 
-                    val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
+            ) {
 
-                    Column(
-                        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).verticalScroll(scrollState),
-                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
-                    ) {
+                Details(details)
 
-                        Details(details)
+                TradeExecutionsTable(
+                    items = executions,
+                    newExecutionEnabled = newExecutionEnabled,
+                    onAddToTrade = onAddToTrade,
+                    onCloseTrade = onCloseTrade,
+                    onNewFromExistingExecution = onNewFromExistingExecution,
+                    onEditExecution = onEditExecution,
+                    onLockExecution = onLockExecution,
+                    onDeleteExecution = onDeleteExecution,
+                )
 
-                        TradeExecutionsTable(
-                            items = executions,
-                            newExecutionEnabled = newExecutionEnabled,
-                            onAddToTrade = onAddToTrade,
-                            onCloseTrade = onCloseTrade,
-                            onNewFromExistingExecution = onNewFromExistingExecution,
-                            onEditExecution = onEditExecution,
-                            onLockExecution = onLockExecution,
-                            onDeleteExecution = onDeleteExecution,
-                        )
+                FilledTonalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onOpenChart,
+                    content = { Text("Chart") },
+                )
 
-                        FilledTonalButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = onOpenChart,
-                            content = { Text("Chart") },
-                        )
+                StopsAndTargets(
+                    stops = stops,
+                    stopPreviewer = stopPreviewer,
+                    onAddStop = onAddStop,
+                    onDeleteStop = onDeleteStop,
+                    onSetPrimaryStop = onSetPrimaryStop,
+                    targets = targets,
+                    showTargetRValues = showTargetRValues,
+                    targetPreviewer = targetPreviewer,
+                    onAddTarget = onAddTarget,
+                    onDeleteTarget = onDeleteTarget,
+                    onSetPrimaryTarget = onSetPrimaryTarget,
+                )
 
-                        StopsAndTargets(
-                            stops = stops,
-                            stopPreviewer = stopPreviewer,
-                            onAddStop = onAddStop,
-                            onDeleteStop = onDeleteStop,
-                            onSetPrimaryStop = onSetPrimaryStop,
-                            targets = targets,
-                            showTargetRValues = showTargetRValues,
-                            targetPreviewer = targetPreviewer,
-                            onAddTarget = onAddTarget,
-                            onDeleteTarget = onDeleteTarget,
-                            onSetPrimaryTarget = onSetPrimaryTarget,
-                        )
-
-                        if (excursions != null) {
-                            Excursions(excursions)
-                        }
-
-                        Tags(
-                            profileTradeId = profileTradeId,
-                            tags = tags,
-                            onAddTag = onAddTag,
-                            onRemoveTag = onRemoveTag,
-                        )
-
-                        Attachments(
-                            profileTradeId = profileTradeId,
-                            attachments = attachments,
-                            onRemoveAttachment = onRemoveAttachment,
-                        )
-
-                        Notes(
-                            notes = notes,
-                            onAddNote = onAddNote,
-                            onUpdateNote = onUpdateNote,
-                            onDeleteNote = onDeleteNote,
-                        )
-                    }
-
-                    VerticalScrollbar(
-                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(scrollState)
-                    )
+                if (excursions != null) {
+                    Excursions(excursions)
                 }
+
+                Tags(
+                    profileTradeId = profileTradeId,
+                    tags = tags,
+                    onAddTag = onAddTag,
+                    onRemoveTag = onRemoveTag,
+                )
+
+                Attachments(
+                    profileTradeId = profileTradeId,
+                    attachments = attachments,
+                    onRemoveAttachment = onRemoveAttachment,
+                )
+
+                Notes(
+                    notes = notes,
+                    onAddNote = onAddNote,
+                    onUpdateNote = onUpdateNote,
+                    onDeleteNote = onDeleteNote,
+                )
             }
+
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(scrollState)
+            )
         }
     }
 }

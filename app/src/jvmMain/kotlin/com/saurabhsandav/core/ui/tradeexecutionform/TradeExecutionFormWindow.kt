@@ -58,32 +58,18 @@ internal fun TradeExecutionFormWindow(
         forcePreferredPlacement = true,
     )
 
+    val formModel = state.formModel ?: return
+
     AppWindow(
         onCloseRequest = onCloseRequest,
         state = windowState,
         title = state.title,
     ) {
 
-        TradeExecutionFormScreen(
-            formType = formType,
-            formModel = state.formModel,
-        )
-    }
-}
-
-@Composable
-private fun TradeExecutionFormScreen(
-    formType: TradeExecutionFormType,
-    formModel: TradeExecutionFormModel?,
-) {
-
-    when {
-        formModel != null -> TradeExecutionForm(
+        TradeExecutionForm(
             formType = formType,
             model = formModel,
         )
-
-        else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
     }
 }
 

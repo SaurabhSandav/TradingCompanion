@@ -47,6 +47,8 @@ internal fun AttachmentFormWindow(
 
     val dialogState = rememberDialogState(size = DpSize(width = 300.dp, height = 400.dp))
 
+    val formModel = state.formModel ?: return
+
     AppDialogWindow(
         onCloseRequest = onCloseRequest,
         state = dialogState,
@@ -55,29 +57,11 @@ internal fun AttachmentFormWindow(
 
         val fileKitPlatformSettings = remember { FileKitPlatformSettings(parentWindow = window) }
 
-        AttachmentFormScreen(
-            formType = formType,
-            formModel = state.formModel,
-            fileKitPlatformSettings = fileKitPlatformSettings,
-        )
-    }
-}
-
-@Composable
-private fun AttachmentFormScreen(
-    formType: AttachmentFormType,
-    formModel: AttachmentFormModel?,
-    fileKitPlatformSettings: FileKitPlatformSettings,
-) {
-
-    when {
-        formModel != null -> AttachmentForm(
+        AttachmentForm(
             formType = formType,
             model = formModel,
             fileKitPlatformSettings = fileKitPlatformSettings,
         )
-
-        else -> CircularProgressIndicator(Modifier.fillMaxSize().wrapContentSize())
     }
 }
 
