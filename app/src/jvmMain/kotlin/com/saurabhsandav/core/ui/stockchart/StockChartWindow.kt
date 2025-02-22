@@ -19,6 +19,7 @@ class StockChartWindow(
     private val onNewChart: (ChartPageState, ChartId?) -> ChartId,
     private val onSelectChart: (ChartId) -> Unit,
     private val onCloseChart: (ChartId) -> Unit,
+    private val onChartActive: (ChartId) -> Unit,
 ) {
 
     internal val coroutineScope = parentScope.newChildScope()
@@ -49,6 +50,11 @@ class StockChartWindow(
     val selectedChartId by derivedStateOf {
         tabsState.tabIds.getOrNull(tabsState.selectedTabIndex)?.let(tabChartIdMap::get)
     }
+
+    internal val chartInteraction = ChartInteraction(
+        onChartHover = { selectedChartId?.let(onChartActive) },
+        onChartSelected = { selectedChartId?.let(onChartActive) },
+    )
 
     fun openChart(chartId: ChartId) {
 

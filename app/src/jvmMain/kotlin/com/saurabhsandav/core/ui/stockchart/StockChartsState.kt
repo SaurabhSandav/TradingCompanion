@@ -127,12 +127,6 @@ class StockChartsState(
         isInitializedWithParams = true
     }
 
-    internal fun onChartActive(id: ChartId) {
-
-        // Update last active chart
-        lastActiveChartId.value = id
-    }
-
     internal fun newWindow(launchedFrom: StockChartWindow?): StockChartWindow {
 
         val window = StockChartWindow(
@@ -174,6 +168,11 @@ class StockChartsState(
                 if (!charts.any { it.params == stockChart.params }) {
                     candleLoader.releaseStockChartData(stockChart.params)
                 }
+            },
+            onChartActive = { chartId ->
+
+                // Update last active chart
+                lastActiveChartId.value = chartId
             },
         )
 

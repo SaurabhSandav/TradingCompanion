@@ -25,8 +25,9 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
@@ -101,7 +102,6 @@ fun StockCharts(
                         else -> StockChartScreen(
                             chartWindow = chartWindow,
                             stockChart = selectedStockChart,
-                            onChartActive = { state.onChartActive(selectedStockChart.chartId) },
                             decorationType = decorationType,
                             onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
                             onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
@@ -155,7 +155,6 @@ fun StockCharts(
 private fun StockChartScreen(
     chartWindow: StockChartWindow,
     stockChart: StockChart,
-    onChartActive: () -> Unit,
     decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
@@ -208,11 +207,20 @@ private fun StockChartScreen(
                         )
                     }
 
+                    val chartInteraction = chartWindow.chartInteraction
+
                     // Chart page
                     SimpleChart(
                         modifier = Modifier
                             .weight(1F)
-                            .onPointerEvent(PointerEventType.Enter) { onChartActive() },
+                            .onSizeChanged { size -> chartInteraction.size = size.toSize() }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        chartInteraction.onEvent(awaitPointerEvent())
+                                    }
+                                }
+                            },
                         pageState = chartWindow.pageState,
                         legend = { Legend(stockChart.plotterManager) },
                     )
