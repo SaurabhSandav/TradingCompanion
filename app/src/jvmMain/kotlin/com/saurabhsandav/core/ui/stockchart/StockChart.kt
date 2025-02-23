@@ -44,12 +44,13 @@ class StockChart internal constructor(
     private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
     initialData: StockChartData,
+    syncManager: StockChartsSyncManager,
     private val onShowTickerSelector: () -> Unit,
     private val onShowTimeframeSelector: () -> Unit,
     initialVisibleRange: ClosedRange<Float>? = null,
 ) {
 
-    internal val coroutineScope = parentScope.newChildScope()
+    private val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
     internal var data: StockChartData = initialData
@@ -79,6 +80,23 @@ class StockChart internal constructor(
                 plotterManager.plotters.forEach { plotter ->
                     if (plotter is SeriesPlotter<*, *>) plotter.updateLegendValues(params)
                 }
+            }
+            .launchIn(coroutineScope)
+
+        // Subscribe visible logical range
+        actualChart.timeScale
+            .visibleLogicalRangeChange()
+            .filterNotNull()
+            .onEach { logicalRange ->
+                syncManager.onVisibleLogicalRangeChange(this, logicalRange)
+            }
+            .launchIn(coroutineScope)
+
+        // Subscribe crosshair move
+        actualChart
+            .crosshairMove()
+            .onEach { mouseEventParams ->
+                syncManager.onCrosshairMove(this, mouseEventParams)
             }
             .launchIn(coroutineScope)
     }

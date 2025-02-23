@@ -6,9 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
-import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
@@ -23,9 +21,10 @@ import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOption
 import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -56,6 +55,11 @@ class StockChartsState(
         marketDataProvider = marketDataProvider,
         loadConfig = loadConfig,
         onCandlesLoaded = ::onCandlesLoaded,
+    )
+
+    private val syncManager = StockChartsSyncManager(
+        charts = { charts },
+        lastActiveChartId = { lastActiveChartId.value },
     )
 
     init {
@@ -291,6 +295,7 @@ class StockChartsState(
             candleLoader = candleLoader,
             actualChart = actualChart,
             initialData = candleLoader.getStockChartData(params),
+            syncManager = syncManager,
             initialVisibleRange = initialVisibleRange,
             onShowTickerSelector = {
                 val window = windows.first { window -> chartId in window.chartIds }
@@ -304,91 +309,6 @@ class StockChartsState(
 
         // Initial theme
         stockChart.setDarkMode(isDark.value)
-
-        // Sync visible range across charts
-        actualChart.timeScale
-            .visibleLogicalRangeChange()
-            .filterNotNull()
-            .onEach { logicalRange ->
-
-                // If chart is not active (user hasn't interacted), skip sync
-                if (lastActiveChartId.value != stockChart.chartId) return@onEach
-
-                // Current instant range. If not populated, skip sync
-                val instantRange = stockChart.data.candleSeries.instantRange.value ?: return@onEach
-
-                // Update all other charts with same timeframe
-                charts
-                    .filter { filterStockChart ->
-                        // Select charts with same timeframe, ignore current chart
-                        stockChart.params.timeframe == filterStockChart.params.timeframe &&
-                                filterStockChart != stockChart
-                    }
-                    .forEach { chart ->
-
-                        // Chart instant range. If not populated, skip sync
-                        val chartInstantRange = chart.data.candleSeries.instantRange.value ?: return@forEach
-
-                        // Intersection range of current chart and iteration chart
-                        // Skip sync if there is no overlap in instant ranges
-                        val intersection = instantRange.intersect(chartInstantRange) ?: return@forEach
-
-                        // Pick a common candle instant to use for calculating a sync offset
-                        val commonInstant = intersection.endInclusive
-
-                        // Current chart common candle index
-                        val candleIndex = stockChart.data.candleSeries.binarySearch {
-                            it.openInstant.compareTo(commonInstant)
-                        }
-                        // Iteration chart common candle index
-                        val chartCandleIndex = chart.data.candleSeries.binarySearch {
-                            it.openInstant.compareTo(commonInstant)
-                        }
-
-                        // Sync offset for iteration chart
-                        val syncOffset = (chartCandleIndex - candleIndex).toFloat()
-
-                        // Set logical range with calculated offset
-                        chart.actualChart.timeScale.setVisibleLogicalRange(
-                            from = logicalRange.from + syncOffset,
-                            to = logicalRange.to + syncOffset,
-                        )
-                    }
-            }
-            .launchIn(stockChart.coroutineScope)
-
-        // Sync crosshair position across charts
-        actualChart
-            .crosshairMove()
-            .onEach { mouseEventParams ->
-
-                // If chart is not active (user hasn't interacted), skip sync
-                if (lastActiveChartId.value != stockChart.chartId) return@onEach
-
-                if (mouseEventParams.logical == null) {
-                    // Crosshair doesn't exist on current chart. Clear cross-hairs on other charts
-                    charts.forEach { chart -> chart.actualChart.clearCrosshairPosition() }
-                } else {
-
-                    // Update crosshair on all other charts with same timeframe
-                    charts
-                        .filter { filterStockChart ->
-                            // Select charts with same timeframe, ignore current chart
-                            stockChart.params.timeframe == filterStockChart.params.timeframe &&
-                                    filterStockChart != stockChart
-                        }
-                        .forEach { chart ->
-
-                            // Set crosshair without price component
-                            chart.actualChart.setCrosshairPosition(
-                                price = 0.0,
-                                horizontalPosition = mouseEventParams.time ?: return@forEach,
-                                seriesApi = chart.plotterManager.candlestickPlotter.series,
-                            )
-                        }
-                }
-            }
-            .launchIn(stockChart.coroutineScope)
 
         return stockChart
     }
@@ -409,22 +329,6 @@ class StockChartsState(
         charts
             .filter { stockChart -> stockChart.params == params }
             .forEach { stockChart -> stockChart.plotterManager.setData() }
-    }
-
-    private fun ClosedRange<Instant>.intersect(other: ClosedRange<Instant>): ClosedRange<Instant>? {
-
-        // Check if the ranges intersect
-        val intersects = start <= other.endInclusive && endInclusive >= other.start
-
-        // If ranges don't intersect, return null
-        if (!intersects) return null
-
-        // Calculate the start and end of the intersection range
-        val start = maxOf(start, other.start)
-        val end = minOf(endInclusive, other.endInclusive)
-
-        // Intersection range
-        return start..end
     }
 }
 
