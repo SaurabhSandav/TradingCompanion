@@ -27,10 +27,7 @@ import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
-import com.saurabhsandav.core.utils.AppDispatchers
-import com.saurabhsandav.core.utils.AppPaths
-import com.saurabhsandav.core.utils.DbUrlProvider
-import com.saurabhsandav.core.utils.InstantColumnAdapter
+import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.fyers_api.FyersApi
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -59,6 +56,8 @@ internal class AppModule(
         coroutineScope = appScope,
         appPaths = appPaths,
     )
+
+    val uriHandler = AppUriHandler()
 
     init {
 

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.charts
 
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.platform.UriHandler
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -16,9 +17,9 @@ import com.saurabhsandav.core.ui.common.UIMessagesState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
 import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
-import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.*
 import com.saurabhsandav.fyers_api.FyersApi
@@ -37,6 +38,7 @@ internal class ChartsPresenter(
     stockChartsStateFactory: StockChartsStateFactory,
     private val markersProvider: ChartMarkersProvider,
     private val appPrefs: FlowSettings,
+    private val uriHandler: UriHandler,
     private val loginServicesManager: LoginServicesManager,
     private val fyersApi: FyersApi,
     private val candleRepo: CandleRepository,
@@ -155,6 +157,7 @@ internal class ChartsPresenter(
                     appDispatchers = appDispatchers,
                     fyersApi = fyersApi,
                     appPrefs = appPrefs,
+                    uriHandler = uriHandler,
                 ),
                 resultHandle = ResultHandle(
                     onFailure = { message ->

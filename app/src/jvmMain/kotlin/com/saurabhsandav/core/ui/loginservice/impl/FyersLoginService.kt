@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
@@ -39,16 +40,14 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.awt.Desktop
-import java.net.URI
 import kotlin.time.Duration.Companion.days
 
 internal class FyersLoginService private constructor(
     private val appDispatchers: AppDispatchers,
     private val coroutineScope: CoroutineScope,
     private val resultHandle: LoginService.ResultHandle,
+    private val uriHandler: UriHandler,
     private val fyersApi: FyersApi,
     private val appPrefs: FlowSettings,
 ) : LoginService {
@@ -84,10 +83,6 @@ internal class FyersLoginService private constructor(
     private fun loginStage1(reLogin: Boolean = false) {
 
         Logger.d(DebugTag) { "Initiating stage 1 (Login to Fyers website)" }
-
-        if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            error("Launching url in browser not supported")
-        }
 
         loginState = if (reLogin) LoginState.ReLogin else LoginState.InitialLogin
 
@@ -149,7 +144,7 @@ internal class FyersLoginService private constructor(
 
             Logger.d(DebugTag) { "Launched Fyers login page in browser" }
 
-            Desktop.getDesktop().browse(URI(loginUrl))
+            uriHandler.openUri(loginUrl)
         }
     }
 
@@ -353,6 +348,7 @@ internal class FyersLoginService private constructor(
     class Builder(
         private val appDispatchers: AppDispatchers,
         private val fyersApi: FyersApi,
+        private val uriHandler: UriHandler,
         private val appPrefs: FlowSettings,
     ) : LoginService.Builder {
 
@@ -365,6 +361,7 @@ internal class FyersLoginService private constructor(
             appDispatchers = appDispatchers,
             coroutineScope = coroutineScope,
             resultHandle = resultHandle,
+            uriHandler = uriHandler,
             fyersApi = fyersApi,
             appPrefs = appPrefs,
         )

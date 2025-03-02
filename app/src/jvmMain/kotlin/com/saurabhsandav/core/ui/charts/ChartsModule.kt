@@ -2,9 +2,9 @@ package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.ui.common.UIMessagesState
-import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import kotlinx.coroutines.CoroutineScope
 
 internal class ChartsModule(
@@ -44,6 +44,7 @@ internal class ChartsModule(
             },
             markersProvider = markersProvider,
             appPrefs = appModule.appPrefs,
+            uriHandler = appModule.uriHandler,
             loginServicesManager = appModule.loginServicesManager,
             fyersApi = appModule.fyersApi,
             candleRepo = appModule.candleRepo,
