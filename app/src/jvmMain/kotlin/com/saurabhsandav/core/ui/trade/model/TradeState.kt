@@ -92,9 +92,16 @@ internal data class TradeState(
         val fileId: AttachmentFileId,
         val name: String,
         val description: String?,
+        val type: Type,
         val path: String,
         val extension: String?,
-    )
+    ) {
+
+        enum class Type {
+            Image,
+            Other,
+        }
+    }
 
     internal data class TradeNote(
         val id: TradeNoteId,

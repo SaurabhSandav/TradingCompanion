@@ -146,6 +146,12 @@ kotlin {
 
             // Apache Tika
             implementation(libs.apache.tika.core)
+
+            // Coil
+            implementation(libs.coil.compose)
+
+            // ZoomImage
+            implementation(libs.zoomimage.composeCoil3)
         }
 
         jvmTest.dependencies {

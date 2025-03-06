@@ -393,6 +393,11 @@ internal class TradePresenter(
                         fileId = attachment.fileId,
                         name = attachment.name,
                         description = attachment.description.ifBlank { null },
+                        type = when {
+                            attachment.mimeType == null -> TradeAttachment.Type.Other
+                            attachment.mimeType.startsWith("image") -> TradeAttachment.Type.Image
+                            else -> TradeAttachment.Type.Other
+                        },
                         path = attachment.path.toString(),
                         extension = attachment.path.extension.uppercase().ifBlank { null },
                     )

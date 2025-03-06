@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -19,6 +20,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 fun AppDialog(
     onDismissRequest: () -> Unit,
     size: DpSize = DpSize.Unspecified,
+    surfaceColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable () -> Unit,
 ) {
 
@@ -44,6 +46,7 @@ fun AppDialog(
                     .size(size)
                     .align(Alignment.Center),
                 content = content,
+                color = surfaceColor,
             )
         }
     }
