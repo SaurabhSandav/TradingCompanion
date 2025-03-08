@@ -29,7 +29,7 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import java.awt.Desktop
+import com.saurabhsandav.core.utils.openExternally
 import java.io.File
 import java.net.URI
 
@@ -119,14 +119,7 @@ internal fun AttachmentItem(
     var showRemoveConfirmationDialog by state { false }
 
     ListItem(
-        modifier = Modifier.clickable {
-
-            if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                error("Opening attachment not supported")
-            }
-
-            Desktop.getDesktop().open(File(attachment.path))
-        },
+        modifier = Modifier.clickable { File(attachment.path).openExternally() },
         headlineContent = { Text(attachment.name) },
         overlineContent = attachment.extension?.let { { Text(it) } },
         supportingContent = attachment.description?.let { { Text(it) } },

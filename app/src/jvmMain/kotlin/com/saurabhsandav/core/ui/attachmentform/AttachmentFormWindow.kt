@@ -39,10 +39,10 @@ import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.utils.openExternally
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.FileKitPlatformSettings
 import io.github.vinceglb.filekit.core.pickFile
-import java.awt.Desktop
 import java.io.File
 
 @Composable
@@ -136,14 +136,7 @@ private fun AttachmentForm(
         AnimatedVisibilityForNullable(model.path) { path ->
 
             TextButton(
-                onClick = {
-
-                    if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                        error("Opening attachment not supported")
-                    }
-
-                    Desktop.getDesktop().open(File(path))
-                },
+                onClick = { File(path).openExternally() },
             ) {
 
                 Text("Open File")
