@@ -9,6 +9,7 @@ import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.apache.tika.Tika
 import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
@@ -25,6 +26,8 @@ class Attachments internal constructor(
     private val tradesDB: TradesDB,
     private val attachmentsPath: Path,
 ) {
+
+    private val tika = Tika()
 
     fun getByIdWithFile(
         tradeId: TradeId,
@@ -74,6 +77,7 @@ class Attachments internal constructor(
                     tradesDB.attachmentFileQueries.insert(
                         fileName = attachedFileName,
                         checksum = checksum,
+                        mimeType = tika.detect(attachedFilePath),
                     )
 
                     // Get id of attachment in DB
@@ -180,10 +184,12 @@ class Attachments internal constructor(
         description: String,
         fileName: String,
         checksum: String,
+        mimeType: String?,
     ) = AttachmentWithFile(
         tradeId = tradeId,
         fileId = fileId,
         name = name,
+        mimeType = mimeType,
         description = description,
         path = attachmentsPath.resolve(fileName),
         checksum = checksum,

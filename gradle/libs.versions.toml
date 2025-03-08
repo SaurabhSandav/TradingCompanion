@@ -31,6 +31,7 @@ filekit = "0.8.8"
 clikt = "5.0.3"
 colorpickerCompose = "1.1.2"
 apacheCommons-compress = "1.27.1"
+apache-tika = "3.1.0"
 composeRichtext = "1.0.0-alpha02"
 cryptography = "0.4.0"
 kotlinWrappers-kotlinCss = "2025.2.9"
@@ -123,8 +124,11 @@ clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 # ColorPicker Compose
 colorpickerCompose = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpickerCompose" }
 
-# ColorPicker Compose
+# Apache Commons Compress
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apacheCommons-compress" }
+
+# Apache Tika
+apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
 
 # compose-richtext
 composeRichtext-ui-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "composeRichtext" }

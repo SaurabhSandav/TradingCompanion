@@ -28,13 +28,13 @@ isAttachmentLinked:
 SELECT EXISTS( SELECT * FROM TradeAttachment WHERE fileId = ? );
 
 getByIdWithFile:
-SELECT ta.*, af.fileName, af.checksum FROM TradeAttachment ta
+SELECT ta.*, af.fileName, af.checksum, af.mimeType FROM TradeAttachment ta
 INNER JOIN AttachmentFile af
 ON af.id = ta.fileId
 WHERE ta.tradeId = ? AND ta.fileId = ?;
 
 getByTradeWithFile:
-SELECT TradeAttachment.*, af.fileName, af.checksum FROM TradeAttachment
+SELECT TradeAttachment.*, af.fileName, af.checksum, af.mimeType FROM TradeAttachment
 INNER JOIN AttachmentFile af
 ON af.id = TradeAttachment.fileId
 WHERE TradeAttachment.tradeId = ?;

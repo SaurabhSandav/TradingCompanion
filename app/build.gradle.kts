@@ -143,6 +143,9 @@ kotlin {
 
             // EitherNet
             implementation(libs.eithernet)
+
+            // Apache Tika
+            implementation(libs.apache.tika.core)
         }
 
         jvmTest.dependencies {

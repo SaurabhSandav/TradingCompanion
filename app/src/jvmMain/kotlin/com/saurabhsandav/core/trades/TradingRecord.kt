@@ -4,6 +4,7 @@ import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.migrations.migrationAfterV1
 import com.saurabhsandav.core.trades.migrations.migrationAfterV2
+import com.saurabhsandav.core.trades.migrations.migrationAfterV5
 import com.saurabhsandav.core.trades.model.AttachmentFileIdColumnAdapter
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.ReviewIdColumnAdapter
@@ -29,6 +30,8 @@ internal class TradingRecord(
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
 ) {
 
+    private val attachmentsPath = recordPath.resolve("attachments")
+
     private val tradesDB: TradesDB = run {
 
         val driver = JdbcSqliteDriver(
@@ -38,6 +41,7 @@ internal class TradingRecord(
             callbacks = arrayOf(
                 migrationAfterV1,
                 migrationAfterV2,
+                migrationAfterV5(attachmentsPath),
             ),
         )
 
@@ -124,8 +128,6 @@ internal class TradingRecord(
             ),
         )
     }
-
-    private val attachmentsPath = recordPath.resolve("attachments")
 
     val executions = Executions(
         appDispatchers = appDispatchers,
