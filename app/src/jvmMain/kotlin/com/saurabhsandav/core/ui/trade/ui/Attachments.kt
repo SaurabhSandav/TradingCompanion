@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.ui.trade.ui
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Row
@@ -118,33 +120,43 @@ internal fun AttachmentItem(
     var showEditDialog by state { false }
     var showRemoveConfirmationDialog by state { false }
 
-    ListItem(
-        modifier = Modifier.clickable { File(attachment.path).openExternally() },
-        headlineContent = { Text(attachment.name) },
-        overlineContent = attachment.extension?.let { { Text(it) } },
-        supportingContent = attachment.description?.let { { Text(it) } },
-        trailingContent = {
-
-            Row {
-
-                IconButtonWithTooltip(
-                    onClick = { showEditDialog = true },
-                    tooltipText = "Edit attachment",
-                    content = {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit attachment")
-                    },
-                )
-
-                IconButtonWithTooltip(
-                    onClick = { showRemoveConfirmationDialog = true },
-                    tooltipText = "Remove attachment",
-                    content = {
-                        Icon(Icons.Default.Close, contentDescription = "Remove attachment")
-                    },
-                )
+    ContextMenuArea(
+        items = {
+            buildList {
+                add(ContextMenuItem("Edit") { showEditDialog = true })
+                add(ContextMenuItem("Remove") { showRemoveConfirmationDialog = true })
             }
         },
-    )
+    ) {
+
+        ListItem(
+            modifier = Modifier.clickable { File(attachment.path).openExternally() },
+            headlineContent = { Text(attachment.name) },
+            overlineContent = attachment.extension?.let { { Text(it) } },
+            supportingContent = attachment.description?.let { { Text(it) } },
+            trailingContent = {
+
+                Row {
+
+                    IconButtonWithTooltip(
+                        onClick = { showEditDialog = true },
+                        tooltipText = "Edit Attachment",
+                        content = {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit Attachment")
+                        },
+                    )
+
+                    IconButtonWithTooltip(
+                        onClick = { showRemoveConfirmationDialog = true },
+                        tooltipText = "Remove Attachment",
+                        content = {
+                            Icon(Icons.Default.Close, contentDescription = "Remove Attachment")
+                        },
+                    )
+                }
+            },
+        )
+    }
 
     if (showEditDialog) {
 
