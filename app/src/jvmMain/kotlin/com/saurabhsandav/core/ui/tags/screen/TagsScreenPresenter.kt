@@ -10,15 +10,10 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.DeleteTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.EditTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTagFromExisting
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState
-import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +24,6 @@ import kotlinx.coroutines.flow.map
 internal class TagsScreenPresenter(
     private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
-    private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -46,9 +40,6 @@ internal class TagsScreenPresenter(
     private fun onEvent(event: TagsScreenEvent) {
 
         when (event) {
-            NewTag -> onNewTag()
-            is NewTagFromExisting -> onNewTagFromExisting(event.id)
-            is EditTag -> onEditTag(event.id)
             is DeleteTag -> onDeleteTag(event.id)
         }
     }
@@ -75,30 +66,6 @@ internal class TagsScreenPresenter(
                     .emitInto(this)
             }
         }.collectAsState(null)
-    }
-
-    private fun onNewTag() {
-
-        tradeContentLauncher.openTagForm(
-            profileId = profileId,
-            formType = TagFormType.New(),
-        )
-    }
-
-    private fun onNewTagFromExisting(id: TradeTagId) {
-
-        tradeContentLauncher.openTagForm(
-            profileId = profileId,
-            formType = TagFormType.NewFromExisting(id),
-        )
-    }
-
-    private fun onEditTag(id: TradeTagId) {
-
-        tradeContentLauncher.openTagForm(
-            profileId = profileId,
-            formType = TagFormType.Edit(id),
-        )
     }
 
     private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {

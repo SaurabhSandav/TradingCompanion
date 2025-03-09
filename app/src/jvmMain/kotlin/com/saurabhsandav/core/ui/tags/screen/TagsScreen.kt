@@ -8,20 +8,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
+import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.tags.form.TagFormDialog
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.screen.ui.TagsList
 
 @Composable
 fun TagsScreen(
+    profileId: ProfileId,
     tags: List<TradeTag>?,
-    onNewTag: () -> Unit,
-    onNewTagFromExisting: (TradeTagId) -> Unit,
-    onEditTag: (TradeTagId) -> Unit,
     onDeleteTag: (TradeTagId) -> Unit,
 ) {
+
+    var formType by state<TagFormType?> { null }
 
     Scaffold { paddingValues ->
 
@@ -30,7 +36,7 @@ fun TagsScreen(
             PrimaryOptionsBar {
 
                 Button(
-                    onClick = onNewTag,
+                    onClick = { formType = TagFormType.New() },
                     shape = MaterialTheme.shapes.small,
                     content = { Text("New Tag") },
                 )
@@ -40,10 +46,20 @@ fun TagsScreen(
 
             TagsList(
                 tags = tags,
-                onNewTagFromExisting = onNewTagFromExisting,
-                onEditTag = onEditTag,
+                onNewTagFromExisting = { tagId -> formType = TagFormType.NewFromExisting(tagId) },
+                onEditTag = { tagId -> formType = TagFormType.Edit(tagId) },
                 onDeleteTag = onDeleteTag,
             )
         }
+    }
+
+    val currentFormType = formType
+    if (currentFormType != null) {
+
+        TagFormDialog(
+            onCloseRequest = { formType = null },
+            profileId = profileId,
+            formType = currentFormType,
+        )
     }
 }

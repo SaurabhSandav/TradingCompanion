@@ -13,3 +13,12 @@ inline fun Modifier.thenIf(
     ifFalse != null -> then(ifFalse(Modifier))
     else -> this
 }
+
+@Composable
+inline fun <T> Modifier.thenIfNotNull(
+    value: T?,
+    ifNotNull: @Composable Modifier.(T) -> Modifier,
+): Modifier = when {
+    value != null -> then(ifNotNull(Modifier, value))
+    else -> this
+}

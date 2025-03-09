@@ -26,7 +26,7 @@ import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.tags.form.TagFormWindow
+import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 
 @Composable
@@ -67,7 +67,7 @@ internal fun TagSelectorDropdownMenu(
 
         if (showCreateTagWindow) {
 
-            TagFormWindow(
+            TagFormDialog(
                 profileId = profileId,
                 formType = TagFormType.New(state.filterQuery),
                 onCloseRequest = { showCreateTagWindow = false },

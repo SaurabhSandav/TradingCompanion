@@ -16,13 +16,14 @@ import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType.Edit
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType.New
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType.NewFromExisting
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal class TagFormPresenter(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     profileId: ProfileId,
     private val formType: TagFormType,
     private val onCloseRequest: () -> Unit,
@@ -80,6 +81,10 @@ internal class TagFormPresenter(
                 onSubmit = { save() },
             )
         }
+    }
+
+    fun onDelete() = coroutineScope.launchUnit {
+        tags.await().delete((formType as Edit).id)
     }
 
     private suspend fun TagFormModel.save() {

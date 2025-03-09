@@ -5,12 +5,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.DeleteTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.EditTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTag
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTagFromExisting
 
 internal class TagsLandingSwitcherItem(
-    tagsScreenModule: TagsScreenModule,
+    private val tagsScreenModule: TagsScreenModule,
 ) : LandingSwitcherItem {
 
     private val presenter = tagsScreenModule.presenter()
@@ -21,10 +18,8 @@ internal class TagsLandingSwitcherItem(
         val state by presenter.state.collectAsState()
 
         TagsScreen(
+            profileId = tagsScreenModule.profileId,
             tags = state.tags,
-            onNewTag = { state.eventSink(NewTag) },
-            onNewTagFromExisting = { id -> state.eventSink(NewTagFromExisting(id)) },
-            onEditTag = { id -> state.eventSink(EditTag(id)) },
             onDeleteTag = { id -> state.eventSink(DeleteTag(id)) },
         )
     }

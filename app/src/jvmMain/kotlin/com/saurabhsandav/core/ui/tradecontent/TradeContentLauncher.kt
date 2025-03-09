@@ -6,8 +6,6 @@ import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.review.ReviewWindow
-import com.saurabhsandav.core.ui.tags.form.TagFormWindow
-import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.trade.TradeWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -18,7 +16,6 @@ internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()
     private val tradeWindowsManager = AppWindowsManager<ProfileTradeId>()
-    private val tagFormWindowsManager = AppWindowsManager<TradeTagFormWindowParams>()
     private val reviewWindowsManager = AppWindowsManager<ProfileReviewId>()
     private val chartsWindowsManager = AppWindowsManager<ChartsHandle>()
     private val tradeReviewWindowsManager = AppWindowsManager<TradeReviewWindowParams>()
@@ -61,36 +58,6 @@ internal class TradeContentLauncher {
 
             // Open new window
             null -> tradeWindowsManager.newWindow(profileTradeId)
-
-            // Window already open. Bring to front.
-            else -> window.toFront()
-        }
-    }
-
-    fun openTagForm(
-        profileId: ProfileId,
-        formType: TagFormType,
-    ) {
-
-        val window = when (formType) {
-            is TagFormType.Edit -> tagFormWindowsManager.windows.find {
-                it.params.formType is TagFormType.Edit && it.params.formType.id == formType.id
-            }
-
-            else -> null
-        }
-
-        when (window) {
-            // Open new window
-            null -> {
-
-                val params = TradeTagFormWindowParams(
-                    profileId = profileId,
-                    formType = formType,
-                )
-
-                tagFormWindowsManager.newWindow(params)
-            }
 
             // Window already open. Bring to front.
             else -> window.toFront()
@@ -179,16 +146,6 @@ internal class TradeContentLauncher {
             )
         }
 
-        // Tag form windows
-        tagFormWindowsManager.Windows { window ->
-
-            TagFormWindow(
-                profileId = window.params.profileId,
-                formType = window.params.formType,
-                onCloseRequest = window::close,
-            )
-        }
-
         // Review windows
         reviewWindowsManager.Windows { window ->
 
@@ -222,11 +179,6 @@ internal class TradeContentLauncher {
     private data class TradeExecutionFormWindowParams(
         val profileId: ProfileId,
         val formType: TradeExecutionFormType,
-    )
-
-    private data class TradeTagFormWindowParams(
-        val profileId: ProfileId,
-        val formType: TagFormType,
     )
 
     private data class TradeReviewWindowParams(

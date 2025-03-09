@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,16 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.ColorPickerDialog
+import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.Form
-import com.saurabhsandav.core.ui.common.FormDefaults
-import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
+import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
@@ -48,7 +46,7 @@ import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
-fun TagFormWindow(
+fun TagFormDialog(
     profileId: ProfileId,
     formType: TagFormType,
     onCloseRequest: () -> Unit,
@@ -59,36 +57,52 @@ fun TagFormWindow(
     val presenter = remember { screensModule.tagFormModule(scope).presenter(onCloseRequest, profileId, formType) }
     val state by presenter.state.collectAsState()
 
-    val windowState = rememberAppWindowState(
-        size = DpSize(width = FormDefaults.PreferredWidth, height = 300.dp),
-        preferredPlacement = WindowPlacement.Floating,
-        forcePreferredPlacement = true,
-    )
-
     val formModel = state.formModel ?: return
 
-    AppWindow(
-        onCloseRequest = onCloseRequest,
-        state = windowState,
-        title = state.title,
+    AppDialog(
+        onDismissRequest = onCloseRequest,
     ) {
 
-        TagForm(model = formModel)
+        TagForm(
+            formType = formType,
+            model = formModel,
+            onDelete = presenter::onDelete,
+            onCloseRequest = onCloseRequest,
+        )
     }
 }
 
 @Composable
-private fun TagForm(model: TagFormModel) {
+private fun TagForm(
+    formType: TagFormType,
+    model: TagFormModel,
+    onDelete: () -> Unit,
+    onCloseRequest: () -> Unit,
+) {
 
-    Form {
+    Form(
+        width = 600.dp,
+        scrollState = null,
+    ) {
 
         val initialFocusRequester = remember { FocusRequester() }
         var showColorPicker by state { false }
+        var showDeleteConfirmationDialog by state { false }
 
         LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
 
+        Text(
+            text = when (formType) {
+                is TagFormType.New, is TagFormType.NewFromExisting -> "New Tag"
+                is TagFormType.Edit -> "Edit Tag"
+            },
+            style = MaterialTheme.typography.titleLarge,
+        )
+
+        HorizontalDivider()
+
         OutlinedTextField(
-            modifier = Modifier.focusRequester(initialFocusRequester),
+            modifier = Modifier.fillMaxWidth().focusRequester(initialFocusRequester),
             value = model.nameField.value,
             onValueChange = { model.nameField.value = it },
             label = { Text("Name") },
@@ -98,9 +112,11 @@ private fun TagForm(model: TagFormModel) {
         )
 
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().weight(1F, fill = false),
             value = model.descriptionField.value,
             onValueChange = { model.descriptionField.value = it },
             label = { Text("Description") },
+            minLines = 3,
         )
 
         AnimatedContent(
@@ -140,12 +156,27 @@ private fun TagForm(model: TagFormModel) {
             }
         }
 
-        Button(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            onClick = model.validator::submit,
-            enabled = model.validator.canSubmit,
-            content = { Text("Save") },
-        )
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
+        ) {
+
+            if (formType is TagFormType.Edit) {
+
+                Button(
+                    modifier = Modifier.weight(1F),
+                    onClick = { showDeleteConfirmationDialog = true },
+                    content = { Text("Delete") },
+                )
+            }
+
+            Button(
+                modifier = Modifier.weight(1F),
+                onClick = model.validator::submit,
+                enabled = model.validator.canSubmit,
+                content = { Text("Save") },
+            )
+        }
 
         if (showColorPicker) {
 
@@ -153,6 +184,18 @@ private fun TagForm(model: TagFormModel) {
                 onDismissRequest = { showColorPicker = false },
                 onColorSelected = { model.colorField.value = it },
                 initialSelection = model.colorField.value,
+            )
+        }
+
+        if (showDeleteConfirmationDialog) {
+
+            DeleteConfirmationDialog(
+                subject = "tag",
+                onDismiss = { showDeleteConfirmationDialog = false },
+                onConfirm = {
+                    onDelete()
+                    onCloseRequest()
+                },
             )
         }
     }

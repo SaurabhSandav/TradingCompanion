@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.common
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 fun Form(
     modifier: Modifier = Modifier,
     width: Dp = FormDefaults.PreferredWidth,
+    scrollState: ScrollState? = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
 
@@ -30,13 +32,11 @@ fun Form(
         propagateMinConstraints = true,
     ) {
 
-        val verticalScrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
                 .requiredWidth(width)
                 .wrapContentWidth(Alignment.CenterHorizontally)
-                .verticalScroll(verticalScrollState)
+                .thenIfNotNull(scrollState) { verticalScroll(it) }
                 .padding(MaterialTheme.dimens.containerPadding),
             verticalArrangement = Arrangement.spacedBy(
                 space = MaterialTheme.dimens.columnVerticalSpacing,
@@ -46,10 +46,13 @@ fun Form(
             content = content,
         )
 
-        VerticalScrollbar(
-            modifier = Modifier.matchParentSize().wrapContentWidth(Alignment.End),
-            adapter = rememberScrollbarAdapter(verticalScrollState),
-        )
+        if (scrollState != null) {
+
+            VerticalScrollbar(
+                modifier = Modifier.matchParentSize().wrapContentWidth(Alignment.End),
+                adapter = rememberScrollbarAdapter(scrollState),
+            )
+        }
     }
 }
 
