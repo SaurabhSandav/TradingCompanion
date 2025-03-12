@@ -8,10 +8,11 @@ import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("RemoveRedundantBackticks")
 class BackgroundSerializationTest {
 
     @Test
-    fun SolidColor() {
+    fun `SolidColor`() {
 
         val value = Background.SolidColor(Color.red)
 
@@ -25,7 +26,7 @@ class BackgroundSerializationTest {
     }
 
     @Test
-    fun VerticalGradientColor() {
+    fun `VerticalGradientColor`() {
 
         val value = Background.VerticalGradientColor(
             topColor = Color.red,

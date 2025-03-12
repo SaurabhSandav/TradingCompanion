@@ -66,8 +66,9 @@ internal class TradingProfiles(
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
         val oldName = profile.name
 
-        if (oldName != name)
+        if (oldName != name) {
             require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
+        }
 
         appDB.tradingProfileQueries.update(
             id = id,
@@ -129,7 +130,7 @@ internal class TradingProfiles(
                 copyingProfile.filesPath.copyToRecursively(
                     target = newProfilePath,
                     followLinks = false,
-                    overwrite = false
+                    overwrite = false,
                 )
 
                 // Create a symbolic link (labeled with profile name) for new profile record

@@ -7,7 +7,7 @@ import kotlinx.coroutines.delay
 suspend fun <V, E> retryIOResult(
     times: Int = Int.MAX_VALUE,
     initialDelay: Long = 100, // 0.1 second
-    maxDelay: Long = 1000,    // 1 second
+    maxDelay: Long = 1000, // 1 second
     factor: Double = 2.0,
     block: suspend () -> Result<V, E>,
 ): Result<V, E> {

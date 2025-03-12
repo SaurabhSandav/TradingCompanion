@@ -41,7 +41,7 @@ internal fun TradeReviewWindow(
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(state.eventSink) {
-        tradeReviewHandle.events.collect(state.eventSink)
+        tradeReviewHandle.eventsFlow.collect(state.eventSink)
     }
 
     AppWindow(
@@ -105,7 +105,7 @@ internal fun TradeReviewScreen(
                             filterConfig = it
                             onApplyFilter(it.toTradeFilter())
                             onDismissSheet()
-                        }
+                        },
                     )
                 }
             },

@@ -12,7 +12,7 @@ abstract class RecursiveCachedIndicator<T : Any>(
 
         if (index <= candleSeries.lastIndex) {
 
-            if (index > RECURSION_THRESHOLD) {
+            if (index > RecursionThreshold) {
 
                 for (toCacheIndex in 0..<index) {
                     super.get(toCacheIndex)
@@ -24,4 +24,4 @@ abstract class RecursiveCachedIndicator<T : Any>(
     }
 }
 
-private const val RECURSION_THRESHOLD = 100
+private const val RecursionThreshold = 100

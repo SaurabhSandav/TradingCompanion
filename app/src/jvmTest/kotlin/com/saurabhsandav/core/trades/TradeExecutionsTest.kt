@@ -120,7 +120,7 @@ class TradeExecutionsTest {
         // Delete
         executions.delete(ids = listOf(id))
 
-        assertFailsWith<IllegalStateException>(message = "TradeExecution(${id}) not found") {
+        assertFailsWith<IllegalStateException>(message = "TradeExecution($id) not found") {
             executions.getById(id).first()
         }
     }
@@ -182,7 +182,7 @@ class TradeExecutionsTest {
             expected = data.executions.take(2),
             actual = executions.getForTrade(TradeId(1))
                 .first()
-                .map { it.copy(id = TradeExecutionId(-1)) }
+                .map { it.copy(id = TradeExecutionId(-1)) },
         )
 
         // Trade #2
@@ -211,8 +211,9 @@ class TradeExecutionsTest {
 
         // Trade #1 and #4 have "TestTicker" ticker. Trade #4 should be ignored.
 
+        @Suppress("ktlint:standard:range-spacing")
         val interval = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
-                LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)
+            LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)
 
         val executionsInInterval = executions.getByTickerInInterval(
             ticker = "TestTicker",
@@ -230,8 +231,9 @@ class TradeExecutionsTest {
 
         // Trade #1, #4 and #5 have "TestTicker" ticker. Trade #4 and #5 should be ignored.
 
+        @Suppress("ktlint:standard:range-spacing")
         val interval1 = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
-                LocalDateTime(2024, Month.MAY, 5, 0, 0).toInstant(TimeZone.UTC)
+            LocalDateTime(2024, Month.MAY, 5, 0, 0).toInstant(TimeZone.UTC)
         val executionsInInterval1 = executions.getByTickerAndTradeIdsInInterval(
             ticker = "TestTicker",
             ids = listOf(TradeId(1)),
@@ -241,8 +243,9 @@ class TradeExecutionsTest {
 
         // Trade #2 and #3 have "TestTicker1" ticker. Trade #3 should be ignored.
 
+        @Suppress("ktlint:standard:range-spacing")
         val interval2 = LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)..
-                LocalDateTime(2024, Month.MAY, 4, 0, 0).toInstant(TimeZone.UTC)
+            LocalDateTime(2024, Month.MAY, 4, 0, 0).toInstant(TimeZone.UTC)
         val executionsInInterval2 = executions.getByTickerAndTradeIdsInInterval(
             ticker = "TestTicker1",
             ids = listOf(TradeId(2)),

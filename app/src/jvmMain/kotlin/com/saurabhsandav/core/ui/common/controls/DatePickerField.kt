@@ -77,11 +77,11 @@ fun DatePickerField(
             dismissButton = {
 
                 TextButton(
-                    onClick = { showDialog = false }
+                    onClick = { showDialog = false },
                 ) {
                     Text("Cancel")
                 }
-            }
+            },
         ) {
             DatePicker(state = datePickerState)
         }

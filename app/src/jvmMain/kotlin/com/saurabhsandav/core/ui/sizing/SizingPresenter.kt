@@ -49,8 +49,8 @@ internal class SizingPresenter(
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
-                BigDecimal.ZERO
-            )
+                BigDecimal.ZERO,
+            ),
         )
 
         return@launchMolecule SizingState(
@@ -80,7 +80,10 @@ internal class SizingPresenter(
         )
     }
 
-    private fun updateTradeEntry(id: SizingTradeId, entry: String) = coroutineScope.launchUnit {
+    private fun updateTradeEntry(
+        id: SizingTradeId,
+        entry: String,
+    ) = coroutineScope.launchUnit {
 
         val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
 
@@ -90,7 +93,10 @@ internal class SizingPresenter(
         )
     }
 
-    private fun updateTradeStop(id: SizingTradeId, stop: String) = coroutineScope.launchUnit {
+    private fun updateTradeStop(
+        id: SizingTradeId,
+        stop: String,
+    ) = coroutineScope.launchUnit {
 
         val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
 

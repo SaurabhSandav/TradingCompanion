@@ -23,9 +23,7 @@ import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
 
 @Composable
-internal fun StockChartTabRow(
-    state: StockChartTabsState,
-) {
+internal fun StockChartTabRow(state: StockChartTabsState) {
 
     Row(Modifier.fillMaxWidth()) {
 
@@ -41,7 +39,7 @@ internal fun StockChartTabRow(
                     ),
                     width = Dp.Unspecified,
                 )
-            }
+            },
         ) {
 
             state.tabIds.forEachIndexed { index, tabId ->
@@ -64,16 +62,14 @@ internal fun StockChartTabRow(
 }
 
 @Composable
-private fun StockChartTabControlsRow(
-    state: StockChartTabsState,
-) {
+private fun StockChartTabControlsRow(state: StockChartTabsState) {
 
     IconButtonWithTooltip(
         onClick = state::newTab,
         tooltipText = "New Tab",
         content = {
             Icon(Icons.Default.Add, contentDescription = "New Tab")
-        }
+        },
     )
 
     IconButtonWithTooltip(
@@ -81,7 +77,7 @@ private fun StockChartTabControlsRow(
         tooltipText = "Previous tab",
         content = {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous tab")
-        }
+        },
     )
 
     IconButtonWithTooltip(
@@ -89,7 +85,7 @@ private fun StockChartTabControlsRow(
         tooltipText = "Next tab",
         content = {
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next tab")
-        }
+        },
     )
 
     IconButtonWithTooltip(
@@ -97,7 +93,7 @@ private fun StockChartTabControlsRow(
         tooltipText = "Move tab backward",
         content = {
             Icon(Icons.Default.FastRewind, contentDescription = "Move tab backward")
-        }
+        },
     )
 
     IconButtonWithTooltip(
@@ -105,7 +101,7 @@ private fun StockChartTabControlsRow(
         tooltipText = "Move tab forward",
         content = {
             Icon(Icons.Default.FastForward, contentDescription = "Move tab forward")
-        }
+        },
     )
 }
 
@@ -142,6 +138,6 @@ private fun ChartTab(
                     )
                 }
             }
-        }
+        },
     )
 }

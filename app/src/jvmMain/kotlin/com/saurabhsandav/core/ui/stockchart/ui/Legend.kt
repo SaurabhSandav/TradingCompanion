@@ -11,9 +11,7 @@ import com.saurabhsandav.core.ui.common.chart.legend.LegendVisibilityButton
 import com.saurabhsandav.core.ui.stockchart.PlotterManager
 
 @Composable
-fun Legend(
-    plotterManager: PlotterManager,
-) {
+fun Legend(plotterManager: PlotterManager) {
 
     Legend {
 

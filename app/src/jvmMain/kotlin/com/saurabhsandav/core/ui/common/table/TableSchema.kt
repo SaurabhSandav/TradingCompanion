@@ -36,9 +36,13 @@ class TableCell(
 
     sealed class Width {
 
-        data class Fixed(val width: Dp) : Width()
+        data class Fixed(
+            val width: Dp,
+        ) : Width()
 
-        data class Weight(val weight: Float) : Width()
+        data class Weight(
+            val weight: Float,
+        ) : Width()
     }
 }
 

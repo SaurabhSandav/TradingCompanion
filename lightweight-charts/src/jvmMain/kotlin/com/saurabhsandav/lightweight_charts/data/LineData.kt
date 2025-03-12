@@ -15,12 +15,14 @@ sealed interface LineData : WhitespaceData {
         override val time: Time,
         override val value: Double,
         val color: SerializableColor? = null,
-    ) : SingleValueData, LineData
+    ) : SingleValueData,
+        LineData
 
     @Serializable
     data class WhiteSpace(
         override val time: Time,
-    ) : WhitespaceData, LineData
+    ) : WhitespaceData,
+        LineData
 }
 
 private object LineDataSerializer : JsonContentPolymorphicSerializer<LineData>(LineData::class) {

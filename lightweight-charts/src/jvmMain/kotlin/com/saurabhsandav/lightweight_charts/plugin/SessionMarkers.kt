@@ -12,15 +12,13 @@ class SessionMarkers(
     val options: Options = Options(),
 ) : ISeriesPrimitive {
 
-    private var _callMember: ((String) -> Unit)? = null
-    private val callMember: ((String) -> Unit)
-        get() = checkNotNull(_callMember) { "SessionMarkers not attached" }
+    private var callMember: ((String) -> Unit)? = null
 
     override fun initializer(callMember: (String) -> Unit): String {
 
-        check(_callMember == null) { "SessionMarkers already attached" }
+        check(this.callMember == null) { "SessionMarkers already attached" }
 
-        _callMember = callMember
+        this.callMember = callMember
 
         val optionsJson = LwcJson.encodeToString(options)
 
@@ -30,6 +28,7 @@ class SessionMarkers(
     fun setTimes(times: List<Time>) {
 
         val timesJson = LwcJson.encodeToString(times)
+        val callMember = checkNotNull(callMember) { "SessionMarkers not attached" }
 
         callMember("times = $timesJson")
     }

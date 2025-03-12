@@ -141,7 +141,10 @@ class AppWindowState(
     private var window: ComposeWindow? = null
     private val titles = ArrayDeque<Pair<String, String>>()
 
-    internal fun setCompositionTitle(id: String, titleText: String) {
+    internal fun setCompositionTitle(
+        id: String,
+        titleText: String,
+    ) {
 
         titles.addLast(id to titleText)
 
@@ -196,9 +199,7 @@ class AppWindowOwner {
     private val children = mutableListOf<AppWindowState>()
 
     @Composable
-    fun Window(
-        content: @Composable () -> Unit,
-    ) {
+    fun Window(content: @Composable () -> Unit) {
 
         CompositionLocalProvider(
             LocalAppWindowOwner provides this,

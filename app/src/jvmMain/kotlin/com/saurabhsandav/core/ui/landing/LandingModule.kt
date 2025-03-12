@@ -38,7 +38,7 @@ internal class LandingModule(
             Account to AccountLandingSwitcherItem(screensModule.accountModule(coroutineScope)),
             TradeSizing to SizingLandingSwitcherItem(screensModule.sizingModule(coroutineScope, profileId)),
             TradeExecutions to TradeExecutionsLandingSwitcherItem(
-                screensModule.tradeExecutionsModule(coroutineScope, profileId)
+                screensModule.tradeExecutionsModule(coroutineScope, profileId),
             ),
             Trades to TradesLandingSwitcherItem(screensModule.tradesModule(coroutineScope, profileId)),
             Tags to TagsLandingSwitcherItem(screensModule.tagsScreenModule(coroutineScope, profileId)),

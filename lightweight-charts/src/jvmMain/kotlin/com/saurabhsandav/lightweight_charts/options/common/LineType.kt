@@ -8,11 +8,14 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = LineType.Serializer::class)
-enum class LineType(private val intValue: Int) {
+enum class LineType(
+    private val intValue: Int,
+) {
 
     Simple(0),
     WithSteps(1),
-    Curved(2);
+    Curved(2),
+    ;
 
     internal object Serializer : KSerializer<LineType> {
 
@@ -23,7 +26,10 @@ enum class LineType(private val intValue: Int) {
             return LineType.entries.find { it.intValue == intValue } ?: error("Invalid LineType")
         }
 
-        override fun serialize(encoder: Encoder, value: LineType) {
+        override fun serialize(
+            encoder: Encoder,
+            value: LineType,
+        ) {
             encoder.encodeInt(value.intValue)
         }
     }

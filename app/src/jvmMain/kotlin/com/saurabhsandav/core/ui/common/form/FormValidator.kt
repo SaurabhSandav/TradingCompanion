@@ -37,7 +37,7 @@ class FormValidator(
         val field = FormFieldImpl(
             initial = initial,
             coroutineScope = coroutineScope.newChildScope(),
-            validation = validation
+            validation = validation,
         )
 
         fields.add(field)

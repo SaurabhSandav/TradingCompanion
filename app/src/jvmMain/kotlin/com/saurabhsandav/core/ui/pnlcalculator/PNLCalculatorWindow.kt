@@ -29,9 +29,7 @@ import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
-internal fun PNLCalculatorWindow(
-    state: PNLCalculatorWindowState,
-) {
+internal fun PNLCalculatorWindow(state: PNLCalculatorWindowState) {
 
     val windowState = rememberAppWindowState(
         size = DpSize(width = 1150.dp, height = 600.dp),

@@ -64,13 +64,13 @@ internal fun ReviewEditable(
                             .onPreviewKeyEvent { keyEvent ->
 
                                 return@onPreviewKeyEvent when {
-                                    keyEvent.isCtrlPressed
-                                            && keyEvent.type == KeyEventType.KeyDown
-                                            && keyEvent.key == Key.S
+                                    keyEvent.isCtrlPressed &&
+                                        keyEvent.type == KeyEventType.KeyDown &&
+                                        keyEvent.key == Key.S
                                         -> {
-                                        onSaveReview()
-                                        true
-                                    }
+                                            onSaveReview()
+                                            true
+                                        }
 
                                     else -> false
                                 }
@@ -103,7 +103,9 @@ internal fun ReviewEditable(
                             //  Replace if library updated with better defaults
                             style = RichTextStyle(
                                 stringStyle = RichTextStringStyle(
-                                    linkStyle = TextLinkStyles(SpanStyle(color = MaterialTheme.colorScheme.inversePrimary)),
+                                    linkStyle = TextLinkStyles(
+                                        SpanStyle(color = MaterialTheme.colorScheme.inversePrimary),
+                                    ),
                                 ),
                             ),
                             children = { Markdown(content = review) },

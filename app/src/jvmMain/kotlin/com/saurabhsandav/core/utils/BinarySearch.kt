@@ -77,7 +77,9 @@ inline fun <T, K : Comparable<K>> List<T>.binarySearchByAsResult(
 
 sealed class BinarySearchResult {
 
-    data class Found(val index: Int) : BinarySearchResult()
+    data class Found(
+        val index: Int,
+    ) : BinarySearchResult()
 
     data class NotFound(
         val naturalIndex: Int,
@@ -91,9 +93,7 @@ val BinarySearchResult.indexOrNaturalIndex: Int
         is BinarySearchResult.NotFound -> naturalIndex
     }
 
-fun BinarySearchResult.indexOr(
-    block: (naturalIndex: Int) -> Int,
-): Int = when (this) {
+fun BinarySearchResult.indexOr(block: (naturalIndex: Int) -> Int): Int = when (this) {
     is BinarySearchResult.Found -> index
     is BinarySearchResult.NotFound -> block(naturalIndex)
 }

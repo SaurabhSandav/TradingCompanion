@@ -4,7 +4,9 @@ import com.saurabhsandav.core.trading.Indicator
 import com.saurabhsandav.core.utils.removeFirst
 import com.saurabhsandav.core.utils.removeLast
 
-class IndicatorCache<T> internal constructor(val key: Indicator.CacheKey?) {
+class IndicatorCache<T> internal constructor(
+    val key: Indicator.CacheKey?,
+) {
 
     private val cache = mutableListOf<T?>()
 
@@ -12,7 +14,10 @@ class IndicatorCache<T> internal constructor(val key: Indicator.CacheKey?) {
         return cache.getOrNull(index)
     }
 
-    internal operator fun set(index: Int, value: T?) {
+    internal operator fun set(
+        index: Int,
+        value: T?,
+    ) {
 
         if (index !in cache.indices) {
             val incrementSize = index - cache.lastIndex

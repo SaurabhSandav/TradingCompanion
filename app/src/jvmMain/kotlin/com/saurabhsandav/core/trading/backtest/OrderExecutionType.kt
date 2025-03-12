@@ -75,7 +75,7 @@ data class StopLimit(
             value = when (side) {
                 TradeExecutionSide.Buy -> trigger <= price
                 TradeExecutionSide.Sell -> trigger >= price
-            }
+            },
         ) {
 
             val (sideStr, comparisonStr) = when (side) {

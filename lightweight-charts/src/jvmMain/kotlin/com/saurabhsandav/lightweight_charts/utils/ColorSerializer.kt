@@ -8,7 +8,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-typealias SerializableColor = @Serializable(ColorSerializer::class) Color
+typealias SerializableColor =
+    @Serializable(ColorSerializer::class)
+    Color
 
 internal object ColorSerializer : KSerializer<Color> {
 
@@ -18,7 +20,10 @@ internal object ColorSerializer : KSerializer<Color> {
         return Color(decoder.decodeString())
     }
 
-    override fun serialize(encoder: Encoder, value: Color) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Color,
+    ) {
         encoder.encodeString(value.value)
     }
 }

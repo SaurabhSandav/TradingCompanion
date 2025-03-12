@@ -18,7 +18,9 @@ public data class FyersResponse<T>(
     val result: T?,
 )
 
-internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<FyersResponse<T>> {
+internal class FyersSerializer<T>(
+    private val dataSerializer: KSerializer<T>,
+) : KSerializer<FyersResponse<T>> {
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("FyersResponse") {
         element("s", serialDescriptor<String>().nullable)
@@ -27,7 +29,10 @@ internal class FyersSerializer<T>(private val dataSerializer: KSerializer<T>) : 
         element("result", dataSerializer.descriptor.nullable)
     }
 
-    override fun serialize(encoder: Encoder, value: FyersResponse<T>) = error("Not Supported")
+    override fun serialize(
+        encoder: Encoder,
+        value: FyersResponse<T>,
+    ) = error("Not Supported")
 
     override fun deserialize(decoder: Decoder): FyersResponse<T> {
         // Decoder -> JsonDecoder
@@ -72,7 +77,8 @@ public data class FyersError(
         InvalidAppId,
         NoPositionToExit,
         RateLimitExceeded,
-        MultiLegOrderInvalidInput;
+        MultiLegOrderInvalidInput,
+        ;
 
         public companion object {
 

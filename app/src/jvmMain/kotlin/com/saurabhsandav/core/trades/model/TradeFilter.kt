@@ -100,8 +100,6 @@ fun TradeFilterScope.tags(
     transform { it.copy(tags = tags, matchAllTags = matchAllTags) }
 }
 
-fun TradeFilterScope.tickers(
-    tickers: List<String> = emptyList(),
-) {
+fun TradeFilterScope.tickers(tickers: List<String> = emptyList()) {
     transform { it.copy(tickers = tickers) }
 }

@@ -32,7 +32,7 @@ inline fun <T> AnimatedVisibilityForNullable(
             ref.value?.let { value ->
                 content(value)
             }
-        }
+        },
     )
 }
 

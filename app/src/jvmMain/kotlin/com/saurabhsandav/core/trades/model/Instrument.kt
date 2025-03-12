@@ -1,9 +1,12 @@
 package com.saurabhsandav.core.trades.model
 
-actual enum class Instrument(val strValue: String) {
+actual enum class Instrument(
+    val strValue: String,
+) {
     Equity("equity"),
     Futures("futures"),
-    Options("options");
+    Options("options"),
+    ;
 
     companion object {
 

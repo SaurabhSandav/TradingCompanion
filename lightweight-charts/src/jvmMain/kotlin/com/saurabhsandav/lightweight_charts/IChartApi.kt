@@ -51,7 +51,8 @@ class IChartApi internal constructor(
             |charts.set("$id", new ChartInstance(
             |  "$id",
             |  LightweightCharts.createChart($container, $optionsJson),
-            |));""".trimMargin()
+            |));
+            """.trimMargin(),
         )
     }
 
@@ -67,7 +68,11 @@ class IChartApi internal constructor(
         _scripts.close()
     }
 
-    fun resize(width: Int, height: Int, forceRepaint: Boolean?) {
+    fun resize(
+        width: Int,
+        height: Int,
+        forceRepaint: Boolean?,
+    ) {
 
         val arguments = buildString {
             append(width)
@@ -116,7 +121,8 @@ class IChartApi internal constructor(
             """
             |$seriesMapReference.set("$seriesId", new SeriesInstance(
             |  $reference.addSeries($seriesArguments)
-            |));""".trimMargin()
+            |));
+            """.trimMargin(),
         )
 
         return series
@@ -133,8 +139,9 @@ class IChartApi internal constructor(
 
     fun subscribeClick(handler: MouseEventHandler) {
 
-        if (callbacksDelegate.subscribeClickCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeClickCallbacks.isEmpty()) {
             executeJs("$reference.subscribeClick($subscribeClickCallbackReference);")
+        }
 
         callbacksDelegate.subscribeClickCallbacks.add(handler)
     }
@@ -143,14 +150,16 @@ class IChartApi internal constructor(
 
         callbacksDelegate.subscribeClickCallbacks.remove(handler)
 
-        if (callbacksDelegate.subscribeClickCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeClickCallbacks.isEmpty()) {
             executeJs("$reference.unsubscribeClick($subscribeClickCallbackReference);")
+        }
     }
 
     fun subscribeCrosshairMove(handler: MouseEventHandler) {
 
-        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty()) {
             executeJs("$reference.subscribeCrosshairMove($subscribeCrosshairMoveCallbackReference);")
+        }
 
         callbacksDelegate.subscribeCrosshairMoveCallbacks.add(handler)
     }
@@ -159,8 +168,9 @@ class IChartApi internal constructor(
 
         callbacksDelegate.subscribeCrosshairMoveCallbacks.remove(handler)
 
-        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeCrosshairMoveCallbacks.isEmpty()) {
             executeJs("$reference.unsubscribeCrosshairMove($subscribeCrosshairMoveCallbackReference);")
+        }
     }
 
     fun priceScale(priceScaleId: String): IPriceScaleApi {
@@ -175,7 +185,7 @@ class IChartApi internal constructor(
 
         val horizontalPositionJson = LwcJson.encodeToString(horizontalPosition)
 
-        executeJs("$reference.setCrosshairPosition($price, ${horizontalPositionJson}, ${seriesApi.reference});")
+        executeJs("$reference.setCrosshairPosition($price, $horizontalPositionJson, ${seriesApi.reference});")
     }
 
     fun clearCrosshairPosition() {
@@ -186,7 +196,10 @@ class IChartApi internal constructor(
         executeJs("$reference.removePane($index);")
     }
 
-    fun swapPanes(first: Int, second: Int) {
+    fun swapPanes(
+        first: Int,
+        second: Int,
+    ) {
         executeJs("$reference.swapPanes($first, $second);")
     }
 
@@ -229,7 +242,7 @@ class IChartApi internal constructor(
             |    ))
             |  );
             |})()
-            """.trimMargin()
+            """.trimMargin(),
         )
     }
 }

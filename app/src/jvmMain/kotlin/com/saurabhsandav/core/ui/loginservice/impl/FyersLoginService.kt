@@ -124,7 +124,8 @@ internal class FyersLoginService private constructor(
                         |        <h1>$loginResultText</h1>
                         |    </body>
                         |</html>
-                        |""".trimMargin(),
+                        |
+                        """.trimMargin(),
                         contentType = ContentType.Text.Html,
                     )
 
@@ -272,7 +273,7 @@ internal class FyersLoginService private constructor(
                             text = when (loginState) {
                                 is LoginState.ReLogin -> "Refresh failed. Awaiting login..."
                                 else -> "Awaiting login..."
-                            }
+                            },
                         )
                     }
                 }
@@ -313,7 +314,7 @@ internal class FyersLoginService private constructor(
                             TextButton(
                                 onClick = { loginState.pin.complete(pin) },
                                 enabled = pin.length == 4,
-                                content = { Text("Login") }
+                                content = { Text("Login") },
                             )
                         },
                         visualTransformation = PasswordVisualTransformation(),
@@ -323,6 +324,7 @@ internal class FyersLoginService private constructor(
         }
     }
 
+    @Suppress("ktlint:standard:no-blank-line-in-list")
     @Serializable
     data class FyersAuthTokens(
 
@@ -342,7 +344,9 @@ internal class FyersLoginService private constructor(
 
         data object ReLogin : LoginState()
 
-        data class RefreshLogin(val pin: CompletableDeferred<String>) : LoginState()
+        data class RefreshLogin(
+            val pin: CompletableDeferred<String>,
+        ) : LoginState()
     }
 
     class Builder(
@@ -379,7 +383,10 @@ internal class FyersLoginService private constructor(
                 }
         }
 
-        suspend fun saveAuthTokensToPrefs(appPrefs: FlowSettings, authTokens: FyersAuthTokens?) {
+        suspend fun saveAuthTokensToPrefs(
+            appPrefs: FlowSettings,
+            authTokens: FyersAuthTokens?,
+        ) {
 
             when (authTokens) {
                 null -> appPrefs.remove(PrefKeys.FyersAuthTokens)

@@ -141,9 +141,7 @@ internal fun PnlFilterItem(
 }
 
 @Composable
-private fun CustomForm(
-    formModel: PnlFormModel,
-) {
+private fun CustomForm(formModel: PnlFormModel) {
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),

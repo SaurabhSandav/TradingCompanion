@@ -21,7 +21,7 @@ val ChartLightModeOptions = ChartOptions(
         ),
         horzLines = GridLineOptions(
             color = Color("#D6DCDE"),
-        )
+        ),
     ),
 )
 
@@ -36,7 +36,7 @@ val ChartDarkModeOptions = ChartOptions(
         ),
         horzLines = GridLineOptions(
             color = Color("#444444"),
-        )
+        ),
     ),
 )
 

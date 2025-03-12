@@ -49,9 +49,7 @@ internal fun SizingScreen(
 }
 
 @Composable
-internal fun SizingScreenWindows(
-    executionFormWindowsManager: AppWindowsManager<TradeExecutionFormParams>,
-) {
+internal fun SizingScreenWindows(executionFormWindowsManager: AppWindowsManager<TradeExecutionFormParams>) {
 
     // Trade execution form windows
     executionFormWindowsManager.Windows { window ->
@@ -156,7 +154,7 @@ private fun SizingTradeCard(
                 Text(
                     text = sizedTrade.side,
                     color = sizedTrade.color,
-                    fontWeight = FontWeight.Companion.Bold
+                    fontWeight = FontWeight.Companion.Bold,
                 )
             }
 
@@ -206,9 +204,7 @@ private fun SizingTradeCard(
 }
 
 @Composable
-private fun AddTradeCard(
-    onAddTrade: (ticker: String) -> Unit,
-) {
+private fun AddTradeCard(onAddTrade: (ticker: String) -> Unit) {
 
     Card {
 
@@ -233,7 +229,7 @@ private fun AddTradeCard(
                 onSelect = { ticker ->
                     onAddTrade(ticker)
                     showTickerSelectionDialog = false
-                }
+                },
             )
         }
     }

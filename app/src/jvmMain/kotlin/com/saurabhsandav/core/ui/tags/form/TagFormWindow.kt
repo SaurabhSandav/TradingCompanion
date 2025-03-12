@@ -57,9 +57,7 @@ fun TagFormWindow(
 }
 
 @Composable
-private fun TagForm(
-    model: TagFormModel,
-) {
+private fun TagForm(model: TagFormModel) {
 
     Form {
 

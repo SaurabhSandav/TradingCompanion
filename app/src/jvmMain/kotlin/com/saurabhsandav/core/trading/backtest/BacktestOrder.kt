@@ -24,7 +24,9 @@ data class BacktestOrder<S : BacktestOrder.Status>(
 
     sealed class Status {
 
-        data class Open(val ocoId: Any? = null) : Status()
+        data class Open(
+            val ocoId: Any? = null,
+        ) : Status()
 
         sealed class Closed : Status() {
 
@@ -36,7 +38,9 @@ data class BacktestOrder<S : BacktestOrder.Status>(
             val cause: RejectionCause,
         ) : Closed()
 
-        data class Canceled(override val closedAt: Instant) : Closed()
+        data class Canceled(
+            override val closedAt: Instant,
+        ) : Closed()
 
         data class Executed(
             override val closedAt: Instant,
@@ -51,7 +55,9 @@ data class BacktestOrder<S : BacktestOrder.Status>(
 }
 
 @JvmInline
-value class BacktestOrderId(val value: Long) {
+value class BacktestOrderId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }

@@ -28,7 +28,7 @@ internal fun LandingNavigationRail(
 ) {
 
     NavigationRail(
-        containerColor = MaterialTheme.colorScheme.inverseOnSurface
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
     ) {
 
         val landingItems = remember { enumValues<LandingState.LandingScreen>() }
@@ -36,8 +36,8 @@ internal fun LandingNavigationRail(
         landingItems.forEach { screen ->
 
             val tooltipText = when {
-                screen == LandingState.LandingScreen.Trades
-                        && openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
+                screen == LandingState.LandingScreen.Trades &&
+                    openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
 
                 else -> screen.title
             }
@@ -67,7 +67,7 @@ internal fun LandingNavigationRail(
                         )
                     },
                     selected = currentScreen == screen,
-                    onClick = { onCurrentScreenChange(screen) }
+                    onClick = { onCurrentScreenChange(screen) },
                 )
             }
         }

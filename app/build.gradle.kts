@@ -200,7 +200,7 @@ buildkonfig {
 composeCompiler {
 
     stabilityConfigurationFiles.addAll(
-        parent!!.layout.projectDirectory.file("compose-stability.conf")
+        parent!!.layout.projectDirectory.file("compose-stability.conf"),
     )
 
     // Trigger this with:

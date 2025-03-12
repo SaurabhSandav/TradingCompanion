@@ -16,7 +16,10 @@ internal class ChartMarkersProvider(
 
     private val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
 
-    fun getTradeMarkers(ticker: String, instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {
+    fun getTradeMarkers(
+        ticker: String,
+        instantRange: ClosedRange<Instant>,
+    ): Flow<List<TradeMarker>> {
 
         return markedTradeIds.flatMapLatest { profileTradeIds ->
 

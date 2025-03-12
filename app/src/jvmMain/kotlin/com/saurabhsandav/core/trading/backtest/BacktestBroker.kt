@@ -276,7 +276,6 @@ class BacktestBroker(
 
             // Add position
             _positions.value = positions.add(newPosition)
-
         } else { // Position exists. Update position with new execution
 
             val position = positions[positionIndex]
@@ -284,7 +283,7 @@ class BacktestBroker(
             when {
                 // Close position
                 (position.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
-                        (position.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) -> {
+                    (position.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) -> {
 
                     val extraQuantity = position.quantity - execution.quantity
 

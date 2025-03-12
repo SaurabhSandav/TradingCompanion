@@ -17,7 +17,11 @@ internal class SimpleReplaySeriesBuilder(
         initial = inputSeries.subList(0, initialIndex),
         timeframe = inputSeries.timeframe,
     )
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _replayTime = MutableStateFlow(_replaySeries.last().openInstant)
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
 
     private var currentIndex = initialIndex - 1

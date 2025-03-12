@@ -19,7 +19,6 @@ data class LineStyleOptions(
     val crosshairMarkerBackgroundColor: SerializableColor? = null,
     val crosshairMarkerBorderWidth: Double? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
-
     override val lastValueVisible: Boolean? = null,
     override val title: String? = null,
     override val priceScaleId: String? = null,

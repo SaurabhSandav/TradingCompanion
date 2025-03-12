@@ -9,14 +9,14 @@ abstract class AbstractEMAIndicator(
     private val input: Indicator<BigDecimal>,
     private val multiplier: BigDecimal,
 ) : RecursiveCachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input = input.bindCacheKey(),
-            multiplier = multiplier,
-        )
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input = input.bindCacheKey(),
+                multiplier = multiplier,
+            )
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

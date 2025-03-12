@@ -17,7 +17,11 @@ internal class ResampledReplaySeriesBuilder(
 ) : ReplaySeriesBuilder {
 
     private val _replaySeries: MutableCandleSeries
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _replayTime: MutableStateFlow<Instant>
+
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _candleState = MutableStateFlow(BarReplay.CandleState.Close)
 
     private var currentInputIndex = initialIndex - 1
@@ -143,8 +147,9 @@ internal class ResampledReplaySeriesBuilder(
         }
 
         // If input candle is closed, and it's the last candle in the timeframe candle, return original timeframe candle
-        if (lastCandleState == BarReplay.CandleState.Close && inputIndex == currentResampleCandleEndIndex)
+        if (lastCandleState == BarReplay.CandleState.Close && inputIndex == currentResampleCandleEndIndex) {
             return timeframeCandle
+        }
 
         // Resample into a new timeframe candle
         return inputSeries.subList(currentResampleCandleStartIndex, inputIndex + 1)

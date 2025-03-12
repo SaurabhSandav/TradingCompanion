@@ -200,7 +200,7 @@ internal fun TradeScreen(
 
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(scrollState)
+                adapter = rememberScrollbarAdapter(scrollState),
             )
         }
     }

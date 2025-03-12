@@ -50,7 +50,7 @@ internal fun TradesSelectionBar(
         AddTagContainer(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            profileId =  profileId,
+            profileId = profileId,
             tagSelectorType = { TagSelectorType.ForTrades(selectionManager.selection.toList()) },
             onAddTag = { tagId ->
                 onAddTag(selectionManager.selection.toList(), tagId)

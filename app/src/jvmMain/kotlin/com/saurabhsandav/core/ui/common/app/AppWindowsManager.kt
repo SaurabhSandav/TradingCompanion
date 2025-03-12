@@ -4,7 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 
-internal class AppWindowsManager<T>(initialParams: List<T> = emptyList()) {
+internal class AppWindowsManager<T>(
+    initialParams: List<T> = emptyList(),
+) {
 
     private val _windows = mutableStateListOf<Window<T>>()
     val windows: List<Window<T>> get() = _windows

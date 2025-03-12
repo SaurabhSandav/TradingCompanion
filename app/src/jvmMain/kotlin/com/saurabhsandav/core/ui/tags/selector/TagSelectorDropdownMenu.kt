@@ -48,7 +48,9 @@ internal fun TagSelectorDropdownMenu(
             value = state.filterQuery,
             onValueChange = { state.filterQuery = it },
             singleLine = true,
-            trailingIcon = if (!allowCreate) null else {
+            trailingIcon = if (!allowCreate) {
+                null
+            } else {
                 { CreateTagButton { showCreateTagWindow = true } }
             },
         )

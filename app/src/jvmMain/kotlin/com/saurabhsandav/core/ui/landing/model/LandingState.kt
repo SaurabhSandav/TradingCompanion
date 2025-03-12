@@ -22,7 +22,8 @@ internal data class LandingState(
         Trades("Trades", Icons.Filled.Folder),
         Tags("Tags", Icons.AutoMirrored.Filled.Label),
         Reviews("Reviews", Icons.Filled.RateReview),
-        Stats("Stats", Icons.AutoMirrored.Filled.FactCheck);
+        Stats("Stats", Icons.AutoMirrored.Filled.FactCheck),
+        ;
 
         companion object {
 

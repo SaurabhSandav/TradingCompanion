@@ -5,7 +5,9 @@ import androidx.compose.runtime.Composable
 
 sealed class StockChartDecorationType {
 
-    class Charts(val onOpenTradeReview: () -> Unit) : StockChartDecorationType()
+    class Charts(
+        val onOpenTradeReview: () -> Unit,
+    ) : StockChartDecorationType()
 
     class BarReplay(
         val customControls: @Composable ColumnScope.(StockChart) -> Unit,

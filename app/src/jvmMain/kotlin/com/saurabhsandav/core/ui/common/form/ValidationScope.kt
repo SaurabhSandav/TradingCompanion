@@ -22,7 +22,9 @@ internal sealed class ValidationResult {
 
     data object DependencyInvalid : ValidationResult()
 
-    data class Invalid(val errorMessages: List<String>) : ValidationResult()
+    data class Invalid(
+        val errorMessages: List<String>,
+    ) : ValidationResult()
 }
 
 internal class ValidationScopeImpl : ValidationScope {

@@ -5,16 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class AppWindowManager(initialIsOpen: Boolean = false) {
+class AppWindowManager(
+    initialIsOpen: Boolean = false,
+) {
 
     val owner = AppWindowOwner()
 
     private var isOpen by mutableStateOf(initialIsOpen)
 
     @Composable
-    fun Window(
-        content: @Composable () -> Unit,
-    ) {
+    fun Window(content: @Composable () -> Unit) {
         if (isOpen) owner.Window(content)
     }
 

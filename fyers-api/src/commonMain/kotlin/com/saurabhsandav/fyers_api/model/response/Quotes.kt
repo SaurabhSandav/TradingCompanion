@@ -3,6 +3,7 @@ package com.saurabhsandav.fyers_api.model.response
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
 public data class Quotes(
 
@@ -10,6 +11,7 @@ public data class Quotes(
     val quote: List<Quote>,
 )
 
+@Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
 public data class Quote(
 
@@ -23,6 +25,7 @@ public data class Quote(
     val quoteData: QuoteData,
 )
 
+@Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
 public data class QuoteData(
 
@@ -84,6 +87,7 @@ public data class QuoteData(
     val cmd: Cmd,
 )
 
+@Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
 public data class Cmd(
 

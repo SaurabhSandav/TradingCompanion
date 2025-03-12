@@ -13,9 +13,7 @@ interface DbUrlProvider {
 
     companion object {
 
-        operator fun invoke(
-            appPaths: AppPaths,
-        ): DbUrlProvider = object : DbUrlProvider {
+        operator fun invoke(appPaths: AppPaths): DbUrlProvider = object : DbUrlProvider {
 
             override fun getAppDbUrl(): String {
                 return "jdbc:sqlite:${appPaths.appDBPath.absolutePathString()}"

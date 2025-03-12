@@ -8,12 +8,15 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = LineWidth.Serializer::class)
-enum class LineWidth(private val intValue: Int) {
+enum class LineWidth(
+    private val intValue: Int,
+) {
 
     One(1),
     Two(2),
     Three(3),
-    Four(4);
+    Four(4),
+    ;
 
     internal object Serializer : KSerializer<LineWidth> {
 
@@ -24,7 +27,10 @@ enum class LineWidth(private val intValue: Int) {
             return LineWidth.entries.find { it.intValue == intValue } ?: error("Invalid LineWidth")
         }
 
-        override fun serialize(encoder: Encoder, value: LineWidth) {
+        override fun serialize(
+            encoder: Encoder,
+            value: LineWidth,
+        ) {
             encoder.encodeInt(value.intValue)
         }
     }

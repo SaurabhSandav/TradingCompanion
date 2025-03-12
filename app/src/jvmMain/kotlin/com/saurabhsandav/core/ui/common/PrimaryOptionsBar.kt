@@ -8,9 +8,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
-fun PrimaryOptionsBar(
-    content: @Composable RowScope.() -> Unit,
-) {
+fun PrimaryOptionsBar(content: @Composable RowScope.() -> Unit) {
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),

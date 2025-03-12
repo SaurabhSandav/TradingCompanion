@@ -107,7 +107,7 @@ internal class ReplayOrdersManager(
                         side = when (orderParams.side) {
                             TradeExecutionSide.Buy -> TradeExecutionSide.Sell
                             TradeExecutionSide.Sell -> TradeExecutionSide.Buy
-                        }
+                        },
                     )
 
                     val exitOcoId = Uuid.random()
@@ -170,7 +170,9 @@ internal class ReplayOrdersManager(
                             // Suspend until order is closed
                             val closedTargetOrder = backtestBroker.orders
                                 .mapNotNull { orders ->
-                                    orders.find { it.status is BacktestOrder.Status.Closed && it.id == openTargetOrderId }
+                                    orders.find {
+                                        it.status is BacktestOrder.Status.Closed && it.id == openTargetOrderId
+                                    }
                                 }
                                 .first()
 

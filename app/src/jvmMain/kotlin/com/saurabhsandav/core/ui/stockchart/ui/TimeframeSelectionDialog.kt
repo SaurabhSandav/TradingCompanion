@@ -39,11 +39,11 @@ internal fun TimeframeSelectionDialog(
                     onClick = {
                         onOpenInNewWindow(timeframe)
                         onDismissRequest()
-                    }
+                    },
                 ) {
                     Icon(
                         Icons.Default.OpenInBrowser,
-                        contentDescription = "Open in new window"
+                        contentDescription = "Open in new window",
                     )
                 }
 
@@ -51,11 +51,11 @@ internal fun TimeframeSelectionDialog(
                     onClick = {
                         onOpenInNewTab(timeframe)
                         onDismissRequest()
-                    }
+                    },
                 ) {
                     Icon(
                         Icons.AutoMirrored.Default.OpenInNew,
-                        contentDescription = "Open in new tab"
+                        contentDescription = "Open in new tab",
                     )
                 }
             }

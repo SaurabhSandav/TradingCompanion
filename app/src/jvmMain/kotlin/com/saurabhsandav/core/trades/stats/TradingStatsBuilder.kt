@@ -12,9 +12,7 @@ import java.math.RoundingMode
 import kotlin.math.max
 import kotlin.time.Duration
 
-internal fun TradingRecord.buildStats(
-    partialStatsKeys: List<PartialStatsKey> = emptyList(),
-): Flow<TradingStats?> {
+internal fun TradingRecord.buildStats(partialStatsKeys: List<PartialStatsKey> = emptyList()): Flow<TradingStats?> {
     return trades.allTrades.map { trades ->
 
         val builder = TradingStatsBuilder(partialStatsKeys)

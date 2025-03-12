@@ -132,7 +132,6 @@ internal class CandleLoader(
             initialCandleCount = data.source.getCount(initialLoadInterval)
 
             if (initialLoadInterval == previousInterval) break
-
         } while (loadConfig.initialLoadCount > initialCandleCount)
 
         // Add new interval to LoadedPages
@@ -362,7 +361,9 @@ internal class CandleLoader(
         data.load(loadedPages.interval).join()
     }
 
-    private class LoadedPages(initialPage: ClosedRange<Instant>) {
+    private class LoadedPages(
+        initialPage: ClosedRange<Instant>,
+    ) {
 
         val pages = mutableListOf(initialPage)
 

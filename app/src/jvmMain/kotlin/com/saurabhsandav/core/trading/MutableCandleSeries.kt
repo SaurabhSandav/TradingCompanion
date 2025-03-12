@@ -49,7 +49,8 @@ private class MutableCandleSeriesImpl(
     private val maxCandleCount: Int,
     override val indicatorMathContext: MathContext,
     private val list: MutableList<Candle> = mutableListOf(),
-) : MutableCandleSeries, List<Candle> by list {
+) : MutableCandleSeries,
+    List<Candle> by list {
 
     private val indicatorCaches = mutableListOf<IndicatorCache<*>>()
 
@@ -112,7 +113,8 @@ private class MutableCandleSeriesImpl(
                 |Candle cannot be older than the last candle in the series: 
                 |New Candle: $candle
                 |Last Candle: $lastCandle
-                |""".trimMargin()
+                |
+                """.trimMargin(),
             )
         }
 
@@ -175,7 +177,8 @@ private class MutableCandleSeriesImpl(
                 |Candle cannot be newer than the oldest candle in the series: 
                 |New Candle: $candle
                 |Oldest Candle: $firstCandle
-                |""".trimMargin()
+                |
+                """.trimMargin(),
             )
         }
 

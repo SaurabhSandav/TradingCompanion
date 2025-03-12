@@ -6,7 +6,10 @@ internal fun BigDecimal.isZero(): Boolean = compareTo(BigDecimal.ZERO) == 0
 
 object DailySessionChecker : SessionChecker {
 
-    override fun isSessionStart(candleSeries: CandleSeries, index: Int): Boolean {
+    override fun isSessionStart(
+        candleSeries: CandleSeries,
+        index: Int,
+    ): Boolean {
 
         val timeframe = candleSeries.timeframe
 

@@ -82,7 +82,7 @@ internal class PNLExcursionStudy(
 
             items(
                 count = items.itemCount,
-                key = items.itemKey { it.id }
+                key = items.itemKey { it.id },
             ) { index ->
 
                 val item = items[index]!!
@@ -182,14 +182,13 @@ internal class PNLExcursionStudy(
                         Generated(
                             stop = stop?.price?.toPlainString() ?: "NA",
                             target = target?.price?.toPlainString() ?: "NA",
-                            pnl = "${trade.pnl.toPlainString()}${rValueStr}",
+                            pnl = "${trade.pnl.toPlainString()}$rValueStr",
                             inTrade = trade.buildExcursionString(stop, excursions, true),
                             inSession = trade.buildExcursionString(stop, excursions, false),
                         )
                     },
                 )
             }
-
         }.emitInto(this)
     }
 

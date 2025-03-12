@@ -53,6 +53,7 @@ fun CefClient.createComposeOffScreenBrowser(
     return browser
 }
 
+@Suppress("ktlint:standard:comment-wrapping")
 @Stable
 class ComposeCefOSRBrowser internal constructor(
     client: CefClient,
@@ -62,13 +63,13 @@ class ComposeCefOSRBrowser internal constructor(
     val reverseScrollDirection: Boolean = true,
     val scrollEventMultiplier: Int = 32,
 ) : CefBrowserOsrWithHandler(
-    /* client = */ client,
-    /* url = */ url,
-    /* context = */ context,
-    /* renderHandler = */ ComposeCefRenderHandler(),
-    /* component = */ null,
-    /* settings = */ settings,
-)
+        /* client = */ client,
+        /* url = */ url,
+        /* context = */ context,
+        /* renderHandler = */ ComposeCefRenderHandler(),
+        /* component = */ null,
+        /* settings = */ settings,
+    )
 
 @Composable
 fun WebView(
@@ -148,6 +149,7 @@ private fun PointerEvent.adjustedEvent(density: Density): MouseEvent {
     val offset = changes.single().position
     val awtEvent = awtEventOrNull!!
 
+    @Suppress("ktlint:standard:comment-wrapping")
     return MouseEvent(
         /* source = */ awtEvent.component,
         /* id = */ when (type) {
@@ -166,7 +168,7 @@ private fun PointerEvent.adjustedEvent(density: Density): MouseEvent {
         /* yAbs = */ awtEvent.yOnScreen,
         /* clickCount = */ awtEvent.clickCount,
         /* popupTrigger = */ awtEvent.isPopupTrigger,
-        /* button = */ awtEvent.button
+        /* button = */ awtEvent.button,
     )
 }
 
@@ -181,6 +183,7 @@ private fun PointerEvent.adjustedEvent(
     val scrollEventMultiplier = browser.scrollEventMultiplier
     val reverseScrollDirection = browser.reverseScrollDirection
 
+    @Suppress("ktlint:standard:comment-wrapping")
     return MouseWheelEvent(
         /* source = */ awtEvent.component,
         /* id = */ awtEvent.id,

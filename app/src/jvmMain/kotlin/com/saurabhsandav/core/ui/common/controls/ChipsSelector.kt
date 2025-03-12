@@ -69,9 +69,7 @@ fun ChipsSelectorSelectedItem(
 }
 
 @Composable
-fun ChipsSelectorAddButton(
-    onAdd: () -> Unit,
-) {
+fun ChipsSelectorAddButton(onAdd: () -> Unit) {
 
     IconButtonWithTooltip(
         onClick = onAdd,

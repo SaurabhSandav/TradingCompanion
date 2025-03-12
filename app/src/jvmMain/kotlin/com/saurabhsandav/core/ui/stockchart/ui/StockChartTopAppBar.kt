@@ -108,7 +108,7 @@ fun StockChartTopBar(
             modifier = Modifier.fillMaxHeight(),
             onClick = onNewWindow,
             tooltipText = "New window",
-            content = { Icon(Icons.Default.OpenInBrowser, contentDescription = "New window") }
+            content = { Icon(Icons.Default.OpenInBrowser, contentDescription = "New window") },
         )
     }
 }
@@ -175,9 +175,10 @@ private fun GoTo(
 
                 object : SelectableDates {
                     override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= currentMillis
+
                     override fun isSelectableYear(year: Int): Boolean = year <= currentTime.year
                 }
-            }
+            },
         )
 
         DatePickerDialog(
@@ -206,8 +207,7 @@ private fun GoTo(
                     onClick = { showDateDialog = false },
                     content = { Text("Cancel") },
                 )
-            }
-
+            },
         ) {
 
             DatePicker(state = datePickerState)
@@ -257,10 +257,10 @@ private fun GoTo(
                             showingPicker -> Icons.Outlined.Keyboard
                             else -> Icons.Outlined.Schedule
                         },
-                        contentDescription = hint
+                        contentDescription = hint,
                     )
                 }
-            }
+            },
         ) {
 
             when {

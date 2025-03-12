@@ -23,7 +23,7 @@ internal fun ChartsScreen(
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(state.eventSink) {
-        chartsHandle.events.collect(state.eventSink)
+        chartsHandle.eventsFlow.collect(state.eventSink)
     }
 
     val chartsState = state.chartsState

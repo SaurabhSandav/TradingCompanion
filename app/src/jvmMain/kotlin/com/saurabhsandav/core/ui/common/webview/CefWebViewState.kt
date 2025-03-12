@@ -49,6 +49,7 @@ class CefWebViewState(
 
     private val browserProps = BrowserProps()
 
+    @Suppress("ktlint:standard:backing-property-naming")
     private var _browser: CefBrowser? = null
     private val browser: CefBrowser
         get() = checkNotNull(_browser) { "Browser not initialized" }
@@ -139,7 +140,7 @@ class CefWebViewState(
             |      onFailure: function(error_code, error_message) {}
             |  });
             |}
-            """.trimMargin()
+        """.trimMargin()
 
         browser.executeJavaScript(script, null, 0)
 
@@ -256,7 +257,11 @@ class MyCefApp(
         // URL
         client.addDisplayHandler(object : CefDisplayHandlerAdapter() {
 
-            override fun onAddressChange(browser: CefBrowser, frame: CefFrame?, url: String) {
+            override fun onAddressChange(
+                browser: CefBrowser,
+                frame: CefFrame?,
+                url: String,
+            ) {
                 super.onAddressChange(browser, frame, url)
                 browserPropsMap[browser]?.mutableLocation?.value = url
             }
@@ -272,7 +277,11 @@ class MyCefApp(
                 emitLoadState(browser, LoadState.LOADING)
             }
 
-            override fun onLoadEnd(browser: CefBrowser, frame: CefFrame?, httpStatusCode: Int) {
+            override fun onLoadEnd(
+                browser: CefBrowser,
+                frame: CefFrame?,
+                httpStatusCode: Int,
+            ) {
                 emitLoadState(browser, LoadState.LOADED)
             }
 
@@ -287,7 +296,10 @@ class MyCefApp(
                 browserPropsMap[browser]?.mutableErrors?.tryEmit(Throwable(errorText))
             }
 
-            private fun emitLoadState(browser: CefBrowser, loadState: LoadState) {
+            private fun emitLoadState(
+                browser: CefBrowser,
+                loadState: LoadState,
+            ) {
                 browserPropsMap[browser]?.mutableLoadState?.tryEmit(loadState)
             }
         })
@@ -297,9 +309,7 @@ class MyCefApp(
         return client
     }
 
-    internal suspend fun createBrowser(
-        browserProps: BrowserProps,
-    ): CefBrowser {
+    internal suspend fun createBrowser(browserProps: BrowserProps): CefBrowser {
 
         val client = mutex.withLock { getClient() }
         val browser = client.createComposeOffScreenBrowser()

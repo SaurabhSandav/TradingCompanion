@@ -36,7 +36,7 @@ interface WebViewState {
         INITIALIZED,
         LOADING,
         LOADED,
-        FAILED;
+        FAILED,
     }
 
     interface JSCallback {

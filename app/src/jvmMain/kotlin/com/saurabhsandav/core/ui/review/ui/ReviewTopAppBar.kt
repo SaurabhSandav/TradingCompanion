@@ -51,8 +51,9 @@ internal fun ReviewTopAppBar(
 
                                 when (keyEvent.key) {
                                     Key.Enter, Key.NumPadEnter -> {
-                                        if (editingTitle.isNotEmpty())
+                                        if (editingTitle.isNotEmpty()) {
                                             onSetTitle(editingTitle)
+                                        }
                                     }
 
                                     Key.Escape -> editingTitle = title
@@ -70,7 +71,7 @@ internal fun ReviewTopAppBar(
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.background,
                             unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                        )
+                        ),
                     )
                 }
 

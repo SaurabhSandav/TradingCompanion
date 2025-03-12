@@ -17,7 +17,9 @@ data class BacktestExecution(
 )
 
 @JvmInline
-value class BacktestExecutionId(val value: Long) {
+value class BacktestExecutionId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }

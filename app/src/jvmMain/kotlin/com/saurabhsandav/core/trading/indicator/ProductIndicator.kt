@@ -9,14 +9,14 @@ class ProductIndicator(
     private val input1: Indicator<BigDecimal>,
     private val input2: Indicator<BigDecimal>,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input1.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input1 = input1.bindCacheKey(),
-            input2 = input2.bindCacheKey(),
-        )
-    },
-) {
+        candleSeries = input1.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input1 = input1.bindCacheKey(),
+                input2 = input2.bindCacheKey(),
+            )
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
         return input1[index].multiply(input2[index], mathContext)

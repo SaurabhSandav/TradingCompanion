@@ -8,10 +8,11 @@ import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("RemoveRedundantBackticks")
 class TimeSerializationTest {
 
     @Test
-    fun UTCTimeStamp() {
+    fun `UTCTimeStamp`() {
 
         val value = Time.UTCTimestamp(1529899200)
 
@@ -19,7 +20,7 @@ class TimeSerializationTest {
     }
 
     @Test
-    fun BusinessDay() {
+    fun `BusinessDay`() {
 
         val value = Time.BusinessDay(year = 2019, month = 6, day = 1)
 
@@ -34,7 +35,7 @@ class TimeSerializationTest {
     }
 
     @Test
-    fun String() {
+    fun `String`() {
 
         val value = Time.ISOString("2021-02-03")
 

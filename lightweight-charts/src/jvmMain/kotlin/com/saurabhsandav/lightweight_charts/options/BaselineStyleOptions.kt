@@ -24,7 +24,6 @@ data class BaselineStyleOptions(
     val crosshairMarkerBackgroundColor: String? = null,
     val crosshairMarkerBorderWidth: Double? = null,
     val lastPriceAnimation: LastPriceAnimationMode? = null,
-
     override val lastValueVisible: Boolean? = null,
     override val title: String? = null,
     override val priceScaleId: String? = null,

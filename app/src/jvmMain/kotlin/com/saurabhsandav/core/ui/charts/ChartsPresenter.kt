@@ -167,7 +167,7 @@ internal class ChartsPresenter(
                                 duration = UIMessageDuration.Long,
                             )
                         }
-                    }
+                    },
                 ),
             )
         }

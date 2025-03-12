@@ -92,9 +92,9 @@ internal class StockChartData(
         result.candles
             .drop(1)
             .filter { candles ->
-                candles.size != candleSeries.size
-                        || candles.firstOrNull() != candleSeries.firstOrNull()
-                        || candles.lastOrNull() != candleSeries.lastOrNull()
+                candles.size != candleSeries.size ||
+                    candles.firstOrNull() != candleSeries.firstOrNull() ||
+                    candles.lastOrNull() != candleSeries.lastOrNull()
             }
             .onEach(mutableCandleSeries::replaceCandles)
             .onEach { onCandlesLoaded() }

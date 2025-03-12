@@ -70,7 +70,7 @@ internal class AppModule(
             balancePerTrade = 11250.toBigDecimal(),
             leverage = 5.toBigDecimal(),
             riskAmount = 11250.toBigDecimal() * 0.02.toBigDecimal(),
-        )
+        ),
     )
 
     private val dbUrlProvider = DbUrlProvider(appPaths)
@@ -107,7 +107,7 @@ internal class AppModule(
             CheckedRangeAdapter = CheckedRange.Adapter(
                 fromEpochSecondsAdapter = InstantColumnAdapter,
                 toEpochSecondsAdapter = InstantColumnAdapter,
-            )
+            ),
         )
     }
 
@@ -130,7 +130,7 @@ internal class AppModule(
             datastore = PreferenceDataStoreFactory.createWithPath(
                 scope = appScope + appDispatchers.IO,
                 corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
-                produceFile = { appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath() }
+                produceFile = { appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath() },
             ),
         )
     }
@@ -176,10 +176,10 @@ internal class AppModule(
     val tradeContentLauncher = TradeContentLauncher()
 
     val stockChartsState = StockChartsStateFactory {
-            coroutineScope,
-            initialParams,
-            loadConfig,
-            marketDataProvider,
+        coroutineScope,
+        initialParams,
+        loadConfig,
+        marketDataProvider,
         ->
 
         StockChartsState(

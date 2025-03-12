@@ -38,7 +38,8 @@ class MouseEventParamsSerializationTest {
             |    }
             |  }
             |}
-            |""".trimMargin()
+            |
+        """.trimMargin()
 
         assertEquals(
             MouseEventParams(

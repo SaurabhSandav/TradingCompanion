@@ -32,7 +32,7 @@ sealed class PriceFormat {
         Price,
 
         @SerialName("volume")
-        Volume;
+        Volume,
     }
 }
 
@@ -51,7 +51,9 @@ private object CustomTransformingSerializer : JsonTransformingSerializer<PriceFo
         return if (type == null) {
             val typePair = "type" to JsonPrimitive("custom")
             JsonObject(element + typePair)
-        } else element
+        } else {
+            element
+        }
     }
 }
 

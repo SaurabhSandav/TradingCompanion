@@ -2,8 +2,8 @@ package com.saurabhsandav.core.ui.charts
 
 import com.github.michaelbull.result.Result
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.stockchart.data.CandleSource
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.data.CandleSource
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.retryIOResult
@@ -46,7 +46,10 @@ internal class ChartsCandleSource(
         }.first().toInt()
     }
 
-    override suspend fun getBeforeInstant(currentBefore: Instant, loadCount: Int): Instant? {
+    override suspend fun getBeforeInstant(
+        currentBefore: Instant,
+        loadCount: Int,
+    ): Instant? {
 
         return unwrap {
 
@@ -59,7 +62,10 @@ internal class ChartsCandleSource(
         }.first()
     }
 
-    override suspend fun getAfterInstant(currentAfter: Instant, loadCount: Int): Instant? {
+    override suspend fun getAfterInstant(
+        currentAfter: Instant,
+        loadCount: Int,
+    ): Instant? {
 
         return unwrap {
 
@@ -80,9 +86,7 @@ internal class ChartsCandleSource(
         return getTradeExecutionMarkers.invoke(instantRange)
     }
 
-    private suspend fun <T> unwrap(
-        request: suspend () -> Result<T, CandleRepository.Error>,
-    ): T {
+    private suspend fun <T> unwrap(request: suspend () -> Result<T, CandleRepository.Error>): T {
 
         // Suspend until logged in
         candleRepo.isLoggedIn().first { it }

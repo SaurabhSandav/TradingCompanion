@@ -26,5 +26,5 @@ internal interface ReplaySeriesBuilder {
 
 enum class CandleUpdateType {
     FullBar,
-    OHLC;
+    OHLC,
 }

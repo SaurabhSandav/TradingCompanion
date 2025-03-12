@@ -68,8 +68,9 @@ data class FilterConfig(
             TimeInterval.All -> Unit
             is TimeInterval.Custom -> with(timeInterval) {
 
-                if (from == null || to == null || from <= to)
+                if (from == null || to == null || from <= to) {
                     timeRange(from = from, to = to)
+                }
             }
         }
 
@@ -79,8 +80,9 @@ data class FilterConfig(
             PNL.Profit -> pnlRange(from = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
             PNL.Loss -> pnlRange(to = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
             is PNL.Custom -> with(pnl) {
-                if (from == null || to == null || from <= to)
+                if (from == null || to == null || from <= to) {
                     pnlRange(from = from, to = to, filterByNetPnl = filterByNetPnl)
+                }
             }
         }
 
@@ -102,9 +104,13 @@ data class FilterConfig(
     sealed class DateInterval {
 
         data object All : DateInterval()
+
         data object Today : DateInterval()
+
         data object ThisWeek : DateInterval()
+
         data object ThisMonth : DateInterval()
+
         data object ThisYear : DateInterval()
 
         data class Custom(
@@ -126,8 +132,11 @@ data class FilterConfig(
     sealed class PNL {
 
         data object All : PNL()
+
         data object Breakeven : PNL()
+
         data object Profit : PNL()
+
         data object Loss : PNL()
 
         data class Custom(

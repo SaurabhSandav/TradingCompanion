@@ -75,7 +75,7 @@ internal fun ExecutionsTable(
 
                             Icon(
                                 imageVector = Icons.Default.Remove,
-                                contentDescription = "Close Trade"
+                                contentDescription = "Close Trade",
                             )
                         },
                     )
@@ -134,7 +134,7 @@ private fun TradeExecutionItem(
                             ContextMenuItem("Lock") { showLockConfirmationDialog = true },
                             ContextMenuItem("Edit", onEditExecution),
                             ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                        )
+                        ),
                     )
                 }
             }

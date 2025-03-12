@@ -10,14 +10,14 @@ class RSIIndicator(
     input: Indicator<BigDecimal>,
     length: Int = 14,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input = input.bindCacheKey(),
-            length = length,
-        )
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input = input.bindCacheKey(),
+                length = length,
+            )
+        },
+    ) {
 
     private val averageGain = MMAIndicator(GainIndicator(input), length)
     private val averageLoss = MMAIndicator(LossIndicator(input), length)

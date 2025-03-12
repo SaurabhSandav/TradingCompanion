@@ -75,7 +75,7 @@ private fun AddTickerButton(
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
 
             var filter by state { "" }

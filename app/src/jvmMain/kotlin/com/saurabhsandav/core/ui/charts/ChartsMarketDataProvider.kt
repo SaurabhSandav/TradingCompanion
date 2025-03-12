@@ -4,8 +4,8 @@ import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.SessionChecker
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.utils.NIFTY500
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

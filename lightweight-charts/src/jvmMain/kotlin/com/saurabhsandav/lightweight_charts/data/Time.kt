@@ -8,7 +8,9 @@ import kotlinx.serialization.json.*
 sealed class Time {
 
     @Serializable
-    data class UTCTimestamp(val value: Long) : Time()
+    data class UTCTimestamp(
+        val value: Long,
+    ) : Time()
 
     @Serializable
     data class BusinessDay(
@@ -18,7 +20,9 @@ sealed class Time {
     ) : Time()
 
     @Serializable
-    data class ISOString(val value: String) : Time()
+    data class ISOString(
+        val value: String,
+    ) : Time()
 }
 
 private object TimeTransformingSerializer : JsonTransformingSerializer<Time>(TimeSerializer) {

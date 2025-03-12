@@ -20,9 +20,7 @@ import com.saurabhsandav.core.ui.common.table.*
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
-internal fun AccountScreen(
-    transactions: List<Transaction>,
-) {
+internal fun AccountScreen(transactions: List<Transaction>) {
 
     // Set window title
     WindowTitle("Account")
@@ -60,9 +58,7 @@ internal fun AccountScreen(
 }
 
 @Composable
-private fun SizingTradeCreator(
-    onAddTrade: (ticker: String) -> Unit,
-) {
+private fun SizingTradeCreator(onAddTrade: (ticker: String) -> Unit) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),

@@ -3,9 +3,7 @@ package com.saurabhsandav.core.ui.common.form.validations
 import com.saurabhsandav.core.ui.common.form.ValidationScope
 
 context(ValidationScope)
-fun String.isInt(
-    errorMessage: () -> String = { "Not a valid integer" },
-): Int? {
+fun String.isInt(errorMessage: () -> String = { "Not a valid integer" }): Int? {
 
     val intValue = toIntOrNull()
 
@@ -15,9 +13,7 @@ fun String.isInt(
 }
 
 context(ValidationScope)
-fun Int.isPositive(
-    errorMessage: () -> String = { "Cannot be 0 or negative" },
-): Int {
+fun Int.isPositive(errorMessage: () -> String = { "Cannot be 0 or negative" }): Int {
     if (this < 0) reportInvalid(message = errorMessage())
     return this
 }

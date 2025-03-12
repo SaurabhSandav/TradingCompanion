@@ -86,7 +86,7 @@ private fun TagsList(
 
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyGridState)
+            adapter = rememberScrollbarAdapter(lazyGridState),
         )
     }
 }

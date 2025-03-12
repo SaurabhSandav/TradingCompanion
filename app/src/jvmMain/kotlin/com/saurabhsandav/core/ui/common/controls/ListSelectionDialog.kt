@@ -79,8 +79,9 @@ fun <T : Any> ListSelectionDialog(
 
                         when (keyEvent.key) {
                             Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                            Key.DirectionDown -> selectedIndex =
-                                (selectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
+                            Key.DirectionDown ->
+                                selectedIndex =
+                                    (selectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
 
                             Key.Enter -> {
                                 onSelect(filteredItems[selectedIndex])
@@ -130,7 +131,7 @@ fun <T : Any> ListSelectionDialog(
                                 containerColor = when {
                                     selectedIndex == index -> keyboardSelectionBackgroundColor()
                                     else -> Color.Unspecified
-                                }
+                                },
                             ),
                         )
                     }
@@ -193,8 +194,9 @@ fun <T : Any> LazyListSelectionDialog(
 
                         when (keyEvent.key) {
                             Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                            Key.DirectionDown -> selectedIndex =
-                                (selectedIndex + 1).coerceAtMost(items.lastIndex)
+                            Key.DirectionDown ->
+                                selectedIndex =
+                                    (selectedIndex + 1).coerceAtMost(items.lastIndex)
 
                             Key.Enter -> {
                                 onSelect(items[selectedIndex])
@@ -241,7 +243,7 @@ fun <T : Any> LazyListSelectionDialog(
                                 containerColor = when {
                                     selectedIndex == index -> keyboardSelectionBackgroundColor()
                                     else -> Color.Unspecified
-                                }
+                                },
                             ),
                         )
 

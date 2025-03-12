@@ -149,7 +149,7 @@ internal class TradePresenter(
 
                 val duration = when {
                     trade.isClosed -> Details.Duration.Closed(
-                        str = formatDuration(trade.exitTimestamp!! - trade.entryTimestamp)
+                        str = formatDuration(trade.exitTimestamp!! - trade.entryTimestamp),
                     )
 
                     else -> Details.Duration.Open(
@@ -158,7 +158,7 @@ internal class TradePresenter(
                                 emit(formatDuration(Clock.System.now() - trade.entryTimestamp))
                                 delay(1.seconds)
                             }
-                        }
+                        },
                     )
                 }
 
@@ -183,7 +183,7 @@ internal class TradePresenter(
                         entry = trade.averageEntry.toPlainString(),
                         exit = trade.averageExit?.toPlainString(),
                         duration = duration,
-                        pnl = if (isPartiallyClosed) "${trade.pnl.toPlainString()}${rValueStr}" else null,
+                        pnl = if (isPartiallyClosed) "${trade.pnl.toPlainString()}$rValueStr" else null,
                         isProfitable = trade.pnl > BigDecimal.ZERO,
                         netPnl = if (isPartiallyClosed) trade.netPnl.toPlainString() else null,
                         isNetProfitable = trade.netPnl > BigDecimal.ZERO,
@@ -473,12 +473,19 @@ internal class TradePresenter(
         tradingRecord.await().attachments.remove(tradeId, fileId)
     }
 
-    private fun onAddNote(note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
+    private fun onAddNote(
+        note: String,
+        isMarkdown: Boolean,
+    ) = coroutineScope.launchUnit {
 
         tradingRecord.await().notes.add(tradeId, note, isMarkdown)
     }
 
-    private fun onUpdateNote(id: TradeNoteId, note: String, isMarkdown: Boolean) = coroutineScope.launchUnit {
+    private fun onUpdateNote(
+        id: TradeNoteId,
+        note: String,
+        isMarkdown: Boolean,
+    ) = coroutineScope.launchUnit {
 
         tradingRecord.await().notes.update(id, note, isMarkdown)
     }

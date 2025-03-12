@@ -134,7 +134,11 @@ internal class TradeReviewPresenter(
                                 },
                             ).flow
                                 .cachedIn(this)
-                                .combine(snapshotFlow { markedTradeIds.toList() }) { pagingData, markedProfileTradeIds ->
+                                .combine(
+                                    snapshotFlow {
+                                        markedTradeIds.toList()
+                                    },
+                                ) { pagingData, markedProfileTradeIds ->
 
                                     pagingData.map { trade ->
 
@@ -150,7 +154,6 @@ internal class TradeReviewPresenter(
                                     }
                                 }
                         }
-
                     }.emitInto(this@flow)
             }
         }
@@ -177,7 +180,7 @@ internal class TradeReviewPresenter(
 
         val duration = when {
             isClosed -> TradeReviewState.Duration.Closed(
-                str = formatDuration(exitTimestamp!! - entryTimestamp)
+                str = formatDuration(exitTimestamp!! - entryTimestamp),
             )
 
             else -> TradeReviewState.Duration.Open(
@@ -186,7 +189,7 @@ internal class TradeReviewPresenter(
                         emit(formatDuration(Clock.System.now() - entryTimestamp))
                         delay(1.seconds)
                     }
-                }
+                },
             )
         }
 
@@ -277,7 +280,7 @@ internal class TradeReviewPresenter(
 
         val duration = when {
             isClosed -> TradeReviewState.Duration.Closed(
-                str = formatDuration(exitTimestamp!! - entryTimestamp)
+                str = formatDuration(exitTimestamp!! - entryTimestamp),
             )
 
             else -> TradeReviewState.Duration.Open(
@@ -286,7 +289,7 @@ internal class TradeReviewPresenter(
                         emit(formatDuration(Clock.System.now() - entryTimestamp))
                         delay(1.seconds)
                     }
-                }
+                },
             )
         }
 

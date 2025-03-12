@@ -23,7 +23,7 @@ val migrationAfterV1 = AfterVersion(1) { driver ->
                 |  ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeStop.price AS REAL)
                 |  LIMIT 1
                 |);
-                """.trimMargin(),
+            """.trimMargin(),
             parameters = 0,
         )
 
@@ -41,7 +41,7 @@ val migrationAfterV1 = AfterVersion(1) { driver ->
                 |  ORDER BY IIF(Trade.side = 'long', 1, -1.0) * CAST(TradeTarget.price AS REAL)
                 |  LIMIT 1
                 |);
-                """.trimMargin(),
+            """.trimMargin(),
             parameters = 0,
         )
     }

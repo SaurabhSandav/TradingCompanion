@@ -3,6 +3,7 @@ package com.saurabhsandav.fyers_api.model.response
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
 public data class HistoricalCandlesResult(
 

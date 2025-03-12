@@ -123,7 +123,7 @@ private fun MarkedTradeItem(
                 mark {
                     Checkbox(
                         checked = true,
-                        onCheckedChange = { onUnMarkTrade() }
+                        onCheckedChange = { onUnMarkTrade() },
                     )
                 }
                 id.text { item.profileTradeId.tradeId.toString() }

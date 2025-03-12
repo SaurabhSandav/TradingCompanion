@@ -52,9 +52,7 @@ internal class ReplaySeriesCache(
         }
     }
 
-    suspend fun getForOrdersManager(
-        ticker: String,
-    ): ReplaySeries = mutex.withLock {
+    suspend fun getForOrdersManager(ticker: String): ReplaySeries = mutex.withLock {
 
         return ordersManagerReplaySeriesMap.getOrPut(ticker) {
 

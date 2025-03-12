@@ -74,7 +74,10 @@ internal fun brokerage(
     )
 }
 
-private fun calculateBrokerageZerodha(buyTurnover: BigDecimal, sellTurnover: BigDecimal): BigDecimal {
+private fun calculateBrokerageZerodha(
+    buyTurnover: BigDecimal,
+    sellTurnover: BigDecimal,
+): BigDecimal {
 
     val brokerageBuy = when {
         (buyTurnover * "0.0003".toBigDecimal()) > "20".toBigDecimal() -> "20".toBigDecimal()
@@ -89,7 +92,10 @@ private fun calculateBrokerageZerodha(buyTurnover: BigDecimal, sellTurnover: Big
     return brokerageBuy + brokerageSell
 }
 
-private fun calculateBrokerageFinvasia(buyTurnover: BigDecimal, sellTurnover: BigDecimal): BigDecimal {
+private fun calculateBrokerageFinvasia(
+    buyTurnover: BigDecimal,
+    sellTurnover: BigDecimal,
+): BigDecimal {
 
     val brokerageBuy = (buyTurnover * "0.0003".toBigDecimal()).coerceAtMost("5".toBigDecimal())
     val brokerageSell = (sellTurnover * "0.0003".toBigDecimal()).coerceAtMost("5".toBigDecimal())

@@ -12,9 +12,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 @Composable
-internal fun rememberPNLCalculatorWindowState(
-    params: PNLCalculatorWindowParams,
-): PNLCalculatorWindowState {
+internal fun rememberPNLCalculatorWindowState(params: PNLCalculatorWindowParams): PNLCalculatorWindowState {
 
     val scope = rememberCoroutineScope()
 
@@ -63,10 +61,13 @@ internal class PNLCalculatorWindowState(
 
         if (model.pnlEntries.any {
                 it.quantity == model.quantityField.value &&
-                        it.side == side &&
-                        it.entry == model.entryField.value &&
-                        it.exit == model.exitField.value
-            }) return
+                    it.side == side &&
+                    it.entry == model.entryField.value &&
+                    it.exit == model.exitField.value
+            }
+        ) {
+            return
+        }
 
         val brokerage = brokerage(
             quantity = model.quantityField.value.toBigDecimal(),

@@ -10,14 +10,14 @@ class SessionCumulativeIndicator(
     private val input: Indicator<BigDecimal>,
     private val sessionChecker: SessionChecker,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input = input.bindCacheKey(),
-            sessionChecker = sessionChecker,
-        )
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input = input.bindCacheKey(),
+                sessionChecker = sessionChecker,
+            )
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

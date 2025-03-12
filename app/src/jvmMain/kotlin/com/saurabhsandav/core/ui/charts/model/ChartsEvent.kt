@@ -11,5 +11,7 @@ internal sealed class ChartsEvent {
         val end: Instant?,
     ) : ChartsEvent()
 
-    data class MarkTrades(val tradeIds: List<ProfileTradeId>) : ChartsEvent()
+    data class MarkTrades(
+        val tradeIds: List<ProfileTradeId>,
+    ) : ChartsEvent()
 }

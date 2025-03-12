@@ -31,8 +31,8 @@ internal class ChartsModule(
             coroutineScope = coroutineScope,
             uiMessagesState = uiMessagesState,
             stockChartsStateFactory = {
-                    initialParams: StockChartParams,
-                    loadConfig: LoadConfig,
+                initialParams: StockChartParams,
+                loadConfig: LoadConfig,
                 ->
 
                 appModule.stockChartsState(

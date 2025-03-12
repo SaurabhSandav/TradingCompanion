@@ -10,9 +10,9 @@ class VWAPIndicator(
     candleSeries: CandleSeries,
     sessionChecker: SessionChecker,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = candleSeries,
-    cacheKey = CacheKey(sessionChecker),
-) {
+        candleSeries = candleSeries,
+        cacheKey = CacheKey(sessionChecker),
+    ) {
 
     private val typicalPrice = TypicalPriceIndicator(candleSeries)
     private val volume = VolumeIndicator(candleSeries)

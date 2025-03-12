@@ -28,7 +28,10 @@ class ITimeScaleApi internal constructor(
         return executeJsWithResult("$receiver.timeScale().scrollPosition()").toFloat()
     }
 
-    fun scrollToPosition(position: Int, animated: Boolean) {
+    fun scrollToPosition(
+        position: Int,
+        animated: Boolean,
+    ) {
         executeJs("$receiver.timeScale().scrollToPosition($position, $animated);")
     }
 
@@ -43,7 +46,10 @@ class ITimeScaleApi internal constructor(
         return LwcJson.decodeFromString(result)
     }
 
-    fun setVisibleRange(from: Time, to: Time) {
+    fun setVisibleRange(
+        from: Time,
+        to: Time,
+    ) {
 
         val rangeJson = LwcJson.encodeToString(IRange(from = from, to = to))
 
@@ -57,7 +63,10 @@ class ITimeScaleApi internal constructor(
         return LwcJson.decodeFromString(result)
     }
 
-    fun setVisibleLogicalRange(from: Float, to: Float) {
+    fun setVisibleLogicalRange(
+        from: Float,
+        to: Float,
+    ) {
 
         val rangeJson = LwcJson.encodeToString(LogicalRange(from = from, to = to))
 
@@ -74,8 +83,11 @@ class ITimeScaleApi internal constructor(
 
     fun subscribeVisibleTimeRangeChange(handler: TimeRangeChangeEventHandler) {
 
-        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty())
-            executeJs("$receiver.timeScale().subscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);")
+        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty()) {
+            executeJs(
+                "$receiver.timeScale().subscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);",
+            )
+        }
 
         callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.add(handler)
     }
@@ -84,14 +96,20 @@ class ITimeScaleApi internal constructor(
 
         callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.remove(handler)
 
-        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty())
-            executeJs("$receiver.timeScale().unsubscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);")
+        if (callbacksDelegate.subscribeVisibleTimeRangeChangeCallbacks.isEmpty()) {
+            executeJs(
+                "$receiver.timeScale().unsubscribeVisibleTimeRangeChange($subscribeVisibleTimeRangeChangeCallbackReference);",
+            )
+        }
     }
 
     fun subscribeVisibleLogicalRangeChange(handler: LogicalRangeChangeEventHandler) {
 
-        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty())
-            executeJs("$receiver.timeScale().subscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);")
+        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty()) {
+            executeJs(
+                "$receiver.timeScale().subscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);",
+            )
+        }
 
         callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.add(handler)
     }
@@ -100,14 +118,18 @@ class ITimeScaleApi internal constructor(
 
         callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.remove(handler)
 
-        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty())
-            executeJs("$receiver.timeScale().unsubscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);")
+        if (callbacksDelegate.subscribeVisibleLogicalRangeChangeCallbacks.isEmpty()) {
+            executeJs(
+                "$receiver.timeScale().unsubscribeVisibleLogicalRangeChange($subscribeVisibleLogicalRangeChangeCallbackReference);",
+            )
+        }
     }
 
     fun subscribeSizeChange(handler: SizeChangeEventHandler) {
 
-        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty()) {
             executeJs("$receiver.timeScale().subscribeSizeChange($subscribeSizeChangeCallbackReference);")
+        }
 
         callbacksDelegate.subscribeSizeChangeCallbacks.add(handler)
     }
@@ -116,8 +138,9 @@ class ITimeScaleApi internal constructor(
 
         callbacksDelegate.subscribeSizeChangeCallbacks.remove(handler)
 
-        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty())
+        if (callbacksDelegate.subscribeSizeChangeCallbacks.isEmpty()) {
             executeJs("$receiver.timeScale().unsubscribeSizeChange($subscribeSizeChangeCallbackReference);")
+        }
     }
 
     fun applyOptions(options: TimeScaleOptions) {

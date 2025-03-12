@@ -28,7 +28,7 @@ internal fun TradeReviewOptionsBar(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(
                     space = MaterialTheme.dimens.rowHorizontalSpacing,
-                )
+                ),
             ) {
 
                 OutlinedButton(

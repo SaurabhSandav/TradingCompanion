@@ -156,7 +156,7 @@ private fun StockChartScreen(
             HorizontalDivider()
 
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
 
                 // Replay Controls
@@ -192,7 +192,7 @@ private fun StockChartScreen(
             Box(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 propagateMinConstraints = true,
-                content = { snackbarHost() }
+                content = { snackbarHost() },
             )
         }
     }

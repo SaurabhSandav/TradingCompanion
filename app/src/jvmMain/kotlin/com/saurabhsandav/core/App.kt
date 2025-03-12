@@ -30,9 +30,7 @@ import java.awt.Toolkit
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 
-suspend fun runApp(
-    isDebugMode: Boolean,
-) {
+suspend fun runApp(isDebugMode: Boolean) {
 
     setWM_CLASS()
 
@@ -167,8 +165,8 @@ internal fun App(
                     params = PNLCalculatorWindowParams(
                         operationType = PNLCalculatorWindowParams.OperationType.New,
                         onCloseRequest = pnlCalculatorWindowManager::closeWindow,
-                    )
-                )
+                    ),
+                ),
             )
         }
 

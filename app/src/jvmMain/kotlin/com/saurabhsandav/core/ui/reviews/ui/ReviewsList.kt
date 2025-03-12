@@ -150,7 +150,7 @@ private fun Item(
             listOf(
                 ContextMenuItem("Open", onOpen),
                 ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
-                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true }
+                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
             )
         }) {
 

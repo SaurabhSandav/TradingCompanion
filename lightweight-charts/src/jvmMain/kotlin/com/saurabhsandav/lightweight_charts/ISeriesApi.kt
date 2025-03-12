@@ -36,7 +36,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
 
         val rangeJson = range?.let(LwcJson::encodeToString) ?: ""
 
-        val result = executeJsWithResult("$reference.barsInLogicalRange(${rangeJson})")
+        val result = executeJsWithResult("$reference.barsInLogicalRange($rangeJson)")
 
         return LwcJson.decodeFromString(result)
     }
@@ -45,14 +45,14 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
 
         val optionsJson = LwcJson.encodeToJsonElement(options)
 
-        executeJs("$reference.applyOptions(${optionsJson})")
+        executeJs("$reference.applyOptions($optionsJson)")
     }
 
     fun applyOptions(options: O) {
 
         val optionsJson = LwcJson.encodeToJsonElement(definition.optionsSerializer, options)
 
-        executeJs("$reference.applyOptions(${optionsJson})")
+        executeJs("$reference.applyOptions($optionsJson)")
     }
 
     fun setData(list: List<D>) {
@@ -62,7 +62,10 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
         executeJs("$reference.setData($dataJson);")
     }
 
-    fun update(data: D, historicalUpdate: Boolean? = null) {
+    fun update(
+        data: D,
+        historicalUpdate: Boolean? = null,
+    ) {
 
         val arguments = buildString {
             append(LwcJson.encodeToString(definition.dataSerializer, data))

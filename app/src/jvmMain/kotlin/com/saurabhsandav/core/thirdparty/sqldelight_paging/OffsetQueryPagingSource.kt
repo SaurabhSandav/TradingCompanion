@@ -15,9 +15,7 @@ internal class OffsetQueryPagingSource<RowType : Any>(
 
     override val jumpingSupported get() = true
 
-    override suspend fun load(
-        params: LoadParams<Int>,
-    ): LoadResult<Int, RowType> = withContext(context) {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, RowType> = withContext(context) {
         val key = params.key ?: initialOffset
         val limit = when (params) {
             is LoadParams.Prepend<*> -> minOf(key, params.loadSize)

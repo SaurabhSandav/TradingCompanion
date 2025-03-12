@@ -10,9 +10,9 @@ class VolumeIndicator(
     candleSeries: CandleSeries,
     private val length: Int = 1,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = candleSeries,
-    cacheKey = CacheKey(length),
-) {
+        candleSeries = candleSeries,
+        cacheKey = CacheKey(length),
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

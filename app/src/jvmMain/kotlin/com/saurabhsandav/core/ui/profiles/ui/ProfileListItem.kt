@@ -45,7 +45,7 @@ internal fun ProfileListItem(
         headlineContent = {
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing)
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
             ) {
 
                 Text(profile.name)
@@ -80,7 +80,7 @@ internal fun ProfileListItem(
                             append(profile.tradeCountOpen)
                             append(" open)")
                         }
-                    }
+                    },
                 )
             }
         },

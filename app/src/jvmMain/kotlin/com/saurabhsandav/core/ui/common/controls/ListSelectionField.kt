@@ -75,7 +75,7 @@ fun <T : Any> OutlinedListSelectionField(
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
 
             var filterQuery by state { "" }
@@ -98,8 +98,9 @@ fun <T : Any> OutlinedListSelectionField(
 
                         when (keyEvent.key) {
                             Key.DirectionUp -> navigationSelectedIndex = (navigationSelectedIndex - 1).coerceAtLeast(0)
-                            Key.DirectionDown -> navigationSelectedIndex =
-                                (navigationSelectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
+                            Key.DirectionDown ->
+                                navigationSelectedIndex =
+                                    (navigationSelectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
 
                             Key.Enter -> {
                                 onSelect(filteredItems[navigationSelectedIndex])
@@ -151,7 +152,7 @@ fun <T : Any> OutlinedListSelectionField(
                                     onClick = {
                                         expanded = false
                                         onClick(item)
-                                    }
+                                    },
                                 ) {
                                     Icon(icon, contentDescription = contentDescription)
                                 }

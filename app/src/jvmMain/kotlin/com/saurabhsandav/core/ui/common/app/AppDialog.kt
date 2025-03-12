@@ -34,8 +34,8 @@ fun AppDialog(
                 modifier = Modifier.fillMaxSize().clickable(
                     onClick = onDismissRequest,
                     indication = null,
-                    interactionSource = null
-                )
+                    interactionSource = null,
+                ),
             )
 
             Surface(

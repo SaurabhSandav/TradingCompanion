@@ -16,7 +16,9 @@ data class BacktestPosition(
 )
 
 @JvmInline
-value class BacktestPositionId(val value: Long) {
+value class BacktestPositionId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }

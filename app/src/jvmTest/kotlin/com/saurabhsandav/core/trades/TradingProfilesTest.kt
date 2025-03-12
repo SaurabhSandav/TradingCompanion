@@ -124,6 +124,7 @@ class TradingProfilesTest {
 
         // Not possible to create a SQLite DB in a FakeFileSystem. Use a file as a stand-in.
         val testFileText = "Hello! This is a test file"
+
         fun TradingProfile.testFilePath() = filesPath.resolve("test.txt")
 
         val profile = tradingProfiles.createInitialProfile()
@@ -321,9 +322,7 @@ class TradingProfilesTest {
         isTraining = true,
     ).first()
 
-    private fun runTradingProfilesTest(
-        block: suspend TradingProfilesTestScope.() -> Unit,
-    ) = runTest {
+    private fun runTradingProfilesTest(block: suspend TradingProfilesTestScope.() -> Unit) = runTest {
 
         val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
 
@@ -336,7 +335,9 @@ class TradingProfilesTest {
 
         val dbUrlProvider = object : DbUrlProvider {
             override fun getAppDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
+
             override fun getCandlesDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
+
             override fun getTradingRecordDbUrl(path: Path): String = JdbcSqliteDriver.IN_MEMORY
         }
 

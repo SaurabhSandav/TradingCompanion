@@ -4,7 +4,7 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 
-@Suppress("TestFunctionName")
+@Suppress("TestFunctionName", "ktlint:standard:function-naming")
 fun FakeAppDispatchers(scope: TestScope): AppDispatchers {
 
     val testDispatcher = StandardTestDispatcher(scope.testScheduler)

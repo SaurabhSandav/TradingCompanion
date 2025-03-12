@@ -14,9 +14,9 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.*
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
-import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.*
@@ -105,7 +105,9 @@ internal class ReplaySessionPresenter(
                         },
                         broker = run {
                             val instrumentCapitalized = params.instrument.strValue
-                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                                .replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                                }
                             "${params.broker} ($instrumentCapitalized)"
                         },
                         ticker = params.ticker,

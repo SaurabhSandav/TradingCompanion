@@ -54,8 +54,15 @@ internal class TradeExecutionFormPresenter(
             tradingProfiles.getProfileOrNull(profileId).filterNotNull().map { profile -> "${profile.name} - " }
         }.collectAsState("")
 
+        val title = remember {
+            when (formType) {
+                is Edit -> "Edit Trade Execution (${formType.id})"
+                else -> "New Trade Execution"
+            }
+        }
+
         return@launchMolecule TradeExecutionFormState(
-            title = "${tradingProfileName}${if (formType is Edit) "Edit Trade Execution (${formType.id})" else "New Trade Execution"}",
+            title = "${tradingProfileName}$title",
             formModel = formModel,
         )
     }

@@ -29,7 +29,6 @@ class RestoreScheduler {
             archivePath = null
 
             block()
-
         } while (archivePath != null)
     }
 }

@@ -5,15 +5,27 @@ import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 
 internal sealed class SettingsEvent {
 
-    data class ChangeDarkModeEnabled(val isEnabled: Boolean) : SettingsEvent()
+    data class ChangeDarkModeEnabled(
+        val isEnabled: Boolean,
+    ) : SettingsEvent()
 
-    data class ChangeLandingScreen(val landingScreen: LandingScreen) : SettingsEvent()
+    data class ChangeLandingScreen(
+        val landingScreen: LandingScreen,
+    ) : SettingsEvent()
 
-    data class ChangeDensityFraction(val densityFraction: Float) : SettingsEvent()
+    data class ChangeDensityFraction(
+        val densityFraction: Float,
+    ) : SettingsEvent()
 
-    data class ChangeDefaultTimeframe(val timeframe: Timeframe) : SettingsEvent()
+    data class ChangeDefaultTimeframe(
+        val timeframe: Timeframe,
+    ) : SettingsEvent()
 
-    data class Backup(val toDirPath: String) : SettingsEvent()
+    data class Backup(
+        val toDirPath: String,
+    ) : SettingsEvent()
 
-    data class Restore(val archivePath: String) : SettingsEvent()
+    data class Restore(
+        val archivePath: String,
+    ) : SettingsEvent()
 }

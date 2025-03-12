@@ -42,9 +42,7 @@ internal fun StatsScreen(
 }
 
 @Composable
-internal fun StatsScreenWindows(
-    studyWindowsManager: AppWindowsManager<Study.Factory<*>>,
-) {
+internal fun StatsScreenWindows(studyWindowsManager: AppWindowsManager<Study.Factory<*>>) {
 
     // Study windows
     studyWindowsManager.Windows { window ->

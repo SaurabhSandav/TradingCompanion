@@ -28,6 +28,7 @@ interface LoginService {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 inline fun ResultHandle(
     crossinline onCancel: () -> Unit = {},
     crossinline onFailure: (message: String?) -> Unit = {},

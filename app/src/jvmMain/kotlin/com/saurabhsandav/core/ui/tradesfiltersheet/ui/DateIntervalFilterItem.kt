@@ -113,9 +113,7 @@ internal fun DateIntervalFilterItem(
 }
 
 @Composable
-private fun CustomForm(
-    formModel: DateIntervalFormModel,
-) {
+private fun CustomForm(formModel: DateIntervalFormModel) {
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
@@ -182,8 +180,9 @@ private class DateIntervalFormModel(
 
         val validatedFrom = fromField.validatedValue()
 
-        if (this != null && validatedFrom != null && validatedFrom > this)
+        if (this != null && validatedFrom != null && validatedFrom > this) {
             reportInvalid("Cannot be less than from")
+        }
     }
 }
 

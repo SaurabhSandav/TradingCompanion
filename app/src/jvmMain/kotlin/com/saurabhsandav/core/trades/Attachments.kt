@@ -146,7 +146,7 @@ class Attachments internal constructor(
         val bytes = ByteArray(1024)
 
         // read all file content
-        @Suppress("ControlFlowWithEmptyBody")
+        @Suppress("ControlFlowWithEmptyBody", "ktlint:standard:annotation")
         while (digestInputStream.read(bytes) > 0);
 
         val resultByteArray = digest.digest()

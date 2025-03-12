@@ -8,9 +8,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 
-fun Modifier.onTextFieldClickOrEnter(
-    block: () -> Unit,
-): Modifier = pointerInput(block) {
+fun Modifier.onTextFieldClickOrEnter(block: () -> Unit): Modifier = pointerInput(block) {
     awaitEachGesture {
         // Must be PointerEventPass.Initial to observe events before the text field consumes them
         // in the Main pass

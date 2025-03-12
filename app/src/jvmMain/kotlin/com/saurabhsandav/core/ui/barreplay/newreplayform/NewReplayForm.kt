@@ -23,9 +23,7 @@ import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
-internal fun NewReplayForm(
-    model: NewReplayFormModel,
-) {
+internal fun NewReplayForm(model: NewReplayFormModel) {
 
     Form {
 

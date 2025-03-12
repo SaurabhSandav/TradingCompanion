@@ -11,6 +11,7 @@ import java.time.Month
 
 class SimpleTradesData {
 
+    @Suppress("ktlint:standard:no-blank-line-in-list")
     val executions: List<TradeExecution> = listOf(
 
         // Trade #1 Open

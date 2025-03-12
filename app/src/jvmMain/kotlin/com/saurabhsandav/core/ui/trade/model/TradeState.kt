@@ -45,9 +45,13 @@ internal data class TradeState(
 
         sealed class Duration {
 
-            data class Open(val flow: Flow<String>) : Duration()
+            data class Open(
+                val flow: Flow<String>,
+            ) : Duration()
 
-            data class Closed(val str: String) : Duration()
+            data class Closed(
+                val str: String,
+            ) : Duration()
         }
     }
 

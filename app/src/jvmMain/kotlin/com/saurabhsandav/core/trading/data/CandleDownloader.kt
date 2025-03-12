@@ -19,8 +19,12 @@ interface CandleDownloader {
 
     sealed class Error {
 
-        class AuthError(val message: String?) : Error()
+        class AuthError(
+            val message: String?,
+        ) : Error()
 
-        class UnknownError(val message: String) : Error()
+        class UnknownError(
+            val message: String,
+        ) : Error()
     }
 }

@@ -86,9 +86,7 @@ internal fun TimeIntervalFilterItem(
 }
 
 @Composable
-private fun CustomForm(
-    formModel: TimeIntervalFormModel,
-) {
+private fun CustomForm(formModel: TimeIntervalFormModel) {
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
@@ -149,7 +147,8 @@ private class TimeIntervalFormModel(
 
         val validatedFrom = fromField.validatedValue()
 
-        if (this != null && validatedFrom != null && validatedFrom > this)
+        if (this != null && validatedFrom != null && validatedFrom > this) {
             reportInvalid("Cannot be less than from")
+        }
     }
 }

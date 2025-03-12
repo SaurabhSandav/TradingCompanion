@@ -297,9 +297,13 @@ private class AddStopFormState(
 
     private sealed class ChangeEvent {
 
-        data class Price(val value: BigDecimal?) : ChangeEvent()
+        data class Price(
+            val value: BigDecimal?,
+        ) : ChangeEvent()
 
-        data class Risk(val value: BigDecimal?) : ChangeEvent()
+        data class Risk(
+            val value: BigDecimal?,
+        ) : ChangeEvent()
     }
 }
 

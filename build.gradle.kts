@@ -13,6 +13,6 @@ plugins {
 tasks.register<Delete>("cleanAll") {
     delete(
         rootProject.layout.buildDirectory,
-        subprojects.map { it.layout.buildDirectory }
+        subprojects.map { it.layout.buildDirectory },
     )
 }

@@ -59,11 +59,9 @@ class LazyPagingItems<T : Any> internal constructor(
     private val pagingDataPresenter = object : PagingDataPresenter<T>(
         mainContext = mainDispatcher,
         cachedPagingData =
-        if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
+            if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null,
     ) {
-        override suspend fun presentPagingDataEvent(
-            event: PagingDataEvent<T>,
-        ) {
+        override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {
             updateItemSnapshotList()
         }
     }
@@ -75,7 +73,7 @@ class LazyPagingItems<T : Any> internal constructor(
      * Use [get] to achieve such behavior.
      */
     var itemSnapshotList by mutableStateOf(
-        pagingDataPresenter.snapshot()
+        pagingDataPresenter.snapshot(),
     )
         private set
 
@@ -152,8 +150,8 @@ class LazyPagingItems<T : Any> internal constructor(
                 refresh = InitialLoadStates.refresh,
                 prepend = InitialLoadStates.prepend,
                 append = InitialLoadStates.append,
-                source = InitialLoadStates
-            )
+                source = InitialLoadStates,
+            ),
     )
         private set
 
@@ -174,7 +172,7 @@ private val IncompleteLoadState = LoadState.NotLoading(false)
 private val InitialLoadStates = LoadStates(
     LoadState.Loading,
     IncompleteLoadState,
-    IncompleteLoadState
+    IncompleteLoadState,
 )
 
 /**

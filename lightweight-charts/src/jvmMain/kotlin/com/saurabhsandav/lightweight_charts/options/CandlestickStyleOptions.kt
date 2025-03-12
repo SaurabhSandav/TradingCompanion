@@ -18,7 +18,6 @@ data class CandlestickStyleOptions(
     val wickColor: String? = null,
     val wickUpColor: String? = null,
     val wickDownColor: String? = null,
-
     override val lastValueVisible: Boolean? = null,
     override val title: String? = null,
     override val priceScaleId: String? = null,

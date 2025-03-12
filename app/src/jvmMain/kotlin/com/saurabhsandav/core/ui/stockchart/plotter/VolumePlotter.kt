@@ -49,8 +49,8 @@ class VolumePlotter(
                 scaleMargins = PriceScaleMargins(
                     top = 0.8,
                     bottom = 0.0,
-                )
-            )
+                ),
+            ),
         )
 
         return series

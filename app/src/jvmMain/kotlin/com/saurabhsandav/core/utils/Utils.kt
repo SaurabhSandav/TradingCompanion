@@ -22,11 +22,10 @@ fun <E> MutableList<E>.removeLast(n: Int = 1) {
     ).clear()
 }
 
-internal inline fun <T, R> Flow<List<T>>.mapList(
-    crossinline transform: suspend (value: T) -> R,
-): Flow<List<R>> = transform { list ->
-    return@transform emit(list.map { transform(it) })
-}
+internal inline fun <T, R> Flow<List<T>>.mapList(crossinline transform: suspend (value: T) -> R): Flow<List<R>> =
+    transform { list ->
+        return@transform emit(list.map { transform(it) })
+    }
 
 fun CoroutineScope.launchUnit(
     context: CoroutineContext = EmptyCoroutineContext,

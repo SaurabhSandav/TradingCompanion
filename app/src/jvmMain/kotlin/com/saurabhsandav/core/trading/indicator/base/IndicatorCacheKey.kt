@@ -4,9 +4,7 @@ import com.saurabhsandav.core.trading.Indicator
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-fun buildIndicatorCacheKey(
-    block: IndicatorCacheKeyBuilderScope.() -> Indicator.CacheKey,
-): Indicator.CacheKey? {
+fun buildIndicatorCacheKey(block: IndicatorCacheKeyBuilderScope.() -> Indicator.CacheKey): Indicator.CacheKey? {
 
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)

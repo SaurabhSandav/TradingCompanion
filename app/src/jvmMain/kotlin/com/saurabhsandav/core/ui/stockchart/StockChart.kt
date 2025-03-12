@@ -66,7 +66,7 @@ class StockChart internal constructor(
     init {
 
         actualChart.timeScale.applyOptions(
-            TimeScaleOptions(timeVisible = true)
+            TimeScaleOptions(timeVisible = true),
         )
 
         // Set initial StockChartData
@@ -288,7 +288,9 @@ class StockChart internal constructor(
                 // Add a 10 candle buffer on either sides if interval is greater than 100 candles.
                 // Else, add enough buffer candles to fit 100 candles on chart (minimum 10 candle buffer)
                 val diff = candleRange.last - candleRange.first
-                val offset = if (diff >= 100) 10F else {
+                val offset = if (diff >= 100) {
+                    10F
+                } else {
                     val customOffset = (100 - diff) / 2F
                     if (customOffset < 10) 10F else customOffset
                 }

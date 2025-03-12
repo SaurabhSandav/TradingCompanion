@@ -12,33 +12,59 @@ internal sealed class TradeEvent {
 
     data object CloseTrade : TradeEvent()
 
-    data class NewFromExistingExecution(val fromExecutionId: TradeExecutionId) : TradeEvent()
+    data class NewFromExistingExecution(
+        val fromExecutionId: TradeExecutionId,
+    ) : TradeEvent()
 
-    data class EditExecution(val executionId: TradeExecutionId) : TradeEvent()
+    data class EditExecution(
+        val executionId: TradeExecutionId,
+    ) : TradeEvent()
 
-    data class LockExecution(val executionId: TradeExecutionId) : TradeEvent()
+    data class LockExecution(
+        val executionId: TradeExecutionId,
+    ) : TradeEvent()
 
-    data class DeleteExecution(val executionId: TradeExecutionId) : TradeEvent()
+    data class DeleteExecution(
+        val executionId: TradeExecutionId,
+    ) : TradeEvent()
 
     data object OpenChart : TradeEvent()
 
-    data class AddStop(val price: BigDecimal) : TradeEvent()
+    data class AddStop(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class DeleteStop(val price: BigDecimal) : TradeEvent()
+    data class DeleteStop(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class SetPrimaryStop(val price: BigDecimal) : TradeEvent()
+    data class SetPrimaryStop(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class AddTarget(val price: BigDecimal) : TradeEvent()
+    data class AddTarget(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class DeleteTarget(val price: BigDecimal) : TradeEvent()
+    data class DeleteTarget(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class SetPrimaryTarget(val price: BigDecimal) : TradeEvent()
+    data class SetPrimaryTarget(
+        val price: BigDecimal,
+    ) : TradeEvent()
 
-    data class AddTag(val id: TradeTagId) : TradeEvent()
+    data class AddTag(
+        val id: TradeTagId,
+    ) : TradeEvent()
 
-    data class RemoveTag(val id: TradeTagId) : TradeEvent()
+    data class RemoveTag(
+        val id: TradeTagId,
+    ) : TradeEvent()
 
-    data class RemoveAttachment(val fileId: AttachmentFileId) : TradeEvent()
+    data class RemoveAttachment(
+        val fileId: AttachmentFileId,
+    ) : TradeEvent()
 
     data class AddNote(
         val note: String,
@@ -51,5 +77,7 @@ internal sealed class TradeEvent {
         val isMarkdown: Boolean,
     ) : TradeEvent()
 
-    data class DeleteNote(val id: TradeNoteId) : TradeEvent()
+    data class DeleteNote(
+        val id: TradeNoteId,
+    ) : TradeEvent()
 }

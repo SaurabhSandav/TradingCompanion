@@ -122,22 +122,25 @@ class CandlesQueries(
             cursor.getLong(1)!!,
             cursor.getLong(2),
             cursor.getLong(3),
-            cursor.getBoolean(4)!!
+            cursor.getBoolean(4)!!,
         )
     }
 
-    fun getEpochSecondsAndCountAt(
-        at: Long,
-    ): Query<GetEpochSecondsAndCountAt> =
-        getEpochSecondsAndCountAt(at) { beforeCount, afterCount, firstCandleEpochSeconds, lastCandleEpochSeconds, atCandleExists ->
-            GetEpochSecondsAndCountAt(
-                beforeCount,
-                afterCount,
-                firstCandleEpochSeconds,
-                lastCandleEpochSeconds,
-                atCandleExists
-            )
-        }
+    fun getEpochSecondsAndCountAt(at: Long): Query<GetEpochSecondsAndCountAt> = getEpochSecondsAndCountAt(at) {
+        beforeCount,
+        afterCount,
+        firstCandleEpochSeconds,
+        lastCandleEpochSeconds,
+        atCandleExists,
+        ->
+        GetEpochSecondsAndCountAt(
+            beforeCount,
+            afterCount,
+            firstCandleEpochSeconds,
+            lastCandleEpochSeconds,
+            atCandleExists,
+        )
+    }
 
     fun <T : Any> getCountBefore(
         at: Long,
@@ -164,7 +167,7 @@ class CandlesQueries(
             cursor.getString(2)!!,
             cursor.getString(3)!!,
             cursor.getString(4)!!,
-            cursor.getLong(5)!!
+            cursor.getLong(5)!!,
         )
     }
 
@@ -193,7 +196,7 @@ class CandlesQueries(
             cursor.getString(2)!!,
             cursor.getString(3)!!,
             cursor.getString(4)!!,
-            cursor.getLong(5)!!
+            cursor.getLong(5)!!,
         )
     }
 
@@ -213,7 +216,7 @@ class CandlesQueries(
             sql = """
                 |INSERT OR REPLACE INTO $tableName
                 |VALUES (?, ?, ?, ?, ?, ?)
-                """.trimMargin(),
+            """.trimMargin(),
             parameters = 6,
         ) {
 
@@ -241,7 +244,7 @@ class CandlesQueries(
             identifier = identifier,
             sql = """
                 |DELETE FROM $tableName WHERE epochSeconds BETWEEN ? AND ?
-                """.trimMargin(),
+            """.trimMargin(),
             parameters = 2,
         ) {
 
@@ -269,19 +272,18 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |SELECT COUNT(*) FROM $tableName
                     |WHERE epochSeconds BETWEEN ? AND ?
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 2,
-            ) {
-                bindLong(0, from)
-                bindLong(1, to)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 2,
+        ) {
+            bindLong(0, from)
+            bindLong(1, to)
+        }
 
         override fun toString(): String = "Candles.sq:getCountInRange"
     }
@@ -301,10 +303,9 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |WITH candles AS (
                     |  SELECT epochSeconds FROM $tableName
                     |  WHERE epochSeconds < ?
@@ -313,13 +314,13 @@ class CandlesQueries(
                     |SELECT * FROM candles
                     |LIMIT 1
                     |OFFSET MIN(?, (SELECT count(*) FROM candles)) - 1
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 2,
-            ) {
-                bindLong(0, before)
-                bindLong(1, count)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 2,
+        ) {
+            bindLong(0, before)
+            bindLong(1, count)
+        }
 
         override fun toString(): String = "Candles.sq:getInstantBeforeByCount"
     }
@@ -339,10 +340,9 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |WITH candles AS (
                     |  SELECT epochSeconds FROM $tableName
                     |  WHERE epochSeconds > ?
@@ -351,13 +351,13 @@ class CandlesQueries(
                     |SELECT * FROM candles
                     |LIMIT 1
                     |OFFSET MIN(?, (SELECT count(*) FROM candles)) - 1
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 2,
-            ) {
-                bindLong(0, after)
-                bindLong(1, count)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 2,
+        ) {
+            bindLong(0, after)
+            bindLong(1, count)
+        }
 
         override fun toString(): String = "Candles.sq:getInstantAfterByCount"
     }
@@ -377,20 +377,19 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |SELECT * FROM $tableName
                     |WHERE epochSeconds BETWEEN ? AND ?
                     |ORDER BY epochSeconds
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 2,
-            ) {
-                bindLong(0, from)
-                bindLong(1, to)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 2,
+        ) {
+            bindLong(0, from)
+            bindLong(1, to)
+        }
 
         override fun toString(): String = "Candles.sq:getInRange"
     }
@@ -411,23 +410,22 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |SELECT * FROM $tableName
                     |WHERE epochSeconds BETWEEN ? AND ?
                     |OR ? BETWEEN epochSeconds AND (epochSeconds + ?)
                     |ORDER BY epochSeconds
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 4,
-            ) {
-                bindLong(0, from)
-                bindLong(1, to)
-                bindLong(2, from)
-                bindLong(3, candleSeconds)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 4,
+        ) {
+            bindLong(0, from)
+            bindLong(1, to)
+            bindLong(2, from)
+            bindLong(3, candleSeconds)
+        }
 
         override fun toString(): String = "Candles.sq:getInRangeEdgeCandlesInclusive"
     }
@@ -446,10 +444,9 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                 |SELECT * FROM (
                 |  SELECT COUNT(*) AS beforeCount FROM $tableName WHERE epochSeconds < ?
                 |), (
@@ -462,14 +459,14 @@ class CandlesQueries(
                 |    WHERE epochSeconds = ?
                 |  ) AS atCandleExists
                 |);
-                """.trimMargin(),
-                mapper = mapper,
-                parameters = 3,
-            ) {
-                bindLong(0, at)
-                bindLong(1, at)
-                bindLong(2, at)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 3,
+        ) {
+            bindLong(0, at)
+            bindLong(1, at)
+            bindLong(2, at)
+        }
 
         override fun toString(): String = "Candles.sq:getEpochSecondsAndCountAt"
     }
@@ -490,10 +487,9 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |SELECT * FROM (
                     |  SELECT * FROM $tableName
                     |  WHERE epochSeconds < ? OR (? = TRUE AND epochSeconds = ?)
@@ -501,15 +497,15 @@ class CandlesQueries(
                     |  LIMIT ?
                     |)
                     |ORDER BY epochSeconds ASC
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 4,
-            ) {
-                bindLong(0, at)
-                bindBoolean(1, includeAt)
-                bindLong(2, at)
-                bindLong(3, count)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 4,
+        ) {
+            bindLong(0, at)
+            bindBoolean(1, includeAt)
+            bindLong(2, at)
+            bindLong(3, count)
+        }
 
         override fun toString(): String = "Candles.sq:getCountBefore"
     }
@@ -530,27 +526,27 @@ class CandlesQueries(
             driver.removeListener(tableName, listener = listener)
         }
 
-        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> =
-            driver.executeQuery(
-                identifier = identifier,
-                sql = """
+        override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(
+            identifier = identifier,
+            sql = """
                     |SELECT * FROM $tableName
                     |WHERE epochSeconds > ? OR (? = TRUE AND epochSeconds = ?)
                     |ORDER BY epochSeconds ASC
                     |LIMIT ?
-                    """.trimMargin(),
-                mapper = mapper,
-                parameters = 4,
-            ) {
-                bindLong(0, at)
-                bindBoolean(1, includeAt)
-                bindLong(2, at)
-                bindLong(3, count)
-            }
+            """.trimMargin(),
+            mapper = mapper,
+            parameters = 4,
+        ) {
+            bindLong(0, at)
+            bindBoolean(1, includeAt)
+            bindLong(2, at)
+            bindLong(3, count)
+        }
 
         override fun toString(): String = "Candles.sq:getCountAfter"
     }
 
+    @Suppress("ktlint:standard:property-naming")
     companion object {
 
         private const val Identifier_insert = 1

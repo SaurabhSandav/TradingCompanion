@@ -20,7 +20,8 @@ sealed interface BaselineData : WhitespaceData {
         val bottomLineColor: SerializableColor? = null,
         val bottomLineColor1: SerializableColor? = null,
         val bottomLineColor2: SerializableColor? = null,
-    ) : SingleValueData, BaselineData
+    ) : SingleValueData,
+        BaselineData
 
     @Serializable
     data class WhiteSpace(

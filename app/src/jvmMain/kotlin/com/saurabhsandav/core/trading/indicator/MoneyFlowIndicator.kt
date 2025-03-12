@@ -9,14 +9,14 @@ class MoneyFlowIndicator(
     private val price: Indicator<BigDecimal>,
     private val volume: VolumeIndicator,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = price.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            price = price.bindCacheKey(),
-            volume = volume.bindCacheKey(),
-        )
-    },
-) {
+        candleSeries = price.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                price = price.bindCacheKey(),
+                volume = volume.bindCacheKey(),
+            )
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
         return price[index].multiply(volume[index], mathContext)

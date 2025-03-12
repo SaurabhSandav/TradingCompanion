@@ -9,11 +9,19 @@ internal sealed class ReplaySessionEvent {
 
     data object AdvanceReplayByBar : ReplaySessionEvent()
 
-    data class SetIsAutoNextEnabled(val isAutoNextEnabled: Boolean) : ReplaySessionEvent()
+    data class SetIsAutoNextEnabled(
+        val isAutoNextEnabled: Boolean,
+    ) : ReplaySessionEvent()
 
-    data class Buy(val stockChart: StockChart) : ReplaySessionEvent()
+    data class Buy(
+        val stockChart: StockChart,
+    ) : ReplaySessionEvent()
 
-    data class Sell(val stockChart: StockChart) : ReplaySessionEvent()
+    data class Sell(
+        val stockChart: StockChart,
+    ) : ReplaySessionEvent()
 
-    data class CancelOrder(val id: BacktestOrderId) : ReplaySessionEvent()
+    data class CancelOrder(
+        val id: BacktestOrderId,
+    ) : ReplaySessionEvent()
 }

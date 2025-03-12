@@ -29,7 +29,10 @@ class Targets internal constructor(
         return tradesDB.tradeTargetQueries.getPrimaryTargetsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
     }
 
-    suspend fun add(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun add(
+        id: TradeId,
+        price: BigDecimal,
+    ) = withContext(appDispatchers.IO) {
 
         val trade = tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO).first()
 
@@ -50,7 +53,10 @@ class Targets internal constructor(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun delete(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun delete(
+        id: TradeId,
+        price: BigDecimal,
+    ) = withContext(appDispatchers.IO) {
 
         // Delete target
         tradesDB.tradeTargetQueries.delete(tradeId = id, price = price)
@@ -59,7 +65,10 @@ class Targets internal constructor(
         tradesDB.tradeExcursionsQueries.delete(id)
     }
 
-    suspend fun setPrimary(id: TradeId, price: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun setPrimary(
+        id: TradeId,
+        price: BigDecimal,
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeTargetQueries.setPrimary(tradeId = id, price = price)
     }

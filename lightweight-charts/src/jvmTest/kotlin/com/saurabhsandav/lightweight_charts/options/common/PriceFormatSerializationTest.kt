@@ -7,10 +7,11 @@ import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("RemoveRedundantBackticks")
 class PriceFormatSerializationTest {
 
     @Test
-    fun BuiltIn() {
+    fun `BuiltIn`() {
 
         val value = PriceFormat.BuiltIn(PriceFormat.Type.Price, minMove = 3.0)
 
@@ -24,7 +25,7 @@ class PriceFormatSerializationTest {
     }
 
     @Test
-    fun Custom() {
+    fun `Custom`() {
 
         val value = PriceFormat.Custom(2.0)
 

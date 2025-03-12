@@ -79,13 +79,13 @@ internal class StatsPresenter(
                     StatEntry(label = "Average Drawdown", value = stats.drawdownAverage?.toPlainString().orEmpty()),
                     StatEntry(
                         label = "Max Drawdown Duration",
-                        value = stats.drawdownDurationMax?.displayStr().orEmpty()
+                        value = stats.drawdownDurationMax?.displayStr().orEmpty(),
                     ),
                     StatEntry(
                         label = "Average Drawdown Duration",
-                        value = stats.drawdownDurationAverage?.displayStr().orEmpty()
+                        value = stats.drawdownDurationAverage?.displayStr().orEmpty(),
                     ),
-                )
+                ),
             ),
             StatsCategory(
                 label = "Wins",
@@ -99,7 +99,7 @@ internal class StatsPresenter(
                     StatEntry(label = "Average", value = stats.winAverage?.toPlainString().orEmpty()),
                     StatEntry(label = "Longest Streak", value = stats.winStreakLongest.toString()),
                     StatEntry(label = "Average Duration", value = stats.winDurationAverage?.displayStr().orEmpty()),
-                )
+                ),
             ),
             StatsCategory(
                 label = "Losses",
@@ -113,7 +113,7 @@ internal class StatsPresenter(
                     StatEntry(label = "Average", value = stats.lossAverage?.toPlainString().orEmpty()),
                     StatEntry(label = "Longest Streak", value = stats.lossStreakLongest.toString()),
                     StatEntry(label = "Average Duration", value = stats.lossDurationAverage?.displayStr().orEmpty()),
-                )
+                ),
             ),
         )
     }
@@ -148,8 +148,9 @@ internal class StatsPresenter(
             if (days > 0) append("$days ${if (days == 1L) "day" else "days"} ")
             if (hours > 0) append("$hours ${if (hours == 1L) "hour" else "hours"} ")
             if (minutes > 0) append("$minutes ${if (minutes == 1L) "minute" else "minutes"} ")
-            if (isEmpty() || remainingSecondsLeft > 0)
+            if (isEmpty() || remainingSecondsLeft > 0) {
                 append("$remainingSecondsLeft ${if (remainingSecondsLeft == 1L) "second" else "seconds"}")
+            }
         }.trim()
     }
 }

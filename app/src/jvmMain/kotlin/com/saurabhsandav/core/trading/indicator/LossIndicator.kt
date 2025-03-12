@@ -8,11 +8,11 @@ import java.math.BigDecimal
 class LossIndicator(
     private val input: Indicator<BigDecimal>,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(input = input.bindCacheKey())
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(input = input.bindCacheKey())
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

@@ -171,8 +171,9 @@ class StockChartsState(
                 stockChart.destroy()
 
                 // Release StockChartData if unused
-                if (!charts.any { it.params == stockChart.params })
+                if (!charts.any { it.params == stockChart.params }) {
                     candleLoader.releaseStockChartData(stockChart.params)
+                }
             },
         )
 
@@ -206,7 +207,10 @@ class StockChartsState(
         return true
     }
 
-    internal fun onChangeTicker(window: StockChartWindow, ticker: String) {
+    internal fun onChangeTicker(
+        window: StockChartWindow,
+        ticker: String,
+    ) {
 
         val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
@@ -214,7 +218,10 @@ class StockChartsState(
         stockChart.newParams(stockChart.params.copy(ticker = ticker))
     }
 
-    internal fun onChangeTimeframe(window: StockChartWindow, timeframe: Timeframe) {
+    internal fun onChangeTimeframe(
+        window: StockChartWindow,
+        timeframe: Timeframe,
+    ) {
 
         val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
@@ -321,8 +328,9 @@ class StockChartsState(
         setData(candleLoader.getStockChartData(params))
 
         // Release StockChartData if unused
-        if (!charts.any { it.params == prevParams })
+        if (!charts.any { it.params == prevParams }) {
             candleLoader.releaseStockChartData(prevParams)
+        }
     }
 
     private fun onCandlesLoaded(params: StockChartParams) {
@@ -333,4 +341,6 @@ class StockChartsState(
 }
 
 @JvmInline
-value class ChartId(val value: String)
+value class ChartId(
+    val value: String,
+)

@@ -6,7 +6,9 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.random.Random
 
-class FakeAppPaths(private val fakeFileSystem: FileSystem) : AppPaths {
+class FakeAppPaths(
+    private val fakeFileSystem: FileSystem,
+) : AppPaths {
 
     override val appName: String = "TC"
 

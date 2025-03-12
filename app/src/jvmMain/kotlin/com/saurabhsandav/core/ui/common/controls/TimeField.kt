@@ -83,9 +83,9 @@ fun TimeField(
                         if (offset <= 8) return offset - 2
                         return 6
                     }
-                }
+                },
             )
-        }
+        },
     )
 }
 

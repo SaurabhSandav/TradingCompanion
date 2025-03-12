@@ -63,7 +63,7 @@ internal fun TradesScreen(
                             filterConfig = it
                             onApplyFilter(it.toTradeFilter())
                             onDismissSheet()
-                        }
+                        },
                     )
                 },
                 onDismissSheet = onDismissSheet,

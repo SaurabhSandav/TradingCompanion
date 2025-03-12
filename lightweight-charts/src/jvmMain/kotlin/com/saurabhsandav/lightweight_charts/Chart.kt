@@ -11,21 +11,17 @@ fun createChart(
     id: String = "chart",
 ): IChartApi = IChartApi(container, options, id)
 
-fun IChartApi.baselineSeries(
-    options: BaselineStyleOptions? = null,
-) = SeriesProvider { name -> addSeries(SeriesDefinition.BaselineSeries, name, options) }
+fun IChartApi.baselineSeries(options: BaselineStyleOptions? = null) =
+    SeriesProvider { name -> addSeries(SeriesDefinition.BaselineSeries, name, options) }
 
-fun IChartApi.candlestickSeries(
-    options: CandlestickStyleOptions? = null,
-) = SeriesProvider { name -> addSeries(SeriesDefinition.CandlestickSeries, name, options) }
+fun IChartApi.candlestickSeries(options: CandlestickStyleOptions? = null) =
+    SeriesProvider { name -> addSeries(SeriesDefinition.CandlestickSeries, name, options) }
 
-fun IChartApi.histogramSeries(
-    options: HistogramStyleOptions? = null,
-) = SeriesProvider { name -> addSeries(SeriesDefinition.HistogramSeries, name, options) }
+fun IChartApi.histogramSeries(options: HistogramStyleOptions? = null) =
+    SeriesProvider { name -> addSeries(SeriesDefinition.HistogramSeries, name, options) }
 
-fun IChartApi.lineSeries(
-    options: LineStyleOptions? = null,
-) = SeriesProvider { name -> addSeries(SeriesDefinition.LineSeries, name, options) }
+fun IChartApi.lineSeries(options: LineStyleOptions? = null) =
+    SeriesProvider { name -> addSeries(SeriesDefinition.LineSeries, name, options) }
 
 class SeriesProvider<D : SeriesData, O : SeriesOptions>(
     private val seriesBuilder: (propertyName: String) -> ISeriesApi<D, O>,

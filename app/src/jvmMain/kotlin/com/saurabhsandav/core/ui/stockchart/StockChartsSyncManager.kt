@@ -25,7 +25,7 @@ class StockChartsSyncManager(
             .filter { filterStockChart ->
                 // Select charts with same timeframe, ignore current chart
                 stockChart.params.timeframe == filterStockChart.params.timeframe &&
-                        filterStockChart != stockChart
+                    filterStockChart != stockChart
             }
             .forEach { chart ->
 
@@ -79,7 +79,7 @@ class StockChartsSyncManager(
                 .filter { filterStockChart ->
                     // Select charts with same timeframe, ignore current chart
                     stockChart.params.timeframe == filterStockChart.params.timeframe &&
-                            filterStockChart != stockChart
+                        filterStockChart != stockChart
                 }
                 .forEach { chart ->
 

@@ -63,9 +63,7 @@ internal fun LoadedStats(
 }
 
 @Composable
-internal fun StatsGrid(
-    statsCategories: List<StatsCategory>,
-) {
+internal fun StatsGrid(statsCategories: List<StatsCategory>) {
 
     Box {
 
@@ -99,15 +97,13 @@ internal fun StatsGrid(
 
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyGridState)
+            adapter = rememberScrollbarAdapter(lazyGridState),
         )
     }
 }
 
 @Composable
-private fun StatHeader(
-    header: String,
-) {
+private fun StatHeader(header: String) {
 
     Column {
 
@@ -179,7 +175,7 @@ internal fun StudiesList(
 
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyListState)
+            adapter = rememberScrollbarAdapter(lazyListState),
         )
     }
 }

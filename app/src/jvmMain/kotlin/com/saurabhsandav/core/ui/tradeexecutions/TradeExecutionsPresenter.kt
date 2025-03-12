@@ -96,8 +96,8 @@ internal class TradeExecutionsPresenter(
 
                                 // If either after is first execution or before is from today
                                 // And after is from before today
-                                (before == null || before.timestamp >= startOfToday)
-                                        && after.timestamp < startOfToday -> TradeExecutionEntry.Section(
+                                (before == null || before.timestamp >= startOfToday) &&
+                                    after.timestamp < startOfToday -> TradeExecutionEntry.Section(
                                     isToday = false,
                                     count = executions.getBeforeTodayCount(),
                                 )

@@ -56,9 +56,10 @@ class BarReplay(
     fun advance(): Boolean {
 
         val nextInstant = when (candleState) {
-            CandleState.Close -> replaySeriesBuilders
-                .mapNotNull { builder -> builder.getNextCandleInstant() }
-                .minOrNull() ?: return false
+            CandleState.Close ->
+                replaySeriesBuilders
+                    .mapNotNull { builder -> builder.getNextCandleInstant() }
+                    .minOrNull() ?: return false
 
             else -> currentInstant
         }
@@ -99,7 +100,8 @@ class BarReplay(
         Open,
         Extreme1,
         Extreme2,
-        Close;
+        Close,
+        ;
 
         fun next(): CandleState = when (this) {
             Open -> Extreme1

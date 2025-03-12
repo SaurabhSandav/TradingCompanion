@@ -7,6 +7,6 @@ class EMAIndicator(
     input: Indicator<BigDecimal>,
     length: Int = 9,
 ) : AbstractEMAIndicator(
-    input = input,
-    multiplier = 2.toBigDecimal().divide(BigDecimal.ONE + length.toBigDecimal(), input.mathContext)
-)
+        input = input,
+        multiplier = 2.toBigDecimal().divide(BigDecimal.ONE + length.toBigDecimal(), input.mathContext),
+    )

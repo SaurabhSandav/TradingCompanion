@@ -10,7 +10,6 @@ import kotlinx.serialization.Serializable
 data class HistogramStyleOptions(
     val color: String? = null,
     val base: Double? = null,
-
     override val lastValueVisible: Boolean? = null,
     override val title: String? = null,
     override val priceScaleId: String? = null,

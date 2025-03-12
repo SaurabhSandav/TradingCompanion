@@ -12,15 +12,13 @@ class TradeMarkers(
     val options: Options = Options(),
 ) : ISeriesPrimitive {
 
-    private var _callMember: ((String) -> Unit)? = null
-    private val callMember: ((String) -> Unit)
-        get() = checkNotNull(_callMember) { "TradeMarkers not attached" }
+    private var callMember: ((String) -> Unit)? = null
 
     override fun initializer(callMember: (String) -> Unit): String {
 
-        check(_callMember == null) { "TradeMarkers already attached" }
+        check(this.callMember == null) { "TradeMarkers already attached" }
 
-        _callMember = callMember
+        this.callMember = callMember
 
         val optionsJson = LwcJson.encodeToString(options)
 
@@ -30,6 +28,7 @@ class TradeMarkers(
     fun setTrades(trades: List<Trade>) {
 
         val tradesJson = LwcJson.encodeToString(trades)
+        val callMember = checkNotNull(callMember) { "TradeMarkers not attached" }
 
         callMember("trades = $tradesJson")
     }

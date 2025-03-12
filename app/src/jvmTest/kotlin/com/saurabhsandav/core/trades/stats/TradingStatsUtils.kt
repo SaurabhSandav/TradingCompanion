@@ -26,7 +26,7 @@ object TradingStatsUtils {
             pnl = "200".toBigDecimal(),
             fees = "14.19".toBigDecimal(),
             netPnl = "185.81".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(332),
@@ -44,7 +44,7 @@ object TradingStatsUtils {
             pnl = "-171".toBigDecimal(),
             fees = "13.06".toBigDecimal(),
             netPnl = "-184.06".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(333),
@@ -62,7 +62,7 @@ object TradingStatsUtils {
             pnl = "-171".toBigDecimal(),
             fees = "13.06".toBigDecimal(),
             netPnl = "-184.06".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(334),
@@ -80,7 +80,7 @@ object TradingStatsUtils {
             pnl = "-173.25".toBigDecimal(),
             fees = "15.53".toBigDecimal(),
             netPnl = "-188.78".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(335),
@@ -98,7 +98,7 @@ object TradingStatsUtils {
             pnl = "315".toBigDecimal(),
             fees = "15.55".toBigDecimal(),
             netPnl = "299.45".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(336),
@@ -116,7 +116,7 @@ object TradingStatsUtils {
             pnl = "21".toBigDecimal(),
             fees = "15.58".toBigDecimal(),
             netPnl = "5.42".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(337),
@@ -134,7 +134,7 @@ object TradingStatsUtils {
             pnl = "387".toBigDecimal(),
             fees = "15.58".toBigDecimal(),
             netPnl = "371.42".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(338),
@@ -152,7 +152,7 @@ object TradingStatsUtils {
             pnl = "-238.5".toBigDecimal(),
             fees = "15.63".toBigDecimal(),
             netPnl = "-254.13".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(339),
@@ -170,7 +170,7 @@ object TradingStatsUtils {
             pnl = "-280".toBigDecimal(),
             fees = "13.06".toBigDecimal(),
             netPnl = "-293.06".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(340),
@@ -188,7 +188,7 @@ object TradingStatsUtils {
             pnl = "-273".toBigDecimal(),
             fees = "13.06".toBigDecimal(),
             netPnl = "-286.06".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(341),
@@ -206,7 +206,7 @@ object TradingStatsUtils {
             pnl = "-280".toBigDecimal(),
             fees = "13.06".toBigDecimal(),
             netPnl = "-293.06".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(342),
@@ -224,7 +224,7 @@ object TradingStatsUtils {
             pnl = "1092".toBigDecimal(),
             fees = "13".toBigDecimal(),
             netPnl = "1079".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(343),
@@ -242,7 +242,7 @@ object TradingStatsUtils {
             pnl = "86".toBigDecimal(),
             fees = "15.66".toBigDecimal(),
             netPnl = "70.34".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(344),
@@ -260,7 +260,7 @@ object TradingStatsUtils {
             pnl = "-169.5".toBigDecimal(),
             fees = "10.36".toBigDecimal(),
             netPnl = "-179.86".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(345),
@@ -278,7 +278,7 @@ object TradingStatsUtils {
             pnl = "-178.5".toBigDecimal(),
             fees = "15.66".toBigDecimal(),
             netPnl = "-194.16".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(346),
@@ -296,7 +296,7 @@ object TradingStatsUtils {
             pnl = "-169.5".toBigDecimal(),
             fees = "10.37".toBigDecimal(),
             netPnl = "-179.87".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(347),
@@ -314,7 +314,7 @@ object TradingStatsUtils {
             pnl = "-186".toBigDecimal(),
             fees = "10.51".toBigDecimal(),
             netPnl = "-196.51".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(348),
@@ -332,7 +332,7 @@ object TradingStatsUtils {
             pnl = "-186".toBigDecimal(),
             fees = "10.51".toBigDecimal(),
             netPnl = "-196.51".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(349),
@@ -350,7 +350,7 @@ object TradingStatsUtils {
             pnl = "-186".toBigDecimal(),
             fees = "10.51".toBigDecimal(),
             netPnl = "-196.51".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
         Trade(
             id = TradeId(350),
@@ -368,7 +368,7 @@ object TradingStatsUtils {
             pnl = "-147".toBigDecimal(),
             fees = "13.13".toBigDecimal(),
             netPnl = "-160.13".toBigDecimal(),
-            isClosed = true
+            isClosed = true,
         ),
     )
 
@@ -399,5 +399,5 @@ object TradingStatsUtils {
             append("isClosed=$isClosed")
             append("),")
         }
-    */
+     */
 }

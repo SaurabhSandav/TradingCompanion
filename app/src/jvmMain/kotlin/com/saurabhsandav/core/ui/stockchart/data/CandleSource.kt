@@ -12,13 +12,9 @@ interface CandleSource {
 
     val params: StockChartParams
 
-    suspend fun onLoad(
-        interval: ClosedRange<Instant>,
-    ): Result
+    suspend fun onLoad(interval: ClosedRange<Instant>): Result
 
-    suspend fun getCount(
-        interval: ClosedRange<Instant>,
-    ): Int
+    suspend fun getCount(interval: ClosedRange<Instant>): Int
 
     suspend fun getBeforeInstant(
         currentBefore: Instant,
@@ -30,13 +26,9 @@ interface CandleSource {
         loadCount: Int,
     ): Instant?
 
-    fun getTradeMarkers(
-        instantRange: ClosedRange<Instant>,
-    ): Flow<List<TradeMarker>> = emptyFlow()
+    fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> = emptyFlow()
 
-    fun getTradeExecutionMarkers(
-        instantRange: ClosedRange<Instant>,
-    ): Flow<List<TradeExecutionMarker>> = emptyFlow()
+    fun getTradeExecutionMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeExecutionMarker>> = emptyFlow()
 
     class Result(
         val candles: Flow<List<Candle>>,

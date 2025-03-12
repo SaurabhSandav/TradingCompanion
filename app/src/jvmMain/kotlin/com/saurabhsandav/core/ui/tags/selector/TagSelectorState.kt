@@ -45,12 +45,18 @@ internal class TagSelectorState(
 
 sealed class TagSelectorType {
 
-    data class All(val ignoreIds: List<TradeTagId>) : TagSelectorType()
+    data class All(
+        val ignoreIds: List<TradeTagId>,
+    ) : TagSelectorType()
 
-    data class ForTrades(val ids: List<TradeId>) : TagSelectorType()
+    data class ForTrades(
+        val ids: List<TradeId>,
+    ) : TagSelectorType()
 }
 
-internal class TagSelectorStateFactory(private val tradingProfiles: TradingProfiles) {
+internal class TagSelectorStateFactory(
+    private val tradingProfiles: TradingProfiles,
+) {
 
     fun build(
         profileId: ProfileId,

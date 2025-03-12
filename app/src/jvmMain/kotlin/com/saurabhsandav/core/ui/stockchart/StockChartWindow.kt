@@ -39,7 +39,7 @@ class StockChartWindow(
         onNew = ::onNewTab,
         onSelect = ::onSelectTab,
         onClose = ::onCloseTab,
-        title = { tabId -> getStockChart(getChartId(tabId)).title }
+        title = { tabId -> getStockChart(getChartId(tabId)).title },
     )
 
     val selectedChartId by derivedStateOf {
@@ -107,6 +107,6 @@ class StockChartWindow(
     }
 
     private fun getChartId(tabId: Int): ChartId {
-        return tabChartIdMap[tabId] ?: error("Tab(${tabId} doesn't exist)")
+        return tabChartIdMap[tabId] ?: error("Tab($tabId doesn't exist)")
     }
 }

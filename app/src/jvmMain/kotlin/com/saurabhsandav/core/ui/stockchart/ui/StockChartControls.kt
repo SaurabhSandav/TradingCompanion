@@ -75,7 +75,7 @@ private fun CollapsiblePane(
                 tooltipText = "Open controls",
                 content = {
                     Icon(Icons.Default.ChevronRight, contentDescription = "Open controls")
-                }
+                },
             )
 
             else -> content()

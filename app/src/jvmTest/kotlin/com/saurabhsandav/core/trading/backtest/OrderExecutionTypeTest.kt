@@ -256,7 +256,11 @@ class OrderExecutionTypeTest {
     @Test
     fun `Trailing Stop Order Buy - Activation`() {
 
-        fun checkActivation(expected: Boolean, prevPrice: Int, newPrice: Int) {
+        fun checkActivation(
+            expected: Boolean,
+            prevPrice: Int,
+            newPrice: Int,
+        ) {
 
             val side = TradeExecutionSide.Buy
             val type = TrailingStop(
@@ -298,7 +302,11 @@ class OrderExecutionTypeTest {
     @Test
     fun `Trailing Stop Order Sell - Activation`() {
 
-        fun checkActivation(expected: Boolean, prevPrice: Int, newPrice: Int) {
+        fun checkActivation(
+            expected: Boolean,
+            prevPrice: Int,
+            newPrice: Int,
+        ) {
 
             val side = TradeExecutionSide.Sell
             val type = TrailingStop(

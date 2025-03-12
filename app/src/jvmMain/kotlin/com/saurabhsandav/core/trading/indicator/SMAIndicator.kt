@@ -11,14 +11,14 @@ class SMAIndicator(
     private val input: Indicator<BigDecimal>,
     val length: Int,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input = input.bindCacheKey(),
-            length = length,
-        )
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input = input.bindCacheKey(),
+                length = length,
+            )
+        },
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

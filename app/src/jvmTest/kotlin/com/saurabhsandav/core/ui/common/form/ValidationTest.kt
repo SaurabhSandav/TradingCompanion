@@ -11,10 +11,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@Suppress("RemoveRedundantBackticks")
 class ValidationTest {
 
     @Test
-    fun Valid() = runTest {
+    fun `Valid`() = runTest {
 
         val validation = Validation<String> {
             isRequired()
@@ -26,7 +27,7 @@ class ValidationTest {
     }
 
     @Test
-    fun Invalid() = runTest {
+    fun `Invalid`() = runTest {
 
         val validation = Validation<String> {
             isRequired()

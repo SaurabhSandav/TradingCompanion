@@ -40,7 +40,6 @@ internal fun SelectionBar(
 
                 Spacer(Modifier.width(MaterialTheme.dimens.rowHorizontalSpacing))
 
-
                 Text(
                     modifier = Modifier.animateContentSize(),
                     text = kotlin.run {

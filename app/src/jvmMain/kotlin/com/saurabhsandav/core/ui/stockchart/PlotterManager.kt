@@ -67,7 +67,7 @@ class PlotterManager(
                 sma50Plotter,
                 sma100Plotter,
                 sma200Plotter,
-            )
+            ),
         )
 
         plotters.forEach { plotter -> plotter.onAttach(stockChart) }
@@ -137,92 +137,118 @@ class PlotterManager(
         val indicators = indicators ?: return
         val candleSeries = indicators.candleSeries
 
-        candlestickPlotter.setData(candleSeries.map { candle ->
+        candlestickPlotter.setData(
+            candleSeries.map { candle ->
 
-            CandlestickData.Item(
-                time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                open = candle.open.toDouble(),
-                high = candle.high.toDouble(),
-                low = candle.low.toDouble(),
-                close = candle.close.toDouble(),
-            )
-        })
+                CandlestickData.Item(
+                    time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
+                    open = candle.open.toDouble(),
+                    high = candle.high.toDouble(),
+                    low = candle.low.toDouble(),
+                    close = candle.close.toDouble(),
+                )
+            },
+        )
 
-        ema9Plotter.setData(candleSeries.indices.map { index ->
-            LineData.Item(
-                time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-            )
-        })
+        ema9Plotter.setData(
+            candleSeries.indices.map { index ->
+                LineData.Item(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                )
+            },
+        )
 
-        ema21Plotter.setData(candleSeries.indices.map { index ->
-            LineData.Item(
-                time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-            )
-        })
+        ema21Plotter.setData(
+            candleSeries.indices.map { index ->
+                LineData.Item(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                )
+            },
+        )
 
         if (indicators.hasVolume) {
 
-            volumePlotter.setData(candleSeries.indices.map { index ->
+            volumePlotter.setData(
+                candleSeries.indices.map { index ->
 
-                val candle = candleSeries[index]
+                    val candle = candleSeries[index]
 
-                HistogramData.Item(
-                    time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                    value = candle.volume.toDouble(),
-                    color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
-                )
-            })
-        } else volumePlotter.setData(emptyList())
+                    HistogramData.Item(
+                        time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
+                        value = candle.volume.toDouble(),
+                        color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
+                    )
+                },
+            )
+        } else {
+            volumePlotter.setData(emptyList())
+        }
 
         val vwapIndicator = indicators.vwapIndicator
 
         if (vwapIndicator != null) {
 
-            vwapPlotter.setData(candleSeries.indices.map { index ->
-                LineData.Item(
-                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
-            })
-        } else vwapPlotter.setData(emptyList())
+            vwapPlotter.setData(
+                candleSeries.indices.map { index ->
+                    LineData.Item(
+                        time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                        value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    )
+                },
+            )
+        } else {
+            vwapPlotter.setData(emptyList())
+        }
 
         val sma50Indicator = indicators.sma50Indicator
 
         if (sma50Indicator != null) {
 
-            sma50Plotter.setData(candleSeries.indices.map { index ->
-                LineData.Item(
-                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
-            })
-        } else sma50Plotter.setData(emptyList())
+            sma50Plotter.setData(
+                candleSeries.indices.map { index ->
+                    LineData.Item(
+                        time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                        value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    )
+                },
+            )
+        } else {
+            sma50Plotter.setData(emptyList())
+        }
 
         val sma100Indicator = indicators.sma100Indicator
 
         if (sma100Indicator != null) {
 
-            sma100Plotter.setData(candleSeries.indices.map { index ->
-                LineData.Item(
-                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
-            })
-        } else sma100Plotter.setData(emptyList())
+            sma100Plotter.setData(
+                candleSeries.indices.map { index ->
+                    LineData.Item(
+                        time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                        value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    )
+                },
+            )
+        } else {
+            sma100Plotter.setData(emptyList())
+        }
 
         val sma200Indicator = indicators.sma200Indicator
 
         if (sma200Indicator != null) {
 
-            sma200Plotter.setData(candleSeries.indices.map { index ->
-                LineData.Item(
-                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
-            })
-        } else sma200Plotter.setData(emptyList())
+            sma200Plotter.setData(
+                candleSeries.indices.map { index ->
+                    LineData.Item(
+                        time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                        value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    )
+                },
+            )
+        } else {
+            sma200Plotter.setData(emptyList())
+        }
     }
 
     internal fun update(
@@ -240,21 +266,21 @@ class PlotterManager(
                 high = candle.high.toDouble(),
                 low = candle.low.toDouble(),
                 close = candle.close.toDouble(),
-            )
+            ),
         )
 
         ema9Plotter.update(
             LineData.Item(
                 time = time,
                 value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-            )
+            ),
         )
 
         ema21Plotter.update(
             LineData.Item(
                 time = time,
                 value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-            )
+            ),
         )
 
         if (indicators.hasVolume) {
@@ -264,7 +290,7 @@ class PlotterManager(
                     time = time,
                     value = candle.volume.toDouble(),
                     color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
-                )
+                ),
             )
         }
 
@@ -276,7 +302,7 @@ class PlotterManager(
                 LineData.Item(
                     time = time,
                     value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
+                ),
             )
         }
 
@@ -288,7 +314,7 @@ class PlotterManager(
                 LineData.Item(
                     time = time,
                     value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
+                ),
             )
         }
 
@@ -300,7 +326,7 @@ class PlotterManager(
                 LineData.Item(
                     time = time,
                     value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
+                ),
             )
         }
 
@@ -312,12 +338,15 @@ class PlotterManager(
                 LineData.Item(
                     time = time,
                     value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
-                )
+                ),
             )
         }
     }
 
-    fun setPlotterEnabled(plotter: Plotter<*>, isEnabled: Boolean) = coroutineScope.launchUnit {
+    fun setPlotterEnabled(
+        plotter: Plotter<*>,
+        isEnabled: Boolean,
+    ) = coroutineScope.launchUnit {
         prefs.putBoolean(plotter.prefKey, isEnabled)
     }
 

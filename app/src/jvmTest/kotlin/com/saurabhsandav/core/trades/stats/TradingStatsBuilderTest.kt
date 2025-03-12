@@ -132,7 +132,7 @@ class TradingStatsBuilderTest {
         assertEquals(1589.857142857.seconds, stats.lossDurationAverage)
     }
 
-    @Suppress("TestFunctionName")
+    @Suppress("TestFunctionName", "ktlint:standard:function-naming")
     @Test
     fun Drawdowns() {
 

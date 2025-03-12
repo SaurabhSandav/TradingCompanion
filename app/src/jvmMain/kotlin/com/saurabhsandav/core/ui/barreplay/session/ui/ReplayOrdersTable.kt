@@ -54,7 +54,7 @@ internal fun ReplayOrdersTable(
                             addAll(
                                 listOf(
                                     ContextMenuItem("Cancel") { showCancelConfirmationDialog = true },
-                                )
+                                ),
                             )
                         }
                     },

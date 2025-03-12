@@ -99,7 +99,7 @@ private fun TradeExecutionsTable(
             when (val entry = items[index]!!) {
                 is Section -> Section(
                     modifier = Modifier.animateItem(),
-                    section = entry
+                    section = entry,
                 )
 
                 is Item -> Item(
@@ -193,7 +193,7 @@ private fun Item(
                                 ContextMenuItem("Lock") { showLockConfirmationDialog = true },
                                 ContextMenuItem("Edit", onEditExecution),
                                 ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                            )
+                            ),
                         )
                     }
                 }

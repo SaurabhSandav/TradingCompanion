@@ -39,11 +39,14 @@ data class ChartOptions(
     ) {
 
         @Serializable(with = CrosshairMode.Serializer::class)
-        enum class CrosshairMode(private val intValue: Int) {
+        enum class CrosshairMode(
+            private val intValue: Int,
+        ) {
 
             Normal(0),
             Magnet(1),
-            Hidden(2);
+            Hidden(2),
+            ;
 
             internal object Serializer : KSerializer<CrosshairMode> {
 
@@ -54,7 +57,10 @@ data class ChartOptions(
                     return CrosshairMode.entries.find { it.intValue == intValue } ?: error("Invalid CrosshairMode")
                 }
 
-                override fun serialize(encoder: Encoder, value: CrosshairMode) {
+                override fun serialize(
+                    encoder: Encoder,
+                    value: CrosshairMode,
+                ) {
                     encoder.encodeInt(value.intValue)
                 }
             }

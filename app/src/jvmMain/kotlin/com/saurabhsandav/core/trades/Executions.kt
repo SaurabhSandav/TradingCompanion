@@ -305,13 +305,12 @@ internal class Executions(
                 executionId = execution.id,
                 overrideQuantity = null,
             )
-
         } else { // Open Trade exists. Update trade with new execution
 
             // Quantity of instrument that is still open after consuming current execution
             val currentOpenQuantity = openTrade.quantity - when {
                 (openTrade.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
-                        (openTrade.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) ->
+                    (openTrade.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) ->
                     openTrade.closedQuantity + execution.quantity
 
                 else -> openTrade.closedQuantity
@@ -405,8 +404,10 @@ internal class Executions(
                 when {
                     extra <= BigDecimal.ZERO -> exitExecutions.averagePrice()
                     else -> {
-                        (exitExecutions.dropLast(1) + exitExecutions.last()
-                            .copy(quantity = exitExecutions.last().quantity - extra)).averagePrice()
+                        (
+                            exitExecutions.dropLast(1) + exitExecutions.last()
+                                .copy(quantity = exitExecutions.last().quantity - extra)
+                        ).averagePrice()
                     }
                 }
             }
@@ -502,12 +503,12 @@ internal class Executions(
     private fun regenerateSupplementalTradeData(tradeId: TradeId) {
 
         /*
-        * - Stops -> No action required
-        * - Targets -> No action required
-        * - Notes -> No action required
-        * - Attachments -> No action required
-        * - Excursions -> Delete, Will automatically regenerate through scheduled job
-        * */
+         * - Stops -> No action required
+         * - Targets -> No action required
+         * - Notes -> No action required
+         * - Attachments -> No action required
+         * - Excursions -> Delete, Will automatically regenerate through scheduled job
+         * */
 
         // Remove Excursions from DB
         tradesDB.tradeExcursionsQueries.delete(tradeId)
@@ -516,12 +517,12 @@ internal class Executions(
     private fun deleteSupplementalTradeData() {
 
         /*
-        * - Stops -> Cascade deleted in SQL
-        * - Targets -> Cascade deleted in SQL
-        * - Notes -> Cascade deleted in SQL
-        * - Attachments -> Cascade deleted in SQL, Delete orphaned AttachmentFile(s)
-        * - Excursions -> Cascade deleted in SQL
-        * */
+         * - Stops -> Cascade deleted in SQL
+         * - Targets -> Cascade deleted in SQL
+         * - Notes -> Cascade deleted in SQL
+         * - Attachments -> Cascade deleted in SQL, Delete orphaned AttachmentFile(s)
+         * - Excursions -> Cascade deleted in SQL
+         * */
 
         // Delete orphaned AttachmentFiles
         with(tradesDB.attachmentFileQueries) {

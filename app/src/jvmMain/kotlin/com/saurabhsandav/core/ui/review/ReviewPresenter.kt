@@ -110,7 +110,7 @@ internal class ReviewPresenter(
 
         val duration = when {
             isClosed -> TradeEntry.Duration.Closed(
-                str = formatDuration(exitTimestamp!! - entryTimestamp)
+                str = formatDuration(exitTimestamp!! - entryTimestamp),
             )
 
             else -> TradeEntry.Duration.Open(
@@ -119,7 +119,7 @@ internal class ReviewPresenter(
                         emit(formatDuration(Clock.System.now() - entryTimestamp))
                         delay(1.seconds)
                     }
-                }
+                },
             )
         }
 

@@ -28,9 +28,7 @@ import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
 
 @Composable
-internal fun SettingsWindow(
-    onCloseRequest: () -> Unit,
-) {
+internal fun SettingsWindow(onCloseRequest: () -> Unit) {
 
     val scope = rememberCoroutineScope()
     val screensModule = LocalScreensModule.current
@@ -112,7 +110,7 @@ internal fun SettingsScreen(
 
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(scrollState)
+            adapter = rememberScrollbarAdapter(scrollState),
         )
     }
 }
@@ -139,7 +137,7 @@ private fun Preference(
         trailingContent = trailingContent,
         colors = colors,
         tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation
+        shadowElevation = shadowElevation,
     )
 
     HorizontalDivider()
@@ -294,21 +292,20 @@ internal fun BackupPreference(
                     showFileSelector = false
                 }
 
-                @Suppress("LocalVariableName")
-                val file_ = file
-                if (file_ != null) {
+                val fileL = file
+                if (fileL != null) {
 
                     ConfirmationDialog(
                         text = "Are you sure you want to restore this backup? (App will restart)",
                         onDismiss = { file = null },
                         onConfirm = {
-                            onRestore(file_)
+                            onRestore(fileL)
                             file = null
                         },
                     )
                 }
             }
-        }
+        },
     )
 
     if (backupProgress != null) {

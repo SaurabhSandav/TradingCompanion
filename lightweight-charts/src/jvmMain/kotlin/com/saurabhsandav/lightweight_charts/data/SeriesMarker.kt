@@ -25,7 +25,7 @@ enum class SeriesMarkerPosition {
     BelowBar,
 
     @SerialName("inBar")
-    InBar;
+    InBar,
 }
 
 @Serializable
@@ -41,5 +41,5 @@ enum class SeriesMarkerShape {
     ArrowUp,
 
     @SerialName("arrowDown")
-    ArrowDown;
+    ArrowDown,
 }

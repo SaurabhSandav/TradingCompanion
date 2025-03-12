@@ -41,7 +41,7 @@ internal fun TradeFilterItem(
 
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Close" else "Open"
+                        contentDescription = if (expanded) "Close" else "Open",
                     )
                 }
             },
@@ -69,11 +69,11 @@ internal fun TradeFilterChip(
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "Done",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
                 )
             }
         },
-        label = { Text(label) }
+        label = { Text(label) },
     )
 }
 

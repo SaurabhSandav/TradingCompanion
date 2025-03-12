@@ -60,7 +60,7 @@ internal fun Notes(
                 ContextMenuArea(items = {
                     listOf(
                         ContextMenuItem("Edit") { showEditDialog = true },
-                        ContextMenuItem("Delete") { showDeleteConfirmationDialog = true }
+                        ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
                     )
                 }) {
 
@@ -153,7 +153,7 @@ private fun NoteEditorWindow(
                                 modifier = Modifier.fillMaxSize()
                                     .verticalScroll(scrollState)
                                     .padding(MaterialTheme.dimens.containerPadding),
-                                children = { Markdown(text) }
+                                children = { Markdown(text) },
                             )
 
                             VerticalScrollbar(
@@ -165,7 +165,7 @@ private fun NoteEditorWindow(
                         else -> TextField(
                             modifier = Modifier.fillMaxSize().focusRequester(initialFocusRequester),
                             value = text,
-                            onValueChange = { text = it }
+                            onValueChange = { text = it },
                         )
                     }
                 }

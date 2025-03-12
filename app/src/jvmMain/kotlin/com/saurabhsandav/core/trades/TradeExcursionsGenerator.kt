@@ -134,8 +134,9 @@ internal class TradeExcursionsGenerator(
 
         // Max unfavourable price before target
         val sessionMaePrice = when (trade.side) {
-            TradeSide.Long -> sessionCandles.takeWhile { target == null || it.high < target.price }
-                .minOfOrNull { it.low }
+            TradeSide.Long ->
+                sessionCandles.takeWhile { target == null || it.high < target.price }
+                    .minOfOrNull { it.low }
 
             TradeSide.Short -> sessionCandles.takeWhile { target == null || it.low > target.price }
                 .maxOfOrNull { it.high }

@@ -110,7 +110,7 @@ internal class TradesPresenter(
                                             TradeFilter() -> TradeEntry.Section.Type.All
                                             else -> TradeEntry.Section.Type.Filtered
                                         },
-                                        count = trades.getFilteredCount(tradeFilter)
+                                        count = trades.getFilteredCount(tradeFilter),
                                     )
                                 }
 
@@ -120,12 +120,14 @@ internal class TradesPresenter(
                             // If first trade is open
                             before == null && !after.isClosed -> TradeEntry.Section(
                                 type = TradeEntry.Section.Type.Open,
-                                count = trades.getFilteredCount(TradeFilter(isClosed = false))
+                                count = trades.getFilteredCount(TradeFilter(isClosed = false)),
                             )
 
                             // If either after is first trade or before is open
                             // And after is from today
-                            (before == null || !before.isClosed) && after.isClosed && after.entryTimestamp >= startOfToday -> {
+                            (before == null || !before.isClosed) &&
+                                after.isClosed &&
+                                after.entryTimestamp >= startOfToday -> {
 
                                 val filter = TradeFilter(instantFrom = startOfToday)
 
@@ -133,14 +135,15 @@ internal class TradesPresenter(
                                     type = TradeEntry.Section.Type.Today,
                                     count = trades.getFilteredCount(filter),
                                     stats = trades.getFiltered(filter)
-                                        .flatMapLatest { it.generateStats(tradingRecord.await()) }
+                                        .flatMapLatest { it.generateStats(tradingRecord.await()) },
                                 )
                             }
 
                             // If either after is first execution or before is from today
                             // And after is from before today
-                            (before == null || !before.isClosed || before.entryTimestamp >= startOfToday)
-                                    && after.isClosed && after.entryTimestamp < startOfToday -> {
+                            (before == null || !before.isClosed || before.entryTimestamp >= startOfToday) &&
+                                after.isClosed &&
+                                after.entryTimestamp < startOfToday -> {
 
                                 val filter = TradeFilter(instantTo = startOfToday)
 
@@ -215,7 +218,7 @@ internal class TradesPresenter(
 
         val duration = when {
             isClosed -> Item.Duration.Closed(
-                str = formatDuration(exitTimestamp!! - entryTimestamp)
+                str = formatDuration(exitTimestamp!! - entryTimestamp),
             )
 
             else -> Item.Duration.Open(
@@ -224,7 +227,7 @@ internal class TradesPresenter(
                         emit(formatDuration(Clock.System.now() - entryTimestamp))
                         delay(1.seconds)
                     }
-                }
+                },
             )
         }
 

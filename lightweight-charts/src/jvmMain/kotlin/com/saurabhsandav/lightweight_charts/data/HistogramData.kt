@@ -15,7 +15,8 @@ sealed interface HistogramData : WhitespaceData {
         override val time: Time,
         override val value: Double,
         val color: SerializableColor? = null,
-    ) : SingleValueData, HistogramData
+    ) : SingleValueData,
+        HistogramData
 
     @Serializable
     data class WhiteSpace(

@@ -3,11 +3,11 @@ package com.saurabhsandav.core.backup
 enum class BackupEvent {
     GeneratingArchive,
     SavingArchive,
-    Finished;
+    Finished,
 }
 
 enum class RestoreEvent {
     ExtractingArchive,
     ReplacingAppFiles,
-    Finished;
+    Finished,
 }

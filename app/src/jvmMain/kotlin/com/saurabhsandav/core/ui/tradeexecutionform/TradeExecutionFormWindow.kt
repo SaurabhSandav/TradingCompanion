@@ -184,7 +184,7 @@ private fun TradeExecutionForm(
             supportingText = model.dateField.errorsMessagesAsSupportingText(),
             yearRange = remember {
                 1900..Clock.System.nowIn(TimeZone.currentSystemDefault()).year
-            }
+            },
         )
 
         TimeField(
@@ -200,7 +200,7 @@ private fun TradeExecutionForm(
                         model.timeField.value = Clock.System.now()
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .time
-                    }
+                    },
                 ) { Text("NOW") }
             },
         )

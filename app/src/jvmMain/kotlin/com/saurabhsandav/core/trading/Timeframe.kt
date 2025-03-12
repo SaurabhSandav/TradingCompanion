@@ -3,7 +3,9 @@ package com.saurabhsandav.core.trading
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
-enum class Timeframe(val seconds: Long) {
+enum class Timeframe(
+    val seconds: Long,
+) {
     M1(1.minutes.inWholeSeconds),
     M3(3.minutes.inWholeSeconds),
     M5(5.minutes.inWholeSeconds),
@@ -11,7 +13,8 @@ enum class Timeframe(val seconds: Long) {
     M30(30.minutes.inWholeSeconds),
     H1(60.minutes.inWholeSeconds),
     H4(240.minutes.inWholeSeconds),
-    D1(1.days.inWholeSeconds);
+    D1(1.days.inWholeSeconds),
+    ;
 
     companion object {
 

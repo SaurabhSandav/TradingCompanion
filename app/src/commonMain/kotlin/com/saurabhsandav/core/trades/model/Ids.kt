@@ -4,50 +4,66 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
-value class ProfileId(val value: Long) {
+value class ProfileId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class SizingTradeId(val value: Long) {
+value class SizingTradeId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
 @Serializable
-value class TradeId(val value: Long) {
+value class TradeId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class TradeExecutionId(val value: Long) {
+value class TradeExecutionId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class AttachmentFileId(val value: Long) {
+value class AttachmentFileId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class TradeNoteId(val value: Long) {
+value class TradeNoteId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class TradeTagId(val value: Long) {
+value class TradeTagId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }
 
 @JvmInline
-value class ReviewId(val value: Long) {
+value class ReviewId(
+    val value: Long,
+) {
 
     override fun toString(): String = value.toString()
 }

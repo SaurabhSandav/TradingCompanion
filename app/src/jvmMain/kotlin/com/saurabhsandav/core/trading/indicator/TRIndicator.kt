@@ -8,9 +8,9 @@ import java.math.BigDecimal
 class TRIndicator(
     candleSeries: CandleSeries,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = candleSeries,
-    cacheKey = CacheKey,
-) {
+        candleSeries = candleSeries,
+        cacheKey = CacheKey,
+    ) {
 
     override fun calculate(index: Int): BigDecimal {
 

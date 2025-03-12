@@ -109,6 +109,7 @@ internal class FyersCandleDownloader(
         }
     }
 
+    @Suppress("ktlint:standard:max-line-length")
     private fun ApiResult<HistoricalCandlesResult, FyersError>.toResult(): Result<List<Candle>, CandleDownloader.Error> {
 
         return when (this) {

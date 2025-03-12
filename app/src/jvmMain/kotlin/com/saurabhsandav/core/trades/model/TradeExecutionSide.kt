@@ -1,8 +1,11 @@
 package com.saurabhsandav.core.trades.model
 
-actual enum class TradeExecutionSide(val strValue: String) {
+actual enum class TradeExecutionSide(
+    val strValue: String,
+) {
     Buy("buy"),
-    Sell("sell");
+    Sell("sell"),
+    ;
 
     companion object {
 

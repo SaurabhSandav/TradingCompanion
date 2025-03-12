@@ -57,7 +57,7 @@ internal fun TagCard(
                         enabled = false,
                         content = {
                             Box(Modifier.size(InputChipDefaults.IconSize).background(tag.color))
-                        }
+                        },
                     )
                 }
 
@@ -96,7 +96,7 @@ internal fun TagCard(
                     maxLines = 3,
                     minLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    onTextLayout = { showTooltip = it.hasVisualOverflow }
+                    onTextLayout = { showTooltip = it.hasVisualOverflow },
                 )
             }
         }

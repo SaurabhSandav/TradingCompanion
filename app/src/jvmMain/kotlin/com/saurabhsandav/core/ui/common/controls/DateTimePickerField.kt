@@ -92,11 +92,11 @@ fun DateTimePickerField(
             dismissButton = {
 
                 TextButton(
-                    onClick = { showDateDialog = false }
+                    onClick = { showDateDialog = false },
                 ) {
                     Text("Cancel")
                 }
-            }
+            },
         ) {
             DatePicker(state = datePickerState)
         }
@@ -145,10 +145,10 @@ fun DateTimePickerField(
                             showingPicker -> Icons.Outlined.Keyboard
                             else -> Icons.Outlined.Schedule
                         },
-                        contentDescription = hint
+                        contentDescription = hint,
                     )
                 }
-            }
+            },
         ) {
 
             when {

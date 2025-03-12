@@ -8,11 +8,14 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = LastPriceAnimationMode.Serializer::class)
-enum class LastPriceAnimationMode(private val intValue: Int) {
+enum class LastPriceAnimationMode(
+    private val intValue: Int,
+) {
 
     Disabled(0),
     Continuous(1),
-    OnDataUpdate(2);
+    OnDataUpdate(2),
+    ;
 
     internal object Serializer : KSerializer<LastPriceAnimationMode> {
 
@@ -28,7 +31,10 @@ enum class LastPriceAnimationMode(private val intValue: Int) {
                 ?: error("Invalid LastPriceAnimationMode")
         }
 
-        override fun serialize(encoder: Encoder, value: LastPriceAnimationMode) {
+        override fun serialize(
+            encoder: Encoder,
+            value: LastPriceAnimationMode,
+        ) {
             encoder.encodeInt(value.intValue)
         }
     }

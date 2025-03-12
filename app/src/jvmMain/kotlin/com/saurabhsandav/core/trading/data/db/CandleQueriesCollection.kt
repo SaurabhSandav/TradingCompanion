@@ -5,13 +5,18 @@ import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CandleQueriesCollection(private val driver: SqlDriver) {
+class CandleQueriesCollection(
+    private val driver: SqlDriver,
+) {
 
     private var nextIdentifierSeries = 0
     private val mutex = Mutex()
     private val queriesMap = mutableMapOf<String, CandlesQueries>()
 
-    fun getTableName(ticker: String, timeframe: Timeframe): String {
+    fun getTableName(
+        ticker: String,
+        timeframe: Timeframe,
+    ): String {
 
         val needsPrefix = ticker.first().isDigit()
         val timeframeStr = timeframe.seconds.toString()
@@ -25,7 +30,10 @@ class CandleQueriesCollection(private val driver: SqlDriver) {
         }
     }
 
-    suspend fun get(ticker: String, timeframe: Timeframe): CandlesQueries = mutex.withLock {
+    suspend fun get(
+        ticker: String,
+        timeframe: Timeframe,
+    ): CandlesQueries = mutex.withLock {
 
         val tableName = getTableName(ticker, timeframe)
 
@@ -42,7 +50,7 @@ class CandleQueriesCollection(private val driver: SqlDriver) {
                     |close TEXT NOT NULL,
                     |volume INTEGER NOT NULL
                     |)
-                    """.trimMargin(),
+                """.trimMargin(),
                 parameters = 0,
             )
 

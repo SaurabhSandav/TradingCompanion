@@ -11,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@Suppress("RemoveRedundantBackticks")
 class BuiltInValidationsTest {
 
     @Test
@@ -80,7 +81,7 @@ class BuiltInValidationsTest {
     }
 
     @Test
-    fun Int() = runTest {
+    fun `Int`() = runTest {
 
         val validation = Validation<String> { isInt() }
 
@@ -144,7 +145,7 @@ class BuiltInValidationsTest {
     }
 
     @Test
-    fun BigDecimal() = runTest {
+    fun `BigDecimal`() = runTest {
 
         val validation = Validation<String> { isBigDecimal() }
 

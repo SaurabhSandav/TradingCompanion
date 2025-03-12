@@ -51,7 +51,7 @@ class UIMessage(
 enum class UIMessageDuration {
     Indefinite,
     Long,
-    Short;
+    Short,
 }
 
 enum class UIMessageResult {
@@ -59,9 +59,7 @@ enum class UIMessageResult {
     ActionPerformed,
 }
 
-suspend fun UIMessagesState.showAsSnackbarsIn(
-    snackbarHostState: SnackbarHostState,
-) {
+suspend fun UIMessagesState.showAsSnackbarsIn(snackbarHostState: SnackbarHostState) {
 
     messages.collect { uiMessage ->
 
@@ -73,7 +71,7 @@ suspend fun UIMessagesState.showAsSnackbarsIn(
                 UIMessageDuration.Indefinite -> SnackbarDuration.Indefinite
                 UIMessageDuration.Long -> SnackbarDuration.Long
                 UIMessageDuration.Short -> SnackbarDuration.Short
-            }
+            },
         )
 
         val uiMessageResult = when (snackbarResult) {

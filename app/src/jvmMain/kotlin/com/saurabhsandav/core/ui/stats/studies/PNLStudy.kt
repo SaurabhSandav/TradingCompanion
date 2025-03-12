@@ -70,7 +70,7 @@ internal class PNLStudy(
 
             items(
                 count = items.itemCount,
-                key = items.itemKey { it.id }
+                key = items.itemKey { it.id },
             ) { index ->
 
                 val item = items[index]!!
@@ -186,7 +186,6 @@ internal class PNLStudy(
                     },
                 )
             }
-
         }.emitInto(this)
     }
 

@@ -35,7 +35,7 @@ internal fun LazyTable(
 
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(lazyListState)
+                adapter = rememberScrollbarAdapter(lazyListState),
             )
         }
     }

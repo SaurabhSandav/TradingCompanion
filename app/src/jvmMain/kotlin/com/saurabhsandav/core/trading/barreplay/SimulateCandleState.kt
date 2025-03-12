@@ -13,7 +13,7 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
             high = open,
             low = open,
             close = open,
-            volume = BigDecimal.ZERO
+            volume = BigDecimal.ZERO,
         )
 
         // First Extreme
@@ -21,7 +21,7 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
         BarReplay.CandleState.Extreme1 if isCandleBullish -> copy(
             high = open,
             close = low,
-            volume = BigDecimal.ZERO
+            volume = BigDecimal.ZERO,
         )
 
         // First Extreme
@@ -29,7 +29,7 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
         BarReplay.CandleState.Extreme1 -> copy(
             low = open,
             close = high,
-            volume = BigDecimal.ZERO
+            volume = BigDecimal.ZERO,
         )
 
         // Second Extreme

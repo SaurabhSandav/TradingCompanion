@@ -11,21 +11,21 @@ class MFIIndicator(
     input: Indicator<BigDecimal>,
     length: Int = 14,
 ) : CachedIndicator<BigDecimal>(
-    candleSeries = input.candleSeries,
-    cacheKey = buildIndicatorCacheKey {
-        CacheKey(
-            input = input.bindCacheKey(),
-            length = length,
-        )
-    },
-) {
+        candleSeries = input.candleSeries,
+        cacheKey = buildIndicatorCacheKey {
+            CacheKey(
+                input = input.bindCacheKey(),
+                length = length,
+            )
+        },
+    ) {
 
     constructor(
         candleSeries: CandleSeries,
         length: Int = 14,
     ) : this(
         input = TypicalPriceIndicator(candleSeries),
-        length = length
+        length = length,
     )
 
     private val moneyFlow = MoneyFlowIndicator(input, VolumeIndicator(candleSeries))

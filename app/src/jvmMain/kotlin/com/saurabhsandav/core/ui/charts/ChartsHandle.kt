@@ -10,8 +10,8 @@ import kotlinx.datetime.Instant
 
 class ChartsHandle {
 
-    private val _events = Channel<ChartsEvent>(Channel.UNLIMITED)
-    internal val events = _events.receiveAsFlow()
+    private val events = Channel<ChartsEvent>(Channel.UNLIMITED)
+    internal val eventsFlow = events.receiveAsFlow()
 
     var markedTradeIds = emptyList<ProfileTradeId>()
 
@@ -20,11 +20,11 @@ class ChartsHandle {
         start: Instant,
         end: Instant?,
     ) {
-        _events.trySend(OpenChart(ticker = ticker, start = start, end = end))
+        events.trySend(OpenChart(ticker = ticker, start = start, end = end))
     }
 
     fun setMarkedTrades(tradeIds: List<ProfileTradeId>) {
-        _events.trySend(MarkTrades(tradeIds))
+        events.trySend(MarkTrades(tradeIds))
         markedTradeIds = tradeIds
     }
 }

@@ -9,18 +9,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 
 class TradeReviewHandle {
 
-    private val _events = Channel<TradeReviewEvent>(Channel.UNLIMITED)
-    internal val events = _events.receiveAsFlow()
+    private val events = Channel<TradeReviewEvent>(Channel.UNLIMITED)
+    internal val eventsFlow = events.receiveAsFlow()
 
     fun markTrades(
         tradeIds: List<ProfileTradeId>,
         navigateToTrade: ProfileTradeId? = tradeIds.firstOrNull(),
     ) {
 
-        if (navigateToTrade != null) _events.trySend(SelectTrade(navigateToTrade))
+        if (navigateToTrade != null) events.trySend(SelectTrade(navigateToTrade))
 
         tradeIds.forEach { profileTradeId ->
-            _events.trySend(MarkTrade(profileTradeId, true))
+            events.trySend(MarkTrade(profileTradeId, true))
         }
     }
 }

@@ -48,9 +48,11 @@ fun SideSheetHost(
             add(content)
 
             if (
-                transition.currentState == transition.targetState
-                && sheetState != SideSheetState.Open
-            ) return@buildList
+                transition.currentState == transition.targetState &&
+                sheetState != SideSheetState.Open
+            ) {
+                return@buildList
+            }
 
             add {
                 Scrim(
@@ -91,9 +93,7 @@ fun SideSheetHost(
 }
 
 @Composable
-fun SideSheet(
-    content: @Composable () -> Unit,
-) {
+fun SideSheet(content: @Composable () -> Unit) {
 
     Surface(
         content = content,
@@ -110,12 +110,13 @@ private fun Scrim(
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(onDismissSheet) { detectTapGestures { onDismissSheet() } }
+            .pointerInput(onDismissSheet) { detectTapGestures { onDismissSheet() } },
     ) {
         drawRect(scrimColor, alpha = alpha())
     }
 }
 
 enum class SideSheetState {
-    Open, Closed
+    Open,
+    Closed,
 }

@@ -31,6 +31,7 @@ internal class ComposeCefRenderHandler : CefRenderHandlerAdapter() {
 
     fun onPositioned(coordinates: LayoutCoordinates) = with(density) {
 
+        @Suppress("ktlint:standard:comment-wrapping")
         browserRect.setRect(
             /* x = */ 0.0,
             /* y = */ 0.0,
@@ -72,7 +73,10 @@ internal class ComposeCefRenderHandler : CefRenderHandlerAdapter() {
 
             else -> for (rect in dirtyRects) {
 
-                fun pixelStartIndex(x: Int, y: Int) = (x + (y * imageInfo.width)) * CefPixelBytes
+                fun pixelStartIndex(
+                    x: Int,
+                    y: Int,
+                ) = (x + (y * imageInfo.width)) * CefPixelBytes
 
                 val startPixelIndex = pixelStartIndex(rect.x, rect.y)
                 val endPixelIndex = pixelStartIndex(rect.x + rect.width - 1, rect.y + rect.height - 1)
@@ -90,14 +94,19 @@ internal class ComposeCefRenderHandler : CefRenderHandlerAdapter() {
         )
     }
 
-    override fun getScreenPoint(browser: CefBrowser, viewPoint: Point): Point =
-        Point(screenPoint).apply { translate(viewPoint.x, viewPoint.y) }
+    override fun getScreenPoint(
+        browser: CefBrowser,
+        viewPoint: Point,
+    ): Point = Point(screenPoint).apply { translate(viewPoint.x, viewPoint.y) }
 
     override fun getViewRect(browser: CefBrowser): Rectangle = browserRect
 
     override fun getDeviceScaleFactor(browser: CefBrowser): Double = density.density.toDouble()
 
-    override fun onCursorChange(browser: CefBrowser, cursorType: Int): Boolean {
+    override fun onCursorChange(
+        browser: CefBrowser,
+        cursorType: Int,
+    ): Boolean {
         pointerIcon = PointerIcon(Cursor(cursorType))
         return true
     }

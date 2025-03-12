@@ -27,11 +27,17 @@ internal class SizingTrades(
         )
     }
 
-    suspend fun updateEntry(id: SizingTradeId, entry: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun updateEntry(
+        id: SizingTradeId,
+        entry: BigDecimal,
+    ) = withContext(appDispatchers.IO) {
         tradesDB.sizingTradeQueries.updateEntry(id = id, entry = entry)
     }
 
-    suspend fun updateStop(id: SizingTradeId, stop: BigDecimal) = withContext(appDispatchers.IO) {
+    suspend fun updateStop(
+        id: SizingTradeId,
+        stop: BigDecimal,
+    ) = withContext(appDispatchers.IO) {
         tradesDB.sizingTradeQueries.updateStop(id = id, stop = stop)
     }
 

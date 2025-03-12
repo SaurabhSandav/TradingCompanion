@@ -339,11 +339,17 @@ private class AddTargetFormState(
 
     private sealed class ChangeEvent {
 
-        data class Price(val value: BigDecimal?) : ChangeEvent()
+        data class Price(
+            val value: BigDecimal?,
+        ) : ChangeEvent()
 
-        data class RValue(val value: BigDecimal?) : ChangeEvent()
+        data class RValue(
+            val value: BigDecimal?,
+        ) : ChangeEvent()
 
-        data class Profit(val value: BigDecimal?) : ChangeEvent()
+        data class Profit(
+            val value: BigDecimal?,
+        ) : ChangeEvent()
     }
 }
 

@@ -8,13 +8,16 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = LineStyle.Serializer::class)
-enum class LineStyle(private val intValue: Int) {
+enum class LineStyle(
+    private val intValue: Int,
+) {
 
     Solid(0),
     Dotted(1),
     Dashed(2),
     LargeDashed(3),
-    SparseDotted(4);
+    SparseDotted(4),
+    ;
 
     internal object Serializer : KSerializer<LineStyle> {
 
@@ -25,7 +28,10 @@ enum class LineStyle(private val intValue: Int) {
             return LineStyle.entries.find { it.intValue == intValue } ?: error("Invalid LineStyle")
         }
 
-        override fun serialize(encoder: Encoder, value: LineStyle) {
+        override fun serialize(
+            encoder: Encoder,
+            value: LineStyle,
+        ) {
             encoder.encodeInt(value.intValue)
         }
     }

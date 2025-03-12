@@ -37,7 +37,10 @@ class Tags internal constructor(
         return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(appDispatchers.IO)
     }
 
-    fun getSuggestedForTrades(tradeIds: List<TradeId>, filterQuery: String): Flow<List<TradeTag>> {
+    fun getSuggestedForTrades(
+        tradeIds: List<TradeId>,
+        filterQuery: String,
+    ): Flow<List<TradeTag>> {
         return tradesDB.tradeToTagMapQueries
             .getSuggestedTagsForTrades(tradeIds, filterQuery)
             .asFlow()
@@ -107,7 +110,10 @@ class Tags internal constructor(
         }
     }
 
-    suspend fun remove(tradeId: TradeId, tagId: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun remove(
+        tradeId: TradeId,
+        tagId: TradeTagId,
+    ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeToTagMapQueries.delete(
             tradeId = tradeId,

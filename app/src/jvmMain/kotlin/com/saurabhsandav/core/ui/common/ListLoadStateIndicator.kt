@@ -96,5 +96,5 @@ object LoadStateScope {
 enum class LoadState {
     Loading,
     Empty,
-    Loaded;
+    Loaded,
 }

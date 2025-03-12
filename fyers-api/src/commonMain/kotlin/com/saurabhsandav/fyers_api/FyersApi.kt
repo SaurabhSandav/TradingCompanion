@@ -45,9 +45,7 @@ public class FyersApi {
         }.buildString()
     }
 
-    public suspend fun validateLogin(
-        redirectUrl: String,
-    ): ApiResult<AuthValidationResult, FyersError> {
+    public suspend fun validateLogin(redirectUrl: String): ApiResult<AuthValidationResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()
@@ -89,9 +87,7 @@ public class FyersApi {
         }
     }
 
-    public suspend fun getProfile(
-        accessToken: String,
-    ): ApiResult<ProfileResult, FyersError> {
+    public suspend fun getProfile(accessToken: String): ApiResult<ProfileResult, FyersError> {
 
         // Rate-limit
         rateLimiter.limit()

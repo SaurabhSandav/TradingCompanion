@@ -133,6 +133,7 @@ internal class CandleRepository(
         val availableRange = candleCache.getCheckedRange(ticker, timeframe)
 
         fun ClosedRange<Instant>.startBufferInstant() = start + timeframe.seconds.seconds
+
         fun ClosedRange<Instant>.endBufferInstant() = endInclusive - timeframe.seconds.seconds
 
         @Suppress("SpellCheckingInspection")
@@ -322,8 +323,12 @@ internal class CandleRepository(
 
         abstract val message: String?
 
-        class AuthError(override val message: String?) : Error()
+        class AuthError(
+            override val message: String?,
+        ) : Error()
 
-        class UnknownError(override val message: String) : Error()
+        class UnknownError(
+            override val message: String,
+        ) : Error()
     }
 }

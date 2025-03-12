@@ -1,8 +1,11 @@
 package com.saurabhsandav.core.trades.model
 
-actual enum class TradeSide(val strValue: String) {
+actual enum class TradeSide(
+    val strValue: String,
+) {
     Long("long"),
-    Short("short");
+    Short("short"),
+    ;
 
     companion object {
 

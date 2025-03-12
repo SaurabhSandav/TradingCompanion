@@ -42,11 +42,11 @@ fun TickerSelectionDialog(
                         onClick = {
                             type.onOpenInNewWindow(ticker)
                             onDismissRequest()
-                        }
+                        },
                     ) {
                         Icon(
                             Icons.Default.OpenInBrowser,
-                            contentDescription = "Open in new window"
+                            contentDescription = "Open in new window",
                         )
                     }
 
@@ -54,11 +54,11 @@ fun TickerSelectionDialog(
                         onClick = {
                             type.onOpenInNewTab(ticker)
                             onDismissRequest()
-                        }
+                        },
                     ) {
                         Icon(
                             Icons.AutoMirrored.Default.OpenInNew,
-                            contentDescription = "Open in new tab"
+                            contentDescription = "Open in new tab",
                         )
                     }
                 }

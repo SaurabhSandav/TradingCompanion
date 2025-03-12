@@ -29,8 +29,9 @@ object ZipUtils {
 
                     outStream.putArchiveEntry(entry)
 
-                    if (!pathToZip.isDirectory())
+                    if (!pathToZip.isDirectory()) {
                         pathToZip.inputStream().buffered().use { it.copyTo(outStream) }
+                    }
 
                     outStream.closeArchiveEntry()
                 }

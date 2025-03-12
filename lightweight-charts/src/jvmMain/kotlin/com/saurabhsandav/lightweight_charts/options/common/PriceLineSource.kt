@@ -8,10 +8,13 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = PriceLineSource.Serializer::class)
-enum class PriceLineSource(private val intValue: Int) {
+enum class PriceLineSource(
+    private val intValue: Int,
+) {
 
     LastBar(0),
-    LastVisible(1);
+    LastVisible(1),
+    ;
 
     internal object Serializer : KSerializer<PriceLineSource> {
 
@@ -22,7 +25,10 @@ enum class PriceLineSource(private val intValue: Int) {
             return PriceLineSource.entries.find { it.intValue == intValue } ?: error("Invalid PriceLineSource")
         }
 
-        override fun serialize(encoder: Encoder, value: PriceLineSource) {
+        override fun serialize(
+            encoder: Encoder,
+            value: PriceLineSource,
+        ) {
             encoder.encodeInt(value.intValue)
         }
     }

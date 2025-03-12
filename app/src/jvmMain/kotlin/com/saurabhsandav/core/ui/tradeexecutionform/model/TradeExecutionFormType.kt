@@ -8,9 +8,13 @@ internal sealed class TradeExecutionFormType {
 
     data object New : TradeExecutionFormType()
 
-    data class NewFromExisting(val id: TradeExecutionId) : TradeExecutionFormType()
+    data class NewFromExisting(
+        val id: TradeExecutionId,
+    ) : TradeExecutionFormType()
 
-    data class NewFromExistingInTrade(val id: TradeExecutionId) : TradeExecutionFormType()
+    data class NewFromExistingInTrade(
+        val id: TradeExecutionId,
+    ) : TradeExecutionFormType()
 
     data class NewSized(
         val initialModel: TradeExecutionFormModel.Initial,
@@ -18,9 +22,15 @@ internal sealed class TradeExecutionFormType {
         val target: BigDecimal,
     ) : TradeExecutionFormType()
 
-    data class AddToTrade(val tradeId: TradeId) : TradeExecutionFormType()
+    data class AddToTrade(
+        val tradeId: TradeId,
+    ) : TradeExecutionFormType()
 
-    data class CloseTrade(val tradeId: TradeId) : TradeExecutionFormType()
+    data class CloseTrade(
+        val tradeId: TradeId,
+    ) : TradeExecutionFormType()
 
-    data class Edit(val id: TradeExecutionId) : TradeExecutionFormType()
+    data class Edit(
+        val id: TradeExecutionId,
+    ) : TradeExecutionFormType()
 }
