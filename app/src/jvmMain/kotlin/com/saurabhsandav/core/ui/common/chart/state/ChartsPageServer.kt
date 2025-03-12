@@ -1,10 +1,11 @@
 package com.saurabhsandav.core.ui.common.chart.state
 
 import co.touchlab.kermit.Logger
-import io.ktor.server.engine.*
-import io.ktor.server.http.content.*
-import io.ktor.server.netty.*
-import io.ktor.server.routing.*
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.netty.Netty
+import io.ktor.server.routing.routing
 
 object ChartsPageServer {
 

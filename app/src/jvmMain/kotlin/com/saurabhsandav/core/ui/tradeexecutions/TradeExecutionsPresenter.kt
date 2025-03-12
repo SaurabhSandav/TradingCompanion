@@ -2,7 +2,11 @@ package com.saurabhsandav.core.ui.tradeexecutions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trades.TradeExecution
@@ -14,7 +18,11 @@ import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.DeleteExecutions
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.EditExecution
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.LockExecutions
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.NewExecution
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.NewExecutionFromExisting
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.emitInto
@@ -24,9 +32,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
-import java.util.*
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.format
+import kotlinx.datetime.toLocalDateTime
+import java.util.Locale
 
 internal class TradeExecutionsPresenter(
     private val coroutineScope: CoroutineScope,

@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trades.model
 
 import app.cash.sqldelight.ColumnAdapter
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 object ProfileIdColumnAdapter : ColumnAdapter<ProfileId, Long> {

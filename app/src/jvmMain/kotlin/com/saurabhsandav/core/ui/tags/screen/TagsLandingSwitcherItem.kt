@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.*
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.DeleteTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.EditTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTagFromExisting
 
 internal class TagsLandingSwitcherItem(
     tagsScreenModule: TagsScreenModule,

@@ -13,7 +13,9 @@ import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
 import com.saurabhsandav.core.ui.tags.form.model.TagFormState
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
-import com.saurabhsandav.core.ui.tags.form.model.TagFormType.*
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType.Edit
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType.New
+import com.saurabhsandav.core.ui.tags.form.model.TagFormType.NewFromExisting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first

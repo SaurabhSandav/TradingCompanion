@@ -13,7 +13,10 @@ import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent
-import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.*
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.DeleteTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.EditTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTag
+import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenEvent.NewTagFromExisting
 import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto

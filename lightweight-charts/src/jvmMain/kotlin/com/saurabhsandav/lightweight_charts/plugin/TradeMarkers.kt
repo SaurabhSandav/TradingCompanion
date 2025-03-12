@@ -5,7 +5,6 @@ import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import com.saurabhsandav.lightweight_charts.utils.SerializableColor
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 
 @Serializable
 class TradeMarkers(

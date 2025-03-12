@@ -3,7 +3,11 @@ package com.saurabhsandav.core.ui.landing.model
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.automirrored.filled.Label
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.ui.graphics.vector.ImageVector
 
 internal data class LandingState(

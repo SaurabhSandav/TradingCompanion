@@ -1,7 +1,12 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
 import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.*
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.DateInterval
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Notes
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
 
 internal sealed class TradesFilterEvent {
 

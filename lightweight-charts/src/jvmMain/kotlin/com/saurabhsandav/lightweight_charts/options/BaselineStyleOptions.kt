@@ -1,6 +1,11 @@
 package com.saurabhsandav.lightweight_charts.options
 
-import com.saurabhsandav.lightweight_charts.options.common.*
+import com.saurabhsandav.lightweight_charts.options.common.LastPriceAnimationMode
+import com.saurabhsandav.lightweight_charts.options.common.LineStyle
+import com.saurabhsandav.lightweight_charts.options.common.LineType
+import com.saurabhsandav.lightweight_charts.options.common.LineWidth
+import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
+import com.saurabhsandav.lightweight_charts.options.common.PriceLineSource
 import kotlinx.serialization.Serializable
 
 @Serializable

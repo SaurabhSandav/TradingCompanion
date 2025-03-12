@@ -2,7 +2,6 @@ package com.saurabhsandav.lightweight_charts
 
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 
 class IPriceScaleApi(
     receiver: String,

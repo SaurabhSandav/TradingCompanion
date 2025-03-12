@@ -4,7 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.sizing.model.SizingEvent.*
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.AddTrade
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.OpenLiveTrade
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.RemoveTrade
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.UpdateTradeEntry
+import com.saurabhsandav.core.ui.sizing.model.SizingEvent.UpdateTradeStop
 
 internal class SizingLandingSwitcherItem(
     sizingModule: SizingModule,

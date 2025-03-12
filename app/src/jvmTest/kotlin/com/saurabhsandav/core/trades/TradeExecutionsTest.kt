@@ -5,7 +5,19 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.trades.migrations.migrationAfterV1
 import com.saurabhsandav.core.trades.migrations.migrationAfterV2
-import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.trades.model.AttachmentFileIdColumnAdapter
+import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.ReviewIdColumnAdapter
+import com.saurabhsandav.core.trades.model.SizingTradeIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trades.model.TradeExecutionIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trades.model.TradeIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeIdListColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeNoteIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.TradeTagIdColumnAdapter
 import com.saurabhsandav.core.trades.testdata.MultipleTickersInIntervalData
 import com.saurabhsandav.core.trades.testdata.SimpleTradesData
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
@@ -19,9 +31,14 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.time.Month
-import java.util.*
+import java.util.Properties
 import kotlin.io.path.Path
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class TradeExecutionsTest {
 

@@ -4,13 +4,23 @@ import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trades.migrations.migrationAfterV1
 import com.saurabhsandav.core.trades.migrations.migrationAfterV2
-import com.saurabhsandav.core.trades.model.*
+import com.saurabhsandav.core.trades.model.AttachmentFileIdColumnAdapter
+import com.saurabhsandav.core.trades.model.Instrument
+import com.saurabhsandav.core.trades.model.ReviewIdColumnAdapter
+import com.saurabhsandav.core.trades.model.SizingTradeIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeExecutionIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trades.model.TradeIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeIdListColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeNoteIdColumnAdapter
+import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trades.model.TradeTagIdColumnAdapter
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.DbUrlProvider
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import java.nio.file.Path
-import java.util.*
+import java.util.Properties
 
 internal class TradingRecord(
     appDispatchers: AppDispatchers,

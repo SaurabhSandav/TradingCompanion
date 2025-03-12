@@ -11,14 +11,23 @@ import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
-import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.*
+import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.DeleteProfile
+import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.SetCurrentProfile
+import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.UpdateSelectedProfile
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.putCurrentTradingProfileId
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 internal class ProfilesPresenter(
     private val coroutineScope: CoroutineScope,

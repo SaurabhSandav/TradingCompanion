@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.common.form
 
-import com.saurabhsandav.core.ui.common.form.ValidationResult.*
+import com.saurabhsandav.core.ui.common.form.ValidationResult.DependencyInvalid
+import com.saurabhsandav.core.ui.common.form.ValidationResult.Invalid
+import com.saurabhsandav.core.ui.common.form.ValidationResult.Valid
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.CoroutineScope

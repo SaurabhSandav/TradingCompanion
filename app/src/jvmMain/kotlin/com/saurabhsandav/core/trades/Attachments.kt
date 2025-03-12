@@ -12,8 +12,13 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
-import java.util.*
-import kotlin.io.path.*
+import java.util.Locale
+import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.extension
+import kotlin.io.path.inputStream
 
 class Attachments internal constructor(
     private val appDispatchers: AppDispatchers,

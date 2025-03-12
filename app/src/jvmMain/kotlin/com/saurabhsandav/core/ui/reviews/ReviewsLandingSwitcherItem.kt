@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.*
+import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.DeleteReview
+import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.NewReview
+import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.OpenReview
+import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.TogglePinReview
 
 internal class ReviewsLandingSwitcherItem(
     reviewsModule: ReviewsModule,

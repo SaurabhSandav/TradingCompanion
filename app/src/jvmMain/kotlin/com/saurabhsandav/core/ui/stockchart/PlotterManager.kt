@@ -3,11 +3,15 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.*
+import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.SessionChecker
+import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
 import com.saurabhsandav.core.trading.indicator.EMAIndicator
 import com.saurabhsandav.core.trading.indicator.SMAIndicator
 import com.saurabhsandav.core.trading.indicator.VWAPIndicator
+import com.saurabhsandav.core.trading.isLong
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.common.toCssColor
@@ -26,7 +30,11 @@ import com.saurabhsandav.lightweight_charts.plugin.SessionMarkers
 import com.saurabhsandav.lightweight_charts.plugin.TradeExecutionMarkers
 import com.saurabhsandav.lightweight_charts.plugin.TradeMarkers
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
 import java.math.RoundingMode
 

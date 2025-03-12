@@ -20,7 +20,11 @@ import com.slack.eithernet.ApiResult.Failure
 import com.slack.eithernet.ApiResult.Success
 import com.slack.eithernet.successOrNull
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 

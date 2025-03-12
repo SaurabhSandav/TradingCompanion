@@ -4,7 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.trades.model.TradesEvent.*
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.AddTag
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.ApplyFilter
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.DeleteTrades
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.NewExecution
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenChart
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.OpenDetails
+import com.saurabhsandav.core.ui.trades.model.TradesEvent.SetFocusModeEnabled
 
 internal class TradesLandingSwitcherItem(
     private val tradesModule: TradesModule,

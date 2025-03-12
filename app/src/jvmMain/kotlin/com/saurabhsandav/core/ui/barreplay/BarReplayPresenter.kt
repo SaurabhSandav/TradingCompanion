@@ -8,12 +8,10 @@ import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.*
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
-import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
 import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
@@ -27,7 +25,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.days
 
@@ -49,7 +46,7 @@ internal class BarReplayPresenter(
     init {
 
         coroutineScope.launch {
-            replayState = NewReplay(model = initialLaunchFormModel())
+            replayState = ReplayState.NewReplay(model = initialLaunchFormModel())
         }
     }
 
@@ -74,11 +71,11 @@ internal class BarReplayPresenter(
 
         appPrefs.putString(PrefKeys.ReplayFormModel, Json.encodeToString(replayParams))
 
-        replayState = ReplayStarted(replayParams = replayParams)
+        replayState = ReplayState.ReplayStarted(replayParams = replayParams)
     }
 
     private fun onNewReplay() = coroutineScope.launchUnit {
-        replayState = NewReplay(model = initialLaunchFormModel())
+        replayState = ReplayState.NewReplay(model = initialLaunchFormModel())
     }
 
     private suspend fun initialLaunchFormModel(): NewReplayFormModel {

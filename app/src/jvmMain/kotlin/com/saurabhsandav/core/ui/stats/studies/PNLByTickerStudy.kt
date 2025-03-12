@@ -14,9 +14,17 @@ import com.saurabhsandav.core.trades.brokerageAtExit
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trades.rValueAt
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.common.table.*
+import com.saurabhsandav.core.ui.common.table.LazyTable
+import com.saurabhsandav.core.ui.common.table.SimpleHeader
+import com.saurabhsandav.core.ui.common.table.SimpleRow
+import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 
 internal class PNLByTickerStudy(

@@ -5,7 +5,11 @@ import com.saurabhsandav.lightweight_charts.data.LogicalRange
 import com.saurabhsandav.lightweight_charts.data.MouseEventParams
 import com.saurabhsandav.lightweight_charts.data.Time
 import com.saurabhsandav.lightweight_charts.utils.LwcJson
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 internal class CallbackDelegate(
     private val chartId: String,

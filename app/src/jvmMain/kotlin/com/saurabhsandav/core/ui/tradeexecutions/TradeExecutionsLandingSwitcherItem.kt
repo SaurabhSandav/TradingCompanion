@@ -4,7 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
-import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.*
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.DeleteExecutions
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.EditExecution
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.LockExecutions
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.NewExecution
+import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent.NewExecutionFromExisting
 
 internal class TradeExecutionsLandingSwitcherItem(
     tradeExecutionsModule: TradeExecutionsModule,

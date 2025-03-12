@@ -1,7 +1,12 @@
 package com.saurabhsandav.lightweight_charts
 
 import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.options.*
+import com.saurabhsandav.lightweight_charts.options.BaselineStyleOptions
+import com.saurabhsandav.lightweight_charts.options.CandlestickStyleOptions
+import com.saurabhsandav.lightweight_charts.options.ChartOptions
+import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
+import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
+import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 

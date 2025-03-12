@@ -1,7 +1,15 @@
 package com.saurabhsandav.lightweight_charts
 
-import com.saurabhsandav.lightweight_charts.data.*
-import com.saurabhsandav.lightweight_charts.options.*
+import com.saurabhsandav.lightweight_charts.data.BaselineData
+import com.saurabhsandav.lightweight_charts.data.CandlestickData
+import com.saurabhsandav.lightweight_charts.data.HistogramData
+import com.saurabhsandav.lightweight_charts.data.LineData
+import com.saurabhsandav.lightweight_charts.data.SeriesData
+import com.saurabhsandav.lightweight_charts.options.BaselineStyleOptions
+import com.saurabhsandav.lightweight_charts.options.CandlestickStyleOptions
+import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
+import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
+import com.saurabhsandav.lightweight_charts.options.SeriesOptions
 import kotlinx.serialization.KSerializer
 
 sealed class SeriesDefinition<D : SeriesData, O : SeriesOptions>(

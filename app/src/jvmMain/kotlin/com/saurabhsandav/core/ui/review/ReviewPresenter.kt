@@ -11,7 +11,12 @@ import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.review.model.ReviewEvent
-import com.saurabhsandav.core.ui.review.model.ReviewEvent.*
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenChart
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenDetails
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenMarkdownLink
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.SaveReview
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.SetTitle
+import com.saurabhsandav.core.ui.review.model.ReviewEvent.ToggleMarkdown
 import com.saurabhsandav.core.ui.review.model.ReviewState
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
@@ -31,7 +36,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
-import java.util.*
+import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
