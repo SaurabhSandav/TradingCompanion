@@ -19,10 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import com.saurabhsandav.core.thirdparty.paging_compose.LazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging_compose.itemContentType
-import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
+import com.saurabhsandav.core.thirdparty.paging.compose.LazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging.compose.itemContentType
+import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog

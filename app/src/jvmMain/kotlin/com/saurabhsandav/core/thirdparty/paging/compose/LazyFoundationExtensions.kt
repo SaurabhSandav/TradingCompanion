@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.saurabhsandav.core.thirdparty.paging_compose
+package com.saurabhsandav.core.thirdparty.paging.compose
 
 import androidx.paging.PagingConfig
 

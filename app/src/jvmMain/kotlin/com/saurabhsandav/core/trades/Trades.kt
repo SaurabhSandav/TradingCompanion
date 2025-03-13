@@ -5,7 +5,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
+import com.saurabhsandav.core.thirdparty.sqldelight.paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeFilter
 import com.saurabhsandav.core.trades.model.TradeId

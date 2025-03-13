@@ -16,8 +16,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.saurabhsandav.core.thirdparty.paging_compose.collectAsLazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging_compose.itemKey
+import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.TradeExcursions
 import com.saurabhsandav.core.trades.TradeStop

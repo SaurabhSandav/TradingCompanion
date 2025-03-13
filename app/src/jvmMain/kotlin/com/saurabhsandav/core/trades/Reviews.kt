@@ -3,7 +3,7 @@ package com.saurabhsandav.core.trades
 import androidx.paging.PagingSource
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOne
-import com.saurabhsandav.core.thirdparty.sqldelight_paging.QueryPagingSource
+import com.saurabhsandav.core.thirdparty.sqldelight.paging.QueryPagingSource
 import com.saurabhsandav.core.trades.model.ReviewId
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.utils.AppDispatchers
