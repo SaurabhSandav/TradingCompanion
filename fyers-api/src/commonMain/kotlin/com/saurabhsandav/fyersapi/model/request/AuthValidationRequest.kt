@@ -1,11 +1,11 @@
-package com.saurabhsandav.fyers_api.model.request
+package com.saurabhsandav.fyersapi.model.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable
-internal data class RefreshValidationRequest(
+internal data class AuthValidationRequest(
 
     @SerialName("grant_type")
     val grantType: String,
@@ -13,9 +13,6 @@ internal data class RefreshValidationRequest(
     @SerialName("appIdHash")
     val appIdHash: String,
 
-    @SerialName("refresh_token")
-    val refreshToken: String,
-
-    @SerialName("pin")
-    val pin: String,
+    @SerialName("code")
+    val code: String,
 )

@@ -1,4 +1,4 @@
-package com.saurabhsandav.fyers_api.model.response
+package com.saurabhsandav.fyersapi.model.response
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

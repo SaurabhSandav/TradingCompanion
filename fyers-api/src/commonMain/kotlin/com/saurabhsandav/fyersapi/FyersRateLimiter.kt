@@ -1,4 +1,4 @@
-package com.saurabhsandav.fyers_api
+package com.saurabhsandav.fyersapi
 
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock

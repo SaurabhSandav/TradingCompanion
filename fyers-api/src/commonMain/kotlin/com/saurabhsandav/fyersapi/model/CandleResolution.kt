@@ -1,4 +1,4 @@
-package com.saurabhsandav.fyers_api.model
+package com.saurabhsandav.fyersapi.model
 
 public enum class CandleResolution(
     internal val strValue: String,

@@ -36,7 +36,7 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.AppUriHandler
 import com.saurabhsandav.core.utils.DbUrlProvider
 import com.saurabhsandav.core.utils.InstantColumnAdapter
-import com.saurabhsandav.fyers_api.FyersApi
+import com.saurabhsandav.fyersapi.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel

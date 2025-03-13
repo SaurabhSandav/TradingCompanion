@@ -1,4 +1,4 @@
-package com.saurabhsandav.fyers_api.model
+package com.saurabhsandav.fyersapi.model
 
 public enum class DateFormat(
     internal val intValue: Int,

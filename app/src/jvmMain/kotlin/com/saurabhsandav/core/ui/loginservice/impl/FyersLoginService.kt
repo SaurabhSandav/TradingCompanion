@@ -33,7 +33,7 @@ import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.fyers_api.FyersApi
+import com.saurabhsandav.fyersapi.FyersApi
 import com.slack.eithernet.ApiResult
 import com.slack.eithernet.ApiResult.Failure.ApiFailure
 import com.slack.eithernet.ApiResult.Failure.HttpFailure
