@@ -3,9 +3,9 @@ package com.saurabhsandav.core.ui.common.chart.state
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.toHexString
 import com.saurabhsandav.core.ui.common.webview.WebViewState
-import com.saurabhsandav.lightweight_charts.IChartApi
-import com.saurabhsandav.lightweight_charts.createChart
-import com.saurabhsandav.lightweight_charts.options.ChartOptions
+import com.saurabhsandav.lightweightcharts.IChartApi
+import com.saurabhsandav.lightweightcharts.createChart
+import com.saurabhsandav.lightweightcharts.options.ChartOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

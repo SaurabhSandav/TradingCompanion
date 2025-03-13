@@ -5,12 +5,12 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
-import com.saurabhsandav.lightweight_charts.data.Time
-import com.saurabhsandav.lightweight_charts.plugin.TradeExecutionMarkers
+import com.saurabhsandav.lightweightcharts.data.Time
+import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
-import com.saurabhsandav.lightweight_charts.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
-import com.saurabhsandav.lightweight_charts.plugin.TradeMarkers.Trade as ActualTradeMarker
+import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
+import com.saurabhsandav.lightweightcharts.plugin.TradeMarkers.Trade as ActualTradeMarker
 
 class TradeExecutionMarker(
     private val instant: Instant,

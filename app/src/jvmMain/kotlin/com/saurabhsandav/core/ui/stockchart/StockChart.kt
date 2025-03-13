@@ -24,8 +24,8 @@ import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import com.saurabhsandav.core.utils.newChildScope
-import com.saurabhsandav.lightweight_charts.IChartApi
-import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
+import com.saurabhsandav.lightweightcharts.IChartApi
+import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel

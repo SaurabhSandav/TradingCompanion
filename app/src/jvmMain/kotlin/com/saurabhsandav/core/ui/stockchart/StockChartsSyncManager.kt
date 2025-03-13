@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import com.saurabhsandav.lightweight_charts.data.LogicalRange
-import com.saurabhsandav.lightweight_charts.data.MouseEventParams
+import com.saurabhsandav.lightweightcharts.data.LogicalRange
+import com.saurabhsandav.lightweightcharts.data.MouseEventParams
 import kotlinx.datetime.Instant
 
 class StockChartsSyncManager(

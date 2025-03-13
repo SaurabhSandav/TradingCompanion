@@ -10,14 +10,14 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.lightweight_charts.ISeriesApi
-import com.saurabhsandav.lightweight_charts.PriceScaleOptions
-import com.saurabhsandav.lightweight_charts.PriceScaleOptions.PriceScaleMargins
-import com.saurabhsandav.lightweight_charts.SeriesDefinition
-import com.saurabhsandav.lightweight_charts.data.HistogramData
-import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.options.HistogramStyleOptions
-import com.saurabhsandav.lightweight_charts.options.common.PriceFormat
+import com.saurabhsandav.lightweightcharts.ISeriesApi
+import com.saurabhsandav.lightweightcharts.PriceScaleOptions
+import com.saurabhsandav.lightweightcharts.PriceScaleOptions.PriceScaleMargins
+import com.saurabhsandav.lightweightcharts.SeriesDefinition
+import com.saurabhsandav.lightweightcharts.data.HistogramData
+import com.saurabhsandav.lightweightcharts.data.SeriesData
+import com.saurabhsandav.lightweightcharts.options.HistogramStyleOptions
+import com.saurabhsandav.lightweightcharts.options.common.PriceFormat
 
 class VolumePlotter(
     override val key: String,

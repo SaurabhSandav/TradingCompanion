@@ -15,10 +15,10 @@ import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
-import com.saurabhsandav.lightweight_charts.options.ChartOptions
-import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions
-import com.saurabhsandav.lightweight_charts.options.ChartOptions.CrosshairOptions.CrosshairMode
-import com.saurabhsandav.lightweight_charts.options.TimeScaleOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions.CrosshairMode
+import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow

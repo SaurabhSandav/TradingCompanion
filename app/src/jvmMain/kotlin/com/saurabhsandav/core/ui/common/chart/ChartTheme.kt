@@ -3,11 +3,11 @@ package com.saurabhsandav.core.ui.common.chart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.saurabhsandav.core.ui.theme.isDark
-import com.saurabhsandav.lightweight_charts.options.ChartOptions
-import com.saurabhsandav.lightweight_charts.options.ChartOptions.GridOptions
-import com.saurabhsandav.lightweight_charts.options.ChartOptions.GridOptions.GridLineOptions
-import com.saurabhsandav.lightweight_charts.options.ChartOptions.LayoutOptions
-import com.saurabhsandav.lightweight_charts.options.common.Background
+import com.saurabhsandav.lightweightcharts.options.ChartOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions.GridOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions.GridOptions.GridLineOptions
+import com.saurabhsandav.lightweightcharts.options.ChartOptions.LayoutOptions
+import com.saurabhsandav.lightweightcharts.options.common.Background
 import kotlinx.css.Color
 
 val ChartLightModeOptions = ChartOptions(

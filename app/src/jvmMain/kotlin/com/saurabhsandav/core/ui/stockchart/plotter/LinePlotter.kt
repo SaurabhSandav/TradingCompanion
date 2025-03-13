@@ -10,12 +10,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.saurabhsandav.core.ui.common.toCssColor
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.lightweight_charts.ISeriesApi
-import com.saurabhsandav.lightweight_charts.SeriesDefinition
-import com.saurabhsandav.lightweight_charts.data.LineData
-import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.options.LineStyleOptions
-import com.saurabhsandav.lightweight_charts.options.common.LineWidth
+import com.saurabhsandav.lightweightcharts.ISeriesApi
+import com.saurabhsandav.lightweightcharts.SeriesDefinition
+import com.saurabhsandav.lightweightcharts.data.LineData
+import com.saurabhsandav.lightweightcharts.data.SeriesData
+import com.saurabhsandav.lightweightcharts.options.LineStyleOptions
+import com.saurabhsandav.lightweightcharts.options.common.LineWidth
 
 class LinePlotter(
     override val key: String,

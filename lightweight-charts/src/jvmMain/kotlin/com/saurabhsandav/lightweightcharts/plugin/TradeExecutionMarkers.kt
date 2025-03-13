@@ -1,0 +1,60 @@
+package com.saurabhsandav.lightweightcharts.plugin
+
+import com.saurabhsandav.lightweightcharts.ISeriesPrimitive
+import com.saurabhsandav.lightweightcharts.data.Time
+import com.saurabhsandav.lightweightcharts.utils.LwcJson
+import com.saurabhsandav.lightweightcharts.utils.SerializableColor
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+class TradeExecutionMarkers(
+    val options: Options = Options(),
+) : ISeriesPrimitive {
+
+    private var callMember: ((String) -> Unit)? = null
+
+    override fun initializer(callMember: (String) -> Unit): String {
+
+        check(this.callMember == null) { "TradeExecutionMarkers already attached" }
+
+        this.callMember = callMember
+
+        val optionsJson = LwcJson.encodeToString(options)
+
+        return "new TradeExecutionMarkers($optionsJson)"
+    }
+
+    fun setExecutions(executions: List<Execution>) {
+
+        val markersJson = LwcJson.encodeToString(executions)
+        val callMember = checkNotNull(callMember) { "TradeExecutionMarkers not attached" }
+
+        callMember("executions = $markersJson")
+    }
+
+    @Serializable
+    data class Options(
+        val buyFillColor: SerializableColor? = null,
+        val buyTextColor: SerializableColor? = null,
+        val sellFillColor: SerializableColor? = null,
+        val sellTextColor: SerializableColor? = null,
+    )
+
+    @Serializable
+    data class Execution(
+        val time: Time,
+        val price: Double,
+        val side: ExecutionSide,
+    )
+
+    @Serializable
+    enum class ExecutionSide {
+
+        @SerialName("buy")
+        Buy,
+
+        @SerialName("sell")
+        Sell,
+    }
+}

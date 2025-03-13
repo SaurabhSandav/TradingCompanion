@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.common.chart
 
-import com.saurabhsandav.lightweight_charts.IChartApi
-import com.saurabhsandav.lightweight_charts.ITimeScaleApi
-import com.saurabhsandav.lightweight_charts.callbacks.LogicalRangeChangeEventHandler
-import com.saurabhsandav.lightweight_charts.callbacks.MouseEventHandler
-import com.saurabhsandav.lightweight_charts.data.LogicalRange
-import com.saurabhsandav.lightweight_charts.data.MouseEventParams
+import com.saurabhsandav.lightweightcharts.IChartApi
+import com.saurabhsandav.lightweightcharts.ITimeScaleApi
+import com.saurabhsandav.lightweightcharts.callbacks.LogicalRangeChangeEventHandler
+import com.saurabhsandav.lightweightcharts.callbacks.MouseEventHandler
+import com.saurabhsandav.lightweightcharts.data.LogicalRange
+import com.saurabhsandav.lightweightcharts.data.MouseEventParams
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

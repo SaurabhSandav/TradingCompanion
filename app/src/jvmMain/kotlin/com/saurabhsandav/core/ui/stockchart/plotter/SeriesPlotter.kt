@@ -5,11 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.stockchart.Plotter
 import com.saurabhsandav.core.ui.stockchart.StockChart
-import com.saurabhsandav.lightweight_charts.ISeriesApi
-import com.saurabhsandav.lightweight_charts.data.MouseEventParams
-import com.saurabhsandav.lightweight_charts.data.SeriesData
-import com.saurabhsandav.lightweight_charts.options.SeriesOptions
-import com.saurabhsandav.lightweight_charts.options.SeriesOptionsCommon
+import com.saurabhsandav.lightweightcharts.ISeriesApi
+import com.saurabhsandav.lightweightcharts.data.MouseEventParams
+import com.saurabhsandav.lightweightcharts.data.SeriesData
+import com.saurabhsandav.lightweightcharts.options.SeriesOptions
+import com.saurabhsandav.lightweightcharts.options.SeriesOptionsCommon
 
 abstract class SeriesPlotter<D : SeriesData, O : SeriesOptions> : Plotter<D> {
 
