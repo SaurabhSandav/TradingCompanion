@@ -35,6 +35,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
@@ -216,7 +217,7 @@ private fun Item(
                 onClick = onClick,
                 onLongClick = onLongClick,
             ) {
-                select {
+                select.content {
 
                     AnimatedVisibility(!item.locked) {
 
@@ -229,7 +230,7 @@ private fun Item(
                 broker.text { item.broker }
                 ticker.text { item.ticker }
                 quantity.text { item.quantity }
-                side {
+                side.content {
 
                     Text(
                         text = item.side,

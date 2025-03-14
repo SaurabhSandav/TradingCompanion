@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -46,7 +47,7 @@ internal fun AccountScreen(transactions: List<Transaction>) {
 
                 date.text { item.date }
                 type.text { item.type }
-                amount {
+                amount.content {
                     Text(item.amount, color = if (item.type == "Credit") AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 note.text { item.note }

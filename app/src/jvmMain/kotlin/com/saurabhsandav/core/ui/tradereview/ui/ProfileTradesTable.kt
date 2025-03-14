@@ -24,6 +24,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Closed
@@ -131,7 +132,7 @@ private fun TradeItem(
             ProfileTradesTableSchema.SimpleRow(
                 onClick = onSelectTrade,
             ) {
-                mark {
+                mark.content {
 
                     Checkbox(
                         checked = item.isMarked,
@@ -141,14 +142,14 @@ private fun TradeItem(
                 id.text { item.profileTradeId.tradeId.toString() }
                 broker.text { item.broker }
                 ticker.text { item.ticker }
-                side {
+                side.content {
                     Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 quantity.text { item.quantity }
                 avgEntry.text { item.entry }
                 avgExit.text { item.exit ?: "NA" }
                 entryTime.text { item.entryTime }
-                duration {
+                duration.content {
 
                     Text(
                         text = when (val duration = item.duration) {
@@ -158,10 +159,10 @@ private fun TradeItem(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                pnl {
+                pnl.content {
                     Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                netPnl {
+                netPnl.content {
                     Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }

@@ -35,6 +35,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.Flow
@@ -72,13 +73,13 @@ internal class PNLExcursionStudy(
                     stop.text { "Stop" }
                     target.text { "Target" }
                     pnl.text { "PNL" }
-                    excursionsInTrade {
+                    excursionsInTrade.content {
 
                         SimpleTooltipBox("Excursions In Trade") {
                             Text("In Trade")
                         }
                     }
-                    excursionsInSession {
+                    excursionsInSession.content {
 
                         SimpleTooltipBox("Excursions In Session") {
                             Text("In Session")
@@ -101,7 +102,7 @@ internal class PNLExcursionStudy(
                     Schema.SimpleRow {
                         id.text { item.id.value.toString() }
                         ticker.text { item.ticker }
-                        side {
+                        side.content {
                             Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                         }
                         quantity.text { item.quantity }
@@ -114,14 +115,14 @@ internal class PNLExcursionStudy(
 
                             stop.text { generated.stop }
                             target.text { generated.target }
-                            pnl {
+                            pnl.content {
                                 Text(
                                     generated.pnl,
                                     color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                                 )
                             }
-                            excursionsInTrade { Text(generated.inTrade) }
-                            excursionsInSession { Text(generated.inSession) }
+                            excursionsInTrade.content { Text(generated.inTrade) }
+                            excursionsInSession.content { Text(generated.inSession) }
                         }
                     }
 

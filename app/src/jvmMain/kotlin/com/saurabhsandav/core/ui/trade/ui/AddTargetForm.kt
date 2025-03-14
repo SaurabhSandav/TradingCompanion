@@ -41,6 +41,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
@@ -128,7 +129,7 @@ internal fun TargetsList(
                         rValue?.text { target.rValue }
                         profit.text { target.profit }
                         netProfit.text { target.netProfit }
-                        options {
+                        options.content {
 
                             Row {
 
@@ -187,7 +188,7 @@ private fun AddTargetForm(
 
     schema.SimpleRow {
 
-        target {
+        target.content {
 
             val focusRequester = remember { FocusRequester() }
 
@@ -211,7 +212,7 @@ private fun AddTargetForm(
                 focusRequester.requestFocus()
             }
         }
-        rValue?.invoke {
+        rValue?.content {
 
             TextField(
                 modifier = textFieldModifier,
@@ -230,7 +231,7 @@ private fun AddTargetForm(
                 visualTransformation = rValueVisualTransformation,
             )
         }
-        profit {
+        profit.content {
 
             TextField(
                 modifier = textFieldModifier,
@@ -248,14 +249,14 @@ private fun AddTargetForm(
                 },
             )
         }
-        netProfit {
+        netProfit.content {
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = formState.netProfit,
             )
         }
-        options {
+        options.content {
 
             IconButtonWithTooltip(
                 onClick = onDismiss,

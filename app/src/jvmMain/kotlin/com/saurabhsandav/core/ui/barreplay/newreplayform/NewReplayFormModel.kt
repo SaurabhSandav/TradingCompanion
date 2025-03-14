@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.reportInvalid
+import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired

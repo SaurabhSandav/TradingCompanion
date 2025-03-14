@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.theme.dimens
 
-context (ColumnScope)
+context (_: ColumnScope)
 @Composable
 fun <T : TableSchema> T.SimpleHeader(
     modifier: Modifier = Modifier,
@@ -69,7 +69,7 @@ fun <T : TableSchema> T.SimpleRow(
     ) {
 
         val rowBuilder = remember(this@SimpleRow, builder) {
-            RowBuilderImpl().apply { builder(this@SimpleRow) }
+            RowBuilderImpl().apply { builder() }
         }
 
         cells.forEach { cell ->

@@ -19,6 +19,7 @@ import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 
 @Composable
@@ -69,7 +70,7 @@ internal fun ReplayOrdersTable(
                         broker.text { item.broker }
                         ticker.text { item.ticker }
                         quantity.text { item.quantity }
-                        side {
+                        side.content {
                             Text(item.side, color = if (item.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
                         }
                         price.text { item.price }

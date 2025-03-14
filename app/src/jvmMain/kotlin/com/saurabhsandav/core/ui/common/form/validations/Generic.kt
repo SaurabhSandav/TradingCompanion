@@ -1,8 +1,10 @@
 package com.saurabhsandav.core.ui.common.form.validations
 
 import com.saurabhsandav.core.ui.common.form.ValidationScope
+import com.saurabhsandav.core.ui.common.form.finishValidation
+import com.saurabhsandav.core.ui.common.form.reportInvalid
 
-context(ValidationScope)
+context(_: ValidationScope)
 inline fun <reified T> T?.isRequired(
     value: Boolean = true,
     noinline errorMessage: () -> String = { "Required" },
@@ -14,7 +16,7 @@ inline fun <reified T> T?.isRequired(
     reportInvalid(errorMessage())
 }
 
-context(ValidationScope)
+context(_: ValidationScope)
 inline fun String.isRequired(
     value: Boolean = true,
     errorMessage: () -> String = { "Required" },

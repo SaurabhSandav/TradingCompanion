@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry.Duration.Closed
@@ -86,14 +87,14 @@ private fun TradeEntry(
                 id.text { entry.profileTradeId.tradeId.toString() }
                 broker.text { entry.broker }
                 ticker.text { entry.ticker }
-                side {
+                side.content {
                     Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 quantity.text { entry.quantity }
                 avgEntry.text { entry.entry }
                 avgExit.text { entry.exit ?: "NA" }
                 entryTime.text { entry.entryTime }
-                duration {
+                duration.content {
 
                     Text(
                         text = when (val duration = entry.duration) {
@@ -103,10 +104,10 @@ private fun TradeEntry(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                pnl {
+                pnl.content {
                     Text(entry.pnl, color = if (entry.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                netPnl {
+                netPnl.content {
                     Text(entry.netPnl, color = if (entry.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
             }

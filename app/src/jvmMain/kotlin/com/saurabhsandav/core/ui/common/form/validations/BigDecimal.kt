@@ -1,9 +1,10 @@
 package com.saurabhsandav.core.ui.common.form.validations
 
 import com.saurabhsandav.core.ui.common.form.ValidationScope
+import com.saurabhsandav.core.ui.common.form.reportInvalid
 import java.math.BigDecimal
 
-context(ValidationScope)
+context(_: ValidationScope)
 fun String.isBigDecimal(errorMessage: () -> String = { "Not a valid number" }): BigDecimal? {
 
     val bdValue = toBigDecimalOrNull()
@@ -13,7 +14,7 @@ fun String.isBigDecimal(errorMessage: () -> String = { "Not a valid number" }): 
     return bdValue
 }
 
-context(ValidationScope)
+context(_: ValidationScope)
 fun BigDecimal.isPositive(errorMessage: () -> String = { "Cannot be 0 or negative" }): BigDecimal {
     if (this < BigDecimal.ZERO) reportInvalid(message = errorMessage())
     return this

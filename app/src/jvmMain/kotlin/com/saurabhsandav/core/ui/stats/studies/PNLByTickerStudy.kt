@@ -18,6 +18,7 @@ import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.Flow
@@ -61,20 +62,20 @@ internal class PNLByTickerStudy(
                     Schema.SimpleRow {
                         ticker.text { item.ticker }
                         trades.text { item.noOfTrades }
-                        pnl {
+                        pnl.content {
                             Text(
                                 text = item.pnl,
                                 color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                             )
                         }
-                        netPnl {
+                        netPnl.content {
                             Text(
                                 text = item.netPnl,
                                 color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                             )
                         }
                         fees.text { item.fees }
-                        rValue {
+                        rValue.content {
                             Text(
                                 text = item.rValue,
                                 color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,

@@ -2,13 +2,9 @@ package com.saurabhsandav.core.ui.common.form
 
 fun interface Validation<T> {
 
-    context(ValidationScope)
-    suspend fun (@ValidationDsl T).validate()
+    context(_: ValidationScope)
+    suspend fun T.validate()
 }
-
-@Target(AnnotationTarget.TYPE)
-@DslMarker
-annotation class ValidationDsl
 
 internal suspend fun <T> runValidation(
     value: T,

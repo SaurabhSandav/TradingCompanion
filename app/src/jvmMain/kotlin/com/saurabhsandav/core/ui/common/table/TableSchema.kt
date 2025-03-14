@@ -46,10 +46,10 @@ class TableCell(
     }
 }
 
-context (RowScope)
+context (rowScope: RowScope)
 internal fun TableCell.Width.asModifier(): Modifier {
     return when (this) {
         is Fixed -> Modifier.width(width)
-        is Weight -> Modifier.weight(weight)
+        is Weight -> with(rowScope) { Modifier.weight(weight) }
     }
 }

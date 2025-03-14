@@ -28,6 +28,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
 import kotlinx.coroutines.flow.Flow
@@ -85,7 +86,7 @@ internal class PNLStudy(
                     Schema.SimpleRow {
                         id.text { item.id.value.toString() }
                         ticker.text { item.ticker }
-                        side {
+                        side.content {
                             Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                         }
                         quantity.text { item.quantity }
@@ -99,13 +100,13 @@ internal class PNLStudy(
                             target.text { generated.target }
                         }
 
-                        pnl {
+                        pnl.content {
                             Text(
                                 item.pnl,
                                 color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,
                             )
                         }
-                        netPnl {
+                        netPnl.content {
                             Text(
                                 item.netPnl,
                                 color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed,

@@ -6,15 +6,30 @@ interface ValidationScope {
 
     fun reportInvalid(message: String)
 
-    suspend fun <T> FormField<T>.validatedValue(): T
+    suspend fun <T> validatedValue(field: FormField<T>): T
 
     /**
      * Run validation without interrupting on failed validations.
      */
-    suspend fun collect(scope: suspend context(ValidationScope) () -> Unit)
+    suspend fun collect(block: suspend context(ValidationScope) () -> Unit)
 
     fun finishValidation()
 }
+
+context(scope: ValidationScope)
+fun reportInvalid(message: String) = scope.reportInvalid(message)
+
+context(scope: ValidationScope)
+suspend fun <T> FormField<T>.validatedValue(): T = scope.validatedValue(this)
+
+/**
+ * Run validation without interrupting on failed validations.
+ */
+context(scope: ValidationScope)
+suspend fun collect(block: suspend context(ValidationScope) () -> Unit) = scope.collect(block)
+
+context(scope: ValidationScope)
+fun finishValidation() = scope.finishValidation()
 
 internal sealed class ValidationResult {
 
@@ -54,18 +69,18 @@ internal class ValidationScopeImpl : ValidationScope {
         throw ValidationInterruptedException
     }
 
-    override suspend fun <T> FormField<T>.validatedValue(): T {
+    override suspend fun <T> validatedValue(field: FormField<T>): T {
 
-        dependencies += this
+        dependencies += field
 
-        if (!validate()) {
+        if (!field.validate()) {
 
             result = ValidationResult.DependencyInvalid
 
             throw ValidationInterruptedException
         }
 
-        return value
+        return field.value
     }
 }
 

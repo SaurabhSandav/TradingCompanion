@@ -41,6 +41,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -174,21 +175,21 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
             ) { item ->
 
                 PNLTableSchema.SimpleRow(Modifier.animateItem()) {
-                    side {
+                    side.content {
                         Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                     }
                     quantity.text { item.quantity }
                     entry.text { item.entry }
                     exit.text { item.exit }
                     breakeven.text { item.breakeven }
-                    pnl {
+                    pnl.content {
                         Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                     }
                     charges.text { item.charges }
-                    netPnl {
+                    netPnl.content {
                         Text(item.netPNL, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                     }
-                    close {
+                    close.content {
 
                         val alpha by animateFloatAsState(if (item.isRemovable) 1F else 0F)
 

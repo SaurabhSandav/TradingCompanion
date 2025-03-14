@@ -41,6 +41,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.StopPreviewer
@@ -123,7 +124,7 @@ internal fun StopsList(
                         this.stop.text { stop.priceText }
                         risk.text { stop.risk }
                         netRisk.text { stop.netRisk }
-                        options {
+                        options.content {
 
                             Row {
 
@@ -181,7 +182,7 @@ private fun AddStopForm(
 
     StopTableSchema.SimpleRow {
 
-        stop {
+        stop.content {
 
             val focusRequester = remember { FocusRequester() }
 
@@ -205,7 +206,7 @@ private fun AddStopForm(
                 focusRequester.requestFocus()
             }
         }
-        risk {
+        risk.content {
 
             TextField(
                 modifier = textFieldModifier,
@@ -224,14 +225,14 @@ private fun AddStopForm(
                 visualTransformation = riskVisualTransformation,
             )
         }
-        netRisk {
+        netRisk.content {
 
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = formState.netRisk,
             )
         }
-        options {
+        options.content {
 
             IconButtonWithTooltip(
                 onClick = onDismiss,

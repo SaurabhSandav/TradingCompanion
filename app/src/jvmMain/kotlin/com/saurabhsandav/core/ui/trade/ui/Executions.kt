@@ -38,6 +38,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState
@@ -156,7 +157,7 @@ private fun TradeExecutionItem(
         Column {
 
             TradeExecutionTableSchema.SimpleRow {
-                locked {
+                locked.content {
 
                     if (!item.locked) {
 
@@ -166,7 +167,7 @@ private fun TradeExecutionItem(
                     }
                 }
                 quantity.text { item.quantity }
-                side {
+                side.content {
 
                     Text(
                         text = item.side,

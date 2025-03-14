@@ -34,6 +34,7 @@ import com.saurabhsandav.core.ui.common.table.SimpleRow
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Fixed
 import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
+import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trades.model.TradesState.Stats
@@ -206,7 +207,7 @@ private fun TradeItem(
             TradeTableSchema.SimpleRow(
                 onClick = onOpenDetails,
             ) {
-                select {
+                select.content {
 
                     Checkbox(
                         checked = isMarked,
@@ -216,14 +217,14 @@ private fun TradeItem(
                 id.text { item.id.toString() }
                 broker.text { item.broker }
                 ticker.text { item.ticker }
-                side {
+                side.content {
                     Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 quantity.text { item.quantity }
                 avgEntry.text { item.entry }
                 avgExit.text { item.exit ?: "NA" }
                 entryTime.text { item.entryTime }
-                duration {
+                duration.content {
 
                     Text(
                         text = when (val duration = item.duration) {
@@ -233,10 +234,10 @@ private fun TradeItem(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                pnl {
+                pnl.content {
                     Text(item.pnl, color = if (item.isProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
-                netPnl {
+                netPnl.content {
                     Text(item.netPnl, color = if (item.isNetProfitable) AppColor.ProfitGreen else AppColor.LossRed)
                 }
                 fees.text { item.fees }

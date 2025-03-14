@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.profiles.form
 
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.CoroutineScope
 

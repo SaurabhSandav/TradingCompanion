@@ -37,7 +37,7 @@ kotlin {
 
         freeCompilerArgs.addAll(
             "-Xexpect-actual-classes",
-            "-Xcontext-receivers",
+            "-Xcontext-parameters",
             "-Xconsistent-data-class-copy-visibility",
             "-Xwhen-guards",
         )
