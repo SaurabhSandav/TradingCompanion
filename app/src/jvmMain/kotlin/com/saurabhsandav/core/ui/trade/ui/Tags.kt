@@ -16,14 +16,19 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -45,6 +50,9 @@ internal fun Tags(
     modifier: Modifier = Modifier,
 ) {
 
+    val currentContentColor = LocalContentColor.current
+    val currentTextStyle = LocalTextStyle.current
+
     TradeSection(
         modifier = modifier,
         title = "Tags",
@@ -55,9 +63,12 @@ internal fun Tags(
         },
         trailingContent = {
 
+            // Wrap TagSelectorDropdownMenu with parent/default theme. Ignore ListItem `trailingContent` theme.
             AddTagButton(
                 profileTradeId = profileTradeId,
                 onAddTag = onAddTag,
+                parentContentColor = currentContentColor,
+                parentTextStyle = currentTextStyle,
             )
         },
     ) {
@@ -140,6 +151,8 @@ private fun FlowRowScope.TagChip(
 private fun AddTagButton(
     profileTradeId: ProfileTradeId,
     onAddTag: (TradeTagId) -> Unit,
+    parentTextStyle: TextStyle,
+    parentContentColor: Color,
 ) {
 
     var expanded by state { false }
@@ -154,12 +167,18 @@ private fun AddTagButton(
             text = "Add Tag",
         )
 
-        TagSelectorDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            profileId = profileTradeId.profileId,
-            type = { TagSelectorType.ForTrades(listOf(profileTradeId.tradeId)) },
-            onSelectTag = onAddTag,
-        )
+        CompositionLocalProvider(
+            LocalContentColor provides parentContentColor,
+            LocalTextStyle provides parentTextStyle,
+        ) {
+
+            TagSelectorDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                profileId = profileTradeId.profileId,
+                type = { TagSelectorType.ForTrades(listOf(profileTradeId.tradeId)) },
+                onSelectTag = onAddTag,
+            )
+        }
     }
 }
