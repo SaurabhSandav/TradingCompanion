@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.profiles.ui
 
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -14,9 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 
@@ -32,9 +29,11 @@ internal fun ProfilesList(
     trainingOnly: Boolean,
 ) {
 
-    Box {
+    val lazyListState = rememberLazyListState()
 
-        val lazyListState = rememberLazyListState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyListState),
+    ) {
 
         LazyColumn(
             state = lazyListState,
@@ -64,11 +63,6 @@ internal fun ProfilesList(
                 )
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyListState),
-        )
     }
 }
 

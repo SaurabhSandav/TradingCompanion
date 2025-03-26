@@ -1,9 +1,7 @@
 package com.saurabhsandav.core.ui.common
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -27,9 +25,9 @@ fun Form(
     content: @Composable ColumnScope.() -> Unit,
 ) {
 
-    Box(
+    BoxWithScrollbar(
         modifier = modifier,
-        propagateMinConstraints = true,
+        scrollbarAdapter = scrollState?.let { rememberScrollbarAdapter(it) },
     ) {
 
         Column(
@@ -45,14 +43,6 @@ fun Form(
             horizontalAlignment = Alignment.CenterHorizontally,
             content = content,
         )
-
-        if (scrollState != null) {
-
-            VerticalScrollbar(
-                modifier = Modifier.matchParentSize().wrapContentWidth(Alignment.End),
-                adapter = rememberScrollbarAdapter(scrollState),
-            )
-        }
     }
 }
 

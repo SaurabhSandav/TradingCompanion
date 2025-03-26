@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.tags.screen.ui
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -12,10 +9,10 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
@@ -57,9 +54,11 @@ private fun TagsList(
     onDeleteTag: (TradeTagId) -> Unit,
 ) {
 
-    Box {
+    val lazyGridState = rememberLazyGridState()
 
-        val lazyGridState = rememberLazyGridState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyGridState),
+    ) {
 
         LazyVerticalGrid(
             state = lazyGridState,
@@ -83,10 +82,5 @@ private fun TagsList(
                 )
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyGridState),
-        )
     }
 }

@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -30,7 +27,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -43,6 +39,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
@@ -233,7 +230,10 @@ fun <T : Any> LazyListSelectionDialog(
                 placeholder = title,
             )
 
-            Box(Modifier.weight(1F)) {
+            BoxWithScrollbar(
+                modifier = Modifier.weight(1F),
+                scrollbarAdapter = rememberScrollbarAdapter(lazyListState),
+            ) {
 
                 LazyColumn(
                     state = lazyListState,
@@ -265,11 +265,6 @@ fun <T : Any> LazyListSelectionDialog(
                         if (index != items.lastIndex) HorizontalDivider()
                     }
                 }
-
-                VerticalScrollbar(
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                    adapter = rememberScrollbarAdapter(lazyListState),
-                )
             }
         }
     }

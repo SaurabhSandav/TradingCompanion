@@ -1,13 +1,10 @@
 package com.saurabhsandav.core.ui.stats.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.stats.model.StatsState.StatsCategory
 import com.saurabhsandav.core.ui.stats.studies.Study
@@ -81,9 +79,11 @@ internal fun LoadedStats(
 @Composable
 internal fun StatsGrid(statsCategories: List<StatsCategory>) {
 
-    Box {
+    val lazyGridState = rememberLazyGridState()
 
-        val lazyGridState = rememberLazyGridState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyGridState),
+    ) {
 
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize(),
@@ -110,11 +110,6 @@ internal fun StatsGrid(statsCategories: List<StatsCategory>) {
                 }
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyGridState),
-        )
     }
 }
 
@@ -171,9 +166,11 @@ internal fun StudiesList(
     onOpenStudy: (Study.Factory<*>) -> Unit,
 ) {
 
-    Box {
+    val lazyListState = rememberLazyListState()
 
-        val lazyListState = rememberLazyListState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyListState),
+    ) {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -188,10 +185,5 @@ internal fun StudiesList(
                 )
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(lazyListState),
-        )
     }
 }

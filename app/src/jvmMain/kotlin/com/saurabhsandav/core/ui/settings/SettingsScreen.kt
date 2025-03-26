@@ -1,11 +1,8 @@
 package com.saurabhsandav.core.ui.settings
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
@@ -98,9 +96,11 @@ internal fun SettingsScreen(
     onRestore: (archivePath: String) -> Unit,
 ) {
 
-    Box {
+    val scrollState = rememberScrollState()
 
-        val scrollState = rememberScrollState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(scrollState),
+    ) {
 
         Column(
             modifier = Modifier.verticalScroll(scrollState),
@@ -134,11 +134,6 @@ internal fun SettingsScreen(
                 onRestore = onRestore,
             )
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(scrollState),
-        )
     }
 }
 

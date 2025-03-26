@@ -1,10 +1,7 @@
 package com.saurabhsandav.core.ui.trade
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
@@ -26,6 +22,7 @@ import com.saurabhsandav.core.trades.model.AttachmentFileId
 import com.saurabhsandav.core.trades.model.TradeExecutionId
 import com.saurabhsandav.core.trades.model.TradeNoteId
 import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.tags.model.TradeTag
@@ -167,9 +164,12 @@ internal fun TradeScreen(
 
     Scaffold {
 
-        Box(Modifier.fillMaxSize()) {
+        val scrollState = rememberScrollState()
 
-            val scrollState = rememberScrollState()
+        BoxWithScrollbar(
+            modifier = Modifier.fillMaxSize(),
+            scrollbarAdapter = rememberScrollbarAdapter(scrollState),
+        ) {
 
             Column(
                 modifier = Modifier
@@ -237,11 +237,6 @@ internal fun TradeScreen(
                     onDeleteNote = onDeleteNote,
                 )
             }
-
-            VerticalScrollbar(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(scrollState),
-            )
         }
     }
 }

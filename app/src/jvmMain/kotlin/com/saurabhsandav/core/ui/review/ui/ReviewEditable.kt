@@ -1,9 +1,6 @@
 package com.saurabhsandav.core.ui.review.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -38,6 +34,7 @@ import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.material3.RichText
 import com.halilibo.richtext.ui.string.RichTextStringStyle
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.saveableState
 import com.saurabhsandav.core.ui.theme.dimens
 
@@ -51,9 +48,12 @@ internal fun ReviewEditable(
     onMarkdownLinkClicked: (String) -> Unit,
 ) {
 
-    Box {
+    val scrollState = rememberScrollState()
 
-        val scrollState = rememberScrollState()
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(scrollState),
+    ) {
+
         var textFieldValue by saveableState(stateSaver = TextFieldValue.Saver) { TextFieldValue(review) }
 
         Crossfade(edit) { editTarget ->
@@ -130,10 +130,5 @@ internal fun ReviewEditable(
                 )
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(scrollState),
-        )
     }
 }
