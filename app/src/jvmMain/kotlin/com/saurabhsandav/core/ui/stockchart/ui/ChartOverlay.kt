@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
@@ -11,11 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun BoxScope.ChartOverlay(
     layout: ChartsLayout,
+    selectedChartIndex: Int,
     modifier: Modifier,
     legend: @Composable (Int) -> Unit,
 ) {
@@ -31,6 +35,10 @@ internal fun BoxScope.ChartOverlay(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
+                            .thenIf(layout is PanesLayout && chartIndex == selectedChartIndex) {
+                                border(1.dp, MaterialTheme.colorScheme.onPrimaryContainer)
+                            }
+                            .border(1.dp, MaterialTheme.colorScheme.onPrimary)
                             .padding(MaterialTheme.dimens.chartLegendPadding),
                     ) {
                         legend(chartIndex)

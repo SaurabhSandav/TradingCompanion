@@ -254,6 +254,7 @@ private fun StockChartScreen(
 
                         ChartOverlay(
                             modifier = Modifier.matchParentSize(),
+                            selectedChartIndex = chartWindow.selectedChartIndex,
                             layout = chartWindow.layout,
                         ) { chartIndex ->
 
