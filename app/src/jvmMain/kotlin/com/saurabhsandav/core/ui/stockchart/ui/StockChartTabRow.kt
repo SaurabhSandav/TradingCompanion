@@ -24,21 +24,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.stockchart.StockChartTabsState
+import com.saurabhsandav.core.ui.stockchart.ChartId
+import com.saurabhsandav.core.ui.stockchart.StockChartWindow
 
 @Composable
-internal fun StockChartTabRow(state: StockChartTabsState) {
+internal fun StockChartTabRow(
+    chartWindow: StockChartWindow,
+    chartIds: List<ChartId>,
+    selectedIndex: Int,
+    title: (ChartId) -> String,
+) {
 
     Row(Modifier.fillMaxWidth()) {
 
         PrimaryScrollableTabRow(
             modifier = Modifier.weight(1F),
-            selectedTabIndex = state.selectedTabIndex,
+            selectedTabIndex = selectedIndex,
             indicator = {
 
                 TabRowDefaults.PrimaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(
-                        selectedTabIndex = state.selectedTabIndex,
+                        selectedTabIndex = selectedIndex,
                         matchContentSize = true,
                     ),
                     width = Dp.Unspecified,
@@ -46,30 +52,30 @@ internal fun StockChartTabRow(state: StockChartTabsState) {
             },
         ) {
 
-            state.tabIds.forEachIndexed { index, tabId ->
+            chartIds.forEachIndexed { index, chartId ->
 
-                key(tabId) {
+                key(chartId) {
 
                     ChartTab(
-                        title = state.title(tabId),
-                        isSelected = index == state.selectedTabIndex,
-                        isCloseable = state.tabIds.size != 1,
-                        onSelect = { state.selectTab(tabId) },
-                        onCloseChart = { state.closeTab(tabId) },
+                        title = title(chartId),
+                        isSelected = index == selectedIndex,
+                        isCloseable = chartIds.size != 1,
+                        onSelect = { chartWindow.onSelectChart(chartId) },
+                        onClose = { chartWindow.onCloseChart(chartId) },
                     )
                 }
             }
         }
 
-        StockChartTabControlsRow(state = state)
+        StockChartTabControlsRow(chartWindow = chartWindow)
     }
 }
 
 @Composable
-private fun StockChartTabControlsRow(state: StockChartTabsState) {
+private fun StockChartTabControlsRow(chartWindow: StockChartWindow) {
 
     IconButtonWithTooltip(
-        onClick = state::newTab,
+        onClick = chartWindow::onNewChart,
         tooltipText = "New Tab",
         content = {
             Icon(Icons.Default.Add, contentDescription = "New Tab")
@@ -77,7 +83,7 @@ private fun StockChartTabControlsRow(state: StockChartTabsState) {
     )
 
     IconButtonWithTooltip(
-        onClick = state::selectPreviousTab,
+        onClick = chartWindow::onSelectPreviousChart,
         tooltipText = "Previous tab",
         content = {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous tab")
@@ -85,7 +91,7 @@ private fun StockChartTabControlsRow(state: StockChartTabsState) {
     )
 
     IconButtonWithTooltip(
-        onClick = state::selectNextTab,
+        onClick = chartWindow::onSelectNextChart,
         tooltipText = "Next tab",
         content = {
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next tab")
@@ -93,7 +99,7 @@ private fun StockChartTabControlsRow(state: StockChartTabsState) {
     )
 
     IconButtonWithTooltip(
-        onClick = state::moveTabBackward,
+        onClick = chartWindow::onMoveChartBackward,
         tooltipText = "Move tab backward",
         content = {
             Icon(Icons.Default.FastRewind, contentDescription = "Move tab backward")
@@ -101,7 +107,7 @@ private fun StockChartTabControlsRow(state: StockChartTabsState) {
     )
 
     IconButtonWithTooltip(
-        onClick = state::moveTabForward,
+        onClick = chartWindow::onMoveChartForward,
         tooltipText = "Move tab forward",
         content = {
             Icon(Icons.Default.FastForward, contentDescription = "Move tab forward")
@@ -115,7 +121,7 @@ private fun ChartTab(
     isSelected: Boolean,
     isCloseable: Boolean,
     onSelect: () -> Unit,
-    onCloseChart: () -> Unit,
+    onClose: () -> Unit,
 ) {
 
     Tab(
@@ -134,7 +140,7 @@ private fun ChartTab(
                 AnimatedVisibility(isCloseable) {
 
                     IconButtonWithTooltip(
-                        onClick = onCloseChart,
+                        onClick = onClose,
                         tooltipText = "Close",
                         content = {
                             Icon(Icons.Default.Close, contentDescription = "Close")

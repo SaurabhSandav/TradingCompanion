@@ -133,7 +133,7 @@ class StockChartsState(
             parentScope = coroutineScope,
             webViewStateProvider = webViewStateProvider,
             getStockChart = ::getStockChart,
-            onNewChart = { pageState, selectedChartId ->
+            onCreateChart = { pageState, selectedChartId ->
 
                 val fromStockChart = (selectedChartId ?: lastActiveChartId.value)
                     ?.let(::getStockChart)
@@ -152,12 +152,12 @@ class StockChartsState(
 
                 chartId
             },
-            onSelectChart = { chartId ->
+            onChartSelected = { chartId ->
 
                 // Set selected chart as lastActiveChart
                 lastActiveChartId.value = chartId
             },
-            onCloseChart = { chartId ->
+            onDestroyChart = { chartId ->
 
                 val stockChart = getStockChart(chartId)
 

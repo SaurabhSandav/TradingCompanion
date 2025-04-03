@@ -203,7 +203,10 @@ private fun StockChartScreen(
 
                         // Tabs
                         StockChartTabRow(
-                            state = chartWindow.tabsState,
+                            chartWindow = chartWindow,
+                            chartIds = chartWindow.chartIds,
+                            selectedIndex = chartWindow.selectedChartIndex,
+                            title = chartWindow::getChartTitle,
                         )
                     }
 
@@ -259,13 +262,11 @@ private fun chartKeyboardShortcuts(
     val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
     if (!defaultCondition) return false
 
-    val tabsState = window.tabsState
-
     when (keyEvent.key) {
-        Key.Tab if keyEvent.isShiftPressed -> tabsState.selectPreviousTab()
-        Key.Tab -> tabsState.selectNextTab()
-        Key.T -> tabsState.newTab()
-        Key.W -> tabsState.closeCurrentTab()
+        Key.Tab if keyEvent.isShiftPressed -> window.onSelectPreviousChart()
+        Key.Tab -> window.onSelectNextChart()
+        Key.T -> window.onNewChart()
+        Key.W -> window.onCloseCurrentChart()
         else -> return false
     }
 

@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.stockchart
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.app.AppWindowState
@@ -16,9 +17,9 @@ class StockChartWindow(
     parentScope: CoroutineScope,
     webViewStateProvider: (CoroutineScope) -> WebViewState,
     private val getStockChart: (ChartId) -> StockChart,
-    private val onNewChart: (ChartPageState, ChartId?) -> ChartId,
-    private val onSelectChart: (ChartId) -> Unit,
-    private val onCloseChart: (ChartId) -> Unit,
+    private val onCreateChart: (ChartPageState, ChartId?) -> ChartId,
+    private val onChartSelected: (ChartId) -> Unit,
+    private val onDestroyChart: (ChartId) -> Unit,
     private val onChartActive: (ChartId) -> Unit,
 ) {
 
@@ -29,27 +30,16 @@ class StockChartWindow(
         coroutineScope = coroutineScope,
         webViewState = webViewStateProvider(coroutineScope),
     )
-    val tabChartIdMap = mutableMapOf<Int, ChartId>()
-    val chartIds
-        get() = tabChartIdMap.values
-
-    internal var showTickerSelectionDialog by mutableStateOf(false)
-    internal var showTimeframeSelectionDialog by mutableStateOf(false)
+    val chartIds = mutableStateListOf<ChartId>()
+    var selectedChartId: ChartId? by mutableStateOf(null)
+    val selectedChartIndex by derivedStateOf { chartIds.indexOf(selectedChartId) }
 
     private val queuedChartIds = mutableListOf<ChartId>()
 
     internal var layout: ChartsLayout by mutableStateOf(Tabs)
 
-    internal val tabsState = StockChartTabsState(
-        onNew = ::onNewTab,
-        onSelect = ::onSelectTab,
-        onClose = ::onCloseTab,
-        title = { tabId -> getStockChart(getChartId(tabId)).title },
-    )
-
-    val selectedChartId by derivedStateOf {
-        tabsState.tabIds.getOrNull(tabsState.selectedTabIndex)?.let(tabChartIdMap::get)
-    }
+    internal var showTickerSelectionDialog by mutableStateOf(false)
+    internal var showTimeframeSelectionDialog by mutableStateOf(false)
 
     internal val chartInteraction = ChartInteraction(
         onChartHover = { selectedChartId?.let(onChartActive) },
@@ -61,19 +51,22 @@ class StockChartWindow(
         // Queue provided chart id
         queuedChartIds.add(chartId)
 
-        // Open a new tab for queued chart id
-        tabsState.newTab()
+        onNewChart()
     }
 
     fun selectChart(chartId: ChartId) {
 
-        val tabId = tabChartIdMap.filterValues { it == chartId }.keys.single()
+        selectedChartId = chartId
 
-        tabsState.selectTab(tabId)
+        onSelectChart(chartId)
     }
 
     fun toFront() {
         appWindowState?.toFront()
+    }
+
+    internal fun getChartTitle(chartId: ChartId): String {
+        return getStockChart(chartId).title
     }
 
     internal fun onSetLayout(layout: ChartsLayout) {
@@ -81,18 +74,20 @@ class StockChartWindow(
         this.layout = layout
     }
 
-    private fun onNewTab(tabId: Int) {
+    internal fun onNewChart() {
 
         // Get queued chart id if available or request new chart and get id
-        val chartId = queuedChartIds.removeFirstOrNull() ?: onNewChart(pageState, selectedChartId)
+        val chartId = queuedChartIds.removeFirstOrNull() ?: onCreateChart(pageState, selectedChartId)
 
-        // Save chart id
-        tabChartIdMap[tabId] = chartId
+        // Add ChartId after currently selected ChartId
+        chartIds.add(selectedChartIndex + 1, chartId)
+
+        onSelectChart(chartId)
     }
 
-    private fun onSelectTab(tabId: Int) {
+    internal fun onSelectChart(chartId: ChartId) {
 
-        val chartId = getChartId(tabId)
+        selectedChartId = chartId
 
         // Show selected chart
         chartIds.forEach { iChartId ->
@@ -103,25 +98,77 @@ class StockChartWindow(
             }
         }
 
-        // Notify observer
-        onSelectChart(chartId)
+        onChartSelected(chartId)
     }
 
-    private fun onCloseTab(tabId: Int) {
+    internal fun onCloseChart(chartId: ChartId) {
 
-        val chartId = getChartId(tabId)
+        if (chartIds.size <= 1) return
 
-        // Notify observer
-        onCloseChart(chartId)
+        val closeChartIndex = chartIds.indexOf(chartId)
+
+        if (closeChartIndex == selectedChartIndex) {
+
+            // Try selecting next chart, or if current chart is last, select previous chart
+            val nextSelectedChartId = when {
+                selectedChartIndex == chartIds.lastIndex -> chartIds[selectedChartIndex - 1]
+                else -> chartIds[selectedChartIndex + 1]
+            }
+
+            // Select another chart
+            onSelectChart(nextSelectedChartId)
+        }
+
+        onDestroyChart(chartId)
 
         // Remove saved chart id
-        tabChartIdMap.remove(tabId)
+        chartIds.remove(chartId)
 
         // Remove chart container from page
         pageState.removeChart(chartId.value)
     }
 
-    private fun getChartId(tabId: Int): ChartId {
-        return tabChartIdMap[tabId] ?: error("Tab($tabId doesn't exist)")
+    internal fun onCloseCurrentChart() {
+        onCloseChart(selectedChartId!!)
+    }
+
+    internal fun onSelectNextChart() {
+
+        val nextSelectionIndex = when {
+            selectedChartIndex == chartIds.lastIndex -> 0
+            else -> selectedChartIndex + 1
+        }
+
+        onSelectChart(chartIds[nextSelectionIndex])
+    }
+
+    internal fun onSelectPreviousChart() {
+
+        val previousSelectionIndex = when {
+            selectedChartIndex == 0 -> chartIds.lastIndex
+            else -> selectedChartIndex - 1
+        }
+
+        onSelectChart(chartIds[previousSelectionIndex])
+    }
+
+    internal fun onMoveChartBackward() {
+
+        if (selectedChartIndex == 0) return
+
+        val moveTo = selectedChartIndex - 1
+        val chartId = chartIds.removeAt(selectedChartIndex)
+
+        chartIds.add(moveTo, chartId)
+    }
+
+    internal fun onMoveChartForward() {
+
+        if (selectedChartIndex == chartIds.lastIndex) return
+
+        val moveTo = selectedChartIndex + 1
+        val chartId = chartIds.removeAt(selectedChartIndex)
+
+        chartIds.add(moveTo, chartId)
     }
 }
