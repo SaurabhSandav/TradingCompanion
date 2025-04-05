@@ -6,6 +6,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +38,7 @@ internal class StockChartData(
     val loadState = MutableSharedFlow<LoadState>(replay = 1)
 
     private var loadScope = MainScope()
+    private var reloadScope = MainScope()
     private val loadedPages = LoadedPages()
     private val loadMutex = Mutex()
 
@@ -70,6 +72,7 @@ internal class StockChartData(
 
     fun destroy() {
         loadScope.cancel()
+        reloadScope.cancel()
         source.destroy()
     }
 
@@ -292,6 +295,13 @@ internal class StockChartData(
         addInitialPageInterval()
     }
 
+    fun syncLoadRangeWith(other: StockChartData) = reloadScope.launchUnit {
+        load {
+            loadedPages.replaceAllWith(other.loadedPages)
+            true
+        }
+    }
+
     private suspend fun addInitialPageInterval(): Boolean {
 
         val initialLoadBefore = loadConfig.initialLoadBefore()
@@ -353,6 +363,8 @@ internal class StockChartData(
     private fun reset() {
 
         loadScope.cancel()
+        reloadScope.cancel()
+        reloadScope = MainScope()
 
         loadedPages.clear()
         mutableCandleSeries.clear()

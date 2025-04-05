@@ -49,4 +49,9 @@ internal class LoadedPages {
     fun clear() = pages.clear()
 
     fun isEmpty() = pages.isEmpty()
+
+    fun replaceAllWith(other: LoadedPages) {
+        pages.clear()
+        pages.addAll(other.pages)
+    }
 }

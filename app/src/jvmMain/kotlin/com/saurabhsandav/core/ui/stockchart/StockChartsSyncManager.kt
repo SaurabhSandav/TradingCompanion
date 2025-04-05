@@ -4,10 +4,33 @@ import com.saurabhsandav.lightweightcharts.data.LogicalRange
 import com.saurabhsandav.lightweightcharts.data.MouseEventParams
 import kotlinx.datetime.Instant
 
-class StockChartsSyncManager(
+internal class StockChartsSyncManager(
     private val charts: () -> Collection<StockChart>,
     private val lastActiveChartId: () -> ChartId?,
 ) {
+
+    fun onCandlesLoaded(stockChart: StockChart) {
+
+        // If chart is not active (user hasn't interacted), skip sync
+        if (lastActiveChartId() != stockChart.chartId) return
+
+        // Update all other charts with same timeframe
+        charts()
+            .filter { filterStockChart ->
+                // Select charts with same timeframe, ignore current chart
+                stockChart.params.timeframe == filterStockChart.params.timeframe &&
+                    filterStockChart != stockChart
+            }
+            .forEach { chart -> chart.syncLoadRangeWith(stockChart) }
+    }
+
+    fun onChartActive(stockChart: StockChart) {
+
+        // Disable load more for non-active charts, Enable for active charts.
+        charts().forEach { iStockChart ->
+            iStockChart.isLoadMoreEnabled = iStockChart == stockChart
+        }
+    }
 
     fun onVisibleLogicalRangeChange(
         stockChart: StockChart,

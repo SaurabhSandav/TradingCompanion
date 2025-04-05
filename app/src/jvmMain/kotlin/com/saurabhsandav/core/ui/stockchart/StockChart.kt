@@ -29,6 +29,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -57,6 +58,7 @@ class StockChart internal constructor(
 
     internal var data: StockChartData = initialData
         private set
+    internal var isLoadMoreEnabled = false
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
     var params by mutableStateOf(initialData.params)
@@ -167,6 +169,7 @@ class StockChart internal constructor(
                 .visibleLogicalRangeChange()
                 .debounce(300.milliseconds)
                 .filterNotNull()
+                .filter { isLoadMoreEnabled }
                 .onEach { logicalRange ->
 
                     // Save visible range
@@ -209,6 +212,10 @@ class StockChart internal constructor(
             // Signal initialization completion
             initialized.complete(Unit)
         }
+    }
+
+    internal fun syncLoadRangeWith(other: StockChart) {
+        data.syncLoadRangeWith(other.data)
     }
 
     fun setDarkMode(isDark: Boolean) {

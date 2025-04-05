@@ -516,6 +516,50 @@ class StockChartDataTest {
         }
     }
 
+    @Test
+    fun `Syncing load range`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+        )
+
+        val data1 = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data2 = StockChartData(FakeCandleSource(params), loadConfig) { }
+
+        data1.loadInitial()
+        data1.loadAfter()
+        data1.loadBefore()
+
+        assertEquals(40, data1.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1446], data1.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1485], data1.candleSeries.last())
+
+        data2.loadInitial()
+
+        assertEquals(20, data2.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1456], data2.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1475], data2.candleSeries.last())
+
+        data2.loadState.test {
+
+            expectMostRecentItem()
+
+            data2.syncLoadRangeWith(data1)
+
+            assertEquals(LoadState.Loading, awaitItem())
+            assertEquals(LoadState.Loaded, awaitItem())
+            ensureAllEventsConsumed()
+
+            assertEquals(40, data2.candleSeries.size)
+            assertEquals(CandleUtils.m5Series[1446], data2.candleSeries.first())
+            assertEquals(CandleUtils.m5Series[1485], data2.candleSeries.last())
+        }
+    }
+
     private class FakeCandleSource(
         override val params: StockChartParams,
         private val emitLive: Boolean = false,

@@ -153,6 +153,8 @@ class StockChartsState(
 
                 // Set selected chart as lastActiveChart
                 lastActiveChartId.value = chartId
+
+                syncManager.onChartActive(getStockChart(chartId))
             },
             onDestroyChart = { chartId ->
 
@@ -170,6 +172,8 @@ class StockChartsState(
 
                 // Update last active chart
                 lastActiveChartId.value = chartId
+
+                syncManager.onChartActive(getStockChart(chartId))
             },
         )
 
@@ -346,7 +350,10 @@ class StockChartsState(
 
                     charts
                         .filter { stockChart -> stockChart.params == params }
-                        .forEach { stockChart -> stockChart.plotterManager.setData() }
+                        .forEach { stockChart ->
+                            syncManager.onCandlesLoaded(stockChart)
+                            stockChart.plotterManager.setData()
+                        }
                 },
             )
         }
