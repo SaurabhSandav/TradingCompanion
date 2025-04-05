@@ -14,7 +14,6 @@ import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
-import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
@@ -45,7 +44,6 @@ class StockChart internal constructor(
     val chartId: ChartId,
     prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
-    private val candleLoader: CandleLoader,
     val actualChart: IChartApi,
     initialData: StockChartData,
     syncManager: StockChartsSyncManager,
@@ -135,8 +133,7 @@ class StockChart internal constructor(
 
         dataCoroutineScope.launch {
 
-            // Await first load
-            data.candleSeries.modifications.first()
+            data.loadInitial()
 
             val candleSeries = data.candleSeries
 
@@ -184,21 +181,19 @@ class StockChart internal constructor(
 
                     when {
                         // Load more historical data if there are less than a certain no. of bars to the left of the visible area.
-                        barsInfo.barsBefore < candleLoader.loadConfig.loadMoreThreshold -> {
+                        barsInfo.barsBefore < data.loadConfig.loadMoreThreshold -> {
 
                             // Load
-                            candleLoader.loadBefore(
-                                params = params,
+                            data.loadBefore(
                                 loadCount = barsInfo.barsBefore.takeIf { it < 0 }?.absoluteValue?.roundToInt(),
                             )
                         }
 
                         // Load more new data if there are less than a certain no. of bars to the right of the visible area.
-                        barsInfo.barsAfter < candleLoader.loadConfig.loadMoreThreshold -> {
+                        barsInfo.barsAfter < data.loadConfig.loadMoreThreshold -> {
 
                             // Load
-                            candleLoader.loadAfter(
-                                params = params,
+                            data.loadAfter(
                                 loadCount = barsInfo.barsAfter.takeIf { it < 0 }?.absoluteValue?.roundToInt(),
                             )
                         }
@@ -264,10 +259,7 @@ class StockChart internal constructor(
             else -> run {
 
                 // Load data for specified interval
-                candleLoader.load(
-                    params = params,
-                    interval = interval,
-                )
+                data.loadInterval(interval)
 
                 val startIndexResult = candleSeries.binarySearchByAsResult(interval.start) { it.openInstant }
 
@@ -306,7 +298,7 @@ class StockChart internal constructor(
             else -> {
 
                 // Load latest data
-                candleLoader.loadLatest(params)
+                data.loadLatest()
 
                 (candleSeries.size - 90F) to (candleSeries.size + 10F)
             }

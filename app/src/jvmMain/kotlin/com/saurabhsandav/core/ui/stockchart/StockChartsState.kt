@@ -8,13 +8,12 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.webview.WebViewState
-import com.saurabhsandav.core.ui.stockchart.data.CandleLoader
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
+import com.saurabhsandav.core.ui.stockchart.data.StockChartData
 import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
-import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.newChildScope
 import com.saurabhsandav.lightweightcharts.options.ChartOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
@@ -34,7 +33,7 @@ import kotlin.uuid.Uuid
 class StockChartsState(
     parentScope: CoroutineScope,
     initialParams: StockChartParams?,
-    loadConfig: LoadConfig,
+    private val loadConfig: LoadConfig,
     val marketDataProvider: MarketDataProvider,
     appPrefs: FlowSettings,
     private val chartPrefs: FlowSettings,
@@ -52,11 +51,7 @@ class StockChartsState(
     val charts
         get() = idChartsMap.values
 
-    private val candleLoader = CandleLoader(
-        marketDataProvider = marketDataProvider,
-        loadConfig = loadConfig,
-        onCandlesLoaded = ::onCandlesLoaded,
-    )
+    private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
 
     private val syncManager = StockChartsSyncManager(
         charts = { charts },
@@ -118,10 +113,6 @@ class StockChartsState(
         window.selectChart(stockChart.chartId)
     }
 
-    fun reset() = coroutineScope.launchUnit {
-        candleLoader.reset()
-    }
-
     internal fun onInitializeChart(
         window: StockChartWindow,
         ticker: String,
@@ -172,7 +163,7 @@ class StockChartsState(
 
                 // Release StockChartData if unused
                 if (!charts.any { it.params == stockChart.params }) {
-                    candleLoader.releaseStockChartData(stockChart.params)
+                    releaseStockChartData(stockChart.params)
                 }
             },
             onChartActive = { chartId ->
@@ -312,9 +303,8 @@ class StockChartsState(
             chartId = chartId,
             prefs = chartPrefs,
             marketDataProvider = marketDataProvider,
-            candleLoader = candleLoader,
             actualChart = actualChart,
-            initialData = candleLoader.getStockChartData(params),
+            initialData = getStockChartData(params),
             syncManager = syncManager,
             initialVisibleRange = initialVisibleRange,
             onShowTickerSelector = {
@@ -338,18 +328,37 @@ class StockChartsState(
         val prevParams = params
 
         // Set StockChartData on StockChart
-        setData(candleLoader.getStockChartData(params))
+        setData(getStockChartData(params))
 
         // Release StockChartData if unused
         if (!charts.any { it.params == prevParams }) {
-            candleLoader.releaseStockChartData(prevParams)
+            releaseStockChartData(prevParams)
         }
     }
 
-    private fun onCandlesLoaded(params: StockChartParams) {
-        charts
-            .filter { stockChart -> stockChart.params == params }
-            .forEach { stockChart -> stockChart.plotterManager.setData() }
+    private fun getStockChartData(params: StockChartParams): StockChartData {
+        return stockChartDataMap.getOrPut(params) {
+
+            StockChartData(
+                source = marketDataProvider.buildCandleSource(params),
+                loadConfig = loadConfig,
+                onCandlesLoaded = {
+
+                    charts
+                        .filter { stockChart -> stockChart.params == params }
+                        .forEach { stockChart -> stockChart.plotterManager.setData() }
+                },
+            )
+        }
+    }
+
+    private fun releaseStockChartData(params: StockChartParams) {
+
+        // Remove StockChartData from cache
+        val data = stockChartDataMap.remove(params)
+
+        // Destroy StockChartData
+        data?.destroy()
     }
 }
 
