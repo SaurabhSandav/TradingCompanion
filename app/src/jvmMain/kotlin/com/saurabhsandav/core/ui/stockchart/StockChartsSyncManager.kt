@@ -1,15 +1,22 @@
 package com.saurabhsandav.core.ui.stockchart
 
+import com.saurabhsandav.core.ui.common.chart.toInstant
 import com.saurabhsandav.lightweightcharts.data.LogicalRange
 import com.saurabhsandav.lightweightcharts.data.MouseEventParams
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 internal class StockChartsSyncManager(
+    private val coroutineScope: CoroutineScope,
     private val charts: () -> Collection<StockChart>,
     private val lastActiveChartId: () -> ChartId?,
+    private val syncPrefs: () -> StockChartsSyncPrefs,
 ) {
 
     fun onCandlesLoaded(stockChart: StockChart) {
+
+        if (!syncPrefs().dateRange) return
 
         // If chart is not active (user hasn't interacted), skip sync
         if (lastActiveChartId() != stockChart.chartId) return
@@ -32,10 +39,45 @@ internal class StockChartsSyncManager(
         }
     }
 
+    fun onChartClicked(
+        stockChart: StockChart,
+        mouseEventParams: MouseEventParams,
+    ) {
+
+        val syncPrefs = syncPrefs()
+        val charts = charts()
+
+        if (syncPrefs.dateRange) {
+
+            // Sync load range for all other charts with same timeframe
+            charts
+                .filter { filterStockChart ->
+                    // Select charts with same timeframe, ignore current chart
+                    stockChart.params.timeframe == filterStockChart.params.timeframe &&
+                        filterStockChart != stockChart
+                }
+                .forEach { chart -> chart.syncLoadRangeWith(stockChart) }
+        }
+
+        if (syncPrefs.time) {
+
+            val instant = mouseEventParams.time?.toInstant() ?: return
+
+            // Navigate other charts to the click time value
+            charts.filter { it != stockChart }.forEach { chart ->
+                coroutineScope.launch {
+                    chart.navigateTo(instant)
+                }
+            }
+        }
+    }
+
     fun onVisibleLogicalRangeChange(
         stockChart: StockChart,
         logicalRange: LogicalRange,
     ) {
+
+        if (!syncPrefs().dateRange) return
 
         // If chart is not active (user hasn't interacted), skip sync
         if (lastActiveChartId() != stockChart.chartId) return
@@ -86,6 +128,8 @@ internal class StockChartsSyncManager(
         stockChart: StockChart,
         mouseEventParams: MouseEventParams,
     ) {
+
+        if (!syncPrefs().crosshair) return
 
         // If chart is not active (user hasn't interacted), skip sync
         if (lastActiveChartId() != stockChart.chartId) return

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.LastPage
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
@@ -22,6 +24,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
@@ -45,6 +48,7 @@ import com.saurabhsandav.core.ui.icons.AppIcons
 import com.saurabhsandav.core.ui.icons.EventUpcoming
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
+import com.saurabhsandav.core.ui.stockchart.StockChartsSyncPrefs
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -55,7 +59,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-fun StockChartTopBar(
+internal fun StockChartTopBar(
     stockChart: StockChart,
     decorationType: StockChartDecorationType,
     onOpenTickerSelection: () -> Unit,
@@ -64,6 +68,10 @@ fun StockChartTopBar(
     onGoToLatest: () -> Unit,
     layout: ChartsLayout,
     onSetLayout: (ChartsLayout) -> Unit,
+    syncPrefs: StockChartsSyncPrefs,
+    onToggleSyncCrosshair: (Boolean?) -> Unit,
+    onToggleSyncTime: (Boolean?) -> Unit,
+    onToggleSyncDateRange: (Boolean?) -> Unit,
     onNewWindow: () -> Unit,
 ) {
 
@@ -136,6 +144,16 @@ fun StockChartTopBar(
         ChartLayout(
             layout = layout,
             onSetLayout = onSetLayout,
+        )
+
+        VerticalDivider()
+
+        Sync(
+            modifier = Modifier.fillMaxHeight(),
+            syncPrefs = syncPrefs,
+            onToggleSyncCrosshair = onToggleSyncCrosshair,
+            onToggleSyncTime = onToggleSyncTime,
+            onToggleSyncDateRange = onToggleSyncDateRange,
         )
 
         VerticalDivider()
@@ -305,6 +323,73 @@ private fun GoTo(
                 showingPicker -> TimePicker(state = timePickerState)
                 else -> TimeInput(state = timePickerState)
             }
+        }
+    }
+}
+
+@Composable
+private fun Sync(
+    modifier: Modifier,
+    syncPrefs: StockChartsSyncPrefs,
+    onToggleSyncCrosshair: (Boolean?) -> Unit,
+    onToggleSyncTime: (Boolean?) -> Unit,
+    onToggleSyncDateRange: (Boolean?) -> Unit,
+) {
+
+    var expanded by state { false }
+
+    Box(
+        modifier = Modifier.height(IntrinsicSize.Max).then(modifier),
+        contentAlignment = Alignment.Center,
+    ) {
+
+        IconButtonWithTooltip(
+            onClick = { expanded = true },
+            tooltipText = "Sync",
+//            shape = RectangleShape, TODO CMP 1.8
+            content = { Icon(Icons.Default.Sync, contentDescription = "Sync") },
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+
+            DropdownMenuItem(
+                onClick = { onToggleSyncCrosshair(null) },
+                text = { Text("Crosshair") },
+                trailingIcon = {
+
+                    Switch(
+                        checked = syncPrefs.crosshair,
+                        onCheckedChange = onToggleSyncCrosshair,
+                    )
+                },
+            )
+
+            DropdownMenuItem(
+                onClick = { onToggleSyncTime(null) },
+                text = { Text("Time") },
+                trailingIcon = {
+
+                    Switch(
+                        checked = syncPrefs.time,
+                        onCheckedChange = onToggleSyncTime,
+                    )
+                },
+            )
+
+            DropdownMenuItem(
+                onClick = { onToggleSyncDateRange(null) },
+                text = { Text("Date Range") },
+                trailingIcon = {
+
+                    Switch(
+                        checked = syncPrefs.dateRange,
+                        onCheckedChange = onToggleSyncDateRange,
+                    )
+                },
+            )
         }
     }
 }

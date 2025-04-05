@@ -11,6 +11,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
+import com.saurabhsandav.core.ui.common.chart.clicks
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
@@ -79,17 +80,6 @@ class StockChart internal constructor(
         // Set initial StockChartData
         setData(buildStockChartData(initialParams, loadedPages))
 
-        // Legend updates
-        actualChart
-            .crosshairMove()
-            .onEach { params ->
-
-                plotterManager.plotters.forEach { plotter ->
-                    if (plotter is SeriesPlotter<*, *>) plotter.updateLegendValues(params)
-                }
-            }
-            .launchIn(coroutineScope)
-
         // Subscribe visible logical range
         actualChart.timeScale
             .visibleLogicalRangeChange()
@@ -102,8 +92,22 @@ class StockChart internal constructor(
         // Subscribe crosshair move
         actualChart
             .crosshairMove()
+            .onEach { params ->
+
+                plotterManager.plotters.forEach { plotter ->
+                    if (plotter is SeriesPlotter<*, *>) plotter.updateLegendValues(params)
+                }
+
+                syncManager.onCrosshairMove(this, params)
+            }
+            .launchIn(coroutineScope)
+
+        // Subscribe clicks
+        actualChart
+            .clicks()
+            .filterNotNull()
             .onEach { mouseEventParams ->
-                syncManager.onCrosshairMove(this, mouseEventParams)
+                syncManager.onChartClicked(this, mouseEventParams)
             }
             .launchIn(coroutineScope)
     }

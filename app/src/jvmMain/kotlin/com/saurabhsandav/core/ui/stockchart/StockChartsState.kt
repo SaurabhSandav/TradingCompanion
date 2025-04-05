@@ -23,11 +23,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.serialization.json.Json
 import kotlin.uuid.Uuid
 
 class StockChartsState(
@@ -35,7 +38,7 @@ class StockChartsState(
     initialParams: StockChartParams?,
     private val loadConfig: LoadConfig,
     val marketDataProvider: MarketDataProvider,
-    appPrefs: FlowSettings,
+    private val appPrefs: FlowSettings,
     private val chartPrefs: FlowSettings,
     private val webViewStateProvider: (CoroutineScope) -> WebViewState,
 ) {
@@ -51,9 +54,21 @@ class StockChartsState(
     val charts
         get() = idChartsMap.values
 
+    internal val syncPrefs: StateFlow<StockChartsSyncPrefs> = appPrefs
+        .getStringOrNullFlow(StockChartsSyncPrefs.PrefKey)
+        .map { jsonStr ->
+            when (jsonStr) {
+                null -> StockChartsSyncPrefs()
+                else -> Json.decodeFromString<StockChartsSyncPrefs>(jsonStr)
+            }
+        }
+        .stateIn(coroutineScope, SharingStarted.Eagerly, StockChartsSyncPrefs())
+
     private val syncManager = StockChartsSyncManager(
+        coroutineScope = coroutineScope,
         charts = { charts },
         lastActiveChartId = { lastActiveChartId.value },
+        syncPrefs = { syncPrefs.value },
     )
 
     init {
@@ -276,6 +291,30 @@ class StockChartsState(
         coroutineScope.launch {
             stockChart.navigateToLatest()
         }
+    }
+
+    internal fun onToggleSyncCrosshair(value: Boolean?) = coroutineScope.launch {
+
+        val syncPrefs = syncPrefs.value
+        val newSyncPrefs = syncPrefs.copy(crosshair = value ?: !syncPrefs.crosshair)
+
+        appPrefs.putString(StockChartsSyncPrefs.PrefKey, Json.encodeToString(newSyncPrefs))
+    }
+
+    internal fun onToggleSyncTime(value: Boolean?) = coroutineScope.launch {
+
+        val syncPrefs = syncPrefs.value
+        val newSyncPrefs = syncPrefs.copy(time = value ?: !syncPrefs.time)
+
+        appPrefs.putString(StockChartsSyncPrefs.PrefKey, Json.encodeToString(newSyncPrefs))
+    }
+
+    internal fun onToggleSyncDateRange(value: Boolean?) = coroutineScope.launch {
+
+        val syncPrefs = syncPrefs.value
+        val newSyncPrefs = syncPrefs.copy(dateRange = value ?: !syncPrefs.dateRange)
+
+        appPrefs.putString(StockChartsSyncPrefs.PrefKey, Json.encodeToString(newSyncPrefs))
     }
 
     private fun newStockChart(

@@ -88,6 +88,7 @@ fun StockCharts(
                     val selectedStockChart = remember(chartWindow.selectedChartId) {
                         chartWindow.selectedChartId?.let(state::getStockChart)
                     }
+                    val syncPrefs by state.syncPrefs.collectAsState()
 
                     when {
                         !state.isInitializedWithParams -> NewChartForm(
@@ -113,6 +114,10 @@ fun StockCharts(
                             onGoToLatest = { state.goToLatest(chartWindow) },
                             layout = chartWindow.layout,
                             onSetLayout = chartWindow::onSetLayout,
+                            syncPrefs = syncPrefs,
+                            onToggleSyncCrosshair = state::onToggleSyncCrosshair,
+                            onToggleSyncTime = state::onToggleSyncTime,
+                            onToggleSyncDateRange = state::onToggleSyncDateRange,
                             onNewWindow = { state.newWindow(chartWindow) },
                             snackbarHost = snackbarHost,
                         )
@@ -186,6 +191,10 @@ private fun StockChartScreen(
     onGoToLatest: () -> Unit,
     layout: ChartsLayout,
     onSetLayout: (ChartsLayout) -> Unit,
+    syncPrefs: StockChartsSyncPrefs,
+    onToggleSyncCrosshair: (Boolean?) -> Unit,
+    onToggleSyncTime: (Boolean?) -> Unit,
+    onToggleSyncDateRange: (Boolean?) -> Unit,
     onNewWindow: () -> Unit,
     snackbarHost: (@Composable () -> Unit)?,
 ) {
@@ -203,6 +212,10 @@ private fun StockChartScreen(
                 onGoToLatest = onGoToLatest,
                 layout = layout,
                 onSetLayout = onSetLayout,
+                syncPrefs = syncPrefs,
+                onToggleSyncCrosshair = onToggleSyncCrosshair,
+                onToggleSyncTime = onToggleSyncTime,
+                onToggleSyncDateRange = onToggleSyncDateRange,
                 onNewWindow = onNewWindow,
             )
 
