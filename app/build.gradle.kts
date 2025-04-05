@@ -155,6 +155,9 @@ kotlin {
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.test)
 
+            // Turbine
+            implementation(libs.turbine)
+
             // Jimfs
             implementation(libs.jimfs)
         }
