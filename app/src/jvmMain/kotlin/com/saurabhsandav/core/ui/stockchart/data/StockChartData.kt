@@ -23,6 +23,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
 import kotlin.math.ceil
+import kotlin.time.Duration.Companion.seconds
 
 internal class StockChartData(
     val source: CandleSource,
@@ -113,7 +114,7 @@ internal class StockChartData(
                 }
 
                 // Add new interval to LoadedPages
-                loadedPages.addBefore(newBefore..before)
+                loadedPages.addBefore(newBefore..(before - 1.seconds))
 
                 // Drop a page if maxCandleCount was crossed
                 val maxCandleCount = loadConfig.maxCandleCount ?: return@repeat
@@ -159,7 +160,7 @@ internal class StockChartData(
                 }
 
                 // Add new interval to LoadedPages
-                loadedPages.addAfter(after..newAfter)
+                loadedPages.addAfter((after + 1.seconds)..newAfter)
 
                 // Drop a page if maxCandleCount was crossed
                 val maxCandleCount = loadConfig.maxCandleCount ?: return@repeat
@@ -249,7 +250,7 @@ internal class StockChartData(
                     // If no candles available, do nothing.
                     newBefore == null || before == newBefore -> hasBefore = false
                     // Add new interval to LoadedPages
-                    else -> loadedPages.addBefore(newBefore..before)
+                    else -> loadedPages.addBefore(newBefore..(before - 1.seconds))
                 }
             }
 
@@ -268,7 +269,7 @@ internal class StockChartData(
                     // If no candles available, do nothing.
                     newAfter == null || after == newAfter -> hasAfter = false
                     // Add new interval to LoadedPages
-                    else -> loadedPages.addAfter(after..newAfter)
+                    else -> loadedPages.addAfter((after + 1.seconds)..newAfter)
                 }
             }
         }

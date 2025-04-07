@@ -10,8 +10,10 @@ import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -397,6 +399,120 @@ class StockChartDataTest {
             data.destroy()
             ensureAllEventsConsumed()
             assertTrue { candleSource.isDestroyed }
+        }
+    }
+
+    @Test
+    fun `Load Before - Max Candle Count crossed`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig) { }
+
+        // 20 candles
+        data.loadInitial()
+        // 30 candles
+        data.loadBefore()
+        // 40 candles
+        data.loadBefore()
+        // 30 candles (Max candle count crossed, Initial page dropped)
+        data.loadBefore()
+
+        assertEquals(30, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1426], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1455], data.candleSeries.last())
+    }
+
+    @Test
+    fun `Load After - Max Candle Count crossed`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig) { }
+
+        // 20 candles
+        data.loadInitial()
+        // 30 candles
+        data.loadAfter()
+        // 40 candles
+        data.loadAfter()
+        // 30 candles (Max candle count crossed, Initial page dropped)
+        data.loadAfter()
+
+        assertEquals(30, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1476], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1505], data.candleSeries.last())
+    }
+
+    @Test
+    fun `Load before, after and before - Max Candle Count crossed`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig) { }
+
+        // 20 candles
+        data.loadInitial()
+        // 30 candles
+        data.loadBefore()
+        // 40 candles
+        data.loadAfter()
+        // 30 candles (Max candle count crossed, Initial page dropped)
+        data.loadBefore()
+
+        assertEquals(40, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1436], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+    }
+
+    @Test
+    fun `onCandlesLoaded Callback`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val channel = Channel<Int>(Channel.BUFFERED)
+        var loadCount = 0
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig) { channel.trySend(loadCount++) }
+
+        channel.consumeAsFlow().test {
+            expectNoEvents()
+            data.loadInitial()
+            assertEquals(0, awaitItem())
+            data.loadBefore()
+            assertEquals(1, awaitItem())
         }
     }
 

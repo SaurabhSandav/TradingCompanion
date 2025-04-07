@@ -4,36 +4,49 @@ import kotlinx.datetime.Instant
 
 internal class LoadedPages {
 
-    private val _pages = mutableListOf<ClosedRange<Instant>>()
-    val pages: List<ClosedRange<Instant>>
-        get() = _pages
+    private val pages = mutableListOf<ClosedRange<Instant>>()
 
     val start: Instant
-        get() = pages.first().start
+        get() = nonEmptyPages().first().start
 
     val endInclusive: Instant
-        get() = pages.last().endInclusive
+        get() = nonEmptyPages().last().endInclusive
 
     val interval: ClosedRange<Instant>
         get() = start..endInclusive
 
+    private fun nonEmptyPages(): List<ClosedRange<Instant>> {
+        check(pages.isNotEmpty()) { "No pages loaded" }
+        return pages
+    }
+
     fun addBefore(range: ClosedRange<Instant>) {
-        _pages.add(0, range)
+
+        if (pages.isNotEmpty()) {
+            require(range.endInclusive < start) { "New page interval should end before current interval" }
+        }
+
+        pages.add(0, range)
     }
 
     fun addAfter(range: ClosedRange<Instant>) {
-        _pages.add(range)
+
+        if (pages.isNotEmpty()) {
+            require(endInclusive < range.endInclusive) { "New page interval should start after current interval" }
+        }
+
+        pages.add(range)
     }
 
     fun dropBefore() {
-        _pages.removeFirst()
+        pages.removeFirst()
     }
 
     fun dropAfter() {
-        _pages.removeLast()
+        pages.removeLast()
     }
 
-    fun clear() = _pages.clear()
+    fun clear() = pages.clear()
 
-    fun isEmpty() = _pages.isEmpty()
+    fun isEmpty() = pages.isEmpty()
 }
