@@ -82,6 +82,7 @@ internal class StockChartData(
     fun destroy() {
         loadScope.cancel()
         coroutineScope.cancel()
+        source.destroy()
     }
 
     fun load(interval: ClosedRange<Instant>): Job = coroutineScope.launch {

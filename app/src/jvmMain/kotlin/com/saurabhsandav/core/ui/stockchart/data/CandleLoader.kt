@@ -35,6 +35,8 @@ internal class CandleLoader(
 
                 loadMutex.withLock {
 
+                    data.source.init()
+
                     loadInitial(data)
                 }
             }
@@ -48,14 +50,8 @@ internal class CandleLoader(
         // Remove StockChartData from cache
         val data = stockChartDataMap.remove(params)
 
-        if (data != null) {
-
-            // Destroy StockChartData
-            data.destroy()
-
-            // Notify MarketDataProvider about CandleSource release
-            marketDataProvider.releaseCandleSource(data.source)
-        }
+        // Destroy StockChartData
+        data?.destroy()
     }
 
     suspend fun reset() = loadMutex.withLock {

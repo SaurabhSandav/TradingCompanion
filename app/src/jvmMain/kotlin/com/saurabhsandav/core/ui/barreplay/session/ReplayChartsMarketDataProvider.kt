@@ -13,9 +13,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.NIFTY500
-import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +25,6 @@ import kotlinx.coroutines.flow.flowOn
 
 internal class ReplayChartsMarketDataProvider(
     private val appDispatchers: AppDispatchers,
-    private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
     private val tradingProfiles: TradingProfiles,
@@ -54,11 +51,8 @@ internal class ReplayChartsMarketDataProvider(
             // TODO Disabled until markers are made individually mark-able
 //            getTradeMarkers = { candleSeries -> getTradeMarkers(params.ticker, candleSeries) },
 //            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.ticker, candleSeries) },
+            onDestroy = replaySeriesCache::releaseForChart,
         )
-    }
-
-    override fun releaseCandleSource(candleSource: CandleSource) = coroutineScope.launchUnit {
-        replaySeriesCache.releaseForChart(candleSource.params)
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker

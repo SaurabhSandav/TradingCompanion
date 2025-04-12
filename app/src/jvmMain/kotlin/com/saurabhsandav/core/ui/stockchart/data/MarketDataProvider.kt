@@ -15,7 +15,5 @@ interface MarketDataProvider {
 
     fun buildCandleSource(params: StockChartParams): CandleSource
 
-    fun releaseCandleSource(candleSource: CandleSource) = Unit
-
     fun sessionChecker(): SessionChecker
 }

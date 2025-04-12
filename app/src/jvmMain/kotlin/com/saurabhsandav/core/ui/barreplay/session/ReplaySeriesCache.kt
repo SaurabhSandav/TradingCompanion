@@ -11,8 +11,6 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 internal class ReplaySeriesCache(
     private val replayParams: BarReplayState.ReplayParams,
@@ -20,58 +18,25 @@ internal class ReplaySeriesCache(
     private val candleRepo: CandleRepository,
 ) {
 
-    private val chartReplaySeriesMap = mutableMapOf<StockChartParams, ReplaySeries>()
     private val ordersManagerReplaySeriesMap = mutableMapOf<String, ReplaySeries>()
-    private val mutex = Mutex()
 
-    suspend fun getForChart(params: StockChartParams): ReplaySeries = mutex.withLock {
+    suspend fun getForChart(params: StockChartParams): ReplaySeries = buildReplaySeries(params.ticker, params.timeframe)
 
-        return chartReplaySeriesMap.getOrPut(params) {
-
-            val cached = when (replayParams.baseTimeframe) {
-                params.timeframe -> ordersManagerReplaySeriesMap[params.ticker]
-                else -> null
-            }
-
-            cached ?: buildReplaySeries(params.ticker, params.timeframe)
-        }
+    fun releaseForChart(replaySeries: ReplaySeries) {
+        barReplay.removeSeries(replaySeries)
     }
 
-    suspend fun releaseForChart(params: StockChartParams) = mutex.withLock {
-
-        val replaySeries = chartReplaySeriesMap.remove(params)
-
-        if (replaySeries != null) {
-
-            val ordersManagerReplaySeries = when (replayParams.baseTimeframe) {
-                params.timeframe -> ordersManagerReplaySeriesMap[params.ticker]
-                else -> null
-            }
-
-            if (ordersManagerReplaySeries == null) barReplay.removeSeries(replaySeries)
-        }
-    }
-
-    suspend fun getForOrdersManager(ticker: String): ReplaySeries = mutex.withLock {
-
+    suspend fun getForOrdersManager(ticker: String): ReplaySeries {
         return ordersManagerReplaySeriesMap.getOrPut(ticker) {
-
-            val cached = chartReplaySeriesMap[StockChartParams(ticker, replayParams.baseTimeframe)]
-
-            cached ?: buildReplaySeries(ticker, replayParams.baseTimeframe)
+            buildReplaySeries(ticker, replayParams.baseTimeframe)
         }
     }
 
-    suspend fun releaseForOrdersManager(ticker: String) = mutex.withLock {
+    fun releaseForOrdersManager(ticker: String) {
 
-        val replaySeries = ordersManagerReplaySeriesMap.remove(ticker)
-
-        if (replaySeries != null) {
-
-            val chartReplaySeries = chartReplaySeriesMap[StockChartParams(ticker, replayParams.baseTimeframe)]
-
-            if (chartReplaySeries == null) barReplay.removeSeries(replaySeries)
-        }
+        ordersManagerReplaySeriesMap
+            .remove(ticker)
+            ?.let(barReplay::removeSeries)
     }
 
     private suspend fun buildReplaySeries(

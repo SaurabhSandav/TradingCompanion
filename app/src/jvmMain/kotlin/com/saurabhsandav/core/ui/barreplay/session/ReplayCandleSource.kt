@@ -20,13 +20,25 @@ internal class ReplayCandleSource(
     private val replaySeriesFactory: suspend () -> ReplaySeries,
     private val getTradeMarkers: (ClosedRange<Instant>) -> Flow<List<TradeMarker>>,
     private val getTradeExecutionMarkers: (ClosedRange<Instant>) -> Flow<List<TradeExecutionMarker>>,
+    private val onDestroy: (ReplaySeries) -> Unit,
 ) : CandleSource {
 
     val replaySeries = CompletableDeferred<ReplaySeries>()
 
+    override suspend fun init() {
+        replaySeries.complete(replaySeriesFactory())
+    }
+
+    override fun destroy() {
+        when {
+            replaySeries.isActive -> replaySeries.cancel()
+            else -> onDestroy(replaySeries.getCompleted())
+        }
+    }
+
     override suspend fun onLoad(interval: ClosedRange<Instant>): CandleSource.Result {
 
-        val replaySeries = loadReplaySeries()
+        val replaySeries = replaySeries.await()
 
         val fromIndex = replaySeries
             .binarySearchByAsResult(interval.start) { it.openInstant }
@@ -45,7 +57,7 @@ internal class ReplayCandleSource(
 
     override suspend fun getCount(interval: ClosedRange<Instant>): Int {
 
-        val replaySeries = loadReplaySeries()
+        val replaySeries = replaySeries.await()
 
         val fromIndex = replaySeries
             .binarySearchByAsResult(interval.start) { it.openInstant }
@@ -64,7 +76,7 @@ internal class ReplayCandleSource(
         loadCount: Int,
     ): Instant {
 
-        val replaySeries = loadReplaySeries()
+        val replaySeries = replaySeries.await()
 
         val beforeIndex = replaySeries
             .binarySearchByAsResult(currentBefore) { it.openInstant }
@@ -79,7 +91,7 @@ internal class ReplayCandleSource(
         loadCount: Int,
     ): Instant {
 
-        val replaySeries = loadReplaySeries()
+        val replaySeries = replaySeries.await()
 
         val afterIndex = replaySeries
             .binarySearchByAsResult(currentAfter) { it.openInstant }
@@ -87,15 +99,6 @@ internal class ReplayCandleSource(
         val newAfterIndex = (afterIndex + loadCount).coerceAtMost(replaySeries.lastIndex)
 
         return replaySeries[newAfterIndex].openInstant
-    }
-
-    private suspend fun loadReplaySeries(): ReplaySeries {
-
-        if (!replaySeries.isCompleted) {
-            replaySeries.complete(replaySeriesFactory())
-        }
-
-        return replaySeries.await()
     }
 
     override fun getTradeMarkers(instantRange: ClosedRange<Instant>): Flow<List<TradeMarker>> {

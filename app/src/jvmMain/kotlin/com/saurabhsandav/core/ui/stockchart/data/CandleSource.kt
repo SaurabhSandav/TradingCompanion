@@ -12,6 +12,10 @@ interface CandleSource {
 
     val params: StockChartParams
 
+    suspend fun init() = Unit
+
+    fun destroy() = Unit
+
     suspend fun onLoad(interval: ClosedRange<Instant>): Result
 
     suspend fun getCount(interval: ClosedRange<Instant>): Int
