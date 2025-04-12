@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
+import app.cash.molecule.SnapshotNotifier
 import co.touchlab.kermit.Logger
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
@@ -37,6 +38,9 @@ import kotlin.time.Duration.Companion.seconds
 suspend fun runApp(isDebugMode: Boolean) {
 
     setWM_CLASS()
+
+    // For Molecule. Read `SnapshotNotifier` docs for more.
+    System.setProperty("app.cash.molecule.snapshotNotifier", SnapshotNotifier.External.name)
 
     val restoreScheduler = RestoreScheduler()
 
