@@ -18,7 +18,7 @@ jetpack-paging = "3.3.6"
 
 # Square
 sqldelight = "2.0.2"
-molecule = "2.0.0"
+molecule = "2.1.0"
 
 # Other
 multiplatformSettings = "1.3.0"
