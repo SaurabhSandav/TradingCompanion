@@ -73,14 +73,14 @@ internal class StockChartData(
         source.destroy()
     }
 
-    suspend fun loadInitial() {
+    suspend fun loadInitial() = load {
 
-        if (isInitialized) return
+        if (isInitialized) return@load false
 
         isInitialized = true
 
         source.init()
-        loadMutex.withLock { loadInitialLockLess() }
+        addInitialPageInterval()
     }
 
     suspend fun loadBefore(loadCount: Int? = null) {
@@ -88,10 +88,10 @@ internal class StockChartData(
         // If locked, loading before may be unnecessary.
         if (loadMutex.isLocked) return
 
-        loadMutex.withLock {
+        load {
 
             // Return if all before candles already loaded
-            if (!hasBefore) return@withLock
+            if (!hasBefore) return@load false
 
             val initialLoadedInterval = loadedPages.interval
             val loadIterations = when {
@@ -122,10 +122,8 @@ internal class StockChartData(
                 if (currentCandleCount > maxCandleCount) loadedPages.dropAfter()
             }
 
-            // Nothing loaded
-            if (loadedPages.interval == initialLoadedInterval) return@withLock
-
-            load()
+            // Load if interval changed (load successful)
+            loadedPages.interval != initialLoadedInterval
         }
     }
 
@@ -134,10 +132,10 @@ internal class StockChartData(
         // If locked, loading after may be unnecessary.
         if (loadMutex.isLocked) return
 
-        loadMutex.withLock {
+        load {
 
             // Return if all after candles already loaded
-            if (isCollectingLive || !hasAfter) return@withLock
+            if (isCollectingLive || !hasAfter) return@load false
 
             val initialLoadedInterval = loadedPages.interval
             val loadIterations = when {
@@ -168,19 +166,17 @@ internal class StockChartData(
                 if (currentCandleCount > maxCandleCount) loadedPages.dropBefore()
             }
 
-            // Nothing loaded
-            if (loadedPages.interval == initialLoadedInterval) return@withLock
-
-            load()
+            // Load if interval changed (load successful)
+            loadedPages.interval != initialLoadedInterval
         }
     }
 
-    suspend fun loadInterval(interval: ClosedRange<Instant>) = loadMutex.withLock {
+    suspend fun loadInterval(interval: ClosedRange<Instant>) = load {
 
         val currentInterval = loadedPages.interval
 
         // Return if candles already loaded.
-        if (interval.start in currentInterval && interval.endInclusive in currentInterval) return@withLock
+        if (interval.start in currentInterval && interval.endInclusive in currentInterval) return@load false
 
         // Candles not already loaded. Replace current candles with given interval candles
 
@@ -276,25 +272,27 @@ internal class StockChartData(
 
         this.hasBefore = hasBefore
         this.hasAfter = hasAfter
-        load()
+
+        return@load true
     }
 
-    suspend fun loadLatest() = loadMutex.withLock {
+    suspend fun loadLatest() = load {
 
         // Return if all latest candles already loaded
-        if (isCollectingLive || !hasAfter) return@withLock
+        if (isCollectingLive || !hasAfter) return@load false
 
         val initialLoadBefore = loadConfig.initialLoadBefore()
 
         // Return if initial interval is already loaded
-        if (loadedPages.endInclusive >= initialLoadBefore) return@withLock
+        if (loadedPages.endInclusive >= initialLoadBefore) return@load false
 
         // Reset candles and load initial interval
         reset()
-        loadInitialLockLess()
+
+        addInitialPageInterval()
     }
 
-    private suspend fun loadInitialLockLess() {
+    private suspend fun addInitialPageInterval(): Boolean {
 
         val initialLoadBefore = loadConfig.initialLoadBefore()
         val newBefore = source.getBeforeInstant(
@@ -303,16 +301,18 @@ internal class StockChartData(
         )
 
         // If no candles available, don't add page.
-        if (newBefore == null || initialLoadBefore == newBefore) return
+        if (newBefore == null || initialLoadBefore == newBefore) return false
 
         // Add initial page
         loadedPages.addAfter(newBefore..initialLoadBefore)
 
-        load()
+        return true
     }
 
     /** Loads entire interval again and restarts live candle collection */
-    private suspend fun load() {
+    private suspend fun load(updateInterval: suspend () -> Boolean) = loadMutex.withLock {
+
+        if (!updateInterval()) return@withLock
 
         // Recreate Candle update/live scope
         loadScope.cancel()
