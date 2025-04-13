@@ -8,6 +8,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,19 @@ internal fun TimeframeSelectionDialog(
         itemText = { it.toLabel() },
         onSelect = onSelect,
         title = { Text("Select Timeframe") },
+        onKeyEvent = onKeyEvent@{ keyEvent, timeframe ->
+
+            val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
+            if (!defaultCondition) return@onKeyEvent false
+
+            when (keyEvent.key) {
+                Key.C if onOpenInCurrentWindow != null -> onOpenInCurrentWindow(timeframe)
+                Key.N -> onOpenInNewWindow(timeframe)
+                else -> return@onKeyEvent false
+            }
+
+            true
+        },
         itemTrailingContent = { timeframe ->
 
             Row {

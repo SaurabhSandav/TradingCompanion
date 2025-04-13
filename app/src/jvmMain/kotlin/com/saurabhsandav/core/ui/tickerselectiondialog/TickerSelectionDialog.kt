@@ -12,6 +12,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import com.saurabhsandav.core.ui.common.controls.LazyListSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Chart
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Regular
@@ -37,6 +42,21 @@ fun TickerSelectionDialog(
         onSelect = onSelect,
         onFilter = { query -> state.eventSink(Filter(query)) },
         title = { Text("Select Ticker") },
+        onKeyEvent = onKeyEvent@{ keyEvent, ticker ->
+
+            if (type !is Chart) return@onKeyEvent false
+
+            val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
+            if (!defaultCondition) return@onKeyEvent false
+
+            when (keyEvent.key) {
+                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(ticker)
+                Key.N -> type.onOpenInNewWindow(ticker)
+                else -> return@onKeyEvent false
+            }
+
+            true
+        },
         itemTrailingContent = (type as? Chart)?.let { type ->
             { ticker ->
 

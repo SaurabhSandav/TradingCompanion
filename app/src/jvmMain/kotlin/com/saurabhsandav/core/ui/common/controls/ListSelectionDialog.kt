@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -56,6 +57,7 @@ fun <T : Any> ListSelectionDialog(
     title: @Composable (() -> Unit)? = null,
     initialFilterQuery: String = "",
     dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
+    onKeyEvent: ((KeyEvent, T) -> Boolean)? = null,
     itemTrailingContent: @Composable ((T) -> Unit)? = null,
 ) {
 
@@ -87,23 +89,35 @@ fun <T : Any> ListSelectionDialog(
                     .focusRequester(focusRequester)
                     .onPreviewKeyEvent { keyEvent ->
 
-                        if (keyEvent.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        if (keyEvent.type == KeyEventType.KeyDown) {
 
-                        when (keyEvent.key) {
-                            Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                            Key.DirectionDown ->
-                                selectedIndex =
-                                    (selectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
+                            var consumed = true
 
-                            Key.Enter -> {
-                                onSelect(filteredItems[selectedIndex])
-                                onDismissRequest()
+                            when (keyEvent.key) {
+                                Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
+                                Key.DirectionDown ->
+                                    selectedIndex = (selectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
+
+                                Key.Enter -> {
+                                    onSelect(filteredItems[selectedIndex])
+                                    onDismissRequest()
+                                }
+
+                                else -> consumed = false
                             }
 
-                            else -> return@onPreviewKeyEvent false
+                            if (consumed) return@onPreviewKeyEvent true
                         }
 
-                        true
+                        if (onKeyEvent != null && selectedIndex != -1) {
+                            val consumed = onKeyEvent(keyEvent, filteredItems[selectedIndex])
+                            if (consumed) {
+                                onDismissRequest()
+                                return@onPreviewKeyEvent true
+                            }
+                        }
+
+                        false
                     },
                 value = filterQuery,
                 onValueChange = {
@@ -165,6 +179,7 @@ fun <T : Any> LazyListSelectionDialog(
     title: @Composable (() -> Unit)? = null,
     initialFilterQuery: String = "",
     dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
+    onKeyEvent: ((KeyEvent, T) -> Boolean)? = null,
     itemTrailingContent: @Composable ((T) -> Unit)? = null,
 ) {
 
@@ -202,23 +217,33 @@ fun <T : Any> LazyListSelectionDialog(
                     .focusRequester(focusRequester)
                     .onPreviewKeyEvent { keyEvent ->
 
-                        if (keyEvent.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        if (keyEvent.type == KeyEventType.KeyDown) {
 
-                        when (keyEvent.key) {
-                            Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                            Key.DirectionDown ->
-                                selectedIndex =
-                                    (selectedIndex + 1).coerceAtMost(items.lastIndex)
+                            var consumed = true
 
-                            Key.Enter -> {
-                                onSelect(items[selectedIndex])
-                                onDismissRequest()
+                            when (keyEvent.key) {
+                                Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
+                                Key.DirectionDown -> selectedIndex = (selectedIndex + 1).coerceAtMost(items.lastIndex)
+                                Key.Enter -> {
+                                    onSelect(items[selectedIndex])
+                                    onDismissRequest()
+                                }
+
+                                else -> consumed = false
                             }
 
-                            else -> return@onPreviewKeyEvent false
+                            if (consumed) return@onPreviewKeyEvent true
                         }
 
-                        true
+                        if (onKeyEvent != null && selectedIndex != -1) {
+                            val consumed = onKeyEvent(keyEvent, items[selectedIndex])
+                            if (consumed) {
+                                onDismissRequest()
+                                return@onPreviewKeyEvent true
+                            }
+                        }
+
+                        false
                     },
                 value = filterQuery,
                 onValueChange = {
