@@ -46,8 +46,9 @@ class StockChart internal constructor(
     prefs: FlowSettings,
     private val marketDataProvider: MarketDataProvider,
     val actualChart: IChartApi,
-    initialData: StockChartData,
     syncManager: StockChartsSyncManager,
+    initialParams: StockChartParams,
+    private val buildStockChartData: (StockChartParams) -> StockChartData,
     private val onShowTickerSelector: () -> Unit,
     private val onShowTimeframeSelector: () -> Unit,
     initialVisibleRange: ClosedRange<Float>? = null,
@@ -56,12 +57,12 @@ class StockChart internal constructor(
     private val coroutineScope = parentScope.newChildScope()
     private var dataCoroutineScope = coroutineScope.newChildScope()
 
-    internal var data: StockChartData = initialData
+    internal lateinit var data: StockChartData
         private set
     internal var isLoadMoreEnabled = false
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
-    var params by mutableStateOf(initialData.params)
+    var params by mutableStateOf(initialParams)
     val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
     val plotterManager = PlotterManager(coroutineScope, this, prefs)
 
@@ -74,7 +75,7 @@ class StockChart internal constructor(
         )
 
         // Set initial StockChartData
-        setData(initialData)
+        setData(buildStockChartData(initialParams))
 
         // Legend updates
         actualChart
@@ -103,6 +104,13 @@ class StockChart internal constructor(
                 syncManager.onCrosshairMove(this, mouseEventParams)
             }
             .launchIn(coroutineScope)
+    }
+
+    fun newParams(params: StockChartParams) {
+
+        data.destroy()
+
+        setData(buildStockChartData(params))
     }
 
     internal fun setData(data: StockChartData) {
@@ -242,6 +250,7 @@ class StockChart internal constructor(
         coroutineScope.cancel()
         dataCoroutineScope.cancel()
         actualChart.remove()
+        data.destroy()
     }
 
     private suspend fun navigateToInterval(interval: ClosedRange<Instant>?) {

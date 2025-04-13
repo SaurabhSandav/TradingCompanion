@@ -51,8 +51,6 @@ class StockChartsState(
     val charts
         get() = idChartsMap.values
 
-    private val stockChartDataMap = mutableMapOf<StockChartParams, StockChartData>()
-
     private val syncManager = StockChartsSyncManager(
         charts = { charts },
         lastActiveChartId = { lastActiveChartId.value },
@@ -162,11 +160,6 @@ class StockChartsState(
 
                 // Destroy chart
                 stockChart.destroy()
-
-                // Release StockChartData if unused
-                if (!charts.any { it.params == stockChart.params }) {
-                    releaseStockChartData(stockChart.params)
-                }
             },
             onChartActive = { chartId ->
 
@@ -308,8 +301,20 @@ class StockChartsState(
             prefs = chartPrefs,
             marketDataProvider = marketDataProvider,
             actualChart = actualChart,
-            initialData = getStockChartData(params),
             syncManager = syncManager,
+            initialParams = params,
+            buildStockChartData = { params ->
+
+                StockChartData(
+                    source = marketDataProvider.buildCandleSource(params),
+                    loadConfig = loadConfig,
+                    onCandlesLoaded = {
+                        val stockChart = getStockChart(chartId)
+                        syncManager.onCandlesLoaded(stockChart)
+                        stockChart.plotterManager.setData()
+                    },
+                )
+            },
             initialVisibleRange = initialVisibleRange,
             onShowTickerSelector = {
                 val window = windows.first { window -> chartId in window.chartIds }
@@ -325,47 +330,6 @@ class StockChartsState(
         stockChart.setDarkMode(isDark.value)
 
         return stockChart
-    }
-
-    private fun StockChart.newParams(params: StockChartParams) {
-
-        val prevParams = params
-
-        // Set StockChartData on StockChart
-        setData(getStockChartData(params))
-
-        // Release StockChartData if unused
-        if (!charts.any { it.params == prevParams }) {
-            releaseStockChartData(prevParams)
-        }
-    }
-
-    private fun getStockChartData(params: StockChartParams): StockChartData {
-        return stockChartDataMap.getOrPut(params) {
-
-            StockChartData(
-                source = marketDataProvider.buildCandleSource(params),
-                loadConfig = loadConfig,
-                onCandlesLoaded = {
-
-                    charts
-                        .filter { stockChart -> stockChart.params == params }
-                        .forEach { stockChart ->
-                            syncManager.onCandlesLoaded(stockChart)
-                            stockChart.plotterManager.setData()
-                        }
-                },
-            )
-        }
-    }
-
-    private fun releaseStockChartData(params: StockChartParams) {
-
-        // Remove StockChartData from cache
-        val data = stockChartDataMap.remove(params)
-
-        // Destroy StockChartData
-        data?.destroy()
     }
 }
 
