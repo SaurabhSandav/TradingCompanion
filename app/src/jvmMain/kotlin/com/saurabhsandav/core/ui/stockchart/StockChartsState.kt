@@ -303,11 +303,12 @@ class StockChartsState(
             actualChart = actualChart,
             syncManager = syncManager,
             initialParams = params,
-            buildStockChartData = { params ->
+            buildStockChartData = { params, loadedPages ->
 
                 StockChartData(
                     source = marketDataProvider.buildCandleSource(params),
                     loadConfig = loadConfig,
+                    loadedPages = loadedPages,
                     onCandlesLoaded = {
                         val stockChart = getStockChart(chartId)
                         syncManager.onCandlesLoaded(stockChart)

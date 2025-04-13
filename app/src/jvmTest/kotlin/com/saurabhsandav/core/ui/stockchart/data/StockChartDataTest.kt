@@ -39,7 +39,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         assertFalse { candleSource.isInitialized }
         assertFalse { candleSource.isDestroyed }
@@ -58,7 +58,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         data.loadState.test {
 
@@ -92,7 +92,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         data.loadState.test {
 
@@ -119,6 +119,38 @@ class StockChartDataTest {
     }
 
     @Test
+    fun `Load Initial with existing interval`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val loadedPages = LoadedPages()
+        val data1 = StockChartData(FakeCandleSource(params), loadConfig, loadedPages) { }
+
+        data1.loadInitial()
+        repeat(4) { data1.loadBefore() }
+
+        assertEquals(40, data1.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1416], data1.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1455], data1.candleSeries.last())
+
+        val data2 = StockChartData(FakeCandleSource(params), loadConfig, loadedPages) { }
+
+        assertEquals(0, data2.candleSeries.size)
+        data2.loadInitial()
+
+        assertEquals(40, data2.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1416], data2.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1455], data2.candleSeries.last())
+    }
+
+    @Test
     fun `Load Before, Custom load count`() = runTest {
 
         val params = StockChartParams("ABC", Timeframe.M5)
@@ -129,7 +161,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadBefore(loadCount = 15)
@@ -150,7 +182,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadAfter()
@@ -171,7 +203,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadAfter(loadCount = 15)
@@ -192,7 +224,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadAfter()
@@ -214,7 +246,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadAfter()
@@ -237,7 +269,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadInterval(
@@ -260,7 +292,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadInterval(
@@ -283,7 +315,7 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val data = StockChartData(FakeCandleSource(params), loadConfig, LoadedPages()) { }
 
         data.loadInitial()
         data.loadInterval(
@@ -316,7 +348,7 @@ class StockChartDataTest {
                 emit(candles)
             }
         }
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         data.loadInitial()
 
@@ -347,7 +379,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params, emitLive = true)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         data.loadInitial()
 
@@ -381,7 +413,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params, emitLive = true)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         data.loadInitial()
 
@@ -415,7 +447,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         // 20 candles
         data.loadInitial()
@@ -444,7 +476,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         // 20 candles
         data.loadInitial()
@@ -473,7 +505,7 @@ class StockChartDataTest {
         )
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
 
         // 20 candles
         data.loadInitial()
@@ -505,7 +537,7 @@ class StockChartDataTest {
         var loadCount = 0
 
         val candleSource = FakeCandleSource(params)
-        val data = StockChartData(candleSource, loadConfig) { channel.trySend(loadCount++) }
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { channel.trySend(loadCount++) }
 
         channel.consumeAsFlow().test {
             expectNoEvents()
@@ -517,7 +549,7 @@ class StockChartDataTest {
     }
 
     @Test
-    fun `Syncing load range`() = runTest {
+    fun `Reload without changing interval`() = runTest {
 
         val params = StockChartParams("ABC", Timeframe.M5)
         val loadConfig = LoadConfig(
@@ -527,36 +559,69 @@ class StockChartDataTest {
             loadMoreThreshold = 5,
         )
 
-        val data1 = StockChartData(FakeCandleSource(params), loadConfig) { }
-        val data2 = StockChartData(FakeCandleSource(params), loadConfig) { }
+        val loadedPages = LoadedPages()
+        val data = StockChartData(FakeCandleSource(params), loadConfig, loadedPages) { }
 
-        data1.loadInitial()
-        data1.loadAfter()
-        data1.loadBefore()
+        data.loadInitial()
+        data.loadAfter()
+        data.loadBefore()
 
-        assertEquals(40, data1.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1446], data1.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data1.candleSeries.last())
+        assertEquals(40, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
 
-        data2.loadInitial()
-
-        assertEquals(20, data2.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data2.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data2.candleSeries.last())
-
-        data2.loadState.test {
+        data.loadState.test {
 
             expectMostRecentItem()
 
-            data2.syncLoadRangeWith(data1)
+            data.reload()
 
             assertEquals(LoadState.Loading, awaitItem())
             assertEquals(LoadState.Loaded, awaitItem())
             ensureAllEventsConsumed()
 
-            assertEquals(40, data2.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1446], data2.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1485], data2.candleSeries.last())
+            assertEquals(40, data.candleSeries.size)
+            assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+            assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        }
+    }
+
+    @Test
+    fun `Reload after changing interval`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+        )
+
+        val loadedPages = LoadedPages()
+        val data = StockChartData(FakeCandleSource(params), loadConfig, loadedPages) { }
+
+        data.loadInitial()
+        data.loadAfter()
+        data.loadBefore()
+
+        assertEquals(40, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+
+        data.loadState.test {
+
+            expectMostRecentItem()
+
+            loadedPages.dropBefore()
+            data.reload()
+
+            assertEquals(LoadState.Loading, awaitItem())
+            assertEquals(LoadState.Loaded, awaitItem())
+            ensureAllEventsConsumed()
+
+            assertEquals(30, data.candleSeries.size)
+            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
         }
     }
 

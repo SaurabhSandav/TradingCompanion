@@ -29,6 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 internal class StockChartData(
     val source: CandleSource,
     val loadConfig: LoadConfig,
+    private val loadedPages: LoadedPages,
     private val onCandlesLoaded: () -> Unit,
 ) {
 
@@ -39,7 +40,6 @@ internal class StockChartData(
 
     private var loadScope = MainScope()
     private var reloadScope = MainScope()
-    private val loadedPages = LoadedPages()
     private val loadMutex = Mutex()
 
     private var isInitialized = false
@@ -76,6 +76,10 @@ internal class StockChartData(
         source.destroy()
     }
 
+    fun reload() = reloadScope.launchUnit {
+        load { true }
+    }
+
     suspend fun loadInitial() = load {
 
         if (isInitialized) return@load false
@@ -83,7 +87,11 @@ internal class StockChartData(
         isInitialized = true
 
         source.init()
-        addInitialPageInterval()
+
+        when {
+            loadedPages.isEmpty() -> addInitialPageInterval()
+            else -> true
+        }
     }
 
     suspend fun loadBefore(loadCount: Int? = null) {
@@ -293,13 +301,6 @@ internal class StockChartData(
         reset()
 
         addInitialPageInterval()
-    }
-
-    fun syncLoadRangeWith(other: StockChartData) = reloadScope.launchUnit {
-        load {
-            loadedPages.replaceAllWith(other.loadedPages)
-            true
-        }
     }
 
     private suspend fun addInitialPageInterval(): Boolean {

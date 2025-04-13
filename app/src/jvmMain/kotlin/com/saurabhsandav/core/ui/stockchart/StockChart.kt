@@ -14,6 +14,7 @@ import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.visibleLogicalRangeChange
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.stockchart.data.LoadedPages
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
@@ -48,7 +49,7 @@ class StockChart internal constructor(
     val actualChart: IChartApi,
     syncManager: StockChartsSyncManager,
     initialParams: StockChartParams,
-    private val buildStockChartData: (StockChartParams) -> StockChartData,
+    private val buildStockChartData: (StockChartParams, LoadedPages) -> StockChartData,
     private val onShowTickerSelector: () -> Unit,
     private val onShowTimeframeSelector: () -> Unit,
     initialVisibleRange: ClosedRange<Float>? = null,
@@ -67,6 +68,7 @@ class StockChart internal constructor(
     val plotterManager = PlotterManager(coroutineScope, this, prefs)
 
     private var initialized = CompletableDeferred<Unit>()
+    private val loadedPages = LoadedPages()
 
     init {
 
@@ -75,7 +77,7 @@ class StockChart internal constructor(
         )
 
         // Set initial StockChartData
-        setData(buildStockChartData(initialParams))
+        setData(buildStockChartData(initialParams, loadedPages))
 
         // Legend updates
         actualChart
@@ -110,7 +112,11 @@ class StockChart internal constructor(
 
         data.destroy()
 
-        setData(buildStockChartData(params))
+        if (this.params.timeframe != params.timeframe) {
+            loadedPages.clear()
+        }
+
+        setData(buildStockChartData(params, loadedPages))
     }
 
     internal fun setData(data: StockChartData) {
@@ -138,7 +144,7 @@ class StockChart internal constructor(
         dataCoroutineScope.cancel()
 
         // Update data
-        this@StockChart.data = data
+        this.data = data
         dataCoroutineScope = coroutineScope.newChildScope()
 
         dataCoroutineScope.launch {
@@ -163,7 +169,7 @@ class StockChart internal constructor(
             // On ticker change, restore visible range.
             val finalVisibleRange = when {
                 prevParams.timeframe != params.timeframe -> null
-                else -> this@StockChart.visibleRange
+                else -> visibleRange
             } ?: (candleSeries.size - 90F)..(candleSeries.size + 10F)
 
             // Set visible range
@@ -181,7 +187,7 @@ class StockChart internal constructor(
                 .onEach { logicalRange ->
 
                     // Save visible range
-                    this@StockChart.visibleRange = logicalRange.from..logicalRange.to
+                    visibleRange = logicalRange.from..logicalRange.to
 
                     // If a load is ongoing don't load before/after
                     if (data.loadState.first() == LoadState.Loading) return@onEach
@@ -223,7 +229,11 @@ class StockChart internal constructor(
     }
 
     internal fun syncLoadRangeWith(other: StockChart) {
-        data.syncLoadRangeWith(other.data)
+
+        if (loadedPages.interval == other.loadedPages.interval) return
+
+        loadedPages.replaceAllWith(other.loadedPages)
+        data.reload()
     }
 
     fun setDarkMode(isDark: Boolean) {
