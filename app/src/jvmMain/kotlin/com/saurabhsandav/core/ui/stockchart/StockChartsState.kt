@@ -54,7 +54,7 @@ class StockChartsState(
     val charts
         get() = idChartsMap.values
 
-    internal val syncPrefs: StateFlow<StockChartsSyncPrefs> = appPrefs
+    val syncPrefs: StateFlow<StockChartsSyncPrefs> = appPrefs
         .getStringOrNullFlow(StockChartsSyncPrefs.PrefKey)
         .map { jsonStr ->
             when (jsonStr) {

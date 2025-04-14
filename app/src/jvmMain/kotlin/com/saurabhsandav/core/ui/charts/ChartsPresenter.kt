@@ -93,47 +93,22 @@ internal class ChartsPresenter(
         // Default timeframe chart for ticker
         val tickerDTParams = StockChartParams(ticker, defaultTimeframe)
 
-        val chartParams = buildList {
-
-            if (defaultTimeframe != Timeframe.D1) {
-
-                // Daily chart for index.
-                add(StockChartParams(NIFTY500.first(), Timeframe.D1))
-
-                // Daily chart for ticker.
-                add(StockChartParams(ticker, Timeframe.D1))
-            }
-
-            // Default timeframe chart for index.
-            add(StockChartParams(NIFTY500.first(), defaultTimeframe))
-
-            // Default timeframe chart for ticker. Also bring to front.
-            add(tickerDTParams)
-        }
-
         val chartsState = chartsState.await()
 
-        chartParams.forEach { params ->
+        // Get existing chart for params or create a new one
+        val chart = run {
 
-            // Get existing chart for params or create a new one
-            val chartExists = chartsState.charts.any { it.params == params }
+            if (chartsState.syncPrefs.value.dateRange) {
+                val existingChart = chartsState.charts.find { it.params == tickerDTParams }
+                if (existingChart != null) return@run existingChart
+            }
 
-            if (!chartExists) chartsState.newChart(params, null)
+            chartsState.newChart(tickerDTParams, null)
         }
 
-        // Navigate to specified interval, 1 ticker chart for every timeframe. Rest will automatically sync.
-        chartsState.charts
-            .filter { stockChart -> stockChart.params.ticker == ticker }
-            .groupBy { it.params.timeframe }
-            .mapValues { it.value.first() }
-            .values
-            .forEach { stockChart ->
+        chartsState.bringToFront(chart)
 
-                // Bring default timeframe chart for ticker to front
-                if (stockChart.params == tickerDTParams) chartsState.bringToFront(stockChart)
-
-                coroutineScope.launch { stockChart.navigateTo(start, end) }
-            }
+        coroutineScope.launch { chart.navigateTo(start, end) }
     }
 
     private fun onMarkTrades(tradeIds: List<ProfileTradeId>) {

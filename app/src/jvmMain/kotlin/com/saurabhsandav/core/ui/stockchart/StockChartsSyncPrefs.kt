@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.stockchart
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class StockChartsSyncPrefs(
+data class StockChartsSyncPrefs(
     val crosshair: Boolean = true,
     val time: Boolean = true,
     val dateRange: Boolean = true,
@@ -11,6 +11,6 @@ internal data class StockChartsSyncPrefs(
 
     companion object {
 
-        val PrefKey = "StockChartsSyncPrefs"
+        internal val PrefKey = "StockChartsSyncPrefs"
     }
 }
