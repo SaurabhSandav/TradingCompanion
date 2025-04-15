@@ -464,6 +464,39 @@ class StockChartDataTest {
     }
 
     @Test
+    fun `Load Before - Max Candle Count crossed, Drop after page, Reset hasAfter`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series.last().openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
+
+        // 20 candles
+        data.loadInitial()
+        // 20 candles. (No after candles available. Sets hasAfter to false)
+        data.loadAfter()
+        // 30 candles
+        data.loadBefore()
+        // 40 candles
+        data.loadBefore()
+        // 30 candles (Max candle count crossed, Initial page dropped. Reset hasAfter to true)
+        data.loadBefore()
+        // 40 candles
+        data.loadAfter()
+
+        assertEquals(40, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[1800], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[1839], data.candleSeries.last())
+    }
+
+    @Test
     fun `Load After - Max Candle Count crossed`() = runTest {
 
         val params = StockChartParams("ABC", Timeframe.M5)
@@ -490,6 +523,39 @@ class StockChartDataTest {
         assertEquals(30, data.candleSeries.size)
         assertEquals(CandleUtils.m5Series[1476], data.candleSeries.first())
         assertEquals(CandleUtils.m5Series[1505], data.candleSeries.last())
+    }
+
+    @Test
+    fun `Load After - Max Candle Count crossed, Drop before page, Reset hasBefore`() = runTest {
+
+        val params = StockChartParams("ABC", Timeframe.M5)
+        val loadConfig = LoadConfig(
+            initialLoadBefore = { CandleUtils.m5Series[19].openInstant + 1.minutes },
+            loadMoreCount = 10,
+            initialLoadCount = 20,
+            loadMoreThreshold = 5,
+            maxCandleCount = 40,
+        )
+
+        val candleSource = FakeCandleSource(params)
+        val data = StockChartData(candleSource, loadConfig, LoadedPages()) { }
+
+        // 20 candles
+        data.loadInitial()
+        // 20 candles. (No before candles available. Sets hasBefore to false)
+        data.loadBefore()
+        // 30 candles
+        data.loadAfter()
+        // 40 candles
+        data.loadAfter()
+        // 30 candles (Max candle count crossed, Initial page dropped. Reset hasBefore to true)
+        data.loadAfter()
+        // 40 candles
+        data.loadBefore()
+
+        assertEquals(40, data.candleSeries.size)
+        assertEquals(CandleUtils.m5Series[10], data.candleSeries.first())
+        assertEquals(CandleUtils.m5Series[49], data.candleSeries.last())
     }
 
     @Test
@@ -695,7 +761,7 @@ class StockChartDataTest {
                 .binarySearchByAsResult(currentBefore) { it.openInstant }
                 .indexOrNaturalIndex
 
-            return CandleUtils.m5Series[currentBeforeIndex - loadCount].openInstant
+            return CandleUtils.m5Series.getOrNull(currentBeforeIndex - loadCount)?.openInstant
         }
 
         override suspend fun getAfterInstant(
@@ -707,7 +773,7 @@ class StockChartDataTest {
                 .binarySearchByAsResult(currentAfter) { it.openInstant }
                 .indexOr { it - 1 }
 
-            return CandleUtils.m5Series[currentAfterIndex + loadCount].openInstant
+            return CandleUtils.m5Series.getOrNull(currentAfterIndex + loadCount)?.openInstant
         }
     }
 }

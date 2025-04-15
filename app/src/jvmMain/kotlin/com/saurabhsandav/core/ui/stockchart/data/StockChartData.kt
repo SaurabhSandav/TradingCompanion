@@ -130,7 +130,10 @@ internal class StockChartData(
                 // Drop a page if maxCandleCount was crossed
                 val maxCandleCount = loadConfig.maxCandleCount ?: return@repeat
                 val currentCandleCount = source.getCount(loadedPages.interval)
-                if (currentCandleCount > maxCandleCount) loadedPages.dropAfter()
+                if (currentCandleCount > maxCandleCount) {
+                    loadedPages.dropAfter()
+                    hasAfter = true
+                }
             }
 
             // Load if interval changed (load successful)
@@ -174,7 +177,10 @@ internal class StockChartData(
                 // Drop a page if maxCandleCount was crossed
                 val maxCandleCount = loadConfig.maxCandleCount ?: return@repeat
                 val currentCandleCount = source.getCount(loadedPages.interval)
-                if (currentCandleCount > maxCandleCount) loadedPages.dropBefore()
+                if (currentCandleCount > maxCandleCount) {
+                    loadedPages.dropBefore()
+                    hasBefore = true
+                }
             }
 
             // Load if interval changed (load successful)
