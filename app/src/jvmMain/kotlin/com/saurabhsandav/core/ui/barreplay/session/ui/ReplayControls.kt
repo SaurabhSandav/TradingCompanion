@@ -2,19 +2,18 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import com.saurabhsandav.core.ui.common.AppColor
-import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplayControls(
@@ -28,67 +27,74 @@ internal fun ReplayControls(
     onSell: () -> Unit,
 ) {
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.dimens.columnVerticalSpacing,
-            alignment = Alignment.CenterVertically,
-        ),
-    ) {
+    Row {
 
-        Button(
+        VerticalDivider()
+
+        TextButton(
+            modifier = Modifier.fillMaxHeight(),
             onClick = onAdvanceReplay,
-            modifier = Modifier.fillMaxWidth(),
+            shape = RectangleShape,
         ) {
-            Text("Advance Replay")
+            Text("Advance")
         }
 
         if (!replayFullBar) {
 
-            Button(
+            VerticalDivider()
+
+            TextButton(
+                modifier = Modifier.fillMaxHeight(),
                 onClick = onAdvanceReplayByBar,
-                modifier = Modifier.fillMaxWidth(),
+                shape = RectangleShape,
             ) {
-                Text("Advance Replay By Bar")
+                Text("Advance By Bar")
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        VerticalDivider()
+    }
 
-            Text("Auto next: ")
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
 
-            Switch(
-                checked = isAutoNextEnabled,
-                onCheckedChange = onIsAutoNextEnabledChange,
+        Text("Auto next: ")
+
+        Switch(
+            checked = isAutoNextEnabled,
+            onCheckedChange = onIsAutoNextEnabledChange,
+        )
+    }
+
+    AnimatedVisibility(isTradingEnabled) {
+
+        Row {
+
+            VerticalDivider()
+
+            TextButton(
+                modifier = Modifier.fillMaxHeight(),
+                onClick = onBuy,
+                colors = ButtonDefaults.textButtonColors(contentColor = AppColor.ProfitGreen),
+                content = { Text("BUY") },
+                enabled = isTradingEnabled,
+                shape = RectangleShape,
             )
-        }
 
-        AnimatedVisibility(isTradingEnabled) {
+            VerticalDivider()
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
-            ) {
+            TextButton(
+                modifier = Modifier.fillMaxHeight(),
+                onClick = onSell,
+                colors = ButtonDefaults.textButtonColors(contentColor = AppColor.LossRed),
+                content = { Text("SELL") },
+                enabled = isTradingEnabled,
+                shape = RectangleShape,
+            )
 
-                Button(
-                    modifier = Modifier.weight(1F),
-                    onClick = onBuy,
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColor.ProfitGreen),
-                    content = { Text("BUY") },
-                    enabled = isTradingEnabled,
-                )
-
-                Button(
-                    modifier = Modifier.weight(1F),
-                    onClick = onSell,
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColor.LossRed),
-                    content = { Text("SELL") },
-                    enabled = isTradingEnabled,
-                )
-            }
+            VerticalDivider()
         }
     }
 }

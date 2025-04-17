@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -40,7 +39,6 @@ import com.saurabhsandav.core.ui.stockchart.ui.ChartOverlay
 import com.saurabhsandav.core.ui.stockchart.ui.ChartsLayout
 import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
-import com.saurabhsandav.core.ui.stockchart.ui.StockChartControls
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTopBar
 import com.saurabhsandav.core.ui.stockchart.ui.Tabs
@@ -138,6 +136,7 @@ fun StockCharts(
                                 chartWindow.canOpenNewChart -> { ticker ->
                                     state.onOpenInCurrentWindow(chartWindow, ticker, null)
                                 }
+
                                 else -> null
                             },
                             onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
@@ -160,6 +159,7 @@ fun StockCharts(
                             chartWindow.canOpenNewChart -> { timeframe ->
                                 state.onOpenInCurrentWindow(chartWindow, null, timeframe)
                             }
+
                             else -> null
                         },
                         onOpenInNewWindow = { timeframe -> state.onOpenInNewWindow(chartWindow, null, timeframe) },
@@ -221,62 +221,53 @@ private fun StockChartScreen(
 
             HorizontalDivider()
 
-            Row(
-                modifier = Modifier.fillMaxSize(),
-            ) {
+            AnimatedVisibility(layout is Tabs) {
 
-                // Replay Controls
-                if (decorationType is StockChartDecorationType.BarReplay) {
+                // Tabs
+                StockChartTabRow(
+                    chartWindow = chartWindow,
+                    chartIds = chartWindow.chartIds,
+                    selectedIndex = chartWindow.selectedChartIndex,
+                    title = chartWindow::getChartTitle,
+                )
+            }
 
-                    StockChartControls(
-                        stockChart = selectedStockChart,
-                        customControls = decorationType.customControls,
-                    )
+            Box(Modifier.weight(1F).fillMaxWidth()) {
+
+                val chartInteraction = chartWindow.chartInteraction
+
+                // Chart page
+                ChartPage(
+                    modifier = Modifier
+                        .onSizeChanged { size -> chartInteraction.size = size.toSize() }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    chartInteraction.onEvent(awaitPointerEvent())
+                                }
+                            }
+                        },
+                    state = chartWindow.pageState,
+                )
+
+                ChartOverlay(
+                    modifier = Modifier.matchParentSize(),
+                    selectedChartIndex = chartWindow.selectedChartIndex,
+                    layout = chartWindow.layout,
+                ) { chartIndex ->
+
+                    val plotterManager = getStockChartOrNull(chartIndex)?.plotterManager ?: return@ChartOverlay
+
+                    Legend(plotterManager)
                 }
+            }
 
-                Column {
+            HorizontalDivider()
 
-                    AnimatedVisibility(layout is Tabs) {
+            // Replay Controls
+            if (decorationType is StockChartDecorationType.BarReplay) {
 
-                        // Tabs
-                        StockChartTabRow(
-                            chartWindow = chartWindow,
-                            chartIds = chartWindow.chartIds,
-                            selectedIndex = chartWindow.selectedChartIndex,
-                            title = chartWindow::getChartTitle,
-                        )
-                    }
-
-                    Box(Modifier.weight(1F).fillMaxWidth()) {
-
-                        val chartInteraction = chartWindow.chartInteraction
-
-                        // Chart page
-                        ChartPage(
-                            modifier = Modifier
-                                .onSizeChanged { size -> chartInteraction.size = size.toSize() }
-                                .pointerInput(Unit) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            chartInteraction.onEvent(awaitPointerEvent())
-                                        }
-                                    }
-                                },
-                            state = chartWindow.pageState,
-                        )
-
-                        ChartOverlay(
-                            modifier = Modifier.matchParentSize(),
-                            selectedChartIndex = chartWindow.selectedChartIndex,
-                            layout = chartWindow.layout,
-                        ) { chartIndex ->
-
-                            val plotterManager = getStockChartOrNull(chartIndex)?.plotterManager ?: return@ChartOverlay
-
-                            Legend(plotterManager)
-                        }
-                    }
-                }
+                decorationType.customControls(selectedStockChart)
             }
         }
 

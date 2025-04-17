@@ -264,7 +264,7 @@ internal class ReplaySessionPresenter(
             dayOfMonth(Padding.NONE)
             chars(", ")
             year()
-            char('\n')
+            char(' ')
             hour()
             char(':')
             minute()

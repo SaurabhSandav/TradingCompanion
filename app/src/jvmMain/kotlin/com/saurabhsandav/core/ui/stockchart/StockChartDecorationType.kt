@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.stockchart
 
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 
 sealed class StockChartDecorationType {
@@ -10,6 +9,6 @@ sealed class StockChartDecorationType {
     ) : StockChartDecorationType()
 
     class BarReplay(
-        val customControls: @Composable ColumnScope.(StockChart) -> Unit,
+        val customControls: @Composable (StockChart) -> Unit,
     ) : StockChartDecorationType()
 }

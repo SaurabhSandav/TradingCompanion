@@ -2,25 +2,30 @@ package com.saurabhsandav.core.ui.barreplay.session.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.ReplayChartInfo
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
 import com.saurabhsandav.core.ui.stockchart.StockCharts
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
+import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReplayCharts(
@@ -88,45 +93,43 @@ private fun ReplayChartControls(
     onSell: (StockChart) -> Unit,
 ) {
 
-    val currentChartInfo = remember(chartInfo) { chartInfo(stockChart) }
-
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.height(48.dp)
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.containerPadding),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.dimens.rowHorizontalSpacing,
+            alignment = Alignment.CenterHorizontally,
+        ),
     ) {
 
-        Text("Time")
-
+        val currentChartInfo = remember(chartInfo) { chartInfo(stockChart) }
         val replayTime by currentChartInfo.replayTime.collectAsState("")
 
-        Text(replayTime, textAlign = TextAlign.End)
-    }
+        val text = when {
+            replayFullBar -> replayTime
+            else -> {
 
-    if (!replayFullBar) {
+                val candleState by currentChartInfo.candleState.collectAsState("")
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-
-            Text("Candle State")
-
-            val candleState by currentChartInfo.candleState.collectAsState("")
-
-            Text(candleState, textAlign = TextAlign.End)
+                "$replayTime ($candleState)"
+            }
         }
+
+        Text(text)
+
+        Spacer(Modifier.weight(1F))
+
+        ReplayControls(
+            replayFullBar = replayFullBar,
+            onAdvanceReplay = onAdvanceReplay,
+            onAdvanceReplayByBar = onAdvanceReplayByBar,
+            isAutoNextEnabled = isAutoNextEnabled,
+            onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
+            isTradingEnabled = isTradingEnabled,
+            onBuy = { onBuy(stockChart) },
+            onSell = { onSell(stockChart) },
+        )
     }
-
-    HorizontalDivider()
-
-    ReplayControls(
-        replayFullBar = replayFullBar,
-        onAdvanceReplay = onAdvanceReplay,
-        onAdvanceReplayByBar = onAdvanceReplayByBar,
-        isAutoNextEnabled = isAutoNextEnabled,
-        onIsAutoNextEnabledChange = onIsAutoNextEnabledChange,
-        isTradingEnabled = isTradingEnabled,
-        onBuy = { onBuy(stockChart) },
-        onSell = { onSell(stockChart) },
-    )
 }
