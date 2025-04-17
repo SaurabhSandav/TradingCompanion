@@ -175,6 +175,9 @@ class StockChartsState(
 
                 // Destroy chart
                 stockChart.destroy()
+
+                // Remove from cache
+                idChartsMap.remove(chartId)
             },
             onChartActive = { chartId ->
 
