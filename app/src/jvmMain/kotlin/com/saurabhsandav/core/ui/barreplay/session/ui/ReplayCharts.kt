@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
@@ -65,7 +66,8 @@ internal fun ReplayCharts(
         },
         customShortcuts = customShortCuts@{ keyEvent ->
 
-            if (keyEvent.type != KeyEventType.KeyDown) return@customShortCuts false
+            val defaultCondition = keyEvent.isAltPressed && keyEvent.type == KeyEventType.KeyDown
+            if (!defaultCondition) return@customShortCuts false
 
             when (keyEvent.key) {
                 Key.A -> onAdvanceReplay()

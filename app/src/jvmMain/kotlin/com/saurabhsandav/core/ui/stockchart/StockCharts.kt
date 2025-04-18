@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
@@ -291,24 +293,31 @@ private fun chartKeyboardShortcuts(
     if (window.selectedChartId == null) return false
     if (window.showTickerSelectionDialog || window.showTimeframeSelectionDialog) return false
 
+    val defaultCondition = with(keyEvent) { isAltPressed || isMetaPressed || isShiftPressed }.not()
+    if (!defaultCondition) return false
+
+    // Ticker/Timeframe dialogs
     if (isTypedEvent) {
         val char = utf16CodePoint.toChar()
         if (char.isLetter()) window.showTickerSelectionDialog = true
         if (char.isDigit()) window.showTimeframeSelectionDialog = true
         onSetFilterChar(char)
-        return@with true
+        return true
     }
 
-    val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
-    if (!defaultCondition) return false
+    // Chart Navigation
+    if (keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown) {
 
-    when (keyEvent.key) {
-        Key.Tab if keyEvent.isShiftPressed -> window.onSelectPreviousChart()
-        Key.Tab -> window.onSelectNextChart()
-        Key.T -> window.onNewChart()
-        Key.W -> window.onCloseCurrentChart()
-        else -> return false
+        when (keyEvent.key) {
+            Key.Tab if keyEvent.isShiftPressed -> window.onSelectPreviousChart()
+            Key.Tab -> window.onSelectNextChart()
+            Key.T -> window.onNewChart()
+            Key.W -> window.onCloseCurrentChart()
+            else -> return false
+        }
+
+        return true
     }
 
-    return true
+    return false
 }
