@@ -46,6 +46,7 @@ data class ChartOptions(
             Normal(0),
             Magnet(1),
             Hidden(2),
+            MagnetOHLC(3),
             ;
 
             internal object Serializer : KSerializer<CrosshairMode> {
