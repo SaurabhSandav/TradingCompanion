@@ -73,6 +73,8 @@ public data class FyersError(
         TokenInvalid,
         TokenAuthFailed,
         TokenInvalidOrExpired,
+        RefreshPinInvalid,
+        RefreshTokenInvalidOrExpired,
         InvalidParameters,
         InvalidOrderId,
         InvalidPositionId,
@@ -100,6 +102,8 @@ public data class FyersError(
 //            -352 -> NoPositionToExit
                 -429 -> RateLimitExceeded
                 -400 -> MultiLegOrderInvalidInput
+                -501 -> RefreshTokenInvalidOrExpired
+                -502 -> RefreshPinInvalid
                 else -> error("Fyers: Unexpected error code $code")
             }
         }

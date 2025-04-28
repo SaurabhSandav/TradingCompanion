@@ -12,5 +12,7 @@ sealed class FyersLoginState {
 
     class RefreshLogin : FyersLoginState() {
         var pin by mutableStateOf("")
+        var isError by mutableStateOf(false)
+        var isEnabled by mutableStateOf(true)
     }
 }

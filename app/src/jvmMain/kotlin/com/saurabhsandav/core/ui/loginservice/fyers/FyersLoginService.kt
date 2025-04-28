@@ -12,6 +12,7 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyersapi.FyersApi
+import com.saurabhsandav.fyersapi.model.response.FyersError
 import com.slack.eithernet.ApiResult.Failure
 import com.slack.eithernet.ApiResult.Failure.ApiFailure
 import com.slack.eithernet.ApiResult.Failure.HttpFailure
@@ -195,6 +196,10 @@ internal class FyersLoginService private constructor(
 
     private fun onSubmitRefreshPin(pin: String) = coroutineScope.launchUnit {
 
+        val loginState = loginState as FyersLoginState.RefreshLogin
+
+        loginState.isEnabled = false
+
         val authTokens = checkNotNull(getAuthTokensFromPrefs(appPrefs).first()) { "Fyers credentials don't exist" }
 
         val result = fyersApi.refreshLogin(
@@ -216,15 +221,19 @@ internal class FyersLoginService private constructor(
 
             is Failure -> {
 
+                suspend fun clearAuthTokensAndRelogin() {
+                    saveAuthTokensToPrefs(appPrefs, null)
+                    loginStage1(reLogin = true)
+                }
+
                 when (result) {
-                    is ApiFailure -> {
-
-                        saveAuthTokensToPrefs(appPrefs, null)
-
-                        loginStage1(reLogin = true)
+                    is ApiFailure -> clearAuthTokensAndRelogin()
+                    is HttpFailure -> when (result.error?.type) {
+                        FyersError.Type.RefreshPinInvalid -> loginState.isError = true
+                        FyersError.Type.RefreshTokenInvalidOrExpired -> clearAuthTokensAndRelogin()
+                        else -> onLoginCancelled(result.error?.message)
                     }
 
-                    is HttpFailure -> onLoginCancelled(result.error?.message)
                     is NetworkFailure -> onLoginCancelled(result.error.message)
                     is UnknownFailure -> onLoginCancelled(result.error.message)
                 }
@@ -232,6 +241,8 @@ internal class FyersLoginService private constructor(
                 Logger.d(DebugTag) { "Refresh login failed" }
             }
         }
+
+        loginState.isEnabled = true
     }
 
     private fun onLoginCancelled(failureMessage: String? = null) = coroutineScope.launchUnit {

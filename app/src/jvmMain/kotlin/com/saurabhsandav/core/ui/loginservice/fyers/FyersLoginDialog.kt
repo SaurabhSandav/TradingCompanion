@@ -88,16 +88,19 @@ private fun RefreshPinDialog(
             .focusRequester(focusRequester),
         value = refreshLogin.pin,
         onValueChange = {
+            refreshLogin.isError = false
             if (it.isEmpty() || (it.length <= 4 && it.toIntOrNull() != null)) {
                 refreshLogin.pin = it
             }
         },
+        isError = refreshLogin.isError,
+        enabled = refreshLogin.isEnabled,
         singleLine = true,
         trailingIcon = {
 
             TextButton(
                 onClick = { onSubmit(refreshLogin.pin) },
-                enabled = refreshLogin.pin.length == FyersPinLength,
+                enabled = refreshLogin.pin.length == FyersPinLength && refreshLogin.isEnabled,
                 content = { Text("Login") },
             )
         },
@@ -106,7 +109,10 @@ private fun RefreshPinDialog(
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
-            onDone = { if (refreshLogin.pin.length == FyersPinLength) onSubmit(refreshLogin.pin) },
+            onDone = {
+                val canSubmit = refreshLogin.pin.length == FyersPinLength && refreshLogin.isEnabled
+                if (canSubmit) onSubmit(refreshLogin.pin)
+            },
         ),
     )
 }
