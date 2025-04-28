@@ -262,14 +262,27 @@ compose {
                     iconFile.set(project.file("src/jvmMain/composeResources/drawable/icon.png"))
                 }
             }
+
+            buildTypes.release.proguard {
+                isEnabled.set(false)
+            }
         }
     }
 }
 
 // Fix jcef_helper file is not executable in Jetbrains JCEF
 val fixDistributablePermissions by tasks.registering(Exec::class) {
-    workingDir(layout.buildDirectory.file("compose/binaries/main/app/TradingCompanion/lib/runtime/lib/"))
-    commandLine("chmod", "+x", "jcef_helper")
+    workingDir(layout.buildDirectory.file("compose/binaries/"))
+
+    commandLine(
+        "chmod",
+        "+x",
+        "-f",
+        "main/app/TradingCompanion/lib/runtime/lib/jcef_helper",
+        "main-release/app/TradingCompanion/lib/runtime/lib/jcef_helper",
+    )
+
+    isIgnoreExitValue = true
 }
 
 tasks.withType<AbstractJPackageTask> {
