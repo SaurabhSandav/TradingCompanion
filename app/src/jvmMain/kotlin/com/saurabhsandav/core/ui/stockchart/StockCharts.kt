@@ -43,6 +43,7 @@ import com.saurabhsandav.core.ui.stockchart.ui.Legend
 import com.saurabhsandav.core.ui.stockchart.ui.NewChartForm
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTabRow
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartTopBar
+import com.saurabhsandav.core.ui.stockchart.ui.StockChartWindowDecorator
 import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.ui.stockchart.ui.TimeframeSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
@@ -55,7 +56,7 @@ fun StockCharts(
     state: StockChartsState,
     windowTitle: String,
     decorationType: StockChartDecorationType,
-    snackbarHost: (@Composable () -> Unit)? = null,
+    windowDecorator: StockChartWindowDecorator = StockChartWindowDecorator.Default,
     customShortcuts: ((KeyEvent) -> Boolean)? = null,
 ) {
 
@@ -80,101 +81,105 @@ fun StockCharts(
 
                 chartWindow.appWindowState = LocalAppWindowState.current
 
-                val tickers by state.marketDataProvider.symbols().collectAsState()
-                val timeframes by state.marketDataProvider.timeframes().collectAsState()
+                windowDecorator.Decoration {
 
-                Box {
+                    val tickers by state.marketDataProvider.symbols().collectAsState()
+                    val timeframes by state.marketDataProvider.timeframes().collectAsState()
 
-                    val selectedStockChart = remember(chartWindow.selectedChartId) {
-                        chartWindow.selectedChartId?.let(state::getStockChart)
+                    Box {
+
+                        val selectedStockChart = remember(chartWindow.selectedChartId) {
+                            chartWindow.selectedChartId?.let(state::getStockChart)
+                        }
+                        val syncPrefs by state.syncPrefs.collectAsState()
+
+                        when {
+                            !state.isInitializedWithParams -> NewChartForm(
+                                tickers = tickers,
+                                timeframes = timeframes,
+                                onInitializeChart = { ticker, timeframe ->
+                                    state.onInitializeChart(chartWindow, ticker, timeframe)
+                                },
+                            )
+
+                            selectedStockChart == null -> CircularProgressIndicator(
+                                modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
+                            )
+
+                            else -> StockChartScreen(
+                                chartWindow = chartWindow,
+                                selectedStockChart = selectedStockChart,
+                                getStockChartOrNull = { chartIndex ->
+                                    state.getStockChartOrNull(chartWindow, chartIndex)
+                                },
+                                decorationType = decorationType,
+                                onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
+                                onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
+                                onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
+                                onGoToLatest = { state.goToLatest(chartWindow) },
+                                layout = chartWindow.layout,
+                                onSetLayout = chartWindow::onSetLayout,
+                                syncPrefs = syncPrefs,
+                                onToggleSyncCrosshair = state::onToggleSyncCrosshair,
+                                onToggleSyncTime = state::onToggleSyncTime,
+                                onToggleSyncDateRange = state::onToggleSyncDateRange,
+                                onNewWindow = { state.newWindow(chartWindow) },
+                            )
+                        }
                     }
-                    val syncPrefs by state.syncPrefs.collectAsState()
 
-                    when {
-                        !state.isInitializedWithParams -> NewChartForm(
-                            tickers = tickers,
-                            timeframes = timeframes,
-                            onInitializeChart = { ticker, timeframe ->
-                                state.onInitializeChart(chartWindow, ticker, timeframe)
+                    if (chartWindow.showTickerSelectionDialog) {
+
+                        TickerSelectionDialog(
+                            onDismissRequest = {
+                                chartWindow.showTickerSelectionDialog = false
+                                initialFilterQuery = ""
                             },
-                        )
+                            tickers = tickers,
+                            onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
+                            type = TickerSelectionType.Chart(
+                                onOpenInCurrentWindow = when {
+                                    chartWindow.canOpenNewChart -> { ticker ->
+                                        state.onOpenInCurrentWindow(chartWindow, ticker, null)
+                                    }
 
-                        selectedStockChart == null -> CircularProgressIndicator(
-                            modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
-                        )
-
-                        else -> StockChartScreen(
-                            chartWindow = chartWindow,
-                            selectedStockChart = selectedStockChart,
-                            getStockChartOrNull = { chartIndex -> state.getStockChartOrNull(chartWindow, chartIndex) },
-                            decorationType = decorationType,
-                            onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
-                            onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
-                            onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
-                            onGoToLatest = { state.goToLatest(chartWindow) },
-                            layout = chartWindow.layout,
-                            onSetLayout = chartWindow::onSetLayout,
-                            syncPrefs = syncPrefs,
-                            onToggleSyncCrosshair = state::onToggleSyncCrosshair,
-                            onToggleSyncTime = state::onToggleSyncTime,
-                            onToggleSyncDateRange = state::onToggleSyncDateRange,
-                            onNewWindow = { state.newWindow(chartWindow) },
-                            snackbarHost = snackbarHost,
+                                    else -> null
+                                },
+                                onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
+                            ),
+                            initialFilterQuery = initialFilterQuery,
                         )
                     }
-                }
 
-                if (chartWindow.showTickerSelectionDialog) {
+                    if (chartWindow.showTimeframeSelectionDialog) {
 
-                    TickerSelectionDialog(
-                        onDismissRequest = {
-                            chartWindow.showTickerSelectionDialog = false
-                            initialFilterQuery = ""
-                        },
-                        tickers = tickers,
-                        onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                        type = TickerSelectionType.Chart(
+                        TimeframeSelectionDialog(
+                            onDismissRequest = {
+                                chartWindow.showTimeframeSelectionDialog = false
+                                initialFilterQuery = ""
+                            },
+                            timeframes = timeframes,
+                            initialFilterQuery = initialFilterQuery,
+                            onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
                             onOpenInCurrentWindow = when {
-                                chartWindow.canOpenNewChart -> { ticker ->
-                                    state.onOpenInCurrentWindow(chartWindow, ticker, null)
+                                chartWindow.canOpenNewChart -> { timeframe ->
+                                    state.onOpenInCurrentWindow(chartWindow, null, timeframe)
                                 }
 
                                 else -> null
                             },
-                            onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
-                        ),
-                        initialFilterQuery = initialFilterQuery,
-                    )
-                }
+                            onOpenInNewWindow = { timeframe -> state.onOpenInNewWindow(chartWindow, null, timeframe) },
+                        )
+                    }
 
-                if (chartWindow.showTimeframeSelectionDialog) {
+                    if (chartWindow.showLayoutChangeConfirmationDialog) {
 
-                    TimeframeSelectionDialog(
-                        onDismissRequest = {
-                            chartWindow.showTimeframeSelectionDialog = false
-                            initialFilterQuery = ""
-                        },
-                        timeframes = timeframes,
-                        initialFilterQuery = initialFilterQuery,
-                        onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
-                        onOpenInCurrentWindow = when {
-                            chartWindow.canOpenNewChart -> { timeframe ->
-                                state.onOpenInCurrentWindow(chartWindow, null, timeframe)
-                            }
-
-                            else -> null
-                        },
-                        onOpenInNewWindow = { timeframe -> state.onOpenInNewWindow(chartWindow, null, timeframe) },
-                    )
-                }
-
-                if (chartWindow.showLayoutChangeConfirmationDialog) {
-
-                    ConfirmationDialog(
-                        text = "Changing layout will close some charts. Do you want to proceed?",
-                        onDismiss = chartWindow::onLayoutChangeCancelled,
-                        onConfirm = chartWindow::onLayoutChangeConfirmed,
-                    )
+                        ConfirmationDialog(
+                            text = "Changing layout will close some charts. Do you want to proceed?",
+                            onDismiss = chartWindow::onLayoutChangeCancelled,
+                            onConfirm = chartWindow::onLayoutChangeConfirmed,
+                        )
+                    }
                 }
             }
         }
@@ -198,88 +203,75 @@ private fun StockChartScreen(
     onToggleSyncTime: (Boolean?) -> Unit,
     onToggleSyncDateRange: (Boolean?) -> Unit,
     onNewWindow: () -> Unit,
-    snackbarHost: (@Composable () -> Unit)?,
 ) {
 
-    Box {
+    Column {
 
-        Column {
+        StockChartTopBar(
+            stockChart = selectedStockChart,
+            decorationType = decorationType,
+            onOpenTickerSelection = onOpenTickerSelection,
+            onOpenTimeframeSelection = onOpenTimeframeSelection,
+            onGoToDateTime = onGoToDateTime,
+            onGoToLatest = onGoToLatest,
+            layout = layout,
+            onSetLayout = onSetLayout,
+            syncPrefs = syncPrefs,
+            onToggleSyncCrosshair = onToggleSyncCrosshair,
+            onToggleSyncTime = onToggleSyncTime,
+            onToggleSyncDateRange = onToggleSyncDateRange,
+            onNewWindow = onNewWindow,
+        )
 
-            StockChartTopBar(
-                stockChart = selectedStockChart,
-                decorationType = decorationType,
-                onOpenTickerSelection = onOpenTickerSelection,
-                onOpenTimeframeSelection = onOpenTimeframeSelection,
-                onGoToDateTime = onGoToDateTime,
-                onGoToLatest = onGoToLatest,
-                layout = layout,
-                onSetLayout = onSetLayout,
-                syncPrefs = syncPrefs,
-                onToggleSyncCrosshair = onToggleSyncCrosshair,
-                onToggleSyncTime = onToggleSyncTime,
-                onToggleSyncDateRange = onToggleSyncDateRange,
-                onNewWindow = onNewWindow,
+        HorizontalDivider()
+
+        AnimatedVisibility(layout is Tabs) {
+
+            // Tabs
+            StockChartTabRow(
+                chartWindow = chartWindow,
+                chartIds = chartWindow.chartIds,
+                selectedIndex = chartWindow.selectedChartIndex,
+                title = chartWindow::getChartTitle,
+            )
+        }
+
+        Box(Modifier.weight(1F).fillMaxWidth()) {
+
+            val chartInteraction = chartWindow.chartInteraction
+
+            // Chart page
+            ChartPage(
+                modifier = Modifier
+                    .onSizeChanged { size -> chartInteraction.size = size.toSize() }
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                chartInteraction.onEvent(awaitPointerEvent())
+                            }
+                        }
+                    },
+                state = chartWindow.pageState,
             )
 
-            HorizontalDivider()
+            ChartOverlay(
+                modifier = Modifier.matchParentSize(),
+                selectedChartIndex = chartWindow.selectedChartIndex,
+                layout = chartWindow.layout,
+            ) { chartIndex ->
 
-            AnimatedVisibility(layout is Tabs) {
+                val plotterManager = getStockChartOrNull(chartIndex)?.plotterManager ?: return@ChartOverlay
 
-                // Tabs
-                StockChartTabRow(
-                    chartWindow = chartWindow,
-                    chartIds = chartWindow.chartIds,
-                    selectedIndex = chartWindow.selectedChartIndex,
-                    title = chartWindow::getChartTitle,
-                )
-            }
-
-            Box(Modifier.weight(1F).fillMaxWidth()) {
-
-                val chartInteraction = chartWindow.chartInteraction
-
-                // Chart page
-                ChartPage(
-                    modifier = Modifier
-                        .onSizeChanged { size -> chartInteraction.size = size.toSize() }
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    chartInteraction.onEvent(awaitPointerEvent())
-                                }
-                            }
-                        },
-                    state = chartWindow.pageState,
-                )
-
-                ChartOverlay(
-                    modifier = Modifier.matchParentSize(),
-                    selectedChartIndex = chartWindow.selectedChartIndex,
-                    layout = chartWindow.layout,
-                ) { chartIndex ->
-
-                    val plotterManager = getStockChartOrNull(chartIndex)?.plotterManager ?: return@ChartOverlay
-
-                    Legend(plotterManager)
-                }
-            }
-
-            HorizontalDivider()
-
-            // Replay Controls
-            if (decorationType is StockChartDecorationType.BarReplay) {
-
-                decorationType.customControls(selectedStockChart)
+                Legend(plotterManager)
             }
         }
 
-        if (snackbarHost != null) {
+        HorizontalDivider()
 
-            Box(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                propagateMinConstraints = true,
-                content = { snackbarHost() },
-            )
+        // Replay Controls
+        if (decorationType is StockChartDecorationType.BarReplay) {
+
+            decorationType.customControls(selectedStockChart)
         }
     }
 }

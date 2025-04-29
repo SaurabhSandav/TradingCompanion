@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -8,6 +9,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.showAsSnackbarsIn
 import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
@@ -46,6 +49,18 @@ internal fun ChartsScreen(
         state = chartsState,
         windowTitle = "Charts",
         decorationType = StockChartDecorationType.Charts(onOpenTradeReview = onOpenTradeReview),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        windowDecorator = { content ->
+
+            Box {
+
+                content()
+
+                Box(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    propagateMinConstraints = true,
+                    content = { SnackbarHost(snackbarHostState) },
+                )
+            }
+        },
     )
 }
