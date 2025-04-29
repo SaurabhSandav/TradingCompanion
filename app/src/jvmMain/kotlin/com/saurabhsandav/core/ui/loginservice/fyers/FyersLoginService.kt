@@ -1,44 +1,23 @@
-package com.saurabhsandav.core.ui.loginservice.impl
+package com.saurabhsandav.core.ui.loginservice.fyers
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.rememberDialogState
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.ui.common.app.AppDialogWindow
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.loginservice.LoginService
-import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyersapi.FyersApi
-import com.slack.eithernet.ApiResult
+import com.slack.eithernet.ApiResult.Failure
 import com.slack.eithernet.ApiResult.Failure.ApiFailure
 import com.slack.eithernet.ApiResult.Failure.HttpFailure
 import com.slack.eithernet.ApiResult.Failure.NetworkFailure
 import com.slack.eithernet.ApiResult.Failure.UnknownFailure
+import com.slack.eithernet.ApiResult.Success
 import com.slack.eithernet.successOrNull
 import io.ktor.http.ContentType
 import io.ktor.server.engine.EmbeddedServer
@@ -48,7 +27,6 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -72,10 +50,22 @@ internal class FyersLoginService private constructor(
 
     private var server: EmbeddedServer<*, *>? = null
 
-    private var loginState by mutableStateOf<LoginState?>(null)
+    private var loginState by mutableStateOf<FyersLoginState?>(null)
 
     init {
         initiateLogin()
+    }
+
+    @Composable
+    override fun Dialogs() {
+
+        val loginState = loginState ?: return
+
+        FyersLoginDialog(
+            loginState = loginState,
+            onLoginCancelled = ::onLoginCancelled,
+            onSubmitRefreshPin = ::onSubmitRefreshPin,
+        )
     }
 
     private fun initiateLogin() = coroutineScope.launchUnit {
@@ -92,7 +82,7 @@ internal class FyersLoginService private constructor(
             authTokens == null -> loginStage1()
             isLoggedIn(authTokens) -> resultHandle.onSuccess()
             else -> when (val canRefresh = (Clock.System.now() - authTokens.initialLoginInstant) < 14.days) {
-                canRefresh -> refreshLogin(authTokens)
+                canRefresh -> refreshLogin()
                 else -> loginStage1()
             }
         }
@@ -102,7 +92,7 @@ internal class FyersLoginService private constructor(
 
         Logger.d(DebugTag) { "Initiating stage 1 (Login to Fyers website)" }
 
-        loginState = if (reLogin) LoginState.ReLogin else LoginState.InitialLogin
+        loginState = if (reLogin) FyersLoginState.ReLogin else FyersLoginState.InitialLogin
 
         // Launch embedded server to capture redirect url
         server = embeddedServer(
@@ -174,7 +164,7 @@ internal class FyersLoginService private constructor(
         val result = fyersApi.validateLogin(redirectUrl)
 
         when (result) {
-            is ApiResult.Success -> {
+            is Success -> {
 
                 val authTokens = FyersAuthTokens(
                     accessToken = result.value.accessToken,
@@ -196,21 +186,24 @@ internal class FyersLoginService private constructor(
         }
     }
 
-    private fun refreshLogin(authTokens: FyersAuthTokens) = coroutineScope.launchUnit {
+    private fun refreshLogin() = coroutineScope.launchUnit {
 
         Logger.d(DebugTag) { "Refresh login. Awaiting Pin..." }
 
-        val pin = CompletableDeferred<String>()
+        loginState = FyersLoginState.RefreshLogin()
+    }
 
-        loginState = LoginState.RefreshLogin(pin)
+    private fun onSubmitRefreshPin(pin: String) = coroutineScope.launchUnit {
+
+        val authTokens = checkNotNull(getAuthTokensFromPrefs(appPrefs).first()) { "Fyers credentials don't exist" }
 
         val result = fyersApi.refreshLogin(
             refreshToken = authTokens.refreshToken,
-            pin = pin.await(),
+            pin = pin,
         )
 
         when (result) {
-            is ApiResult.Success -> {
+            is Success -> {
 
                 val refreshedAuthTokens = authTokens.copy(accessToken = result.value.accessToken)
 
@@ -221,7 +214,7 @@ internal class FyersLoginService private constructor(
                 Logger.d(DebugTag) { "Refresh login successful" }
             }
 
-            is ApiResult.Failure -> {
+            is Failure -> {
 
                 when (result) {
                     is ApiFailure -> {
@@ -260,88 +253,6 @@ internal class FyersLoginService private constructor(
         }
     }
 
-    @Composable
-    override fun Dialogs() {
-
-        when (val loginState = loginState) {
-            null -> Unit
-            LoginState.InitialLogin, LoginState.ReLogin -> {
-
-                AppDialogWindow(
-                    onCloseRequest = ::onLoginCancelled,
-                    state = rememberDialogState(
-                        width = 300.dp,
-                        height = 100.dp,
-                    ),
-                    title = "Login to Fyers",
-                    alwaysOnTop = true,
-                ) {
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(
-                            space = MaterialTheme.dimens.rowHorizontalSpacing,
-                            alignment = Alignment.CenterHorizontally,
-                        ),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-
-                        CircularProgressIndicator()
-
-                        Text(
-                            text = when (loginState) {
-                                is LoginState.ReLogin -> "Refresh failed. Awaiting login..."
-                                else -> "Awaiting login..."
-                            },
-                        )
-                    }
-                }
-            }
-
-            is LoginState.RefreshLogin -> {
-
-                AppDialogWindow(
-                    onCloseRequest = ::onLoginCancelled,
-                    state = rememberDialogState(
-                        width = 300.dp,
-                        height = 100.dp,
-                    ),
-                    title = "Enter Fyers pin",
-                    alwaysOnTop = true,
-                ) {
-
-                    var pin by state { "" }
-                    val focusRequester = remember { FocusRequester() }
-
-                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(MaterialTheme.dimens.containerPadding)
-                            .wrapContentSize()
-                            .focusRequester(focusRequester),
-                        value = pin,
-                        onValueChange = {
-                            if (it.isEmpty() || (it.length <= 4 && it.toIntOrNull() != null)) {
-                                pin = it
-                            }
-                        },
-                        singleLine = true,
-                        trailingIcon = {
-
-                            TextButton(
-                                onClick = { loginState.pin.complete(pin) },
-                                enabled = pin.length == 4,
-                                content = { Text("Login") },
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                    )
-                }
-            }
-        }
-    }
-
     @Suppress("ktlint:standard:no-blank-line-in-list")
     @Serializable
     data class FyersAuthTokens(
@@ -355,17 +266,6 @@ internal class FyersLoginService private constructor(
         @SerialName("initial_login_instant")
         val initialLoginInstant: Instant,
     )
-
-    private sealed class LoginState {
-
-        data object InitialLogin : LoginState()
-
-        data object ReLogin : LoginState()
-
-        data class RefreshLogin(
-            val pin: CompletableDeferred<String>,
-        ) : LoginState()
-    }
 
     class Builder(
         private val appDispatchers: AppDispatchers,

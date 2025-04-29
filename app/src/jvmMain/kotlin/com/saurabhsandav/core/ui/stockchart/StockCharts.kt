@@ -25,6 +25,7 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.input.pointer.pointerInput
@@ -94,13 +95,6 @@ private fun Window(
         onCloseRequest = onCloseRequest,
         title = windowTitle,
         state = rememberAppWindowState(preferredPlacement = WindowPlacement.Maximized),
-        onPreviewKeyEvent = { keyEvent ->
-
-            when {
-                chartKeyboardShortcuts(chartWindow, keyEvent) { initialFilterQuery = it.toString() } -> true
-                else -> customShortcuts?.invoke(keyEvent) == true
-            }
-        },
     ) {
 
         chartWindow.appWindowState = LocalAppWindowState.current
@@ -110,7 +104,15 @@ private fun Window(
             val tickers by state.marketDataProvider.symbols().collectAsState()
             val timeframes by state.marketDataProvider.timeframes().collectAsState()
 
-            Box {
+            Box(
+                modifier = Modifier.onPreviewKeyEvent { keyEvent ->
+
+                    when {
+                        chartKeyboardShortcuts(chartWindow, keyEvent) { initialFilterQuery = it.toString() } -> true
+                        else -> customShortcuts?.invoke(keyEvent) == true
+                    }
+                },
+            ) {
 
                 val selectedStockChart = remember(chartWindow.selectedChartId) {
                     chartWindow.selectedChartId?.let(state::getStockChart)

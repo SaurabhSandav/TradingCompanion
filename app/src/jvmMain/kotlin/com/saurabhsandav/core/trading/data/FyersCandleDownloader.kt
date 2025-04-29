@@ -8,7 +8,7 @@ import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
+import com.saurabhsandav.core.ui.loginservice.fyers.FyersLoginService
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.fyersapi.model.CandleResolution
 import com.saurabhsandav.fyersapi.model.DateFormat

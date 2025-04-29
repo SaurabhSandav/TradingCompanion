@@ -16,7 +16,7 @@ import com.saurabhsandav.core.ui.common.UIMessageResult
 import com.saurabhsandav.core.ui.common.UIMessagesState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.loginservice.ResultHandle
-import com.saurabhsandav.core.ui.loginservice.impl.FyersLoginService
+import com.saurabhsandav.core.ui.loginservice.fyers.FyersLoginService
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
