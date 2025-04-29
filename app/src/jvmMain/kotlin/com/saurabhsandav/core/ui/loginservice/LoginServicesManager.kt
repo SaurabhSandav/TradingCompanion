@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.loginservice
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
-import com.saurabhsandav.core.ui.common.app.AppWindowOwner
 import com.saurabhsandav.core.ui.loginservice.LoginService.Builder
 import com.saurabhsandav.core.ui.loginservice.LoginService.ResultHandle
 import kotlinx.coroutines.MainScope
@@ -14,16 +13,13 @@ class LoginServicesManager {
     private val holdersMap = mutableStateMapOf<Any, ServiceHolder>()
 
     @Composable
-    fun Windows() {
+    fun Dialogs() {
 
         holdersMap.values.forEach { holder ->
 
             key(holder) {
 
-                holder.owner.Window {
-
-                    holder.service.Windows()
-                }
+                holder.service.Dialogs()
             }
         }
     }
@@ -52,16 +48,12 @@ class LoginServicesManager {
             )
         }
 
-        // Bring window to front
-        holder.owner.childrenToFront()
-
         holder.resultHandle.resultHandles += resultHandle
     }
 
     private class ServiceHolder(
         val service: LoginService,
         val resultHandle: DefaultResultHandle,
-        val owner: AppWindowOwner = AppWindowOwner(),
     )
 
     private class DefaultResultHandle(

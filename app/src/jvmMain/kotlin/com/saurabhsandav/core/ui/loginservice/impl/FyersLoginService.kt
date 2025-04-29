@@ -261,7 +261,7 @@ internal class FyersLoginService private constructor(
     }
 
     @Composable
-    override fun Windows() {
+    override fun Dialogs() {
 
         when (val loginState = loginState) {
             null -> Unit

@@ -143,9 +143,6 @@ internal fun App(
         // Trade content windows
         appModule.tradeContentLauncher.Windows()
 
-        // Login windows
-        appModule.loginServicesManager.Windows()
-
         // Profiles
         profilesWindowManager.Window {
 

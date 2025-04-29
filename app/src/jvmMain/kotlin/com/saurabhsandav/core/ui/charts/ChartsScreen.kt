@@ -60,6 +60,9 @@ internal fun ChartsScreen(
                     propagateMinConstraints = true,
                     content = { SnackbarHost(snackbarHostState) },
                 )
+
+                // Login dialogs
+                module.loginServicesManager.Dialogs()
             }
         },
     )

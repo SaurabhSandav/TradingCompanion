@@ -24,6 +24,8 @@ internal class ChartsModule(
         candleRepo = appModule.candleRepo,
     )
 
+    internal val loginServicesManager = appModule.loginServicesManager
+
     val presenter: () -> ChartsPresenter = {
 
         ChartsPresenter(
@@ -45,7 +47,7 @@ internal class ChartsModule(
             markersProvider = markersProvider,
             appPrefs = appModule.appPrefs,
             uriHandler = appModule.uriHandler,
-            loginServicesManager = appModule.loginServicesManager,
+            loginServicesManager = loginServicesManager,
             fyersApi = appModule.fyersApi,
             candleRepo = appModule.candleRepo,
         )

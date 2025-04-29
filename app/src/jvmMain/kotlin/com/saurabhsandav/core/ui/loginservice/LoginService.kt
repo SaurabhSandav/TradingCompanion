@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 interface LoginService {
 
     @Composable
-    fun Windows()
+    fun Dialogs()
 
     interface Builder {
 
