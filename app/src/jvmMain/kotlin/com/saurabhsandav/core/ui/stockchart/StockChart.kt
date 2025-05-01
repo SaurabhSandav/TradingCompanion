@@ -234,7 +234,7 @@ class StockChart internal constructor(
 
     internal fun syncLoadRangeWith(other: StockChart) {
 
-        if (loadedPages.interval == other.loadedPages.interval) return
+        if (other.loadedPages.isEmpty() || loadedPages.interval == other.loadedPages.interval) return
 
         loadedPages.replaceAllWith(other.loadedPages)
         data.reload()
