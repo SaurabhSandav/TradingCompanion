@@ -1,4 +1,3 @@
-
 pluginManagement {
 
     repositories {
@@ -13,9 +12,11 @@ pluginManagement {
     }
 }
 
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
 
-    @Suppress("UnstableApiUsage")
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+
     repositories {
         google {
             mavenContent {
