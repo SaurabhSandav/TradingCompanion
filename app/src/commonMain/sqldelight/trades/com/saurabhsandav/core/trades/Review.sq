@@ -10,23 +10,17 @@ title TEXT NOT NULL,
 tradeIds TEXT AS List<TradeId> NOT NULL,
 review TEXT NOT NULL,
 created TEXT AS Instant NOT NULL,
-isMarkdown INTEGER AS Boolean NOT NULL,
 isPinned INTEGER AS Boolean NOT NULL DEFAULT FALSE
 );
 
 insert:
 INSERT
-INTO Review(title, tradeIds, review, created, isMarkdown)
-VALUES (?, ?, ?, ?, ?);
+INTO Review(title, tradeIds, review, created)
+VALUES (?, ?, ?, ?);
 
 setTitle:
 UPDATE Review
 SET title = ?
-WHERE id = ?;
-
-toggleMarkdown:
-UPDATE Review
-SET isMarkdown = CASE WHEN isMarkdown IS TRUE THEN FALSE ELSE TRUE END
 WHERE id = ?;
 
 toggleIsPinned:

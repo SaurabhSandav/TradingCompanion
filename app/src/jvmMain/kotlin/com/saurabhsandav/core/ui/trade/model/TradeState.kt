@@ -107,6 +107,5 @@ internal data class TradeState(
         val id: TradeNoteId,
         val noteText: String,
         val dateText: String,
-        val isMarkdown: Boolean,
     )
 }

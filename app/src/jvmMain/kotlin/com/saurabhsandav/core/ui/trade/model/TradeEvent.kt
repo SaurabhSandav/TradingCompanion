@@ -68,13 +68,11 @@ internal sealed class TradeEvent {
 
     data class AddNote(
         val note: String,
-        val isMarkdown: Boolean,
     ) : TradeEvent()
 
     data class UpdateNote(
         val id: TradeNoteId,
         val note: String,
-        val isMarkdown: Boolean,
     ) : TradeEvent()
 
     data class DeleteNote(

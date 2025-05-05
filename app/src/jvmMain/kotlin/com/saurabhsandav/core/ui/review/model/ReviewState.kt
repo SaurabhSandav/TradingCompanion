@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 internal data class ReviewState(
     val title: String,
-    val isMarkdown: Boolean,
     val review: String,
     val trades: List<TradeEntry>,
     val eventSink: (ReviewEvent) -> Unit,

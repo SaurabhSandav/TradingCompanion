@@ -16,7 +16,6 @@ import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenDetails
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenMarkdownLink
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.SaveReview
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.SetTitle
-import com.saurabhsandav.core.ui.review.model.ReviewEvent.ToggleMarkdown
 import com.saurabhsandav.core.ui.review.model.ReviewState
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
@@ -58,7 +57,6 @@ internal class ReviewPresenter(
 
         return@launchMolecule ReviewState(
             title = review.title,
-            isMarkdown = review.isMarkdown,
             review = review.review,
             trades = getTrades(),
             eventSink = ::onEvent,
@@ -69,7 +67,6 @@ internal class ReviewPresenter(
 
         when (event) {
             is SetTitle -> onSaveTitle(event.title)
-            ToggleMarkdown -> onToggleMarkdown()
             is SaveReview -> onSaveReview(event.review)
             is OpenMarkdownLink -> onOpenMarkdownLink(event.linkText)
             is OpenChart -> tradeContentLauncher.openTradeReview(event.profileTradeId)
@@ -151,11 +148,6 @@ internal class ReviewPresenter(
     private fun onSaveTitle(title: String) = coroutineScope.launchUnit {
 
         reviews.await().setTitle(profileReviewId.reviewId, title)
-    }
-
-    private fun onToggleMarkdown() = coroutineScope.launchUnit {
-
-        reviews.await().toggleIsMarkdown(profileReviewId.reviewId)
     }
 
     private fun onSaveReview(review: String) = coroutineScope.launchUnit {

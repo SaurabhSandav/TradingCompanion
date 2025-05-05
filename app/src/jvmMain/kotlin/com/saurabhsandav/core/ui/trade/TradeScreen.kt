@@ -119,8 +119,8 @@ internal fun TradeWindow(
             attachments = state.attachments,
             onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
             notes = state.notes,
-            onAddNote = { note, isMarkdown -> state.eventSink(AddNote(note, isMarkdown)) },
-            onUpdateNote = { id, note, isMarkdown -> state.eventSink(UpdateNote(id, note, isMarkdown)) },
+            onAddNote = { note -> state.eventSink(AddNote(note)) },
+            onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
             onDeleteNote = { state.eventSink(DeleteNote(it)) },
         )
     }
@@ -157,8 +157,8 @@ internal fun TradeScreen(
     attachments: List<TradeAttachment>,
     onRemoveAttachment: (AttachmentFileId) -> Unit,
     notes: List<TradeNote>,
-    onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
-    onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
+    onAddNote: (note: String) -> Unit,
+    onUpdateNote: (id: TradeNoteId, note: String) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,
 ) {
 

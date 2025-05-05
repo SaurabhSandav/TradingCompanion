@@ -5,7 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,18 +23,13 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.style.TextOverflow
-import com.saurabhsandav.apps.app.generated.resources.Res
-import com.saurabhsandav.apps.app.generated.resources.markdown
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun ReviewTopAppBar(
     title: String,
     onSetTitle: (String) -> Unit,
-    isMarkdown: Boolean,
-    onToggleMarkdown: () -> Unit,
     isReviewEditMode: Boolean,
     onToggleEditReview: () -> Unit,
     canSaveReview: Boolean,
@@ -93,17 +87,6 @@ internal fun ReviewTopAppBar(
             }
         },
         actions = {
-
-            IconButtonWithTooltip(
-                onClick = onToggleMarkdown,
-                tooltipText = "Toggle Markdown",
-            ) {
-
-                when {
-                    isMarkdown -> Icon(Icons.Default.Title, contentDescription = "Disable Markdown")
-                    else -> Icon(painterResource(Res.drawable.markdown), contentDescription = "Enable Markdown")
-                }
-            }
 
             IconButtonWithTooltip(
                 onClick = onToggleEditReview,

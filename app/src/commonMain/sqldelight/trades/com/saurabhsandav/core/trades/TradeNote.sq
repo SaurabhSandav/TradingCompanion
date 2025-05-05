@@ -9,18 +9,17 @@ tradeId INTEGER AS TradeId NOT NULL,
 note TEXT NOT NULL,
 added TEXT AS Instant NOT NULL,
 lastEdited TEXT AS Instant,
-isMarkdown INTEGER AS Boolean NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
 );
 
 insert:
 INSERT
-INTO TradeNote(tradeId, note, added, lastEdited, isMarkdown)
-VALUES (?, ?, ?, ?, ?);
+INTO TradeNote(tradeId, note, added, lastEdited)
+VALUES (?, ?, ?, ?);
 
 update:
 UPDATE TradeNote
-SET note = ?, lastEdited = ?, isMarkdown = ?
+SET note = ?, lastEdited = ?
 WHERE id = ?;
 
 delete:

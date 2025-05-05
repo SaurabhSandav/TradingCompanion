@@ -166,8 +166,8 @@ internal class TradePresenter(
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
             is RemoveAttachment -> onRemoveAttachment(event.fileId)
-            is AddNote -> onAddNote(event.note, event.isMarkdown)
-            is UpdateNote -> onUpdateNote(event.id, event.note, event.isMarkdown)
+            is AddNote -> onAddNote(event.note)
+            is UpdateNote -> onUpdateNote(event.id, event.note)
             is DeleteNote -> onDeleteNote(event.id)
         }
     }
@@ -424,7 +424,6 @@ internal class TradePresenter(
                             lastEdited == null -> "Added $added"
                             else -> "Added $added (Last Edited $lastEdited)"
                         },
-                        isMarkdown = note.isMarkdown,
                     )
                 }
                 .collect { value = it }
@@ -523,21 +522,17 @@ internal class TradePresenter(
         tradingRecord.await().attachments.remove(tradeId, fileId)
     }
 
-    private fun onAddNote(
-        note: String,
-        isMarkdown: Boolean,
-    ) = coroutineScope.launchUnit {
+    private fun onAddNote(note: String) = coroutineScope.launchUnit {
 
-        tradingRecord.await().notes.add(tradeId, note, isMarkdown)
+        tradingRecord.await().notes.add(tradeId, note)
     }
 
     private fun onUpdateNote(
         id: TradeNoteId,
         note: String,
-        isMarkdown: Boolean,
     ) = coroutineScope.launchUnit {
 
-        tradingRecord.await().notes.update(id, note, isMarkdown)
+        tradingRecord.await().notes.update(id, note)
     }
 
     private fun onDeleteNote(id: TradeNoteId) = coroutineScope.launchUnit {

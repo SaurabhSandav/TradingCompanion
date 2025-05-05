@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -40,7 +39,6 @@ import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
 internal fun ReviewEditable(
-    isMarkdown: Boolean,
     edit: Boolean,
     review: String,
     onReviewChange: (String) -> Unit,
@@ -94,7 +92,7 @@ internal fun ReviewEditable(
                     )
                 }
 
-                isMarkdown -> {
+                else -> {
 
                     val onMarkdownLinkClickedUpdated by rememberUpdatedState(onMarkdownLinkClicked)
 
@@ -123,11 +121,6 @@ internal fun ReviewEditable(
                         )
                     }
                 }
-
-                else -> Text(
-                    modifier = modifier,
-                    text = review,
-                )
             }
         }
     }

@@ -25,7 +25,6 @@ import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenDetails
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenMarkdownLink
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.SaveReview
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.SetTitle
-import com.saurabhsandav.core.ui.review.model.ReviewEvent.ToggleMarkdown
 import com.saurabhsandav.core.ui.review.model.ReviewState.Tab
 import com.saurabhsandav.core.ui.review.model.ReviewState.TradeEntry
 import com.saurabhsandav.core.ui.review.ui.ReviewEditable
@@ -63,8 +62,6 @@ internal fun ReviewWindow(
         ReviewScreen(
             title = state.title,
             onSetTitle = { title -> state.eventSink(SetTitle(title)) },
-            isMarkdown = state.isMarkdown,
-            onToggleMarkdown = { state.eventSink(ToggleMarkdown) },
             review = reviewInEdit,
             onReviewChange = { review -> reviewInEdit = review },
             canSaveReview = canSaveReview,
@@ -90,8 +87,6 @@ internal fun ReviewWindow(
 private fun ReviewScreen(
     title: String,
     onSetTitle: (String) -> Unit,
-    isMarkdown: Boolean,
-    onToggleMarkdown: () -> Unit,
     review: String,
     onReviewChange: (String) -> Unit,
     canSaveReview: Boolean,
@@ -111,8 +106,6 @@ private fun ReviewScreen(
             ReviewTopAppBar(
                 title = title,
                 onSetTitle = onSetTitle,
-                isMarkdown = isMarkdown,
-                onToggleMarkdown = onToggleMarkdown,
                 isReviewEditMode = isReviewEditMode,
                 onToggleEditReview = { isReviewEditMode = !isReviewEditMode },
                 canSaveReview = canSaveReview,
@@ -148,7 +141,6 @@ private fun ReviewScreen(
 
                     when (tab) {
                         Tab.Review -> ReviewEditable(
-                            isMarkdown = isMarkdown,
                             edit = isReviewEditMode,
                             review = review,
                             onReviewChange = onReviewChange,

@@ -8,8 +8,6 @@ internal sealed class ReviewEvent {
         val title: String,
     ) : ReviewEvent()
 
-    data object ToggleMarkdown : ReviewEvent()
-
     data class SaveReview(
         val review: String,
     ) : ReviewEvent()

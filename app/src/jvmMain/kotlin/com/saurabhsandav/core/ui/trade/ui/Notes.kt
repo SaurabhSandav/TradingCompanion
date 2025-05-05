@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.trade.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
@@ -48,8 +47,8 @@ import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
 @Composable
 internal fun Notes(
     notes: List<TradeNote>,
-    onAddNote: (note: String, isMarkdown: Boolean) -> Unit,
-    onUpdateNote: (id: TradeNoteId, note: String, isMarkdown: Boolean) -> Unit,
+    onAddNote: (note: String) -> Unit,
+    onUpdateNote: (id: TradeNoteId, note: String) -> Unit,
     onDeleteNote: (id: TradeNoteId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -80,22 +79,20 @@ internal fun Notes(
                 var showEditDialog by state { false }
                 var showDeleteConfirmationDialog by state { false }
 
-                ContextMenuArea(items = {
-                    listOf(
-                        ContextMenuItem("Edit") { showEditDialog = true },
-                        ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-                    )
-                }) {
+                ContextMenuArea(
+                    items = {
+                        listOf(
+                            ContextMenuItem("Edit") { showEditDialog = true },
+                            ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                        )
+                    },
+                ) {
 
                     ListItem(
                         modifier = Modifier.fillMaxWidth(),
                         overlineContent = { Text(note.dateText) },
                         headlineContent = {
-
-                            when {
-                                note.isMarkdown -> RichText { Markdown(note.noteText) }
-                                else -> Text(note.noteText)
-                            }
+                            RichText { Markdown(note.noteText) }
                         },
                     )
 
@@ -104,8 +101,7 @@ internal fun Notes(
                         NoteEditorWindow(
                             noteId = note.id,
                             noteText = note.noteText,
-                            isMarkdown = note.isMarkdown,
-                            onSaveNote = { noteText, isMarkdown -> onUpdateNote(note.id, noteText, isMarkdown) },
+                            onSaveNote = { noteText -> onUpdateNote(note.id, noteText) },
                             onCloseRequest = { showEditDialog = false },
                         )
                     }
@@ -136,11 +132,10 @@ internal fun Notes(
 
 @Composable
 private fun NoteEditorWindow(
-    onSaveNote: (note: String, isMarkdown: Boolean) -> Unit,
+    onSaveNote: (note: String) -> Unit,
     onCloseRequest: () -> Unit,
     noteId: TradeNoteId? = null,
     noteText: String = "",
-    isMarkdown: Boolean = false,
 ) {
 
     val windowState = rememberAppWindowState(
@@ -158,7 +153,6 @@ private fun NoteEditorWindow(
 
             var text by state { noteText }
             var previewMarkdown by state { false }
-            var isMarkdownEdit by state { isMarkdown }
             val initialFocusRequester = remember { FocusRequester() }
 
             LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
@@ -196,41 +190,18 @@ private fun NoteEditorWindow(
 
             HorizontalDivider()
 
-            Column(
-                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
+            Row(
+                modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                AnimatedVisibility(isMarkdownEdit) {
+                Text("Preview Markdown")
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-
-                        Text("Preview Markdown")
-
-                        Switch(
-                            checked = previewMarkdown,
-                            onCheckedChange = { previewMarkdown = it },
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-
-                    Text("Markdown")
-
-                    Switch(
-                        checked = isMarkdownEdit,
-                        onCheckedChange = { isMarkdownEdit = it },
-                    )
-                }
+                Switch(
+                    checked = previewMarkdown,
+                    onCheckedChange = { previewMarkdown = it },
+                )
             }
 
             HorizontalDivider()
@@ -239,7 +210,7 @@ private fun NoteEditorWindow(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onCloseRequest()
-                    onSaveNote(text, isMarkdownEdit)
+                    onSaveNote(text)
                 },
                 content = { Text("Save") },
             )

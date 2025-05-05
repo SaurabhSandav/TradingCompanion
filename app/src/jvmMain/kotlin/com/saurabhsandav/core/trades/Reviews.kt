@@ -21,7 +21,6 @@ class Reviews internal constructor(
         title: String,
         tradeIds: List<TradeId>,
         review: String,
-        isMarkdown: Boolean,
     ): ReviewId = withContext(appDispatchers.IO) {
 
         return@withContext tradesDB.transactionWithResult {
@@ -31,7 +30,6 @@ class Reviews internal constructor(
                 tradeIds = tradeIds,
                 review = review,
                 created = Clock.System.now().withoutNanoseconds(),
-                isMarkdown = isMarkdown,
             )
 
             tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ReviewId)
@@ -47,11 +45,6 @@ class Reviews internal constructor(
             id = id,
             title = title,
         )
-    }
-
-    suspend fun toggleIsMarkdown(id: ReviewId) = withContext(appDispatchers.IO) {
-
-        tradesDB.reviewQueries.toggleMarkdown(id = id)
     }
 
     suspend fun update(

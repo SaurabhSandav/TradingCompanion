@@ -22,7 +22,6 @@ class Notes internal constructor(
     suspend fun add(
         tradeId: TradeId,
         note: String,
-        isMarkdown: Boolean,
     ) = withContext(appDispatchers.IO) {
 
         val now = Clock.System.now().withoutNanoseconds()
@@ -32,21 +31,18 @@ class Notes internal constructor(
             note = note,
             added = now,
             lastEdited = null,
-            isMarkdown = isMarkdown,
         )
     }
 
     suspend fun update(
         id: TradeNoteId,
         note: String,
-        isMarkdown: Boolean,
     ) = withContext(appDispatchers.IO) {
 
         tradesDB.tradeNoteQueries.update(
             id = id,
             note = note,
             lastEdited = Clock.System.now().withoutNanoseconds(),
-            isMarkdown = isMarkdown,
         )
     }
 

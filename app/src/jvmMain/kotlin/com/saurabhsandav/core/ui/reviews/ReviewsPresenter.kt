@@ -124,7 +124,6 @@ internal class ReviewsPresenter(
             title = "New Review",
             tradeIds = emptyList(),
             review = "",
-            isMarkdown = false,
         )
 
         val profileReviewId = ProfileReviewId(
