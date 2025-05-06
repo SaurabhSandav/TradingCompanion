@@ -47,7 +47,7 @@ class BackupManager(
         }
 
         // Create backup archive
-        ZipUtils.createZip(
+        ZipUtils.zip(
             paths = paths,
             outPath = archivePath,
         )
@@ -77,7 +77,7 @@ class BackupManager(
         val tempDir = appPaths.createTempDirectory("${appPaths.appName}_Restore")
 
         // Extract archive to temp dir
-        ZipUtils.extractZip(
+        ZipUtils.unzip(
             zipPath = archivePath,
             outDir = tempDir,
         )

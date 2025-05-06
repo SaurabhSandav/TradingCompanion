@@ -14,7 +14,7 @@ import kotlin.io.path.pathString
 
 object ZipUtils {
 
-    fun createZip(
+    fun zip(
         paths: List<Path>,
         outPath: Path,
     ) {
@@ -45,7 +45,7 @@ object ZipUtils {
         }
     }
 
-    fun extractZip(
+    fun unzip(
         zipPath: Path,
         outDir: Path,
     ) {

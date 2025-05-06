@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 class ZipUtilsTest {
 
     @Test
-    fun createAndExtract() = runTest {
+    fun `Zip and Unzip`() = runTest {
 
         val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
         val outFile = fakeFileSystem.getPath("/out.zip")
@@ -66,7 +66,7 @@ class ZipUtilsTest {
         assertTrue { outFile.notExists() }
 
         // Create Zip
-        ZipUtils.createZip(
+        ZipUtils.zip(
             paths = paths,
             outPath = outFile,
         )
@@ -84,7 +84,7 @@ class ZipUtilsTest {
         }
 
         // Extract Zip
-        ZipUtils.extractZip(
+        ZipUtils.unzip(
             zipPath = outFile,
             outDir = outDir,
         )
