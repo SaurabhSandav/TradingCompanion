@@ -19,7 +19,7 @@ class BackupManager(
 
     suspend fun backup(
         outDir: Path,
-        items: Set<BackupItems> = BackupItems.entries.toSet(),
+        items: Set<BackupItem> = BackupItem.entries.toSet(),
         onProgress: ((BackupEvent) -> Unit)? = null,
     ) = withContext(appDispatchers.IO) {
 
@@ -39,10 +39,10 @@ class BackupManager(
         val paths = items.map { item ->
 
             when (item) {
-                BackupItems.Prefs -> appPaths.prefsPath
-                BackupItems.AppDb -> appPaths.appDBPath
-                BackupItems.TradingRecords -> appPaths.tradingRecordsPath
-                BackupItems.Candles -> appPaths.candlesDBPath
+                BackupItem.Prefs -> appPaths.prefsPath
+                BackupItem.AppDb -> appPaths.appDBPath
+                BackupItem.TradingRecords -> appPaths.tradingRecordsPath
+                BackupItem.Candles -> appPaths.candlesDBPath
             }
         }
 

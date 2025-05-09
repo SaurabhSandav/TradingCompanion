@@ -38,7 +38,7 @@ class BackupManagerTest {
         val backupEvents = mutableListOf<BackupEvent>()
 
         // Create backup
-        backupManager.backup(backupDir, setOf(BackupItems.Prefs)) { event ->
+        backupManager.backup(backupDir, setOf(BackupItem.Prefs)) { event ->
             backupEvents += event
         }
 

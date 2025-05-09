@@ -59,7 +59,7 @@ class RestoreSchedulerTest {
         prefsPath.createFile().writeText(prefsContent)
 
         // Create backup
-        backupManager.backup(backupDir, setOf(BackupItems.Prefs))
+        backupManager.backup(backupDir, setOf(BackupItem.Prefs))
 
         var exited: Boolean
         var counter = 0

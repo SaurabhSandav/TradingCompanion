@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.backup
 
-enum class BackupItems {
+enum class BackupItem {
     Prefs,
     AppDb,
     TradingRecords,
