@@ -13,6 +13,12 @@ internal data class SettingsState(
     val eventSink: (SettingsEvent) -> Unit,
 ) {
 
+    enum class Category {
+        Layout,
+        Trading,
+        Backup,
+    }
+
     sealed class BackupProgress {
 
         data class GeneratingArchive(
