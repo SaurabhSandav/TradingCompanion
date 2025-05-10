@@ -1,14 +1,16 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import app.softwork.serialization.csv.CSVFormat
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.MutableCandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.asCandleSeries
-import kotlinx.datetime.Instant
+import kotlinx.serialization.decodeFromString
 
 object CandleUtils {
+
+    private val csvFormat = CSVFormat { includeHeader = false }
 
     val m5Series by getCandlesSeries(Timeframe.M5)
 
@@ -32,17 +34,10 @@ object CandleUtils {
 
         this::class.java.getResourceAsStream("/NTPC_$timeframe.csv")
             .let(::requireNotNull)
-            .use { csvReader().readAll(it) }
-            .map { list ->
-                Candle(
-                    openInstant = Instant.fromEpochSeconds(list[0].toLong()),
-                    open = list[1].toBigDecimal(),
-                    high = list[2].toBigDecimal(),
-                    low = list[3].toBigDecimal(),
-                    close = list[4].toBigDecimal(),
-                    volume = list[5].toBigDecimal(),
-                )
+            .let { inputStream ->
+                val csvText = inputStream.reader().use { it.readText() }
+                val candles = csvFormat.decodeFromString<List<Candle>>(csvText)
+                MutableCandleSeries(candles, timeframe = timeframe).asCandleSeries()
             }
-            .let { candles -> MutableCandleSeries(candles, timeframe = timeframe).asCandleSeries() }
     }
 }

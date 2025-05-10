@@ -24,7 +24,6 @@ turbine = "1.2.0"
 # Other
 multiplatformSettings = "1.3.0"
 kermit = "2.0.5"
-kotlinCsv = "1.9.3"
 kotlinResult = "2.0.1"
 appdirs = "1.4.0"
 buildKonfig = "0.17.1"
@@ -40,6 +39,7 @@ jimfs = "1.3.0"
 eithernet = "2.0.0"
 coil = "3.2.0"
 zoomimage = "1.3.0"
+softwork-kotlinxSerialization-csv = "0.0.20"
 
 [plugins]
 # Gradle Versions Checker
@@ -111,9 +111,6 @@ multiplatformSettings-datastore = { module = "com.russhwolf:multiplatform-settin
 # Kermit
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
-# kotlin-csv
-kotlinCsvJvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsv" }
-
 # kotlin-result
 kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlinResult" }
 kotlinResult-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-result-coroutines", version.ref = "kotlinResult" }
@@ -158,3 +155,6 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 
 # ZoomImage
 zoomimage-composeCoil3 = { module = "io.github.panpf.zoomimage:zoomimage-compose-coil3", version.ref = "zoomimage" }
+
+#  hfhbd / kotlinx-serialization-csv
+softwork-kotlinxSerializationCsv = { module = "app.softwork:kotlinx-serialization-csv", version.ref = "softwork-kotlinxSerialization-csv" }

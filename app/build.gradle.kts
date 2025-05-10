@@ -80,6 +80,7 @@ kotlin {
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.softwork.kotlinxSerializationCsv)
 
             // KotlinX DateTime
             implementation(libs.kotlinx.datetime)
@@ -102,9 +103,6 @@ kotlin {
             implementation(libs.multiplatformSettings.core)
             implementation(libs.multiplatformSettings.coroutines)
             implementation(libs.multiplatformSettings.datastore)
-
-            // kotlin-csv
-            implementation(libs.kotlinCsvJvm)
 
             // kotlin-result
             implementation(libs.kotlinResult)
