@@ -13,6 +13,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Files
+import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.readText
@@ -43,7 +44,9 @@ class BackupManagerTest {
         assertEquals(Files.list(backupDir).count(), 0)
 
         // Create backup
-        backupManager.backup(backupDir, setOf(BackupItem.Prefs))
+        backupManager.backup(setOf(BackupItem.Prefs)) { archivePath ->
+            archivePath.copyTo(backupDir.resolve(archivePath.fileName))
+        }
 
         // Check backup file was created
         assertEquals(Files.list(backupDir).count(), 1)
@@ -80,10 +83,11 @@ class BackupManagerTest {
 
         // Create backup
         backupManager.backup(
-            outDir = backupDir,
             items = setOf(BackupItem.Prefs),
             onProgress = channel::trySend,
-        )
+        ) { archivePath ->
+            archivePath.copyTo(backupDir.resolve(archivePath.fileName))
+        }
 
         // Check backup events
         channel.consumeAsFlow().test {
@@ -114,7 +118,9 @@ class BackupManagerTest {
         prefsPath.createFile().writeText(prefsContent)
 
         // Create backup
-        backupManager.backup(backupDir, setOf(BackupItem.Prefs))
+        backupManager.backup(setOf(BackupItem.Prefs)) { archivePath ->
+            archivePath.copyTo(backupDir.resolve(archivePath.fileName))
+        }
 
         val channel = Channel<RestoreEvent>(Channel.BUFFERED)
 

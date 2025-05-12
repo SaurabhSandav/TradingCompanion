@@ -6,6 +6,7 @@ import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.FakeAppPaths
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Files
+import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.writeText
@@ -59,7 +60,9 @@ class RestoreSchedulerTest {
         prefsPath.createFile().writeText(prefsContent)
 
         // Create backup
-        backupManager.backup(backupDir, setOf(BackupItem.Prefs))
+        backupManager.backup(setOf(BackupItem.Prefs)) { archivePath ->
+            archivePath.copyTo(backupDir.resolve(archivePath.fileName))
+        }
 
         var exited: Boolean
         var counter = 0

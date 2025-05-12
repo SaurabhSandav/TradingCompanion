@@ -28,6 +28,7 @@ import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlin.io.path.Path
+import kotlin.io.path.copyTo
 
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
@@ -98,17 +99,21 @@ internal class SettingsPresenter(
 
     private fun onBackup(toDirPath: String) = coroutineScope.launchUnit {
 
-        backupManager.backup(Path(toDirPath)) { event ->
+        backupManager.backup(
+            onProgress = { event ->
 
-            backupProgress = when (event) {
-                is BackupEvent.GeneratingArchive -> BackupProgress.GeneratingArchive(
-                    item = event.item ?: return@backup,
-                    progress = event.copied / event.size.toFloat(),
-                )
+                backupProgress = when (event) {
+                    is BackupEvent.GeneratingArchive -> BackupProgress.GeneratingArchive(
+                        item = event.item ?: return@backup,
+                        progress = event.copied / event.size.toFloat(),
+                    )
 
-                BackupEvent.SavingArchive -> BackupProgress.SavingArchive
-                BackupEvent.Finished -> null
-            }
+                    BackupEvent.SavingArchive -> BackupProgress.SavingArchive
+                    BackupEvent.Finished -> null
+                }
+            },
+        ) { archivePath ->
+            archivePath.copyTo(Path(toDirPath).resolve(archivePath.fileName))
         }
     }
 

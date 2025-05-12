@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.listDirectoryEntries
@@ -19,12 +18,12 @@ class BackupManager(
 ) {
 
     suspend fun backup(
-        outDir: Path,
         items: Set<BackupItem> = BackupItem.entries.toSet(),
         onProgress: ((BackupEvent) -> Unit)? = null,
-    ) = withContext(appDispatchers.IO) {
+        onSaveArchive: suspend (Path) -> Unit,
+    ): Unit = withContext(appDispatchers.IO) {
 
-        if (items.isEmpty()) return@withContext null
+        if (items.isEmpty()) return@withContext
 
         // Create temp dir
         val tempDir = appPaths.createTempDirectory("${appPaths.appName}_Backup")
@@ -74,8 +73,8 @@ class BackupManager(
         // Notify progress
         onProgress?.invoke(BackupEvent.SavingArchive)
 
-        // Perform backup
-        archivePath.copyTo(outDir.resolve(archivePath.fileName))
+        // Save backup
+        onSaveArchive(archivePath)
 
         // Delete temp dir
         tempDir.deleteRecursively()
