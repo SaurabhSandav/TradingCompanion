@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Service
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
@@ -66,6 +67,28 @@ internal fun RestoreButton(onRestore: (archivePath: String) -> Unit) {
             onConfirm = {
                 onRestore(fileL)
                 file = null
+            },
+        )
+    }
+}
+
+@Composable
+internal fun NewServiceButton(services: List<Service>) {
+
+    var showNewServiceDialog by state { false }
+
+    Button(
+        onClick = { showNewServiceDialog = true },
+        content = { Text("Add Service") },
+    )
+
+    if (showNewServiceDialog) {
+
+        NewServiceDialog(
+            onDismissRequest = { showNewServiceDialog = false },
+            services = services,
+            onSelectService = { type ->
+                showNewServiceDialog = false
             },
         )
     }

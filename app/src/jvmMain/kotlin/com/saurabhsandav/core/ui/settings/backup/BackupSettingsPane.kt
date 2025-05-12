@@ -1,28 +1,37 @@
 package com.saurabhsandav.core.ui.settings.backup
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Backup
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.BackupToService
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.DeleteService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Restore
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ConfiguredService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progress
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Service
 import com.saurabhsandav.core.ui.settings.backup.ui.BackupButton
 import com.saurabhsandav.core.ui.settings.backup.ui.BackupProgressDialog
+import com.saurabhsandav.core.ui.settings.backup.ui.ConfiguredServices
+import com.saurabhsandav.core.ui.settings.backup.ui.NewServiceButton
 import com.saurabhsandav.core.ui.settings.backup.ui.RestoreButton
 import com.saurabhsandav.core.ui.settings.ui.Preference
 import com.saurabhsandav.core.ui.theme.dimens
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
-internal fun BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> BackupSettingsModule) {
+internal fun ColumnScope.BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> BackupSettingsModule) {
 
     val scope = rememberCoroutineScope()
     val presenter = remember { backupSettingsModule(scope).presenter() }
@@ -32,19 +41,38 @@ internal fun BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> Bac
         progress = state.progress,
         onBackup = { toDirPath -> state.eventSink(Backup(toDirPath)) },
         onRestore = { archivePath -> state.eventSink(Restore(archivePath)) },
+        services = state.services,
+        configuredServices = state.configuredServices,
+        onDeleteService = { id -> state.eventSink(DeleteService(id)) },
+        onBackupToService = { id -> state.eventSink(BackupToService(id)) },
     )
 }
 
 @Composable
-private fun BackupPreferences(
+private fun ColumnScope.BackupPreferences(
     progress: Progress?,
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
+    services: List<Service>,
+    configuredServices: List<ConfiguredService>,
+    onDeleteService: (BackupService.Id) -> Unit,
+    onBackupToService: (BackupService.Id) -> Unit,
 ) {
 
-    BackupPreference(
+    MainOptions(
         onBackup = onBackup,
         onRestore = onRestore,
+        services = services,
+    )
+
+    HorizontalDivider()
+
+    ConfiguredServices(
+        modifier = Modifier.weight(1F),
+        configuredServices = configuredServices,
+        onEdit = { },
+        onDelete = onDeleteService,
+        onBackup = onBackupToService,
     )
 
     if (progress != null) {
@@ -53,17 +81,17 @@ private fun BackupPreferences(
 }
 
 @Composable
-private fun BackupPreference(
+private fun MainOptions(
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
+    services: List<Service>,
 ) {
 
     Preference(
-        headlineContent = { Text("Backup") },
-        trailingContent = {
+        headlineContent = {
 
             Row(
-                modifier = Modifier.wrapContentSize(),
+                modifier = Modifier.fillMaxWidth().wrapContentWidth(),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.rowHorizontalSpacing),
             ) {
 
@@ -73,6 +101,10 @@ private fun BackupPreference(
 
                 RestoreButton(
                     onRestore = onRestore,
+                )
+
+                NewServiceButton(
+                    services = services,
                 )
             }
         },

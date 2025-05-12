@@ -6,6 +6,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -48,6 +49,25 @@ internal fun PreferenceCategoryItem(
     ListItem(
         modifier = modifier.clickable(onClick = onClick),
         headlineContent = headlineContent,
+        supportingContent = supportingContent,
+    )
+}
+
+@Composable
+internal fun PreferenceHeader(
+    headlineContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    supportingContent: @Composable (() -> Unit)? = null,
+) {
+
+    ListItem(
+        modifier = modifier,
+        headlineContent = {
+
+            ProvideTextStyle(MaterialTheme.typography.titleLarge) {
+                headlineContent()
+            }
+        },
         supportingContent = supportingContent,
     )
 }
