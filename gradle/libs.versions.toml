@@ -8,7 +8,7 @@ kotlin = "2.1.21"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.8.1"
 kotlinx-datetime = "0.6.2"
-kotlinx-collectionsImmutable = "0.3.8"
+kotlinx-collectionsImmutable = "0.4.0"
 jetbrainsCompose = "1.8.0"
 ktor = "3.1.3"
 
