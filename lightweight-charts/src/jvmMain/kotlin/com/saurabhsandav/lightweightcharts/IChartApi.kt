@@ -174,7 +174,12 @@ class IChartApi internal constructor(
     }
 
     fun priceScale(priceScaleId: String): IPriceScaleApi {
-        return IPriceScaleApi(reference, ::executeJs, priceScaleId)
+        return IPriceScaleApi(
+            receiver = reference,
+            executeJs = ::executeJs,
+            executeJsWithResult = ::executeJsWithResult,
+            priceScaleId = priceScaleId,
+        )
     }
 
     fun setCrosshairPosition(

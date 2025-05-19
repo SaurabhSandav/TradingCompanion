@@ -24,7 +24,11 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     private val primitivesMapReference = "$seriesInstanceReference.primitivesMap"
 
     val reference = "$seriesInstanceReference.series"
-    val priceScale: IPriceScaleApi = IPriceScaleApi(reference, executeJs)
+    val priceScale: IPriceScaleApi = IPriceScaleApi(
+        receiver = reference,
+        executeJs = executeJs,
+        executeJsWithResult = executeJsWithResult,
+    )
 
     private var nextPriceLineId = 0
     private var nextPrimitiveId = 0
