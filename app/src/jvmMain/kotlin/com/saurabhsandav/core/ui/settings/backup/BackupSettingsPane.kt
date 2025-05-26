@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.settings.ui
+package com.saurabhsandav.core.ui.settings.backup
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,15 +26,35 @@ import androidx.compose.ui.window.Dialog
 import com.saurabhsandav.core.backup.BackupItem
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.settings.model.SettingsState.BackupProgress
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Backup
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Restore
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progress
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progress.GeneratingArchive
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progress.SavingArchive
+import com.saurabhsandav.core.ui.settings.ui.Preference
 import com.saurabhsandav.core.ui.theme.dimens
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
-internal fun BackupPreferences(
-    backupProgress: BackupProgress?,
+internal fun BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> BackupSettingsModule) {
+
+    val scope = rememberCoroutineScope()
+    val presenter = remember { backupSettingsModule(scope).presenter() }
+    val state by presenter.state.collectAsState()
+
+    BackupPreferences(
+        progress = state.progress,
+        onBackup = { toDirPath -> state.eventSink(Backup(toDirPath)) },
+        onRestore = { archivePath -> state.eventSink(Restore(archivePath)) },
+    )
+}
+
+@Composable
+private fun BackupPreferences(
+    progress: Progress?,
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
 ) {
@@ -41,8 +64,8 @@ internal fun BackupPreferences(
         onRestore = onRestore,
     )
 
-    if (backupProgress != null) {
-        BackupProgressDialog(backupProgress)
+    if (progress != null) {
+        BackupProgressDialog(progress)
     }
 }
 
@@ -117,7 +140,7 @@ private fun BackupPreference(
 }
 
 @Composable
-private fun BackupProgressDialog(backupProgress: BackupProgress) {
+private fun BackupProgressDialog(progress: Progress) {
 
     Dialog(onDismissRequest = {}) {
 
@@ -132,12 +155,12 @@ private fun BackupProgressDialog(backupProgress: BackupProgress) {
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
-                when (backupProgress) {
-                    is BackupProgress.GeneratingArchive -> {
+                when (progress) {
+                    is GeneratingArchive -> {
 
                         Text("Generating Archive")
 
-                        val subtitle = when (backupProgress.item) {
+                        val subtitle = when (progress.item) {
                             BackupItem.Prefs -> "Prefs"
                             BackupItem.AppDb -> "App Database"
                             BackupItem.TradingRecords -> "Trading Records"
@@ -151,11 +174,11 @@ private fun BackupProgressDialog(backupProgress: BackupProgress) {
 
                         LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth(),
-                            progress = { backupProgress.progress },
+                            progress = { progress.progress },
                         )
                     }
 
-                    BackupProgress.SavingArchive -> {
+                    SavingArchive -> {
 
                         Text("Saving Archive")
 

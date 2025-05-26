@@ -20,12 +20,4 @@ internal sealed class SettingsEvent {
     data class ChangeDefaultTimeframe(
         val timeframe: Timeframe,
     ) : SettingsEvent()
-
-    data class Backup(
-        val toDirPath: String,
-    ) : SettingsEvent()
-
-    data class Restore(
-        val archivePath: String,
-    ) : SettingsEvent()
 }

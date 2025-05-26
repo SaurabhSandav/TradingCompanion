@@ -2,42 +2,28 @@ package com.saurabhsandav.core.ui.settings
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.backup.BackupEvent
-import com.saurabhsandav.core.backup.BackupManager
-import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
-import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Backup
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDarkModeEnabled
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDefaultTimeframe
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDensityFraction
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeLandingScreen
-import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Restore
 import com.saurabhsandav.core.ui.settings.model.SettingsState
-import com.saurabhsandav.core.ui.settings.model.SettingsState.BackupProgress
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import kotlin.io.path.Path
-import kotlin.io.path.copyTo
 
 internal class SettingsPresenter(
     private val coroutineScope: CoroutineScope,
     private val appPrefs: FlowSettings,
-    private val backupManager: BackupManager,
-    private val restoreScheduler: RestoreScheduler,
 ) {
-
-    private var backupProgress by mutableStateOf<BackupProgress?>(null)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -64,7 +50,6 @@ internal class SettingsPresenter(
             landingScreen = landingScreen,
             densityFraction = densityFraction,
             defaultTimeframe = defaultTimeframe,
-            backupProgress = backupProgress,
             eventSink = ::onEvent,
         )
     }
@@ -76,8 +61,6 @@ internal class SettingsPresenter(
             is ChangeLandingScreen -> onLandingScreenChange(event.landingScreen)
             is ChangeDensityFraction -> onDensityFractionChange(event.densityFraction)
             is ChangeDefaultTimeframe -> onDefaultTimeframeChange(event.timeframe)
-            is Backup -> onBackup(event.toDirPath)
-            is Restore -> onRestore(event.archivePath)
         }
     }
 
@@ -95,29 +78,5 @@ internal class SettingsPresenter(
 
     private fun onDefaultTimeframeChange(defaultTimeframe: Timeframe) = coroutineScope.launchUnit {
         appPrefs.putString(PrefKeys.DefaultTimeframe, defaultTimeframe.name)
-    }
-
-    private fun onBackup(toDirPath: String) = coroutineScope.launchUnit {
-
-        backupManager.backup(
-            onProgress = { event ->
-
-                backupProgress = when (event) {
-                    is BackupEvent.GeneratingArchive -> BackupProgress.GeneratingArchive(
-                        item = event.item ?: return@backup,
-                        progress = event.copied / event.size.toFloat(),
-                    )
-
-                    BackupEvent.SavingArchive -> BackupProgress.SavingArchive
-                    BackupEvent.Finished -> null
-                }
-            },
-        ) { archivePath ->
-            archivePath.copyTo(Path(toDirPath).resolve(archivePath.fileName))
-        }
-    }
-
-    private fun onRestore(archivePath: String) {
-        restoreScheduler.schedule(Path(archivePath))
     }
 }

@@ -27,14 +27,12 @@ import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Backup
+import com.saurabhsandav.core.ui.settings.backup.BackupPreferencesPane
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDarkModeEnabled
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDefaultTimeframe
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDensityFraction
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeLandingScreen
-import com.saurabhsandav.core.ui.settings.model.SettingsEvent.Restore
 import com.saurabhsandav.core.ui.settings.model.SettingsState.Category
-import com.saurabhsandav.core.ui.settings.ui.BackupPreferences
 import com.saurabhsandav.core.ui.settings.ui.LayoutPreferences
 import com.saurabhsandav.core.ui.settings.ui.PreferenceCategoryItem
 import com.saurabhsandav.core.ui.settings.ui.TradingPreferences
@@ -44,7 +42,8 @@ internal fun SettingsWindow(onCloseRequest: () -> Unit) {
 
     val scope = rememberCoroutineScope()
     val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.settingsModule(scope).presenter() }
+    val settingsModule = remember { screensModule.settingsModule(scope) }
+    val presenter = remember { settingsModule.presenter() }
     val state by presenter.state.collectAsState()
 
     AppWindow(
@@ -73,10 +72,8 @@ internal fun SettingsWindow(onCloseRequest: () -> Unit) {
             },
             backupPane = {
 
-                BackupPreferences(
-                    backupProgress = state.backupProgress,
-                    onBackup = { toDirPath -> state.eventSink(Backup(toDirPath)) },
-                    onRestore = { archivePath -> state.eventSink(Restore(archivePath)) },
+                BackupPreferencesPane(
+                    backupSettingsModule = settingsModule.backupSettingsModule,
                 )
             },
         )

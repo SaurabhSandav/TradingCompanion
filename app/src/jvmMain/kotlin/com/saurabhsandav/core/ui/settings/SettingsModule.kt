@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.settings
 
 import com.saurabhsandav.core.di.AppModule
+import com.saurabhsandav.core.ui.settings.backup.BackupSettingsModule
 import kotlinx.coroutines.CoroutineScope
 
 internal class SettingsModule(
@@ -13,8 +14,10 @@ internal class SettingsModule(
         SettingsPresenter(
             coroutineScope = coroutineScope,
             appPrefs = appModule.appPrefs,
-            backupManager = appModule.backupManager,
-            restoreScheduler = appModule.restoreScheduler,
         )
+    }
+
+    val backupSettingsModule: (CoroutineScope) -> BackupSettingsModule = { coroutineScope ->
+        BackupSettingsModule(appModule, coroutineScope)
     }
 }
