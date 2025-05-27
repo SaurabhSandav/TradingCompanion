@@ -10,4 +10,5 @@ object PrefKeys {
     const val FyersAuthTokens = "fyers_auth_tokens"
     const val CurrentTradingProfile = "current_trading_profile"
     const val ReplayFormModel = "replay_form_model"
+    const val BackupServices = "backup_services"
 }

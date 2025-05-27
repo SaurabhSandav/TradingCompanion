@@ -159,6 +159,9 @@ kotlin {
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.test)
 
+            // Multiplatform Settings
+            implementation(libs.multiplatformSettings.test)
+
             // Turbine
             implementation(libs.turbine)
 
