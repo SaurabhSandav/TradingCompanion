@@ -46,14 +46,13 @@ fun AppWindow(
     content: @Composable FrameWindowScope.() -> Unit,
 ) {
 
-    val appWindowState = remember(state) { (state as? AppWindowState) ?: AppWindowState(state) }
     val appWindowOwner = LocalAppWindowOwner.current
 
     if (appWindowOwner != null) {
 
         DisposableEffect(Unit) {
-            appWindowOwner.registerChild(appWindowState)
-            onDispose { appWindowOwner.unRegisterChild(appWindowState) }
+            appWindowOwner.registerChild(state)
+            onDispose { appWindowOwner.unRegisterChild(state) }
         }
     }
 
@@ -73,13 +72,13 @@ fun AppWindow(
         onKeyEvent = onKeyEvent,
     ) {
 
-        appWindowState.setWindow(window)
+        state.setWindow(window)
 
         val appConfig = LocalAppConfig.current
 
         CompositionLocalProvider(
             LocalDensity provides appConfig.adjustedDensity(),
-            LocalAppWindowState provides appWindowState,
+            LocalAppWindowState provides state,
             // AppWindowOwner of this window should not operate on child windows
             LocalAppWindowOwner provides null,
         ) {
@@ -145,7 +144,7 @@ class AppWindowState(
     private val titleTransform: ((String) -> String)? = null,
 ) : WindowState by windowState {
 
-    private var window: ComposeWindow? = null
+    lateinit var window: ComposeWindow
     private val titles = ArrayDeque<Pair<String, String>>()
 
     internal fun setCompositionTitle(
@@ -174,9 +173,6 @@ class AppWindowState(
 
     internal fun setWindow(window: ComposeWindow) {
 
-        // Window already cached
-        if (this.window != null) return
-
         // Cache window
         this.window = window
 
@@ -186,16 +182,16 @@ class AppWindowState(
     private fun updateTitle() {
         val newTitle = titles.lastOrNull()?.second ?: defaultTitle
         if (newTitle != null) {
-            window?.title = titleTransform?.invoke(newTitle) ?: newTitle
+            window.title = titleTransform?.invoke(newTitle) ?: newTitle
         }
     }
 
     fun toFront() {
-        window?.toFront()
+        window.toFront()
     }
 
     fun toBack() {
-        window?.toBack()
+        window.toBack()
     }
 }
 
