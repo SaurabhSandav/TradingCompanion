@@ -12,8 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.backup.service.BackupService
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Backup
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.BackupToService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.DeleteService
@@ -21,6 +23,9 @@ import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Resto
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ConfiguredService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progress
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Service
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ServiceType
+import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormDialog
+import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType
 import com.saurabhsandav.core.ui.settings.backup.ui.BackupButton
 import com.saurabhsandav.core.ui.settings.backup.ui.BackupProgressDialog
 import com.saurabhsandav.core.ui.settings.backup.ui.ConfiguredServices
@@ -34,8 +39,11 @@ import kotlinx.coroutines.CoroutineScope
 internal fun ColumnScope.BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> BackupSettingsModule) {
 
     val scope = rememberCoroutineScope()
-    val presenter = remember { backupSettingsModule(scope).presenter() }
+    val module = remember { backupSettingsModule(scope) }
+    val presenter = remember { module.presenter() }
     val state by presenter.state.collectAsState()
+
+    var serviceFormType by state<BackupServiceFormType?> { null }
 
     BackupPreferences(
         progress = state.progress,
@@ -45,7 +53,20 @@ internal fun ColumnScope.BackupPreferencesPane(backupSettingsModule: (CoroutineS
         configuredServices = state.configuredServices,
         onDeleteService = { id -> state.eventSink(DeleteService(id)) },
         onBackupToService = { id -> state.eventSink(BackupToService(id)) },
+        onShowServiceForm = { formType -> serviceFormType = formType },
     )
+
+    serviceFormType?.let { formType ->
+
+        val onDismissRequest = { serviceFormType = null }
+        val presenter = remember { module.serviceFormPresenter(onDismissRequest, formType) }
+
+        BackupServiceFormDialog(
+            onDismissRequest = onDismissRequest,
+            formType = formType,
+            presenter = presenter,
+        )
+    }
 }
 
 @Composable
@@ -57,12 +78,14 @@ private fun ColumnScope.BackupPreferences(
     configuredServices: List<ConfiguredService>,
     onDeleteService: (BackupService.Id) -> Unit,
     onBackupToService: (BackupService.Id) -> Unit,
+    onShowServiceForm: (formType: BackupServiceFormType) -> Unit,
 ) {
 
     MainOptions(
         onBackup = onBackup,
         onRestore = onRestore,
         services = services,
+        onNewService = { type -> onShowServiceForm(BackupServiceFormType.New(type.type)) },
     )
 
     HorizontalDivider()
@@ -70,7 +93,7 @@ private fun ColumnScope.BackupPreferences(
     ConfiguredServices(
         modifier = Modifier.weight(1F),
         configuredServices = configuredServices,
-        onEdit = { },
+        onEdit = { id -> onShowServiceForm(BackupServiceFormType.Edit(id)) },
         onDelete = onDeleteService,
         onBackup = onBackupToService,
     )
@@ -85,6 +108,7 @@ private fun MainOptions(
     onBackup: (toDirPath: String) -> Unit,
     onRestore: (archivePath: String) -> Unit,
     services: List<Service>,
+    onNewService: (ServiceType) -> Unit,
 ) {
 
     Preference(
@@ -105,6 +129,7 @@ private fun MainOptions(
 
                 NewServiceButton(
                     services = services,
+                    onSelectService = onNewService,
                 )
             }
         },

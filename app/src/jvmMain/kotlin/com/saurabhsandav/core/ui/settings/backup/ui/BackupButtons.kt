@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Service
+import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ServiceType
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
@@ -73,7 +74,10 @@ internal fun RestoreButton(onRestore: (archivePath: String) -> Unit) {
 }
 
 @Composable
-internal fun NewServiceButton(services: List<Service>) {
+internal fun NewServiceButton(
+    services: List<Service>,
+    onSelectService: (ServiceType) -> Unit,
+) {
 
     var showNewServiceDialog by state { false }
 
@@ -89,6 +93,7 @@ internal fun NewServiceButton(services: List<Service>) {
             services = services,
             onSelectService = { type ->
                 showNewServiceDialog = false
+                onSelectService(type)
             },
         )
     }
