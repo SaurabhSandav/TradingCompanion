@@ -37,6 +37,7 @@ import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.utils.openExternally
@@ -75,6 +76,7 @@ internal fun AttachmentFormWindow(
             formType = formType,
             model = formModel,
             fileKitPlatformSettings = fileKitPlatformSettings,
+            onSubmit = state.onSubmit,
         )
     }
 }
@@ -84,9 +86,15 @@ private fun AttachmentForm(
     formType: AttachmentFormType,
     model: AttachmentFormModel,
     fileKitPlatformSettings: FileKitPlatformSettings,
+    onSubmit: () -> Unit,
 ) {
 
     Form {
+
+        val validator = rememberFormValidator(
+            formModels = listOf(model),
+            onSubmit = onSubmit,
+        )
 
         val initialFocusRequester = remember { FocusRequester() }
 
@@ -153,8 +161,8 @@ private fun AttachmentForm(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = model.validator::submit,
-            enabled = model.validator.canSubmit,
+            onClick = validator::submit,
+            enabled = validator.canSubmit,
             content = { Text(if (formType is New) "Add" else "Save") },
         )
     }

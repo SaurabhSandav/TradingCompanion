@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 internal class ProfileFormPresenter(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val onCloseRequest: () -> Unit,
     private val formType: ProfileFormType,
     private val trainingOnly: Boolean,
@@ -33,6 +33,7 @@ internal class ProfileFormPresenter(
                 }
             },
             formModel = formModel,
+            onSubmit = ::onSubmit,
         )
     }
 
@@ -40,41 +41,42 @@ internal class ProfileFormPresenter(
 
         coroutineScope.launch {
 
-            formModel = ProfileFormModel(
-                coroutineScope = coroutineScope,
-                isProfileNameUnique = ::isProfileNameUnique,
-                initial = when (formType) {
-                    is ProfileFormType.New -> ProfileFormModel.Initial(isTraining = trainingOnly)
-                    is ProfileFormType.Copy -> {
+            formModel = when (formType) {
+                is ProfileFormType.New -> ProfileFormModel(
+                    isProfileNameUnique = ::isProfileNameUnique,
+                    isTraining = trainingOnly,
+                )
 
-                        val profile = tradingProfiles.getProfile(formType.id).first()
+                is ProfileFormType.Copy -> {
 
-                        ProfileFormModel.Initial(
-                            name = profile.name,
-                            description = profile.description,
-                            isTraining = profile.isTraining,
-                        )
+                    val profile = tradingProfiles.getProfile(formType.id).first()
+
+                    ProfileFormModel(
+                        isProfileNameUnique = ::isProfileNameUnique,
+                        name = profile.name,
+                        description = profile.description,
+                        isTraining = profile.isTraining,
+                    )
+                }
+
+                is ProfileFormType.Edit -> {
+
+                    val profile = tradingProfiles.getProfileOrNull(formType.id).first()
+
+                    // If profile already deleted, close
+                    if (profile == null) {
+                        onCloseRequest()
+                        return@launch
                     }
 
-                    is ProfileFormType.Edit -> {
-
-                        val profile = tradingProfiles.getProfileOrNull(formType.id).first()
-
-                        // If profile already deleted, close
-                        if (profile == null) {
-                            onCloseRequest()
-                            return@launch
-                        }
-
-                        ProfileFormModel.Initial(
-                            name = profile.name,
-                            description = profile.description,
-                            isTraining = profile.isTraining,
-                        )
-                    }
-                },
-                onSubmit = { save() },
-            )
+                    ProfileFormModel(
+                        isProfileNameUnique = ::isProfileNameUnique,
+                        name = profile.name,
+                        description = profile.description,
+                        isTraining = profile.isTraining,
+                    )
+                }
+            }
         }
 
         if (formType is ProfileFormType.Edit) {
@@ -86,27 +88,29 @@ internal class ProfileFormPresenter(
         }
     }
 
-    private suspend fun ProfileFormModel.save() {
+    private fun onSubmit() = coroutineScope.launch {
+
+        val formModel = formModel!!
 
         when (formType) {
             is ProfileFormType.New -> tradingProfiles.newProfile(
-                name = nameField.value,
-                description = descriptionField.value,
-                isTraining = isTrainingField.value,
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                isTraining = formModel.isTrainingField.value,
             )
 
             is ProfileFormType.Copy -> tradingProfiles.copyProfile(
                 copyId = formType.id,
-                name = nameField.value,
-                description = descriptionField.value,
-                isTraining = isTrainingField.value,
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                isTraining = formModel.isTrainingField.value,
             )
 
             is ProfileFormType.Edit -> tradingProfiles.updateProfile(
                 id = formType.id,
-                name = nameField.value,
-                description = descriptionField.value,
-                isTraining = isTrainingField.value,
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                isTraining = formModel.isTrainingField.value,
             )
         }
 

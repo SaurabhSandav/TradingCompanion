@@ -155,7 +155,7 @@ internal class SizingPresenter(
             id = Uuid.random(),
             profileId = profileId,
             formType = TradeExecutionFormType.NewSized(
-                initialModel = TradeExecutionFormModel.Initial(
+                formModel = TradeExecutionFormModel(
                     instrument = Instrument.Equity,
                     ticker = sizingTrade.ticker,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),

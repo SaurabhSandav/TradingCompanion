@@ -1,14 +1,14 @@
 package com.saurabhsandav.core.ui.profiles.form
 
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.coroutines.CoroutineScope
 
 internal data class ProfileFormState(
     val title: String,
     val formModel: ProfileFormModel?,
+    val onSubmit: () -> Unit,
 )
 
 sealed class ProfileFormType {
@@ -25,27 +25,19 @@ sealed class ProfileFormType {
 }
 
 internal class ProfileFormModel(
-    coroutineScope: CoroutineScope,
     isProfileNameUnique: suspend (String) -> Boolean,
-    initial: Initial,
-    onSubmit: suspend ProfileFormModel.() -> Unit,
-) {
+    name: String = "",
+    description: String = "",
+    isTraining: Boolean = false,
+) : FormModel() {
 
-    val validator = FormValidator(coroutineScope) { onSubmit() }
-
-    val nameField = validator.addField(initial.name) {
+    val nameField = addField(name) {
         isRequired()
         if (length > 200) reportInvalid("Max 200 characters")
         if (!isProfileNameUnique(this)) reportInvalid("Name already taken")
     }
 
-    val descriptionField = validator.addField(initial.description)
+    val descriptionField = addField(description)
 
-    val isTrainingField = validator.addField(initial.isTraining)
-
-    class Initial(
-        val name: String = "",
-        val description: String = "",
-        val isTraining: Boolean = false,
-    )
+    val isTrainingField = addField(isTraining)
 }

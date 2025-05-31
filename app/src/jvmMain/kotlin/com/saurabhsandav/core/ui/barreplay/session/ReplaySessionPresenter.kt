@@ -196,7 +196,7 @@ internal class ReplaySessionPresenter(
         val params = OrderFormParams(
             id = Uuid.random(),
             stockChartParams = stockChart.params,
-            initialModel = ReplayOrderFormModel.Initial(
+            initialModel = ReplayOrderFormModel(
                 isBuy = true,
                 price = price,
             ),
@@ -216,7 +216,7 @@ internal class ReplaySessionPresenter(
         val params = OrderFormParams(
             id = Uuid.random(),
             stockChartParams = stockChart.params,
-            initialModel = ReplayOrderFormModel.Initial(
+            initialModel = ReplayOrderFormModel(
                 isBuy = false,
                 price = price,
             ),

@@ -44,6 +44,7 @@ internal class TagFormPresenter(
                 }
             },
             formModel = formModel,
+            onSubmit = ::onSubmit,
         )
     }
 
@@ -51,60 +52,62 @@ internal class TagFormPresenter(
 
         coroutineScope.launch {
 
-            formModel = TagFormModel(
-                coroutineScope = coroutineScope,
-                isTagNameUnique = ::isTagNameUnique,
-                initial = when (formType) {
-                    is New -> TagFormModel.Initial(name = formType.name ?: "")
-                    is NewFromExisting -> {
+            formModel = when (formType) {
+                is New -> TagFormModel(
+                    isTagNameUnique = ::isTagNameUnique,
+                    name = formType.name ?: "",
+                )
 
-                        val tag = tags.await().getById(formType.id).first()
+                is NewFromExisting -> {
 
-                        TagFormModel.Initial(
-                            name = tag.name,
-                            description = tag.description,
-                            color = tag.color?.let(::Color),
-                        )
-                    }
+                    val tag = tags.await().getById(formType.id).first()
 
-                    is Edit -> {
+                    TagFormModel(
+                        isTagNameUnique = ::isTagNameUnique,
+                        name = tag.name,
+                        description = tag.description,
+                        color = tag.color?.let(::Color),
+                    )
+                }
 
-                        val tag = tags.await().getById(formType.id).first()
+                is Edit -> {
 
-                        TagFormModel.Initial(
-                            name = tag.name,
-                            description = tag.description,
-                            color = tag.color?.let(::Color),
-                        )
-                    }
-                },
-                onSubmit = { save() },
-            )
+                    val tag = tags.await().getById(formType.id).first()
+
+                    TagFormModel(
+                        isTagNameUnique = ::isTagNameUnique,
+                        name = tag.name,
+                        description = tag.description,
+                        color = tag.color?.let(::Color),
+                    )
+                }
+            }
         }
     }
 
-    fun onDelete() = coroutineScope.launchUnit {
-        tags.await().delete((formType as Edit).id)
-    }
+    private fun onSubmit() = coroutineScope.launchUnit {
 
-    private suspend fun TagFormModel.save() {
+        val formModel = formModel!!
 
         when (formType) {
             is New, is NewFromExisting -> tags.await().create(
-                name = nameField.value,
-                description = descriptionField.value,
-                color = colorField.value?.toArgb(),
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                color = formModel.colorField.value?.toArgb(),
             )
 
             is Edit -> tags.await().update(
                 id = formType.id,
-                name = nameField.value,
-                description = descriptionField.value,
-                color = colorField.value?.toArgb(),
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                color = formModel.colorField.value?.toArgb(),
             )
         }
-
         onCloseRequest()
+    }
+
+    fun onDelete() = coroutineScope.launchUnit {
+        tags.await().delete((formType as Edit).id)
     }
 
     private suspend fun isTagNameUnique(name: String): Boolean {

@@ -1,38 +1,30 @@
 package com.saurabhsandav.core.ui.tags.form.model
 
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.coroutines.CoroutineScope
 
 internal data class TagFormState(
     val title: String,
     val formModel: TagFormModel?,
+    val onSubmit: () -> Unit,
 )
 
 internal class TagFormModel(
-    coroutineScope: CoroutineScope,
     isTagNameUnique: suspend (String) -> Boolean,
-    initial: Initial,
-    onSubmit: suspend TagFormModel.() -> Unit,
-) {
+    name: String = "",
+    description: String = "",
+    color: Color? = null,
+) : FormModel() {
 
-    val validator = FormValidator(coroutineScope) { onSubmit() }
-
-    val nameField = validator.addField(initial.name) {
+    val nameField = addField(name) {
         isRequired()
 
         if (!isTagNameUnique(this)) reportInvalid("Tag already exists")
     }
 
-    val descriptionField = validator.addField(initial.description)
+    val descriptionField = addField(description)
 
-    val colorField = validator.addField(initial.color)
-
-    class Initial(
-        val name: String = "",
-        val description: String = "",
-        val color: Color? = null,
-    )
+    val colorField = addField(color)
 }

@@ -36,6 +36,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
@@ -62,16 +63,22 @@ internal fun PNLCalculatorWindow(state: PNLCalculatorWindowState) {
         title = "Calculate PNL",
     ) {
 
-        CalculatorForm(state)
+        CalculatorForm(
+            model = state.model,
+            onRemoveCalculation = state::onRemoveCalculation,
+            onSubmit = state::onCalculate,
+        )
     }
 }
 
 @Composable
-private fun CalculatorForm(state: PNLCalculatorWindowState) {
+private fun CalculatorForm(
+    model: PNLCalculatorModel,
+    onRemoveCalculation: (Int) -> Unit,
+    onSubmit: () -> Unit,
+) {
 
     Row(Modifier.width(1100.dp).fillMaxHeight()) {
-
-        val model = state.model
 
         Column(
             modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).weight(1F).fillMaxHeight(),
@@ -81,6 +88,11 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+
+            val validator = rememberFormValidator(
+                formModels = listOf(model),
+                onSubmit = onSubmit,
+            )
 
             SingleChoiceSegmentedButtonRow {
 
@@ -145,8 +157,8 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = model.validator::submit,
-                enabled = model.validator.canSubmit,
+                onClick = validator::submit,
+                enabled = validator.canSubmit,
             ) {
 
                 Text("Calculate")
@@ -195,7 +207,7 @@ private fun CalculatorForm(state: PNLCalculatorWindowState) {
 
                         IconButtonWithTooltip(
                             modifier = Modifier.alpha(alpha),
-                            onClick = { state.onRemoveCalculation(item.id) },
+                            onClick = { onRemoveCalculation(item.id) },
                             tooltipText = "Close",
                             enabled = item.isRemovable,
                             content = {

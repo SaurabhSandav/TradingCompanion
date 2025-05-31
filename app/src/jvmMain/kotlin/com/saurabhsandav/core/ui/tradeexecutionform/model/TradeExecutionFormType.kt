@@ -17,7 +17,7 @@ internal sealed class TradeExecutionFormType {
     ) : TradeExecutionFormType()
 
     data class NewSized(
-        val initialModel: TradeExecutionFormModel.Initial,
+        val formModel: TradeExecutionFormModel,
         val stop: BigDecimal,
         val target: BigDecimal,
     ) : TradeExecutionFormType()

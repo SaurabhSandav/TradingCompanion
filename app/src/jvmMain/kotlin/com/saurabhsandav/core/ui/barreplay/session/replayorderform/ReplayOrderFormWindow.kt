@@ -28,13 +28,14 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 
 @Composable
 internal fun ReplayOrderFormWindow(
     replayOrdersManager: ReplayOrdersManager,
     stockChartParams: StockChartParams,
-    initialModel: ReplayOrderFormModel.Initial?,
+    initialModel: ReplayOrderFormModel?,
     onCloseRequest: () -> Unit,
 ) {
 
@@ -61,6 +62,7 @@ internal fun ReplayOrderFormWindow(
         ReplayOrderForm(
             ticker = state.ticker,
             model = formModel,
+            onSubmit = state.onSubmit,
         )
     }
 }
@@ -69,9 +71,15 @@ internal fun ReplayOrderFormWindow(
 private fun ReplayOrderForm(
     ticker: String,
     model: ReplayOrderFormModel,
+    onSubmit: () -> Unit,
 ) {
 
     Form {
+
+        val validator = rememberFormValidator(
+            formModels = listOf(model),
+            onSubmit = onSubmit,
+        )
 
         OutlinedTextField(
             value = ticker,
@@ -152,8 +160,8 @@ private fun ReplayOrderForm(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = model.validator::submit,
-            enabled = model.validator.canSubmit,
+            onClick = validator::submit,
+            enabled = validator.canSubmit,
             content = { Text("Add") },
         )
     }

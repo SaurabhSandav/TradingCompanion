@@ -8,7 +8,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.ui.common.form.FormValidator
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams.OperationType.New
 import com.saurabhsandav.core.utils.Brokerage
 import com.saurabhsandav.core.utils.brokerage
@@ -34,14 +33,12 @@ internal class PNLCalculatorWindowState(
     coroutineScope: CoroutineScope,
 ) {
 
-    private val formValidator = FormValidator(coroutineScope, ::onCalculate)
     private var maxId = 0
 
     var isReady by mutableStateOf(false)
         private set
 
     val model = PNLCalculatorModel(
-        validator = formValidator,
         quantity = "1",
         isLong = true,
         entry = "100",
@@ -60,7 +57,7 @@ internal class PNLCalculatorWindowState(
         }
     }
 
-    private fun onCalculate() {
+    fun onCalculate() {
 
         val side = if (model.isLongField.value) "LONG" else "SHORT"
 

@@ -16,7 +16,7 @@ internal class ReplayOrderFormPresenter(
     coroutineScope: CoroutineScope,
     private val replayOrdersManager: ReplayOrdersManager,
     private val stockChartParams: StockChartParams,
-    initialModel: ReplayOrderFormModel.Initial?,
+    initialModel: ReplayOrderFormModel?,
     private val onOrderSaved: () -> Unit,
 ) {
 
@@ -24,11 +24,7 @@ internal class ReplayOrderFormPresenter(
 
     init {
 
-        this.formModel = ReplayOrderFormModel(
-            coroutineScope = coroutineScope,
-            initial = initialModel ?: ReplayOrderFormModel.Initial(),
-            onSubmit = { onSaveOrder() },
-        )
+        this.formModel = initialModel ?: ReplayOrderFormModel()
     }
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -37,18 +33,21 @@ internal class ReplayOrderFormPresenter(
             title = "New Order",
             ticker = stockChartParams.ticker,
             formModel = formModel,
+            onSubmit = ::onSubmit,
         )
     }
 
-    private fun ReplayOrderFormModel.onSaveOrder() {
+    private fun onSubmit() {
+
+        val formModel = formModel!!
 
         replayOrdersManager.newOrder(
             stockChartParams = stockChartParams,
-            quantity = quantityField.value.toBigDecimal(),
-            side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-            price = priceField.value.toBigDecimal(),
-            stop = stop.value.toBigDecimalOrNull(),
-            target = target.value.toBigDecimalOrNull(),
+            quantity = formModel.quantityField.value.toBigDecimal(),
+            side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+            price = formModel.priceField.value.toBigDecimal(),
+            stop = formModel.stop.value.toBigDecimalOrNull(),
+            target = formModel.target.value.toBigDecimalOrNull(),
         )
 
         // Notify order saved

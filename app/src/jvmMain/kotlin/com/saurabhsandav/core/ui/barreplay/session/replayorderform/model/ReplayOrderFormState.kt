@@ -1,41 +1,41 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform.model
 
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.coroutines.CoroutineScope
 
 internal data class ReplayOrderFormState(
     val title: String,
     val ticker: String,
     val formModel: ReplayOrderFormModel?,
+    val onSubmit: () -> Unit,
 )
 
 internal class ReplayOrderFormModel(
-    coroutineScope: CoroutineScope,
-    initial: Initial,
-    onSubmit: suspend ReplayOrderFormModel.() -> Unit,
-) {
+    quantity: String = "",
+    isBuy: Boolean = true,
+    price: String = "",
+    stop: String = "",
+    target: String = "",
+) : FormModel() {
 
-    val validator = FormValidator(coroutineScope) { onSubmit() }
-
-    val quantityField = validator.addField(initial.quantity) {
+    val quantityField = addField(quantity) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val isBuyField = validator.addField(initial.isBuy)
+    val isBuyField = addField(isBuy)
 
-    val priceField = validator.addField(initial.price) {
+    val priceField = addField(price) {
         isRequired()
         isBigDecimal()?.isPositive()
     }
 
-    val stop = validator.addField(initial.stop) {
+    val stop = addField(stop) {
         isRequired(false)
         isBigDecimal()?.apply {
             isPositive()
@@ -49,7 +49,7 @@ internal class ReplayOrderFormModel(
         }
     }
 
-    val target = validator.addField(initial.target) {
+    val target = addField(target) {
         isRequired(false)
         isBigDecimal()?.apply {
             isPositive()
@@ -62,12 +62,4 @@ internal class ReplayOrderFormModel(
             if (!isValid) reportInvalid("Invalid Target")
         }
     }
-
-    class Initial(
-        val quantity: String = "",
-        val isBuy: Boolean = true,
-        val price: String = "",
-        val stop: String = "",
-        val target: String = "",
-    )
 }

@@ -25,6 +25,8 @@ interface FormField<T> : MutableState<T> {
     val isValid: Boolean
 
     suspend fun validate(): Boolean
+
+    fun autoValidateIn(coroutineScope: CoroutineScope)
 }
 
 inline val FormField<*>.isError: Boolean
@@ -32,7 +34,6 @@ inline val FormField<*>.isError: Boolean
 
 internal class FormFieldImpl<T> internal constructor(
     initial: T,
-    val coroutineScope: CoroutineScope,
     private val validation: Validation<T>?,
 ) : FormField<T> {
 
@@ -53,33 +54,6 @@ internal class FormFieldImpl<T> internal constructor(
             // isValid is stale after value change.
             isUpToDate = false
         }
-
-    init {
-
-        coroutineScope.launch {
-
-            // Validate on value change
-            snapshotFlow { value }
-                .drop(1) // Don't validate initial value
-                .debounce(400.milliseconds)
-                .collectLatest { forceValidate() }
-        }
-
-        coroutineScope.launch {
-
-            // Validate on dependency value change
-            snapshotFlow { dependencies.toList() }
-                .flatMapLatest { fields ->
-
-                    combineTransform(
-                        flows = fields.map { field -> snapshotFlow { field.value } },
-                        transform = { emit(Unit) },
-                    )
-                }
-                .debounce(400.milliseconds)
-                .collectLatest { forceValidate() }
-        }
-    }
 
     override suspend fun validate(): Boolean {
 
@@ -113,6 +87,33 @@ internal class FormFieldImpl<T> internal constructor(
     private suspend fun forceValidate() {
         isUpToDate = false
         validate()
+    }
+
+    override fun autoValidateIn(coroutineScope: CoroutineScope) {
+
+        coroutineScope.launch {
+
+            // Validate on value change
+            snapshotFlow { value }
+                .drop(1) // Don't validate initial value
+                .debounce(400.milliseconds)
+                .collectLatest { forceValidate() }
+        }
+
+        coroutineScope.launch {
+
+            // Validate on dependency value change
+            snapshotFlow { dependencies.toList() }
+                .flatMapLatest { fields ->
+
+                    combineTransform(
+                        flows = fields.map { field -> snapshotFlow { field.value } },
+                        transform = { emit(Unit) },
+                    )
+                }
+                .debounce(400.milliseconds)
+                .collectLatest { forceValidate() }
+        }
     }
 
     override fun component1(): T = _value.component1()

@@ -34,7 +34,7 @@ internal data class ReplaySessionState(
     internal data class OrderFormParams(
         val id: Uuid,
         val stockChartParams: StockChartParams,
-        val initialModel: ReplayOrderFormModel.Initial?,
+        val initialModel: ReplayOrderFormModel?,
     )
 
     internal data class ReplayChartInfo(

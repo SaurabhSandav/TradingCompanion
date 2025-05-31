@@ -5,20 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.trading.Timeframe
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 
 class NewReplayFormModel(
-    coroutineScope: CoroutineScope,
     baseTimeframe: Timeframe?,
     candlesBefore: String,
     replayFrom: LocalDateTime,
@@ -26,31 +24,28 @@ class NewReplayFormModel(
     replayFullBar: Boolean,
     initialTicker: String?,
     profileId: ProfileId?,
-    onSubmit: suspend NewReplayFormModel.() -> Unit,
-) {
+) : FormModel() {
 
-    val validator = FormValidator(coroutineScope) { onSubmit() }
+    val baseTimeframeField = addField(baseTimeframe) { isRequired() }
 
-    val baseTimeframeField = validator.addField(baseTimeframe) { isRequired() }
-
-    val candlesBeforeField = validator.addField(candlesBefore) {
+    val candlesBeforeField = addField(candlesBefore) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val replayFromField = validator.addField(replayFrom) {
+    val replayFromField = addField(replayFrom) {
         isRequired()
         if (this >= Clock.System.nowIn(TimeZone.currentSystemDefault())) reportInvalid("Cannot be in the future")
     }
 
-    val dataToField = validator.addField(dataTo) {
+    val dataToField = addField(dataTo) {
         isRequired()
         if (this <= replayFromField.validatedValue()) reportInvalid("Cannot be before or same as replay from")
     }
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialTickerField = validator.addField(initialTicker) { isRequired() }
+    val initialTickerField = addField(initialTicker) { isRequired() }
 
-    val profileField = validator.addField(profileId)
+    val profileField = addField(profileId)
 }

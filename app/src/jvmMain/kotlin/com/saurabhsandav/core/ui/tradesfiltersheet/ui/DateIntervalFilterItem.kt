@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -103,11 +103,11 @@ internal fun DateIntervalFilterItem(
 
             AnimatedVisibility(visible = dateInterval is DateInterval.Custom) {
 
-                val validator = rememberFormValidator()
                 val formModel = remember {
                     val custom = dateInterval as DateInterval.Custom
-                    DateIntervalFormModel(validator, custom.from, custom.to)
+                    DateIntervalFormModel(custom.from, custom.to)
                 }
+                val validator = rememberFormValidator(listOf(formModel))
 
                 LaunchedEffect(Unit) {
 
@@ -181,14 +181,13 @@ private fun RowScope.DatePicker(
 }
 
 private class DateIntervalFormModel(
-    validator: FormValidator,
     from: LocalDate?,
     to: LocalDate?,
-) {
+) : FormModel() {
 
-    val fromField = validator.addField(from)
+    val fromField = addField(from)
 
-    val toField = validator.addField(to) {
+    val toField = addField(to) {
         isRequired(false)
 
         val validatedFrom = fromField.validatedValue()

@@ -22,6 +22,7 @@ import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
@@ -29,9 +30,17 @@ import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
-internal fun NewReplayForm(model: NewReplayFormModel) {
+internal fun NewReplayForm(
+    model: NewReplayFormModel,
+    onSubmit: () -> Unit,
+) {
 
     Form {
+
+        val validator = rememberFormValidator(
+            formModels = listOf(model),
+            onSubmit = onSubmit,
+        )
 
         val initialFocusRequester = remember { FocusRequester() }
 
@@ -117,8 +126,8 @@ internal fun NewReplayForm(model: NewReplayFormModel) {
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = model.validator::submit,
-            enabled = model.validator.canSubmit,
+            onClick = validator::submit,
+            enabled = validator.canSubmit,
             content = { Text("Launch") },
         )
     }

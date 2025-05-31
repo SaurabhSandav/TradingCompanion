@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -75,11 +75,11 @@ internal fun TimeIntervalFilterItem(
 
             AnimatedVisibility(visible = timeInterval is TimeInterval.Custom) {
 
-                val validator = rememberFormValidator()
                 val formModel = remember {
                     val custom = timeInterval as TimeInterval.Custom
-                    TimeIntervalFormModel(validator, custom.from, custom.to)
+                    TimeIntervalFormModel(custom.from, custom.to)
                 }
+                val validator = rememberFormValidator(listOf(formModel))
 
                 LaunchedEffect(Unit) {
 
@@ -147,14 +147,13 @@ private fun RowScope.TimePicker(
 }
 
 private class TimeIntervalFormModel(
-    validator: FormValidator,
     from: LocalTime?,
     to: LocalTime?,
-) {
+) : FormModel() {
 
-    val fromField = validator.addField(from)
+    val fromField = addField(from)
 
-    val toField = validator.addField(to) {
+    val toField = addField(to) {
         isRequired(false)
 
         val validatedFrom = fromField.validatedValue()

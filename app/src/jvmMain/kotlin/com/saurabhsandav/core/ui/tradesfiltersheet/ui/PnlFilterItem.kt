@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
-import com.saurabhsandav.core.ui.common.form.FormValidator
+import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -132,11 +132,11 @@ internal fun PnlFilterItem(
 
             AnimatedVisibility(visible = pnl is PNL.Custom) {
 
-                val validator = rememberFormValidator()
                 val formModel = remember {
                     val custom = pnl as PNL.Custom
-                    PnlFormModel(validator, custom.from, custom.to)
+                    PnlFormModel(custom.from, custom.to)
                 }
+                val validator = rememberFormValidator(listOf(formModel))
 
                 LaunchedEffect(Unit) {
 
@@ -210,17 +210,16 @@ private fun RowScope.CustomField(
 }
 
 private class PnlFormModel(
-    validator: FormValidator,
     from: BigDecimal?,
     to: BigDecimal?,
-) {
+) : FormModel() {
 
-    val fromField = validator.addField(from?.toPlainString().orEmpty()) {
+    val fromField = addField(from?.toPlainString().orEmpty()) {
         isRequired(false)
         isBigDecimal()
     }
 
-    val toField = validator.addField(to?.toPlainString().orEmpty()) {
+    val toField = addField(to?.toPlainString().orEmpty()) {
         isRequired(false)
         isBigDecimal()?.apply {
 

@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.trades.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
+import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.SubmitReplayForm
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayForm
@@ -36,6 +37,7 @@ internal fun BarReplayWindow(
         when (replayState) {
             is NewReplay -> NewReplayForm(
                 model = replayState.model,
+                onSubmit = { state.eventSink(SubmitReplayForm) },
             )
 
             is ReplayStarted -> ReplaySessionScreen(

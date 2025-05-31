@@ -53,7 +53,7 @@ internal class TradeExecutionFormPresenter(
             is New -> new()
             is NewFromExisting -> newFromExisting(formType.id)
             is NewFromExistingInTrade -> newFromExisting(formType.id)
-            is NewSized -> newSized(formType.initialModel)
+            is NewSized -> newSized(formType.formModel)
             is AddToTrade -> addToTrade(formType.tradeId)
             is CloseTrade -> closeTrade(formType.tradeId)
             is Edit -> edit(formType.id)
@@ -83,11 +83,13 @@ internal class TradeExecutionFormPresenter(
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}$title",
             formModel = formModel,
+            onSubmit = ::onSubmit,
         )
     }
 
-    private suspend fun TradeExecutionFormModel.onSaveExecution() {
+    private fun onSubmit() = coroutineScope.launchUnit {
 
+        val formModel = formModel!!
         val tz = TimeZone.currentSystemDefault()
 
         val executionId = when (formType) {
@@ -96,13 +98,13 @@ internal class TradeExecutionFormPresenter(
                 tradingRecord.await().executions.edit(
                     id = formType.id,
                     broker = "Finvasia",
-                    instrument = instrumentField.value!!,
-                    ticker = tickerField.value!!,
-                    quantity = quantityField.value.toBigDecimal(),
-                    lots = lotsField.value.ifBlank { null }?.toInt(),
-                    side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                    price = priceField.value.toBigDecimal(),
-                    timestamp = timestamp.toInstant(tz),
+                    instrument = formModel.instrumentField.value!!,
+                    ticker = formModel.tickerField.value!!,
+                    quantity = formModel.quantityField.value.toBigDecimal(),
+                    lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                    side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                    price = formModel.priceField.value.toBigDecimal(),
+                    timestamp = formModel.timestamp.toInstant(tz),
                 )
 
                 formType.id
@@ -110,13 +112,13 @@ internal class TradeExecutionFormPresenter(
 
             else -> tradingRecord.await().executions.new(
                 broker = "Finvasia",
-                instrument = instrumentField.value!!,
-                ticker = tickerField.value!!,
-                quantity = quantityField.value.toBigDecimal(),
-                lots = lotsField.value.ifBlank { null }?.toInt(),
-                side = if (isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = priceField.value.toBigDecimal(),
-                timestamp = timestamp.toInstant(tz),
+                instrument = formModel.instrumentField.value!!,
+                ticker = formModel.tickerField.value!!,
+                quantity = formModel.quantityField.value.toBigDecimal(),
+                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
+                price = formModel.priceField.value.toBigDecimal(),
+                timestamp = formModel.timestamp.toInstant(tz),
                 locked = false,
             )
         }
@@ -128,10 +130,10 @@ internal class TradeExecutionFormPresenter(
             val trade = tradingRecord.await().trades.getForExecution(executionId).first().single { !it.isClosed }
 
             // Add stop
-            if (addStopField.value) tradingRecord.await().stops.add(trade.id, formType.stop)
+            if (formModel.addStopField.value) tradingRecord.await().stops.add(trade.id, formType.stop)
 
             // Add target
-            if (addTargetField.value) tradingRecord.await().targets.add(trade.id, formType.target)
+            if (formModel.addTargetField.value) tradingRecord.await().targets.add(trade.id, formType.target)
         }
 
         // Close form
@@ -140,40 +142,36 @@ internal class TradeExecutionFormPresenter(
 
     private fun new() {
 
-        setFormModel(initial = TradeExecutionFormModel.Initial())
+        formModel = TradeExecutionFormModel()
     }
 
     private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
 
         val execution = tradingRecord.await().executions.getById(id).first()
 
-        setFormModel(
-            initial = TradeExecutionFormModel.Initial(
-                instrument = execution.instrument,
-                ticker = execution.ticker,
-                quantity = execution.quantity.toString(),
-                lots = execution.lots?.toString() ?: "",
-                isBuy = execution.side == TradeExecutionSide.Buy,
-                price = execution.price.toPlainString(),
-            ),
+        formModel = TradeExecutionFormModel(
+            instrument = execution.instrument,
+            ticker = execution.ticker,
+            quantity = execution.quantity.toString(),
+            lots = execution.lots?.toString() ?: "",
+            isBuy = execution.side == TradeExecutionSide.Buy,
+            price = execution.price.toPlainString(),
         )
     }
 
-    private fun newSized(initialModel: TradeExecutionFormModel.Initial) {
+    private fun newSized(initialModel: TradeExecutionFormModel) {
 
-        setFormModel(initialModel)
+        formModel = initialModel
     }
 
     private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
 
         val trade = tradingRecord.await().trades.getById(tradeId).first()
 
-        setFormModel(
-            initial = TradeExecutionFormModel.Initial(
-                instrument = trade.instrument,
-                ticker = trade.ticker,
-                isBuy = trade.side == TradeSide.Long,
-            ),
+        formModel = TradeExecutionFormModel(
+            instrument = trade.instrument,
+            ticker = trade.ticker,
+            isBuy = trade.side == TradeSide.Long,
         )
     }
 
@@ -181,13 +179,11 @@ internal class TradeExecutionFormPresenter(
 
         val trade = tradingRecord.await().trades.getById(tradeId).first()
 
-        setFormModel(
-            initial = TradeExecutionFormModel.Initial(
-                instrument = trade.instrument,
-                ticker = trade.ticker,
-                quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
-                isBuy = trade.side != TradeSide.Long,
-            ),
+        formModel = TradeExecutionFormModel(
+            instrument = trade.instrument,
+            ticker = trade.ticker,
+            quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
+            isBuy = trade.side != TradeSide.Long,
         )
     }
 
@@ -195,25 +191,14 @@ internal class TradeExecutionFormPresenter(
 
         val execution = tradingRecord.await().executions.getById(id).first()
 
-        setFormModel(
-            initial = TradeExecutionFormModel.Initial(
-                instrument = execution.instrument,
-                ticker = execution.ticker,
-                quantity = execution.quantity.toString(),
-                lots = execution.lots?.toString() ?: "",
-                isBuy = execution.side == TradeExecutionSide.Buy,
-                price = execution.price.toPlainString(),
-                timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
-            ),
-        )
-    }
-
-    private fun setFormModel(initial: TradeExecutionFormModel.Initial) {
-
         formModel = TradeExecutionFormModel(
-            coroutineScope = coroutineScope,
-            initial = initial,
-            onSubmit = { onSaveExecution() },
+            instrument = execution.instrument,
+            ticker = execution.ticker,
+            quantity = execution.quantity.toString(),
+            lots = execution.lots?.toString() ?: "",
+            isBuy = execution.side == TradeExecutionSide.Buy,
+            price = execution.price.toPlainString(),
+            timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
         )
     }
 }

@@ -40,6 +40,7 @@ import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
@@ -68,6 +69,7 @@ fun TagFormDialog(
             model = formModel,
             onDelete = presenter::onDelete,
             onCloseRequest = onCloseRequest,
+            onSubmit = state.onSubmit,
         )
     }
 }
@@ -78,12 +80,18 @@ private fun TagForm(
     model: TagFormModel,
     onDelete: () -> Unit,
     onCloseRequest: () -> Unit,
+    onSubmit: () -> Unit,
 ) {
 
     Form(
         width = 600.dp,
         scrollState = null,
     ) {
+
+        val validator = rememberFormValidator(
+            formModels = listOf(model),
+            onSubmit = onSubmit,
+        )
 
         val initialFocusRequester = remember { FocusRequester() }
         var showColorPicker by state { false }
@@ -172,8 +180,8 @@ private fun TagForm(
 
             Button(
                 modifier = Modifier.weight(1F),
-                onClick = model.validator::submit,
-                enabled = model.validator.canSubmit,
+                onClick = validator::submit,
+                enabled = validator.canSubmit,
                 content = { Text("Save") },
             )
         }

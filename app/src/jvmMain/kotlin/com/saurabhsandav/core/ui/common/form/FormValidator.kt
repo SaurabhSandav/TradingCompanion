@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.common.form
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -9,24 +11,41 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.core.utils.newChildScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 @Composable
-fun rememberFormValidator(onSubmit: (suspend () -> Unit)? = null): FormValidator {
+fun rememberFormValidator(
+    formModels: List<FormModel>,
+    onSubmit: (() -> Unit)? = null,
+): FormValidator {
+
     val scope = rememberCoroutineScope()
-    return remember { FormValidator(scope, onSubmit) }
+    val validator = remember { FormValidator(scope, onSubmit) }
+
+    SideEffect {
+        validator.onSubmit = onSubmit
+    }
+
+    DisposableEffect(formModels) {
+        formModels.forEach(validator::addModel)
+        onDispose {
+            formModels.forEach(validator::removeModel)
+        }
+    }
+
+    return validator
 }
 
 class FormValidator(
     private val coroutineScope: CoroutineScope,
-    private val onSubmit: (suspend () -> Unit)? = null,
+    internal var onSubmit: (() -> Unit)? = null,
 ) {
 
-    private val fields = mutableStateListOf<FormField<*>>()
+    private val formModels = mutableStateListOf<FormModel>()
+    private val fields
+        get() = formModels.flatMap { it.fields }
 
     private val submitMutex = Mutex()
 
@@ -36,27 +55,14 @@ class FormValidator(
 
     val canSubmit by derivedStateOf { enableSubmit && isValid }
 
-    fun <T> addField(
-        initial: T,
-        validation: Validation<T>? = null,
-    ): FormField<T> {
-
-        val field = FormFieldImpl(
-            initial = initial,
-            coroutineScope = coroutineScope.newChildScope(),
-            validation = validation,
-        )
-
-        fields.add(field)
-
-        return field
+    internal fun addModel(formModel: FormModel) {
+        formModels.add(formModel)
+        formModel.onAttach(coroutineScope)
     }
 
-    fun removeField(field: FormField<*>) {
-
-        if (fields.remove(field)) {
-            (field as FormFieldImpl).coroutineScope.cancel()
-        }
+    internal fun removeModel(formModel: FormModel) {
+        formModels.remove(formModel)
+        formModel.onDetach()
     }
 
     suspend fun validate(): Boolean = fields.map { it.validate() }.all { it }

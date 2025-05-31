@@ -53,24 +53,27 @@ internal class AttachmentFormPresenter(
 
         return@launchMolecule AttachmentFormState(
             formModel = formModel,
+            onSubmit = ::onSubmit,
         )
     }
 
-    private suspend fun AttachmentFormModel.onSaveAttachment() {
+    private fun onSubmit() = coroutineScope.launchUnit {
+
+        val formModel = formModel!!
 
         when (formType) {
             is New -> tradingRecord.await().attachments.add(
                 tradeIds = formType.tradeIds,
-                name = nameField.value,
-                description = descriptionField.value,
-                pathStr = path!!,
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
+                pathStr = formModel.path!!,
             )
 
             is Edit -> tradingRecord.await().attachments.update(
                 tradeId = formType.tradeId,
                 fileId = formType.fileId,
-                name = nameField.value,
-                description = descriptionField.value,
+                name = formModel.nameField.value,
+                description = formModel.descriptionField.value,
             )
         }
 
@@ -80,11 +83,7 @@ internal class AttachmentFormPresenter(
 
     private fun new(file: String?) {
 
-        formModel = AttachmentFormModel(
-            coroutineScope = coroutineScope,
-            initial = AttachmentFormModel.Initial(path = file),
-            onSubmit = { onSaveAttachment() },
-        )
+        formModel = AttachmentFormModel(path = file)
     }
 
     private fun edit(
@@ -96,13 +95,9 @@ internal class AttachmentFormPresenter(
         val attachment = attachmentsRepo.getByIdWithFile(tradeId, fileId).first()
 
         formModel = AttachmentFormModel(
-            coroutineScope = coroutineScope,
-            initial = AttachmentFormModel.Initial(
-                name = attachment.name,
-                description = attachment.description,
-                path = attachment.path.absolutePathString(),
-            ),
-            onSubmit = { onSaveAttachment() },
+            name = attachment.name,
+            description = attachment.description,
+            path = attachment.path.absolutePathString(),
         )
     }
 }

@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 
 @Composable
 internal fun ProfileFormDialog(
@@ -51,6 +52,7 @@ internal fun ProfileFormDialog(
         ProfileForm(
             model = formModel,
             trainingOnly = trainingOnly,
+            onSubmit = state.onSubmit,
         )
     }
 }
@@ -59,9 +61,15 @@ internal fun ProfileFormDialog(
 private fun ProfileForm(
     model: ProfileFormModel,
     trainingOnly: Boolean,
+    onSubmit: () -> Unit,
 ) {
 
     Form {
+
+        val validator = rememberFormValidator(
+            formModels = listOf(model),
+            onSubmit = onSubmit,
+        )
 
         val initialFocusRequester = remember { FocusRequester() }
 
@@ -98,8 +106,8 @@ private fun ProfileForm(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = model.validator::submit,
-            enabled = model.validator.canSubmit,
+            onClick = validator::submit,
+            enabled = validator.canSubmit,
             content = { Text("Save Profile") },
         )
     }

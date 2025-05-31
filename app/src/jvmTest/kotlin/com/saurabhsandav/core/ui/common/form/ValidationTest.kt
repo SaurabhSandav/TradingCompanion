@@ -5,10 +5,7 @@ import com.saurabhsandav.core.ui.common.form.ValidationResult.Invalid
 import com.saurabhsandav.core.ui.common.form.ValidationResult.Valid
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.runTest
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -44,9 +41,7 @@ class ValidationTest {
     @Test
     fun `Dependency Invalid`() = runTest {
 
-        val scope = CoroutineScope(EmptyCoroutineContext)
-
-        val formField = FormFieldImpl(-1, scope) {
+        val formField = FormFieldImpl(-1) {
             if (this < 0) reportInvalid("Cannot be negative")
         }
         val validation = Validation<Int> {
@@ -65,8 +60,6 @@ class ValidationTest {
             assertIs<Valid>(result)
             assertEquals(setOf(formField), dependencies)
         }
-
-        scope.cancel()
     }
 
     @Test
