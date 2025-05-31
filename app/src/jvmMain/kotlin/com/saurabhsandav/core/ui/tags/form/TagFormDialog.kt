@@ -40,7 +40,6 @@ import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
@@ -84,14 +83,11 @@ private fun TagForm(
 ) {
 
     Form(
+        formModels = listOf(model),
+        onSubmit = onSubmit,
         width = 600.dp,
         scrollState = null,
     ) {
-
-        val validator = rememberFormValidator(
-            formModels = listOf(model),
-            onSubmit = onSubmit,
-        )
 
         val initialFocusRequester = remember { FocusRequester() }
         var showColorPicker by state { false }
@@ -180,8 +176,8 @@ private fun TagForm(
 
             Button(
                 modifier = Modifier.weight(1F),
-                onClick = validator::submit,
-                enabled = validator.canSubmit,
+                onClick = this@Form.validator::submit,
+                enabled = this@Form.validator.canSubmit,
                 content = { Text("Save") },
             )
         }

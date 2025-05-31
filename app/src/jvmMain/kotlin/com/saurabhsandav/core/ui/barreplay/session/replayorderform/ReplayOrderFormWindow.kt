@@ -28,7 +28,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 
 @Composable
@@ -74,12 +73,10 @@ private fun ReplayOrderForm(
     onSubmit: () -> Unit,
 ) {
 
-    Form {
-
-        val validator = rememberFormValidator(
-            formModels = listOf(model),
-            onSubmit = onSubmit,
-        )
+    Form(
+        formModels = listOf(model),
+        onSubmit = onSubmit,
+    ) {
 
         OutlinedTextField(
             value = ticker,

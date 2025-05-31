@@ -38,7 +38,6 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
@@ -97,12 +96,10 @@ private fun TradeExecutionForm(
     onSubmit: () -> Unit,
 ) {
 
-    Form {
-
-        val validator = rememberFormValidator(
-            formModels = listOf(model),
-            onSubmit = onSubmit,
-        )
+    Form(
+        formModels = listOf(model),
+        onSubmit = onSubmit,
+    ) {
 
         val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
         val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)

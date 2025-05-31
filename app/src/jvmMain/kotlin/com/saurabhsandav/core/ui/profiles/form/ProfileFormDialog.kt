@@ -25,7 +25,6 @@ import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 
 @Composable
 internal fun ProfileFormDialog(
@@ -64,12 +63,10 @@ private fun ProfileForm(
     onSubmit: () -> Unit,
 ) {
 
-    Form {
-
-        val validator = rememberFormValidator(
-            formModels = listOf(model),
-            onSubmit = onSubmit,
-        )
+    Form(
+        formModels = listOf(model),
+        onSubmit = onSubmit,
+    ) {
 
         val initialFocusRequester = remember { FocusRequester() }
 

@@ -22,7 +22,6 @@ import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
@@ -35,12 +34,10 @@ internal fun NewReplayForm(
     onSubmit: () -> Unit,
 ) {
 
-    Form {
-
-        val validator = rememberFormValidator(
-            formModels = listOf(model),
-            onSubmit = onSubmit,
-        )
+    Form(
+        formModels = listOf(model),
+        onSubmit = onSubmit,
+    ) {
 
         val initialFocusRequester = remember { FocusRequester() }
 
