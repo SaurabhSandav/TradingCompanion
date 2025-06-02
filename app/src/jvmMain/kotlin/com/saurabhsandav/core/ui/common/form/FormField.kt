@@ -10,12 +10,12 @@ import com.saurabhsandav.core.ui.common.form.ValidationResult.DependencyInvalid
 import com.saurabhsandav.core.ui.common.form.ValidationResult.Invalid
 import com.saurabhsandav.core.ui.common.form.ValidationResult.Valid
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlin.time.Duration.Companion.milliseconds
 
 interface FormField<T> : MutableState<T> {
@@ -31,6 +31,11 @@ interface FormField<T> : MutableState<T> {
 
 inline val FormField<*>.isError: Boolean
     get() = !isValid
+
+fun <T> FormField(
+    initial: T,
+    validation: Validation<T>?,
+): FormField<T> = FormFieldImpl(initial, validation)
 
 internal class FormFieldImpl<T> internal constructor(
     initial: T,
@@ -91,32 +96,30 @@ internal class FormFieldImpl<T> internal constructor(
 
     override fun autoValidateIn(coroutineScope: CoroutineScope) {
 
-        coroutineScope.launch {
+        // Validate on value change
+        snapshotFlow { value }
+            .drop(1) // Don't validate initial value
+            .debounce(DebounceDuration)
+            .onEach { forceValidate() }
+            .launchIn(coroutineScope)
 
-            // Validate on value change
-            snapshotFlow { value }
-                .drop(1) // Don't validate initial value
-                .debounce(400.milliseconds)
-                .collectLatest { forceValidate() }
-        }
+        // Validate on dependency value change
+        snapshotFlow { dependencies.toList() }
+            .flatMapLatest { fields ->
 
-        coroutineScope.launch {
-
-            // Validate on dependency value change
-            snapshotFlow { dependencies.toList() }
-                .flatMapLatest { fields ->
-
-                    combineTransform(
-                        flows = fields.map { field -> snapshotFlow { field.value } },
-                        transform = { emit(Unit) },
-                    )
-                }
-                .debounce(400.milliseconds)
-                .collectLatest { forceValidate() }
-        }
+                combineTransform(
+                    flows = fields.map { field -> snapshotFlow { field.value } },
+                    transform = { emit(Unit) },
+                )
+            }
+            .debounce(DebounceDuration)
+            .onEach { forceValidate() }
+            .launchIn(coroutineScope)
     }
 
     override fun component1(): T = _value.component1()
 
     override fun component2(): (T) -> Unit = _value.component2()
 }
+
+private val DebounceDuration = 400.milliseconds

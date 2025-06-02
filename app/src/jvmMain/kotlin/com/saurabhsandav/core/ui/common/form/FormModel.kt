@@ -10,17 +10,21 @@ open class FormModel {
     internal val fields = mutableStateListOf<FormField<*>>()
     private val scopes = mutableMapOf<FormField<*>, CoroutineScope>()
 
+    internal fun addField(field: FormField<*>) {
+        fields.add(field)
+    }
+
     fun <T> addField(
         initial: T,
         validation: Validation<T>? = null,
     ): FormField<T> {
 
-        val field = FormFieldImpl(
+        val field = FormField(
             initial = initial,
             validation = validation,
         )
 
-        fields.add(field)
+        addField(field)
 
         return field
     }
