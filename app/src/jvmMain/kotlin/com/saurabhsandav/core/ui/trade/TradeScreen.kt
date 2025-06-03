@@ -18,14 +18,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trades.model.AttachmentFileId
-import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeNoteId
-import com.saurabhsandav.core.trades.model.TradeTagId
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
-import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.AddNote
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.AddStop
@@ -46,13 +41,6 @@ import com.saurabhsandav.core.ui.trade.model.TradeEvent.RemoveTag
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.SetPrimaryStop
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.SetPrimaryTarget
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.UpdateNote
-import com.saurabhsandav.core.ui.trade.model.TradeState.Details
-import com.saurabhsandav.core.ui.trade.model.TradeState.Excursions
-import com.saurabhsandav.core.ui.trade.model.TradeState.Execution
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeNote
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
-import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
 import com.saurabhsandav.core.ui.trade.ui.Attachments
 import com.saurabhsandav.core.ui.trade.ui.Details
 import com.saurabhsandav.core.ui.trade.ui.Excursions
@@ -61,8 +49,6 @@ import com.saurabhsandav.core.ui.trade.ui.Notes
 import com.saurabhsandav.core.ui.trade.ui.StopsAndTargets
 import com.saurabhsandav.core.ui.trade.ui.Tags
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.coroutines.flow.Flow
-import java.math.BigDecimal
 
 @Composable
 internal fun TradeWindow(
@@ -88,78 +74,95 @@ internal fun TradeWindow(
     ) {
 
         TradeScreen(
-            profileTradeId = profileTradeId,
-            details = details,
-            executions = state.executions,
-            newExecutionEnabled = state.newExecutionEnabled,
-            onAddToTrade = { state.eventSink(AddToTrade) },
-            onCloseTrade = { state.eventSink(CloseTrade) },
-            onNewFromExistingExecution = { fromExecutionId ->
-                state.eventSink(NewFromExistingExecution(fromExecutionId))
+            details = {
+
+                Details(
+                    modifier = Modifier.fillMaxWidth(),
+                    details = details,
+                    onOpenChart = { state.eventSink(OpenChart) },
+                )
             },
-            onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
-            onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
-            onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
-            onOpenChart = { state.eventSink(OpenChart) },
-            stops = state.stops,
-            stopPreviewer = state.stopPreviewer,
-            onAddStop = { state.eventSink(AddStop(it)) },
-            onDeleteStop = { state.eventSink(DeleteStop(it)) },
-            onSetPrimaryStop = { state.eventSink(SetPrimaryStop(it)) },
-            targets = state.targets,
-            showTargetRValues = state.showTargetRValues,
-            targetPreviewer = state.targetPreviewer,
-            onAddTarget = { state.eventSink(AddTarget(it)) },
-            onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
-            onSetPrimaryTarget = { state.eventSink(SetPrimaryTarget(it)) },
-            excursions = state.excursions,
-            tags = state.tags,
-            onAddTag = { id -> state.eventSink(AddTag(id)) },
-            onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
-            attachments = state.attachments,
-            onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
-            notes = state.notes,
-            onAddNote = { note -> state.eventSink(AddNote(note)) },
-            onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
-            onDeleteNote = { state.eventSink(DeleteNote(it)) },
+            executions = {
+
+                ExecutionsTable(
+                    items = state.executions,
+                    newExecutionEnabled = state.newExecutionEnabled,
+                    onAddToTrade = { state.eventSink(AddToTrade) },
+                    onCloseTrade = { state.eventSink(CloseTrade) },
+                    onNewFromExistingExecution = { fromExecutionId ->
+                        state.eventSink(NewFromExistingExecution(fromExecutionId))
+                    },
+                    onEditExecution = { executionId -> state.eventSink(EditExecution(executionId)) },
+                    onLockExecution = { executionId -> state.eventSink(LockExecution(executionId)) },
+                    onDeleteExecution = { executionId -> state.eventSink(DeleteExecution(executionId)) },
+                )
+            },
+            stopsAndTargets = {
+
+                StopsAndTargets(
+                    stops = state.stops,
+                    stopPreviewer = state.stopPreviewer,
+                    onAddStop = { state.eventSink(AddStop(it)) },
+                    onDeleteStop = { state.eventSink(DeleteStop(it)) },
+                    onSetPrimaryStop = { state.eventSink(SetPrimaryStop(it)) },
+                    targets = state.targets,
+                    showTargetRValues = state.showTargetRValues,
+                    targetPreviewer = state.targetPreviewer,
+                    onAddTarget = { state.eventSink(AddTarget(it)) },
+                    onDeleteTarget = { state.eventSink(DeleteTarget(it)) },
+                    onSetPrimaryTarget = { state.eventSink(SetPrimaryTarget(it)) },
+                )
+            },
+            excursions = {
+
+                val excursions = state.excursions
+                if (excursions != null) {
+
+                    Excursions(
+                        modifier = Modifier.fillMaxWidth(),
+                        excursions = excursions,
+                    )
+                }
+            },
+            tags = {
+
+                Tags(
+                    profileTradeId = profileTradeId,
+                    tags = state.tags,
+                    onAddTag = { id -> state.eventSink(AddTag(id)) },
+                    onRemoveTag = { id -> state.eventSink(RemoveTag(id)) },
+                )
+            },
+            attachments = {
+
+                Attachments(
+                    profileTradeId = profileTradeId,
+                    attachments = state.attachments,
+                    onRemoveAttachment = { id -> state.eventSink(RemoveAttachment(id)) },
+                )
+            },
+            notes = {
+
+                Notes(
+                    notes = state.notes,
+                    onAddNote = { note -> state.eventSink(AddNote(note)) },
+                    onUpdateNote = { id, note -> state.eventSink(UpdateNote(id, note)) },
+                    onDeleteNote = { state.eventSink(DeleteNote(it)) },
+                )
+            },
         )
     }
 }
 
 @Composable
 internal fun TradeScreen(
-    profileTradeId: ProfileTradeId,
-    details: Details,
-    executions: List<Execution>,
-    newExecutionEnabled: Boolean,
-    onAddToTrade: () -> Unit,
-    onCloseTrade: () -> Unit,
-    onNewFromExistingExecution: (TradeExecutionId) -> Unit,
-    onEditExecution: (TradeExecutionId) -> Unit,
-    onLockExecution: (TradeExecutionId) -> Unit,
-    onDeleteExecution: (TradeExecutionId) -> Unit,
-    onOpenChart: () -> Unit,
-    stops: List<TradeStop>,
-    stopPreviewer: Flow<StopPreviewer>,
-    onAddStop: (BigDecimal) -> Unit,
-    onDeleteStop: (BigDecimal) -> Unit,
-    onSetPrimaryStop: (BigDecimal) -> Unit,
-    targets: List<TradeTarget>,
-    showTargetRValues: Boolean,
-    targetPreviewer: Flow<TargetPreviewer>,
-    onAddTarget: (BigDecimal) -> Unit,
-    onDeleteTarget: (BigDecimal) -> Unit,
-    onSetPrimaryTarget: (BigDecimal) -> Unit,
-    excursions: Excursions?,
-    tags: List<TradeTag>,
-    onAddTag: (TradeTagId) -> Unit,
-    onRemoveTag: (TradeTagId) -> Unit,
-    attachments: List<TradeAttachment>,
-    onRemoveAttachment: (AttachmentFileId) -> Unit,
-    notes: List<TradeNote>,
-    onAddNote: (note: String) -> Unit,
-    onUpdateNote: (id: TradeNoteId, note: String) -> Unit,
-    onDeleteNote: (id: TradeNoteId) -> Unit,
+    details: @Composable () -> Unit,
+    executions: @Composable () -> Unit,
+    stopsAndTargets: @Composable () -> Unit,
+    excursions: @Composable () -> Unit,
+    tags: @Composable () -> Unit,
+    attachments: @Composable () -> Unit,
+    notes: @Composable () -> Unit,
 ) {
 
     Scaffold {
@@ -178,64 +181,19 @@ internal fun TradeScreen(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
             ) {
 
-                Details(
-                    modifier = Modifier.fillMaxWidth(),
-                    details = details,
-                    onOpenChart = onOpenChart,
-                )
+                details()
 
-                ExecutionsTable(
-                    items = executions,
-                    newExecutionEnabled = newExecutionEnabled,
-                    onAddToTrade = onAddToTrade,
-                    onCloseTrade = onCloseTrade,
-                    onNewFromExistingExecution = onNewFromExistingExecution,
-                    onEditExecution = onEditExecution,
-                    onLockExecution = onLockExecution,
-                    onDeleteExecution = onDeleteExecution,
-                )
+                executions()
 
-                StopsAndTargets(
-                    stops = stops,
-                    stopPreviewer = stopPreviewer,
-                    onAddStop = onAddStop,
-                    onDeleteStop = onDeleteStop,
-                    onSetPrimaryStop = onSetPrimaryStop,
-                    targets = targets,
-                    showTargetRValues = showTargetRValues,
-                    targetPreviewer = targetPreviewer,
-                    onAddTarget = onAddTarget,
-                    onDeleteTarget = onDeleteTarget,
-                    onSetPrimaryTarget = onSetPrimaryTarget,
-                )
+                stopsAndTargets()
 
-                if (excursions != null) {
+                excursions()
 
-                    Excursions(
-                        modifier = Modifier.fillMaxWidth(),
-                        excursions = excursions,
-                    )
-                }
+                tags()
 
-                Tags(
-                    profileTradeId = profileTradeId,
-                    tags = tags,
-                    onAddTag = onAddTag,
-                    onRemoveTag = onRemoveTag,
-                )
+                attachments()
 
-                Attachments(
-                    profileTradeId = profileTradeId,
-                    attachments = attachments,
-                    onRemoveAttachment = onRemoveAttachment,
-                )
-
-                Notes(
-                    notes = notes,
-                    onAddNote = onAddNote,
-                    onUpdateNote = onUpdateNote,
-                    onDeleteNote = onDeleteNote,
-                )
+                notes()
             }
         }
     }
