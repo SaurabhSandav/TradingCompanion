@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.form
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -42,9 +43,11 @@ internal class FormFieldImpl<T> internal constructor(
     private val validation: Validation<T>?,
 ) : FormField<T> {
 
+    private var version = 0
+
     // When no Validation is provided, isUpToDate is always true.
     private var isUpToDate = validation == null
-    private var dependencies = mutableStateListOf<FormField<*>>()
+    private var dependencies = mutableStateMapOf<FormField<*>, Int>()
 
     override var errorMessages = mutableStateListOf<String>()
 
@@ -55,9 +58,11 @@ internal class FormFieldImpl<T> internal constructor(
     override var value: T
         get() = _value.value
         set(value) {
-            _value.value = value
-            // isValid is stale after value change.
-            isUpToDate = false
+            if (_value.value != value) {
+                version++
+                isUpToDate = false
+                _value.value = value
+            }
         }
 
     override suspend fun validate(): Boolean {
@@ -65,7 +70,7 @@ internal class FormFieldImpl<T> internal constructor(
         // If not validation provided, field is always valid
         validation ?: return true
 
-        if (isUpToDate) return isValid
+        if (isUpToDate && areDependenciesUpToDate()) return isValid
 
         val (result, dependencies) = runValidation(value, validation)
 
@@ -81,7 +86,9 @@ internal class FormFieldImpl<T> internal constructor(
         }
         this.dependencies.apply {
             clear()
-            addAll(dependencies)
+            dependencies.forEach {
+                put(it as FormFieldImpl, it.version)
+            }
         }
 
         isUpToDate = true
@@ -89,9 +96,13 @@ internal class FormFieldImpl<T> internal constructor(
         return result == Valid
     }
 
-    private suspend fun forceValidate() {
-        isUpToDate = false
-        validate()
+    private fun areDependenciesUpToDate(): Boolean {
+
+        dependencies.forEach { (field, version) ->
+            if ((field as FormFieldImpl).version != version) return false
+        }
+
+        return true
     }
 
     override fun autoValidateIn(coroutineScope: CoroutineScope) {
@@ -100,7 +111,7 @@ internal class FormFieldImpl<T> internal constructor(
         snapshotFlow { value }
             .drop(1) // Don't validate initial value
             .debounce(DebounceDuration)
-            .onEach { forceValidate() }
+            .onEach { validate() }
             .launchIn(coroutineScope)
 
         // Validate on dependency value change
@@ -108,12 +119,12 @@ internal class FormFieldImpl<T> internal constructor(
             .flatMapLatest { fields ->
 
                 combineTransform(
-                    flows = fields.map { field -> snapshotFlow { field.value } },
+                    flows = fields.map { field -> snapshotFlow { field.first.value } },
                     transform = { emit(Unit) },
                 )
             }
             .debounce(DebounceDuration)
-            .onEach { forceValidate() }
+            .onEach { validate() }
             .launchIn(coroutineScope)
     }
 

@@ -86,9 +86,6 @@ class FormFieldTest {
             field1.validatedValue()
         }
 
-        field2.autoValidateIn(backgroundScope)
-        delay(1.seconds)
-
         // Initial State
         assertTrue(field1.isValid)
         assertTrue { field1.errorMessages.isEmpty() }
@@ -97,8 +94,6 @@ class FormFieldTest {
 
         // Dependency Not valid
         assertFalse { field2.validate() }
-        Snapshot.sendApplyNotifications()
-        delay(1.seconds)
         assertFalse(field1.isValid)
         assertTrue(field2.isValid)
         assertEquals(listOf(errorMessage), field1.errorMessages)
@@ -107,8 +102,6 @@ class FormFieldTest {
         // Dependency Valid
         field1.value = "Test"
         assertTrue { field2.validate() }
-        Snapshot.sendApplyNotifications()
-        delay(1.seconds)
         assertTrue(field1.isValid)
         assertTrue(field2.isValid)
         assertTrue { field1.errorMessages.isEmpty() }
