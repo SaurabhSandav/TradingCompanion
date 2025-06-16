@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record.testdata
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
@@ -21,7 +22,7 @@ class OverlappingTimeTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.TEN,
@@ -35,7 +36,7 @@ class OverlappingTimeTradesData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker2",
             quantity = 25.toBigDecimal(),
@@ -49,7 +50,7 @@ class OverlappingTimeTradesData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.TEN,
@@ -63,7 +64,7 @@ class OverlappingTimeTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker2",
             quantity = 25.toBigDecimal(),
@@ -89,7 +90,7 @@ class OverlappingTimeTradesData {
     private val firstExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[0].broker,
+            brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
             ticker = executions[0].ticker,
             quantity = executions[0].quantity,
@@ -110,7 +111,7 @@ class OverlappingTimeTradesData {
     private val secondExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[1].broker,
+            brokerId = executions[1].brokerId,
             instrument = executions[1].instrument,
             ticker = executions[1].ticker,
             quantity = executions[1].quantity,

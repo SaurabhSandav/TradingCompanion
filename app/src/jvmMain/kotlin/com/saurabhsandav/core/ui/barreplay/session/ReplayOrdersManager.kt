@@ -10,6 +10,7 @@ import com.saurabhsandav.trading.backtest.BacktestOrderId
 import com.saurabhsandav.trading.backtest.Limit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.newCandle
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import kotlinx.coroutines.CoroutineScope
@@ -77,7 +78,7 @@ internal class ReplayOrdersManager(
             val tradingRecord = tradingRecord.await() ?: error("Replay profile not set")
 
             val orderParams = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = stockChartParams.ticker,
                 quantity = quantity,
@@ -103,7 +104,7 @@ internal class ReplayOrdersManager(
                 if (status !is BacktestOrder.Status.Executed) return@contingentOrders
 
                 val savedOrderId = tradingRecord.executions.new(
-                    broker = closedOrder.params.broker,
+                    brokerId = closedOrder.params.brokerId,
                     instrument = closedOrder.params.instrument,
                     ticker = closedOrder.params.ticker,
                     quantity = closedOrder.params.quantity,
@@ -156,7 +157,7 @@ internal class ReplayOrdersManager(
                             if (status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
-                                    broker = closedStopOrder.params.broker,
+                                    brokerId = closedStopOrder.params.brokerId,
                                     instrument = closedStopOrder.params.instrument,
                                     ticker = closedStopOrder.params.ticker,
                                     quantity = closedStopOrder.params.quantity,
@@ -200,7 +201,7 @@ internal class ReplayOrdersManager(
                             if (status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
-                                    broker = closedTargetOrder.params.broker,
+                                    brokerId = closedTargetOrder.params.brokerId,
                                     instrument = closedTargetOrder.params.instrument,
                                     ticker = closedTargetOrder.params.ticker,
                                     quantity = closedTargetOrder.params.quantity,

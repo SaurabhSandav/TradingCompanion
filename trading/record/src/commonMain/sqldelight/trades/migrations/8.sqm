@@ -1,0 +1,13 @@
+ALTER TABLE Trade RENAME COLUMN broker TO brokerId;
+ALTER TABLE TradeExecution RENAME COLUMN broker TO brokerId;
+
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName
+FROM Trade AS T;
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName
+FROM TradeExecution AS T;

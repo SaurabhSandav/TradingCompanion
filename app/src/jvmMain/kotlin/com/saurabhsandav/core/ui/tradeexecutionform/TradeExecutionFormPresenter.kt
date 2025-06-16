@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
@@ -97,7 +98,7 @@ internal class TradeExecutionFormPresenter(
 
                 tradingRecord.await().executions.edit(
                     id = formType.id,
-                    broker = "Finvasia",
+                    brokerId = BrokerId("Finvasia"),
                     instrument = formModel.instrumentField.value!!,
                     ticker = formModel.tickerField.value!!,
                     quantity = formModel.quantityField.value.toBigDecimal(),
@@ -111,7 +112,7 @@ internal class TradeExecutionFormPresenter(
             }
 
             else -> tradingRecord.await().executions.new(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = formModel.instrumentField.value!!,
                 ticker = formModel.tickerField.value!!,
                 quantity = formModel.quantityField.value.toBigDecimal(),

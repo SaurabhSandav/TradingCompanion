@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record.testdata
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
@@ -21,7 +22,7 @@ class SimpleTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.ONE,
@@ -35,7 +36,7 @@ class SimpleTradesData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.ONE,
@@ -49,7 +50,7 @@ class SimpleTradesData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 50.toBigDecimal(),
@@ -63,7 +64,7 @@ class SimpleTradesData {
         // Trade #3 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker2",
             quantity = 7.toBigDecimal(),
@@ -77,7 +78,7 @@ class SimpleTradesData {
         // Trade #2 Add
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 50.toBigDecimal(),
@@ -91,7 +92,7 @@ class SimpleTradesData {
         // Trade #2 Remove
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 40.toBigDecimal(),
@@ -105,7 +106,7 @@ class SimpleTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 60.toBigDecimal(),
@@ -134,7 +135,7 @@ class SimpleTradesData {
     private val firstExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[0].broker,
+            brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
             ticker = executions[0].ticker,
             quantity = executions[0].quantity,
@@ -167,7 +168,7 @@ class SimpleTradesData {
     private val thirdExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[2].broker,
+            brokerId = executions[2].brokerId,
             instrument = executions[2].instrument,
             ticker = executions[2].ticker,
             quantity = executions[2].quantity,
@@ -189,7 +190,7 @@ class SimpleTradesData {
     private val fourthExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[3].broker,
+            brokerId = executions[3].brokerId,
             instrument = executions[3].instrument,
             ticker = executions[3].ticker,
             quantity = executions[3].quantity,

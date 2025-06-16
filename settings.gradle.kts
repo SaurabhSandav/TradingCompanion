@@ -43,6 +43,7 @@ include(
     "trading:record",
     "trading:backtest",
     "trading:candledata",
+    "trading:broker",
     "trading:test",
 )
 

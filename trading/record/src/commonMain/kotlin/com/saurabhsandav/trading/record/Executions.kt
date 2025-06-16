@@ -6,6 +6,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
@@ -30,7 +31,7 @@ class Executions(
 ) {
 
     suspend fun new(
-        broker: String,
+        brokerId: BrokerId,
         instrument: Instrument,
         ticker: String,
         quantity: BigDecimal,
@@ -45,7 +46,7 @@ class Executions(
 
             // Insert Trade execution
             tradesDB.tradeExecutionQueries.insert(
-                broker = broker,
+                brokerId = brokerId,
                 instrument = instrument,
                 ticker = ticker,
                 quantity = quantity.stripTrailingZeros(),
@@ -74,7 +75,7 @@ class Executions(
 
     suspend fun edit(
         id: TradeExecutionId,
-        broker: String,
+        brokerId: BrokerId,
         instrument: Instrument,
         ticker: String,
         quantity: BigDecimal,
@@ -93,7 +94,7 @@ class Executions(
             // Update execution
             tradesDB.tradeExecutionQueries.update(
                 id = id,
-                broker = broker,
+                brokerId = brokerId,
                 instrument = instrument,
                 ticker = ticker,
                 quantity = quantity.stripTrailingZeros(),
@@ -274,7 +275,7 @@ class Executions(
         val openTrades = tradesDB.tradeQueries.getOpen().executeAsList()
         // Trade that will consume this execution
         val openTrade = openTrades.find {
-            it.broker == execution.broker && it.instrument == execution.instrument && it.ticker == execution.ticker
+            it.brokerId == execution.brokerId && it.instrument == execution.instrument && it.ticker == execution.ticker
         }
 
         // No open trade exists to consume execution. Create new trade.
@@ -282,7 +283,7 @@ class Executions(
 
             // Insert Trade
             tradesDB.tradeQueries.insert(
-                broker = execution.broker,
+                brokerId = execution.brokerId,
                 ticker = execution.ticker,
                 instrument = execution.instrument,
                 quantity = execution.quantity.stripTrailingZeros(),
@@ -350,7 +351,7 @@ class Executions(
 
                 // Insert Trade
                 tradesDB.tradeQueries.insert(
-                    broker = execution.broker,
+                    brokerId = execution.brokerId,
                     ticker = execution.ticker,
                     instrument = execution.instrument,
                     quantity = overrideQuantity.stripTrailingZeros(),
@@ -419,7 +420,7 @@ class Executions(
 
         val brokerage = averageExit?.let {
             brokerage(
-                broker = firstExecution.broker,
+                brokerId = firstExecution.brokerId,
                 instrument = firstExecution.instrument,
                 entry = averageEntry,
                 exit = averageExit,
@@ -430,7 +431,7 @@ class Executions(
 
         return Trade(
             id = TradeId(-1),
-            broker = firstExecution.broker,
+            brokerId = firstExecution.brokerId,
             ticker = firstExecution.ticker,
             instrument = firstExecution.instrument,
             quantity = entryQuantity,
@@ -480,7 +481,7 @@ class Executions(
 
     private fun toTradeExecution(
         id: TradeExecutionId,
-        broker: String,
+        brokerId: BrokerId,
         instrument: Instrument,
         ticker: String,
         quantity: BigDecimal,
@@ -492,7 +493,7 @@ class Executions(
         overrideQuantity: BigDecimal?,
     ) = TradeExecution(
         id = id,
-        broker = broker,
+        brokerId = brokerId,
         instrument = instrument,
         ticker = ticker,
         quantity = overrideQuantity ?: quantity,

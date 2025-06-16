@@ -130,7 +130,7 @@ internal class ReplaySessionPresenter(
                                 .replaceFirstChar {
                                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                                 }
-                            "${params.broker} ($instrumentCapitalized)"
+                            "${params.brokerId.value} ($instrumentCapitalized)"
                         },
                         ticker = params.ticker,
                         quantity = params.lots

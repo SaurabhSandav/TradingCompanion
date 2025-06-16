@@ -1,3 +1,4 @@
+import com.saurabhsandav.trading.broker.BrokerId;
 import com.saurabhsandav.trading.record.model.Instrument;
 import com.saurabhsandav.trading.record.model.TradeId;
 import com.saurabhsandav.trading.record.model.TradeSide;
@@ -8,7 +9,7 @@ import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS Trade (
 id INTEGER AS TradeId NOT NULL PRIMARY KEY,
-broker TEXT NOT NULL,
+brokerId TEXT AS BrokerId NOT NULL,
 ticker TEXT NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
@@ -27,7 +28,7 @@ isClosed INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO Trade(broker, ticker, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
+INTO Trade(brokerId, ticker, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
 averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
 ?, ?, ?, ?, ?, ?);

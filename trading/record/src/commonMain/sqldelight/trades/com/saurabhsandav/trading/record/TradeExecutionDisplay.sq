@@ -1,5 +1,5 @@
 CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
-SELECT T.id, T.broker AS brokerName, T.instrument, T.ticker, T.quantity, T.lots, T.side, T.price, T.timestamp, T.locked
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName
 FROM TradeExecution AS T;
 
 getAllPaged:

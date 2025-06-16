@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.trading.record.model.Instrument
@@ -59,7 +60,7 @@ class TradeExecutionsTest {
 
             executions.edit(
                 id = id,
-                broker = "EditedTestBroker",
+                brokerId = BrokerId("EditedTestBroker"),
                 instrument = Instrument.Options,
                 ticker = "EditedTestTicker",
                 quantity = 20.toBigDecimal(),
@@ -81,7 +82,7 @@ class TradeExecutionsTest {
         // Edit
         executions.edit(
             id = id,
-            broker = "EditedTestBroker",
+            brokerId = BrokerId("EditedTestBroker"),
             instrument = Instrument.Options,
             ticker = "EditedTestTicker",
             quantity = 20.toBigDecimal(),
@@ -93,7 +94,7 @@ class TradeExecutionsTest {
 
         val editedExecution = executions.getById(id).first()
 
-        assertEquals("EditedTestBroker", editedExecution.broker)
+        assertEquals("EditedTestBroker", editedExecution.brokerId.value)
         assertEquals(Instrument.Options, editedExecution.instrument)
         assertEquals("EditedTestTicker", editedExecution.ticker)
         assertEquals(20.toBigDecimal(), editedExecution.quantity)
@@ -265,7 +266,7 @@ class TradeExecutionsTest {
     private suspend fun Executions.new(execution: TradeExecution): TradeExecutionId {
 
         return new(
-            broker = execution.broker,
+            brokerId = execution.brokerId,
             instrument = execution.instrument,
             ticker = execution.ticker,
             quantity = execution.quantity,

@@ -22,6 +22,7 @@ kotlin {
         progressiveMode = true
 
         optIn = listOf(
+            "kotlin.contracts.ExperimentalContracts",
             "kotlin.time.ExperimentalTime",
         )
     }
@@ -30,22 +31,11 @@ kotlin {
 
         commonMain.dependencies {
 
-            api(projects.trading.core)
-            api(projects.trading.record)
-            api(projects.trading.broker)
+            // KotlinX Serialization
+            implementation(libs.kotlinx.serialization.core)
 
-            // KotlinX Coroutines
-            implementation(libs.kotlinx.coroutines.core)
-
-            // KotlinX Immutable Collections Library
-            implementation(libs.kotlinx.collections.immutable)
-        }
-
-        commonTest.dependencies {
-
-            implementation(projects.trading.test)
-
-            implementation(kotlin("test"))
+            // SQLDelight
+            implementation(libs.sqldelight.runtime)
         }
     }
 }

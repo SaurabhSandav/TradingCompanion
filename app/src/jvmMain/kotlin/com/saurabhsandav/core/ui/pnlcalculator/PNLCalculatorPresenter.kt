@@ -9,6 +9,7 @@ import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCa
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.Brokerage
 import com.saurabhsandav.trading.record.brokerage
 import com.saurabhsandav.trading.record.model.Instrument
@@ -94,7 +95,7 @@ internal class PNLCalculatorPresenter(
         exit: BigDecimal,
         side: TradeSide,
     ): Brokerage = brokerage(
-        broker = "Finvasia",
+        brokerId = BrokerId("Finvasia"),
         instrument = Instrument.Equity,
         entry = entry,
         exit = exit,

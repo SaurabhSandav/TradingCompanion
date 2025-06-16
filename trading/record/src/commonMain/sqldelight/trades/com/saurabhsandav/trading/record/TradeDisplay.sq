@@ -1,6 +1,5 @@
 CREATE VIEW IF NOT EXISTS TradeDisplay AS
-SELECT T.id, T.broker AS brokerName, T.ticker, T.instrument, T.quantity, T.closedQuantity, T.lots, T.side,
-T.averageEntry, T.entryTimestamp, T.averageExit, T.exitTimestamp, T.pnl, T.fees, T.netPnl, T.isClosed
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName
 FROM Trade AS T;
 
 getAll:

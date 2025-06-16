@@ -2,6 +2,7 @@ package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
+import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
 import com.saurabhsandav.trading.record.model.AttachmentFileIdColumnAdapter
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.ReviewIdColumnAdapter
@@ -37,6 +38,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         pnlAdapter = BigDecimalColumnAdapter,
         feesAdapter = BigDecimalColumnAdapter,
         netPnlAdapter = BigDecimalColumnAdapter,
+        brokerIdAdapter = BrokerIdColumnAdapter,
     ),
     TradeExecutionAdapter = TradeExecution.Adapter(
         idAdapter = TradeExecutionIdColumnAdapter,
@@ -46,6 +48,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         sideAdapter = TradeExecutionSide.ColumnAdapter,
         priceAdapter = BigDecimalColumnAdapter,
         timestampAdapter = InstantReadableColumnAdapter,
+        brokerIdAdapter = BrokerIdColumnAdapter,
     ),
     TradeStopAdapter = TradeStop.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,

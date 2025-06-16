@@ -1,3 +1,4 @@
+import com.saurabhsandav.trading.broker.BrokerId;
 import com.saurabhsandav.trading.record.model.Instrument;
 import com.saurabhsandav.trading.record.model.TradeExecutionId;
 import com.saurabhsandav.trading.record.model.TradeExecutionSide;
@@ -8,7 +9,7 @@ import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS TradeExecution (
 id INTEGER AS TradeExecutionId NOT NULL PRIMARY KEY,
-broker TEXT NOT NULL,
+brokerId TEXT AS BrokerId NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
@@ -21,12 +22,12 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeExecution(broker, instrument, ticker, quantity, lots, side, price, timestamp, locked)
+INTO TradeExecution(brokerId, instrument, ticker, quantity, lots, side, price, timestamp, locked)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TradeExecution
-SET broker = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
+SET brokerId = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
 delete:

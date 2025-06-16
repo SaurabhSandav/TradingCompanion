@@ -145,7 +145,7 @@ class BacktestBroker(
 
         val execution = BacktestExecution(
             id = nextExecutionId++.let(::BacktestExecutionId),
-            broker = executedOrder.params.broker,
+            brokerId = executedOrder.params.brokerId,
             instrument = executedOrder.params.instrument,
             ticker = executedOrder.params.ticker,
             quantity = executedOrder.params.quantity,
@@ -249,7 +249,7 @@ class BacktestBroker(
 
         // Position that will consume this execution
         val positionIndex = positions.indexOfFirst {
-            it.broker == execution.broker && it.instrument == execution.instrument && it.ticker == execution.ticker
+            it.brokerId == execution.brokerId && it.instrument == execution.instrument && it.ticker == execution.ticker
         }.takeIf { it != -1 }
 
         // No position exists to consume execution. Create new position.
@@ -262,14 +262,14 @@ class BacktestBroker(
 
             val newPosition = BacktestPosition(
                 id = nextPositionId++.let(::BacktestPositionId),
-                broker = execution.broker,
+                brokerId = execution.brokerId,
                 ticker = execution.ticker,
                 instrument = execution.instrument,
                 quantity = execution.quantity,
                 side = tradeSide,
                 averagePrice = execution.price,
                 pnl = brokerage(
-                    broker = execution.broker,
+                    brokerId = execution.brokerId,
                     instrument = execution.instrument,
                     entry = execution.price,
                     exit = currentPrice,
@@ -348,14 +348,14 @@ class BacktestBroker(
                             // Add new position
                             val newPosition = BacktestPosition(
                                 id = nextPositionId++.let(::BacktestPositionId),
-                                broker = execution.broker,
+                                brokerId = execution.brokerId,
                                 ticker = execution.ticker,
                                 instrument = execution.instrument,
                                 quantity = extraQuantity.negate(),
                                 side = newPositionSide,
                                 averagePrice = execution.price,
                                 pnl = brokerage(
-                                    broker = execution.broker,
+                                    brokerId = execution.brokerId,
                                     instrument = execution.instrument,
                                     entry = execution.price,
                                     exit = currentPrice,
@@ -432,7 +432,7 @@ class BacktestBroker(
         exit: BigDecimal = getCurrentPrice(ticker),
         quantity: BigDecimal = this.quantity,
     ): Brokerage = brokerage(
-        broker = broker,
+        brokerId = brokerId,
         instrument = instrument,
         entry = entry,
         exit = exit,

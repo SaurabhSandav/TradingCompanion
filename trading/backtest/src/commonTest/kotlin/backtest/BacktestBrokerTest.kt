@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.test.assertBDEquals
@@ -46,7 +47,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -81,7 +82,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -128,7 +129,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 1000.toBigDecimal(),
@@ -166,7 +167,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 1.toBigDecimal(),
@@ -201,7 +202,7 @@ class BacktestBrokerTest {
 
         val orderId = sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -254,7 +255,7 @@ class BacktestBrokerTest {
 
         val orderId = sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -309,7 +310,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -358,7 +359,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -401,7 +402,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -425,7 +426,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -469,7 +470,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -487,7 +488,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -540,7 +541,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -558,7 +559,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -611,7 +612,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -630,7 +631,7 @@ class BacktestBrokerTest {
         // Stop
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -644,7 +645,7 @@ class BacktestBrokerTest {
         // Target
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -699,7 +700,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -718,7 +719,7 @@ class BacktestBrokerTest {
         // Stop
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -731,7 +732,7 @@ class BacktestBrokerTest {
         // Target
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 10.toBigDecimal(),
@@ -788,7 +789,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                broker = "Finvasia",
+                brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 ticker = ticker,
                 quantity = 48.toBigDecimal(),

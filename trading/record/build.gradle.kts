@@ -37,6 +37,7 @@ kotlin {
 
             api(projects.paging)
             api(projects.trading.core)
+            api(projects.trading.broker)
 
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.core)

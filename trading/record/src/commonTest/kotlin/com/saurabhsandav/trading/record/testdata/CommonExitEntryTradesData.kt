@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record.testdata
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
@@ -21,7 +22,7 @@ class CommonExitEntryTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker3",
             quantity = 150.toBigDecimal(),
@@ -35,7 +36,7 @@ class CommonExitEntryTradesData {
         // Trade #1 Close, Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker3",
             quantity = 250.toBigDecimal(),
@@ -49,7 +50,7 @@ class CommonExitEntryTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker3",
             quantity = 100.toBigDecimal(),
@@ -74,7 +75,7 @@ class CommonExitEntryTradesData {
     private val firstExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[0].broker,
+            brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
             ticker = executions[0].ticker,
             quantity = executions[0].quantity,
@@ -95,7 +96,7 @@ class CommonExitEntryTradesData {
     private val secondExecutionTrades = listOf(
         Trade(
             id = TradeId(-1),
-            broker = executions[0].broker,
+            brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
             ticker = executions[0].ticker,
             quantity = executions[1].quantity - executions[0].quantity,

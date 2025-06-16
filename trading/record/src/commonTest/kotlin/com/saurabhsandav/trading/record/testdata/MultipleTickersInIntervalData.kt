@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record.testdata
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
@@ -18,7 +19,7 @@ class MultipleTickersInIntervalData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.ONE,
@@ -32,7 +33,7 @@ class MultipleTickersInIntervalData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.ONE,
@@ -46,7 +47,7 @@ class MultipleTickersInIntervalData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 50.toBigDecimal(),
@@ -60,7 +61,7 @@ class MultipleTickersInIntervalData {
         // Trade #2 Add
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 50.toBigDecimal(),
@@ -74,7 +75,7 @@ class MultipleTickersInIntervalData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 100.toBigDecimal(),
@@ -88,7 +89,7 @@ class MultipleTickersInIntervalData {
         // Trade #3 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 2.toBigDecimal(),
@@ -102,7 +103,7 @@ class MultipleTickersInIntervalData {
         // Trade #3 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker1",
             quantity = 2.toBigDecimal(),
@@ -116,7 +117,7 @@ class MultipleTickersInIntervalData {
         // Trade #4 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.TEN,
@@ -130,7 +131,7 @@ class MultipleTickersInIntervalData {
         // Trade #4 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = BigDecimal.TEN,
@@ -144,7 +145,7 @@ class MultipleTickersInIntervalData {
         // Trade #5 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            broker = "Finvasia",
+            brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
             ticker = "TestTicker",
             quantity = 7.toBigDecimal(),

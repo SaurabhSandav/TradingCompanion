@@ -5,7 +5,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 fun Trade.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
-    broker = broker,
+    brokerId = brokerId,
     instrument = instrument,
     entry = averageEntry,
     exit = exit,
@@ -28,7 +28,7 @@ fun Trade.rValueAt(
 }.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
 
 fun TradeDisplay.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
-    broker = brokerName,
+    brokerId = brokerId,
     instrument = instrument,
     entry = averageEntry,
     exit = exit,

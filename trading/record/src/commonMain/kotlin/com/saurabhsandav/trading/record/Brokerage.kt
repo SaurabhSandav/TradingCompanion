@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record
 
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeSide
 import java.math.BigDecimal
@@ -14,7 +15,7 @@ data class Brokerage(
 )
 
 fun brokerage(
-    broker: String,
+    brokerId: BrokerId,
     instrument: Instrument,
     entry: BigDecimal,
     exit: BigDecimal,
@@ -36,7 +37,7 @@ fun brokerage(
     val buyTurnover = (buyPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
     val sellTurnover = (sellPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
 
-    val brokerage = when (broker.lowercase()) {
+    val brokerage = when (brokerId.value.lowercase()) {
         "zerodha" -> calculateBrokerageZerodha(buyTurnover, sellTurnover)
         "finvasia" -> calculateBrokerageFinvasia(buyTurnover, sellTurnover)
         else -> error("Invalid broker")

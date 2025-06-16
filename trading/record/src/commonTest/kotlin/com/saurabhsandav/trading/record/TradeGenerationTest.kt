@@ -83,7 +83,7 @@ class TradeGenerationTest {
     private suspend fun Executions.new(execution: TradeExecution): TradeExecutionId {
 
         return new(
-            broker = execution.broker,
+            brokerId = execution.brokerId,
             instrument = execution.instrument,
             ticker = execution.ticker,
             quantity = execution.quantity,
