@@ -8,7 +8,9 @@ import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
+import com.saurabhsandav.core.trading.getSymbolOrError
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.sizing.model.SizingEvent
@@ -53,6 +55,7 @@ internal class SizingPresenter(
     private val profileId: ProfileId,
     private val account: Flow<Account>,
     private val tradingProfiles: TradingProfiles,
+    private val symbolsProvider: SymbolsProvider,
 ) {
 
     private val sizingtrades = coroutineScope.async { tradingProfiles.getRecord(profileId).sizingTrades }
@@ -166,6 +169,7 @@ internal class SizingPresenter(
             profileId = profileId,
             formType = TradeExecutionFormType.NewSized(
                 formModel = TradeExecutionFormModel(
+                    getSymbol = { symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, sizingTrade.symbolId).first() },
                     instrument = Instrument.Equity,
                     symbolId = sizingTrade.symbolId,
                     quantity = minOf(calculatedQuantity, maxAffordableQuantity).toString(),

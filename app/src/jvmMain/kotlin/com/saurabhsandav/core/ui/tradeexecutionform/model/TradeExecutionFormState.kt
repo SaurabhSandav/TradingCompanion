@@ -1,5 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
+import com.saurabhsandav.core.CachedSymbol
+import com.saurabhsandav.core.trading.isValidPrice
+import com.saurabhsandav.core.trading.isValidQuantity
 import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
@@ -28,6 +31,7 @@ internal data class TradeExecutionFormState(
 )
 
 internal class TradeExecutionFormModel(
+    getSymbol: suspend (SymbolId) -> CachedSymbol,
     instrument: Instrument? = null,
     symbolId: SymbolId? = null,
     quantity: String = "",
@@ -43,7 +47,12 @@ internal class TradeExecutionFormModel(
 
     val quantityField = addTextFieldStateField(quantity) {
         isRequired()
-        isInt()?.isPositive()
+        val quantity = isBigDecimal()?.isPositive()!!
+
+        val symbolId = symbolField.validatedValue()!!
+        val lotSize = getSymbol(symbolId).lotSize
+
+        if (!isValidQuantity(quantity, lotSize)) reportInvalid("Lot Size: $lotSize")
     }
 
     val lotsField = addTextFieldStateField(lots) {
@@ -55,7 +64,12 @@ internal class TradeExecutionFormModel(
 
     val priceField = addTextFieldStateField(price) {
         isRequired()
-        isBigDecimal()?.isPositive()
+        val price = isBigDecimal()?.isPositive()!!
+
+        val symbolId = symbolField.validatedValue()!!
+        val tickSize = getSymbol(symbolId).tickSize
+
+        if (!isValidPrice(price, tickSize)) reportInvalid("Tick Size: $tickSize")
     }
 
     val dateField = addMutableStateField(timestamp.date) {

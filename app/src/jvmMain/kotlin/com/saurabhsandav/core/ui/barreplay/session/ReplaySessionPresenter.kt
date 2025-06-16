@@ -9,7 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
+import com.saurabhsandav.core.trading.getSymbolOrError
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.AdvanceReplay
@@ -38,10 +40,12 @@ import com.saurabhsandav.trading.backtest.StopLimit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.TrailingStop
 import com.saurabhsandav.trading.barreplay.BarReplay
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -66,6 +70,7 @@ internal class ReplaySessionPresenter(
     private val barReplay: BarReplay,
     val replayOrdersManager: ReplayOrdersManager,
     private val tradingProfiles: TradingProfiles,
+    private val symbolsProvider: SymbolsProvider,
 ) {
 
     private var autoNextJob by mutableStateOf<Job?>(null)
@@ -200,6 +205,7 @@ internal class ReplaySessionPresenter(
             id = Uuid.random(),
             stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel(
+                getSymbol = { symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, stockChart.params.symbolId).first() },
                 isBuy = true,
                 price = price,
             ),
@@ -220,6 +226,7 @@ internal class ReplaySessionPresenter(
             id = Uuid.random(),
             stockChartParams = stockChart.params,
             initialModel = ReplayOrderFormModel(
+                getSymbol = { symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, stockChart.params.symbolId).first() },
                 isBuy = false,
                 price = price,
             ),

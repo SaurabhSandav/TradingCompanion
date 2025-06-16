@@ -17,6 +17,6 @@ fun String.isBigDecimal(errorMessage: () -> String = { "Not a valid number" }): 
 
 context(_: ValidationScope)
 fun KBigDecimal.isPositive(errorMessage: () -> String = { "Cannot be 0 or negative" }): KBigDecimal {
-    if (this < KBigDecimal.Zero) reportInvalid(message = errorMessage())
+    if (this <= KBigDecimal.Zero) reportInvalid(message = errorMessage())
     return this
 }

@@ -1,5 +1,8 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform.model
 
+import com.saurabhsandav.core.CachedSymbol
+import com.saurabhsandav.core.trading.isValidPrice
+import com.saurabhsandav.core.trading.isValidQuantity
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
@@ -19,6 +22,7 @@ internal data class ReplayOrderFormState(
 )
 
 internal class ReplayOrderFormModel(
+    getSymbol: suspend () -> CachedSymbol,
     quantity: String = "",
     lots: String = "",
     isBuy: Boolean = true,
@@ -29,7 +33,10 @@ internal class ReplayOrderFormModel(
 
     val quantityField = addTextFieldStateField(quantity) {
         isRequired()
-        isInt()?.isPositive()
+        val quantity = isBigDecimal()?.isPositive()!!
+
+        val lotSize = getSymbol().lotSize
+        if (!isValidQuantity(quantity, lotSize)) reportInvalid("Lot Size: $lotSize")
     }
 
     val lotsField = addTextFieldStateField(lots) {
@@ -41,7 +48,10 @@ internal class ReplayOrderFormModel(
 
     val priceField = addTextFieldStateField(price) {
         isRequired()
-        isBigDecimal()?.isPositive()
+        val price = isBigDecimal()?.isPositive()!!
+
+        val tickSize = getSymbol().tickSize
+        if (!isValidPrice(price, tickSize)) reportInvalid("Tick Size: $tickSize")
     }
 
     val stop = addTextFieldStateField(stop) {

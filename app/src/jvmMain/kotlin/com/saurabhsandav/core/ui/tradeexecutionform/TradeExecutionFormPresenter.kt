@@ -7,8 +7,11 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.CachedSymbol
 import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
+import com.saurabhsandav.core.trading.getSymbolOrError
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -21,6 +24,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeSide
@@ -46,9 +50,11 @@ internal class TradeExecutionFormPresenter(
     private val profileId: ProfileId,
     private val formType: TradeExecutionFormType,
     private val tradingProfiles: TradingProfiles,
+    private val symbolsProvider: SymbolsProvider,
 ) {
 
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
+    private var selectedSymbol: CachedSymbol? = null
 
     init {
 
@@ -90,12 +96,13 @@ internal class TradeExecutionFormPresenter(
     private fun buildFormModel(): TradeExecutionFormModel? = produceState<TradeExecutionFormModel?>(null) {
 
         value = when (formType) {
-            is New -> TradeExecutionFormModel()
+            is New -> TradeExecutionFormModel(getSymbol = ::getSymbol)
             is NewFromExisting -> {
 
                 val execution = tradingRecord.await().executions.getById(formType.id).first()
 
                 TradeExecutionFormModel(
+                    getSymbol = ::getSymbol,
                     instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
@@ -110,6 +117,7 @@ internal class TradeExecutionFormPresenter(
                 val execution = tradingRecord.await().executions.getById(formType.id).first()
 
                 TradeExecutionFormModel(
+                    getSymbol = ::getSymbol,
                     instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
@@ -125,6 +133,7 @@ internal class TradeExecutionFormPresenter(
                 val trade = tradingRecord.await().trades.getById(formType.tradeId).first()
 
                 TradeExecutionFormModel(
+                    getSymbol = ::getSymbol,
                     instrument = trade.instrument,
                     symbolId = trade.symbolId,
                     isBuy = trade.side == TradeSide.Long,
@@ -136,6 +145,7 @@ internal class TradeExecutionFormPresenter(
                 val trade = tradingRecord.await().trades.getById(formType.tradeId).first()
 
                 TradeExecutionFormModel(
+                    getSymbol = ::getSymbol,
                     instrument = trade.instrument,
                     symbolId = trade.symbolId,
                     quantity = (trade.quantity - trade.closedQuantity).toString(),
@@ -149,6 +159,7 @@ internal class TradeExecutionFormPresenter(
                 val execution = tradingRecord.await().executions.getById(formType.id).first()
 
                 TradeExecutionFormModel(
+                    getSymbol = ::getSymbol,
                     instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
@@ -211,6 +222,13 @@ internal class TradeExecutionFormPresenter(
 
         // Close form
         onCloseRequest()
+    }
+
+    private suspend fun getSymbol(symbolId: SymbolId): CachedSymbol {
+        val selectedSymbol = selectedSymbol
+        if (selectedSymbol?.id == symbolId) return selectedSymbol
+        this.selectedSymbol = symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, symbolId).first()
+        return this.selectedSymbol!!
     }
 
     @AssistedFactory
