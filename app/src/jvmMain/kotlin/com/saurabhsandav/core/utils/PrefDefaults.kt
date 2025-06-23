@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Account
+import com.saurabhsandav.trading.core.Timeframe
 
 object PrefDefaults {
 

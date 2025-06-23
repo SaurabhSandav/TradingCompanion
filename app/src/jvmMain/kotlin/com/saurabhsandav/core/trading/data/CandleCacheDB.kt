@@ -4,10 +4,10 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.saurabhsandav.core.trading.core.Candle
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext

@@ -1,12 +1,12 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
-import com.saurabhsandav.core.trading.core.MutableCandleSeries
-import com.saurabhsandav.core.trading.core.asCandleSeries
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.core.MutableCandleSeries
+import com.saurabhsandav.trading.core.asCandleSeries
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow

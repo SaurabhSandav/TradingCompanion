@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.core
+package com.saurabhsandav.trading.core
 
 import java.math.MathContext
 

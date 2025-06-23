@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.common
 
-import com.saurabhsandav.core.trading.core.Timeframe
+import com.saurabhsandav.trading.core.Timeframe
 
 fun Timeframe.toLabel(): String = when (this) {
     Timeframe.M1 -> "1M"

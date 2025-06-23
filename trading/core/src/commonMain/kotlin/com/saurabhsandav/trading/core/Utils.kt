@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.core
+package com.saurabhsandav.trading.core
 
 internal fun <E> MutableList<E>.removeFirst(n: Int = 1) {
     subList(

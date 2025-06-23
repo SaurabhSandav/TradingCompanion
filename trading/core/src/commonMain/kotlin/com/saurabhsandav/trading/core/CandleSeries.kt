@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.core
+package com.saurabhsandav.trading.core
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow

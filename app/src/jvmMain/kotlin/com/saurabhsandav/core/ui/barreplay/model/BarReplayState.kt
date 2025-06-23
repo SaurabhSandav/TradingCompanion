@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.barreplay.model
 
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 

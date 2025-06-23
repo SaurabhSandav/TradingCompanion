@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
-import com.saurabhsandav.core.trading.core.Candle
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
+import com.saurabhsandav.trading.core.Candle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Instant

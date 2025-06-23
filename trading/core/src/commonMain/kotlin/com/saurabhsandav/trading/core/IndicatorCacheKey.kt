@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.core
+package com.saurabhsandav.trading.core
 
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract

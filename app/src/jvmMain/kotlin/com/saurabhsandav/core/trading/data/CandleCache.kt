@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.data
 
-import com.saurabhsandav.core.trading.core.Candle
-import com.saurabhsandav.core.trading.core.Timeframe
+import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
 

@@ -2,9 +2,9 @@ package com.saurabhsandav.core.trading.record
 
 import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.record.model.TradeSide
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.DatePeriod

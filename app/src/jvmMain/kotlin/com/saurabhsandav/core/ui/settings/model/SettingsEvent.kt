@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.settings.model
 
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.trading.core.Timeframe
 
 internal sealed class SettingsEvent {
 

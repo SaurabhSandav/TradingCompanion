@@ -5,7 +5,6 @@ import androidx.compose.ui.platform.UriHandler
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.MarkTrades
@@ -27,6 +26,7 @@ import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyersapi.FyersApi
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first

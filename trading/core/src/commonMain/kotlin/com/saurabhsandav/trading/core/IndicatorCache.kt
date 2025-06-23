@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.core
+package com.saurabhsandav.trading.core
 
 class IndicatorCache<T> internal constructor(
     val key: Indicator.CacheKey?,
@@ -6,11 +6,11 @@ class IndicatorCache<T> internal constructor(
 
     private val cache = mutableListOf<T?>()
 
-    internal operator fun get(index: Int): T? {
+    operator fun get(index: Int): T? {
         return cache.getOrNull(index)
     }
 
-    internal operator fun set(
+    operator fun set(
         index: Int,
         value: T?,
     ) {

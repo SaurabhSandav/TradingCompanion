@@ -3,9 +3,9 @@ package com.saurabhsandav.core.ui.settings.ui
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.trading.core.Timeframe
 
 @Composable
 internal fun TradingPreferences(

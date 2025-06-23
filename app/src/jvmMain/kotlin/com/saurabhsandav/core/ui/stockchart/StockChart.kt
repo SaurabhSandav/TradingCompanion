@@ -8,7 +8,6 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.common.chart.ChartDarkModeOptions
 import com.saurabhsandav.core.ui.common.chart.ChartLightModeOptions
 import com.saurabhsandav.core.ui.common.chart.clicks
@@ -27,6 +26,7 @@ import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import com.saurabhsandav.core.utils.newChildScope
 import com.saurabhsandav.lightweightcharts.IChartApi
 import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel

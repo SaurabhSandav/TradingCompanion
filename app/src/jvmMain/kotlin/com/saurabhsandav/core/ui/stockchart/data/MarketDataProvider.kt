@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
-import com.saurabhsandav.core.trading.core.SessionChecker
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.trading.core.SessionChecker
 
 interface MarketDataProvider {
 

@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.core.Indicator
-import com.saurabhsandav.core.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
 import com.saurabhsandav.core.trading.isZero
+import com.saurabhsandav.trading.core.Indicator
+import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import java.math.BigDecimal
 
 class RSIIndicator(

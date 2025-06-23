@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.data.db
 
 import app.cash.sqldelight.db.SqlDriver
-import com.saurabhsandav.core.trading.core.Timeframe
+import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

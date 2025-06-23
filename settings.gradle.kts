@@ -36,6 +36,7 @@ include(
     "fyers-api",
     "lightweight-charts",
     "jcef-compose",
+    "trading:core",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

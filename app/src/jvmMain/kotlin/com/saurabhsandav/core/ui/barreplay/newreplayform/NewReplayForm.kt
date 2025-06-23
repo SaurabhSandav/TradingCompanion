@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.controls.DateTimePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
@@ -26,6 +25,7 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
+import com.saurabhsandav.trading.core.Timeframe
 
 @Composable
 internal fun NewReplayForm(

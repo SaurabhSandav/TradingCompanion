@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.core.Candle
-import com.saurabhsandav.core.trading.core.CandleSeries
-import com.saurabhsandav.core.trading.core.Indicator
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
+import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.CandleSeries
+import com.saurabhsandav.trading.core.Indicator
 import java.math.BigDecimal
 
 open class PriceIndicator(

@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.core.Timeframe
+import com.saurabhsandav.trading.core.Timeframe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.seconds

@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.trading.barreplay
 
 import app.softwork.serialization.csv.CSVFormat
-import com.saurabhsandav.core.trading.core.Candle
-import com.saurabhsandav.core.trading.core.CandleSeries
-import com.saurabhsandav.core.trading.core.MutableCandleSeries
-import com.saurabhsandav.core.trading.core.Timeframe
-import com.saurabhsandav.core.trading.core.asCandleSeries
+import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.CandleSeries
+import com.saurabhsandav.trading.core.MutableCandleSeries
+import com.saurabhsandav.trading.core.Timeframe
+import com.saurabhsandav.trading.core.asCandleSeries
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer

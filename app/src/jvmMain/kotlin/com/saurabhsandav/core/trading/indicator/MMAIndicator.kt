@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.core.Indicator
+import com.saurabhsandav.trading.core.Indicator
 import java.math.BigDecimal
 
 class MMAIndicator(

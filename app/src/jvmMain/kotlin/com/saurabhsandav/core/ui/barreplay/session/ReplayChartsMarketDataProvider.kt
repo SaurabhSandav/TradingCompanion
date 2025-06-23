@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.trading.DailySessionChecker
-import com.saurabhsandav.core.trading.core.CandleSeries
-import com.saurabhsandav.core.trading.core.SessionChecker
 import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
@@ -12,6 +10,8 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.core.CandleSeries
+import com.saurabhsandav.trading.core.SessionChecker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow

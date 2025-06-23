@@ -6,8 +6,6 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.core.Candle
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.loginservice.fyers.FyersLoginService
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.fyersapi.model.CandleResolution
@@ -15,6 +13,8 @@ import com.saurabhsandav.fyersapi.model.DateFormat
 import com.saurabhsandav.fyersapi.model.response.FyersError
 import com.saurabhsandav.fyersapi.model.response.HistoricalCandlesResult
 import com.saurabhsandav.fyersapi.model.response.isTokenExpired
+import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.Timeframe
 import com.slack.eithernet.ApiResult
 import com.slack.eithernet.ApiResult.Failure
 import com.slack.eithernet.ApiResult.Success
