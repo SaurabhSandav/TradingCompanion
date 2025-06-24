@@ -3,26 +3,23 @@ package com.saurabhsandav.core.di
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.emptyPreferences
-import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.AppConfig
 import com.saurabhsandav.core.AppDB
+import com.saurabhsandav.core.CandleDB
 import com.saurabhsandav.core.FileLogWriter
-import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trades.TradeExcursionsGenerator
 import com.saurabhsandav.core.trades.TradeManagementJob
 import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trades.model.Account
-import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.CandleCacheDB
 import com.saurabhsandav.core.trading.data.CandleDB
 import com.saurabhsandav.core.trading.data.CandleRepository
-import com.saurabhsandav.core.trading.data.CheckedRange
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
@@ -35,7 +32,6 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.AppUriHandler
 import com.saurabhsandav.core.utils.DbUrlProvider
-import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.fyersapi.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -95,14 +91,7 @@ internal class AppModule(
             schema = AppDB.Schema,
         )
 
-        AppDB(
-            driver = driver,
-            TradingProfileAdapter = TradingProfile.Adapter(
-                idAdapter = ProfileIdColumnAdapter,
-                tradeCountAdapter = IntColumnAdapter,
-                tradeCountOpenAdapter = IntColumnAdapter,
-            ),
-        )
+        AppDB(driver)
     }
 
     private val candleDBDriver: SqlDriver = run {
@@ -113,15 +102,7 @@ internal class AppModule(
         )
     }
 
-    private val candleDB: CandleDB = run {
-        CandleDB(
-            driver = candleDBDriver,
-            CheckedRangeAdapter = CheckedRange.Adapter(
-                fromEpochSecondsAdapter = InstantColumnAdapter,
-                toEpochSecondsAdapter = InstantColumnAdapter,
-            ),
-        )
-    }
+    private val candleDB: CandleDB = CandleDB(candleDBDriver)
 
     val appPrefs = DataStoreSettings(
         datastore = PreferenceDataStoreFactory.createWithPath(

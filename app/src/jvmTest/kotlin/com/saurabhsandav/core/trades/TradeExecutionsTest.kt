@@ -1,27 +1,15 @@
 package com.saurabhsandav.core.trades
 
-import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.trades.migrations.migrationAfterV1
 import com.saurabhsandav.core.trades.migrations.migrationAfterV2
-import com.saurabhsandav.core.trades.model.AttachmentFileIdColumnAdapter
 import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.ReviewIdColumnAdapter
-import com.saurabhsandav.core.trades.model.SizingTradeIdColumnAdapter
 import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeExecutionIdColumnAdapter
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trades.model.TradeId
-import com.saurabhsandav.core.trades.model.TradeIdColumnAdapter
-import com.saurabhsandav.core.trades.model.TradeIdListColumnAdapter
-import com.saurabhsandav.core.trades.model.TradeNoteIdColumnAdapter
-import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.trades.model.TradeTagIdColumnAdapter
 import com.saurabhsandav.core.trades.testdata.MultipleTickersInIntervalData
 import com.saurabhsandav.core.trades.testdata.SimpleTradesData
-import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
-import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -302,87 +290,6 @@ class TradeExecutionsTest {
             ),
         )
 
-        return TradesDB(
-            driver = driver,
-            SizingTradeAdapter = SizingTrade.Adapter(
-                idAdapter = SizingTradeIdColumnAdapter,
-                entryAdapter = BigDecimalColumnAdapter,
-                stopAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeAdapter = Trade.Adapter(
-                idAdapter = TradeIdColumnAdapter,
-                instrumentAdapter = Instrument.ColumnAdapter,
-                quantityAdapter = BigDecimalColumnAdapter,
-                closedQuantityAdapter = BigDecimalColumnAdapter,
-                lotsAdapter = IntColumnAdapter,
-                sideAdapter = TradeSide.ColumnAdapter,
-                averageEntryAdapter = BigDecimalColumnAdapter,
-                entryTimestampAdapter = InstantReadableColumnAdapter,
-                averageExitAdapter = BigDecimalColumnAdapter,
-                exitTimestampAdapter = InstantReadableColumnAdapter,
-                pnlAdapter = BigDecimalColumnAdapter,
-                feesAdapter = BigDecimalColumnAdapter,
-                netPnlAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeExecutionAdapter = TradeExecution.Adapter(
-                idAdapter = TradeExecutionIdColumnAdapter,
-                instrumentAdapter = Instrument.ColumnAdapter,
-                quantityAdapter = BigDecimalColumnAdapter,
-                lotsAdapter = IntColumnAdapter,
-                sideAdapter = TradeExecutionSide.ColumnAdapter,
-                priceAdapter = BigDecimalColumnAdapter,
-                timestampAdapter = InstantReadableColumnAdapter,
-            ),
-            TradeStopAdapter = TradeStop.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                priceAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeTargetAdapter = TradeTarget.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                priceAdapter = BigDecimalColumnAdapter,
-            ),
-            AttachmentFileAdapter = AttachmentFile.Adapter(
-                idAdapter = AttachmentFileIdColumnAdapter,
-            ),
-            TradeAttachmentAdapter = TradeAttachment.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                fileIdAdapter = AttachmentFileIdColumnAdapter,
-            ),
-            TradeNoteAdapter = TradeNote.Adapter(
-                idAdapter = TradeNoteIdColumnAdapter,
-                tradeIdAdapter = TradeIdColumnAdapter,
-                addedAdapter = InstantReadableColumnAdapter,
-                lastEditedAdapter = InstantReadableColumnAdapter,
-            ),
-            TradeTagAdapter = TradeTag.Adapter(
-                idAdapter = TradeTagIdColumnAdapter,
-                colorAdapter = IntColumnAdapter,
-            ),
-            TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                executionIdAdapter = TradeExecutionIdColumnAdapter,
-                overrideQuantityAdapter = BigDecimalColumnAdapter,
-            ),
-            TradeToTagMapAdapter = TradeToTagMap.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                tagIdAdapter = TradeTagIdColumnAdapter,
-            ),
-            ReviewAdapter = Review.Adapter(
-                idAdapter = ReviewIdColumnAdapter,
-                tradeIdsAdapter = TradeIdListColumnAdapter,
-                createdAdapter = InstantReadableColumnAdapter,
-            ),
-            TradeExcursionsAdapter = TradeExcursions.Adapter(
-                tradeIdAdapter = TradeIdColumnAdapter,
-                tradeMfePriceAdapter = BigDecimalColumnAdapter,
-                tradeMfePnlAdapter = BigDecimalColumnAdapter,
-                tradeMaePriceAdapter = BigDecimalColumnAdapter,
-                tradeMaePnlAdapter = BigDecimalColumnAdapter,
-                sessionMfePriceAdapter = BigDecimalColumnAdapter,
-                sessionMfePnlAdapter = BigDecimalColumnAdapter,
-                sessionMaePriceAdapter = BigDecimalColumnAdapter,
-                sessionMaePnlAdapter = BigDecimalColumnAdapter,
-            ),
-        )
+        return TradesDB(driver)
     }
 }

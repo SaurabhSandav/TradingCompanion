@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.trades
 
-import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
@@ -9,7 +8,6 @@ import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
@@ -352,14 +350,7 @@ class TradingProfilesTest {
             appDispatchers = FakeAppDispatchers(this),
             appPaths = appPaths,
             dbUrlProvider = dbUrlProvider,
-            appDB = AppDB(
-                driver = driver,
-                TradingProfileAdapter = TradingProfile.Adapter(
-                    idAdapter = ProfileIdColumnAdapter,
-                    tradeCountAdapter = IntColumnAdapter,
-                    tradeCountOpenAdapter = IntColumnAdapter,
-                ),
-            ),
+            appDB = AppDB(driver),
         )
 
         val scope = object : TradingProfilesTestScope {
