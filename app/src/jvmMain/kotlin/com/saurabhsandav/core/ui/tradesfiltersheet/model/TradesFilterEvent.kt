@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
-import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.trading.record.model.TradeTagId
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.DateInterval
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Notes
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed

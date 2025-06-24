@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState

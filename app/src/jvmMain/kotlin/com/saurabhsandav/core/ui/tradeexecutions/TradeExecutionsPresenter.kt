@@ -9,10 +9,10 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.TradeExecution
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trading.record.TradeExecution
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher

@@ -1,0 +1,32 @@
+import com.saurabhsandav.core.trading.record.model.TradeId;
+import com.saurabhsandav.core.trading.record.model.TradeNoteId;
+import kotlin.Boolean;
+import kotlin.time.Instant;
+
+CREATE TABLE IF NOT EXISTS TradeNote (
+id INTEGER AS TradeNoteId NOT NULL PRIMARY KEY,
+tradeId INTEGER AS TradeId NOT NULL,
+note TEXT NOT NULL,
+added TEXT AS Instant NOT NULL,
+lastEdited TEXT AS Instant,
+FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
+);
+
+insert:
+INSERT
+INTO TradeNote(tradeId, note, added, lastEdited)
+VALUES (?, ?, ?, ?);
+
+update:
+UPDATE TradeNote
+SET note = ?, lastEdited = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM TradeNote
+WHERE id = ?;
+
+getByTrade:
+SELECT *
+FROM TradeNote
+WHERE tradeId = ?;

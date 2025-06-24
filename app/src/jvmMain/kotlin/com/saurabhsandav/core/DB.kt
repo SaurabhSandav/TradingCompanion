@@ -2,9 +2,9 @@ package com.saurabhsandav.core
 
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
-import com.saurabhsandav.core.trades.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.trading.data.CandleDB
 import com.saurabhsandav.core.trading.data.CheckedRange
+import com.saurabhsandav.core.trading.record.model.ProfileIdColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 
 fun AppDB(driver: SqlDriver) = AppDB(

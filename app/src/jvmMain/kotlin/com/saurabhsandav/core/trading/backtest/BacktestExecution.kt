@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trading.record.model.Instrument
+import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import java.math.BigDecimal
 import kotlin.time.Instant
 

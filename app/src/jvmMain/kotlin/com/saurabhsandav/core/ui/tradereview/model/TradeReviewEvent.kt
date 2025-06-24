@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tradereview.model
 
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeFilter
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeFilter
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 
 internal sealed class TradeReviewEvent {

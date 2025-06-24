@@ -13,7 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.landing.model.LandingEvent

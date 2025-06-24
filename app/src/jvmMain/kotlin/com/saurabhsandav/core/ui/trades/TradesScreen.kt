@@ -9,10 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeFilter
-import com.saurabhsandav.core.trades.model.TradeId
-import com.saurabhsandav.core.trades.model.TradeTagId
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeFilter
+import com.saurabhsandav.core.trading.record.model.TradeId
+import com.saurabhsandav.core.trading.record.model.TradeTagId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.SideSheetHost
 import com.saurabhsandav.core.ui.common.SideSheetState

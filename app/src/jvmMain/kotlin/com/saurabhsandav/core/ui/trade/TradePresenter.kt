@@ -11,17 +11,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradeExcursions
-import com.saurabhsandav.core.trades.TradeExcursionsGenerator
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.brokerageAt
-import com.saurabhsandav.core.trades.model.AttachmentFileId
-import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeNoteId
-import com.saurabhsandav.core.trades.model.TradeSide
-import com.saurabhsandav.core.trades.model.TradeTagId
-import com.saurabhsandav.core.trades.rValueAt
+import com.saurabhsandav.core.trading.record.Trade
+import com.saurabhsandav.core.trading.record.TradeExcursions
+import com.saurabhsandav.core.trading.record.TradeExcursionsGenerator
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.brokerageAt
+import com.saurabhsandav.core.trading.record.model.AttachmentFileId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionId
+import com.saurabhsandav.core.trading.record.model.TradeNoteId
+import com.saurabhsandav.core.trading.record.model.TradeSide
+import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.record.rValueAt
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
@@ -541,7 +541,7 @@ internal class TradePresenter(
     }
 
     private fun Trade.buildExcursionString(
-        stop: com.saurabhsandav.core.trades.TradeStop?,
+        stop: com.saurabhsandav.core.trading.record.TradeStop?,
         excursions: TradeExcursions,
         inTrade: Boolean,
         isMae: Boolean,

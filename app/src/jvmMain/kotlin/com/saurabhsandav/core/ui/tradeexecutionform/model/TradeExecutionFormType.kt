@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
-import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionId
+import com.saurabhsandav.core.trading.record.model.TradeId
 import java.math.BigDecimal
 
 internal sealed class TradeExecutionFormType {

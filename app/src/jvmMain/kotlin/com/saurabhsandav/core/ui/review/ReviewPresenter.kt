@@ -5,10 +5,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ReviewId
-import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trading.record.Trade
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.ReviewId
+import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.review.model.ReviewEvent
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenChart

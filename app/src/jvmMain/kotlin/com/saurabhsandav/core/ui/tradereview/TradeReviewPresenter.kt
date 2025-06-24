@@ -15,11 +15,11 @@ import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeFilter
-import com.saurabhsandav.core.trades.model.TradeSort
+import com.saurabhsandav.core.trading.record.Trade
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeFilter
+import com.saurabhsandav.core.trading.record.model.TradeSort
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId

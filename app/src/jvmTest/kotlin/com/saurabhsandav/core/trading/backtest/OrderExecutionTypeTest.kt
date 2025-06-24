@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.assertBDEquals
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals

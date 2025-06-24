@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.stats.TradingStats
-import com.saurabhsandav.core.trades.stats.buildStats
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.stats.TradingStats
+import com.saurabhsandav.core.trading.record.stats.buildStats
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stats.model.StatsEvent
 import com.saurabhsandav.core.ui.stats.model.StatsState

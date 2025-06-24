@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trades.TradingProfiles
 import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.trading.backtest.Limit
 import com.saurabhsandav.core.trading.backtest.Market
@@ -17,6 +16,7 @@ import com.saurabhsandav.core.trading.backtest.StopLimit
 import com.saurabhsandav.core.trading.backtest.StopMarket
 import com.saurabhsandav.core.trading.backtest.TrailingStop
 import com.saurabhsandav.core.trading.barreplay.BarReplay
+import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.AdvanceReplay

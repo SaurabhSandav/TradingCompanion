@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.utils
 
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trading.record.model.Instrument
+import com.saurabhsandav.core.trading.record.model.TradeSide
 import java.math.BigDecimal
 import java.math.RoundingMode
 

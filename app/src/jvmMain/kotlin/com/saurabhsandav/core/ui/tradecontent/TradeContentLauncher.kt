@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tradecontent
 
 import androidx.compose.runtime.Composable
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.charts.ChartsScreen
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager

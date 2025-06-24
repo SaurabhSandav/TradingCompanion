@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import com.saurabhsandav.core.trades.model.AttachmentFileId
-import com.saurabhsandav.core.trades.model.TradeExecutionId
-import com.saurabhsandav.core.trades.model.TradeId
-import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.trading.record.model.AttachmentFileId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionId
+import com.saurabhsandav.core.trading.record.model.TradeId
+import com.saurabhsandav.core.trading.record.model.TradeNoteId
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer

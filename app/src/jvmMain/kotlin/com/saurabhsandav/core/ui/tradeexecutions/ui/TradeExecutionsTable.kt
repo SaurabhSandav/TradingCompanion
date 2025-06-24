@@ -23,7 +23,7 @@ import com.saurabhsandav.core.thirdparty.paging.compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging.compose.itemContentType
 import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
-import com.saurabhsandav.core.trades.model.TradeExecutionId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog

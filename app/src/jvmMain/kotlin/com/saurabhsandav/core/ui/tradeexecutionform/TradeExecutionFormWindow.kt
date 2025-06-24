@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.Instrument
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults

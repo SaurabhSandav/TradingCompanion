@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.Edit

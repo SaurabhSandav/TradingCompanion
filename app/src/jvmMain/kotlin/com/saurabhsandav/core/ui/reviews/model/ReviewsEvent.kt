@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.reviews.model
 
-import com.saurabhsandav.core.trades.model.ReviewId
+import com.saurabhsandav.core.trading.record.model.ReviewId
 
 internal sealed class ReviewsEvent {
 

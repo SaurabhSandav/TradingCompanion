@@ -2,8 +2,8 @@ package com.saurabhsandav.core.utils
 
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.TradingProfile
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first

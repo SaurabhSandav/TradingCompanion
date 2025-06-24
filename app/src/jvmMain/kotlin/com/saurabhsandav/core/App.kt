@@ -14,7 +14,7 @@ import co.touchlab.kermit.Logger
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.di.ScreensModule
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager

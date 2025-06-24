@@ -1,9 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.saurabhsandav.core.trades.TradingProfiles
-import com.saurabhsandav.core.trades.model.Instrument
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.backtest.BacktestAccount
 import com.saurabhsandav.core.trading.backtest.BacktestBroker
 import com.saurabhsandav.core.trading.backtest.BacktestOrder
@@ -11,6 +7,10 @@ import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.trading.backtest.Limit
 import com.saurabhsandav.core.trading.backtest.StopMarket
 import com.saurabhsandav.core.trading.backtest.newCandle
+import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.model.Instrument
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope

@@ -183,7 +183,7 @@ sqldelight {
         }
 
         create("TradesDB") {
-            packageName = "com.saurabhsandav.core.trades"
+            packageName = "com.saurabhsandav.core.trading.record"
             srcDirs("src/commonMain/sqldelight/trades")
             schemaOutputDirectory = file("src/commonMain/sqldelight/trades")
             dialect(libs.sqldelight.dialect.sqlite338)

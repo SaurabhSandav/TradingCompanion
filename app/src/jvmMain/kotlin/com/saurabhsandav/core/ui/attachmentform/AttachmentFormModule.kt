@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.attachmentform
 
 import com.saurabhsandav.core.di.AppModule
-import com.saurabhsandav.core.trades.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import kotlinx.coroutines.CoroutineScope
 

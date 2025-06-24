@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.trades.model.TradeExecutionSide
+import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import java.math.BigDecimal
 
 sealed interface OrderExecutionType {

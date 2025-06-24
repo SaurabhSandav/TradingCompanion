@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.attachmentform.model
 
-import com.saurabhsandav.core.trades.model.AttachmentFileId
-import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trading.record.model.AttachmentFileId
+import com.saurabhsandav.core.trading.record.model.TradeId
 
 internal sealed class AttachmentFormType {
 

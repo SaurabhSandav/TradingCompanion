@@ -35,7 +35,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.window.WindowPlacement
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
-import com.saurabhsandav.core.trades.model.TradeNoteId
+import com.saurabhsandav.core.trading.record.model.TradeNoteId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager

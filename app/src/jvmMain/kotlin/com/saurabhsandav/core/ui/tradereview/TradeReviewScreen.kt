@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.paging.PagingData
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trades.model.ProfileId
-import com.saurabhsandav.core.trades.model.TradeFilter
+import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.record.model.TradeFilter
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.SideSheetHost
 import com.saurabhsandav.core.ui.common.SideSheetState

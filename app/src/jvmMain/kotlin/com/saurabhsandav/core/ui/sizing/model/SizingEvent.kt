@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.sizing.model
 
-import com.saurabhsandav.core.trades.model.SizingTradeId
+import com.saurabhsandav.core.trading.record.model.SizingTradeId
 
 internal sealed class SizingEvent {
 

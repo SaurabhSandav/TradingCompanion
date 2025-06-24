@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.trade
 
-import com.saurabhsandav.core.trades.Trade
-import com.saurabhsandav.core.trades.brokerageAt
-import com.saurabhsandav.core.trades.model.TradeSide
+import com.saurabhsandav.core.trading.record.Trade
+import com.saurabhsandav.core.trading.record.brokerageAt
+import com.saurabhsandav.core.trading.record.model.TradeSide
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import java.math.BigDecimal
 import java.math.MathContext

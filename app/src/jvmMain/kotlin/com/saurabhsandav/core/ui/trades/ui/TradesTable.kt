@@ -25,7 +25,7 @@ import com.saurabhsandav.core.thirdparty.paging.compose.LazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.core.thirdparty.paging.compose.itemContentType
 import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
-import com.saurabhsandav.core.trades.model.TradeId
+import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.table.LazyTable
