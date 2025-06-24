@@ -12,20 +12,6 @@ import kotlinx.coroutines.plus
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-fun <E> MutableList<E>.removeFirst(n: Int = 1) {
-    subList(
-        fromIndex = 0,
-        toIndex = (n + 1).coerceAtMost(size),
-    ).clear()
-}
-
-fun <E> MutableList<E>.removeLast(n: Int = 1) {
-    subList(
-        fromIndex = (size - n).coerceAtLeast(0),
-        toIndex = size,
-    ).clear()
-}
-
 internal inline fun <T, R> Flow<List<T>>.mapList(crossinline transform: suspend (value: T) -> R): Flow<List<R>> =
     transform { list ->
         return@transform emit(list.map { transform(it) })

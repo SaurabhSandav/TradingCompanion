@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
-import com.saurabhsandav.core.trading.MutableCandleSeries
-import com.saurabhsandav.core.trading.asCandleSeries
+import com.saurabhsandav.core.trading.core.MutableCandleSeries
+import com.saurabhsandav.core.trading.core.asCandleSeries
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker

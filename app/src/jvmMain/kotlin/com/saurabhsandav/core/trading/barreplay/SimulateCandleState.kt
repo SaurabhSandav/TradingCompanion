@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.Candle
+import com.saurabhsandav.core.trading.core.Candle
 import java.math.BigDecimal
 
 internal fun Candle.atState(state: BarReplay.CandleState): Candle {

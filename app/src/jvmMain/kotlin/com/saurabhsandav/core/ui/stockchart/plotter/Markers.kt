@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
-import com.saurabhsandav.core.trading.CandleSeries
+import com.saurabhsandav.core.trading.core.CandleSeries
 import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.utils.binarySearchByAsResult

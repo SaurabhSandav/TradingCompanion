@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading
+package com.saurabhsandav.core.trading.core
 
 fun interface SessionChecker {
 

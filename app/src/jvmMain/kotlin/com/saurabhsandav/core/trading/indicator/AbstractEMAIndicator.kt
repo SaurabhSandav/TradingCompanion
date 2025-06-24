@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.Indicator
+import com.saurabhsandav.core.trading.core.Indicator
+import com.saurabhsandav.core.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.core.trading.indicator.base.RecursiveCachedIndicator
-import com.saurabhsandav.core.trading.indicator.base.buildIndicatorCacheKey
 import java.math.BigDecimal
 
 abstract class AbstractEMAIndicator(

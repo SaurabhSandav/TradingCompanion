@@ -1,6 +1,5 @@
-package com.saurabhsandav.core.trading.indicator.base
+package com.saurabhsandav.core.trading.core
 
-import com.saurabhsandav.core.trading.Indicator
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 

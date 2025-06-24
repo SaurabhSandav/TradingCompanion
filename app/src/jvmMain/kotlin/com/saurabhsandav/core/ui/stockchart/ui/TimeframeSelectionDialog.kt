@@ -16,7 +16,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.toLabel
 

@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel

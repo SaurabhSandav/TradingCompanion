@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.SubmitReplayForm

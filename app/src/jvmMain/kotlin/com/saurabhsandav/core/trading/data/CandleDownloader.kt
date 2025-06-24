@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.data
 
 import com.github.michaelbull.result.Result
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
 

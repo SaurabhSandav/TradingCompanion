@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading
+package com.saurabhsandav.core.trading.core
 
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes

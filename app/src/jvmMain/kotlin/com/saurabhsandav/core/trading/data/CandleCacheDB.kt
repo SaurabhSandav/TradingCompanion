@@ -4,8 +4,8 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.emitInto

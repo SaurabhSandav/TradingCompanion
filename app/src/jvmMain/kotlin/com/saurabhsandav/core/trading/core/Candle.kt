@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading
+package com.saurabhsandav.core.trading.core
 
 import com.saurabhsandav.core.utils.BigDecimalSerializer
 import com.saurabhsandav.core.utils.InstantEpochSecondsSerializer

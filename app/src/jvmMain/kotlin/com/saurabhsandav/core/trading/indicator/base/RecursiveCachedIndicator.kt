@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.indicator.base
 
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.Indicator
+import com.saurabhsandav.core.trading.core.CandleSeries
+import com.saurabhsandav.core.trading.core.Indicator
 
 abstract class RecursiveCachedIndicator<T : Any>(
     candleSeries: CandleSeries,

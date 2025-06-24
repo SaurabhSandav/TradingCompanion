@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.barreplay
 
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.CandleSeries
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlin.time.Instant

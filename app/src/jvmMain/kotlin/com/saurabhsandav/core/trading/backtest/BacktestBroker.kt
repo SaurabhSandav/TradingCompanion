@@ -1,13 +1,13 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Params
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Canceled
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Executed
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Open
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Rejected
 import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.RejectionCause
-import com.saurabhsandav.core.trading.isLong
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.isLong
 import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.record.model.TradeSide
 import com.saurabhsandav.core.utils.Brokerage

@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
 import app.cash.turbine.test
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.trading.barreplay.CandleUtils
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
 import com.saurabhsandav.core.utils.binarySearchByAsResult

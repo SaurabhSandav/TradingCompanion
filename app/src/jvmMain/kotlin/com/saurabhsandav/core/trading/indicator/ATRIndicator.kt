@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.Indicator
+import com.saurabhsandav.core.trading.core.CandleSeries
+import com.saurabhsandav.core.trading.core.Indicator
 import java.math.BigDecimal
 
 class ATRIndicator(

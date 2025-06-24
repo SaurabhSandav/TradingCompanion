@@ -4,8 +4,8 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.asErr
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn

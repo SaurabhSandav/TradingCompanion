@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.indicator
 
-import com.saurabhsandav.core.trading.CandleSeries
-import com.saurabhsandav.core.trading.Indicator
-import com.saurabhsandav.core.trading.SessionChecker
+import com.saurabhsandav.core.trading.core.CandleSeries
+import com.saurabhsandav.core.trading.core.Indicator
+import com.saurabhsandav.core.trading.core.SessionChecker
 import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
 

@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
-import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.DailySessionChecker
-import com.saurabhsandav.core.trading.SessionChecker
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.CandleSeries
+import com.saurabhsandav.core.trading.core.SessionChecker
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.stockchart.StockChartParams

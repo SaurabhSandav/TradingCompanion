@@ -6,8 +6,8 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.toResultOr
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.Candle
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.Candle
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.ui.loginservice.fyers.FyersLoginService
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.fyersapi.model.CandleResolution

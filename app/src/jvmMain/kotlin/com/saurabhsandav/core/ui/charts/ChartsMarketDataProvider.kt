@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.trading.DailySessionChecker
-import com.saurabhsandav.core.trading.SessionChecker
-import com.saurabhsandav.core.trading.Timeframe
+import com.saurabhsandav.core.trading.core.SessionChecker
+import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
