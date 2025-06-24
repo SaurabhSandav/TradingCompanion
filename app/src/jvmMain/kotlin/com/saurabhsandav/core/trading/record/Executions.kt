@@ -11,7 +11,6 @@ import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeSide
-import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.brokerage
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
@@ -20,11 +19,12 @@ import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.MathContext
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.deleteExisting
 import kotlin.time.Instant
 
 internal class Executions(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
     private val attachmentsPath: Path,
     private val onTradesUpdated: suspend () -> Unit,
@@ -40,7 +40,7 @@ internal class Executions(
         price: BigDecimal,
         timestamp: Instant,
         locked: Boolean,
-    ): TradeExecutionId = withContext(appDispatchers.IO) {
+    ): TradeExecutionId = withContext(coroutineContext) {
 
         val executionId = tradesDB.transactionWithResult {
 
@@ -83,7 +83,7 @@ internal class Executions(
         side: TradeExecutionSide,
         price: BigDecimal,
         timestamp: Instant,
-    ): Unit = withContext(appDispatchers.IO) {
+    ): Unit = withContext(coroutineContext) {
 
         val notLocked = isLocked(listOf(id)).single().locked.not()
 
@@ -129,7 +129,7 @@ internal class Executions(
         onTradesUpdated()
     }
 
-    suspend fun delete(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
+    suspend fun delete(ids: List<TradeExecutionId>) = withContext(coroutineContext) {
 
         val noneLocked = isLocked(ids).none { it.locked }
 
@@ -183,7 +183,7 @@ internal class Executions(
         onTradesUpdated()
     }
 
-    suspend fun lock(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
+    suspend fun lock(ids: List<TradeExecutionId>) = withContext(coroutineContext) {
         tradesDB.tradeExecutionQueries.lock(ids)
     }
 
@@ -191,22 +191,22 @@ internal class Executions(
         return tradesDB.tradeExecutionQueries
             .getById(id)
             .asFlow()
-            .mapToOneOrNull(appDispatchers.IO)
+            .mapToOneOrNull(coroutineContext)
             .map { it ?: error("TradeExecution($id) not found") }
     }
 
     fun getTodayCount(): Flow<Long> {
-        return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getTodayCount().asFlow().mapToOne(coroutineContext)
     }
 
     fun getBeforeTodayCount(): Flow<Long> {
-        return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(coroutineContext)
     }
 
     fun getAllPagingSource(): PagingSource<Int, TradeExecution> = QueryPagingSource(
         countQuery = tradesDB.tradeExecutionQueries.getAllCount(),
         transacter = tradesDB.tradeExecutionQueries,
-        context = appDispatchers.IO,
+        context = coroutineContext,
         queryProvider = { limit, offset ->
 
             tradesDB.tradeExecutionQueries.getAllPaged(
@@ -220,7 +220,7 @@ internal class Executions(
         return tradesDB.tradeToExecutionMapQueries
             .getExecutionsByTrade(id, ::toTradeExecution)
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     fun getByTickerInInterval(
@@ -234,7 +234,7 @@ internal class Executions(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     fun getByTickerAndTradeIdsInInterval(
@@ -251,10 +251,10 @@ internal class Executions(
                 mapper = ::toTradeExecution,
             )
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
-    internal suspend fun deleteTrades(ids: List<TradeId>) = withContext(appDispatchers.IO) {
+    internal suspend fun deleteTrades(ids: List<TradeId>) = withContext(coroutineContext) {
 
         tradesDB.transaction {
 
@@ -265,7 +265,7 @@ internal class Executions(
         }
     }
 
-    private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(appDispatchers.IO) {
+    private suspend fun isLocked(ids: List<TradeExecutionId>) = withContext(coroutineContext) {
         tradesDB.tradeExecutionQueries.isLocked(ids).executeAsList()
     }
 

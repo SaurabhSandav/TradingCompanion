@@ -5,36 +5,36 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeTagId
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 class Tags internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
 ) {
 
     fun getAll(): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeTagQueries.getAll().asFlow().mapToList(coroutineContext)
     }
 
     fun getById(id: TradeTagId): Flow<TradeTag> {
-        return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeTagQueries.getById(id).asFlow().mapToOne(coroutineContext)
     }
 
     fun getByIds(ids: List<TradeTagId>): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeTagQueries.getAllByIds(ids).asFlow().mapToList(coroutineContext)
     }
 
     fun getSuggested(
         filter: String,
         ignoreIds: List<TradeTagId> = emptyList(),
     ): Flow<List<TradeTag>> {
-        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, filter).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeTagQueries.getSuggestedTags(ignoreIds, filter).asFlow().mapToList(coroutineContext)
     }
 
     fun getForTrade(id: TradeId): Flow<List<TradeTag>> {
-        return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeToTagMapQueries.getTagsByTrade(id).asFlow().mapToList(coroutineContext)
     }
 
     fun getSuggestedForTrades(
@@ -44,14 +44,14 @@ class Tags internal constructor(
         return tradesDB.tradeToTagMapQueries
             .getSuggestedTagsForTrades(tradeIds, filterQuery)
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     suspend fun create(
         name: String,
         description: String,
         color: Int?,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeTagQueries.insert(
             name = name,
@@ -65,7 +65,7 @@ class Tags internal constructor(
         name: String,
         description: String,
         color: Int?,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeTagQueries.update(
             id = id,
@@ -75,14 +75,14 @@ class Tags internal constructor(
         )
     }
 
-    suspend fun delete(id: TradeTagId) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: TradeTagId) = withContext(coroutineContext) {
         tradesDB.tradeTagQueries.delete(id)
     }
 
     suspend fun isNameUnique(
         name: String,
         ignoreTagId: TradeTagId? = null,
-    ): Boolean = withContext(appDispatchers.IO) {
+    ): Boolean = withContext(coroutineContext) {
         return@withContext tradesDB.tradeTagQueries
             .run {
                 when {
@@ -96,7 +96,7 @@ class Tags internal constructor(
     suspend fun add(
         tradeIds: List<TradeId>,
         tagId: TradeTagId,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.transaction {
 
@@ -113,7 +113,7 @@ class Tags internal constructor(
     suspend fun remove(
         tradeId: TradeId,
         tagId: TradeTagId,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeToTagMapQueries.delete(
             tradeId = tradeId,

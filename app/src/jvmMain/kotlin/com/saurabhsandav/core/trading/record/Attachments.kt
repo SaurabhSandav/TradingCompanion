@@ -6,7 +6,6 @@ import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trading.record.model.AttachmentFileId
 import com.saurabhsandav.core.trading.record.model.AttachmentWithFile
 import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.apache.tika.Tika
@@ -14,6 +13,7 @@ import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.util.Locale
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
@@ -22,7 +22,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 
 class Attachments internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
     private val attachmentsPath: Path,
 ) {
@@ -36,14 +36,14 @@ class Attachments internal constructor(
         return tradesDB.tradeAttachmentQueries
             .getByIdWithFile(tradeId, fileId, ::toAttachmentWithFile)
             .asFlow()
-            .mapToOne(appDispatchers.IO)
+            .mapToOne(coroutineContext)
     }
 
     fun getForTradeWithFile(id: TradeId): Flow<List<AttachmentWithFile>> {
         return tradesDB.tradeAttachmentQueries
             .getByTradeWithFile(id, ::toAttachmentWithFile)
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     suspend fun add(
@@ -51,7 +51,7 @@ class Attachments internal constructor(
         name: String,
         description: String,
         pathStr: String,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.transaction {
 
@@ -105,7 +105,7 @@ class Attachments internal constructor(
         fileId: AttachmentFileId,
         name: String,
         description: String,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeAttachmentQueries.update(
             tradeId = tradeId,
@@ -118,7 +118,7 @@ class Attachments internal constructor(
     suspend fun remove(
         tradeId: TradeId,
         fileId: AttachmentFileId,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.transaction {
 

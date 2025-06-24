@@ -4,13 +4,13 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -347,7 +347,7 @@ class TradingProfilesTest {
         }
 
         val tradingProfiles = TradingProfiles(
-            appDispatchers = FakeAppDispatchers(this),
+            coroutineContext = StandardTestDispatcher(testScheduler),
             appPaths = appPaths,
             dbUrlProvider = dbUrlProvider,
             appDB = AppDB(driver),

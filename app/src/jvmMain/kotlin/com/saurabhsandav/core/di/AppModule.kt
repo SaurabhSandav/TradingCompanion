@@ -147,21 +147,21 @@ internal class AppModule(
             fyersApi = fyersApi,
         ),
         candleCache = CandleCacheDB(
-            appDispatchers = appDispatchers,
+            coroutineContext = appDispatchers.IO,
             candleDB = candleDB,
             candleQueriesCollection = candleQueriesCollection,
         ),
     )
 
     val tradingProfiles = TradingProfiles(
-        appDispatchers = appDispatchers,
+        coroutineContext = appDispatchers.IO,
         appPaths = appPaths,
         dbUrlProvider = dbUrlProvider,
         appDB = appDB,
     )
 
     val tradeExcursionsGenerator = TradeExcursionsGenerator(
-        appDispatchers = appDispatchers,
+        coroutineContext = appDispatchers.IO,
         tradingProfiles = tradingProfiles,
         candleRepo = candleRepo,
     )

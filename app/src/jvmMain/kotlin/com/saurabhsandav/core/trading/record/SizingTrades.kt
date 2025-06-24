@@ -4,13 +4,13 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.core.trading.record.model.SizingTradeId
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import kotlin.coroutines.CoroutineContext
 
 internal class SizingTrades(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
 ) {
 
@@ -18,7 +18,7 @@ internal class SizingTrades(
         ticker: String,
         entry: BigDecimal,
         stop: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.sizingTradeQueries.insert(
             ticker = ticker,
@@ -30,25 +30,25 @@ internal class SizingTrades(
     suspend fun updateEntry(
         id: SizingTradeId,
         entry: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
         tradesDB.sizingTradeQueries.updateEntry(id = id, entry = entry)
     }
 
     suspend fun updateStop(
         id: SizingTradeId,
         stop: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
         tradesDB.sizingTradeQueries.updateStop(id = id, stop = stop)
     }
 
-    suspend fun delete(id: SizingTradeId) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: SizingTradeId) = withContext(coroutineContext) {
         tradesDB.sizingTradeQueries.delete(id)
     }
 
     val allTrades: Flow<List<SizingTrade>>
-        get() = tradesDB.sizingTradeQueries.getAll().asFlow().mapToList(appDispatchers.IO)
+        get() = tradesDB.sizingTradeQueries.getAll().asFlow().mapToList(coroutineContext)
 
     fun getById(id: SizingTradeId): Flow<SizingTrade> {
-        return tradesDB.sizingTradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.sizingTradeQueries.getById(id).asFlow().mapToOne(coroutineContext)
     }
 }

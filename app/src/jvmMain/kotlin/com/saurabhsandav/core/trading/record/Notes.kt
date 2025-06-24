@@ -4,25 +4,25 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeNoteId
-import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
 class Notes internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
 ) {
 
     fun getForTrade(id: TradeId): Flow<List<TradeNote>> {
-        return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeNoteQueries.getByTrade(id).asFlow().mapToList(coroutineContext)
     }
 
     suspend fun add(
         tradeId: TradeId,
         note: String,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         val now = Clock.System.now().withoutNanoseconds()
 
@@ -37,7 +37,7 @@ class Notes internal constructor(
     suspend fun update(
         id: TradeNoteId,
         note: String,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeNoteQueries.update(
             id = id,
@@ -46,7 +46,7 @@ class Notes internal constructor(
         )
     }
 
-    suspend fun delete(id: TradeNoteId) = withContext(appDispatchers.IO) {
+    suspend fun delete(id: TradeNoteId) = withContext(coroutineContext) {
         tradesDB.tradeNoteQueries.delete(id)
     }
 }

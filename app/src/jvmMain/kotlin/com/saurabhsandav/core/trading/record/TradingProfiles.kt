@@ -7,7 +7,6 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +15,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createSymbolicLinkPointingTo
@@ -26,7 +26,7 @@ import kotlin.io.path.notExists
 import kotlin.uuid.Uuid
 
 internal class TradingProfiles(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val appPaths: AppPaths,
     private val dbUrlProvider: DbUrlProvider,
     private val appDB: AppDB,
@@ -39,7 +39,7 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-    ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
+    ): Flow<TradingProfile> = withContext(coroutineContext) {
 
         require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
 
@@ -57,7 +57,7 @@ internal class TradingProfiles(
             val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
 
             // Return TradingProfile
-            appDB.tradingProfileQueries.get(id).asFlow().mapToOne(appDispatchers.IO)
+            appDB.tradingProfileQueries.get(id).asFlow().mapToOne(this@TradingProfiles.coroutineContext)
         }
     }
 
@@ -66,7 +66,7 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-    ): Unit = withContext(appDispatchers.IO) {
+    ): Unit = withContext(coroutineContext) {
 
         // Get profile details before update
         val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
@@ -98,7 +98,7 @@ internal class TradingProfiles(
         name: String,
         description: String,
         isTraining: Boolean,
-    ): Flow<TradingProfile> = withContext(appDispatchers.IO) {
+    ): Flow<TradingProfile> = withContext(coroutineContext) {
 
         require(isProfileNameUnique(name)) { "Profile name ($name) is not unique" }
 
@@ -148,11 +148,11 @@ internal class TradingProfiles(
             return@transactionWithResult appDB.tradingProfileQueries
                 .get(newProfileId)
                 .asFlow()
-                .mapToOne(appDispatchers.IO)
+                .mapToOne(this@TradingProfiles.coroutineContext)
         }
     }
 
-    suspend fun deleteProfile(id: ProfileId): Unit = withContext(appDispatchers.IO) {
+    suspend fun deleteProfile(id: ProfileId): Unit = withContext(coroutineContext) {
 
         // Remove record
         records.remove(id)
@@ -169,31 +169,31 @@ internal class TradingProfiles(
     }
 
     val allProfiles: Flow<List<TradingProfile>> =
-        appDB.tradingProfileQueries.getAll().asFlow().mapToList(appDispatchers.IO)
+        appDB.tradingProfileQueries.getAll().asFlow().mapToList(coroutineContext)
 
     fun getProfile(id: ProfileId): Flow<TradingProfile> {
         return getProfileOrNull(id).map { it ?: error("Profile($id) not found") }
     }
 
     fun getProfileOrNull(id: ProfileId): Flow<TradingProfile?> {
-        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(appDispatchers.IO)
+        return appDB.tradingProfileQueries.get(id).asFlow().mapToOneOrNull(coroutineContext)
     }
 
     fun getDefaultProfile(): Flow<TradingProfile> {
         return with(appDB.tradingProfileQueries) {
             createDefaultIfEmpty()
-            getDefault().asFlow().mapToOne(appDispatchers.IO)
+            getDefault().asFlow().mapToOne(coroutineContext)
         }
     }
 
-    suspend fun exists(id: ProfileId): Boolean = withContext(appDispatchers.IO) {
+    suspend fun exists(id: ProfileId): Boolean = withContext(coroutineContext) {
         return@withContext appDB.tradingProfileQueries.exists(id).executeAsOne()
     }
 
     suspend fun isProfileNameUnique(
         name: String,
         ignoreProfileId: ProfileId? = null,
-    ): Boolean = withContext(appDispatchers.IO) {
+    ): Boolean = withContext(coroutineContext) {
         return@withContext appDB.tradingProfileQueries
             .run {
                 when {
@@ -208,7 +208,7 @@ internal class TradingProfiles(
 
         records.getOrPut(id) {
 
-            withContext(appDispatchers.IO) {
+            withContext(coroutineContext) {
 
                 val profile = appDB.tradingProfileQueries.get(id).executeAsOne()
                 val profileFilesPath = profile.filesPath
@@ -222,7 +222,7 @@ internal class TradingProfiles(
                 }
 
                 TradingRecord(
-                    appDispatchers = appDispatchers,
+                    coroutineContext = this@TradingProfiles.coroutineContext,
                     recordPath = profileFilesPath,
                     dbUrlProvider = dbUrlProvider,
                     onTradeCountsUpdated = { tradeCount, tradeCountOpen ->

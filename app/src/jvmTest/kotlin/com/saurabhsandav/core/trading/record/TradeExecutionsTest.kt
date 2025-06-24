@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.saurabhsandav.core.FakeAppDispatchers
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.core.trading.record.model.Instrument
@@ -12,6 +11,7 @@ import com.saurabhsandav.core.trading.record.testdata.MultipleTickersInIntervalD
 import com.saurabhsandav.core.trading.record.testdata.SimpleTradesData
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
@@ -33,7 +33,7 @@ class TradeExecutionsTest {
     private val scope = TestScope()
     private val tradesDB = createTradesDB()
     private var executions = Executions(
-        appDispatchers = FakeAppDispatchers(scope),
+        coroutineContext = StandardTestDispatcher(scope.testScheduler),
         tradesDB = tradesDB,
         attachmentsPath = Path(""),
         onTradesUpdated = {},

@@ -3,13 +3,13 @@ package com.saurabhsandav.core.trading.record
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import kotlin.coroutines.CoroutineContext
 
 class Excursions internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
 ) {
 
@@ -23,7 +23,7 @@ class Excursions internal constructor(
         sessionMfePnl: BigDecimal,
         sessionMaePrice: BigDecimal,
         sessionMaePnl: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         // Save Excursions
         tradesDB.tradeExcursionsQueries.insert(
@@ -40,6 +40,6 @@ class Excursions internal constructor(
     }
 
     fun get(id: TradeId): Flow<TradeExcursions?> {
-        return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
+        return tradesDB.tradeExcursionsQueries.getByTrade(id).asFlow().mapToOneOrNull(coroutineContext)
     }
 }

@@ -2,39 +2,37 @@ package com.saurabhsandav.core.trading.record
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeSide
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import kotlin.coroutines.CoroutineContext
 
 class Stops internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
 ) {
 
     fun getForTrade(id: TradeId): Flow<List<TradeStop>> {
-        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeStopQueries.getByTrade(id).asFlow().mapToList(coroutineContext)
     }
 
     fun getPrimary(id: TradeId): Flow<TradeStop?> {
-        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(appDispatchers.IO)
+        return tradesDB.tradeStopQueries.getPrimaryStopByTrade(id).asFlow().mapToOneOrNull(coroutineContext)
     }
 
     fun getPrimary(ids: List<TradeId>): Flow<List<TradeStop>> {
-        return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeStopQueries.getPrimaryStopsByTrades(ids).asFlow().mapToList(coroutineContext)
     }
 
     suspend fun add(
         id: TradeId,
         price: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
-        val trade = tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO).first()
+        val trade = tradesDB.tradeQueries.getById(id).executeAsOne()
 
         val stopIsValid = when (trade.side) {
             TradeSide.Long -> price < trade.averageEntry
@@ -56,7 +54,7 @@ class Stops internal constructor(
     suspend fun delete(
         id: TradeId,
         price: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         // Delete stop
         tradesDB.tradeStopQueries.delete(tradeId = id, price = price)
@@ -68,7 +66,7 @@ class Stops internal constructor(
     suspend fun setPrimary(
         id: TradeId,
         price: BigDecimal,
-    ) = withContext(appDispatchers.IO) {
+    ) = withContext(coroutineContext) {
 
         tradesDB.tradeStopQueries.setPrimary(tradeId = id, price = price)
     }

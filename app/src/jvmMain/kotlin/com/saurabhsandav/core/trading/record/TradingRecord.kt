@@ -4,13 +4,13 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV5
-import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.DbUrlProvider
 import java.nio.file.Path
 import java.util.Properties
+import kotlin.coroutines.CoroutineContext
 
 internal class TradingRecord(
-    appDispatchers: AppDispatchers,
+    coroutineContext: CoroutineContext,
     recordPath: Path,
     dbUrlProvider: DbUrlProvider,
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
@@ -35,7 +35,7 @@ internal class TradingRecord(
     }
 
     val executions = Executions(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
         attachmentsPath = attachmentsPath,
         onTradesUpdated = {
@@ -50,49 +50,49 @@ internal class TradingRecord(
     )
 
     val trades = Trades(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
         executions = executions,
     )
 
     val stops = Stops(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val targets = Targets(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val tags = Tags(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val notes = Notes(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val attachments = Attachments(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
         attachmentsPath = attachmentsPath,
     )
 
     val excursions = Excursions(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val reviews = Reviews(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 
     val sizingTrades = SizingTrades(
-        appDispatchers = appDispatchers,
+        coroutineContext = coroutineContext,
         tradesDB = tradesDB,
     )
 }

@@ -10,7 +10,6 @@ import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.trading.record.model.TradeFilter
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeSort
-import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalTime
@@ -18,11 +17,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import kotlinx.datetime.offsetAt
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Instant
 
 class Trades internal constructor(
-    private val appDispatchers: AppDispatchers,
+    private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
     private val executions: Executions,
 ) {
@@ -30,30 +30,30 @@ class Trades internal constructor(
     suspend fun delete(ids: List<TradeId>) = executions.deleteTrades(ids)
 
     val allTrades: Flow<List<Trade>>
-        get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(appDispatchers.IO)
+        get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(coroutineContext)
 
     fun exists(id: Long): Flow<Boolean> {
-        return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(coroutineContext)
     }
 
     fun exists(ids: List<Long>): Flow<Map<Long, Boolean>> {
         return tradesDB.tradeQueries
             .getExistingIds(ids.map(::TradeId))
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
             .map { existingIds -> ids.associateWith { id -> TradeId(id) in existingIds } }
     }
 
     fun getById(id: TradeId): Flow<Trade> {
-        return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(appDispatchers.IO)
+        return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(coroutineContext)
     }
 
     fun getByIdOrNull(id: TradeId): Flow<Trade?> {
-        return tradesDB.tradeQueries.getById(id).asFlow().mapToOneOrNull(appDispatchers.IO)
+        return tradesDB.tradeQueries.getById(id).asFlow().mapToOneOrNull(coroutineContext)
     }
 
     fun getByIds(ids: List<TradeId>): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(coroutineContext)
     }
 
     fun getFilteredCount(filter: TradeFilter): Flow<Long> {
@@ -81,7 +81,7 @@ class Trades internal constructor(
             tickersCount = filter.tickers.size.toLong(),
         )
 
-        return query.asFlow().mapToOne(appDispatchers.IO)
+        return query.asFlow().mapToOne(coroutineContext)
     }
 
     fun getFiltered(
@@ -113,7 +113,7 @@ class Trades internal constructor(
             sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
         )
 
-        return query.asFlow().mapToList(appDispatchers.IO)
+        return query.asFlow().mapToList(coroutineContext)
     }
 
     fun getFilteredPagingSource(
@@ -145,7 +145,7 @@ class Trades internal constructor(
                 tickersCount = filter.tickers.size.toLong(),
             ),
             transacter = tradesDB.tradeQueries,
-            context = appDispatchers.IO,
+            context = coroutineContext,
             queryProvider = { limit, offset ->
 
                 tradesDB.tradeQueries.getFilteredPaged(
@@ -186,7 +186,7 @@ class Trades internal constructor(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     fun getByTickerAndIdsInInterval(
@@ -202,28 +202,28 @@ class Trades internal constructor(
                 to = range.endInclusive.toString(),
             )
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     fun getSuggestedTickers(
         query: String,
         ignore: List<String>,
     ): Flow<List<String>> {
-        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(appDispatchers.IO)
+        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(coroutineContext)
     }
 
     fun getForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {
         return tradesDB.tradeToExecutionMapQueries
             .getTradesByExecution(executionId)
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     fun getWithoutExcursionsBefore(instant: Instant): Flow<List<Trade>> {
         return tradesDB.tradeQueries
             .getWithoutExcursionsBeforeTimestamp(instant)
             .asFlow()
-            .mapToList(appDispatchers.IO)
+            .mapToList(coroutineContext)
     }
 
     private fun LocalTime.toOffsetFilterTimeString(): String {
