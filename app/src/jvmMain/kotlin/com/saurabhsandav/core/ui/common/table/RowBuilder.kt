@@ -7,14 +7,20 @@ import androidx.compose.ui.Modifier
 
 interface RowBuilder {
 
-    fun addCell(cell: TableCell, content: @Composable () -> Unit)
+    fun addCell(
+        cell: TableCell,
+        content: @Composable () -> Unit,
+    )
 }
 
 class RowBuilderImpl : RowBuilder {
 
     val contents = mutableMapOf<TableCell, @Composable () -> Unit>()
 
-    override fun addCell(cell: TableCell, content: @Composable () -> Unit) {
+    override fun addCell(
+        cell: TableCell,
+        content: @Composable () -> Unit,
+    ) {
         contents[cell] = content
     }
 }
