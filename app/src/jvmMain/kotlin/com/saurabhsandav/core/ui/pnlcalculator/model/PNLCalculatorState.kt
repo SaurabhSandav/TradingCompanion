@@ -1,7 +1,6 @@
-package com.saurabhsandav.core.ui.pnlcalculator
+package com.saurabhsandav.core.ui.pnlcalculator.model
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.form.FormModel
@@ -12,7 +11,28 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
-internal class PNLCalculatorModel(
+internal data class PNLCalculatorState(
+    val formModel: PNLCalculatorFormModel,
+    val pnlEntries: List<PNLEntry>,
+    val eventSink: (PNLCalculatorEvent) -> Unit,
+)
+
+class PNLEntry(
+    val id: Int,
+    val side: String,
+    val quantity: String,
+    val entry: String,
+    val exit: String,
+    val breakeven: String,
+    val pnl: String,
+    val isProfitable: Boolean,
+    val charges: String,
+    val netPNL: String,
+    val isNetProfitable: Boolean,
+    val isRemovable: Boolean = false,
+)
+
+internal class PNLCalculatorFormModel(
     quantity: String,
     isLong: Boolean,
     entry: String,
@@ -44,21 +64,4 @@ internal class PNLCalculatorModel(
             }
         }
     }
-
-    val pnlEntries = mutableStateListOf<PNLEntry>()
 }
-
-class PNLEntry(
-    val id: Int,
-    val side: String,
-    val quantity: String,
-    val entry: String,
-    val exit: String,
-    val breakeven: String,
-    val pnl: String,
-    val isProfitable: Boolean,
-    val charges: String,
-    val netPNL: String,
-    val isNetProfitable: Boolean,
-    val isRemovable: Boolean = false,
-)

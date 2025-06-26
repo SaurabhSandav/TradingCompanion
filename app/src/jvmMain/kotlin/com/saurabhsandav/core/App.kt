@@ -20,8 +20,6 @@ import com.saurabhsandav.core.ui.common.app.AppWindowManager
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.landing.LandingWindow
 import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
-import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindowParams
-import com.saurabhsandav.core.ui.pnlcalculator.rememberPNLCalculatorWindowState
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
@@ -166,12 +164,7 @@ internal fun App(
         pnlCalculatorWindowManager.Window {
 
             PNLCalculatorWindow(
-                state = rememberPNLCalculatorWindowState(
-                    params = PNLCalculatorWindowParams(
-                        operationType = PNLCalculatorWindowParams.OperationType.New,
-                        onCloseRequest = pnlCalculatorWindowManager::closeWindow,
-                    ),
-                ),
+                onCloseRequest = pnlCalculatorWindowManager::closeWindow,
             )
         }
 

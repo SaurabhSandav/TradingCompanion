@@ -6,6 +6,7 @@ import com.saurabhsandav.core.ui.attachmentform.AttachmentFormModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule
 import com.saurabhsandav.core.ui.charts.ChartsModule
 import com.saurabhsandav.core.ui.landing.LandingModule
+import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorModule
 import com.saurabhsandav.core.ui.profiles.ProfilesModule
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormModule
 import com.saurabhsandav.core.ui.review.ReviewModule
@@ -109,5 +110,9 @@ internal class ScreensModule(
 
     val attachmentFormModule: (CoroutineScope) -> AttachmentFormModule = { coroutineScope ->
         AttachmentFormModule(appModule, coroutineScope)
+    }
+
+    val pnlCalculatorModule: (CoroutineScope) -> PNLCalculatorModule = { coroutineScope ->
+        PNLCalculatorModule(coroutineScope)
     }
 }

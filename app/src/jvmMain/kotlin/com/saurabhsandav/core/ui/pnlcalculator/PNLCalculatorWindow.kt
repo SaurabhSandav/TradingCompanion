@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.pnlcalculator
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -20,8 +18,10 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,13 +30,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
+import com.saurabhsandav.core.LocalScreensModule
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
@@ -44,10 +45,19 @@ import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
+import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.Calculate
+import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCalculation
+import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
+import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
 import com.saurabhsandav.core.ui.theme.dimens
 
 @Composable
-internal fun PNLCalculatorWindow(state: PNLCalculatorWindowState) {
+internal fun PNLCalculatorWindow(onCloseRequest: () -> Unit) {
+
+    val scope = rememberCoroutineScope()
+    val screensModule = LocalScreensModule.current
+    val presenter = remember { screensModule.pnlCalculatorModule(scope).presenter() }
+    val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
         size = DpSize(width = 1150.dp, height = 600.dp),
@@ -55,52 +65,46 @@ internal fun PNLCalculatorWindow(state: PNLCalculatorWindowState) {
         forcePreferredPlacement = true,
     )
 
-    if (!state.isReady) return
-
     AppWindow(
-        onCloseRequest = state.params.onCloseRequest,
+        onCloseRequest = onCloseRequest,
         state = windowState,
         title = "Calculate PNL",
     ) {
 
         CalculatorForm(
-            model = state.model,
-            onRemoveCalculation = state::onRemoveCalculation,
-            onSubmit = state::onCalculate,
+            formModel = state.formModel,
+            pnlEntries = state.pnlEntries,
+            onCalculate = { state.eventSink(Calculate) },
+            onRemoveCalculation = { id -> state.eventSink(RemoveCalculation(id)) },
         )
     }
 }
 
 @Composable
 private fun CalculatorForm(
-    model: PNLCalculatorModel,
+    formModel: PNLCalculatorFormModel,
+    pnlEntries: List<PNLEntry>,
+    onCalculate: () -> Unit,
     onRemoveCalculation: (Int) -> Unit,
-    onSubmit: () -> Unit,
 ) {
 
     Row(Modifier.width(1100.dp).fillMaxHeight()) {
 
-        Column(
-            modifier = Modifier.padding(MaterialTheme.dimens.containerPadding).weight(1F).fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(
-                space = MaterialTheme.dimens.columnVerticalSpacing,
-                alignment = Alignment.CenterVertically,
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Form(
+            modifier = Modifier
+                .weight(1F)
+                .fillMaxHeight(),
+            formModels = listOf(formModel),
+            onSubmit = onCalculate,
         ) {
-
-            val validator = rememberFormValidator(
-                formModels = listOf(model),
-                onSubmit = onSubmit,
-            )
 
             SingleChoiceSegmentedButtonRow {
 
-                val isLong = model.isLongField.value
+                val isLong = formModel.isLongField.value
 
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                    onClick = { model.isLongField.value = false },
+                    onClick = { formModel.isLongField.value = false },
                     selected = !isLong,
                     colors = SegmentedButtonDefaults.colors(
                         activeContentColor = AppColor.LossRed,
@@ -111,7 +115,7 @@ private fun CalculatorForm(
 
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                    onClick = { model.isLongField.value = true },
+                    onClick = { formModel.isLongField.value = true },
                     selected = isLong,
                     colors = SegmentedButtonDefaults.colors(
                         activeContentColor = AppColor.ProfitGreen,
@@ -127,31 +131,31 @@ private fun CalculatorForm(
 
             OutlinedTextField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
-                value = model.quantityField.value,
-                onValueChange = { model.quantityField.value = it.trim() },
+                value = formModel.quantityField.value,
+                onValueChange = { formModel.quantityField.value = it.trim() },
                 label = { Text("Quantity") },
-                isError = model.quantityField.isError,
-                supportingText = model.quantityField.errorsMessagesAsSupportingText(),
+                isError = formModel.quantityField.isError,
+                supportingText = formModel.quantityField.errorsMessagesAsSupportingText(),
                 singleLine = true,
-                enabled = model.enableModification,
+                enabled = formModel.enableModification,
             )
 
             OutlinedTextField(
-                value = model.entryField.value,
-                onValueChange = { model.entryField.value = it.trim() },
+                value = formModel.entryField.value,
+                onValueChange = { formModel.entryField.value = it.trim() },
                 label = { Text("Entry") },
-                isError = model.entryField.isError,
-                supportingText = model.entryField.errorsMessagesAsSupportingText(),
+                isError = formModel.entryField.isError,
+                supportingText = formModel.entryField.errorsMessagesAsSupportingText(),
                 singleLine = true,
-                enabled = model.enableModification,
+                enabled = formModel.enableModification,
             )
 
             OutlinedTextField(
-                value = model.exitField.value,
-                onValueChange = { model.exitField.value = it.trim() },
+                value = formModel.exitField.value,
+                onValueChange = { formModel.exitField.value = it.trim() },
                 label = { Text("Exit") },
-                isError = model.exitField.isError,
-                supportingText = model.exitField.errorsMessagesAsSupportingText(),
+                isError = formModel.exitField.isError,
+                supportingText = formModel.exitField.errorsMessagesAsSupportingText(),
                 singleLine = true,
             )
 
@@ -183,7 +187,7 @@ private fun CalculatorForm(
         ) {
 
             items(
-                items = model.pnlEntries,
+                items = pnlEntries,
             ) { item ->
 
                 PNLTableSchema.SimpleRow(Modifier.animateItem()) {
