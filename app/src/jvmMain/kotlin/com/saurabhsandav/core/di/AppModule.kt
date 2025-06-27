@@ -136,7 +136,7 @@ internal class AppModule(
 
     val loginServicesManager by lazy { LoginServicesManager() }
 
-    val fyersApi by lazy { FyersApi(appPaths.cachePath) }
+    val fyersApi by lazy { FyersApi() }
 
     private val candleQueriesCollection = CandleQueriesCollection(driver = candleDBDriver)
 

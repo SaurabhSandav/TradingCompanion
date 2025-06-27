@@ -21,9 +21,6 @@ interface AppPaths {
     val appDBPath: Path
         get() = appDataPath.resolve("$appName.db")
 
-    val cachePath: Path
-        get() = appDataPath.resolve("cache")
-
     val candlesDBPath: Path
         get() = appDataPath.resolve("Candles.db")
 

@@ -36,7 +36,6 @@ kotlin {
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.softwork.kotlinxSerializationCsv)
 
             // KotlinX DateTime
             implementation(libs.kotlinx.datetime)

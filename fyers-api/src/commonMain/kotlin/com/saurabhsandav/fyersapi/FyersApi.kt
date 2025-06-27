@@ -1,6 +1,5 @@
 package com.saurabhsandav.fyersapi
 
-import app.softwork.serialization.csv.CSVFormat
 import com.saurabhsandav.fyersapi.model.CandleResolution
 import com.saurabhsandav.fyersapi.model.DateFormat
 import com.saurabhsandav.fyersapi.model.request.AuthValidationRequest
@@ -28,6 +27,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.URLBuilder
@@ -38,29 +38,16 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import java.io.IOException
-import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.getLastModifiedTime
-import kotlin.io.path.notExists
-import kotlin.io.path.readText
-import kotlin.io.path.writeBytes
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.toKotlinInstant
 
-public class FyersApi(
-    private val cachePath: Path,
-) {
+public class FyersApi {
 
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
-    }
-    private val csvFormat = CSVFormat {
-        includeHeader = false
     }
 
     private val client = HttpClient(OkHttp) {
@@ -178,60 +165,40 @@ public class FyersApi(
     }
 
     public suspend fun getNseCapitalMarketSymbols(): List<Symbol> = getSymbols(
-        cacheFileName = "NSE_CM",
-        url = "https://public.fyers.in/sym_details/NSE_CM.csv",
+        url = "https://public.fyers.in/sym_details/NSE_CM_sym_master.json",
     )
 
     public suspend fun getNseEquityDerivativeSymbols(): List<Symbol> = getSymbols(
-        cacheFileName = "NSE_FO",
-        url = "https://public.fyers.in/sym_details/NSE_FO.csv",
+        url = "https://public.fyers.in/sym_details/NSE_FO_sym_master.json",
     )
 
     public suspend fun getNseCurrencyDerivativeSymbols(): List<Symbol> = getSymbols(
-        cacheFileName = "NSE_CD",
-        url = "https://public.fyers.in/sym_details/NSE_CD.csv",
+        url = "https://public.fyers.in/sym_details/NSE_CD_sym_master.json",
+    )
+
+    public suspend fun getNseCommoditySymbols(): List<Symbol> = getSymbols(
+        url = "https://public.fyers.in/sym_details/NSE_COM_sym_master.json",
     )
 
     public suspend fun getBseCapitalMarketSymbols(): List<Symbol> = getSymbols(
-        cacheFileName = "BSE_CM",
-        url = "https://public.fyers.in/sym_details/BSE_CM.csv",
+        url = "https://public.fyers.in/sym_details/BSE_CM_sym_master.json",
+    )
+
+    public suspend fun getBseEquityDerivativeSymbols(): List<Symbol> = getSymbols(
+        url = "https://public.fyers.in/sym_details/BSE_FO_sym_master.json",
     )
 
     public suspend fun getMcxCommoditySymbols(): List<Symbol> = getSymbols(
-        cacheFileName = "MCX_COM",
         url = "https://public.fyers.in/sym_details/MCX_COM.csv",
     )
 
-    private suspend fun getSymbols(
-        cacheFileName: String,
-        url: String,
-    ): List<Symbol> = withContext(Dispatchers.IO) {
+    private suspend fun getSymbols(url: String): List<Symbol> = withContext(Dispatchers.IO) {
 
-        val fyersDir = cachePath.resolve(FyersApiCachePath)
-        val filePath = fyersDir.resolve(cacheFileName)
-
-        // Cache file doesn't exist or cache file is older than 24 hours
-        val shouldDownloadSymbols = filePath.notExists() ||
-            run {
-                val lastModifiedTime = filePath.getLastModifiedTime()
-                (lastModifiedTime.toInstant().toKotlinInstant() + 24.hours) < Clock.System.now()
-            }
-
-        // Download symbol data file
-        if (shouldDownloadSymbols) {
-
-            // Create folders if they don't exist
-            if (fyersDir.notExists()) fyersDir.createDirectories()
-
-            // Download symbol data
-            val symbolData = client.get(url).body<ByteArray>()
-
-            // Write symbol data to file
-            filePath.writeBytes(symbolData)
+        val body = client.get(url).bodyAsText()
+        val jsonObject = json.decodeFromString<JsonObject>(body)
+        val symbols = jsonObject.map { (_, value) ->
+            json.decodeFromJsonElement<Symbol>(value)
         }
-
-        val symbolData = filePath.readText()
-        val symbols = csvFormat.decodeFromString<List<Symbol>>(symbolData)
 
         return@withContext symbols
     }
@@ -259,9 +226,5 @@ public class FyersApi(
     } catch (e: Exception) {
         ensureActive()
         ApiResult.unknownFailure(e)
-    }
-
-    private companion object {
-        private const val FyersApiCachePath = "FyersApi"
     }
 }

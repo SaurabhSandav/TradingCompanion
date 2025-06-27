@@ -1,7 +1,10 @@
+@file:UseSerializers(BigDecimalSerializer::class)
+
 package com.saurabhsandav.fyersapi.model.response
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -11,23 +14,113 @@ import java.math.BigDecimal
 @Serializable
 public data class Symbol(
     val fyToken: String,
-    val details: String,
-    val exchangeInstrumentType: ExchangeInstrumentType,
-    val minLotSize: Int,
-    @Serializable(with = BigDecimalSerializer::class)
-    val tickSize: BigDecimal,
     val isin: String,
+    val exSymbol: String,
+    val symDetails: String,
+    val symTicker: String,
+    val exchange: Exchange,
+    val segment: Segment,
+    val exSymName: String,
+    val exToken: Int,
+    val exSeries: String,
+    val optType: String,
+    val underSym: String,
+    val underFyTok: String,
+    val exInstType: ExchangeInstrumentType,
+    val minLotSize: Int,
+    val tickSize: BigDecimal,
     val tradingSession: String,
-    val lastUpdateDate: String,
+    val lastUpdate: String,
     val expiryDate: String,
-    val ticker: String,
-    val scripCode: Int,
-    val underlyingScripCode: String,
-    @Serializable(with = BigDecimalSerializer::class)
     val strikePrice: BigDecimal,
-    val optionType: String,
-    val underlyingFyToken: String,
+    val qtyFreeze: String,
+    val tradeStatus: Int,
+    val currencyCode: String,
+    val upperPrice: BigDecimal,
+    val lowerPrice: BigDecimal,
+    val faceValue: BigDecimal,
+    val qtyMultiplier: BigDecimal,
+    val previousClose: BigDecimal,
+    val previousOi: BigDecimal,
+    val asmGsmVal: String,
+    val exchangeName: String,
+    val symbolDesc: String,
+    val originalExpDate: String?,
+    val is_mtf_tradable: Int,
+    val mtf_margin: BigDecimal,
+    val stream: String,
 )
+
+@Serializable(with = ExchangeSerializer::class)
+public enum class Exchange(
+    internal val value: Int,
+) {
+    NSE(10),
+    MCX(11),
+    BSE(12),
+    ;
+
+    internal companion object {
+
+        fun fromInt(intValue: Int): Exchange {
+            return enumValues<Exchange>()
+                .find { it.value == intValue }
+                ?: error("Invalid exchange type: $intValue")
+        }
+    }
+}
+
+private object ExchangeSerializer : KSerializer<Exchange> {
+
+    override val descriptor = PrimitiveSerialDescriptor("ExchangeSerializer", PrimitiveKind.INT)
+
+    override fun deserialize(decoder: Decoder): Exchange {
+        return Exchange.fromInt(decoder.decodeInt())
+    }
+
+    override fun serialize(
+        encoder: Encoder,
+        value: Exchange,
+    ) {
+        encoder.encodeInt(value.value)
+    }
+}
+
+@Serializable(with = SegmentSerializer::class)
+public enum class Segment(
+    internal val value: Int,
+) {
+    CapitalMarket(10),
+    EquityDerivatives(11),
+    CurrencyDerivatives(12),
+    CommodityDerivatives(20),
+    ;
+
+    internal companion object {
+
+        fun fromInt(intValue: Int): Segment {
+            return enumValues<Segment>()
+                .find { it.value == intValue }
+                ?: error("Invalid segment type: $intValue")
+        }
+    }
+}
+
+private object SegmentSerializer : KSerializer<Segment> {
+
+    override val descriptor = PrimitiveSerialDescriptor("SegmentSerializer", PrimitiveKind.INT)
+
+    override fun deserialize(decoder: Decoder): Segment {
+        return Segment.fromInt(decoder.decodeInt())
+    }
+
+    override fun serialize(
+        encoder: Encoder,
+        value: Segment,
+    ) {
+        encoder.encodeInt(value.value)
+    }
+}
 
 @Serializable(with = ExchangeInstrumentTypeSerializer::class)
 public enum class ExchangeInstrumentType(
@@ -106,7 +199,6 @@ private object ExchangeInstrumentTypeSerializer : KSerializer<ExchangeInstrument
     }
 }
 
-// TODO: Move to shared module
 private object BigDecimalSerializer : KSerializer<BigDecimal> {
 
     override val descriptor = PrimitiveSerialDescriptor("BigDecimalSerializer", PrimitiveKind.STRING)
