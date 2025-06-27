@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.stockchart.data
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class LoadConfig(
     val initialLoadBefore: () -> Instant,

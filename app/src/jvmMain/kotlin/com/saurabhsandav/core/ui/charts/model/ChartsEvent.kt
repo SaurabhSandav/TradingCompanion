@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.charts.model
 
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal sealed class ChartsEvent {
 

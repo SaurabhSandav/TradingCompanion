@@ -6,7 +6,7 @@ import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class SimpleReplaySeriesBuilder(
     private val inputSeries: CandleSeries,

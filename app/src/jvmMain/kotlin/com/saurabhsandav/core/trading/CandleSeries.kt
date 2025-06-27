@@ -3,8 +3,8 @@ package com.saurabhsandav.core.trading
 import com.saurabhsandav.core.trading.indicator.base.IndicatorCache
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Instant
 import java.math.MathContext
+import kotlin.time.Instant
 
 interface CandleSeries : List<Candle> {
 

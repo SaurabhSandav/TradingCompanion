@@ -2,9 +2,9 @@ package com.saurabhsandav.core.trading
 
 import com.saurabhsandav.core.utils.BigDecimalSerializer
 import com.saurabhsandav.core.utils.InstantEpochSecondsSerializer
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 @Suppress("ktlint:standard:no-blank-line-in-list")
 @Serializable

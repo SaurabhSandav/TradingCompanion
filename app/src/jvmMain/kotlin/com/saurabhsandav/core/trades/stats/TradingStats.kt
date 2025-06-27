@@ -2,9 +2,9 @@ package com.saurabhsandav.core.trades.stats
 
 import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.model.TradeId
-import kotlinx.datetime.Instant
 import java.math.BigDecimal
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 data class TradingStats(
     val count: Int,

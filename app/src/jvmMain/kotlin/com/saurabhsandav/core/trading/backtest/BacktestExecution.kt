@@ -2,8 +2,8 @@ package com.saurabhsandav.core.trading.backtest
 
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeExecutionSide
-import kotlinx.datetime.Instant
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 data class BacktestExecution(
     val id: BacktestExecutionId,

@@ -38,8 +38,6 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toKotlinInstant
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.IOException
@@ -49,7 +47,9 @@ import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.notExists
 import kotlin.io.path.readText
 import kotlin.io.path.writeBytes
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.toKotlinInstant
 
 public class FyersApi(
     private val cachePath: Path,

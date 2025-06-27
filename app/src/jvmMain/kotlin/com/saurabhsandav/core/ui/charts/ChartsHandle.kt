@@ -6,7 +6,7 @@ import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class ChartsHandle {
 

@@ -25,8 +25,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 internal class FyersCandleDownloader(
     coroutineScope: CoroutineScope,

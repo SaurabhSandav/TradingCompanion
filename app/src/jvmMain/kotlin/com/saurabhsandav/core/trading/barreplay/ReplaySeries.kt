@@ -2,7 +2,7 @@ package com.saurabhsandav.core.trading.barreplay
 
 import com.saurabhsandav.core.trading.CandleSeries
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class ReplaySeries(
     replaySeries: CandleSeries,

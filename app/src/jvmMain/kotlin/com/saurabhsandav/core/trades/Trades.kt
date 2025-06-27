@@ -13,13 +13,13 @@ import com.saurabhsandav.core.trades.model.TradeSort
 import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import kotlinx.datetime.offsetAt
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 class Trades internal constructor(
     private val appDispatchers: AppDispatchers,

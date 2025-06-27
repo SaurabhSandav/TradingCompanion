@@ -15,12 +15,12 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.offsetIn
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 fun IChartApi.crosshairMove(): Flow<MouseEventParams> {
     return callbackFlow {

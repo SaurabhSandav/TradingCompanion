@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.Instant
 import java.math.MathContext
 import java.math.RoundingMode
+import kotlin.time.Instant
 
 interface MutableCandleSeries : CandleSeries {
 

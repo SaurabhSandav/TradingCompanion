@@ -5,7 +5,7 @@ import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.db.QueryResult
 import com.saurabhsandav.core.utils.InstantReadableColumnAdapter
 import com.saurabhsandav.core.utils.withoutNanoseconds
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 val migrationAfterV2 = AfterVersion(2) { driver ->
 

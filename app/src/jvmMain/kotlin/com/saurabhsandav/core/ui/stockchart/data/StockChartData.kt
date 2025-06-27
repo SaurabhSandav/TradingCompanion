@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Instant
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 internal class StockChartData(
     val source: CandleSource,

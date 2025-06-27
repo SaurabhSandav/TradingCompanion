@@ -35,8 +35,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.datetime.Instant
 import java.math.RoundingMode
+import kotlin.time.Instant
 
 class PlotterManager(
     private val coroutineScope: CoroutineScope,

@@ -10,7 +10,7 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 class Reviews internal constructor(
     private val appDispatchers: AppDispatchers,

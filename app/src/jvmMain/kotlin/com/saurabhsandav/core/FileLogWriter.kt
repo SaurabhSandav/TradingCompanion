@@ -9,12 +9,12 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import java.io.Writer
 import java.nio.file.StandardOpenOption.APPEND
 import java.nio.file.StandardOpenOption.CREATE
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
+import kotlin.time.Clock
 
 class FileLogWriter(
     appDispatchers: AppDispatchers,

@@ -4,7 +4,7 @@ import com.saurabhsandav.core.trading.CandleSeries
 import com.saurabhsandav.core.trading.Timeframe
 import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class BarReplay(
     private val timeframe: Timeframe,

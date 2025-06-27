@@ -5,7 +5,7 @@ import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.db.SqlDriver
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class CandlesQueries(
     driver: SqlDriver,

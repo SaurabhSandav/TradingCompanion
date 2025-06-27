@@ -4,8 +4,8 @@ import com.saurabhsandav.core.trades.Trade
 import com.saurabhsandav.core.trades.model.Instrument
 import com.saurabhsandav.core.trades.model.TradeId
 import com.saurabhsandav.core.trades.model.TradeSide
-import kotlinx.datetime.Instant
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 object TradingStatsUtils {
 

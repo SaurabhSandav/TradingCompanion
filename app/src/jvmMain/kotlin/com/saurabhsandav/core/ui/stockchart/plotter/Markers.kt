@@ -7,8 +7,8 @@ import com.saurabhsandav.core.utils.binarySearchByAsResult
 import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.lightweightcharts.data.Time
 import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers
-import kotlinx.datetime.Instant
 import java.math.BigDecimal
+import kotlin.time.Instant
 import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
 import com.saurabhsandav.lightweightcharts.plugin.TradeMarkers.Trade as ActualTradeMarker
 

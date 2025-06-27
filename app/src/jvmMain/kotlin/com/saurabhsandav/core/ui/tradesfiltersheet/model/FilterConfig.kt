@@ -14,7 +14,6 @@ import com.saurabhsandav.core.trades.model.pnlRange
 import com.saurabhsandav.core.trades.model.tags
 import com.saurabhsandav.core.trades.model.tickers
 import com.saurabhsandav.core.trades.model.timeRange
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -25,6 +24,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
+import kotlin.time.Clock
 
 data class FilterConfig(
     val openClosed: OpenClosed = OpenClosed.All,

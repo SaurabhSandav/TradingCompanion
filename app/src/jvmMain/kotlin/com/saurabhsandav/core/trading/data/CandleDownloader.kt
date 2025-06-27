@@ -4,7 +4,7 @@ import com.github.michaelbull.result.Result
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 interface CandleDownloader {
 

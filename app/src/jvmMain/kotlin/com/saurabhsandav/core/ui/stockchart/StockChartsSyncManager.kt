@@ -5,7 +5,7 @@ import com.saurabhsandav.lightweightcharts.data.LogicalRange
 import com.saurabhsandav.lightweightcharts.data.MouseEventParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class StockChartsSyncManager(
     private val coroutineScope: CoroutineScope,

@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trades.model
 
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalTime
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 data class TradeFilter internal constructor(
     val isClosed: Boolean? = null,

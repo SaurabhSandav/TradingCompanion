@@ -3,7 +3,7 @@ package com.saurabhsandav.core.trading.data
 import com.saurabhsandav.core.trading.Candle
 import com.saurabhsandav.core.trading.Timeframe
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 interface CandleCache {
 

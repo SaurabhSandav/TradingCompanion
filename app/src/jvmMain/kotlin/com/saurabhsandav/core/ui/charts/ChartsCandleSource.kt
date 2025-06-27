@@ -9,7 +9,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.retryIOResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class ChartsCandleSource(
     override val params: StockChartParams,

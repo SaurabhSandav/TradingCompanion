@@ -24,6 +24,7 @@ kotlin {
 
         optIn = listOf(
             "kotlin.ExperimentalStdlibApi",
+            "kotlin.time.ExperimentalTime",
             "kotlinx.serialization.ExperimentalSerializationApi",
         )
     }

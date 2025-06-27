@@ -8,7 +8,7 @@ import com.saurabhsandav.core.utils.indexOr
 import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class ResampledReplaySeriesBuilder(
     private val inputSeries: CandleSeries,

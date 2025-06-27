@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class ChartMarkersProvider(
     private val appDispatchers: AppDispatchers,

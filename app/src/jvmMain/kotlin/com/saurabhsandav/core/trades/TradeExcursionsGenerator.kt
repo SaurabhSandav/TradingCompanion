@@ -8,7 +8,6 @@ import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.utils.AppDispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -19,6 +18,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import java.math.BigDecimal
+import kotlin.time.Clock
 
 internal class TradeExcursionsGenerator(
     private val appDispatchers: AppDispatchers,

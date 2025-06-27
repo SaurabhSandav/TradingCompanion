@@ -6,10 +6,10 @@ import com.saurabhsandav.core.trades.stats.TradingStats.Drawdown
 import com.saurabhsandav.core.trades.stats.TradingStats.PartialStatsKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.max
+import kotlin.time.Clock
 import kotlin.time.Duration
 
 internal fun TradingRecord.buildStats(partialStatsKeys: List<PartialStatsKey> = emptyList()): Flow<TradingStats?> {
