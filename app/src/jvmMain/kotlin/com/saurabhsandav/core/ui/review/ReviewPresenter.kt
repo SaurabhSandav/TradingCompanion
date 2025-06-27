@@ -21,7 +21,7 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.model.ReviewId
 import com.saurabhsandav.trading.record.model.TradeId
 import kotlinx.coroutines.CoroutineScope
@@ -76,7 +76,7 @@ internal class ReviewPresenter(
 
     @Composable
     private fun getTrades(): List<TradeEntry> {
-        return produceState<List<TradeEntry>>(emptyList()) {
+        return produceState(emptyList()) {
 
             reviews
                 .await()
@@ -85,7 +85,7 @@ internal class ReviewPresenter(
 
                     trades
                         .await()
-                        .getByIds(ids = review.tradeIds)
+                        .getDisplayByIds(ids = review.tradeIds)
                         .mapList { trade ->
                             trade.toTradeListEntry()
                         }
@@ -94,7 +94,7 @@ internal class ReviewPresenter(
         }.value
     }
 
-    private fun Trade.toTradeListEntry(): TradeEntry {
+    private fun TradeDisplay.toTradeListEntry(): TradeEntry {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -127,7 +127,7 @@ internal class ReviewPresenter(
 
         return TradeEntry(
             profileTradeId = ProfileTradeId(profileId = profileReviewId.profileId, tradeId = id),
-            broker = "$broker ($instrumentCapitalized)",
+            broker = "$brokerName ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
             quantity = when {

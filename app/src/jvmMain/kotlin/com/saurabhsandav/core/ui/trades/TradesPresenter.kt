@@ -35,6 +35,7 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.brokerageAtExit
 import com.saurabhsandav.trading.record.model.TradeFilter
@@ -112,7 +113,7 @@ internal class TradesPresenter(
                     config = pagingConfig,
                     pagingSourceFactory = {
 
-                        trades.getFilteredPagingSource(
+                        trades.getDisplayFilteredPagingSource(
                             filter = tradeFilter,
                             sort = if (isFocusModeEnabled) TradeSort.OpenDescEntryDesc else TradeSort.EntryDesc,
                         )
@@ -187,7 +188,7 @@ internal class TradesPresenter(
                         }
                     }.map { tradeOrEntry ->
                         when (tradeOrEntry) {
-                            is Trade -> tradeOrEntry.toTradeEntryItem()
+                            is TradeDisplay -> tradeOrEntry.toTradeEntryItem()
                             else -> tradeOrEntry
                         }
                     } as PagingData<TradeEntry>
@@ -230,7 +231,7 @@ internal class TradesPresenter(
         }
     }
 
-    private fun Trade.toTradeEntryItem(): Item {
+    private fun TradeDisplay.toTradeEntryItem(): Item {
 
         val instrumentCapitalized = instrument.strValue
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -263,7 +264,7 @@ internal class TradesPresenter(
 
         return Item(
             id = id,
-            broker = "$broker ($instrumentCapitalized)",
+            broker = "$brokerName ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
             quantity = when {

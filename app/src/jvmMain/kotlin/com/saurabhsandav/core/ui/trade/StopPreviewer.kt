@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.trade
 
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
-import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.brokerageAt
 import com.saurabhsandav.trading.record.model.TradeSide
 import java.math.BigDecimal
@@ -9,7 +9,7 @@ import java.math.MathContext
 import java.math.RoundingMode
 
 internal class StopPreviewer(
-    private val trade: Trade,
+    private val trade: TradeDisplay,
 ) {
 
     fun atPrice(price: BigDecimal): TradeStop? = generateStop(price)

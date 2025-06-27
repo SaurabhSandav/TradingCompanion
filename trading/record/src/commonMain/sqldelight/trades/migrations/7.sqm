@@ -1,0 +1,10 @@
+-- TradeDisplay Table
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.id, T.broker AS brokerName, T.ticker, T.instrument, T.quantity, T.closedQuantity, T.lots, T.side,
+T.averageEntry, T.entryTimestamp, T.averageExit, T.exitTimestamp, T.pnl, T.fees, T.netPnl, T.isClosed
+FROM Trade AS T;
+
+-- TradeExecutionDisplay Table
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.id, T.broker AS brokerName, T.instrument, T.ticker, T.quantity, T.lots, T.side, T.price, T.timestamp, T.locked
+FROM TradeExecution AS T;

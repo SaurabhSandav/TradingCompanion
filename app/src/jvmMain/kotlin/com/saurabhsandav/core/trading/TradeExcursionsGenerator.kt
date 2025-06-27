@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading
 
 import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
+import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.record.Trade
@@ -88,6 +89,20 @@ internal class TradeExcursionsGenerator(
     }
 
     suspend fun getExcursions(
+        profileTradeId: ProfileTradeId,
+        stop: TradeStop?,
+        target: TradeTarget?,
+    ): TradeExcursions? = withContext(coroutineContext) {
+
+        val trade = tradingProfiles.getRecord(profileTradeId.profileId)
+            .trades
+            .getById(profileTradeId.tradeId)
+            .first()
+
+        return@withContext getExcursions(trade, stop, target)
+    }
+
+    private suspend fun getExcursions(
         trade: Trade,
         stop: TradeStop?,
         target: TradeTarget?,

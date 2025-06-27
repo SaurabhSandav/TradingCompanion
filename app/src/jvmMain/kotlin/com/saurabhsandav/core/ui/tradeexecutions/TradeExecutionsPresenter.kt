@@ -25,7 +25,7 @@ import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsState.TradeExecutionEntry
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
-import com.saurabhsandav.trading.record.TradeExecution
+import com.saurabhsandav.trading.record.TradeExecutionDisplay
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -81,7 +81,7 @@ internal class TradeExecutionsPresenter(
                     enablePlaceholders = false,
                     maxSize = 300,
                 ),
-                pagingSourceFactory = executions::getAllPagingSource,
+                pagingSourceFactory = executions::getAllDisplayPagingSource,
             )
 
             pager
@@ -118,7 +118,7 @@ internal class TradeExecutionsPresenter(
                         }
                         .map { executionOrEntry ->
                             when (executionOrEntry) {
-                                is TradeExecution -> executionOrEntry.toTradeExecutionEntryItem()
+                                is TradeExecutionDisplay -> executionOrEntry.toTradeExecutionEntryItem()
                                 else -> executionOrEntry
                             }
                         } as PagingData<TradeExecutionEntry>
@@ -127,12 +127,12 @@ internal class TradeExecutionsPresenter(
         }
     }
 
-    private fun TradeExecution.toTradeExecutionEntryItem() = TradeExecutionEntry.Item(
+    private fun TradeExecutionDisplay.toTradeExecutionEntryItem() = TradeExecutionEntry.Item(
         id = id,
         broker = run {
             val instrumentCapitalized = instrument.strValue
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            "$broker ($instrumentCapitalized)"
+            "$brokerName ($instrumentCapitalized)"
         },
         ticker = ticker,
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),

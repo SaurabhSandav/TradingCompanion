@@ -36,7 +36,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeSort
 import kotlinx.coroutines.CoroutineScope
@@ -151,7 +151,7 @@ internal class TradeReviewPresenter(
                                 config = pagingConfig,
                                 pagingSourceFactory = {
 
-                                    trades.getFilteredPagingSource(
+                                    trades.getDisplayFilteredPagingSource(
                                         filter = tradeFilter,
                                         sort = TradeSort.EntryDesc,
                                     )
@@ -183,7 +183,7 @@ internal class TradeReviewPresenter(
         }
     }
 
-    private fun Trade.toTradeItem(
+    private fun TradeDisplay.toTradeItem(
         profileTradeId: ProfileTradeId,
         isMarked: Boolean,
     ): TradeItem {
@@ -220,7 +220,7 @@ internal class TradeReviewPresenter(
         return TradeItem(
             profileTradeId = profileTradeId,
             isMarked = isMarked,
-            broker = "$broker ($instrumentCapitalized)",
+            broker = "$brokerName ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
             quantity = when {
@@ -264,7 +264,7 @@ internal class TradeReviewPresenter(
 
                                 tradingRecord
                                     .trades
-                                    .getByIds(ids = tradeIds)
+                                    .getDisplayByIds(ids = tradeIds)
                                     .mapList {
                                         it.toMarkedTradeItem(
                                             profileId = profileId,
@@ -283,7 +283,7 @@ internal class TradeReviewPresenter(
         }.collectAsState(null)
     }
 
-    private fun Trade.toMarkedTradeItem(
+    private fun TradeDisplay.toMarkedTradeItem(
         profileId: ProfileId,
         profileName: String,
     ): MarkedTradeItem {
@@ -320,7 +320,7 @@ internal class TradeReviewPresenter(
         return MarkedTradeItem(
             profileTradeId = ProfileTradeId(profileId = profileId, tradeId = id),
             profileName = profileName,
-            broker = "$broker ($instrumentCapitalized)",
+            broker = "$brokerName ($instrumentCapitalized)",
             ticker = ticker,
             side = side.toString().uppercase(),
             quantity = when {

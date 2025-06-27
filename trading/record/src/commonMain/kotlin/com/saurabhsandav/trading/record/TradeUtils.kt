@@ -26,3 +26,26 @@ fun Trade.rValueAt(
     TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
     TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
 }.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
+
+fun TradeDisplay.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
+    broker = brokerName,
+    instrument = instrument,
+    entry = averageEntry,
+    exit = exit,
+    quantity = quantity,
+    side = side,
+)
+
+fun TradeDisplay.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)
+
+fun TradeDisplay.brokerageAt(stop: TradeStop): Brokerage = brokerageAt(stop.price)
+
+fun TradeDisplay.brokerageAt(target: TradeTarget): Brokerage = brokerageAt(target.price)
+
+fun TradeDisplay.rValueAt(
+    pnl: BigDecimal,
+    stop: TradeStop,
+): BigDecimal = when (side) {
+    TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
+    TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
+}.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()

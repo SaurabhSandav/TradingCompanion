@@ -58,12 +58,6 @@ SELECT *
 FROM Trade
 WHERE id = ?;
 
-getByIds:
-SELECT *
-FROM Trade
-WHERE id IN ?
-ORDER BY datetime(entryTimestamp) DESC, id DESC;
-
 getFilteredCount:
 WITH ids_with_notes AS (
   SELECT DISTINCT tradeId FROM TradeNote
@@ -124,39 +118,6 @@ AND (:tickersCount <= 0 OR ticker IN :tickers)
 ORDER BY
 IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
 datetime(entryTimestamp) DESC, id DESC;
-
-getFilteredPaged:
-WITH ids_with_notes AS (
-  SELECT DISTINCT tradeId FROM TradeNote
-),
-ids_with_tags AS (
-  SELECT tradeId
-  FROM TradeToTagMap
-  WHERE tagId IN :tags
-  GROUP BY tradeId
-  HAVING :tagsCount = -1 OR COUNT(*) = :tagsCount
-)
-SELECT *
-FROM Trade
-WHERE
-(:isClosed IS NULL OR isClosed = :isClosed)
-AND (:side IS NULL OR side = :side)
-AND (:from IS NULL OR datetime(:from) <= datetime(entryTimestamp))
-AND (:to IS NULL OR datetime(entryTimestamp) <= datetime(:to))
-AND (:timeFrom IS NULL OR time(:timeFrom) <= time(entryTimestamp))
-AND (:timeTo IS NULL OR time(entryTimestamp) <= time(:timeTo))
-AND (:pnlFrom IS NULL OR :pnlFrom <= CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL))
-AND (:pnlTo IS NULL OR CAST(IIF(:filterByNetPnl = TRUE, netPnl, pnl) AS REAL) <= :pnlTo)
-AND (:hasNotes IS NULL OR IIF(:hasNotes = TRUE, id IN ids_with_notes, id NOT IN ids_with_notes))
---  :tagsCount = null -> Disable filter
---  :tagsCount = -1 -> Match some tags
---  :tagsCount >= 0 -> Match all tags
-AND (:tagsCount IS NULL OR id IN ids_with_tags)
-AND (:tickersCount <= 0 OR ticker IN :tickers)
-ORDER BY
-IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
-datetime(entryTimestamp) DESC, id DESC
-LIMIT :limit OFFSET :offset;
 
 getOpen:
 SELECT *

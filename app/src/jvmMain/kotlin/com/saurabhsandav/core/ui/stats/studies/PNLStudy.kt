@@ -139,7 +139,7 @@ internal class PNLStudy(
             config = pagingConfig,
             pagingSourceFactory = {
 
-                tradingRecord.trades.getFilteredPagingSource(
+                tradingRecord.trades.getDisplayFilteredPagingSource(
                     filter = TradeFilter(isClosed = true),
                     sort = TradeSort.EntryDesc,
                 )

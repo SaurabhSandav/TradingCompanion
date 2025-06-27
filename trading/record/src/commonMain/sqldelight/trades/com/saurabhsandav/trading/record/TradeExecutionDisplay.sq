@@ -1,0 +1,9 @@
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.id, T.broker AS brokerName, T.instrument, T.ticker, T.quantity, T.lots, T.side, T.price, T.timestamp, T.locked
+FROM TradeExecution AS T;
+
+getAllPaged:
+SELECT *
+FROM TradeExecutionDisplay
+ORDER BY datetime(timestamp) DESC, id DESC
+LIMIT :limit OFFSET :offset;

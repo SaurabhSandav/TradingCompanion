@@ -49,7 +49,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
-import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.brokerageAt
 import com.saurabhsandav.trading.record.model.AttachmentFileId
@@ -97,7 +97,7 @@ internal class TradePresenter(
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
 
     private val trade = flow {
-        tradingRecord.await().trades.getByIdOrNull(tradeId)
+        tradingRecord.await().trades.getDisplayByIdOrNull(tradeId)
             .onEach { if (it == null) onCloseRequest() }
             .filterNotNull()
             .emitInto(this)
@@ -218,7 +218,7 @@ internal class TradePresenter(
 
                     value = Details(
                         id = trade.id,
-                        broker = "${trade.broker} ($instrumentCapitalized)",
+                        broker = "${trade.brokerName} ($instrumentCapitalized)",
                         ticker = trade.ticker,
                         side = trade.side.toString().uppercase(),
                         quantity = when {
@@ -334,7 +334,7 @@ internal class TradePresenter(
 
     @Composable
     private fun getExcursions(): State<Excursions?> {
-        return produceState<Excursions?>(null) {
+        return produceState(null) {
 
             val tradingRecord = tradingProfiles.getRecord(profileId)
 
@@ -346,7 +346,7 @@ internal class TradePresenter(
             ) { savedExcursions, trade, stop, target ->
 
                 val excursions = savedExcursions
-                    ?: excursionsGenerator.getExcursions(trade, stop, target)
+                    ?: excursionsGenerator.getExcursions(profileTradeId, stop, target)
                     ?: return@combine null
 
                 Excursions(
@@ -542,14 +542,14 @@ internal class TradePresenter(
         tradingRecord.await().notes.delete(id)
     }
 
-    private fun Trade.buildExcursionString(
+    private fun TradeDisplay.buildExcursionString(
         stop: com.saurabhsandav.trading.record.TradeStop?,
         excursions: TradeExcursions,
         inTrade: Boolean,
         isMae: Boolean,
     ): String {
 
-        fun Trade.getRString(pnl: BigDecimal): String {
+        fun TradeDisplay.getRString(pnl: BigDecimal): String {
 
             stop ?: return ""
 

@@ -31,7 +31,7 @@ import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemKey
-import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.TradeStop
 import com.saurabhsandav.trading.record.model.TradeFilter
@@ -146,7 +146,7 @@ internal class PNLExcursionStudy(
             config = pagingConfig,
             pagingSourceFactory = {
 
-                tradingRecord.trades.getFilteredPagingSource(
+                tradingRecord.trades.getDisplayFilteredPagingSource(
                     filter = TradeFilter(isClosed = true),
                     sort = TradeSort.EntryDesc,
                 )
@@ -201,7 +201,7 @@ internal class PNLExcursionStudy(
         }.emitInto(this)
     }
 
-    private fun Trade.buildExcursionString(
+    private fun TradeDisplay.buildExcursionString(
         stop: TradeStop?,
         excursions: TradeExcursions?,
         inTrade: Boolean,
@@ -249,7 +249,7 @@ internal class PNLExcursionStudy(
         }
     }
 
-    private fun Trade.getRString(
+    private fun TradeDisplay.getRString(
         pnl: BigDecimal,
         stop: TradeStop?,
     ): String {

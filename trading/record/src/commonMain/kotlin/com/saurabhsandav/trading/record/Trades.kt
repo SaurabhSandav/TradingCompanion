@@ -32,6 +32,9 @@ class Trades internal constructor(
     val allTrades: Flow<List<Trade>>
         get() = tradesDB.tradeQueries.getAll().asFlow().mapToList(coroutineContext)
 
+    val allTradesDisplay: Flow<List<TradeDisplay>>
+        get() = tradesDB.tradeDisplayQueries.getAll().asFlow().mapToList(coroutineContext)
+
     fun exists(id: Long): Flow<Boolean> {
         return tradesDB.tradeQueries.exists(TradeId(id)).asFlow().mapToOne(coroutineContext)
     }
@@ -48,12 +51,12 @@ class Trades internal constructor(
         return tradesDB.tradeQueries.getById(id).asFlow().mapToOne(coroutineContext)
     }
 
-    fun getByIdOrNull(id: TradeId): Flow<Trade?> {
-        return tradesDB.tradeQueries.getById(id).asFlow().mapToOneOrNull(coroutineContext)
+    fun getDisplayByIdOrNull(id: TradeId): Flow<TradeDisplay?> {
+        return tradesDB.tradeDisplayQueries.getById(id).asFlow().mapToOneOrNull(coroutineContext)
     }
 
-    fun getByIds(ids: List<TradeId>): Flow<List<Trade>> {
-        return tradesDB.tradeQueries.getByIds(ids).asFlow().mapToList(coroutineContext)
+    fun getDisplayByIds(ids: List<TradeId>): Flow<List<TradeDisplay>> {
+        return tradesDB.tradeDisplayQueries.getByIds(ids).asFlow().mapToList(coroutineContext)
     }
 
     fun getFilteredCount(filter: TradeFilter): Flow<Long> {
@@ -116,10 +119,10 @@ class Trades internal constructor(
         return query.asFlow().mapToList(coroutineContext)
     }
 
-    fun getFilteredPagingSource(
+    fun getDisplayFilteredPagingSource(
         filter: TradeFilter,
         sort: TradeSort = TradeSort.EntryDesc,
-    ): PagingSource<Int, Trade> {
+    ): PagingSource<Int, TradeDisplay> {
 
         fun Boolean.toLong() = if (this) 1L else 0L
 
@@ -148,7 +151,7 @@ class Trades internal constructor(
             context = coroutineContext,
             queryProvider = { limit, offset ->
 
-                tradesDB.tradeQueries.getFilteredPaged(
+                tradesDB.tradeDisplayQueries.getFilteredPaged(
                     isClosed = filter.isClosed,
                     side = filter.side,
                     from = filter.instantFrom?.toString(),

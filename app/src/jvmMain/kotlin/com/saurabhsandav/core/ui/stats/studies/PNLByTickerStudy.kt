@@ -93,7 +93,7 @@ internal class PNLByTickerStudy(
 
         val tradingRecord = tradingProfiles.getRecord(profileId)
 
-        tradingRecord.trades.allTrades.flatMapLatest { allTrades ->
+        tradingRecord.trades.allTradesDisplay.flatMapLatest { allTrades ->
 
             allTrades
                 .groupBy { it.ticker }

@@ -202,13 +202,13 @@ class Executions(
         return tradesDB.tradeExecutionQueries.getBeforeTodayCount().asFlow().mapToOne(coroutineContext)
     }
 
-    fun getAllPagingSource(): PagingSource<Int, TradeExecution> = QueryPagingSource(
+    fun getAllDisplayPagingSource(): PagingSource<Int, TradeExecutionDisplay> = QueryPagingSource(
         countQuery = tradesDB.tradeExecutionQueries.getAllCount(),
         transacter = tradesDB.tradeExecutionQueries,
         context = coroutineContext,
         queryProvider = { limit, offset ->
 
-            tradesDB.tradeExecutionQueries.getAllPaged(
+            tradesDB.tradeExecutionDisplayQueries.getAllPaged(
                 limit = limit,
                 offset = offset,
             )
