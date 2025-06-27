@@ -4,8 +4,8 @@ import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.backup.service.LocalBackupService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Test
@@ -19,7 +19,7 @@ class BackupServicesManagerTest {
     fun `Services are empty`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         assertTrue { manager.services.first().isEmpty() }
@@ -29,7 +29,7 @@ class BackupServicesManagerTest {
     fun `Add Services`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         val service1 = LocalBackupService(
@@ -54,7 +54,7 @@ class BackupServicesManagerTest {
     fun `Update Services`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         val service1 = LocalBackupService(
@@ -85,7 +85,7 @@ class BackupServicesManagerTest {
     fun `Delete Services`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         val service1 = LocalBackupService(
@@ -110,7 +110,7 @@ class BackupServicesManagerTest {
     fun `Get BackupService$Instance`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         val service = LocalBackupService(
@@ -130,7 +130,7 @@ class BackupServicesManagerTest {
     fun `Get BackupService$Instance with non-existent service id`() = runTest {
 
         val settings = MapSettings()
-        val prefs = settings.toFlowSettings(Dispatchers.Unconfined)
+        val prefs = settings.toFlowSettings(StandardTestDispatcher(testScheduler))
         val manager = BackupServicesManager(prefs)
 
         val service = LocalBackupService(
