@@ -26,7 +26,6 @@ import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
-import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
 internal fun NewReplayForm(
@@ -106,7 +105,6 @@ internal fun NewReplayForm(
 
         TickerSelectionField(
             type = TickerSelectionType.Regular,
-            tickers = NIFTY500,
             selected = model.initialTickerField.value,
             onSelect = { model.initialTickerField.value = it },
             isError = model.initialTickerField.isError,

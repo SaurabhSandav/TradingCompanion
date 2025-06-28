@@ -13,7 +13,6 @@ import com.saurabhsandav.core.ui.common.state
 @Composable
 fun TickerSelectionField(
     type: TickerSelectionType,
-    tickers: List<String>,
     selected: String?,
     onSelect: (String) -> Unit,
     supportingText: @Composable (() -> Unit)? = null,
@@ -42,7 +41,6 @@ fun TickerSelectionField(
 
         TickerSelectionDialog(
             onDismissRequest = { showTickerSelectionDialog = false },
-            tickers = tickers,
             onSelect = onSelect,
             type = type,
         )

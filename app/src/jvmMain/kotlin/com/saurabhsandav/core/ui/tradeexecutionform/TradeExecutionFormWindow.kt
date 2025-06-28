@@ -46,7 +46,6 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.CloseTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
-import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -129,7 +128,6 @@ private fun TradeExecutionForm(
 
         TickerSelectionField(
             type = TickerSelectionType.Regular,
-            tickers = NIFTY500,
             selected = model.tickerField.value,
             onSelect = { model.tickerField.value = it },
             enabled = isTickerEditable,

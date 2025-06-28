@@ -17,6 +17,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.controls.LazyListSelectionDialog
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Chart
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Regular
@@ -25,14 +26,14 @@ import com.saurabhsandav.core.ui.tickerselectiondialog.model.TickerSelectionEven
 @Composable
 fun TickerSelectionDialog(
     onDismissRequest: () -> Unit,
-    tickers: List<String>,
     onSelect: (String) -> Unit,
     type: TickerSelectionType = Regular,
     initialFilterQuery: String = "",
 ) {
 
     val scope = rememberCoroutineScope()
-    val presenter = remember { TickerSelectionPresenter(scope, tickers) }
+    val appModule = LocalAppModule.current
+    val presenter = remember { TickerSelectionPresenter(scope, appModule.tickersProvider) }
     val state by presenter.state.collectAsState()
 
     LazyListSelectionDialog(

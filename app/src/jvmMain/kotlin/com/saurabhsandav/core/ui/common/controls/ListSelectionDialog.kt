@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -40,12 +39,16 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
+import androidx.paging.PagingData
+import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.theme.keyboardSelectionBackgroundColor
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -172,7 +175,7 @@ fun <T : Any> ListSelectionDialog(
 @Composable
 fun <T : Any> LazyListSelectionDialog(
     onDismissRequest: () -> Unit,
-    items: List<T>,
+    items: Flow<PagingData<T>>,
     itemText: (T) -> String,
     onSelect: (T) -> Unit,
     onFilter: (String) -> Unit,
@@ -182,6 +185,8 @@ fun <T : Any> LazyListSelectionDialog(
     onKeyEvent: ((KeyEvent, T) -> Boolean)? = null,
     itemTrailingContent: @Composable ((T) -> Unit)? = null,
 ) {
+
+    val items = items.collectAsLazyPagingItems()
 
     AppDialog(
         onDismissRequest = onDismissRequest,
@@ -223,9 +228,10 @@ fun <T : Any> LazyListSelectionDialog(
 
                             when (keyEvent.key) {
                                 Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                                Key.DirectionDown -> selectedIndex = (selectedIndex + 1).coerceAtMost(items.lastIndex)
+                                Key.DirectionDown ->
+                                    selectedIndex = (selectedIndex + 1).coerceAtMost(items.itemCount - 1)
                                 Key.Enter -> {
-                                    onSelect(items[selectedIndex])
+                                    onSelect(items[selectedIndex]!!)
                                     onDismissRequest()
                                 }
 
@@ -236,7 +242,7 @@ fun <T : Any> LazyListSelectionDialog(
                         }
 
                         if (onKeyEvent != null && selectedIndex != -1) {
-                            val consumed = onKeyEvent(keyEvent, items[selectedIndex])
+                            val consumed = onKeyEvent(keyEvent, items[selectedIndex]!!)
                             if (consumed) {
                                 onDismissRequest()
                                 return@onPreviewKeyEvent true
@@ -265,10 +271,12 @@ fun <T : Any> LazyListSelectionDialog(
                     modifier = Modifier.selectableGroup(),
                 ) {
 
-                    itemsIndexed(
-                        items = items,
-                        key = { _, item -> item },
-                    ) { index, item ->
+                    items(
+                        count = items.itemCount,
+                        key = items.itemKey { item -> item },
+                    ) { index ->
+
+                        val item = items[index]!!
 
                         ListItem(
                             modifier = Modifier
@@ -287,7 +295,7 @@ fun <T : Any> LazyListSelectionDialog(
                             ),
                         )
 
-                        if (index != items.lastIndex) HorizontalDivider()
+                        if (index != items.itemCount - 1) HorizontalDivider()
                     }
                 }
             }

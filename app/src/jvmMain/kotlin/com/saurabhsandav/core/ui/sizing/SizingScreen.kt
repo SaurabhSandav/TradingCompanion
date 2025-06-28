@@ -32,7 +32,6 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormPara
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
-import com.saurabhsandav.core.utils.NIFTY500
 
 @Composable
 internal fun SizingScreen(
@@ -234,7 +233,6 @@ private fun AddTradeCard(onAddTrade: (ticker: String) -> Unit) {
 
             TickerSelectionDialog(
                 onDismissRequest = { showTickerSelectionDialog = false },
-                tickers = NIFTY500,
                 onSelect = { ticker ->
                     onAddTrade(ticker)
                     showTickerSelectionDialog = false

@@ -25,7 +25,6 @@ import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 
 @Composable
 internal fun NewChartForm(
-    tickers: List<String>,
     timeframes: List<Timeframe>,
     onInitializeChart: (String, Timeframe) -> Unit,
 ) {
@@ -40,7 +39,6 @@ internal fun NewChartForm(
 
         TickerSelectionField(
             type = TickerSelectionType.Regular,
-            tickers = tickers,
             selected = ticker,
             onSelect = { ticker = it },
         )
