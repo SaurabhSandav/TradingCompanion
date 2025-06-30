@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.candledata
 
 import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
@@ -8,47 +9,47 @@ import kotlin.time.Instant
 interface CandleCache {
 
     suspend fun saveCheckedRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     )
 
     suspend fun getCheckedRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): ClosedRange<Instant>?
 
     suspend fun replace(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         interval: ClosedRange<Instant>,
         new: List<Candle>,
     )
 
     fun getCountInRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): Flow<Long>
 
     fun getInstantBeforeByCount(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         before: Instant,
         count: Int,
     ): Flow<Instant?>
 
     fun getInstantAfterByCount(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         after: Instant,
         count: Int,
     ): Flow<Instant?>
 
     fun fetchRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
@@ -56,13 +57,13 @@ interface CandleCache {
     ): Flow<List<Candle>>
 
     suspend fun getCountAt(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
     ): CountRange?
 
     fun getBefore(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
@@ -70,7 +71,7 @@ interface CandleCache {
     ): Flow<List<Candle>>
 
     fun getAfter(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
         count: Int,

@@ -7,6 +7,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.retryIOResult
 import com.saurabhsandav.trading.candledata.CandleRepository
+import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
@@ -23,7 +24,7 @@ internal class ChartsCandleSource(
         val candles = unwrap {
 
             candleRepo.getCandles(
-                ticker = params.ticker,
+                symbolId = SymbolId(params.ticker),
                 timeframe = params.timeframe,
                 from = interval.start,
                 to = interval.endInclusive,
@@ -38,7 +39,7 @@ internal class ChartsCandleSource(
         return unwrap {
 
             candleRepo.getCountInRange(
-                ticker = params.ticker,
+                symbolId = SymbolId(params.ticker),
                 timeframe = params.timeframe,
                 from = interval.start,
                 to = interval.endInclusive,
@@ -54,7 +55,7 @@ internal class ChartsCandleSource(
         return unwrap {
 
             candleRepo.getInstantBeforeByCount(
-                ticker = params.ticker,
+                symbolId = SymbolId(params.ticker),
                 timeframe = params.timeframe,
                 before = currentBefore,
                 count = loadCount,
@@ -70,7 +71,7 @@ internal class ChartsCandleSource(
         return unwrap {
 
             candleRepo.getInstantAfterByCount(
-                ticker = params.ticker,
+                symbolId = SymbolId(params.ticker),
                 timeframe = params.timeframe,
                 after = currentAfter,
                 count = loadCount,

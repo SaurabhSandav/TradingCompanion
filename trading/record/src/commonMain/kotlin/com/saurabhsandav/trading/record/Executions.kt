@@ -7,6 +7,7 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
@@ -33,7 +34,7 @@ class Executions(
     suspend fun new(
         brokerId: BrokerId,
         instrument: Instrument,
-        ticker: String,
+        symbolId: SymbolId,
         quantity: BigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
@@ -48,7 +49,7 @@ class Executions(
             tradesDB.tradeExecutionQueries.insert(
                 brokerId = brokerId,
                 instrument = instrument,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = quantity.stripTrailingZeros(),
                 lots = lots,
                 side = side,
@@ -77,7 +78,7 @@ class Executions(
         id: TradeExecutionId,
         brokerId: BrokerId,
         instrument: Instrument,
-        ticker: String,
+        symbolId: SymbolId,
         quantity: BigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
@@ -96,7 +97,7 @@ class Executions(
                 id = id,
                 brokerId = brokerId,
                 instrument = instrument,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = quantity.stripTrailingZeros(),
                 lots = lots,
                 side = side,
@@ -223,13 +224,13 @@ class Executions(
             .mapToList(coroutineContext)
     }
 
-    fun getByTickerInInterval(
-        ticker: String,
+    fun getBySymbolInInterval(
+        symbolId: SymbolId,
         range: ClosedRange<Instant>,
     ): Flow<List<TradeExecution>> {
         return tradesDB.tradeExecutionQueries
-            .getByTickerInInterval(
-                ticker = ticker,
+            .getBySymbolInInterval(
+                symbolId = symbolId,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
             )
@@ -237,14 +238,14 @@ class Executions(
             .mapToList(coroutineContext)
     }
 
-    fun getByTickerAndTradeIdsInInterval(
-        ticker: String,
+    fun getBySymbolAndTradeIdsInInterval(
+        symbolId: SymbolId,
         ids: List<TradeId>,
         range: ClosedRange<Instant>,
     ): Flow<List<TradeExecution>> {
         return tradesDB.tradeToExecutionMapQueries
-            .getExecutionsByTickerAndTradeIdsInInterval(
-                ticker = ticker,
+            .getExecutionsBySymbolAndTradeIdsInInterval(
+                symbolId = symbolId,
                 ids = ids,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
@@ -275,7 +276,9 @@ class Executions(
         val openTrades = tradesDB.tradeQueries.getOpen().executeAsList()
         // Trade that will consume this execution
         val openTrade = openTrades.find {
-            it.brokerId == execution.brokerId && it.instrument == execution.instrument && it.ticker == execution.ticker
+            it.brokerId == execution.brokerId &&
+                it.instrument == execution.instrument &&
+                it.symbolId == execution.symbolId
         }
 
         // No open trade exists to consume execution. Create new trade.
@@ -284,7 +287,7 @@ class Executions(
             // Insert Trade
             tradesDB.tradeQueries.insert(
                 brokerId = execution.brokerId,
-                ticker = execution.ticker,
+                symbolId = execution.symbolId,
                 instrument = execution.instrument,
                 quantity = execution.quantity.stripTrailingZeros(),
                 closedQuantity = BigDecimal.ZERO,
@@ -352,7 +355,7 @@ class Executions(
                 // Insert Trade
                 tradesDB.tradeQueries.insert(
                     brokerId = execution.brokerId,
-                    ticker = execution.ticker,
+                    symbolId = execution.symbolId,
                     instrument = execution.instrument,
                     quantity = overrideQuantity.stripTrailingZeros(),
                     closedQuantity = BigDecimal.ZERO,
@@ -432,7 +435,7 @@ class Executions(
         return Trade(
             id = TradeId(-1),
             brokerId = firstExecution.brokerId,
-            ticker = firstExecution.ticker,
+            symbolId = firstExecution.symbolId,
             instrument = firstExecution.instrument,
             quantity = entryQuantity,
             closedQuantity = closedQuantity,
@@ -483,7 +486,7 @@ class Executions(
         id: TradeExecutionId,
         brokerId: BrokerId,
         instrument: Instrument,
-        ticker: String,
+        symbolId: SymbolId,
         quantity: BigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
@@ -495,7 +498,7 @@ class Executions(
         id = id,
         brokerId = brokerId,
         instrument = instrument,
-        ticker = ticker,
+        symbolId = symbolId,
         quantity = overrideQuantity ?: quantity,
         lots = lots,
         side = side,

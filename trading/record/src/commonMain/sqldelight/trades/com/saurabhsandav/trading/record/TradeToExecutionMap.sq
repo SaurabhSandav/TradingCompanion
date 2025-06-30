@@ -35,11 +35,11 @@ deleteExecutionsAndTrades {
   WHERE id IN :tradeIds;
 }
 
-getExecutionsByTickerAndTradeIdsInInterval:
+getExecutionsBySymbolAndTradeIdsInInterval:
 SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
 INNER JOIN TradeExecution
 ON TradeToExecutionMap.executionId = TradeExecution.id
-WHERE TradeExecution.ticker = :ticker
+WHERE TradeExecution.symbolId = :symbolId
 AND TradeToExecutionMap.tradeId IN :ids
 AND datetime(:from) < datetime(TradeExecution.timestamp)
 AND datetime(TradeExecution.timestamp) < datetime(:to)

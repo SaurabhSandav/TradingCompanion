@@ -120,7 +120,7 @@ internal class TradeExcursionsGenerator(
             .atStartOfDayIn(TimeZone.currentSystemDefault())
 
         val candles = candleRepo.getCandles(
-            ticker = trade.ticker,
+            symbolId = trade.symbolId,
             timeframe = Timeframe.M1,
             from = trade.entryTimestamp,
             to = endOfSessionInstant,

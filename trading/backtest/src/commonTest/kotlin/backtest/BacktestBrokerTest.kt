@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.backtest
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.test.assertBDEquals
@@ -35,13 +36,13 @@ class BacktestBrokerTest {
     fun `Place an order`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -49,7 +50,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -70,13 +71,13 @@ class BacktestBrokerTest {
     fun `Place an order, execute`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -84,7 +85,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -94,13 +95,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -117,13 +118,13 @@ class BacktestBrokerTest {
     fun `Order rejection, margin shortfall`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -131,7 +132,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 1000.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -152,7 +153,7 @@ class BacktestBrokerTest {
     fun `Order rejection, less than minimum order value`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
@@ -161,7 +162,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -169,7 +170,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 1.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -190,13 +191,13 @@ class BacktestBrokerTest {
     fun `Order Cancellation`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -204,7 +205,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -214,7 +215,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 210.toBigDecimal(),
         )
 
@@ -222,7 +223,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 215.toBigDecimal(),
         )
 
@@ -243,13 +244,13 @@ class BacktestBrokerTest {
     fun `Already cancelled order should not be cancelled again`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -257,7 +258,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -267,7 +268,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 210.toBigDecimal(),
         )
 
@@ -275,7 +276,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 215.toBigDecimal(),
         )
 
@@ -298,13 +299,13 @@ class BacktestBrokerTest {
     fun `Profitable position`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -312,7 +313,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -322,13 +323,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -347,13 +348,13 @@ class BacktestBrokerTest {
     fun `Unprofitable position`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -361,7 +362,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -371,7 +372,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
@@ -390,13 +391,13 @@ class BacktestBrokerTest {
     fun `Close position in profit`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -404,7 +405,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -414,13 +415,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -428,7 +429,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -438,7 +439,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 215.toBigDecimal(),
         )
 
@@ -458,13 +459,13 @@ class BacktestBrokerTest {
     fun `Close position in loss`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(account)
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -472,7 +473,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -482,7 +483,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 198.toBigDecimal(),
         )
 
@@ -490,7 +491,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -500,13 +501,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 200.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
@@ -526,7 +527,7 @@ class BacktestBrokerTest {
     fun `Close position orders should ignore minimum order value`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
@@ -535,7 +536,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -543,7 +544,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -553,7 +554,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 198.toBigDecimal(),
         )
 
@@ -561,7 +562,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -571,13 +572,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 200.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
@@ -597,7 +598,7 @@ class BacktestBrokerTest {
     fun `Auto cancel with ocoId`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
@@ -606,7 +607,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -614,7 +615,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -624,7 +625,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 198.toBigDecimal(),
         )
 
@@ -633,7 +634,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -647,7 +648,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -658,13 +659,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 200.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
@@ -685,7 +686,7 @@ class BacktestBrokerTest {
     fun `Null ocoId shouldn't cancel other orders with null ocoId`() {
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
@@ -694,7 +695,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -702,7 +703,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -712,7 +713,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 198.toBigDecimal(),
         )
 
@@ -721,7 +722,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -734,7 +735,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -744,13 +745,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 200.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
@@ -773,7 +774,7 @@ class BacktestBrokerTest {
         var marginCalled = false
 
         val currentTime = Clock.System.now()
-        val ticker = "NTPC"
+        val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
@@ -783,7 +784,7 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 205.toBigDecimal(),
         )
 
@@ -791,7 +792,7 @@ class BacktestBrokerTest {
             params = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = ticker,
+                symbolId = symbolId,
                 quantity = 48.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
@@ -801,13 +802,13 @@ class BacktestBrokerTest {
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 195.toBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
-            ticker = ticker,
+            symbolId = symbolId,
             price = 190.toBigDecimal(),
         )
 

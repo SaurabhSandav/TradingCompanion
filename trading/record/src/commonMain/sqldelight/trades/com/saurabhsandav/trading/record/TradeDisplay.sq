@@ -1,5 +1,5 @@
 CREATE VIEW IF NOT EXISTS TradeDisplay AS
-SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
 FROM Trade AS T;
 
 getAll:
@@ -45,7 +45,7 @@ AND (:hasNotes IS NULL OR IIF(:hasNotes = TRUE, id IN ids_with_notes, id NOT IN 
 --  :tagsCount = -1 -> Match some tags
 --  :tagsCount >= 0 -> Match all tags
 AND (:tagsCount IS NULL OR id IN ids_with_tags)
-AND (:tickersCount <= 0 OR ticker IN :tickers)
+AND (:symbolsCount <= 0 OR symbolId IN :symbolIds)
 ORDER BY
 IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
 datetime(entryTimestamp) DESC, id DESC

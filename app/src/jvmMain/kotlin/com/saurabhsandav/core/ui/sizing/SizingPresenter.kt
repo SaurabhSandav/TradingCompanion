@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.SizingTrade
 import com.saurabhsandav.trading.record.model.Account
 import com.saurabhsandav.trading.record.model.Instrument
@@ -82,7 +83,7 @@ internal class SizingPresenter(
     private fun addTrade(ticker: String) = coroutineScope.launchUnit {
 
         sizingtrades.await().new(
-            ticker = ticker,
+            symbolId = SymbolId(ticker),
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),
         )
@@ -157,7 +158,7 @@ internal class SizingPresenter(
             formType = TradeExecutionFormType.NewSized(
                 formModel = TradeExecutionFormModel(
                     instrument = Instrument.Equity,
-                    ticker = sizingTrade.ticker,
+                    ticker = sizingTrade.symbolId.value,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
                     isBuy = isBuy,
                     price = sizingTrade.entry.toPlainString(),
@@ -202,7 +203,7 @@ internal class SizingPresenter(
 
         return SizedTrade(
             id = id,
-            ticker = ticker,
+            ticker = symbolId.value,
             entry = entry.toPlainString(),
             stop = stop.toPlainString(),
             side = when {

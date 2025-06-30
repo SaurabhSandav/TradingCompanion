@@ -373,7 +373,7 @@ internal class TradeReviewPresenter(
         val end = trade.exitTimestamp
 
         // Show trade on chart
-        chartsHandle.openTicker(trade.ticker, start, end)
+        chartsHandle.openTicker(trade.symbolId.value, start, end)
     }
 
     private fun onOpenDetails(profileTradeId: ProfileTradeId) {

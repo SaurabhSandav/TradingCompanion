@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record.testdata
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
@@ -24,7 +25,7 @@ class CommonExitEntryTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker3",
+            symbolId = SymbolId("TestSymbol3"),
             quantity = 150.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -38,7 +39,7 @@ class CommonExitEntryTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker3",
+            symbolId = SymbolId("TestSymbol3"),
             quantity = 250.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -52,7 +53,7 @@ class CommonExitEntryTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker3",
+            symbolId = SymbolId("TestSymbol3"),
             quantity = 100.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -77,7 +78,7 @@ class CommonExitEntryTradesData {
             id = TradeId(-1),
             brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
-            ticker = executions[0].ticker,
+            symbolId = executions[0].symbolId,
             quantity = executions[0].quantity,
             closedQuantity = BigDecimal.ZERO,
             lots = executions[0].lots,
@@ -98,7 +99,7 @@ class CommonExitEntryTradesData {
             id = TradeId(-1),
             brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
-            ticker = executions[0].ticker,
+            symbolId = executions[0].symbolId,
             quantity = executions[1].quantity - executions[0].quantity,
             closedQuantity = BigDecimal.ZERO,
             lots = null,

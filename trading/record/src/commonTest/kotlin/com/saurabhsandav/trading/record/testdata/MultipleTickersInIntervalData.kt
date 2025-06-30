@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record.testdata
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
@@ -11,7 +12,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.math.BigDecimal
 
-class MultipleTickersInIntervalData {
+class MultipleSymbolsInIntervalData {
 
     @Suppress("ktlint:standard:no-blank-line-in-list")
     val executions: List<TradeExecution> = listOf(
@@ -21,7 +22,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -35,7 +36,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -49,7 +50,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker1",
+            symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -63,7 +64,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker1",
+            symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -77,7 +78,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker1",
+            symbolId = SymbolId("TestSymbol1"),
             quantity = 100.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -91,7 +92,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker1",
+            symbolId = SymbolId("TestSymbol1"),
             quantity = 2.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -105,7 +106,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker1",
+            symbolId = SymbolId("TestSymbol1"),
             quantity = 2.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -119,7 +120,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -133,7 +134,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -147,7 +148,7 @@ class MultipleTickersInIntervalData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = 7.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,

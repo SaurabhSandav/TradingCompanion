@@ -1,4 +1,5 @@
 import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.core.SymbolId;
 import com.saurabhsandav.trading.record.model.Instrument;
 import com.saurabhsandav.trading.record.model.TradeExecutionId;
 import com.saurabhsandav.trading.record.model.TradeExecutionSide;
@@ -11,7 +12,7 @@ CREATE TABLE IF NOT EXISTS TradeExecution (
 id INTEGER AS TradeExecutionId NOT NULL PRIMARY KEY,
 brokerId TEXT AS BrokerId NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
-ticker TEXT NOT NULL,
+symbolId TEXT AS SymbolId NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 lots INTEGER AS Int,
 side TEXT AS TradeExecutionSide NOT NULL,
@@ -22,12 +23,12 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeExecution(brokerId, instrument, ticker, quantity, lots, side, price, timestamp, locked)
+INTO TradeExecution(brokerId, instrument, symbolId, quantity, lots, side, price, timestamp, locked)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TradeExecution
-SET brokerId = ?, instrument = ?, ticker = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
+SET brokerId = ?, instrument = ?, symbolId = ?, quantity = ?, lots = ?, side = ?, price = ?, timestamp = ?
 WHERE id = ?;
 
 delete:
@@ -58,10 +59,10 @@ getAllCount:
 SELECT count(*)
 FROM TradeExecution;
 
-getByTickerInInterval:
+getBySymbolInInterval:
 SELECT *
 FROM TradeExecution
-WHERE ticker = :ticker
+WHERE symbolId = :symbolId
 AND datetime(:from) < datetime(timestamp)
 AND datetime(timestamp) < datetime(:to);
 

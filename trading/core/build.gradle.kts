@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 group = "com.saurabhsandav.trading"
@@ -32,6 +33,12 @@ kotlin {
 
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.core)
+
+            // KotlinX Serialization
+            implementation(libs.kotlinx.serialization.core)
+
+            // SQLDelight
+            implementation(libs.sqldelight.runtime)
         }
     }
 }

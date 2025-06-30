@@ -39,6 +39,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetMa
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -119,11 +120,12 @@ internal class TradesFilterPresenter(
 
         snapshotFlow { filterConfig.tickers }
             .flatMapLatest { tickers ->
-                tradingRecord.await().trades.getSuggestedTickers(
+                tradingRecord.await().trades.getSuggestedSymbols(
                     query = filterQuery,
-                    ignore = tickers,
+                    ignore = tickers.map(::SymbolId),
                 )
             }
+            .mapList { it.value }
             .emitInto(this)
     }
 

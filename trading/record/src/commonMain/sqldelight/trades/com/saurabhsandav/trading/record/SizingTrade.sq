@@ -1,15 +1,16 @@
+import com.saurabhsandav.trading.core.SymbolId;
 import com.saurabhsandav.trading.record.model.SizingTradeId;
 import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS SizingTrade (
 id INTEGER AS SizingTradeId NOT NULL PRIMARY KEY,
-ticker TEXT NOT NULL,
+symbolId TEXT AS SymbolId NOT NULL,
 entry TEXT AS BigDecimal NOT NULL,
 stop TEXT AS BigDecimal NOT NULL
 );
 
 insert:
-INSERT INTO SizingTrade (ticker, entry, stop)
+INSERT INTO SizingTrade (symbolId, entry, stop)
 VALUES (?, ?, ?);
 
 updateEntry:

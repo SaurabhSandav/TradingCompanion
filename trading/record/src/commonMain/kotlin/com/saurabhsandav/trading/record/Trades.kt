@@ -6,6 +6,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeId
@@ -80,8 +81,8 @@ class Trades internal constructor(
                 filter.matchAllTags -> filter.tags.size.toLong()
                 else -> -1
             },
-            tickers = filter.tickers,
-            tickersCount = filter.tickers.size.toLong(),
+            symbolIds = filter.symbols,
+            symbolsCount = filter.symbols.size.toLong(),
         )
 
         return query.asFlow().mapToOne(coroutineContext)
@@ -111,8 +112,8 @@ class Trades internal constructor(
                 filter.matchAllTags -> filter.tags.size.toLong()
                 else -> -1
             },
-            tickers = filter.tickers,
-            tickersCount = filter.tickers.size.toLong(),
+            symbolIds = filter.symbols,
+            symbolsCount = filter.symbols.size.toLong(),
             sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
         )
 
@@ -144,8 +145,8 @@ class Trades internal constructor(
                     filter.matchAllTags -> filter.tags.size.toLong()
                     else -> -1
                 },
-                tickers = filter.tickers,
-                tickersCount = filter.tickers.size.toLong(),
+                symbolIds = filter.symbols,
+                symbolsCount = filter.symbols.size.toLong(),
             ),
             transacter = tradesDB.tradeQueries,
             context = coroutineContext,
@@ -168,8 +169,8 @@ class Trades internal constructor(
                         filter.matchAllTags -> filter.tags.size.toLong()
                         else -> -1
                     },
-                    tickers = filter.tickers,
-                    tickersCount = filter.tickers.size.toLong(),
+                    symbolIds = filter.symbols,
+                    symbolsCount = filter.symbols.size.toLong(),
                     sortOpenFirst = (sort == TradeSort.OpenDescEntryDesc).toLong(),
                     limit = limit,
                     offset = offset,
@@ -178,13 +179,13 @@ class Trades internal constructor(
         )
     }
 
-    fun getByTickerInInterval(
-        ticker: String,
+    fun getBySymbolInInterval(
+        symbolId: SymbolId,
         range: ClosedRange<Instant>,
     ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
-            .getByTickerInInterval(
-                ticker = ticker,
+            .getBySymbolInInterval(
+                symbolId = symbolId,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
             )
@@ -192,14 +193,14 @@ class Trades internal constructor(
             .mapToList(coroutineContext)
     }
 
-    fun getByTickerAndIdsInInterval(
-        ticker: String,
+    fun getBySymbolAndIdsInInterval(
+        symbolId: SymbolId,
         ids: List<TradeId>,
         range: ClosedRange<Instant>,
     ): Flow<List<Trade>> {
         return tradesDB.tradeQueries
-            .getByTickerAndIdsInInterval(
-                ticker = ticker,
+            .getBySymbolAndIdsInInterval(
+                symbolId = symbolId,
                 ids = ids,
                 from = range.start.toString(),
                 to = range.endInclusive.toString(),
@@ -208,11 +209,11 @@ class Trades internal constructor(
             .mapToList(coroutineContext)
     }
 
-    fun getSuggestedTickers(
+    fun getSuggestedSymbols(
         query: String,
-        ignore: List<String>,
-    ): Flow<List<String>> {
-        return tradesDB.tradeQueries.getSuggestedTickers(ignore, query).asFlow().mapToList(coroutineContext)
+        ignore: List<SymbolId>,
+    ): Flow<List<SymbolId>> {
+        return tradesDB.tradeQueries.getSuggestedSymbols(ignore, query).asFlow().mapToList(coroutineContext)
     }
 
     fun getForExecution(executionId: TradeExecutionId): Flow<List<Trade>> {

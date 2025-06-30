@@ -85,7 +85,7 @@ class TradeGenerationTest {
         return new(
             brokerId = execution.brokerId,
             instrument = execution.instrument,
-            ticker = execution.ticker,
+            symbolId = execution.symbolId,
             quantity = execution.quantity,
             lots = execution.lots,
             side = execution.side,

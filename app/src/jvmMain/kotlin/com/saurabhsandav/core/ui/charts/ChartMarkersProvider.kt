@@ -6,6 +6,7 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -39,7 +40,7 @@ internal class ChartMarkersProvider(
                     val tradingRecord = tradingProfiles.getRecord(profileId)
 
                     tradingRecord.trades
-                        .getByTickerAndIdsInInterval(ticker, tradeIds, instantRange)
+                        .getBySymbolAndIdsInInterval(SymbolId(ticker), tradeIds, instantRange)
                         .flatMapLatest { markedTrades ->
 
                             val closedTrades = markedTrades.filter { it.isClosed }
@@ -93,8 +94,8 @@ internal class ChartMarkersProvider(
 
                     val tradingRecord = tradingProfiles.getRecord(profileId)
 
-                    tradingRecord.executions.getByTickerAndTradeIdsInInterval(
-                        ticker = ticker,
+                    tradingRecord.executions.getBySymbolAndTradeIdsInInterval(
+                        symbolId = SymbolId(ticker),
                         ids = tradeIds,
                         range = instantRange,
                     )

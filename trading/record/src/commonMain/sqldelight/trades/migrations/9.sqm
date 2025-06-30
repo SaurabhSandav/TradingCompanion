@@ -1,0 +1,14 @@
+ALTER TABLE Trade RENAME COLUMN ticker TO symbolId;
+ALTER TABLE SizingTrade RENAME COLUMN ticker TO symbolId;
+ALTER TABLE TradeExecution RENAME COLUMN ticker TO symbolId;
+
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
+FROM Trade AS T;
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
+FROM TradeExecution AS T;

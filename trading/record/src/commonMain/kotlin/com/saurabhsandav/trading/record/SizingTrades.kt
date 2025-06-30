@@ -3,6 +3,7 @@ package com.saurabhsandav.trading.record
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -15,13 +16,13 @@ class SizingTrades(
 ) {
 
     suspend fun new(
-        ticker: String,
+        symbolId: SymbolId,
         entry: BigDecimal,
         stop: BigDecimal,
     ) = withContext(coroutineContext) {
 
         tradesDB.sizingTradeQueries.insert(
-            ticker = ticker,
+            symbolId = symbolId,
             entry = entry,
             stop = stop,
         )

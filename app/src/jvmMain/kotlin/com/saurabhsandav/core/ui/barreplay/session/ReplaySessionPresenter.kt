@@ -132,7 +132,7 @@ internal class ReplaySessionPresenter(
                                 }
                             "${params.brokerId.value} ($instrumentCapitalized)"
                         },
-                        ticker = params.ticker,
+                        ticker = params.symbolId.value,
                         quantity = params.lots
                             ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
                         side = params.side.strValue.uppercase(),

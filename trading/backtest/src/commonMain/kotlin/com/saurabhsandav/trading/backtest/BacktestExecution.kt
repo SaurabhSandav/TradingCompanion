@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.backtest
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import java.math.BigDecimal
@@ -10,7 +11,7 @@ data class BacktestExecution(
     val id: BacktestExecutionId,
     val brokerId: BrokerId,
     val instrument: Instrument,
-    val ticker: String,
+    val symbolId: SymbolId,
     val quantity: BigDecimal,
     val side: TradeExecutionSide,
     val price: BigDecimal,

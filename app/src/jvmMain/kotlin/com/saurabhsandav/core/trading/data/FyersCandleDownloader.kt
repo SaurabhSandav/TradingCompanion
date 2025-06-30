@@ -15,6 +15,7 @@ import com.saurabhsandav.fyersapi.model.response.HistoricalCandlesResult
 import com.saurabhsandav.fyersapi.model.response.isTokenExpired
 import com.saurabhsandav.trading.candledata.CandleDownloader
 import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import com.slack.eithernet.ApiResult
 import com.slack.eithernet.ApiResult.Failure
@@ -51,14 +52,14 @@ internal class FyersCandleDownloader(
     override fun isLoggedIn(): Flow<Boolean> = isLoggedIn
 
     override suspend fun download(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): Result<List<Candle>, CandleDownloader.Error> = coroutineBinding {
 
         // Fyers symbol notation
-        val symbolFull = when (ticker) {
+        val symbolFull = when (val ticker = symbolId.value) {
             "NIFTY50" -> "NSE:$ticker-INDEX"
             else -> "NSE:$ticker-EQ"
         }

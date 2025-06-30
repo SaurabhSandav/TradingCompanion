@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.record.model
 
+import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.datetime.LocalTime
 import java.math.BigDecimal
 import kotlin.time.Instant
@@ -17,7 +18,7 @@ data class TradeFilter(
     val hasNotes: Boolean? = null,
     val tags: List<TradeTagId> = emptyList(),
     val matchAllTags: Boolean = false,
-    val tickers: List<String> = emptyList(),
+    val symbols: List<SymbolId> = emptyList(),
 ) {
 
     companion object {
@@ -94,12 +95,12 @@ fun TradeFilterScope.pnlRange(
 }
 
 fun TradeFilterScope.tags(
-    tags: List<TradeTagId> = emptyList(),
+    ids: List<TradeTagId> = emptyList(),
     matchAllTags: Boolean = false,
 ) {
-    transform { it.copy(tags = tags, matchAllTags = matchAllTags) }
+    transform { it.copy(tags = ids, matchAllTags = matchAllTags) }
 }
 
-fun TradeFilterScope.tickers(tickers: List<String> = emptyList()) {
-    transform { it.copy(tickers = tickers) }
+fun TradeFilterScope.symbols(ids: List<SymbolId> = emptyList()) {
+    transform { it.copy(symbols = ids) }
 }

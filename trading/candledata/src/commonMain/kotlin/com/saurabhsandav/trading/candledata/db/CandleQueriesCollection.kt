@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.candledata.db
 
 import app.cash.sqldelight.db.SqlDriver
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -14,10 +15,11 @@ class CandleQueriesCollection(
     private val queriesMap = mutableMapOf<String, CandlesQueries>()
 
     fun getTableName(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): String {
 
+        val ticker = symbolId.value
         val needsPrefix = ticker.first().isDigit()
         val timeframeStr = timeframe.seconds.toString()
         val length = ticker.length + timeframeStr.length + if (needsPrefix) 1 else 0
@@ -31,11 +33,11 @@ class CandleQueriesCollection(
     }
 
     suspend fun get(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): CandlesQueries = mutex.withLock {
 
-        val tableName = getTableName(ticker, timeframe)
+        val tableName = getTableName(symbolId, timeframe)
 
         return@withLock queriesMap.getOrPut(tableName) {
 

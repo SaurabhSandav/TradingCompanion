@@ -6,6 +6,7 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
 import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -22,7 +23,7 @@ class CandleCacheDB(
 ) : CandleCache {
 
     override suspend fun saveCheckedRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
@@ -31,25 +32,25 @@ class CandleCacheDB(
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
         val checkedRangeQueries = candleDB.checkedRangeQueries
-        val currentRange = getCheckedRange(ticker, timeframe)
+        val currentRange = getCheckedRange(symbolId, timeframe)
 
         // Expand range on either side
         val minFrom = minOf(from, currentRange?.start ?: from)
         val maxTo = maxOf(to, currentRange?.endInclusive ?: to)
 
-        val tableName = candleQueriesCollection.getTableName(ticker, timeframe)
+        val tableName = candleQueriesCollection.getTableName(symbolId, timeframe)
 
         checkedRangeQueries.insert(tableName, minFrom, maxTo)
     }
 
     override suspend fun getCheckedRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): ClosedRange<Instant>? = withContext(coroutineContext) {
 
         val checkedRangeQueries = candleDB.checkedRangeQueries
 
-        val tableName = candleQueriesCollection.getTableName(ticker, timeframe)
+        val tableName = candleQueriesCollection.getTableName(symbolId, timeframe)
 
         return@withContext checkedRangeQueries
             .get(tableName) { _, start, end -> start..end }
@@ -57,13 +58,13 @@ class CandleCacheDB(
     }
 
     override suspend fun replace(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         interval: ClosedRange<Instant>,
         new: List<Candle>,
     ) = withContext(coroutineContext) {
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
 
         candlesQueries.transaction {
 
@@ -87,14 +88,14 @@ class CandleCacheDB(
     }
 
     override fun getCountInRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
     ): Flow<Long> = flow {
 
         candleQueriesCollection
-            .get(ticker, timeframe)
+            .get(symbolId, timeframe)
             .getCountInRange(from.epochSeconds, to.epochSeconds)
             .asFlow()
             .mapToOne(coroutineContext)
@@ -102,14 +103,14 @@ class CandleCacheDB(
     }
 
     override fun getInstantBeforeByCount(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         before: Instant,
         count: Int,
     ): Flow<Instant?> = flow {
 
         candleQueriesCollection
-            .get(ticker, timeframe)
+            .get(symbolId, timeframe)
             .getInstantBeforeByCount(
                 before = before.epochSeconds,
                 count = count.toLong(),
@@ -121,14 +122,14 @@ class CandleCacheDB(
     }
 
     override fun getInstantAfterByCount(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         after: Instant,
         count: Int,
     ): Flow<Instant?> = flow {
 
         candleQueriesCollection
-            .get(ticker, timeframe)
+            .get(symbolId, timeframe)
             .getInstantAfterByCount(
                 after = after.epochSeconds,
                 count = count.toLong(),
@@ -140,14 +141,14 @@ class CandleCacheDB(
     }
 
     override fun fetchRange(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
         includeFromCandle: Boolean,
     ): Flow<List<Candle>> = flow {
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
 
         val mapper: (Long, String, String, String, String, Long) -> Candle =
             { epochSeconds, open, high, low, close, volume ->
@@ -178,12 +179,12 @@ class CandleCacheDB(
     }
 
     override suspend fun getCountAt(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
     ): CandleCache.CountRange? = withContext(coroutineContext) {
 
-        val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
         val result = candlesQueries
             .getEpochSecondsAndCountAt(at.epochSeconds)
             .executeAsOneOrNull()
@@ -201,7 +202,7 @@ class CandleCacheDB(
     }
 
     override fun getBefore(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
@@ -212,7 +213,7 @@ class CandleCacheDB(
 
         return flow {
 
-            val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+            val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
 
             candlesQueries.getCountBefore(
                 at = at.epochSeconds,
@@ -232,7 +233,7 @@ class CandleCacheDB(
     }
 
     override fun getAfter(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
         at: Instant,
         count: Int,
@@ -243,7 +244,7 @@ class CandleCacheDB(
 
         return flow {
 
-            val candlesQueries = candleQueriesCollection.get(ticker, timeframe)
+            val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
 
             candlesQueries.getCountAfter(
                 at = at.epochSeconds,

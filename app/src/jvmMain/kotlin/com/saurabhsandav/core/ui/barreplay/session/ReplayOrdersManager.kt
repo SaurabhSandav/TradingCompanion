@@ -11,6 +11,7 @@ import com.saurabhsandav.trading.backtest.Limit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.newCandle
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import kotlinx.coroutines.CoroutineScope
@@ -48,7 +49,7 @@ internal class ReplayOrdersManager(
 
         // Un-cache unused ReplaySeries
         backtestBroker.positions
-            .map { positions -> positions.map { it.ticker }.toSet() }
+            .map { positions -> positions.map { it.symbolId.value }.toSet() }
             .onEach { openTickers ->
 
                 (tickerPriceScopeCache.keys - openTickers).forEach { ticker ->
@@ -80,7 +81,7 @@ internal class ReplayOrdersManager(
             val orderParams = BacktestOrder.Params(
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
-                ticker = stockChartParams.ticker,
+                symbolId = SymbolId(stockChartParams.ticker),
                 quantity = quantity,
                 lots = null,
                 side = side,
@@ -106,7 +107,7 @@ internal class ReplayOrdersManager(
                 val savedOrderId = tradingRecord.executions.new(
                     brokerId = closedOrder.params.brokerId,
                     instrument = closedOrder.params.instrument,
-                    ticker = closedOrder.params.ticker,
+                    symbolId = closedOrder.params.symbolId,
                     quantity = closedOrder.params.quantity,
                     lots = closedOrder.params.lots,
                     side = closedOrder.params.side,
@@ -159,7 +160,7 @@ internal class ReplayOrdersManager(
                                 tradingRecord.executions.new(
                                     brokerId = closedStopOrder.params.brokerId,
                                     instrument = closedStopOrder.params.instrument,
-                                    ticker = closedStopOrder.params.ticker,
+                                    symbolId = closedOrder.params.symbolId,
                                     quantity = closedStopOrder.params.quantity,
                                     lots = closedStopOrder.params.lots,
                                     side = closedStopOrder.params.side,
@@ -203,7 +204,7 @@ internal class ReplayOrdersManager(
                                 tradingRecord.executions.new(
                                     brokerId = closedTargetOrder.params.brokerId,
                                     instrument = closedTargetOrder.params.instrument,
-                                    ticker = closedTargetOrder.params.ticker,
+                                    symbolId = closedOrder.params.symbolId,
                                     quantity = closedTargetOrder.params.quantity,
                                     lots = closedTargetOrder.params.lots,
                                     side = closedTargetOrder.params.side,
@@ -236,7 +237,7 @@ internal class ReplayOrdersManager(
             // Send initial price to BacktestBroker
             backtestBroker.newPrice(
                 instant = replaySeries.last().openInstant,
-                ticker = ticker,
+                symbolId = SymbolId(ticker),
                 price = replaySeries.last().close,
             )
 
@@ -245,7 +246,7 @@ internal class ReplayOrdersManager(
                 .onEach { (_, candle) ->
 
                     backtestBroker.newCandle(
-                        ticker = ticker,
+                        symbolId = SymbolId(ticker),
                         candle = candle,
                         replayOHLC = false,
                     )

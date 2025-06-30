@@ -12,6 +12,7 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.SessionChecker
+import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
@@ -64,7 +65,7 @@ internal class ReplayChartsMarketDataProvider(
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             tradingRecord.trades
-                .getByTickerInInterval(ticker, instantRange)
+                .getBySymbolInInterval(SymbolId(ticker), instantRange)
                 .flatMapLatest { tradesToMark ->
 
                     val closedTrades = tradesToMark.filter { it.isClosed }
@@ -113,7 +114,7 @@ internal class ReplayChartsMarketDataProvider(
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             tradingRecord.executions
-                .getByTickerInInterval(ticker, instantRange)
+                .getBySymbolInInterval(SymbolId(ticker), instantRange)
                 .mapList { execution ->
 
                     TradeExecutionMarker(

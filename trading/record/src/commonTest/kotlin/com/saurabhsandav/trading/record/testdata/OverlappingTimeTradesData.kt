@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record.testdata
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.Instrument
@@ -24,7 +25,7 @@ class OverlappingTimeTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -38,7 +39,7 @@ class OverlappingTimeTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker2",
+            symbolId = SymbolId("TestSymbol2"),
             quantity = 25.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
@@ -52,7 +53,7 @@ class OverlappingTimeTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker",
+            symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -66,7 +67,7 @@ class OverlappingTimeTradesData {
             id = TradeExecutionId(-1),
             brokerId = BrokerId("Finvasia"),
             instrument = Instrument.Equity,
-            ticker = "TestTicker2",
+            symbolId = SymbolId("TestSymbol2"),
             quantity = 25.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -92,7 +93,7 @@ class OverlappingTimeTradesData {
             id = TradeId(-1),
             brokerId = executions[0].brokerId,
             instrument = executions[0].instrument,
-            ticker = executions[0].ticker,
+            symbolId = executions[0].symbolId,
             quantity = executions[0].quantity,
             closedQuantity = BigDecimal.ZERO,
             lots = executions[0].lots,
@@ -113,7 +114,7 @@ class OverlappingTimeTradesData {
             id = TradeId(-1),
             brokerId = executions[1].brokerId,
             instrument = executions[1].instrument,
-            ticker = executions[1].ticker,
+            symbolId = executions[1].symbolId,
             quantity = executions[1].quantity,
             closedQuantity = BigDecimal.ZERO,
             lots = executions[1].lots,

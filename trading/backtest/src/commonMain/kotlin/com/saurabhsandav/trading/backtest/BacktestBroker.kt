@@ -7,6 +7,7 @@ import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Open
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Rejected
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.RejectionCause
 import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr
 import com.saurabhsandav.trading.core.isLong
@@ -40,7 +41,7 @@ class BacktestBroker(
     private var nextExecutionId = 0L
     private var nextPositionId = 0L
     private var currentInstant = Instant.DISTANT_PAST
-    private val currentPrices = mutableMapOf<String, BigDecimal>()
+    private val currentPrices = mutableMapOf<SymbolId, BigDecimal>()
 
     private val _orders = MutableStateFlow(persistentListOf<BacktestOrder<*>>())
     val orders = _orders.asStateFlow()
@@ -99,7 +100,7 @@ class BacktestBroker(
 
     fun newPrice(
         instant: Instant,
-        ticker: String,
+        symbolId: SymbolId,
         price: BigDecimal,
     ) {
 
@@ -112,14 +113,14 @@ class BacktestBroker(
 
         // Create copy of open orders to allow removing orders from original list during iteration.
         orders.value
-            .filter { it.status is Open && it.params.ticker == ticker }
+            .filter { it.status is Open && it.params.symbolId == symbolId }
             .forEach { openOrder ->
                 @Suppress("UNCHECKED_CAST")
                 executeOrderIfEligible(openOrder as BacktestOrder<Open>, price)
             }
 
         // Cache current price
-        currentPrices[ticker] = price
+        currentPrices[symbolId] = price
 
         // Update margin
         updateUsedMargin()
@@ -130,7 +131,7 @@ class BacktestBroker(
         newPrice: BigDecimal,
     ) {
 
-        val prevPrice = currentPrices[openOrder.params.ticker] ?: return
+        val prevPrice = currentPrices[openOrder.params.symbolId] ?: return
 
         // Return if order cannot be executed
         val executionPrice = openOrder.tryExecute(prevPrice, newPrice) ?: return
@@ -147,7 +148,7 @@ class BacktestBroker(
             id = nextExecutionId++.let(::BacktestExecutionId),
             brokerId = executedOrder.params.brokerId,
             instrument = executedOrder.params.instrument,
-            ticker = executedOrder.params.ticker,
+            symbolId = executedOrder.params.symbolId,
             quantity = executedOrder.params.quantity,
             side = executedOrder.params.side,
             price = executedOrder.status.executionPrice,
@@ -217,7 +218,7 @@ class BacktestBroker(
 
         // Look for a position that can be exited by this order
         val positionToExit = positions.value.find { position ->
-            position.ticker == params.ticker && position.side == exitsPositionWithSide
+            position.symbolId == params.symbolId && position.side == exitsPositionWithSide
         }
 
         // Quantity that'll create a new position. Will be 0 if order only closes position.
@@ -234,7 +235,7 @@ class BacktestBroker(
             is StopLimit -> executionType.price
             is TrailingStop -> executionType.trailingStop!!
             is Market, is StopMarket -> null
-        } ?: getCurrentPrice(params.ticker)
+        } ?: getCurrentPrice(params.symbolId)
 
         val cost = executionPrice * newPositionQuantity
         val margin = cost / leverage
@@ -244,12 +245,14 @@ class BacktestBroker(
 
     private fun updatePositionsWithExecution(execution: BacktestExecution) {
 
-        val currentPrice = getCurrentPrice(execution.ticker)
+        val currentPrice = getCurrentPrice(execution.symbolId)
         val positions = positions.value
 
         // Position that will consume this execution
         val positionIndex = positions.indexOfFirst {
-            it.brokerId == execution.brokerId && it.instrument == execution.instrument && it.ticker == execution.ticker
+            it.brokerId == execution.brokerId &&
+                it.instrument == execution.instrument &&
+                it.symbolId == execution.symbolId
         }.takeIf { it != -1 }
 
         // No position exists to consume execution. Create new position.
@@ -263,7 +266,7 @@ class BacktestBroker(
             val newPosition = BacktestPosition(
                 id = nextPositionId++.let(::BacktestPositionId),
                 brokerId = execution.brokerId,
-                ticker = execution.ticker,
+                symbolId = execution.symbolId,
                 instrument = execution.instrument,
                 quantity = execution.quantity,
                 side = tradeSide,
@@ -349,7 +352,7 @@ class BacktestBroker(
                             val newPosition = BacktestPosition(
                                 id = nextPositionId++.let(::BacktestPositionId),
                                 brokerId = execution.brokerId,
-                                ticker = execution.ticker,
+                                symbolId = execution.symbolId,
                                 instrument = execution.instrument,
                                 quantity = extraQuantity.negate(),
                                 side = newPositionSide,
@@ -429,7 +432,7 @@ class BacktestBroker(
 
     private fun BacktestPosition.brokerage(
         entry: BigDecimal = averagePrice,
-        exit: BigDecimal = getCurrentPrice(ticker),
+        exit: BigDecimal = getCurrentPrice(symbolId),
         quantity: BigDecimal = this.quantity,
     ): Brokerage = brokerage(
         brokerId = brokerId,
@@ -440,13 +443,13 @@ class BacktestBroker(
         side = side,
     )
 
-    private fun getCurrentPrice(ticker: String): BigDecimal {
-        return currentPrices[ticker] ?: error("BacktestBroker: No price available for $ticker")
+    private fun getCurrentPrice(symbolId: SymbolId): BigDecimal {
+        return currentPrices[symbolId] ?: error("BacktestBroker: No price available for ${symbolId.value}")
     }
 }
 
 fun BacktestBroker.newCandle(
-    ticker: String,
+    symbolId: SymbolId,
     candle: Candle,
     replayOHLC: Boolean,
 ) {
@@ -459,12 +462,12 @@ fun BacktestBroker.newCandle(
                 else -> candle.low to candle.high
             }
 
-            newPrice(candle.openInstant, ticker, candle.open)
-            newPrice(candle.openInstant, ticker, extreme1)
-            newPrice(candle.openInstant, ticker, extreme2)
-            newPrice(candle.openInstant, ticker, candle.close)
+            newPrice(candle.openInstant, symbolId, candle.open)
+            newPrice(candle.openInstant, symbolId, extreme1)
+            newPrice(candle.openInstant, symbolId, extreme2)
+            newPrice(candle.openInstant, symbolId, candle.close)
         }
 
-        else -> newPrice(candle.openInstant, ticker, candle.close)
+        else -> newPrice(candle.openInstant, symbolId, candle.close)
     }
 }

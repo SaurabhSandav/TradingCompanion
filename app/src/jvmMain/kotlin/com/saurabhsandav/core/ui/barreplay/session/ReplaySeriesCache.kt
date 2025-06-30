@@ -8,6 +8,7 @@ import com.saurabhsandav.trading.barreplay.ReplaySeries
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.MutableCandleSeries
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -64,7 +65,7 @@ internal class ReplaySeriesCache(
 
             val candlesBefore = async {
                 candleRepo.getCandlesBefore(
-                    ticker = ticker,
+                    symbolId = SymbolId(ticker),
                     timeframe = timeframe,
                     at = replayParams.replayFrom,
                     count = replayParams.candlesBefore,
@@ -74,7 +75,7 @@ internal class ReplaySeriesCache(
 
             val candlesAfter = async {
                 candleRepo.getCandles(
-                    ticker = ticker,
+                    symbolId = SymbolId(ticker),
                     timeframe = timeframe,
                     from = replayParams.replayFrom,
                     to = replayParams.dataTo,

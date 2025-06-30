@@ -2,13 +2,14 @@ package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
-import com.saurabhsandav.trading.record.testdata.MultipleTickersInIntervalData
+import com.saurabhsandav.trading.record.testdata.MultipleSymbolsInIntervalData
 import com.saurabhsandav.trading.record.testdata.SimpleTradesData
 import com.saurabhsandav.trading.record.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.first
@@ -62,7 +63,7 @@ class TradeExecutionsTest {
                 id = id,
                 brokerId = BrokerId("EditedTestBroker"),
                 instrument = Instrument.Options,
-                ticker = "EditedTestTicker",
+                symbolId = SymbolId("EditedTestSymbol"),
                 quantity = 20.toBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
@@ -84,7 +85,7 @@ class TradeExecutionsTest {
             id = id,
             brokerId = BrokerId("EditedTestBroker"),
             instrument = Instrument.Options,
-            ticker = "EditedTestTicker",
+            symbolId = SymbolId("EditedTestSymbol"),
             quantity = 20.toBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
@@ -96,7 +97,7 @@ class TradeExecutionsTest {
 
         assertEquals("EditedTestBroker", editedExecution.brokerId.value)
         assertEquals(Instrument.Options, editedExecution.instrument)
-        assertEquals("EditedTestTicker", editedExecution.ticker)
+        assertEquals("EditedTestSymbol", editedExecution.symbolId.value)
         assertEquals(20.toBigDecimal(), editedExecution.quantity)
         assertNull(editedExecution.lots)
         assertEquals(TradeExecutionSide.Sell, editedExecution.side)
@@ -208,51 +209,51 @@ class TradeExecutionsTest {
     }
 
     @Test
-    fun getByTickerInInterval() = scope.runTest {
+    fun getBySymbolInInterval() = scope.runTest {
 
-        val data = MultipleTickersInIntervalData()
+        val data = MultipleSymbolsInIntervalData()
 
         executions.new(data.executions)
 
-        // Trade #1 and #4 have "TestTicker" ticker. Trade #4 should be ignored.
+        // Trade #1 and #4 have "TestSymbol" symbol. Trade #4 should be ignored.
 
         @Suppress("ktlint:standard:range-spacing")
         val interval = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
             LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)
 
-        val executionsInInterval = executions.getByTickerInInterval(
-            ticker = "TestTicker",
+        val executionsInInterval = executions.getBySymbolInInterval(
+            symbolId = SymbolId("TestSymbol"),
             range = interval,
         ).first()
         assertEquals(data.trade1Executions, executionsInInterval.map { it.copy(id = TradeExecutionId(-1)) })
     }
 
     @Test
-    fun getByTickerAndTradeIdsInInterval() = scope.runTest {
+    fun getBySymbolAndTradeIdsInInterval() = scope.runTest {
 
-        val data = MultipleTickersInIntervalData()
+        val data = MultipleSymbolsInIntervalData()
 
         executions.new(data.executions)
 
-        // Trade #1, #4 and #5 have "TestTicker" ticker. Trade #4 and #5 should be ignored.
+        // Trade #1, #4 and #5 have "TestSymbol" symbol. Trade #4 and #5 should be ignored.
 
         @Suppress("ktlint:standard:range-spacing")
         val interval1 = LocalDateTime(2024, Month.MAY, 1, 0, 0).toInstant(TimeZone.UTC)..
             LocalDateTime(2024, Month.MAY, 5, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval1 = executions.getByTickerAndTradeIdsInInterval(
-            ticker = "TestTicker",
+        val executionsInInterval1 = executions.getBySymbolAndTradeIdsInInterval(
+            symbolId = SymbolId("TestSymbol"),
             ids = listOf(TradeId(1)),
             range = interval1,
         ).first()
         assertEquals(data.trade1Executions, executionsInInterval1.map { it.copy(id = TradeExecutionId(-1)) })
 
-        // Trade #2 and #3 have "TestTicker1" ticker. Trade #3 should be ignored.
+        // Trade #2 and #3 have "TestSymbol1" symbol. Trade #3 should be ignored.
 
         @Suppress("ktlint:standard:range-spacing")
         val interval2 = LocalDateTime(2024, Month.MAY, 2, 0, 0).toInstant(TimeZone.UTC)..
             LocalDateTime(2024, Month.MAY, 4, 0, 0).toInstant(TimeZone.UTC)
-        val executionsInInterval2 = executions.getByTickerAndTradeIdsInInterval(
-            ticker = "TestTicker1",
+        val executionsInInterval2 = executions.getBySymbolAndTradeIdsInInterval(
+            symbolId = SymbolId("TestSymbol1"),
             ids = listOf(TradeId(2)),
             range = interval2,
         ).first()
@@ -268,7 +269,7 @@ class TradeExecutionsTest {
         return new(
             brokerId = execution.brokerId,
             instrument = execution.instrument,
-            ticker = execution.ticker,
+            symbolId = execution.symbolId,
             quantity = execution.quantity,
             lots = execution.lots,
             side = execution.side,

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
 import androidx.compose.runtime.saveable.autoSaver
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeTagId
 import com.saurabhsandav.trading.record.model.hasNotes
@@ -11,8 +12,8 @@ import com.saurabhsandav.trading.record.model.isOpen
 import com.saurabhsandav.trading.record.model.isShort
 import com.saurabhsandav.trading.record.model.noNotes
 import com.saurabhsandav.trading.record.model.pnlRange
+import com.saurabhsandav.trading.record.model.symbols
 import com.saurabhsandav.trading.record.model.tags
-import com.saurabhsandav.trading.record.model.tickers
 import com.saurabhsandav.trading.record.model.timeRange
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -116,7 +117,7 @@ data class FilterConfig(
 
         tags(tags, matchAllTags)
 
-        tickers(tickers)
+        symbols(tickers.map(::SymbolId))
     }
 
     enum class OpenClosed { All, Open, Closed }

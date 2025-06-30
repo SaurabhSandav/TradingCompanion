@@ -1,4 +1,5 @@
 import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.core.SymbolId;
 import com.saurabhsandav.trading.record.model.Instrument;
 import com.saurabhsandav.trading.record.model.TradeId;
 import com.saurabhsandav.trading.record.model.TradeSide;
@@ -10,7 +11,7 @@ import kotlin.time.Instant;
 CREATE TABLE IF NOT EXISTS Trade (
 id INTEGER AS TradeId NOT NULL PRIMARY KEY,
 brokerId TEXT AS BrokerId NOT NULL,
-ticker TEXT NOT NULL,
+symbolId TEXT AS SymbolId NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 quantity TEXT AS BigDecimal NOT NULL,
 closedQuantity TEXT AS BigDecimal NOT NULL,
@@ -28,7 +29,7 @@ isClosed INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO Trade(brokerId, ticker, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
+INTO Trade(brokerId, symbolId, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
 averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
 ?, ?, ?, ?, ?, ?);
@@ -86,7 +87,7 @@ AND (:hasNotes IS NULL OR IIF(:hasNotes = TRUE, id IN ids_with_notes, id NOT IN 
 --  :tagsCount = -1 -> Match some tags
 --  :tagsCount >= 0 -> Match all tags
 AND (:tagsCount IS NULL OR id IN ids_with_tags)
-AND (:tickersCount <= 0 OR ticker IN :tickers);
+AND (:symbolsCount <= 0 OR symbolId IN :symbolIds);
 
 getFiltered:
 WITH ids_with_notes AS (
@@ -115,7 +116,7 @@ AND (:hasNotes IS NULL OR IIF(:hasNotes = TRUE, id IN ids_with_notes, id NOT IN 
 --  :tagsCount = -1 -> Match some tags
 --  :tagsCount >= 0 -> Match all tags
 AND (:tagsCount IS NULL OR id IN ids_with_tags)
-AND (:tickersCount <= 0 OR ticker IN :tickers)
+AND (:symbolsCount <= 0 OR symbolId IN :symbolIds)
 ORDER BY
 IIF(:sortOpenFirst = TRUE, isClosed, 0) ASC,
 datetime(entryTimestamp) DESC, id DESC;
@@ -132,17 +133,17 @@ SELECT
   COUNT(CASE WHEN isClosed = FALSE THEN 1 END) AS openCount
 FROM Trade;
 
-getByTickerInInterval:
+getBySymbolInInterval:
 SELECT *
 FROM Trade
-WHERE ticker = :ticker
+WHERE symbolId = :symbolId
 AND datetime(:from) < datetime(entryTimestamp)
 AND datetime(entryTimestamp) < datetime(:to);
 
-getByTickerAndIdsInInterval:
+getBySymbolAndIdsInInterval:
 SELECT *
 FROM Trade
-WHERE ticker = :ticker
+WHERE symbolId = :symbolId
 AND id IN :ids
 AND datetime(:from) < datetime(entryTimestamp)
 AND datetime(entryTimestamp) < datetime(:to);
@@ -156,9 +157,9 @@ WHERE TradeExcursions.tradeId IS NULL
 AND Trade.isClosed = TRUE
 AND Trade.entryTimestamp < ?;
 
-getSuggestedTickers:
-SELECT DISTINCT ticker
+getSuggestedSymbols:
+SELECT DISTINCT symbolId
 FROM Trade
 WHERE
-ticker NOT IN :ignore
-AND ticker LIKE '%' || :query || '%';
+symbolId NOT IN :ignore
+AND symbolId LIKE '%' || :query || '%';
