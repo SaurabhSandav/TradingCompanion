@@ -2,8 +2,10 @@ package com.saurabhsandav.core.ui.barreplay.model
 
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
 import kotlin.time.Instant
 
 internal data class BarReplayState(
@@ -29,7 +31,8 @@ internal data class BarReplayState(
         val replayFrom: Instant,
         val dataTo: Instant,
         val replayFullBar: Boolean,
-        val initialTicker: String,
+        @JsonNames("initialTicker")
+        val initialSymbolId: SymbolId,
         val profileId: ProfileId?,
     )
 }

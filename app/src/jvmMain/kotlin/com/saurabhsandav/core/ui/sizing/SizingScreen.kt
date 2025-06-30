@@ -28,9 +28,10 @@ import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.sizing.model.SizingState.SizedTrade
 import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormParams
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionDialog
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 
 @Composable
@@ -40,7 +41,7 @@ internal fun SizingScreen(
     onUpdateStop: (id: SizingTradeId, stop: String) -> Unit,
     onOpenLiveTrade: (SizingTradeId) -> Unit,
     onDeleteTrade: (SizingTradeId) -> Unit,
-    onAddTrade: (ticker: String) -> Unit,
+    onAddTrade: (SymbolId) -> Unit,
 ) {
 
     // Set window title
@@ -77,7 +78,7 @@ private fun SizingTradesGrid(
     onUpdateStop: (id: SizingTradeId, stop: String) -> Unit,
     onOpenLiveTrade: (SizingTradeId) -> Unit,
     onDeleteTrade: (SizingTradeId) -> Unit,
-    onAddTrade: (ticker: String) -> Unit,
+    onAddTrade: (SymbolId) -> Unit,
 ) {
 
     LazyVerticalGrid(
@@ -212,14 +213,14 @@ private fun SizingTradeCard(
 }
 
 @Composable
-private fun AddTradeCard(onAddTrade: (ticker: String) -> Unit) {
+private fun AddTradeCard(onAddTrade: (SymbolId) -> Unit) {
 
     Card {
 
-        var showTickerSelectionDialog by state { false }
+        var showSymbolSelectionDialog by state { false }
 
         TextButton(
-            onClick = { showTickerSelectionDialog = true },
+            onClick = { showSymbolSelectionDialog = true },
         ) {
 
             Text(
@@ -229,13 +230,13 @@ private fun AddTradeCard(onAddTrade: (ticker: String) -> Unit) {
             )
         }
 
-        if (showTickerSelectionDialog) {
+        if (showSymbolSelectionDialog) {
 
-            TickerSelectionDialog(
-                onDismissRequest = { showTickerSelectionDialog = false },
-                onSelect = { ticker ->
-                    onAddTrade(ticker)
-                    showTickerSelectionDialog = false
+            SymbolSelectionDialog(
+                onDismissRequest = { showSymbolSelectionDialog = false },
+                onSelect = { symbolId ->
+                    onAddTrade(symbolId)
+                    showSymbolSelectionDialog = false
                 },
             )
         }

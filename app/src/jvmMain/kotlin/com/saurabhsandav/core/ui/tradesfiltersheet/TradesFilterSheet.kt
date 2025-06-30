@@ -33,8 +33,8 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddSymbol
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddTag
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddTicker
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.ApplyFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterByNetPnl
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterDateInterval
@@ -43,8 +43,8 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.Filte
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterPnl
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterSide
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterTimeInterval
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveSymbol
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveTag
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveTicker
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.ResetFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetMatchAllTagsEnabled
@@ -53,9 +53,10 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.ui.NotesFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.OpenClosedFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.PnlFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SideFilterItem
+import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SymbolsFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TagsFilterItem
-import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TickersFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TimeIntervalFilterItem
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.flow.Flow
 
@@ -96,10 +97,10 @@ internal fun TradesFilterSheet(
         onRemoveTag = { state.eventSink(RemoveTag(it)) },
         matchAllTags = state.filterConfig.matchAllTags,
         onMatchAllTagsChange = { state.eventSink(SetMatchAllTagsEnabled(it)) },
-        selectedTickers = state.filterConfig.tickers,
-        tickerSuggestions = state.tickerSuggestions,
-        onAddTicker = { state.eventSink(AddTicker(it)) },
-        onRemoveTicker = { state.eventSink(RemoveTicker(it)) },
+        selectedSymbols = state.filterConfig.symbols,
+        symbolSuggestions = state.symbolSuggestions,
+        onAddSymbol = { symbolId -> state.eventSink(AddSymbol(symbolId)) },
+        onRemoveSymbol = { symbolId -> state.eventSink(RemoveSymbol(symbolId)) },
         onReset = { state.eventSink(ResetFilter) },
         onApply = { state.eventSink(ApplyFilter) },
     )
@@ -127,10 +128,10 @@ private fun TradesFilterSheet(
     onRemoveTag: (TradeTagId) -> Unit,
     matchAllTags: Boolean,
     onMatchAllTagsChange: (Boolean) -> Unit,
-    selectedTickers: List<String>,
-    tickerSuggestions: (String) -> Flow<List<String>>,
-    onAddTicker: (String) -> Unit,
-    onRemoveTicker: (String) -> Unit,
+    selectedSymbols: List<SymbolId>,
+    symbolSuggestions: (String) -> Flow<List<SymbolId>>,
+    onAddSymbol: (SymbolId) -> Unit,
+    onRemoveSymbol: (SymbolId) -> Unit,
     onReset: () -> Unit,
     onApply: () -> Unit,
 ) {
@@ -174,11 +175,11 @@ private fun TradesFilterSheet(
 
             HorizontalDivider()
 
-            TickersFilterItem(
-                selectedTickers = selectedTickers,
-                tickerSuggestions = tickerSuggestions,
-                onAddTicker = onAddTicker,
-                onRemoveTicker = onRemoveTicker,
+            SymbolsFilterItem(
+                selectedSymbols = selectedSymbols,
+                symbolSuggestions = symbolSuggestions,
+                onAddSymbol = onAddSymbol,
+                onRemoveSymbol = onRemoveSymbol,
             )
 
             Spacer(Modifier.weight(1F))

@@ -38,7 +38,7 @@ internal fun TradesTable(
             TradesTableSchema.SimpleHeader {
                 id.text { "ID" }
                 broker.text { "Broker" }
-                ticker.text { "Ticker" }
+                symbol.text { "Symbol" }
                 side.text { "Side" }
                 quantity.text { "Quantity" }
                 avgEntry.text { "Avg. Entry" }
@@ -86,7 +86,7 @@ private fun TradeEntry(
             TradesTableSchema.SimpleRow {
                 id.text { entry.profileTradeId.tradeId.toString() }
                 broker.text { entry.broker }
-                ticker.text { entry.ticker }
+                symbol.text { entry.ticker }
                 side.content {
                     Text(entry.side, color = if (entry.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
@@ -121,7 +121,7 @@ private object TradesTableSchema : TableSchema() {
 
     val id = cell(Fixed(48.dp))
     val broker = cell(Weight(2F))
-    val ticker = cell(Weight(1.7F))
+    val symbol = cell(Weight(1.7F))
     val side = cell()
     val quantity = cell()
     val avgEntry = cell()

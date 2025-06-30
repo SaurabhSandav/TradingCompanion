@@ -18,26 +18,27 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import com.saurabhsandav.core.ui.theme.dimens
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 
 @Composable
-internal fun NewChartForm(onInitializeChart: (String, Timeframe) -> Unit) {
+internal fun NewChartForm(onInitializeChart: (SymbolId, Timeframe) -> Unit) {
 
     Column(
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center).width(IntrinsicSize.Min),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
     ) {
 
-        var ticker by state<String?> { null }
+        var symbolId by state<SymbolId?> { null }
         var timeframe by state<Timeframe?> { null }
 
-        TickerSelectionField(
-            type = TickerSelectionType.Regular,
-            selected = ticker,
-            onSelect = { ticker = it },
+        SymbolSelectionField(
+            type = SymbolSelectionType.Regular,
+            selected = symbolId,
+            onSelect = { symbolId = it },
         )
 
         OutlinedListSelectionField(
@@ -51,11 +52,11 @@ internal fun NewChartForm(onInitializeChart: (String, Timeframe) -> Unit) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                val ticker = ticker ?: return@Button
+                val symbolId = symbolId ?: return@Button
                 val timeframe = timeframe ?: return@Button
-                onInitializeChart(ticker, timeframe)
+                onInitializeChart(symbolId, timeframe)
             },
-            enabled = ticker != null && timeframe != null,
+            enabled = symbolId != null && timeframe != null,
         ) {
 
             Text("Open Chart")

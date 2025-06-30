@@ -37,8 +37,8 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.AddToTrade
@@ -100,13 +100,13 @@ private fun TradeExecutionForm(
         onSubmit = onSubmit,
     ) {
 
-        val isTickerEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
+        val isSymbolEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
         val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)
 
         val (instrumentFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
 
         LaunchedEffect(Unit) {
-            val requester = if (isTickerEditable) instrumentFocusRequester else quantityFocusRequester
+            val requester = if (isSymbolEditable) instrumentFocusRequester else quantityFocusRequester
             requester.requestFocus()
         }
 
@@ -121,18 +121,18 @@ private fun TradeExecutionForm(
             onSelect = { model.instrumentField.value = it },
             selection = model.instrumentField.value,
             label = { Text("Instrument") },
-            enabled = isTickerEditable,
+            enabled = isSymbolEditable,
             isError = model.instrumentField.isError,
             supportingText = model.instrumentField.errorsMessagesAsSupportingText(),
         )
 
-        TickerSelectionField(
-            type = TickerSelectionType.Regular,
-            selected = model.tickerField.value,
-            onSelect = { model.tickerField.value = it },
-            enabled = isTickerEditable,
-            isError = model.tickerField.isError,
-            supportingText = model.tickerField.errorsMessagesAsSupportingText(),
+        SymbolSelectionField(
+            type = SymbolSelectionType.Regular,
+            selected = model.symbolField.value,
+            onSelect = { model.symbolField.value = it },
+            enabled = isSymbolEditable,
+            isError = model.symbolField.isError,
+            supportingText = model.symbolField.errorsMessagesAsSupportingText(),
         )
 
         OutlinedTextField(

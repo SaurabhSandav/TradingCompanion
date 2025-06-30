@@ -51,7 +51,7 @@ class StockChart internal constructor(
     syncManager: StockChartsSyncManager,
     initialParams: StockChartParams,
     private val buildStockChartData: (StockChartParams, LoadedPages) -> StockChartData,
-    private val onShowTickerSelector: () -> Unit,
+    private val onShowSymbolSelector: () -> Unit,
     private val onShowTimeframeSelector: () -> Unit,
     initialVisibleRange: ClosedRange<Float>? = null,
 ) {
@@ -65,7 +65,7 @@ class StockChart internal constructor(
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
     var params by mutableStateOf(initialParams)
-    val title by derivedStateOf { "${params.ticker} (${params.timeframe.toLabel()})" }
+    val title by derivedStateOf { "${params.symbolId.value} (${params.timeframe.toLabel()})" }
     val plotterManager = PlotterManager(coroutineScope, this, prefs)
 
     private var initialized = CompletableDeferred<Unit>()
@@ -135,8 +135,8 @@ class StockChart internal constructor(
 
         // Update legend title for candles
         plotterManager.candlestickPlotter.legendLabel = buildAnnotatedString {
-            withLink(LinkAnnotation.Clickable("ticker") { onShowTickerSelector() }) {
-                append(params.ticker)
+            withLink(LinkAnnotation.Clickable("symbol") { onShowSymbolSelector() }) {
+                append(params.symbolId.value)
             }
             append(" • ")
             withLink(LinkAnnotation.Clickable("timeframe") { onShowTimeframeSelector() }) {
@@ -170,7 +170,7 @@ class StockChart internal constructor(
             )
 
             // If no initialVisibleRange provided, show latest 90 candles (with a 10 candle empty area).
-            // On ticker change, restore visible range.
+            // On symbol change, restore visible range.
             val finalVisibleRange = when {
                 prevParams.timeframe != params.timeframe -> null
                 else -> visibleRange

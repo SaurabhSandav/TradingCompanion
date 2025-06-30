@@ -8,6 +8,7 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.Instrument
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -22,7 +23,7 @@ internal data class TradeExecutionFormState(
 
 internal class TradeExecutionFormModel(
     instrument: Instrument? = null,
-    ticker: String? = null,
+    symbolId: SymbolId? = null,
     quantity: String = "",
     lots: String = "",
     isBuy: Boolean = true,
@@ -32,7 +33,7 @@ internal class TradeExecutionFormModel(
 
     val instrumentField = addField(instrument) { isRequired() }
 
-    val tickerField = addField(ticker) { isRequired() }
+    val symbolField = addField(symbolId) { isRequired() }
 
     val quantityField = addField(quantity) {
         isRequired()

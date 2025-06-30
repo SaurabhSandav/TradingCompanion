@@ -137,7 +137,7 @@ private fun ColumnScope.Header() {
 
     TradeExecutionTableSchema.SimpleHeader {
         broker.text { "Broker" }
-        ticker.text { "Ticker" }
+        symbol.text { "Symbol" }
         quantity.text { "Quantity" }
         side.text { "Side" }
         price.text { "Price" }
@@ -228,7 +228,7 @@ private fun Item(
                     }
                 }
                 broker.text { item.broker }
-                ticker.text { item.ticker }
+                symbol.text { item.ticker }
                 quantity.text { item.quantity }
                 side.content {
 
@@ -271,7 +271,7 @@ private object TradeExecutionTableSchema : TableSchema() {
 
     val select = cell(Fixed(48.dp))
     val broker = cell(Weight(2F))
-    val ticker = cell(Weight(1.7F))
+    val symbol = cell(Weight(1.7F))
     val quantity = cell()
     val side = cell()
     val price = cell()

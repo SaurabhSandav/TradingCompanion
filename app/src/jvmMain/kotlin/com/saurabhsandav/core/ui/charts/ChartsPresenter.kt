@@ -26,6 +26,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.trading.candledata.CandleRepository
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -75,13 +76,13 @@ internal class ChartsPresenter(
     private fun onEvent(event: ChartsEvent) {
 
         when (event) {
-            is OpenChart -> onOpenChart(event.ticker, event.start, event.end)
+            is OpenChart -> onOpenChart(event.symbolId, event.start, event.end)
             is MarkTrades -> onMarkTrades(event.tradeIds)
         }
     }
 
     private fun onOpenChart(
-        ticker: String,
+        symbolId: SymbolId,
         start: Instant,
         end: Instant?,
     ) = coroutineScope.launchUnit {
@@ -90,8 +91,8 @@ internal class ChartsPresenter(
             .map(Timeframe::valueOf)
             .first()
 
-        // Default timeframe chart for ticker
-        val tickerDTParams = StockChartParams(ticker, defaultTimeframe)
+        // Default timeframe chart for symbol
+        val symbolDTParams = StockChartParams(symbolId, defaultTimeframe)
 
         val chartsState = chartsState.await()
 
@@ -99,11 +100,11 @@ internal class ChartsPresenter(
         val chart = run {
 
             if (chartsState.syncPrefs.value.dateRange) {
-                val existingChart = chartsState.charts.find { it.params == tickerDTParams }
+                val existingChart = chartsState.charts.find { it.params == symbolDTParams }
                 if (existingChart != null) return@run existingChart
             }
 
-            chartsState.newChart(tickerDTParams, null)
+            chartsState.newChart(symbolDTParams, null)
         }
 
         chartsState.bringToFront(chart)

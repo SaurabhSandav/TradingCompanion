@@ -6,6 +6,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.OpenClosed
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeTagId
 
 internal sealed class TradesFilterEvent {
@@ -54,12 +55,12 @@ internal sealed class TradesFilterEvent {
         val isEnabled: Boolean,
     ) : TradesFilterEvent()
 
-    data class AddTicker(
-        val ticker: String,
+    data class AddSymbol(
+        val symbolId: SymbolId,
     ) : TradesFilterEvent()
 
-    data class RemoveTicker(
-        val ticker: String,
+    data class RemoveSymbol(
+        val symbolId: SymbolId,
     ) : TradesFilterEvent()
 
     data object ResetFilter : TradesFilterEvent()

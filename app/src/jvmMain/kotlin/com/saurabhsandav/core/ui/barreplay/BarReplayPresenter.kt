@@ -70,7 +70,7 @@ internal class BarReplayPresenter(
             replayFrom = formModel.replayFromField.value.toInstant(TimeZone.currentSystemDefault()),
             dataTo = formModel.dataToField.value.toInstant(TimeZone.currentSystemDefault()),
             replayFullBar = formModel.replayFullBar,
-            initialTicker = formModel.initialTickerField.value!!,
+            initialSymbolId = formModel.initialSymbolField.value!!,
             profileId = formModel.profileField.value,
         )
 
@@ -109,7 +109,7 @@ internal class BarReplayPresenter(
                     replayFrom = replayFrom,
                     dataTo = dataTo,
                     replayFullBar = true,
-                    initialTicker = NIFTY500.first(),
+                    initialSymbolId = NIFTY500.first(),
                     profileId = null,
                 )
             }
@@ -120,7 +120,7 @@ internal class BarReplayPresenter(
                 replayFrom = replayParams.replayFrom.toLocalDateTime(TimeZone.currentSystemDefault()),
                 dataTo = replayParams.dataTo.toLocalDateTime(TimeZone.currentSystemDefault()),
                 replayFullBar = replayParams.replayFullBar,
-                initialTicker = replayParams.initialTicker,
+                initialSymbolId = replayParams.initialSymbolId,
                 profileId = replayParams.profileId,
             )
         }

@@ -16,16 +16,16 @@ internal class ChartsMarketDataProvider(
             params = params,
             candleRepo = candleRepo,
             getTradeMarkers = { instantRange ->
-                markersProvider.getTradeMarkers(params.ticker, instantRange)
+                markersProvider.getTradeMarkers(params.symbolId, instantRange)
             },
             getTradeExecutionMarkers = { instantRange ->
-                markersProvider.getTradeExecutionMarkers(params.ticker, instantRange)
+                markersProvider.getTradeExecutionMarkers(params.symbolId, instantRange)
             },
         )
     }
 
     override fun hasVolume(params: StockChartParams): Boolean {
-        return params.ticker != "NIFTY50"
+        return params.symbolId.value != "NIFTY50"
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker

@@ -27,42 +27,43 @@ import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 
 @Composable
-internal fun TickersFilterItem(
-    selectedTickers: List<String>,
-    tickerSuggestions: (String) -> Flow<List<String>>,
-    onAddTicker: (String) -> Unit,
-    onRemoveTicker: (String) -> Unit,
+internal fun SymbolsFilterItem(
+    selectedSymbols: List<SymbolId>,
+    symbolSuggestions: (String) -> Flow<List<SymbolId>>,
+    onAddSymbol: (SymbolId) -> Unit,
+    onRemoveSymbol: (SymbolId) -> Unit,
 ) {
 
     TradeFilterItem(
-        title = "Tickers",
-        expandInitially = selectedTickers.isNotEmpty(),
+        title = "Symbols",
+        expandInitially = selectedSymbols.isNotEmpty(),
     ) {
 
         ChipsSelectorBox(
             modifier = Modifier.fillMaxWidth().padding(MaterialTheme.dimens.containerPadding),
             addButton = {
 
-                AddTickerButton(
+                AddSymbolButton(
                     modifier = Modifier.align(Alignment.CenterVertically),
-                    tickerSuggestions = tickerSuggestions,
-                    onAddTicker = onAddTicker,
+                    symbolSuggestions = symbolSuggestions,
+                    onAddSymbol = onAddSymbol,
                 )
             },
         ) {
 
-            selectedTickers.forEach { ticker ->
+            selectedSymbols.forEach { symbolId ->
 
-                key(ticker) {
+                key(symbolId) {
 
                     ChipsSelectorSelectedItem(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        name = ticker,
-                        onRemove = { onRemoveTicker(ticker) },
+                        name = symbolId.value,
+                        onRemove = { onRemoveSymbol(symbolId) },
                     )
                 }
             }
@@ -71,10 +72,10 @@ internal fun TickersFilterItem(
 }
 
 @Composable
-private fun AddTickerButton(
+private fun AddSymbolButton(
     modifier: Modifier,
-    tickerSuggestions: (String) -> Flow<List<String>>,
-    onAddTicker: (String) -> Unit,
+    symbolSuggestions: (String) -> Flow<List<SymbolId>>,
+    onAddSymbol: (SymbolId) -> Unit,
 ) {
 
     var expanded by state { false }
@@ -94,8 +95,8 @@ private fun AddTickerButton(
         ) {
 
             var filter by state { "" }
-            val filteredTickers by remember {
-                snapshotFlow { filter }.flatMapLatest(tickerSuggestions)
+            val filteredSymbols by remember {
+                snapshotFlow { filter }.flatMapLatest(symbolSuggestions)
             }.collectAsState(emptyList())
             val focusRequester = remember { FocusRequester() }
 
@@ -110,13 +111,13 @@ private fun AddTickerButton(
                 focusRequester.requestFocus()
             }
 
-            filteredTickers.forEach { ticker ->
+            filteredSymbols.forEach { symbolId ->
 
                 DropdownMenuItem(
-                    text = { Text(ticker) },
+                    text = { Text(symbolId.value) },
                     onClick = {
                         expanded = false
-                        onAddTicker(ticker)
+                        onAddSymbol(symbolId)
                     },
                 )
             }

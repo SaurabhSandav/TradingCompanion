@@ -18,6 +18,7 @@ import com.saurabhsandav.lightweightcharts.options.ChartOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -128,11 +129,11 @@ class StockChartsState(
 
     internal fun onInitializeChart(
         window: StockChartWindow,
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ) {
 
-        onOpenInCurrentWindow(window, ticker, timeframe)
+        onOpenInCurrentWindow(window, symbolId, timeframe)
 
         isInitializedWithParams = true
     }
@@ -226,15 +227,15 @@ class StockChartsState(
         return true
     }
 
-    internal fun onChangeTicker(
+    internal fun onChangeSymbol(
         window: StockChartWindow,
-        ticker: String,
+        symbolId: SymbolId,
     ) {
 
         val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
 
         // New chart params
-        stockChart.newParams(stockChart.params.copy(ticker = ticker))
+        stockChart.newParams(stockChart.params.copy(symbolId = symbolId))
     }
 
     internal fun onChangeTimeframe(
@@ -250,28 +251,28 @@ class StockChartsState(
 
     internal fun onOpenInCurrentWindow(
         window: StockChartWindow,
-        ticker: String? = null,
+        symbolId: SymbolId? = null,
         timeframe: Timeframe? = null,
     ) {
 
         val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
-        val ticker = ticker ?: stockChart.params.ticker
+        val symbolId = symbolId ?: stockChart.params.symbolId
         val timeframe = timeframe ?: stockChart.params.timeframe
 
-        newChart(StockChartParams(ticker, timeframe), window)
+        newChart(StockChartParams(symbolId, timeframe), window)
     }
 
     internal fun onOpenInNewWindow(
         window: StockChartWindow,
-        ticker: String? = null,
+        symbolId: SymbolId? = null,
         timeframe: Timeframe? = null,
     ) {
 
         val stockChart = window.selectedChartId?.let(::getStockChart) ?: return
-        val ticker = ticker ?: stockChart.params.ticker
+        val symbolId = symbolId ?: stockChart.params.symbolId
         val timeframe = timeframe ?: stockChart.params.timeframe
 
-        newChart(StockChartParams(ticker, timeframe), newWindow(null))
+        newChart(StockChartParams(symbolId, timeframe), newWindow(null))
     }
 
     internal fun goToDateTime(
@@ -359,9 +360,9 @@ class StockChartsState(
                 )
             },
             initialVisibleRange = initialVisibleRange,
-            onShowTickerSelector = {
+            onShowSymbolSelector = {
                 val window = windows.first { window -> chartId in window.chartIds }
-                window.showTickerSelectionDialog = true
+                window.showSymbolSelectionDialog = true
             },
             onShowTimeframeSelector = {
                 val window = windows.first { window -> chartId in window.chartIds }

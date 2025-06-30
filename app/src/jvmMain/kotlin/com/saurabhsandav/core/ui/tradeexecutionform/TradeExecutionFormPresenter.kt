@@ -21,7 +21,6 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.broker.BrokerId
-import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
@@ -101,7 +100,7 @@ internal class TradeExecutionFormPresenter(
                     id = formType.id,
                     brokerId = BrokerId("Finvasia"),
                     instrument = formModel.instrumentField.value!!,
-                    symbolId = SymbolId(formModel.tickerField.value!!),
+                    symbolId = formModel.symbolField.value!!,
                     quantity = formModel.quantityField.value.toBigDecimal(),
                     lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                     side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
@@ -115,7 +114,7 @@ internal class TradeExecutionFormPresenter(
             else -> tradingRecord.await().executions.new(
                 brokerId = BrokerId("Finvasia"),
                 instrument = formModel.instrumentField.value!!,
-                symbolId = SymbolId(formModel.tickerField.value!!),
+                symbolId = formModel.symbolField.value!!,
                 quantity = formModel.quantityField.value.toBigDecimal(),
                 lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
@@ -153,7 +152,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             instrument = execution.instrument,
-            ticker = execution.symbolId.value,
+            symbolId = execution.symbolId,
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",
             isBuy = execution.side == TradeExecutionSide.Buy,
@@ -172,7 +171,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             instrument = trade.instrument,
-            ticker = trade.symbolId.value,
+            symbolId = trade.symbolId,
             isBuy = trade.side == TradeSide.Long,
         )
     }
@@ -183,7 +182,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             instrument = trade.instrument,
-            ticker = trade.symbolId.value,
+            symbolId = trade.symbolId,
             quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
             isBuy = trade.side != TradeSide.Long,
         )
@@ -195,7 +194,7 @@ internal class TradeExecutionFormPresenter(
 
         formModel = TradeExecutionFormModel(
             instrument = execution.instrument,
-            ticker = execution.symbolId.value,
+            symbolId = execution.symbolId,
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",
             isBuy = execution.side == TradeExecutionSide.Buy,

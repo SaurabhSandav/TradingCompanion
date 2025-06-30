@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.utils
 
+import com.saurabhsandav.trading.core.SymbolId
+
 val NIFTY500 = listOf(
     "NIFTY50",
     "NIFTY500",
@@ -570,4 +572,4 @@ val NIFTY500 = listOf(
     "WAAREEENER",
     "WOCKPHARMA",
     "ZENTEC",
-)
+).map(::SymbolId)

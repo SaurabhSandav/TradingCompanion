@@ -37,7 +37,7 @@ internal fun Details(
         )
 
         TradeTile(
-            title = "Ticker",
+            title = "Symbol",
             value = details.ticker,
         )
 

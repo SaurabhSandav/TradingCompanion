@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tickerselectiondialog
+package com.saurabhsandav.core.ui.symbolselectiondialog
 
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -9,38 +9,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.trading.core.SymbolId
 
 @Composable
-fun TickerSelectionField(
-    type: TickerSelectionType,
-    selected: String?,
-    onSelect: (String) -> Unit,
+fun SymbolSelectionField(
+    type: SymbolSelectionType,
+    selected: SymbolId?,
+    onSelect: (SymbolId) -> Unit,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
 ) {
 
-    var showTickerSelectionDialog by state { false }
+    var showSymbolSelectionDialog by state { false }
 
     OutlinedTextField(
-        modifier = Modifier.onTextFieldClickOrEnter { showTickerSelectionDialog = true },
-        value = selected ?: "",
+        modifier = Modifier.onTextFieldClickOrEnter { showSymbolSelectionDialog = true },
+        value = selected?.value ?: "",
         onValueChange = {},
         enabled = enabled,
         readOnly = true,
         singleLine = true,
-        label = { Text("Ticker") },
+        label = { Text("Symbol") },
         placeholder = { Text("Select...") },
-        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTickerSelectionDialog) },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showSymbolSelectionDialog) },
         supportingText = supportingText,
         isError = isError,
         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
     )
 
-    if (showTickerSelectionDialog) {
+    if (showSymbolSelectionDialog) {
 
-        TickerSelectionDialog(
-            onDismissRequest = { showTickerSelectionDialog = false },
+        SymbolSelectionDialog(
+            onDismissRequest = { showSymbolSelectionDialog = false },
             onSelect = onSelect,
             type = type,
         )

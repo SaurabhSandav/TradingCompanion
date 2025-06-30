@@ -40,7 +40,7 @@ class StockChartWindow(
     internal var layout: ChartsLayout by mutableStateOf(Tabs)
     private var queuedLayout: ChartsLayout? = null
 
-    internal var showTickerSelectionDialog by mutableStateOf(false)
+    internal var showSymbolSelectionDialog by mutableStateOf(false)
     internal var showTimeframeSelectionDialog by mutableStateOf(false)
     internal var showLayoutChangeConfirmationDialog by mutableStateOf(false)
     internal var canOpenNewChart by mutableStateOf(true)

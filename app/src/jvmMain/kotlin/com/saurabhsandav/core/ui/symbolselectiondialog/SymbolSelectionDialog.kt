@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.ui.tickerselectiondialog
+package com.saurabhsandav.core.ui.symbolselectiondialog
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
@@ -19,31 +19,32 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.controls.LazyListSelectionDialog
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Chart
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType.Regular
-import com.saurabhsandav.core.ui.tickerselectiondialog.model.TickerSelectionEvent.Filter
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Regular
+import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
+import com.saurabhsandav.trading.core.SymbolId
 
 @Composable
-fun TickerSelectionDialog(
+fun SymbolSelectionDialog(
     onDismissRequest: () -> Unit,
-    onSelect: (String) -> Unit,
-    type: TickerSelectionType = Regular,
+    onSelect: (SymbolId) -> Unit,
+    type: SymbolSelectionType = Regular,
     initialFilterQuery: String = "",
 ) {
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { TickerSelectionPresenter(scope, appModule.tickersProvider) }
+    val presenter = remember { SymbolSelectionPresenter(scope, appModule.symbolsProvider) }
     val state by presenter.state.collectAsState()
 
     LazyListSelectionDialog(
         onDismissRequest = onDismissRequest,
-        items = state.tickers,
-        itemText = { it },
+        items = state.symbols,
+        itemText = { it.value },
         onSelect = onSelect,
         onFilter = { query -> state.eventSink(Filter(query)) },
-        title = { Text("Select Ticker") },
-        onKeyEvent = onKeyEvent@{ keyEvent, ticker ->
+        title = { Text("Select Symbol") },
+        onKeyEvent = onKeyEvent@{ keyEvent, symbol ->
 
             if (type !is Chart) return@onKeyEvent false
 
@@ -51,21 +52,21 @@ fun TickerSelectionDialog(
             if (!defaultCondition) return@onKeyEvent false
 
             when (keyEvent.key) {
-                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(ticker)
-                Key.N -> type.onOpenInNewWindow(ticker)
+                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(symbol)
+                Key.N -> type.onOpenInNewWindow(symbol)
                 else -> return@onKeyEvent false
             }
 
             true
         },
         itemTrailingContent = (type as? Chart)?.let { type ->
-            { ticker ->
+            { symbol ->
 
                 Row {
 
                     IconButton(
                         onClick = {
-                            type.onOpenInNewWindow(ticker)
+                            type.onOpenInNewWindow(symbol)
                             onDismissRequest()
                         },
                     ) {
@@ -80,7 +81,7 @@ fun TickerSelectionDialog(
 
                         IconButton(
                             onClick = {
-                                onOpenInCurrentWindow(ticker)
+                                onOpenInCurrentWindow(symbol)
                                 onDismissRequest()
                             },
                         ) {

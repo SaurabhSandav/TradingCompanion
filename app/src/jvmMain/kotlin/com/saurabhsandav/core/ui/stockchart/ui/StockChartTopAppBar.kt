@@ -62,7 +62,7 @@ import kotlin.time.Instant
 internal fun StockChartTopBar(
     stockChart: StockChart,
     decorationType: StockChartDecorationType,
-    onOpenTickerSelection: () -> Unit,
+    onOpenSymbolSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime) -> Unit,
     onGoToLatest: () -> Unit,
@@ -81,7 +81,7 @@ internal fun StockChartTopBar(
     ) {
 
         TextButton(
-            onClick = onOpenTickerSelection,
+            onClick = onOpenSymbolSelection,
             icon = {
 
                 Icon(
@@ -90,7 +90,7 @@ internal fun StockChartTopBar(
                     contentDescription = null,
                 )
             },
-            text = { Text(stockChart.params.ticker) },
+            text = { Text(stockChart.params.symbolId.value) },
         )
 
         VerticalDivider()

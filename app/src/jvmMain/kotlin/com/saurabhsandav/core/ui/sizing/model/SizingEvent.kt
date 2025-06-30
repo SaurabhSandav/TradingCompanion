@@ -1,11 +1,12 @@
 package com.saurabhsandav.core.ui.sizing.model
 
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 
 internal sealed class SizingEvent {
 
     data class AddTrade(
-        val ticker: String,
+        val symbolId: SymbolId,
     ) : SizingEvent()
 
     data class UpdateTradeEntry(

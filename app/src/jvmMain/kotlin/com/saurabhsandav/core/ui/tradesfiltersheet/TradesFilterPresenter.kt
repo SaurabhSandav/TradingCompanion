@@ -21,8 +21,8 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.Side
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.TimeInterval
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddSymbol
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddTag
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.AddTicker
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.ApplyFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterByNetPnl
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterDateInterval
@@ -31,8 +31,8 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.Filte
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterPnl
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterSide
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.FilterTimeInterval
+import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveSymbol
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveTag
-import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.RemoveTicker
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.ResetFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetFilter
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetMatchAllTagsEnabled
@@ -63,7 +63,7 @@ internal class TradesFilterPresenter(
         return@launchMolecule TradesFilterState(
             filterConfig = filterConfig,
             selectedTags = getSelectedTags(),
-            tickerSuggestions = ::tickerSuggestions,
+            symbolSuggestions = ::symbolSuggestions,
             eventSink = ::onEvent,
         )
     }
@@ -82,8 +82,8 @@ internal class TradesFilterPresenter(
             is AddTag -> onAddTag(event.id)
             is RemoveTag -> onRemoveTag(event.id)
             is SetMatchAllTagsEnabled -> onSetMatchAllTagsEnabled(event.isEnabled)
-            is AddTicker -> onAddTicker(event.ticker)
-            is RemoveTicker -> onRemoveTicker(event.ticker)
+            is AddSymbol -> onAddSymbol(event.symbolId)
+            is RemoveSymbol -> onRemoveSymbol(event.symbolId)
             ResetFilter -> onResetFilter()
             ApplyFilter -> onApplyFilter()
         }
@@ -116,16 +116,15 @@ internal class TradesFilterPresenter(
         }.value
     }
 
-    private fun tickerSuggestions(filterQuery: String): Flow<List<String>> = flow {
+    private fun symbolSuggestions(filterQuery: String): Flow<List<SymbolId>> = flow {
 
-        snapshotFlow { filterConfig.tickers }
-            .flatMapLatest { tickers ->
+        snapshotFlow { filterConfig.symbols }
+            .flatMapLatest { symbolIds ->
                 tradingRecord.await().trades.getSuggestedSymbols(
                     query = filterQuery,
-                    ignore = tickers.map(::SymbolId),
+                    ignore = symbolIds,
                 )
             }
-            .mapList { it.value }
             .emitInto(this)
     }
 
@@ -173,12 +172,12 @@ internal class TradesFilterPresenter(
         filterConfig = filterConfig.copy(matchAllTags = isEnabled)
     }
 
-    private fun onAddTicker(ticker: String) {
-        filterConfig = filterConfig.copy(tickers = filterConfig.tickers + ticker)
+    private fun onAddSymbol(symbolId: SymbolId) {
+        filterConfig = filterConfig.copy(symbols = filterConfig.symbols + symbolId)
     }
 
-    private fun onRemoveTicker(ticker: String) {
-        filterConfig = filterConfig.copy(tickers = filterConfig.tickers - ticker)
+    private fun onRemoveSymbol(symbolId: SymbolId) {
+        filterConfig = filterConfig.copy(symbols = filterConfig.symbols - symbolId)
     }
 
     private fun onResetFilter() {

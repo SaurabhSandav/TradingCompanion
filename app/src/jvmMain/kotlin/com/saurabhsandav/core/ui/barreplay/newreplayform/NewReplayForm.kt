@@ -23,8 +23,8 @@ import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import com.saurabhsandav.trading.core.Timeframe
 
 @Composable
@@ -103,12 +103,12 @@ internal fun NewReplayForm(
 
         HorizontalDivider()
 
-        TickerSelectionField(
-            type = TickerSelectionType.Regular,
-            selected = model.initialTickerField.value,
-            onSelect = { model.initialTickerField.value = it },
-            isError = model.initialTickerField.isError,
-            supportingText = model.initialTickerField.errorsMessagesAsSupportingText(),
+        SymbolSelectionField(
+            type = SymbolSelectionType.Regular,
+            selected = model.initialSymbolField.value,
+            onSelect = { model.initialSymbolField.value = it },
+            isError = model.initialSymbolField.isError,
+            supportingText = model.initialSymbolField.errorsMessagesAsSupportingText(),
         )
 
         ProfileSelectorField(

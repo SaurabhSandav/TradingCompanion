@@ -72,7 +72,7 @@ internal class SizingPresenter(
     private fun onEvent(event: SizingEvent) {
 
         when (event) {
-            is AddTrade -> addTrade(event.ticker)
+            is AddTrade -> addTrade(event.symbolId)
             is UpdateTradeEntry -> updateTradeEntry(event.id, event.entry)
             is UpdateTradeStop -> updateTradeStop(event.id, event.stop)
             is OpenLiveTrade -> openLiveTrade(event.id)
@@ -80,10 +80,10 @@ internal class SizingPresenter(
         }
     }
 
-    private fun addTrade(ticker: String) = coroutineScope.launchUnit {
+    private fun addTrade(symbolId: SymbolId) = coroutineScope.launchUnit {
 
         sizingtrades.await().new(
-            symbolId = SymbolId(ticker),
+            symbolId = symbolId,
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),
         )
@@ -158,7 +158,7 @@ internal class SizingPresenter(
             formType = TradeExecutionFormType.NewSized(
                 formModel = TradeExecutionFormModel(
                     instrument = Instrument.Equity,
-                    ticker = sizingTrade.symbolId.value,
+                    symbolId = sizingTrade.symbolId,
                     quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
                     isBuy = isBuy,
                     price = sizingTrade.entry.toPlainString(),

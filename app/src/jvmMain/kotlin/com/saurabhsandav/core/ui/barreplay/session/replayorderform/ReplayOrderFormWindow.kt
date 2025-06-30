@@ -81,7 +81,7 @@ private fun ReplayOrderForm(
         OutlinedTextField(
             value = ticker,
             onValueChange = { },
-            label = { Text("Ticker") },
+            label = { Text("Symbol") },
             readOnly = true,
         )
 

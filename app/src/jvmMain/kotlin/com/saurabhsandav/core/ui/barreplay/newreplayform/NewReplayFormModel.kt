@@ -11,6 +11,7 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -22,7 +23,7 @@ class NewReplayFormModel(
     replayFrom: LocalDateTime,
     dataTo: LocalDateTime,
     replayFullBar: Boolean,
-    initialTicker: String?,
+    initialSymbolId: SymbolId?,
     profileId: ProfileId?,
 ) : FormModel() {
 
@@ -45,7 +46,7 @@ class NewReplayFormModel(
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialTickerField = addField(initialTicker) { isRequired() }
+    val initialSymbolField = addField(initialSymbolId) { isRequired() }
 
     val profileField = addField(profileId)
 }

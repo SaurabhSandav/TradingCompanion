@@ -63,7 +63,7 @@ internal class PNLExcursionStudy(
 
                 Schema.SimpleHeader {
                     id.text { "ID" }
-                    ticker.text { "Ticker" }
+                    symbol.text { "Symbol" }
                     side.text { "Side" }
                     quantity.text { "Quantity" }
                     avgEntry.text { "Avg. Entry" }
@@ -101,7 +101,7 @@ internal class PNLExcursionStudy(
 
                     Schema.SimpleRow {
                         id.text { item.id.value.toString() }
-                        ticker.text { item.ticker }
+                        symbol.text { item.ticker }
                         side.content {
                             Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                         }
@@ -288,7 +288,7 @@ internal class PNLExcursionStudy(
     private object Schema : TableSchema() {
 
         val id = cell(Fixed(48.dp))
-        val ticker = cell(Fixed(150.dp))
+        val symbol = cell(Fixed(150.dp))
         val side = cell(Fixed(100.dp))
         val quantity = cell(Fixed(100.dp))
         val avgEntry = cell(Fixed(100.dp))

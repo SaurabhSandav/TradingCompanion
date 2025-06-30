@@ -34,7 +34,7 @@ internal fun ReplayOrdersTable(
             ReplayOrderTableSchema.SimpleHeader {
                 executionType.text { "Execution Type" }
                 broker.text { "Broker" }
-                ticker.text { "Ticker" }
+                symbol.text { "Symbol" }
                 quantity.text { "Quantity" }
                 side.text { "Side" }
                 price.text { "Price" }
@@ -68,7 +68,7 @@ internal fun ReplayOrdersTable(
                     ReplayOrderTableSchema.SimpleRow {
                         executionType.text { item.executionType }
                         broker.text { item.broker }
-                        ticker.text { item.ticker }
+                        symbol.text { item.ticker }
                         quantity.text { item.quantity }
                         side.content {
                             Text(item.side, color = if (item.side == "BUY") AppColor.ProfitGreen else AppColor.LossRed)
@@ -97,7 +97,7 @@ private object ReplayOrderTableSchema : TableSchema() {
 
     val executionType = cell()
     val broker = cell()
-    val ticker = cell()
+    val symbol = cell()
     val quantity = cell()
     val side = cell()
     val price = cell()

@@ -27,7 +27,7 @@ internal class SizingLandingSwitcherItem(
             onUpdateStop = { id, stop -> state.eventSink(UpdateTradeStop(id, stop)) },
             onOpenLiveTrade = { id -> state.eventSink(OpenLiveTrade(id)) },
             onDeleteTrade = { id -> state.eventSink(RemoveTrade(id)) },
-            onAddTrade = { ticker -> state.eventSink(AddTrade(ticker)) },
+            onAddTrade = { symbolId -> state.eventSink(AddTrade(symbolId)) },
         )
     }
 

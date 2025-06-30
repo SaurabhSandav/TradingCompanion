@@ -23,7 +23,7 @@ internal class ChartMarkersProvider(
     private val markedTradeIds = MutableStateFlow<List<ProfileTradeId>>(emptyList())
 
     fun getTradeMarkers(
-        ticker: String,
+        symbolId: SymbolId,
         instantRange: ClosedRange<Instant>,
     ): Flow<List<TradeMarker>> {
 
@@ -40,7 +40,7 @@ internal class ChartMarkersProvider(
                     val tradingRecord = tradingProfiles.getRecord(profileId)
 
                     tradingRecord.trades
-                        .getBySymbolAndIdsInInterval(SymbolId(ticker), tradeIds, instantRange)
+                        .getBySymbolAndIdsInInterval(symbolId, tradeIds, instantRange)
                         .flatMapLatest { markedTrades ->
 
                             val closedTrades = markedTrades.filter { it.isClosed }
@@ -78,7 +78,7 @@ internal class ChartMarkersProvider(
     }
 
     fun getTradeExecutionMarkers(
-        ticker: String,
+        symbolId: SymbolId,
         instantRange: ClosedRange<Instant>,
     ): Flow<List<TradeExecutionMarker>> {
 
@@ -95,7 +95,7 @@ internal class ChartMarkersProvider(
                     val tradingRecord = tradingProfiles.getRecord(profileId)
 
                     tradingRecord.executions.getBySymbolAndTradeIdsInInterval(
-                        symbolId = SymbolId(ticker),
+                        symbolId = symbolId,
                         ids = tradeIds,
                         range = instantRange,
                     )

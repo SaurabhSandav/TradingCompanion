@@ -13,7 +13,7 @@ import com.saurabhsandav.core.CandleDB
 import com.saurabhsandav.core.FileLogWriter
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
-import com.saurabhsandav.core.trading.AppTickersProvider
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
 import com.saurabhsandav.core.trading.TradingProfiles
@@ -151,7 +151,7 @@ internal class AppModule(
         ),
     )
 
-    val tickersProvider = AppTickersProvider()
+    val symbolsProvider = SymbolsProvider()
 
     val tradingProfiles = TradingProfiles(
         coroutineContext = appDispatchers.IO,

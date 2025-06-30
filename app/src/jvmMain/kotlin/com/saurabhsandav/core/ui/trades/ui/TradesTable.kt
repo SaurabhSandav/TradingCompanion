@@ -127,7 +127,7 @@ private fun ColumnScope.Header() {
     TradeTableSchema.SimpleHeader {
         id.text { "ID" }
         broker.text { "Broker" }
-        ticker.text { "Ticker" }
+        symbol.text { "Symbol" }
         side.text { "Side" }
         quantity.text { "Quantity" }
         avgEntry.text { "Avg. Entry" }
@@ -216,7 +216,7 @@ private fun TradeItem(
                 }
                 id.text { item.id.toString() }
                 broker.text { item.broker }
-                ticker.text { item.ticker }
+                symbol.text { item.ticker }
                 side.content {
                     Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
@@ -296,7 +296,7 @@ private object TradeTableSchema : TableSchema() {
     val select = cell(Fixed(48.dp))
     val id = cell(Fixed(48.dp))
     val broker = cell(Weight(2F))
-    val ticker = cell(Weight(1.7F))
+    val symbol = cell(Weight(1.7F))
     val side = cell()
     val quantity = cell()
     val avgEntry = cell()

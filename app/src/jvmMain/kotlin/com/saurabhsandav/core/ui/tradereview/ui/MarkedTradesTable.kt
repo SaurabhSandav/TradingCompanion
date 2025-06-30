@@ -72,7 +72,7 @@ private fun MarkedTradesTable(
                 id.text { "ID" }
                 profile.text { "Profile" }
                 broker.text { "Broker" }
-                ticker.text { "Ticker" }
+                symbol.text { "Symbol" }
                 side.text { "Side" }
                 quantity.text { "Quantity" }
                 avgEntry.text { "Avg. Entry" }
@@ -134,7 +134,7 @@ private fun MarkedTradeItem(
                 id.text { item.profileTradeId.tradeId.toString() }
                 profile.text { item.profileName }
                 broker.text { item.broker }
-                ticker.text { item.ticker }
+                symbol.text { item.ticker }
                 side.content {
                     Text(item.side, color = if (item.side == "LONG") AppColor.ProfitGreen else AppColor.LossRed)
                 }
@@ -171,7 +171,7 @@ private object MarkedTradesTableSchema : TableSchema() {
     val id = cell(Fixed(48.dp))
     val profile = cell(Weight(1.3F))
     val broker = cell(Weight(1.3F))
-    val ticker = cell(Weight(1.3F))
+    val symbol = cell(Weight(1.3F))
     val side = cell()
     val quantity = cell()
     val avgEntry = cell()

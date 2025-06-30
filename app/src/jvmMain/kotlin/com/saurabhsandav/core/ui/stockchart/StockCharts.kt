@@ -47,8 +47,8 @@ import com.saurabhsandav.core.ui.stockchart.ui.StockChartTopBar
 import com.saurabhsandav.core.ui.stockchart.ui.StockChartWindowDecorator
 import com.saurabhsandav.core.ui.stockchart.ui.Tabs
 import com.saurabhsandav.core.ui.stockchart.ui.TimeframeSelectionDialog
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
-import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionDialog
+import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import kotlinx.datetime.LocalDateTime
 
 @Composable
@@ -118,8 +118,8 @@ private fun Window(
 
                 when {
                     !state.isInitializedWithParams -> NewChartForm(
-                        onInitializeChart = { ticker, timeframe ->
-                            state.onInitializeChart(chartWindow, ticker, timeframe)
+                        onInitializeChart = { symbolId, timeframe ->
+                            state.onInitializeChart(chartWindow, symbolId, timeframe)
                         },
                     )
 
@@ -132,7 +132,7 @@ private fun Window(
                         selectedStockChart = selectedStockChart,
                         getStockChartOrNull = { chartIndex -> state.getStockChartOrNull(chartWindow, chartIndex) },
                         decorationType = decorationType,
-                        onOpenTickerSelection = { chartWindow.showTickerSelectionDialog = true },
+                        onOpenSymbolSelection = { chartWindow.showSymbolSelectionDialog = true },
                         onOpenTimeframeSelection = { chartWindow.showTimeframeSelectionDialog = true },
                         onGoToDateTime = { dateTime -> state.goToDateTime(chartWindow, dateTime) },
                         onGoToLatest = { state.goToLatest(chartWindow) },
@@ -147,23 +147,23 @@ private fun Window(
                 }
             }
 
-            if (chartWindow.showTickerSelectionDialog) {
+            if (chartWindow.showSymbolSelectionDialog) {
 
-                TickerSelectionDialog(
+                SymbolSelectionDialog(
                     onDismissRequest = {
-                        chartWindow.showTickerSelectionDialog = false
+                        chartWindow.showSymbolSelectionDialog = false
                         initialFilterQuery = ""
                     },
-                    onSelect = { ticker -> state.onChangeTicker(chartWindow, ticker) },
-                    type = TickerSelectionType.Chart(
+                    onSelect = { symbolId -> state.onChangeSymbol(chartWindow, symbolId) },
+                    type = SymbolSelectionType.Chart(
                         onOpenInCurrentWindow = when {
-                            chartWindow.canOpenNewChart -> { ticker ->
-                                state.onOpenInCurrentWindow(chartWindow, ticker, null)
+                            chartWindow.canOpenNewChart -> { symbolId ->
+                                state.onOpenInCurrentWindow(chartWindow, symbolId, null)
                             }
 
                             else -> null
                         },
-                        onOpenInNewWindow = { ticker -> state.onOpenInNewWindow(chartWindow, ticker, null) },
+                        onOpenInNewWindow = { symbolId -> state.onOpenInNewWindow(chartWindow, symbolId, null) },
                     ),
                     initialFilterQuery = initialFilterQuery,
                 )
@@ -207,7 +207,7 @@ private fun StockChartScreen(
     selectedStockChart: StockChart,
     getStockChartOrNull: (Int) -> StockChart?,
     decorationType: StockChartDecorationType,
-    onOpenTickerSelection: () -> Unit,
+    onOpenSymbolSelection: () -> Unit,
     onOpenTimeframeSelection: () -> Unit,
     onGoToDateTime: (LocalDateTime?) -> Unit,
     onGoToLatest: () -> Unit,
@@ -225,7 +225,7 @@ private fun StockChartScreen(
         StockChartTopBar(
             stockChart = selectedStockChart,
             decorationType = decorationType,
-            onOpenTickerSelection = onOpenTickerSelection,
+            onOpenSymbolSelection = onOpenSymbolSelection,
             onOpenTimeframeSelection = onOpenTimeframeSelection,
             onGoToDateTime = onGoToDateTime,
             onGoToLatest = onGoToLatest,
@@ -298,15 +298,15 @@ private fun chartKeyboardShortcuts(
 ): Boolean = with(keyEvent) {
 
     if (window.selectedChartId == null) return false
-    if (window.showTickerSelectionDialog || window.showTimeframeSelectionDialog) return false
+    if (window.showSymbolSelectionDialog || window.showTimeframeSelectionDialog) return false
 
     val defaultCondition = with(keyEvent) { isAltPressed || isMetaPressed || isShiftPressed }.not()
     if (!defaultCondition) return false
 
-    // Ticker/Timeframe dialogs
+    // Symbol/Timeframe dialogs
     if (isTypedEvent) {
         val char = utf16CodePoint.toChar()
-        if (char.isLetter()) window.showTickerSelectionDialog = true
+        if (char.isLetter()) window.showSymbolSelectionDialog = true
         if (char.isDigit()) window.showTimeframeSelectionDialog = true
         onSetFilterChar(char)
         return true

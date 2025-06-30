@@ -28,7 +28,7 @@ internal class ReplayChartsMarketDataProvider(
 ) : MarketDataProvider {
 
     override fun hasVolume(params: StockChartParams): Boolean {
-        return params.ticker != "NIFTY50"
+        return params.symbolId.value != "NIFTY50"
     }
 
     override fun buildCandleSource(params: StockChartParams): CandleSource {
@@ -38,8 +38,8 @@ internal class ReplayChartsMarketDataProvider(
             getTradeMarkers = { emptyFlow() },
             getTradeExecutionMarkers = { emptyFlow() },
             // TODO Disabled until markers are made individually mark-able
-//            getTradeMarkers = { candleSeries -> getTradeMarkers(params.ticker, candleSeries) },
-//            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.ticker, candleSeries) },
+//            getTradeMarkers = { candleSeries -> getTradeMarkers(params.symbolId, candleSeries) },
+//            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.symbolId, candleSeries) },
             onDestroy = replaySeriesCache::releaseForChart,
         )
     }
@@ -47,7 +47,7 @@ internal class ReplayChartsMarketDataProvider(
     override fun sessionChecker(): SessionChecker = DailySessionChecker
 
     private fun getTradeMarkers(
-        ticker: String,
+        symbolId: SymbolId,
         candleSeries: CandleSeries,
     ): Flow<List<TradeMarker>> {
 
@@ -65,7 +65,7 @@ internal class ReplayChartsMarketDataProvider(
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             tradingRecord.trades
-                .getBySymbolInInterval(SymbolId(ticker), instantRange)
+                .getBySymbolInInterval(symbolId, instantRange)
                 .flatMapLatest { tradesToMark ->
 
                     val closedTrades = tradesToMark.filter { it.isClosed }
@@ -96,7 +96,7 @@ internal class ReplayChartsMarketDataProvider(
     }
 
     private fun getTradeExecutionMarkers(
-        ticker: String,
+        symbolId: SymbolId,
         candleSeries: CandleSeries,
     ): Flow<List<TradeExecutionMarker>> {
 
@@ -114,7 +114,7 @@ internal class ReplayChartsMarketDataProvider(
             val tradingRecord = tradingProfiles.getRecord(profile.id)
 
             tradingRecord.executions
-                .getBySymbolInInterval(SymbolId(ticker), instantRange)
+                .getBySymbolInInterval(symbolId, instantRange)
                 .mapList { execution ->
 
                     TradeExecutionMarker(

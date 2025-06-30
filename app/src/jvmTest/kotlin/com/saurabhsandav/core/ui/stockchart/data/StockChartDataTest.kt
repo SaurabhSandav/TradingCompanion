@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
 import com.saurabhsandav.trading.core.Candle
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr
@@ -30,7 +31,7 @@ class StockChartDataTest {
     @Test
     fun `No load`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -49,7 +50,7 @@ class StockChartDataTest {
     @Test
     fun `Load Initial`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -83,7 +84,7 @@ class StockChartDataTest {
     @Test
     fun `Load Initial multiple times`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -121,7 +122,7 @@ class StockChartDataTest {
     @Test
     fun `Load Initial with existing interval`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -153,7 +154,7 @@ class StockChartDataTest {
     @Test
     fun `Load Before, Custom load count`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -174,7 +175,7 @@ class StockChartDataTest {
     @Test
     fun `Load After`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -195,7 +196,7 @@ class StockChartDataTest {
     @Test
     fun `Load After, Custom load count`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -216,7 +217,7 @@ class StockChartDataTest {
     @Test
     fun `Load After and then Before`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -238,7 +239,7 @@ class StockChartDataTest {
     @Test
     fun `Load latest`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -261,7 +262,7 @@ class StockChartDataTest {
     @Test
     fun `Load Interval inside already loaded interval`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -284,7 +285,7 @@ class StockChartDataTest {
     @Test
     fun `Load Interval outside already loaded interval`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -307,7 +308,7 @@ class StockChartDataTest {
     @Test
     fun `Load Interval and then load latest`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -331,7 +332,7 @@ class StockChartDataTest {
     @Test
     fun `Initial candles updates with flow`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -370,7 +371,7 @@ class StockChartDataTest {
     @Test
     fun `Live candles`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -404,7 +405,7 @@ class StockChartDataTest {
     @Test
     fun `Destroy StockChartData`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -437,7 +438,7 @@ class StockChartDataTest {
     @Test
     fun `Load Before - Max Candle Count crossed`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -466,7 +467,7 @@ class StockChartDataTest {
     @Test
     fun `Load Before - Max Candle Count crossed, Drop after page, Reset hasAfter`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series.last().openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -499,7 +500,7 @@ class StockChartDataTest {
     @Test
     fun `Load After - Max Candle Count crossed`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -528,7 +529,7 @@ class StockChartDataTest {
     @Test
     fun `Load After - Max Candle Count crossed, Drop before page, Reset hasBefore`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[19].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -561,7 +562,7 @@ class StockChartDataTest {
     @Test
     fun `Load before, after and before - Max Candle Count crossed`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -590,7 +591,7 @@ class StockChartDataTest {
     @Test
     fun `onCandlesLoaded Callback`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -617,7 +618,7 @@ class StockChartDataTest {
     @Test
     fun `Reload without changing interval`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,
@@ -655,7 +656,7 @@ class StockChartDataTest {
     @Test
     fun `Reload after changing interval`() = runTest {
 
-        val params = StockChartParams("ABC", Timeframe.M5)
+        val params = StockChartParams(SymbolId("ABC"), Timeframe.M5)
         val loadConfig = LoadConfig(
             initialLoadBefore = { CandleUtils.m5Series[1475].openInstant + 1.minutes },
             loadMoreCount = 10,

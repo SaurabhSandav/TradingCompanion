@@ -31,7 +31,7 @@ internal class ReplayOrderFormPresenter(
 
         return@launchMolecule ReplayOrderFormState(
             title = "New Order",
-            ticker = stockChartParams.ticker,
+            ticker = stockChartParams.symbolId.value,
             formModel = formModel,
             onSubmit = ::onSubmit,
         )

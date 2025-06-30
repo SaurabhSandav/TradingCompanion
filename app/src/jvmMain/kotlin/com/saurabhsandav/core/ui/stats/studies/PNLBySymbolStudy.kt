@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 
-internal class PNLByTickerStudy(
+internal class PNLBySymbolStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
 ) : Study {
@@ -43,7 +43,7 @@ internal class PNLByTickerStudy(
             headerContent = {
 
                 Schema.SimpleHeader {
-                    ticker.text { "Ticker" }
+                    symbol.text { "Symbol" }
                     trades.text { "Trades" }
                     pnl.text { "PNL" }
                     netPnl.text { "Net PNL" }
@@ -60,7 +60,7 @@ internal class PNLByTickerStudy(
                 Column(Modifier.animateItem()) {
 
                     Schema.SimpleRow {
-                        ticker.text { item.ticker }
+                        symbol.text { item.ticker }
                         trades.text { item.noOfTrades }
                         pnl.content {
                             Text(
@@ -96,15 +96,15 @@ internal class PNLByTickerStudy(
         tradingRecord.trades.allTradesDisplay.flatMapLatest { allTrades ->
 
             allTrades
-                .groupBy { it.ticker }
-                .map { (ticker, tradesByTicker) ->
+                .groupBy { it.symbolId }
+                .map { (symbolId, tradesBySymbol) ->
 
-                    val closedTrades = tradesByTicker.filter { it.isClosed }
+                    val closedTrades = tradesBySymbol.filter { it.isClosed }
                     val closedTradesIds = closedTrades.map { it.id }
 
                     tradingRecord.stops.getPrimary(closedTradesIds).map { stops ->
 
-                        val tickerStats = closedTrades.filter { it.isClosed }.map { trade ->
+                        val symbolStats = closedTrades.filter { it.isClosed }.map { trade ->
 
                             val brokerage = trade.brokerageAtExit()!!
                             val pnlBD = brokerage.pnl
@@ -116,13 +116,13 @@ internal class PNLByTickerStudy(
                             Triple(pnlBD, netPnlBD, rValue)
                         }
 
-                        val pnl = tickerStats.sumOf { it.first }
-                        val netPnl = tickerStats.sumOf { it.second }
-                        val rValue = tickerStats.mapNotNull { it.third }.sumOf { it }
+                        val pnl = symbolStats.sumOf { it.first }
+                        val netPnl = symbolStats.sumOf { it.second }
+                        val rValue = symbolStats.mapNotNull { it.third }.sumOf { it }
 
                         Model(
-                            ticker = ticker,
-                            noOfTrades = tradesByTicker.size.toString(),
+                            ticker = tradesBySymbol.first().ticker,
+                            noOfTrades = tradesBySymbol.size.toString(),
                             pnl = pnl.toPlainString(),
                             isProfitable = pnl > BigDecimal.ZERO,
                             netPnl = netPnl.toPlainString(),
@@ -150,7 +150,7 @@ internal class PNLByTickerStudy(
 
     private object Schema : TableSchema() {
 
-        val ticker = cell()
+        val symbol = cell()
         val trades = cell()
         val pnl = cell()
         val netPnl = cell()
@@ -161,10 +161,10 @@ internal class PNLByTickerStudy(
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
-    ) : Study.Factory<PNLByTickerStudy> {
+    ) : Study.Factory<PNLBySymbolStudy> {
 
-        override val name: String = "PNL By Ticker"
+        override val name: String = "PNL By Symbol"
 
-        override fun create() = PNLByTickerStudy(profileId, tradingProfiles)
+        override fun create() = PNLBySymbolStudy(profileId, tradingProfiles)
     }
 }

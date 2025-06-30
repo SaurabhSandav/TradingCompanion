@@ -19,45 +19,46 @@ internal class ReplaySeriesCache(
     private val candleRepo: CandleRepository,
 ) {
 
-    private val ordersManagerReplaySeriesMap = mutableMapOf<String, ReplaySeries>()
+    private val ordersManagerReplaySeriesMap = mutableMapOf<SymbolId, ReplaySeries>()
 
-    suspend fun getForChart(params: StockChartParams): ReplaySeries = buildReplaySeries(params.ticker, params.timeframe)
+    suspend fun getForChart(params: StockChartParams): ReplaySeries =
+        buildReplaySeries(params.symbolId, params.timeframe)
 
     fun releaseForChart(replaySeries: ReplaySeries) {
         barReplay.removeSeries(replaySeries)
     }
 
-    suspend fun getForOrdersManager(ticker: String): ReplaySeries {
-        return ordersManagerReplaySeriesMap.getOrPut(ticker) {
-            buildReplaySeries(ticker, replayParams.baseTimeframe)
+    suspend fun getForOrdersManager(symbolId: SymbolId): ReplaySeries {
+        return ordersManagerReplaySeriesMap.getOrPut(symbolId) {
+            buildReplaySeries(symbolId, replayParams.baseTimeframe)
         }
     }
 
-    fun releaseForOrdersManager(ticker: String) {
+    fun releaseForOrdersManager(symbolId: SymbolId) {
 
         ordersManagerReplaySeriesMap
-            .remove(ticker)
+            .remove(symbolId)
             ?.let(barReplay::removeSeries)
     }
 
     private suspend fun buildReplaySeries(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): ReplaySeries {
 
-        val candleSeries = getCandleSeries(ticker, replayParams.baseTimeframe)
+        val candleSeries = getCandleSeries(symbolId, replayParams.baseTimeframe)
 
         return barReplay.newSeries(
             inputSeries = candleSeries,
             timeframeSeries = when (replayParams.baseTimeframe) {
                 timeframe -> null
-                else -> getCandleSeries(ticker, timeframe)
+                else -> getCandleSeries(symbolId, timeframe)
             },
         )
     }
 
     private suspend fun getCandleSeries(
-        ticker: String,
+        symbolId: SymbolId,
         timeframe: Timeframe,
     ): CandleSeries {
 
@@ -65,7 +66,7 @@ internal class ReplaySeriesCache(
 
             val candlesBefore = async {
                 candleRepo.getCandlesBefore(
-                    symbolId = SymbolId(ticker),
+                    symbolId = symbolId,
                     timeframe = timeframe,
                     at = replayParams.replayFrom,
                     count = replayParams.candlesBefore,
@@ -75,7 +76,7 @@ internal class ReplaySeriesCache(
 
             val candlesAfter = async {
                 candleRepo.getCandles(
-                    symbolId = SymbolId(ticker),
+                    symbolId = symbolId,
                     timeframe = timeframe,
                     from = replayParams.replayFrom,
                     to = replayParams.dataTo,
