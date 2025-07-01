@@ -3,10 +3,6 @@ package com.saurabhsandav.core.ui.stockchart
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.indicator.ClosePriceIndicator
-import com.saurabhsandav.core.trading.indicator.EMAIndicator
-import com.saurabhsandav.core.trading.indicator.SMAIndicator
-import com.saurabhsandav.core.trading.indicator.VWAPIndicator
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
 import com.saurabhsandav.core.ui.common.hex
 import com.saurabhsandav.core.ui.common.toCssColor
@@ -29,6 +25,10 @@ import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.core.isLong
+import com.saurabhsandav.trading.indicator.ClosePriceIndicator
+import com.saurabhsandav.trading.indicator.EMAIndicator
+import com.saurabhsandav.trading.indicator.SMAIndicator
+import com.saurabhsandav.trading.indicator.VWAPIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

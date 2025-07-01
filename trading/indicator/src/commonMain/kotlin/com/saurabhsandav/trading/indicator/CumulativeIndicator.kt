@@ -1,35 +1,38 @@
-package com.saurabhsandav.core.trading.indicator
+package com.saurabhsandav.trading.indicator
 
-import com.saurabhsandav.core.trading.indicator.base.RecursiveCachedIndicator
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
+import com.saurabhsandav.trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
+import kotlin.math.max
 
-abstract class AbstractEMAIndicator(
+class CumulativeIndicator(
     private val input: Indicator<BigDecimal>,
-    private val multiplier: BigDecimal,
-) : RecursiveCachedIndicator<BigDecimal>(
+    private val length: Int,
+) : CachedIndicator<BigDecimal>(
         candleSeries = input.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
                 input = input.bindCacheKey(),
-                multiplier = multiplier,
+                length = length,
             )
         },
     ) {
 
     override fun calculate(index: Int): BigDecimal {
 
-        if (index == 0) return input[0]
+        val startIndex = max(0, index - length + 1)
+        var sum = BigDecimal.ZERO
 
-        val prevEMA = get(index - 1)
-        val input = input[index]
+        for (i in startIndex..index) {
+            sum += input[i]
+        }
 
-        return (input - prevEMA).multiply(multiplier, mathContext) + prevEMA
+        return sum
     }
 
     private data class CacheKey(
         val input: Indicator.CacheKey,
-        val multiplier: BigDecimal,
+        val length: Int,
     ) : Indicator.CacheKey
 }

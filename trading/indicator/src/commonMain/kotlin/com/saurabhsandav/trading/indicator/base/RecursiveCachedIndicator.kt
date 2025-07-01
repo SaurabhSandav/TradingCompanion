@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.indicator.base
+package com.saurabhsandav.trading.indicator.base
 
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.Indicator

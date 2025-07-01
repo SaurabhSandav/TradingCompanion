@@ -67,6 +67,7 @@ kotlin {
             implementation(projects.fyersApi)
             implementation(projects.lightweightCharts)
             implementation(projects.trading.core)
+            implementation(projects.trading.indicator)
         }
 
         jvmMain.dependencies {

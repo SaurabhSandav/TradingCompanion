@@ -37,6 +37,7 @@ include(
     "lightweight-charts",
     "jcef-compose",
     "trading:core",
+    "trading:indicator",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

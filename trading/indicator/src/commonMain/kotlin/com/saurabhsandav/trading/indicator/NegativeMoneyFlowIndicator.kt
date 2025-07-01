@@ -1,29 +1,35 @@
-package com.saurabhsandav.core.trading.indicator
+package com.saurabhsandav.trading.indicator
 
-import com.saurabhsandav.core.trading.indicator.base.CachedIndicator
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
+import com.saurabhsandav.trading.indicator.base.CachedIndicator
 import java.math.BigDecimal
 
-class MoneyFlowIndicator(
+class NegativeMoneyFlowIndicator(
     private val price: Indicator<BigDecimal>,
-    private val volume: VolumeIndicator,
+    private val moneyFlow: MoneyFlowIndicator,
 ) : CachedIndicator<BigDecimal>(
         candleSeries = price.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
                 price = price.bindCacheKey(),
-                volume = volume.bindCacheKey(),
+                moneyFlow = moneyFlow.bindCacheKey(),
             )
         },
     ) {
 
     override fun calculate(index: Int): BigDecimal {
-        return price[index].multiply(volume[index], mathContext)
+
+        if (index == 0) return BigDecimal.ZERO
+
+        return when {
+            price[index] < price[index - 1] -> moneyFlow[index]
+            else -> BigDecimal.ZERO
+        }
     }
 
     private data class CacheKey(
         val price: Indicator.CacheKey,
-        val volume: Indicator.CacheKey,
+        val moneyFlow: Indicator.CacheKey,
     ) : Indicator.CacheKey
 }

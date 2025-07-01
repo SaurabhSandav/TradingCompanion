@@ -3,9 +3,6 @@ package com.saurabhsandav.core.trading
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.Timeframe
-import java.math.BigDecimal
-
-internal fun BigDecimal.isZero(): Boolean = compareTo(BigDecimal.ZERO) == 0
 
 object DailySessionChecker : SessionChecker {
 
