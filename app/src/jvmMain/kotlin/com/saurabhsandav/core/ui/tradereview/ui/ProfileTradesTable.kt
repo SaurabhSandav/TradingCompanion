@@ -13,9 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import com.saurabhsandav.core.thirdparty.paging.compose.LazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.table.LazyTable
@@ -30,6 +27,9 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Closed
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.Duration.Open
 import com.saurabhsandav.core.ui.tradereview.model.TradeReviewState.TradeItem
+import com.saurabhsandav.paging.compose.LazyPagingItems
+import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 
 @Composable

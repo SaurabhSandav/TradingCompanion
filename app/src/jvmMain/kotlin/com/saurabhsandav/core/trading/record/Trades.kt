@@ -5,11 +5,11 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.saurabhsandav.core.thirdparty.sqldelight.paging.QueryPagingSource
 import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.trading.record.model.TradeFilter
 import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.trading.record.model.TradeSort
+import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalTime

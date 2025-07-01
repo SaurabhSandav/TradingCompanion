@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.thirdparty.sqldelight.paging
+package com.saurabhsandav.paging.pagingsource
 
 import androidx.paging.PagingSource
 import app.cash.sqldelight.Query

@@ -36,6 +36,7 @@ include(
     "fyers-api",
     "lightweight-charts",
     "jcef-compose",
+    "paging",
     "trading:core",
     "trading:indicator",
     "trading:barreplay",

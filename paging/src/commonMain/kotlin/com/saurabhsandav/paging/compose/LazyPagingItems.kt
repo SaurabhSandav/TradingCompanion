@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.saurabhsandav.core.thirdparty.paging.compose
+package com.saurabhsandav.paging.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,15 +23,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.paging.CombinedLoadStates
-import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
-import androidx.paging.LoadType
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
-import androidx.paging.PagingSource
-import androidx.paging.RemoteMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow

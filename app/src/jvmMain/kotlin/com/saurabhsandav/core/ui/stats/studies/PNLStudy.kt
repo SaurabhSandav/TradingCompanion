@@ -12,8 +12,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.trading.record.model.TradeFilter
@@ -31,6 +29,8 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow

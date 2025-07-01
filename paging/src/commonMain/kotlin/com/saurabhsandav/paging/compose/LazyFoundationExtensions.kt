@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.saurabhsandav.core.thirdparty.paging.compose
-
-import androidx.paging.PagingConfig
+package com.saurabhsandav.paging.compose
 
 /**
  * Returns a factory of stable and unique keys representing the item.

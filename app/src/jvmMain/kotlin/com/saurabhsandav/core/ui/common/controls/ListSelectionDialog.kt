@@ -40,14 +40,14 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
 import androidx.paging.PagingData
-import com.saurabhsandav.core.thirdparty.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.core.thirdparty.paging.compose.itemKey
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.theme.keyboardSelectionBackgroundColor
+import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
