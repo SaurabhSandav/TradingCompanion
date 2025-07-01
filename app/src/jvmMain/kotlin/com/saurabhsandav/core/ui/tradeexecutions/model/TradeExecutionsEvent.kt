@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
+import com.saurabhsandav.trading.record.model.TradeExecutionId
 
 internal sealed class TradeExecutionsEvent {
 

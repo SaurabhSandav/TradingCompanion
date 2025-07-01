@@ -4,10 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.stats.TradingStats
-import com.saurabhsandav.core.trading.record.stats.buildStats
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.stats.model.StatsEvent
 import com.saurabhsandav.core.ui.stats.model.StatsState
@@ -15,6 +13,8 @@ import com.saurabhsandav.core.ui.stats.model.StatsState.StatEntry
 import com.saurabhsandav.core.ui.stats.model.StatsState.StatsCategory
 import com.saurabhsandav.core.ui.stats.studies.Study
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.trading.record.stats.TradingStats
+import com.saurabhsandav.trading.record.stats.buildStats
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map

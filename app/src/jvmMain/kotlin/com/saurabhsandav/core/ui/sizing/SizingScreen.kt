@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.record.model.SizingTradeId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
@@ -32,6 +31,7 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormPara
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionDialog
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
+import com.saurabhsandav.trading.record.model.SizingTradeId
 
 @Composable
 internal fun SizingScreen(

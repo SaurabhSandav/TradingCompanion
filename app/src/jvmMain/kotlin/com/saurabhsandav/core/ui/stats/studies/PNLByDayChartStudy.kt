@@ -7,9 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.brokerageAtExit
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.chart.SimpleChart
 import com.saurabhsandav.core.ui.common.chart.crosshairMove
 import com.saurabhsandav.core.ui.common.chart.legend.LegendItem
@@ -24,6 +23,7 @@ import com.saurabhsandav.lightweightcharts.data.Time
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
+import com.saurabhsandav.trading.record.brokerageAtExit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow

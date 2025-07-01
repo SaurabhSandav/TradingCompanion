@@ -21,8 +21,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorAddButton
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorSelectedItem
@@ -31,6 +30,7 @@ import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorDropdownMenu
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorType
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 @Composable
 internal fun TagsFilterItem(

@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.tags.form.model.TagFormModel
 import com.saurabhsandav.core.ui.tags.form.model.TagFormState
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType

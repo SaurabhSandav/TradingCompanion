@@ -9,10 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.brokerageAtExit
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.rValueAt
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
@@ -21,6 +19,8 @@ import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.trading.record.brokerageAtExit
+import com.saurabhsandav.trading.record.rValueAt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest

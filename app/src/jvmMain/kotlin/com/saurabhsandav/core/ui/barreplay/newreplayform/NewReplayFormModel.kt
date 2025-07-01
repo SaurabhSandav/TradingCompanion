@@ -3,7 +3,7 @@ package com.saurabhsandav.core.ui.barreplay.newreplayform
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue

@@ -1,0 +1,34 @@
+import com.saurabhsandav.trading.record.model.SizingTradeId;
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS SizingTrade (
+id INTEGER AS SizingTradeId NOT NULL PRIMARY KEY,
+ticker TEXT NOT NULL,
+entry TEXT AS BigDecimal NOT NULL,
+stop TEXT AS BigDecimal NOT NULL
+);
+
+insert:
+INSERT INTO SizingTrade (ticker, entry, stop)
+VALUES (?, ?, ?);
+
+updateEntry:
+UPDATE SizingTrade
+SET entry = ?
+WHERE id = ?;
+
+updateStop:
+UPDATE SizingTrade
+SET stop = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM SizingTrade
+WHERE id = ?;
+
+getById:
+SELECT * FROM SizingTrade
+WHERE id = ?;
+
+getAll:
+SELECT * FROM SizingTrade;

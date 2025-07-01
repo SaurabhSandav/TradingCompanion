@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.trading.record.model.Instrument
-import com.saurabhsandav.core.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.Instrument
+import com.saurabhsandav.trading.record.model.TradeSide
 import java.math.BigDecimal
 
 data class BacktestPosition(

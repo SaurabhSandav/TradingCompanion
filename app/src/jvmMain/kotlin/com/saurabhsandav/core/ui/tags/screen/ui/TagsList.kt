@@ -11,11 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.record.model.TradeTagId
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 @Composable
 fun TagsList(

@@ -1,4 +1,4 @@
-import com.saurabhsandav.core.trading.record.model.ProfileId;
+import com.saurabhsandav.core.trading.ProfileId;
 import kotlin.Boolean;
 import kotlin.Int;
 

@@ -9,10 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeFilter
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.SideSheetHost
 import com.saurabhsandav.core.ui.common.SideSheetState
@@ -25,6 +22,9 @@ import com.saurabhsandav.core.ui.trades.ui.TradesSelectionBar
 import com.saurabhsandav.core.ui.trades.ui.TradesTable
 import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterSheet
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
+import com.saurabhsandav.trading.record.model.TradeFilter
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.flow.Flow
 
 @Composable

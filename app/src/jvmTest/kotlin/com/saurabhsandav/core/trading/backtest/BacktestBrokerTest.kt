@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.trading.backtest
 
-import com.saurabhsandav.core.assertBDEquals
-import com.saurabhsandav.core.trading.record.model.Instrument
-import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
+import com.saurabhsandav.trading.record.model.Instrument
+import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import com.saurabhsandav.trading.test.assertBDEquals
 import kotlinx.collections.immutable.persistentListOf
 import java.math.BigDecimal
 import kotlin.test.Test

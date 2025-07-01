@@ -1,10 +1,10 @@
 package com.saurabhsandav.core.ui.sizing.model
 
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.SizingTradeId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
+import com.saurabhsandav.trading.record.model.SizingTradeId
 import kotlin.uuid.Uuid
 
 internal data class SizingState(

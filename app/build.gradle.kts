@@ -70,6 +70,7 @@ kotlin {
             implementation(projects.trading.core)
             implementation(projects.trading.indicator)
             implementation(projects.trading.barreplay)
+            implementation(projects.trading.record)
         }
 
         jvmMain.dependencies {
@@ -147,9 +148,6 @@ kotlin {
             // EitherNet
             implementation(libs.eithernet)
 
-            // Apache Tika
-            implementation(libs.apache.tika.core)
-
             // Coil
             implementation(libs.coil.compose)
 
@@ -184,13 +182,6 @@ sqldelight {
             packageName = "com.saurabhsandav.core"
             srcDirs("src/commonMain/sqldelight/app")
             schemaOutputDirectory = file("src/commonMain/sqldelight/app")
-            dialect(libs.sqldelight.dialect.sqlite338)
-        }
-
-        create("TradesDB") {
-            packageName = "com.saurabhsandav.core.trading.record"
-            srcDirs("src/commonMain/sqldelight/trades")
-            schemaOutputDirectory = file("src/commonMain/sqldelight/trades")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
 

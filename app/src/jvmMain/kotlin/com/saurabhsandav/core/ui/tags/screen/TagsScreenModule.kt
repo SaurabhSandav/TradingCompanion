@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tags.screen
 
 import com.saurabhsandav.core.di.AppModule
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import kotlinx.coroutines.CoroutineScope
 
 internal class TagsScreenModule(

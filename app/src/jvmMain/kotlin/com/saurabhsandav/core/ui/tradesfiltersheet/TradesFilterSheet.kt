@@ -22,8 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.theme.dimens
@@ -57,6 +56,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.ui.SideFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TagsFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TickersFilterItem
 import com.saurabhsandav.core.ui.tradesfiltersheet.ui.TimeIntervalFilterItem
+import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.flow.Flow
 
 @Composable

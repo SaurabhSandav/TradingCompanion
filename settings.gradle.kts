@@ -40,6 +40,7 @@ include(
     "trading:core",
     "trading:indicator",
     "trading:barreplay",
+    "trading:record",
     "trading:test",
 )
 

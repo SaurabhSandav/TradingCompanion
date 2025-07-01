@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.trades.model
 
-import com.saurabhsandav.core.trading.record.model.TradeFilter
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.trading.record.model.TradeFilter
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 internal sealed class TradesEvent {
 

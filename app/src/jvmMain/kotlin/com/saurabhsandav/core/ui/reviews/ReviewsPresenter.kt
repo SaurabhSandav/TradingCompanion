@@ -9,10 +9,8 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.Review
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.ReviewId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.DeleteReview
 import com.saurabhsandav.core.ui.reviews.model.ReviewsEvent.NewReview
@@ -24,6 +22,8 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileReviewId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.record.Review
+import com.saurabhsandav.trading.record.model.ReviewId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow

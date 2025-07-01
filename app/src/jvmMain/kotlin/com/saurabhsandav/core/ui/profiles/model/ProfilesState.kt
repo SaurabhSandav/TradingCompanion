@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.profiles.model
 
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 
 internal data class ProfilesState(
     val profiles: List<Profile>,

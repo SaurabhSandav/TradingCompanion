@@ -31,6 +31,8 @@ kotlin {
 
             api(projects.trading.core)
 
+            implementation(kotlin("test"))
+
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.softwork.kotlinxSerializationCsv)

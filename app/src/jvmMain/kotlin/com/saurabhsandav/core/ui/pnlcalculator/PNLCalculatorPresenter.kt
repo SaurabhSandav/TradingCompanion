@@ -3,16 +3,16 @@ package com.saurabhsandav.core.ui.pnlcalculator
 import androidx.compose.runtime.mutableStateListOf
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.model.Instrument
-import com.saurabhsandav.core.trading.record.model.TradeSide
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.Calculate
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCalculation
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
-import com.saurabhsandav.core.utils.Brokerage
-import com.saurabhsandav.core.utils.brokerage
+import com.saurabhsandav.trading.record.Brokerage
+import com.saurabhsandav.trading.record.brokerage
+import com.saurabhsandav.trading.record.model.Instrument
+import com.saurabhsandav.trading.record.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 

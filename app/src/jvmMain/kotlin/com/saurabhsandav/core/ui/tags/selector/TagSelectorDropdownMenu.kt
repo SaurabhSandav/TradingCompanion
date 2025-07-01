@@ -21,13 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.form.TagFormDialog
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 @Composable
 internal fun TagSelectorDropdownMenu(

@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.tradereview.model
 
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import kotlinx.coroutines.flow.Flow
 

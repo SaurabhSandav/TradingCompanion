@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.charts
 
-import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId

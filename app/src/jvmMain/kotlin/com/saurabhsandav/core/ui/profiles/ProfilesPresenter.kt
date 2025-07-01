@@ -8,8 +8,8 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.TradingProfile
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.DeleteProfile
 import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.SetCurrentProfile

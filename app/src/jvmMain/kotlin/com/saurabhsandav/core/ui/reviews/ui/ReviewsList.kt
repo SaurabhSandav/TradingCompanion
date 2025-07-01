@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.ReviewId
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.state
@@ -29,6 +28,7 @@ import com.saurabhsandav.paging.compose.LazyPagingItems
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemContentType
 import com.saurabhsandav.paging.compose.itemKey
+import com.saurabhsandav.trading.record.model.ReviewId
 import kotlinx.coroutines.flow.Flow
 
 @Composable

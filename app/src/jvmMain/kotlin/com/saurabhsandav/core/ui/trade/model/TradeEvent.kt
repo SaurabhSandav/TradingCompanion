@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import com.saurabhsandav.core.trading.record.model.AttachmentFileId
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
-import com.saurabhsandav.core.trading.record.model.TradeNoteId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.trading.record.model.AttachmentFileId
+import com.saurabhsandav.trading.record.model.TradeExecutionId
+import com.saurabhsandav.trading.record.model.TradeNoteId
+import com.saurabhsandav.trading.record.model.TradeTagId
 import java.math.BigDecimal
 
 internal sealed class TradeEvent {

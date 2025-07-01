@@ -1,0 +1,68 @@
+import com.saurabhsandav.trading.record.model.ReviewId;
+import com.saurabhsandav.trading.record.model.TradeId;
+import kotlin.Boolean;
+import kotlin.collections.List;
+import kotlin.time.Instant;
+
+CREATE TABLE IF NOT EXISTS Review (
+id INTEGER AS ReviewId NOT NULL PRIMARY KEY,
+title TEXT NOT NULL,
+tradeIds TEXT AS List<TradeId> NOT NULL,
+review TEXT NOT NULL,
+created TEXT AS Instant NOT NULL,
+isPinned INTEGER AS Boolean NOT NULL DEFAULT FALSE
+);
+
+insert:
+INSERT
+INTO Review(title, tradeIds, review, created)
+VALUES (?, ?, ?, ?);
+
+setTitle:
+UPDATE Review
+SET title = ?
+WHERE id = ?;
+
+toggleIsPinned:
+UPDATE Review
+SET isPinned = CASE WHEN isPinned IS TRUE THEN FALSE ELSE TRUE END
+WHERE id = ?;
+
+update:
+UPDATE Review
+SET review = ?, tradeIds = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM Review
+WHERE id = ?;
+
+exists:
+SELECT EXISTS(SELECT * FROM Review WHERE id = ?);
+
+getAll:
+SELECT * FROM Review;
+
+getById:
+SELECT *
+FROM Review
+WHERE id = ?;
+
+getAllCount:
+SELECT count(*)
+FROM Review;
+
+getAllPaged:
+SELECT *
+FROM Review
+ORDER BY
+  isPinned DESC,
+  datetime(created) DESC,
+  id DESC
+LIMIT :limit OFFSET :offset;
+
+getPinnedCount:
+SELECT count(*) FROM Review WHERE isPinned = TRUE;
+
+getUnpinnedCount:
+SELECT count(*) FROM Review WHERE isPinned = FALSE;

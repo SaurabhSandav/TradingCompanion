@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.trades.model
 
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.TradeId
 import com.saurabhsandav.core.ui.common.SelectionManager
+import com.saurabhsandav.trading.record.model.TradeId
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradesState(

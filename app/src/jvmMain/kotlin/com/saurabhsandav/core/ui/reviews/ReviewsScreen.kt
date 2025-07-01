@@ -10,11 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.ReviewId
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.reviews.model.ReviewsState.ReviewEntry
 import com.saurabhsandav.core.ui.reviews.ui.ReviewsList
+import com.saurabhsandav.trading.record.model.ReviewId
 import kotlinx.coroutines.flow.Flow
 
 @Composable

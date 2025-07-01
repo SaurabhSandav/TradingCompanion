@@ -12,7 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.PrimaryOptionsBar
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile

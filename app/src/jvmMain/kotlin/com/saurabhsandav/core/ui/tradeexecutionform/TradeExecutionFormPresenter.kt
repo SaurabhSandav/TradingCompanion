@@ -7,12 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
-import com.saurabhsandav.core.trading.record.model.TradeExecutionSide
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeSide
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -24,6 +20,10 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.record.model.TradeExecutionId
+import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeSide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filter

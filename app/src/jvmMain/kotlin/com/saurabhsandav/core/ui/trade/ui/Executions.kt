@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
@@ -42,6 +41,7 @@ import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.trade.model.TradeState
+import com.saurabhsandav.trading.record.model.TradeExecutionId
 
 @Composable
 internal fun ExecutionsTable(

@@ -1,12 +1,12 @@
 package com.saurabhsandav.core.ui.trade.model
 
-import com.saurabhsandav.core.trading.record.model.AttachmentFileId
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeNoteId
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
+import com.saurabhsandav.trading.record.model.AttachmentFileId
+import com.saurabhsandav.trading.record.model.TradeExecutionId
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeNoteId
 import kotlinx.coroutines.flow.Flow
 import java.math.BigDecimal
 

@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import com.saurabhsandav.core.LocalScreensModule
-import com.saurabhsandav.core.trading.record.model.Instrument
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults
@@ -47,6 +46,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.nowIn
+import com.saurabhsandav.trading.record.model.Instrument
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.Locale

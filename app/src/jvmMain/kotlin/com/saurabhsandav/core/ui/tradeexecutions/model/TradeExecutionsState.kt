@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutions.model
 
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.SelectionManager
+import com.saurabhsandav.trading.record.model.TradeExecutionId
 import kotlinx.coroutines.flow.Flow
 
 internal data class TradeExecutionsState(

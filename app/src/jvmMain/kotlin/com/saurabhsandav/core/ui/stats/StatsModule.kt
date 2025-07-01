@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.stats
 
 import com.saurabhsandav.core.di.AppModule
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.stats.studies.PNLByDayChartStudy
 import com.saurabhsandav.core.ui.stats.studies.PNLByDayStudy
 import com.saurabhsandav.core.ui.stats.studies.PNLByMonthChartStudy

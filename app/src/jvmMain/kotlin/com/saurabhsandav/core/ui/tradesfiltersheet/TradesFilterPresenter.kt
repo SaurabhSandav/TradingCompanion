@@ -10,9 +10,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.DateInterval
@@ -40,6 +39,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterEvent.SetMa
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.TradesFilterState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow

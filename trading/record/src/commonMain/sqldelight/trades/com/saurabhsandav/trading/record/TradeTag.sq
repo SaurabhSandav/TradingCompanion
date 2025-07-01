@@ -1,0 +1,57 @@
+import com.saurabhsandav.trading.record.model.TradeTagId;
+import kotlin.Int;
+
+CREATE TABLE IF NOT EXISTS TradeTag (
+id INTEGER AS TradeTagId NOT NULL PRIMARY KEY,
+name TEXT NOT NULL UNIQUE,
+description TEXT NOT NULL,
+color INTEGER AS Int,
+UNIQUE (name COLLATE NOCASE)
+);
+
+insert:
+INSERT OR ROLLBACK INTO TradeTag(name, description, color)
+VALUES (?, ?, ?);
+
+update:
+UPDATE TradeTag
+SET name = ?, description = ?, color = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM TradeTag
+WHERE id = ?;
+
+getAll:
+SELECT * FROM TradeTag
+ORDER BY name;
+
+getById:
+SELECT * FROM TradeTag WHERE id = ?;
+
+getAllByIds:
+SELECT * FROM TradeTag WHERE id IN ?
+ORDER BY name;
+
+getSuggestedTags:
+SELECT *
+FROM TradeTag
+WHERE
+id NOT IN :ignore
+AND name LIKE '%' || :query || '%'
+ORDER BY name;
+
+isTagNameUnique:
+SELECT NOT EXISTS(
+  SELECT id
+  FROM TradeTag
+  WHERE name = :name COLLATE NOCASE
+);
+
+isTagNameUniqueIgnoreId:
+SELECT NOT EXISTS(
+  SELECT id
+  FROM TradeTag
+  WHERE name = :name COLLATE NOCASE
+  AND id != :id
+);

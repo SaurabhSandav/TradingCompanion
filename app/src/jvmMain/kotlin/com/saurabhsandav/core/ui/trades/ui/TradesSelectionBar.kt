@@ -8,9 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormWindow
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
@@ -19,6 +17,8 @@ import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorDropdownMenu
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorType
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 @Composable
 internal fun TradesSelectionBar(

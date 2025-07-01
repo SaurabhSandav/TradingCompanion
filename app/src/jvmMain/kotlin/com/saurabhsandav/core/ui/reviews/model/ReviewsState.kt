@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.reviews.model
 
 import androidx.paging.PagingData
-import com.saurabhsandav.core.trading.record.model.ReviewId
+import com.saurabhsandav.trading.record.model.ReviewId
 import kotlinx.coroutines.flow.Flow
 
 internal data class ReviewsState(

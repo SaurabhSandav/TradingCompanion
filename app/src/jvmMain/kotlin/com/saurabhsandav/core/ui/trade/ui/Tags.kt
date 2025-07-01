@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.trading.record.model.TradeTagId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.controls.ChipsSelectorBox
@@ -40,6 +39,7 @@ import com.saurabhsandav.core.ui.tags.selector.TagSelectorDropdownMenu
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorType
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 @Composable
 internal fun Tags(

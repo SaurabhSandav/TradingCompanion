@@ -5,14 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.Color
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
-import com.saurabhsandav.core.trading.record.model.TradeId
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorType.All
 import com.saurabhsandav.core.ui.tags.selector.TagSelectorType.ForTrades
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.record.model.TradeId
+import com.saurabhsandav.trading.record.model.TradeTagId
 import kotlinx.coroutines.flow.flatMapLatest
 
 internal class TagSelectorState(

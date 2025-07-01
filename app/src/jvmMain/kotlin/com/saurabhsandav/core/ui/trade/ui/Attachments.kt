@@ -45,7 +45,6 @@ import androidx.compose.ui.layout.ContentScale
 import com.github.panpf.zoomimage.CoilZoomAsyncImage
 import com.github.panpf.zoomimage.CoilZoomState
 import com.github.panpf.zoomimage.rememberCoilZoomState
-import com.saurabhsandav.core.trading.record.model.AttachmentFileId
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormWindow
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
@@ -57,6 +56,7 @@ import com.saurabhsandav.core.ui.trade.model.TradeState.TradeAttachment
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.openExternally
+import com.saurabhsandav.trading.record.model.AttachmentFileId
 import java.io.File
 import java.net.URI
 import kotlin.math.pow

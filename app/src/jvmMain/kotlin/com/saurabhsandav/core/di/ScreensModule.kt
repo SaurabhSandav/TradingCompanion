@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.di
 
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.account.AccountModule
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormModule
 import com.saurabhsandav.core.ui.barreplay.BarReplayModule

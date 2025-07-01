@@ -8,8 +8,8 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.model.ProfileId
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
 import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen

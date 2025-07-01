@@ -3,12 +3,12 @@ package com.saurabhsandav.core.ui.tradeexecutions.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.SelectionBar
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.trading.record.model.TradeExecutionId
 
 @Composable
 internal fun TradeExecutionsSelectionBar(

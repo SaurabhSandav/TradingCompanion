@@ -11,17 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.record.Trade
-import com.saurabhsandav.core.trading.record.TradeExcursions
-import com.saurabhsandav.core.trading.record.TradeExcursionsGenerator
-import com.saurabhsandav.core.trading.record.TradingProfiles
-import com.saurabhsandav.core.trading.record.brokerageAt
-import com.saurabhsandav.core.trading.record.model.AttachmentFileId
-import com.saurabhsandav.core.trading.record.model.TradeExecutionId
-import com.saurabhsandav.core.trading.record.model.TradeNoteId
-import com.saurabhsandav.core.trading.record.model.TradeSide
-import com.saurabhsandav.core.trading.record.model.TradeTagId
-import com.saurabhsandav.core.trading.record.rValueAt
+import com.saurabhsandav.core.trading.TradeExcursionsGenerator
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
@@ -58,6 +49,15 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.trading.record.Trade
+import com.saurabhsandav.trading.record.TradeExcursions
+import com.saurabhsandav.trading.record.brokerageAt
+import com.saurabhsandav.trading.record.model.AttachmentFileId
+import com.saurabhsandav.trading.record.model.TradeExecutionId
+import com.saurabhsandav.trading.record.model.TradeNoteId
+import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.TradeTagId
+import com.saurabhsandav.trading.record.rValueAt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -389,13 +389,15 @@ internal class TradePresenter(
                 .getForTradeWithFile(tradeId)
                 .mapList { attachment ->
 
+                    val mimeType = attachment.mimeType
+
                     TradeAttachment(
                         fileId = attachment.fileId,
                         name = attachment.name,
                         description = attachment.description.ifBlank { null },
                         type = when {
-                            attachment.mimeType == null -> TradeAttachment.Type.Other
-                            attachment.mimeType.startsWith("image") -> TradeAttachment.Type.Image
+                            mimeType == null -> TradeAttachment.Type.Other
+                            mimeType.startsWith("image") -> TradeAttachment.Type.Image
                             else -> TradeAttachment.Type.Other
                         },
                         path = attachment.path.toString(),
@@ -541,7 +543,7 @@ internal class TradePresenter(
     }
 
     private fun Trade.buildExcursionString(
-        stop: com.saurabhsandav.core.trading.record.TradeStop?,
+        stop: com.saurabhsandav.trading.record.TradeStop?,
         excursions: TradeExcursions,
         inTrade: Boolean,
         isMae: Boolean,

@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.tags.form.model
 
-import com.saurabhsandav.core.trading.record.model.TradeTagId
+import com.saurabhsandav.trading.record.model.TradeTagId
 
 sealed class TagFormType {
 
