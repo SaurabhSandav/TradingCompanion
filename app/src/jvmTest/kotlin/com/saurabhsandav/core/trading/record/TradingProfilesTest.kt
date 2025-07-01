@@ -8,12 +8,12 @@ import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.utils.AppPaths
-import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.io.path.readText
@@ -338,19 +338,17 @@ class TradingProfilesTest {
 
         val appPaths = FakeAppPaths(fakeFileSystem)
 
-        val dbUrlProvider = object : DbUrlProvider {
-            override fun getAppDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
-
-            override fun getCandlesDbUrl(): String = JdbcSqliteDriver.IN_MEMORY
-
-            override fun getTradingRecordDbUrl(path: Path): String = JdbcSqliteDriver.IN_MEMORY
-        }
-
         val tradingProfiles = TradingProfiles(
             coroutineContext = StandardTestDispatcher(testScheduler),
             appPaths = appPaths,
-            dbUrlProvider = dbUrlProvider,
             appDB = AppDB(driver),
+            buildTradingRecord = { _, onTradeCountsUpdated ->
+
+                TradingRecord(
+                    coroutineContext = EmptyCoroutineContext,
+                    onTradeCountsUpdated = onTradeCountsUpdated,
+                )
+            },
         )
 
         val scope = object : TradingProfilesTestScope {

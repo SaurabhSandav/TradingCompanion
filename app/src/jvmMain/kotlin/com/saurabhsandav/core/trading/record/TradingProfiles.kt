@@ -8,7 +8,6 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.utils.AppPaths
-import com.saurabhsandav.core.utils.DbUrlProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -28,8 +27,8 @@ import kotlin.uuid.Uuid
 internal class TradingProfiles(
     private val coroutineContext: CoroutineContext,
     private val appPaths: AppPaths,
-    private val dbUrlProvider: DbUrlProvider,
     private val appDB: AppDB,
+    private val buildTradingRecord: (Path, suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit) -> TradingRecord,
 ) {
 
     private val records = mutableMapOf<ProfileId, TradingRecord>()
@@ -221,19 +220,14 @@ internal class TradingProfiles(
                     profile.filesSymbolicLinkPath.createSymbolicLinkPointingTo(profileFilesPath)
                 }
 
-                TradingRecord(
-                    coroutineContext = this@TradingProfiles.coroutineContext,
-                    dbUrl = dbUrlProvider.getTradingRecordDbUrl(profileFilesPath),
-                    attachmentsDir = profileFilesPath.resolve("attachments"),
-                    onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
+                buildTradingRecord(profileFilesPath) { tradeCount, tradeCountOpen ->
 
-                        appDB.tradingProfileQueries.setTradeCounts(
-                            id = profile.id,
-                            tradeCount = tradeCount,
-                            tradeCountOpen = tradeCountOpen,
-                        )
-                    },
-                )
+                    appDB.tradingProfileQueries.setTradeCounts(
+                        id = profile.id,
+                        tradeCount = tradeCount,
+                        tradeCountOpen = tradeCountOpen,
+                    )
+                }
             }
         }
     }

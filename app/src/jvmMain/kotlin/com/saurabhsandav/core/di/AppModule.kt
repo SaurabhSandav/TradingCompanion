@@ -22,6 +22,7 @@ import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.trading.record.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.record.TradeManagementJob
 import com.saurabhsandav.core.trading.record.TradingProfiles
+import com.saurabhsandav.core.trading.record.TradingRecord
 import com.saurabhsandav.core.trading.record.model.Account
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
@@ -32,7 +33,6 @@ import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.AppUriHandler
-import com.saurabhsandav.core.utils.DbUrlProvider
 import com.saurabhsandav.fyersapi.FyersApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
 import java.util.Properties
+import kotlin.io.path.absolutePathString
 
 internal class AppModule(
     isDebugMode: Boolean,
@@ -82,12 +83,10 @@ internal class AppModule(
         ),
     )
 
-    private val dbUrlProvider = DbUrlProvider(appPaths)
-
     val appDB: AppDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = dbUrlProvider.getAppDbUrl(),
+            url = "jdbc:sqlite:${appPaths.appDBPath.absolutePathString()}",
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = AppDB.Schema,
         )
@@ -95,13 +94,11 @@ internal class AppModule(
         AppDB(driver)
     }
 
-    private val candleDBDriver: SqlDriver = run {
-        JdbcSqliteDriver(
-            url = dbUrlProvider.getCandlesDbUrl(),
-            properties = Properties().apply { put("foreign_keys", "true") },
-            schema = CandleDB.Schema,
-        )
-    }
+    private val candleDBDriver: SqlDriver = JdbcSqliteDriver(
+        url = "jdbc:sqlite:${appPaths.candlesDBPath.absolutePathString()}",
+        properties = Properties().apply { put("foreign_keys", "true") },
+        schema = CandleDB.Schema,
+    )
 
     private val candleDB: CandleDB = CandleDB(candleDBDriver)
 
@@ -159,8 +156,16 @@ internal class AppModule(
     val tradingProfiles = TradingProfiles(
         coroutineContext = appDispatchers.IO,
         appPaths = appPaths,
-        dbUrlProvider = dbUrlProvider,
         appDB = appDB,
+        buildTradingRecord = { recordPath, onTradeCountsUpdated ->
+
+            TradingRecord(
+                coroutineContext = appDispatchers.IO,
+                dbUrl = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
+                attachmentsDir = recordPath.resolve("attachments"),
+                onTradeCountsUpdated = onTradeCountsUpdated,
+            )
+        },
     )
 
     val tradeExcursionsGenerator = TradeExcursionsGenerator(
