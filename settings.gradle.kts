@@ -41,6 +41,7 @@ include(
     "trading:indicator",
     "trading:barreplay",
     "trading:record",
+    "trading:backtest",
     "trading:test",
 )
 

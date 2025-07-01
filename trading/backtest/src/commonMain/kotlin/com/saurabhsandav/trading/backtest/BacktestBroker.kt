@@ -1,11 +1,11 @@
-package com.saurabhsandav.core.trading.backtest
+package com.saurabhsandav.trading.backtest
 
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Params
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Canceled
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Executed
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Open
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.Rejected
-import com.saurabhsandav.core.trading.backtest.BacktestOrder.Status.RejectionCause
+import com.saurabhsandav.trading.backtest.BacktestOrder.Params
+import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Canceled
+import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Executed
+import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Open
+import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Rejected
+import com.saurabhsandav.trading.backtest.BacktestOrder.Status.RejectionCause
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr

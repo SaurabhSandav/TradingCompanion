@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.backtest
+package com.saurabhsandav.trading.backtest
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow

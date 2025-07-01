@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.backtest
+package com.saurabhsandav.trading.backtest
 
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import java.math.BigDecimal

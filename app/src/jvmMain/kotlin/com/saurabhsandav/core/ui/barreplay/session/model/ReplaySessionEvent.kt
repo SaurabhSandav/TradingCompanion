@@ -1,7 +1,7 @@
 package com.saurabhsandav.core.ui.barreplay.session.model
 
-import com.saurabhsandav.core.trading.backtest.BacktestOrderId
 import com.saurabhsandav.core.ui.stockchart.StockChart
+import com.saurabhsandav.trading.backtest.BacktestOrderId
 
 internal sealed class ReplaySessionEvent {
 

@@ -71,6 +71,7 @@ kotlin {
             implementation(projects.trading.indicator)
             implementation(projects.trading.barreplay)
             implementation(projects.trading.record)
+            implementation(projects.trading.backtest)
         }
 
         jvmMain.dependencies {

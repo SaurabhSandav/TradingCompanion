@@ -10,12 +10,6 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.TradingProfiles
-import com.saurabhsandav.core.trading.backtest.BacktestOrderId
-import com.saurabhsandav.core.trading.backtest.Limit
-import com.saurabhsandav.core.trading.backtest.Market
-import com.saurabhsandav.core.trading.backtest.StopLimit
-import com.saurabhsandav.core.trading.backtest.StopMarket
-import com.saurabhsandav.core.trading.backtest.TrailingStop
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.AdvanceReplay
@@ -36,6 +30,12 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.backtest.BacktestOrderId
+import com.saurabhsandav.trading.backtest.Limit
+import com.saurabhsandav.trading.backtest.Market
+import com.saurabhsandav.trading.backtest.StopLimit
+import com.saurabhsandav.trading.backtest.StopMarket
+import com.saurabhsandav.trading.backtest.TrailingStop
 import com.saurabhsandav.trading.barreplay.BarReplay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -136,12 +136,12 @@ internal class ReplaySessionPresenter(
                         quantity = params.lots
                             ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
                         side = params.side.strValue.uppercase(),
-                        price = when (openOrder.executionType) {
-                            is Limit -> openOrder.executionType.price.toPlainString()
+                        price = when (val executionType = openOrder.executionType) {
+                            is Limit -> executionType.price.toPlainString()
                             is Market -> ""
-                            is StopLimit -> openOrder.executionType.price.toPlainString()
-                            is StopMarket -> openOrder.executionType.trigger.toPlainString()
-                            is TrailingStop -> openOrder.executionType.trailingStop?.toPlainString() ?: ""
+                            is StopLimit -> executionType.price.toPlainString()
+                            is StopMarket -> executionType.trigger.toPlainString()
+                            is TrailingStop -> executionType.trailingStop?.toPlainString() ?: ""
                         },
                         timestamp = openOrder
                             .createdAt

@@ -2,14 +2,14 @@ package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
-import com.saurabhsandav.core.trading.backtest.BacktestAccount
-import com.saurabhsandav.core.trading.backtest.BacktestBroker
-import com.saurabhsandav.core.trading.backtest.BacktestOrder
-import com.saurabhsandav.core.trading.backtest.BacktestOrderId
-import com.saurabhsandav.core.trading.backtest.Limit
-import com.saurabhsandav.core.trading.backtest.StopMarket
-import com.saurabhsandav.core.trading.backtest.newCandle
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.trading.backtest.BacktestAccount
+import com.saurabhsandav.trading.backtest.BacktestBroker
+import com.saurabhsandav.trading.backtest.BacktestOrder
+import com.saurabhsandav.trading.backtest.BacktestOrderId
+import com.saurabhsandav.trading.backtest.Limit
+import com.saurabhsandav.trading.backtest.StopMarket
+import com.saurabhsandav.trading.backtest.newCandle
 import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import kotlinx.coroutines.CoroutineScope
@@ -98,7 +98,9 @@ internal class ReplayOrdersManager(
                     }
                     .first()
 
-                if (closedOrder.status !is BacktestOrder.Status.Executed) return@contingentOrders
+                val status = closedOrder.status
+
+                if (status !is BacktestOrder.Status.Executed) return@contingentOrders
 
                 val savedOrderId = tradingRecord.executions.new(
                     broker = closedOrder.params.broker,
@@ -107,8 +109,8 @@ internal class ReplayOrdersManager(
                     quantity = closedOrder.params.quantity,
                     lots = closedOrder.params.lots,
                     side = closedOrder.params.side,
-                    price = closedOrder.status.executionPrice,
-                    timestamp = closedOrder.status.closedAt,
+                    price = status.executionPrice,
+                    timestamp = status.closedAt,
                     locked = false,
                 )
 
@@ -148,8 +150,10 @@ internal class ReplayOrdersManager(
                                 }
                                 .first()
 
+                            val status = closedStopOrder.status
+
                             // If order was executed, record it.
-                            if (closedStopOrder.status is BacktestOrder.Status.Executed) {
+                            if (status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
                                     broker = closedStopOrder.params.broker,
@@ -158,8 +162,8 @@ internal class ReplayOrdersManager(
                                     quantity = closedStopOrder.params.quantity,
                                     lots = closedStopOrder.params.lots,
                                     side = closedStopOrder.params.side,
-                                    price = closedStopOrder.status.executionPrice,
-                                    timestamp = closedStopOrder.status.closedAt,
+                                    price = status.executionPrice,
+                                    timestamp = status.closedAt,
                                     locked = false,
                                 )
                             }
@@ -190,8 +194,10 @@ internal class ReplayOrdersManager(
                                 }
                                 .first()
 
+                            val status = closedTargetOrder.status
+
                             // If order was executed, record it.
-                            if (closedTargetOrder.status is BacktestOrder.Status.Executed) {
+                            if (status is BacktestOrder.Status.Executed) {
 
                                 tradingRecord.executions.new(
                                     broker = closedTargetOrder.params.broker,
@@ -200,8 +206,8 @@ internal class ReplayOrdersManager(
                                     quantity = closedTargetOrder.params.quantity,
                                     lots = closedTargetOrder.params.lots,
                                     side = closedTargetOrder.params.side,
-                                    price = closedTargetOrder.status.executionPrice,
-                                    timestamp = closedTargetOrder.status.closedAt,
+                                    price = status.executionPrice,
+                                    timestamp = status.closedAt,
                                     locked = false,
                                 )
                             }
