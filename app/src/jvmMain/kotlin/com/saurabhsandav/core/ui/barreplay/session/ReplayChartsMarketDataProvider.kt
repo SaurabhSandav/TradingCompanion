@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.barreplay.session
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.core.CandleSeries
 import com.saurabhsandav.core.trading.core.SessionChecker
-import com.saurabhsandav.core.trading.core.Timeframe
 import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.trading.record.model.ProfileId
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
@@ -12,11 +11,8 @@ import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.AppDispatchers
-import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.mapList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -29,14 +25,6 @@ internal class ReplayChartsMarketDataProvider(
     private val replaySeriesCache: ReplaySeriesCache,
     private val tradingProfiles: TradingProfiles,
 ) : MarketDataProvider {
-
-    override fun symbols(): StateFlow<List<String>> {
-        return MutableStateFlow(NIFTY500)
-    }
-
-    override fun timeframes(): StateFlow<List<Timeframe>> {
-        return MutableStateFlow(Timeframe.entries.toList())
-    }
 
     override fun hasVolume(params: StockChartParams): Boolean {
         return params.ticker != "NIFTY50"

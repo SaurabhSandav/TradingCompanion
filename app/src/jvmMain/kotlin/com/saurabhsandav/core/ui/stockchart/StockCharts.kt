@@ -101,8 +101,6 @@ private fun Window(
 
         windowDecorator.Decoration {
 
-            val timeframes by state.marketDataProvider.timeframes().collectAsState()
-
             Box(
                 modifier = Modifier.onPreviewKeyEvent { keyEvent ->
 
@@ -120,7 +118,6 @@ private fun Window(
 
                 when {
                     !state.isInitializedWithParams -> NewChartForm(
-                        timeframes = timeframes,
                         onInitializeChart = { ticker, timeframe ->
                             state.onInitializeChart(chartWindow, ticker, timeframe)
                         },
@@ -179,7 +176,6 @@ private fun Window(
                         chartWindow.showTimeframeSelectionDialog = false
                         initialFilterQuery = ""
                     },
-                    timeframes = timeframes,
                     initialFilterQuery = initialFilterQuery,
                     onSelect = { timeframe -> state.onChangeTimeframe(chartWindow, timeframe) },
                     onOpenInCurrentWindow = when {

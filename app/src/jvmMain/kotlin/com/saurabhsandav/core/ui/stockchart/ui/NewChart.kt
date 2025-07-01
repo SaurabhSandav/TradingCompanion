@@ -24,10 +24,7 @@ import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionField
 import com.saurabhsandav.core.ui.tickerselectiondialog.TickerSelectionType
 
 @Composable
-internal fun NewChartForm(
-    timeframes: List<Timeframe>,
-    onInitializeChart: (String, Timeframe) -> Unit,
-) {
+internal fun NewChartForm(onInitializeChart: (String, Timeframe) -> Unit) {
 
     Column(
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center).width(IntrinsicSize.Min),
@@ -44,7 +41,7 @@ internal fun NewChartForm(
         )
 
         OutlinedListSelectionField(
-            items = timeframes,
+            items = Timeframe.entries,
             itemText = { it.toLabel() },
             selection = timeframe,
             onSelect = { timeframe = it },

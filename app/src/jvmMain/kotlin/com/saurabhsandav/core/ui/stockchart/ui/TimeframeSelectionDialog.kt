@@ -23,7 +23,6 @@ import com.saurabhsandav.core.ui.common.toLabel
 @Composable
 internal fun TimeframeSelectionDialog(
     onDismissRequest: () -> Unit,
-    timeframes: List<Timeframe>,
     initialFilterQuery: String,
     onSelect: (Timeframe) -> Unit,
     onOpenInCurrentWindow: ((Timeframe) -> Unit)?,
@@ -32,7 +31,7 @@ internal fun TimeframeSelectionDialog(
 
     ListSelectionDialog(
         onDismissRequest = onDismissRequest,
-        items = timeframes,
+        items = Timeframe.entries,
         itemText = { it.toLabel() },
         onSelect = onSelect,
         title = { Text("Select Timeframe") },
