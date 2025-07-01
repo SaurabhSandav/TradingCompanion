@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.barreplay
+package com.saurabhsandav.trading.test
 
 import app.softwork.serialization.csv.CSVFormat
 import com.saurabhsandav.trading.core.Candle

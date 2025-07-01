@@ -84,7 +84,6 @@ kotlin {
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.softwork.kotlinxSerializationCsv)
 
             // KotlinX DateTime
             implementation(libs.kotlinx.datetime)
@@ -159,6 +158,7 @@ kotlin {
         jvmTest.dependencies {
 
             implementation(kotlin("test"))
+            implementation(projects.trading.test)
 
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.test)
