@@ -163,7 +163,7 @@ private fun SizingTradeCard(
                 Text(
                     text = sizedTrade.side,
                     color = sizedTrade.color,
-                    fontWeight = FontWeight.Companion.Bold,
+                    fontWeight = FontWeight.Bold,
                 )
             }
 

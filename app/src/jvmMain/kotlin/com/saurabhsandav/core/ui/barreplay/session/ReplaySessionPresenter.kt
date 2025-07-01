@@ -261,7 +261,7 @@ internal class ReplaySessionPresenter(
         private val ReplayDateTimeFormat = LocalDateTime.Format {
             monthName(MonthNames.ENGLISH_ABBREVIATED)
             char(' ')
-            dayOfMonth(Padding.NONE)
+            day(padding = Padding.NONE)
             chars(", ")
             year()
             char(' ')

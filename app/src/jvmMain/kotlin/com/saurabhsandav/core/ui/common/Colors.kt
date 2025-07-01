@@ -23,7 +23,7 @@ fun Color.Companion.hex(hex: String): Color? {
 
     return try {
 
-        val r = Integer.parseInt(colorInt.substring(0, 2), 16)
+        val r = Integer.parseInt(colorInt.take(2), 16)
         val g = Integer.parseInt(colorInt.substring(2, 4), 16)
         val b = Integer.parseInt(colorInt.substring(4, 6), 16)
 

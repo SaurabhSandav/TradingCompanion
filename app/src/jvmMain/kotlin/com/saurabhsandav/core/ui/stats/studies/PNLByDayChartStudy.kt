@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
 
@@ -59,8 +60,8 @@ internal class PNLByDayChartStudy(
                         BaselineData.Item(
                             time = Time.BusinessDay(
                                 year = localDate.year,
-                                month = localDate.monthNumber,
-                                day = localDate.dayOfMonth,
+                                month = localDate.month.number,
+                                day = localDate.day,
                             ),
                             value = bigDecimal.toDouble(),
                         )

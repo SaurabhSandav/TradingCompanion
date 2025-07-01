@@ -49,6 +49,7 @@ kotlin {
             "kotlin.time.ExperimentalTime",
             "kotlinx.coroutines.ExperimentalCoroutinesApi",
             "kotlinx.coroutines.FlowPreview",
+            "kotlinx.serialization.ExperimentalSerializationApi",
             "androidx.compose.foundation.ExperimentalFoundationApi",
             "androidx.compose.foundation.layout.ExperimentalLayoutApi",
             "androidx.compose.ui.ExperimentalComposeUiApi",

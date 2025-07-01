@@ -246,7 +246,7 @@ internal fun TimePickerDialog(
 private val DateTimeFormat = LocalDateTime.Format {
     monthName(MonthNames.ENGLISH_FULL)
     char(' ')
-    dayOfMonth()
+    day()
     chars(", ")
     year()
     chars(" - ")

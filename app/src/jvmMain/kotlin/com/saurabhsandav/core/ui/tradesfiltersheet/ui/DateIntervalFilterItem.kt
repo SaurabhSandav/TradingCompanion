@@ -201,7 +201,7 @@ private class DateIntervalFormModel(
 private val DateFormat = LocalDate.Format {
     monthName(MonthNames.ENGLISH_ABBREVIATED)
     char(' ')
-    dayOfMonth()
+    day()
     chars(", ")
     year()
 }

@@ -179,7 +179,7 @@ internal class PNLByDayStudy(
     private companion object {
 
         val DateFormat: DateTimeFormat<LocalDate> = LocalDate.Format {
-            dayOfMonth(Padding.NONE)
+            day(padding = Padding.NONE)
             char(' ')
             monthName(MonthNames.ENGLISH_ABBREVIATED)
             char(' ')

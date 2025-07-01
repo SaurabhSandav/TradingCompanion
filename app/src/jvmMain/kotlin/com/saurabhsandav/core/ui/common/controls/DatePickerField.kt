@@ -102,7 +102,7 @@ fun DatePickerField(
 private val DateFormat = LocalDate.Format {
     monthName(MonthNames.ENGLISH_FULL)
     char(' ')
-    dayOfMonth()
+    day()
     chars(", ")
     year()
 }

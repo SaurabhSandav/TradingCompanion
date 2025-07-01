@@ -9,7 +9,7 @@ import kotlinx.datetime.format.char
 val TradeDateTimeFormat: DateTimeFormat<LocalDateTime> = LocalDateTime.Format {
     monthName(MonthNames.ENGLISH_ABBREVIATED)
     char(' ')
-    dayOfMonth(Padding.NONE)
+    day(padding = Padding.NONE)
     chars(", ")
     year()
     chars(" - ")

@@ -67,7 +67,7 @@ fun Time.toInstant(): Instant {
 
     val instant = when (this) {
         is UTCTimestamp -> Instant.fromEpochSeconds(value)
-        is BusinessDay -> LocalDate(year = year, monthNumber = month, dayOfMonth = day).atStartOfDayIn(TimeZone.UTC)
+        is BusinessDay -> LocalDate(year = year, month = month, day = day).atStartOfDayIn(TimeZone.UTC)
         is ISOString -> LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
     }
 

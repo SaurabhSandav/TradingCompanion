@@ -21,6 +21,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import java.math.BigDecimal
@@ -76,8 +77,8 @@ data class FilterConfig(
                 val todayOffset = when (dateInterval) {
                     DateInterval.Today -> DatePeriod()
                     DateInterval.ThisWeek -> DatePeriod(days = today.dayOfWeek.isoDayNumber - 1)
-                    DateInterval.ThisMonth -> DatePeriod(days = today.dayOfMonth - 1)
-                    DateInterval.ThisYear -> DatePeriod(months = today.monthNumber - 1, days = today.dayOfMonth - 1)
+                    DateInterval.ThisMonth -> DatePeriod(days = today.day - 1)
+                    DateInterval.ThisYear -> DatePeriod(months = today.month.number - 1, days = today.day - 1)
                     else -> error("DateInterval should've already been handled.")
                 }
 
