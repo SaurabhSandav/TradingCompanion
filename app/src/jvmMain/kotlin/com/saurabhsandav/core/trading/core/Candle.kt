@@ -1,31 +1,14 @@
 package com.saurabhsandav.core.trading.core
 
-import com.saurabhsandav.core.utils.BigDecimalSerializer
-import com.saurabhsandav.core.utils.InstantEpochSecondsSerializer
-import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import kotlin.time.Instant
 
-@Suppress("ktlint:standard:no-blank-line-in-list")
-@Serializable
 data class Candle(
-
-    @Serializable(with = InstantEpochSecondsSerializer::class)
     val openInstant: Instant,
-
-    @Serializable(with = BigDecimalSerializer::class)
     val open: BigDecimal,
-
-    @Serializable(with = BigDecimalSerializer::class)
     val high: BigDecimal,
-
-    @Serializable(with = BigDecimalSerializer::class)
     val low: BigDecimal,
-
-    @Serializable(with = BigDecimalSerializer::class)
     val close: BigDecimal,
-
-    @Serializable(with = BigDecimalSerializer::class)
     val volume: BigDecimal,
 )
 
