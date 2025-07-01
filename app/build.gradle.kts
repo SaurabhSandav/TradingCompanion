@@ -68,6 +68,7 @@ kotlin {
             implementation(projects.lightweightCharts)
             implementation(projects.trading.core)
             implementation(projects.trading.indicator)
+            implementation(projects.trading.barreplay)
         }
 
         jvmMain.dependencies {

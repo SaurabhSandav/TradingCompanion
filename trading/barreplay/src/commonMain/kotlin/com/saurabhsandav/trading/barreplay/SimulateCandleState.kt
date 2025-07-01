@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.barreplay
+package com.saurabhsandav.trading.barreplay
 
 import com.saurabhsandav.trading.core.Candle
 import java.math.BigDecimal

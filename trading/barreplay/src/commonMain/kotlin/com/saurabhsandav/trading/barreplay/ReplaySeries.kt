@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.barreplay
+package com.saurabhsandav.trading.barreplay
 
 import com.saurabhsandav.trading.core.CandleSeries
 import kotlinx.coroutines.flow.StateFlow

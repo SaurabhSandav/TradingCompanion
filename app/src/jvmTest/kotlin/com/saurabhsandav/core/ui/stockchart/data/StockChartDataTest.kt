@@ -3,11 +3,11 @@ package com.saurabhsandav.core.ui.stockchart.data
 import app.cash.turbine.test
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.StockChartData.LoadState
-import com.saurabhsandav.core.utils.binarySearchByAsResult
-import com.saurabhsandav.core.utils.indexOr
-import com.saurabhsandav.core.utils.indexOrNaturalIndex
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.Timeframe
+import com.saurabhsandav.trading.core.binarySearchByAsResult
+import com.saurabhsandav.trading.core.indexOr
+import com.saurabhsandav.trading.core.indexOrNaturalIndex
 import com.saurabhsandav.trading.test.CandleUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel

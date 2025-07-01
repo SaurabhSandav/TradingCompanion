@@ -38,6 +38,7 @@ include(
     "jcef-compose",
     "trading:core",
     "trading:indicator",
+    "trading:barreplay",
     "trading:test",
 )
 

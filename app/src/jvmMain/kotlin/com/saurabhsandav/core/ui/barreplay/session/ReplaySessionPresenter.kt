@@ -15,7 +15,6 @@ import com.saurabhsandav.core.trading.backtest.Market
 import com.saurabhsandav.core.trading.backtest.StopLimit
 import com.saurabhsandav.core.trading.backtest.StopMarket
 import com.saurabhsandav.core.trading.backtest.TrailingStop
-import com.saurabhsandav.core.trading.barreplay.BarReplay
 import com.saurabhsandav.core.trading.record.TradingProfiles
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent
@@ -37,6 +36,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.trading.barreplay.BarReplay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.utils
+package com.saurabhsandav.trading.core
 
 fun <T : Comparable<T>> List<T?>.binarySearchAsResult(
     element: T?,

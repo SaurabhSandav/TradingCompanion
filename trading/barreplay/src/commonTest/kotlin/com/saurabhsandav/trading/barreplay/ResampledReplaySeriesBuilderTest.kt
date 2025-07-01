@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.barreplay
+package com.saurabhsandav.trading.barreplay
 
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.test.CandleUtils

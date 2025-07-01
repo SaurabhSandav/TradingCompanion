@@ -1,12 +1,12 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.di.AppModule
-import com.saurabhsandav.core.trading.barreplay.BarReplay
-import com.saurabhsandav.core.trading.barreplay.CandleUpdateType
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
+import com.saurabhsandav.trading.barreplay.BarReplay
+import com.saurabhsandav.trading.barreplay.CandleUpdateType
 import kotlinx.coroutines.CoroutineScope
 
 internal class ReplaySessionModule(
