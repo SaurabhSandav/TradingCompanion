@@ -7,7 +7,7 @@ import org.apache.tika.Tika
 import java.nio.file.Path
 
 // New mimeType column added to AttachmentFile table. Detect and update attachment MIME type in table.
-fun migrationAfterV5(attachmentsPath: Path): AfterVersion = AfterVersion(5) { driver ->
+fun migrationAfterV5(attachmentsDir: Path): AfterVersion = AfterVersion(5) { driver ->
 
     val transacter = object : TransacterImpl(driver) {}
 
@@ -44,7 +44,7 @@ fun migrationAfterV5(attachmentsPath: Path): AfterVersion = AfterVersion(5) { dr
 
         idAndFileNames.forEach { idAndFileName ->
 
-            val mimeType = tika.detect(attachmentsPath.resolve(idAndFileName.fileName))
+            val mimeType = tika.detect(attachmentsDir.resolve(idAndFileName.fileName))
 
             driver.execute(
                 identifier = null,

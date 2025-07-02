@@ -24,7 +24,7 @@ import kotlin.io.path.inputStream
 class Attachments internal constructor(
     private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
-    private val attachmentsPath: Path,
+    private val attachmentsDir: Path,
 ) {
 
     private val tika = Tika()
@@ -65,10 +65,10 @@ class Attachments internal constructor(
                 existingAttachment == null -> {
 
                     val attachedFileName = "$checksum.${inputFilepath.extension}"
-                    val attachedFilePath = attachmentsPath.resolve(attachedFileName)
+                    val attachedFilePath = attachmentsDir.resolve(attachedFileName)
 
                     // Create attachment folder
-                    attachmentsPath.createDirectories()
+                    attachmentsDir.createDirectories()
 
                     // Copy file to attachments directory
                     inputFilepath.copyTo(attachedFilePath)
@@ -142,7 +142,7 @@ class Attachments internal constructor(
                 tradesDB.attachmentFileQueries.delete(fileId)
 
                 // Delete attachment file
-                attachmentsPath.resolve(attachment.fileName).deleteExisting()
+                attachmentsDir.resolve(attachment.fileName).deleteExisting()
             }
         }
     }
@@ -191,7 +191,7 @@ class Attachments internal constructor(
         name = name,
         mimeType = mimeType,
         description = description,
-        path = attachmentsPath.resolve(fileName),
+        path = attachmentsDir.resolve(fileName),
         checksum = checksum,
     )
 }

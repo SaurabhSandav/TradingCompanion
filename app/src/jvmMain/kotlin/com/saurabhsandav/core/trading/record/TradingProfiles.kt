@@ -223,8 +223,8 @@ internal class TradingProfiles(
 
                 TradingRecord(
                     coroutineContext = this@TradingProfiles.coroutineContext,
-                    recordPath = profileFilesPath,
-                    dbUrlProvider = dbUrlProvider,
+                    dbUrl = dbUrlProvider.getTradingRecordDbUrl(profileFilesPath),
+                    attachmentsDir = profileFilesPath.resolve("attachments"),
                     onTradeCountsUpdated = { tradeCount, tradeCountOpen ->
 
                         appDB.tradingProfileQueries.setTradeCounts(

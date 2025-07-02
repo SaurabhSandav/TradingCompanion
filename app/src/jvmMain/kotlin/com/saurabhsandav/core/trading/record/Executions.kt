@@ -26,7 +26,7 @@ import kotlin.time.Instant
 internal class Executions(
     private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
-    private val attachmentsPath: Path,
+    private val attachmentsDir: Path?,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
 
@@ -532,9 +532,12 @@ internal class Executions(
         with(tradesDB.attachmentFileQueries) {
 
             // Delete files
-            getOrphaned()
-                .executeAsList()
-                .forEach { attachmentsPath.resolve(it.fileName).deleteExisting() }
+            if (attachmentsDir != null) {
+
+                getOrphaned()
+                    .executeAsList()
+                    .forEach { attachmentsDir.resolve(it.fileName).deleteExisting() }
+            }
 
             deleteOrphaned()
         }

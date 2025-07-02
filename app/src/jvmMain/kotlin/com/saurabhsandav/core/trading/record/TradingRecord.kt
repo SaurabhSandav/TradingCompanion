@@ -4,31 +4,28 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.core.trading.record.migrations.migrationAfterV5
-import com.saurabhsandav.core.utils.DbUrlProvider
 import java.nio.file.Path
 import java.util.Properties
 import kotlin.coroutines.CoroutineContext
 
 internal class TradingRecord(
     coroutineContext: CoroutineContext,
-    recordPath: Path,
-    dbUrlProvider: DbUrlProvider,
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
+    dbUrl: String = JdbcSqliteDriver.IN_MEMORY,
+    attachmentsDir: Path? = null,
 ) {
-
-    private val attachmentsPath = recordPath.resolve("attachments")
 
     private val tradesDB: TradesDB = run {
 
         val driver = JdbcSqliteDriver(
-            url = dbUrlProvider.getTradingRecordDbUrl(recordPath),
+            url = dbUrl,
             properties = Properties().apply { put("foreign_keys", "true") },
             schema = TradesDB.Schema,
-            callbacks = arrayOf(
+            callbacks = listOfNotNull(
                 migrationAfterV1,
                 migrationAfterV2,
-                migrationAfterV5(attachmentsPath),
-            ),
+                attachmentsDir?.let(::migrationAfterV5),
+            ).toTypedArray(),
         )
 
         TradesDB(driver)
@@ -37,7 +34,7 @@ internal class TradingRecord(
     val executions = Executions(
         coroutineContext = coroutineContext,
         tradesDB = tradesDB,
-        attachmentsPath = attachmentsPath,
+        attachmentsDir = attachmentsDir,
         onTradesUpdated = {
 
             val (totalCount, openCount) = tradesDB.tradeQueries
@@ -75,11 +72,17 @@ internal class TradingRecord(
         tradesDB = tradesDB,
     )
 
-    val attachments = Attachments(
-        coroutineContext = coroutineContext,
-        tradesDB = tradesDB,
-        attachmentsPath = attachmentsPath,
-    )
+    private val _attachments = attachmentsDir?.let {
+
+        Attachments(
+            coroutineContext = coroutineContext,
+            tradesDB = tradesDB,
+            attachmentsDir = attachmentsDir,
+        )
+    }
+
+    val attachments: Attachments
+        get() = checkNotNull(_attachments) { "Attachments directory not provided" }
 
     val excursions = Excursions(
         coroutineContext = coroutineContext,

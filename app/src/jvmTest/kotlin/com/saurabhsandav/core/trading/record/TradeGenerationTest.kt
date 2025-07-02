@@ -12,7 +12,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import java.util.Properties
-import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,7 +22,7 @@ class TradeGenerationTest {
     private var executions = Executions(
         coroutineContext = StandardTestDispatcher(scope.testScheduler),
         tradesDB = tradesDB,
-        attachmentsPath = Path(""),
+        attachmentsDir = null,
         onTradesUpdated = {},
     )
 

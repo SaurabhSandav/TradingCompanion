@@ -19,7 +19,6 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.util.Properties
-import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -35,7 +34,7 @@ class TradeExecutionsTest {
     private var executions = Executions(
         coroutineContext = StandardTestDispatcher(scope.testScheduler),
         tradesDB = tradesDB,
-        attachmentsPath = Path(""),
+        attachmentsDir = null,
         onTradesUpdated = {},
     )
 
