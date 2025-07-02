@@ -17,11 +17,7 @@ import com.saurabhsandav.core.trading.AppTickersProvider
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
 import com.saurabhsandav.core.trading.TradingProfiles
-import com.saurabhsandav.core.trading.data.CandleCacheDB
-import com.saurabhsandav.core.trading.data.CandleDB
-import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
-import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
@@ -32,6 +28,10 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.AppUriHandler
 import com.saurabhsandav.fyersapi.FyersApi
+import com.saurabhsandav.trading.candledata.CandleCacheDB
+import com.saurabhsandav.trading.candledata.CandleDB
+import com.saurabhsandav.trading.candledata.CandleRepository
+import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.model.Account
 import kotlinx.coroutines.CoroutineScope

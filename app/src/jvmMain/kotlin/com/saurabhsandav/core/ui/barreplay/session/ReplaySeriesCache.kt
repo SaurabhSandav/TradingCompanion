@@ -1,11 +1,11 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.trading.barreplay.BarReplay
 import com.saurabhsandav.trading.barreplay.ReplaySeries
+import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.MutableCandleSeries
 import com.saurabhsandav.trading.core.Timeframe

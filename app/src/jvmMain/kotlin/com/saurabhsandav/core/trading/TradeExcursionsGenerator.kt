@@ -2,7 +2,7 @@ package com.saurabhsandav.core.trading
 
 import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
-import com.saurabhsandav.core.trading.data.CandleRepository
+import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeExcursions

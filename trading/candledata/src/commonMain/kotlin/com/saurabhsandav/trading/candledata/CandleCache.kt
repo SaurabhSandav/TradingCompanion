@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.data
+package com.saurabhsandav.trading.candledata
 
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.Timeframe

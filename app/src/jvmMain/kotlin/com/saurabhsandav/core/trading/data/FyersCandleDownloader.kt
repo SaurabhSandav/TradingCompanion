@@ -13,6 +13,7 @@ import com.saurabhsandav.fyersapi.model.DateFormat
 import com.saurabhsandav.fyersapi.model.response.FyersError
 import com.saurabhsandav.fyersapi.model.response.HistoricalCandlesResult
 import com.saurabhsandav.fyersapi.model.response.isTokenExpired
+import com.saurabhsandav.trading.candledata.CandleDownloader
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.Timeframe
 import com.slack.eithernet.ApiResult

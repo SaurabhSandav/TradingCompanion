@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.data
+package com.saurabhsandav.trading.candledata
 
 import com.github.michaelbull.result.Result
 import com.saurabhsandav.trading.core.Candle

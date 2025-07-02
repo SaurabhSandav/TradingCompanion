@@ -72,6 +72,7 @@ kotlin {
             implementation(projects.trading.barreplay)
             implementation(projects.trading.record)
             implementation(projects.trading.backtest)
+            implementation(projects.trading.candledata)
         }
 
         jvmMain.dependencies {
@@ -183,13 +184,6 @@ sqldelight {
             packageName = "com.saurabhsandav.core"
             srcDirs("src/commonMain/sqldelight/app")
             schemaOutputDirectory = file("src/commonMain/sqldelight/app")
-            dialect(libs.sqldelight.dialect.sqlite338)
-        }
-
-        create("CandleDB") {
-            packageName = "com.saurabhsandav.core.trading.data"
-            srcDirs("src/commonMain/sqldelight/candles")
-            schemaOutputDirectory = file("src/commonMain/sqldelight/candles")
             dialect(libs.sqldelight.dialect.sqlite338)
         }
     }

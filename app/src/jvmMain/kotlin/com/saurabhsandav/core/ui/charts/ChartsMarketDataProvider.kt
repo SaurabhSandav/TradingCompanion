@@ -1,9 +1,9 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.trading.DailySessionChecker
-import com.saurabhsandav.core.trading.data.CandleRepository
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
+import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.SessionChecker
 
 internal class ChartsMarketDataProvider(

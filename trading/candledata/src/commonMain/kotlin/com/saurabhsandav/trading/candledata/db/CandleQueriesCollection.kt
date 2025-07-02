@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.data.db
+package com.saurabhsandav.trading.candledata.db
 
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.trading.core.Timeframe

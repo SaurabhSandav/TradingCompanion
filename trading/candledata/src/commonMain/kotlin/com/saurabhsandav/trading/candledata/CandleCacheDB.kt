@@ -1,20 +1,21 @@
-package com.saurabhsandav.core.trading.data
+package com.saurabhsandav.trading.candledata
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.saurabhsandav.core.trading.data.db.CandleQueriesCollection
-import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.Timeframe
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Instant
 
-internal class CandleCacheDB(
+class CandleCacheDB(
     private val coroutineContext: CoroutineContext,
     private val candleDB: CandleDB,
     private val candleQueriesCollection: CandleQueriesCollection,
@@ -260,4 +261,6 @@ internal class CandleCacheDB(
             }.asFlow().mapToList(coroutineContext).emitInto(this)
         }
     }
+
+    private suspend inline fun <T> Flow<T>.emitInto(collector: FlowCollector<T>) = collector.emitAll(this)
 }

@@ -3,9 +3,9 @@ package com.saurabhsandav.core
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.core.trading.ProfileIdColumnAdapter
-import com.saurabhsandav.core.trading.data.CandleDB
-import com.saurabhsandav.core.trading.data.CheckedRange
 import com.saurabhsandav.core.utils.InstantColumnAdapter
+import com.saurabhsandav.trading.candledata.CandleDB
+import com.saurabhsandav.trading.candledata.CheckedRange
 
 fun AppDB(driver: SqlDriver) = AppDB(
     driver = driver,

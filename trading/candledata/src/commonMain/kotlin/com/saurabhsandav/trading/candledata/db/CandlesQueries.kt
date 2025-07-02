@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.data.db
+package com.saurabhsandav.trading.candledata.db
 
 import app.cash.sqldelight.Query
 import app.cash.sqldelight.TransacterImpl

@@ -1,4 +1,4 @@
-package com.saurabhsandav.core.trading.data
+package com.saurabhsandav.trading.candledata
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-internal class CandleRepository(
+class CandleRepository(
     private val candleDownloader: CandleDownloader,
     private val candleCache: CandleCache,
 ) {

@@ -42,6 +42,7 @@ include(
     "trading:barreplay",
     "trading:record",
     "trading:backtest",
+    "trading:candledata",
     "trading:test",
 )
 
