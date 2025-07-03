@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.trade
 
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
+import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeStop
 import com.saurabhsandav.trading.record.brokerageAt
@@ -12,6 +13,7 @@ import java.math.RoundingMode
 
 internal class TargetPreviewer(
     private val trade: TradeDisplay,
+    private val broker: Broker,
     private val primaryStop: TradeStop?,
 ) {
 
@@ -61,7 +63,7 @@ internal class TargetPreviewer(
 
         if (!isValid) return null
 
-        val brokerage = trade.brokerageAt(price)
+        val brokerage = trade.brokerageAt(broker, price)
 
         val pnl = when (trade.side) {
             TradeSide.Long -> price - trade.averageEntry

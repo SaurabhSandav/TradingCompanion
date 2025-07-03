@@ -1,6 +1,5 @@
 package com.saurabhsandav.trading.record.testdata
 
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
@@ -9,6 +8,7 @@ import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.test.TestBroker
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -23,7 +23,7 @@ class CommonExitEntryTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
             quantity = 150.toBigDecimal(),
@@ -37,7 +37,7 @@ class CommonExitEntryTradesData {
         // Trade #1 Close, Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
             quantity = 250.toBigDecimal(),
@@ -51,7 +51,7 @@ class CommonExitEntryTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
             quantity = 100.toBigDecimal(),
@@ -118,8 +118,8 @@ class CommonExitEntryTradesData {
             averageExit = executions[1].price,
             exitTimestamp = executions[1].timestamp,
             pnl = (-1500).toBigDecimal(),
-            fees = "67.56".toBigDecimal(),
-            netPnl = "-1567.56".toBigDecimal(),
+            fees = "10".toBigDecimal(),
+            netPnl = "-1510".toBigDecimal(),
             isClosed = true,
         ),
     )
@@ -131,8 +131,8 @@ class CommonExitEntryTradesData {
             averageExit = executions[2].price,
             exitTimestamp = executions[2].timestamp,
             pnl = 2000.toBigDecimal(),
-            fees = "49.44".toBigDecimal(),
-            netPnl = "1950.56".toBigDecimal(),
+            fees = "10".toBigDecimal(),
+            netPnl = "1990".toBigDecimal(),
             isClosed = true,
         ),
         secondExecutionTrades[1],

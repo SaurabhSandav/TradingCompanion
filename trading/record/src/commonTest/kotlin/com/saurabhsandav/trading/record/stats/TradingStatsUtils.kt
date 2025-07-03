@@ -1,11 +1,11 @@
 package com.saurabhsandav.trading.record.stats
 
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.test.TestBroker
 import java.math.BigDecimal
 import kotlin.time.Instant
 
@@ -14,7 +14,7 @@ object TradingStatsUtils {
     val trades = listOf(
         Trade(
             id = TradeId(331),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("BPCL"),
             instrument = Instrument.Equity,
             quantity = "80".toBigDecimal(),
@@ -32,7 +32,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(332),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("NTPC"),
             instrument = Instrument.Equity,
             quantity = "114".toBigDecimal(),
@@ -50,7 +50,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(333),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("NTPC"),
             instrument = Instrument.Equity,
             quantity = "114".toBigDecimal(),
@@ -68,7 +68,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(334),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("COALINDIA"),
             instrument = Instrument.Equity,
             quantity = "105".toBigDecimal(),
@@ -86,7 +86,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(335),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("COALINDIA"),
             instrument = Instrument.Equity,
             quantity = "105".toBigDecimal(),
@@ -104,7 +104,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(336),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("COALINDIA"),
             instrument = Instrument.Equity,
             quantity = "105".toBigDecimal(),
@@ -122,7 +122,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(337),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("BPCL"),
             instrument = Instrument.Equity,
             quantity = "86".toBigDecimal(),
@@ -140,7 +140,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(338),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("COALINDIA"),
             instrument = Instrument.Equity,
             quantity = "106".toBigDecimal(),
@@ -158,7 +158,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(339),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "140".toBigDecimal(),
@@ -176,7 +176,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(340),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "140".toBigDecimal(),
@@ -194,7 +194,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(341),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "140".toBigDecimal(),
@@ -212,7 +212,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(342),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "140".toBigDecimal(),
@@ -230,7 +230,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(343),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("BPCL"),
             instrument = Instrument.Equity,
             quantity = "86".toBigDecimal(),
@@ -248,7 +248,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(344),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "113".toBigDecimal(),
@@ -266,7 +266,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(345),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("POWERGRID"),
             instrument = Instrument.Equity,
             quantity = "170".toBigDecimal(),
@@ -284,7 +284,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(346),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "113".toBigDecimal(),
@@ -302,7 +302,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(347),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "120".toBigDecimal(),
@@ -320,7 +320,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(348),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "120".toBigDecimal(),
@@ -338,7 +338,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(349),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("ONGC"),
             instrument = Instrument.Equity,
             quantity = "120".toBigDecimal(),
@@ -356,7 +356,7 @@ object TradingStatsUtils {
         ),
         Trade(
             id = TradeId(350),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             symbolId = SymbolId("POWERGRID"),
             instrument = Instrument.Equity,
             quantity = "140".toBigDecimal(),
@@ -384,7 +384,7 @@ object TradingStatsUtils {
         private fun Trade.pretty(): String = buildString {
             append("Trade(")
             append("id = TradeId($id), ")
-            append("brokerId = BrokerId("Finvasia"), ")
+            append("brokerId = TestBroker.Id, ")
             append("symbol = Symbol(\"$symbol\", ")
             append("instrument = Instrument.Equity, ")
             append("quantity = \"$quantity\".toBigDecimal(), ")

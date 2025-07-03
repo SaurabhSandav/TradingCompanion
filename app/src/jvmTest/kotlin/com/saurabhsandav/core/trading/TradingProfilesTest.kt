@@ -8,6 +8,7 @@ import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.trading.record.TradingRecord
+import com.saurabhsandav.trading.test.TestBrokerProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -338,15 +339,19 @@ class TradingProfilesTest {
 
         val appPaths = FakeAppPaths(fakeFileSystem)
 
+        val brokerProvider = TestBrokerProvider
+
         val tradingProfiles = TradingProfiles(
             coroutineContext = StandardTestDispatcher(testScheduler),
             appPaths = appPaths,
             appDB = AppDB(driver),
+            brokerProvider = brokerProvider,
             buildTradingRecord = { _, onTradeCountsUpdated ->
 
                 TradingRecord(
                     coroutineContext = EmptyCoroutineContext,
                     onTradeCountsUpdated = onTradeCountsUpdated,
+                    brokerProvider = brokerProvider,
                 )
             },
         )

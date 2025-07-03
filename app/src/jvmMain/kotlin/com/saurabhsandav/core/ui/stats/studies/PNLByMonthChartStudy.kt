@@ -43,8 +43,10 @@ internal class PNLByMonthChartStudy(
 ) : Study {
 
     private val data = flow {
-        tradingProfiles
-            .getRecord(profileId)
+
+        val tradingRecord = tradingProfiles.getRecord(profileId)
+
+        tradingRecord
             .trades
             .allTrades
             .map { trades ->
@@ -60,10 +62,10 @@ internal class PNLByMonthChartStudy(
                             day = 1,
                         )
                     }
-                    .fold(
-                        initialValueSelector = { _, _ -> BigDecimal.ZERO },
-                        operation = { _, accumulator, trade -> accumulator + trade.brokerageAtExit()!!.netPNL },
-                    )
+                    .fold(BigDecimal.ZERO) { accumulator, trade ->
+                        val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
+                        accumulator + trade.brokerageAtExit(broker)!!.netPNL
+                    }
                     .map { (localDate, bigDecimal) ->
                         BaselineData.Item(
                             time = Time.BusinessDay(

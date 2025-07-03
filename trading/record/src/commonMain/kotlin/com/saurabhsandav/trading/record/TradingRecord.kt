@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.trading.record.migrations.migrationAfterV5
@@ -11,6 +12,7 @@ import kotlin.coroutines.CoroutineContext
 class TradingRecord(
     coroutineContext: CoroutineContext,
     onTradeCountsUpdated: suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit,
+    val brokerProvider: BrokerProvider,
     dbUrl: String = JdbcSqliteDriver.IN_MEMORY,
     attachmentsDir: Path? = null,
 ) {
@@ -35,6 +37,7 @@ class TradingRecord(
         coroutineContext = coroutineContext,
         tradesDB = tradesDB,
         attachmentsDir = attachmentsDir,
+        brokerProvider = brokerProvider,
         onTradesUpdated = {
 
             val (totalCount, openCount) = tradesDB.tradeQueries

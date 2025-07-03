@@ -12,6 +12,7 @@ import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.testdata.MultipleSymbolsInIntervalData
 import com.saurabhsandav.trading.record.testdata.SimpleTradesData
 import com.saurabhsandav.trading.record.utils.withoutNanoseconds
+import com.saurabhsandav.trading.test.TestBrokerProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -37,6 +38,7 @@ class TradeExecutionsTest {
         coroutineContext = StandardTestDispatcher(scope.testScheduler),
         tradesDB = tradesDB,
         attachmentsDir = null,
+        brokerProvider = TestBrokerProvider,
         onTradesUpdated = {},
     )
 

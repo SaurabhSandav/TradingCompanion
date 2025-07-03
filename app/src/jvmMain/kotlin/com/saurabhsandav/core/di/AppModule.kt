@@ -13,6 +13,7 @@ import com.saurabhsandav.core.CandleDB
 import com.saurabhsandav.core.FileLogWriter
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
+import com.saurabhsandav.core.trading.AppBrokerProvider
 import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
@@ -151,18 +152,22 @@ internal class AppModule(
         ),
     )
 
+    val brokerProvider = AppBrokerProvider()
+
     val symbolsProvider = SymbolsProvider()
 
     val tradingProfiles = TradingProfiles(
         coroutineContext = appDispatchers.IO,
         appPaths = appPaths,
         appDB = appDB,
+        brokerProvider = brokerProvider,
         buildTradingRecord = { recordPath, onTradeCountsUpdated ->
 
             TradingRecord(
                 coroutineContext = appDispatchers.IO,
                 dbUrl = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
                 attachmentsDir = recordPath.resolve("attachments"),
+                brokerProvider = brokerProvider,
                 onTradeCountsUpdated = onTradeCountsUpdated,
             )
         },

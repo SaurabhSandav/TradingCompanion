@@ -1,14 +1,16 @@
 package com.saurabhsandav.trading.record
 
+import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.Brokerage
-import com.saurabhsandav.trading.broker.brokerage
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.isLong
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-fun Trade.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
-    brokerId = brokerId,
+fun Trade.brokerageAt(
+    broker: Broker,
+    exit: BigDecimal,
+): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
     entry = averageEntry,
     exit = exit,
@@ -16,11 +18,19 @@ fun Trade.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
     isLong = side.isLong,
 )
 
-fun Trade.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)
+fun Trade.brokerageAtExit(broker: Broker): Brokerage? {
+    return averageExit?.let { exit -> brokerageAt(broker, exit) }
+}
 
-fun Trade.brokerageAt(stop: TradeStop): Brokerage = brokerageAt(stop.price)
+fun Trade.brokerageAt(
+    broker: Broker,
+    stop: TradeStop,
+): Brokerage = brokerageAt(broker, stop.price)
 
-fun Trade.brokerageAt(target: TradeTarget): Brokerage = brokerageAt(target.price)
+fun Trade.brokerageAt(
+    broker: Broker,
+    target: TradeTarget,
+): Brokerage = brokerageAt(broker, target.price)
 
 fun Trade.rValueAt(
     pnl: BigDecimal,
@@ -30,8 +40,10 @@ fun Trade.rValueAt(
     TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
 }.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
 
-fun TradeDisplay.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
-    brokerId = brokerId,
+fun TradeDisplay.brokerageAt(
+    broker: Broker,
+    exit: BigDecimal,
+): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
     entry = averageEntry,
     exit = exit,
@@ -39,11 +51,19 @@ fun TradeDisplay.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
     isLong = side.isLong,
 )
 
-fun TradeDisplay.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)
+fun TradeDisplay.brokerageAtExit(broker: Broker): Brokerage? {
+    return averageExit?.let { exit -> brokerageAt(broker, exit) }
+}
 
-fun TradeDisplay.brokerageAt(stop: TradeStop): Brokerage = brokerageAt(stop.price)
+fun TradeDisplay.brokerageAt(
+    broker: Broker,
+    stop: TradeStop,
+): Brokerage = brokerageAt(broker, stop.price)
 
-fun TradeDisplay.brokerageAt(target: TradeTarget): Brokerage = brokerageAt(target.price)
+fun TradeDisplay.brokerageAt(
+    broker: Broker,
+    target: TradeTarget,
+): Brokerage = brokerageAt(broker, target.price)
 
 fun TradeDisplay.rValueAt(
     pnl: BigDecimal,

@@ -208,7 +208,8 @@ internal class TradesPresenter(
 
                 val stop = tradeStops.find { it.tradeId == trade.id }
 
-                val brokerage = trade.brokerageAtExit()!!
+                val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
+                val brokerage = trade.brokerageAtExit(broker)!!
                 val rValue = stop?.let { trade.rValueAt(pnl = brokerage.pnl, stop = it) }
 
                 brokerage to rValue

@@ -4,6 +4,8 @@ import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import com.saurabhsandav.trading.test.TestBroker
+import com.saurabhsandav.trading.test.TestBrokerProvider
 import com.saurabhsandav.trading.test.assertBDEquals
 import kotlinx.collections.immutable.persistentListOf
 import java.math.BigDecimal
@@ -16,13 +18,11 @@ import kotlin.time.Duration.Companion.minutes
 
 class BacktestBrokerTest {
 
-    // TODO Replace hardcoded broker Finvasia with a fake broker
-
     @Test
     fun `Initial state`() {
 
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
@@ -38,7 +38,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -48,7 +48,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -73,7 +73,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -83,7 +83,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -120,7 +120,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -130,7 +130,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 1000.toBigDecimal(),
@@ -157,6 +157,7 @@ class BacktestBrokerTest {
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
+            brokerProvider = TestBrokerProvider,
             minimumOrderValue = 1_000.toBigDecimal(),
         )
 
@@ -168,7 +169,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 1.toBigDecimal(),
@@ -193,7 +194,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -203,7 +204,7 @@ class BacktestBrokerTest {
 
         val orderId = sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -246,7 +247,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -256,7 +257,7 @@ class BacktestBrokerTest {
 
         val orderId = sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -301,7 +302,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -350,7 +351,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -377,8 +378,8 @@ class BacktestBrokerTest {
         )
 
         assertBDEquals(10_000, account.balance)
-        assertBDEquals("7948.44", sut.availableMargin)
-        assertBDEquals("2051.56", sut.usedMargin)
+        assertBDEquals("7948.82", sut.availableMargin)
+        assertBDEquals("2051.18", sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value.first().status)
         assertEquals(1, sut.executions.value.size)
@@ -393,7 +394,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -403,7 +404,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -427,7 +428,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -443,8 +444,8 @@ class BacktestBrokerTest {
             price = 215.toBigDecimal(),
         )
 
-        assertBDEquals("10097.38", account.balance)
-        assertBDEquals("10097.38", sut.availableMargin)
+        assertBDEquals("10098.77", account.balance)
+        assertBDEquals("10098.77", sut.availableMargin)
         assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -461,7 +462,7 @@ class BacktestBrokerTest {
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
         val account = BacktestAccount(10_000.toBigDecimal())
-        val sut = BacktestBroker(account)
+        val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
@@ -471,7 +472,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -489,7 +490,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -511,8 +512,8 @@ class BacktestBrokerTest {
             price = 195.toBigDecimal(),
         )
 
-        assertBDEquals("9948.44", account.balance)
-        assertBDEquals("9948.44", sut.availableMargin)
+        assertBDEquals("9948.82", account.balance)
+        assertBDEquals("9948.82", sut.availableMargin)
         assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -531,6 +532,7 @@ class BacktestBrokerTest {
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
+            brokerProvider = TestBrokerProvider,
             minimumOrderValue = 500.toBigDecimal(),
         )
 
@@ -542,7 +544,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -560,7 +562,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -582,8 +584,8 @@ class BacktestBrokerTest {
             price = 195.toBigDecimal(),
         )
 
-        assertBDEquals("9948.44", account.balance)
-        assertBDEquals("9948.44", sut.availableMargin)
+        assertBDEquals("9948.82", account.balance)
+        assertBDEquals("9948.82", sut.availableMargin)
         assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -602,6 +604,7 @@ class BacktestBrokerTest {
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
+            brokerProvider = TestBrokerProvider,
             minimumOrderValue = 500.toBigDecimal(),
         )
 
@@ -613,7 +616,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -632,7 +635,7 @@ class BacktestBrokerTest {
         // Stop
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -646,7 +649,7 @@ class BacktestBrokerTest {
         // Target
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -669,8 +672,8 @@ class BacktestBrokerTest {
             price = 195.toBigDecimal(),
         )
 
-        assertBDEquals("9948.44", account.balance)
-        assertBDEquals("9948.44", sut.availableMargin)
+        assertBDEquals("9948.82", account.balance)
+        assertBDEquals("9948.82", sut.availableMargin)
         assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
         assertEquals(3, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -690,6 +693,7 @@ class BacktestBrokerTest {
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
+            brokerProvider = TestBrokerProvider,
             minimumOrderValue = 500.toBigDecimal(),
         )
 
@@ -701,7 +705,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -720,7 +724,7 @@ class BacktestBrokerTest {
         // Stop
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -733,7 +737,7 @@ class BacktestBrokerTest {
         // Target
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toBigDecimal(),
@@ -755,8 +759,8 @@ class BacktestBrokerTest {
             price = 195.toBigDecimal(),
         )
 
-        assertBDEquals("9948.44", account.balance)
-        assertBDEquals("7848.44", sut.availableMargin)
+        assertBDEquals("9948.82", account.balance)
+        assertBDEquals("7848.82", sut.availableMargin)
         assertBDEquals(2100, sut.usedMargin)
         assertEquals(3, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -778,6 +782,7 @@ class BacktestBrokerTest {
         val account = BacktestAccount(10_000.toBigDecimal())
         val sut = BacktestBroker(
             account = account,
+            brokerProvider = TestBrokerProvider,
             minimumOrderValue = 500.toBigDecimal(),
             onMarginCall = { marginCalled = true },
         )
@@ -790,7 +795,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 48.toBigDecimal(),
@@ -813,8 +818,8 @@ class BacktestBrokerTest {
         )
 
         assertBDEquals(10_000, account.balance)
-        assertBDEquals("-89.42", sut.availableMargin)
-        assertBDEquals("10089.42", sut.usedMargin)
+        assertBDEquals("-85.62", sut.availableMargin)
+        assertBDEquals("10085.62", sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertEquals(1, sut.executions.value.size)

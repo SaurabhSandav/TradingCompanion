@@ -111,7 +111,8 @@ internal class PNLByMonthStudy(
 
                         val monthlyStats = closedTrades.map { trade ->
 
-                            val brokerage = trade.brokerageAtExit()!!
+                            val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
+                            val brokerage = trade.brokerageAtExit(broker)!!
                             val pnlBD = brokerage.pnl
                             val netPnlBD = brokerage.netPNL
 

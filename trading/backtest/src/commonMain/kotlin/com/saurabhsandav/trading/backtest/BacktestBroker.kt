@@ -6,8 +6,8 @@ import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Executed
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Open
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Rejected
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.RejectionCause
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
-import com.saurabhsandav.trading.broker.brokerage
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.binarySearchByAsResult
@@ -26,6 +26,7 @@ import kotlin.time.Instant
 
 class BacktestBroker(
     private val account: BacktestAccount,
+    private val brokerProvider: BrokerProvider,
     private val leverage: BigDecimal = BigDecimal.ONE,
     private val minimumOrderValue: BigDecimal = BigDecimal.ZERO,
     private val minimumMaintenanceMargin: BigDecimal = BigDecimal.ZERO,
@@ -256,6 +257,8 @@ class BacktestBroker(
                 it.symbolId == execution.symbolId
         }.takeIf { it != -1 }
 
+        val broker = brokerProvider.getBroker(execution.brokerId)
+
         // No position exists to consume execution. Create new position.
         if (positionIndex == null) {
 
@@ -272,8 +275,7 @@ class BacktestBroker(
                 quantity = execution.quantity,
                 side = tradeSide,
                 averagePrice = execution.price,
-                pnl = brokerage(
-                    brokerId = execution.brokerId,
+                pnl = broker.calculateBrokerage(
                     instrument = execution.instrument,
                     entry = execution.price,
                     exit = currentPrice,
@@ -358,8 +360,7 @@ class BacktestBroker(
                                 quantity = extraQuantity.negate(),
                                 side = newPositionSide,
                                 averagePrice = execution.price,
-                                pnl = brokerage(
-                                    brokerId = execution.brokerId,
+                                pnl = broker.calculateBrokerage(
                                     instrument = execution.instrument,
                                     entry = execution.price,
                                     exit = currentPrice,
@@ -435,14 +436,18 @@ class BacktestBroker(
         entry: BigDecimal = averagePrice,
         exit: BigDecimal = getCurrentPrice(symbolId),
         quantity: BigDecimal = this.quantity,
-    ): Brokerage = brokerage(
-        brokerId = brokerId,
-        instrument = instrument,
-        entry = entry,
-        exit = exit,
-        quantity = quantity,
-        isLong = side.isLong,
-    )
+    ): Brokerage {
+
+        val broker = brokerProvider.getBroker(brokerId)
+
+        return broker.calculateBrokerage(
+            instrument = instrument,
+            entry = entry,
+            exit = exit,
+            quantity = quantity,
+            isLong = side.isLong,
+        )
+    }
 
     private fun getCurrentPrice(symbolId: SymbolId): BigDecimal {
         return currentPrices[symbolId] ?: error("BacktestBroker: No price available for ${symbolId.value}")

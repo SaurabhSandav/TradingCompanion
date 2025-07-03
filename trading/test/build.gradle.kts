@@ -30,6 +30,7 @@ kotlin {
         commonMain.dependencies {
 
             api(projects.trading.core)
+            api(projects.trading.broker)
 
             implementation(kotlin("test"))
 

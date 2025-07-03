@@ -8,6 +8,7 @@ import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.testdata.CommonExitEntryTradesData
 import com.saurabhsandav.trading.record.testdata.OverlappingTimeTradesData
 import com.saurabhsandav.trading.record.testdata.SimpleTradesData
+import com.saurabhsandav.trading.test.TestBrokerProvider
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -23,6 +24,7 @@ class TradeGenerationTest {
         coroutineContext = StandardTestDispatcher(scope.testScheduler),
         tradesDB = tradesDB,
         attachmentsDir = null,
+        brokerProvider = TestBrokerProvider,
         onTradesUpdated = {},
     )
 

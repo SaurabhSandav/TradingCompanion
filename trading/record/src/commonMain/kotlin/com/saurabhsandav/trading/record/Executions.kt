@@ -7,7 +7,7 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
-import com.saurabhsandav.trading.broker.brokerage
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
@@ -30,6 +30,7 @@ class Executions(
     private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
     private val attachmentsDir: Path?,
+    private val brokerProvider: BrokerProvider,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
 
@@ -424,8 +425,10 @@ class Executions(
         val closedQuantity = minOf(exitQuantity, entryQuantity)
 
         val brokerage = averageExit?.let {
-            brokerage(
-                brokerId = firstExecution.brokerId,
+
+            val broker = brokerProvider.getBroker(firstExecution.brokerId)
+
+            broker.calculateBrokerage(
                 instrument = firstExecution.instrument,
                 entry = averageEntry,
                 exit = averageExit,

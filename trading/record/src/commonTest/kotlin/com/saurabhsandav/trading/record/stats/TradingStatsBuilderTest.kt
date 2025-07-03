@@ -11,8 +11,6 @@ import kotlin.time.Duration.Companion.seconds
 
 class TradingStatsBuilderTest {
 
-    // TODO Replace hardcoded broker Finvasia with a fake broker
-
     @Test
     fun `No trades`() {
 

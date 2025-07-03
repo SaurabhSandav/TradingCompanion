@@ -106,7 +106,8 @@ internal class PNLBySymbolStudy(
 
                         val symbolStats = closedTrades.filter { it.isClosed }.map { trade ->
 
-                            val brokerage = trade.brokerageAtExit()!!
+                            val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
+                            val brokerage = trade.brokerageAtExit(broker)!!
                             val pnlBD = brokerage.pnl
                             val netPnlBD = brokerage.netPNL
 

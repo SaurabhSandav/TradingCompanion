@@ -1,6 +1,5 @@
 package com.saurabhsandav.trading.record.testdata
 
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
@@ -9,6 +8,7 @@ import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.test.TestBroker
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -23,7 +23,7 @@ class SimpleTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
@@ -37,7 +37,7 @@ class SimpleTradesData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
@@ -51,7 +51,7 @@ class SimpleTradesData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
@@ -65,7 +65,7 @@ class SimpleTradesData {
         // Trade #3 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol2"),
             quantity = 7.toBigDecimal(),
@@ -79,7 +79,7 @@ class SimpleTradesData {
         // Trade #2 Add
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
@@ -93,7 +93,7 @@ class SimpleTradesData {
         // Trade #2 Remove
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 40.toBigDecimal(),
@@ -107,7 +107,7 @@ class SimpleTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 60.toBigDecimal(),
@@ -160,8 +160,8 @@ class SimpleTradesData {
             averageExit = executions[1].price,
             exitTimestamp = executions[1].timestamp,
             pnl = (-1000).toBigDecimal(),
-            fees = "1.18".toBigDecimal(),
-            netPnl = "-1001.18".toBigDecimal(),
+            fees = "0.9".toBigDecimal(),
+            netPnl = "-1000.9".toBigDecimal(),
             isClosed = true,
         ),
     )
@@ -227,8 +227,8 @@ class SimpleTradesData {
             averageExit = executions[5].price,
             exitTimestamp = executions[5].timestamp,
             pnl = 300.toBigDecimal(),
-            fees = "0.51".toBigDecimal(),
-            netPnl = "299.49".toBigDecimal(),
+            fees = "0.39".toBigDecimal(),
+            netPnl = "299.61".toBigDecimal(),
         ),
         secondExecutionTrades[0],
     )
@@ -240,8 +240,8 @@ class SimpleTradesData {
             averageExit = 23.toBigDecimal(),
             exitTimestamp = executions[6].timestamp,
             pnl = 1050.toBigDecimal(),
-            fees = "2.395".toBigDecimal(),
-            netPnl = "1047.6".toBigDecimal(),
+            fees = "1.065".toBigDecimal(),
+            netPnl = "1048.94".toBigDecimal(),
             isClosed = true,
         ),
         secondExecutionTrades[0],

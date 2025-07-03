@@ -7,6 +7,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
 import com.saurabhsandav.core.utils.AppPaths
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.record.TradingRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +29,7 @@ internal class TradingProfiles(
     private val coroutineContext: CoroutineContext,
     private val appPaths: AppPaths,
     private val appDB: AppDB,
+    val brokerProvider: BrokerProvider,
     private val buildTradingRecord: (Path, suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit) -> TradingRecord,
 ) {
 

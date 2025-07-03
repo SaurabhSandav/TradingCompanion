@@ -1,6 +1,5 @@
 package com.saurabhsandav.trading.record.testdata
 
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
@@ -9,6 +8,7 @@ import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.test.TestBroker
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -23,7 +23,7 @@ class OverlappingTimeTradesData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
@@ -37,7 +37,7 @@ class OverlappingTimeTradesData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol2"),
             quantity = 25.toBigDecimal(),
@@ -51,7 +51,7 @@ class OverlappingTimeTradesData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
@@ -65,7 +65,7 @@ class OverlappingTimeTradesData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol2"),
             quantity = 25.toBigDecimal(),
@@ -138,8 +138,8 @@ class OverlappingTimeTradesData {
             averageExit = executions[2].price,
             exitTimestamp = executions[2].timestamp,
             pnl = 20.toBigDecimal(),
-            fees = "0.796".toBigDecimal(),
-            netPnl = "19.2".toBigDecimal(),
+            fees = "0.606".toBigDecimal(),
+            netPnl = "19.39".toBigDecimal(),
             isClosed = true,
         ),
     )
@@ -151,8 +151,8 @@ class OverlappingTimeTradesData {
             averageExit = executions[3].price,
             exitTimestamp = executions[3].timestamp,
             pnl = 125.toBigDecimal(),
-            fees = "5.3975".toBigDecimal(),
-            netPnl = "119.6".toBigDecimal(),
+            fees = "3.3375".toBigDecimal(),
+            netPnl = "121.66".toBigDecimal(),
             isClosed = true,
         ),
         thirdExecutionTrades[1],

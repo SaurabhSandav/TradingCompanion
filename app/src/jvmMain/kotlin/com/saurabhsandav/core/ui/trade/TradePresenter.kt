@@ -106,9 +106,15 @@ internal class TradePresenter(
         started = SharingStarted.Eagerly,
         replay = 1,
     )
-    private val stopPreviewer = trade.map(::StopPreviewer)
+    private val stopPreviewer = trade.map { trade ->
+        val tradingRecord = tradingRecord.await()
+        StopPreviewer(trade, tradingRecord.brokerProvider.getBroker(trade.brokerId))
+    }
     private val targetPreviewer = trade.flatMapLatest { trade ->
-        tradingRecord.await().stops.getPrimary(trade.id).map { stop -> TargetPreviewer(trade, stop) }
+        val tradingRecord = tradingRecord.await()
+        tradingRecord.stops.getPrimary(trade.id).map { stop ->
+            TargetPreviewer(trade, tradingRecord.brokerProvider.getBroker(trade.brokerId), stop)
+        }
     }
 
     private var newExecutionEnabled by mutableStateOf(false)
@@ -174,7 +180,7 @@ internal class TradePresenter(
 
     @Composable
     private fun getTradeDetail(): State<Details?> {
-        return produceState<Details?>(null) {
+        return produceState(null) {
 
             trade.collectLatest { trade ->
 
@@ -269,11 +275,15 @@ internal class TradePresenter(
     private fun getTradeStops(): State<List<TradeStop>> {
         return produceState(emptyList()) {
 
-            trade.combine(tradingRecord.await().stops.getForTrade(tradeId)) { trade, stops ->
+            val tradingRecord = tradingRecord.await()
+
+            trade.combine(tradingRecord.stops.getForTrade(tradeId)) { trade, stops ->
+
+                val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
 
                 stops.map { stop ->
 
-                    val brokerage = trade.brokerageAt(stop)
+                    val brokerage = trade.brokerageAt(broker, stop)
 
                     TradeStop(
                         price = stop.price,
@@ -299,9 +309,11 @@ internal class TradePresenter(
                 tradingRecord.stops.getPrimary(tradeId),
             ) { trade, targets, stop ->
 
+                val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
+
                 targets.map { target ->
 
-                    val brokerage = trade.brokerageAt(target)
+                    val brokerage = trade.brokerageAt(broker, target)
 
                     val pnl = when (trade.side) {
                         TradeSide.Long -> target.price - trade.averageEntry

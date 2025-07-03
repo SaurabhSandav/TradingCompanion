@@ -39,7 +39,7 @@ internal class ReplayOrdersManager(
 
     private val symbolPriceScopeCache = mutableMapOf<SymbolId, CoroutineScope>()
     private val account = BacktestAccount(10_000.toBigDecimal())
-    private val backtestBroker = BacktestBroker(account)
+    private val backtestBroker = BacktestBroker(account, tradingProfiles.brokerProvider)
     val openOrders = backtestBroker.orders.map { orders ->
         @Suppress("UNCHECKED_CAST")
         orders.filter { it.status is BacktestOrder.Status.Open } as List<BacktestOrder<BacktestOrder.Status.Open>>

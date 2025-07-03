@@ -113,6 +113,6 @@ internal class ScreensModule(
     }
 
     val pnlCalculatorModule: (CoroutineScope) -> PNLCalculatorModule = { coroutineScope ->
-        PNLCalculatorModule(coroutineScope)
+        PNLCalculatorModule(appModule, coroutineScope)
     }
 }

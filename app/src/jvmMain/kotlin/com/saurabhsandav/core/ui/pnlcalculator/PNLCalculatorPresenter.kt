@@ -9,10 +9,10 @@ import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCa
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
-import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
-import com.saurabhsandav.trading.broker.brokerage
 import com.saurabhsandav.trading.core.Instrument
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.isLong
 import kotlinx.coroutines.CoroutineScope
@@ -20,10 +20,12 @@ import java.math.BigDecimal
 
 internal class PNLCalculatorPresenter(
     coroutineScope: CoroutineScope,
+    brokerProvider: BrokerProvider,
 ) {
 
     private var maxId = 0
     private val pnlEntries = mutableStateListOf<PNLEntry>()
+    private val broker = brokerProvider.getBroker(FinvasiaBroker.Id)
 
     private val formModel = PNLCalculatorFormModel(
         quantity = "1",
@@ -95,8 +97,7 @@ internal class PNLCalculatorPresenter(
         entry: BigDecimal,
         exit: BigDecimal,
         side: TradeSide,
-    ): Brokerage = brokerage(
-        brokerId = BrokerId("Finvasia"),
+    ): Brokerage = broker.calculateBrokerage(
         instrument = Instrument.Equity,
         entry = entry,
         exit = exit,

@@ -1,11 +1,11 @@
 package com.saurabhsandav.trading.record.testdata
 
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.TradeExecution
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import com.saurabhsandav.trading.test.TestBroker
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -20,7 +20,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #1 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
@@ -34,7 +34,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #1 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.ONE,
@@ -48,7 +48,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #2 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
@@ -62,7 +62,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #2 Add
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 50.toBigDecimal(),
@@ -76,7 +76,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #2 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 100.toBigDecimal(),
@@ -90,7 +90,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #3 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 2.toBigDecimal(),
@@ -104,7 +104,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #3 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol1"),
             quantity = 2.toBigDecimal(),
@@ -118,7 +118,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #4 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
@@ -132,7 +132,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #4 Close
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = BigDecimal.TEN,
@@ -146,7 +146,7 @@ class MultipleSymbolsInIntervalData {
         // Trade #5 Open
         TradeExecution(
             id = TradeExecutionId(-1),
-            brokerId = BrokerId("Finvasia"),
+            brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol"),
             quantity = 7.toBigDecimal(),
