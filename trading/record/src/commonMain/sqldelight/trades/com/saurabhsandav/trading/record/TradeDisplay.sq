@@ -1,6 +1,7 @@
 CREATE VIEW IF NOT EXISTS TradeDisplay AS
-SELECT T.*, CAST(T.brokerId AS TEXT) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
-FROM Trade AS T;
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id;
 
 getAll:
 SELECT *

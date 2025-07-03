@@ -1,0 +1,11 @@
+import com.saurabhsandav.trading.broker.BrokerId;
+
+CREATE TABLE IF NOT EXISTS Broker (
+id TEXT AS BrokerId NOT NULL PRIMARY KEY,
+name TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE
+INTO Broker(id, name)
+VALUES (?, ?);

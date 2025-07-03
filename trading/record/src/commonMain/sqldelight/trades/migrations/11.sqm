@@ -1,0 +1,23 @@
+-- Broker Table
+CREATE TABLE IF NOT EXISTS Broker (
+id TEXT NOT NULL PRIMARY KEY,
+name TEXT NOT NULL
+);
+
+-- Prepopulate Broker table
+INSERT INTO Broker (id, name)
+SELECT DISTINCT brokerId, brokerId
+FROM Trade;
+
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id;
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, CAST(T.symbolId AS TEXT) AS ticker
+FROM TradeExecution AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id;

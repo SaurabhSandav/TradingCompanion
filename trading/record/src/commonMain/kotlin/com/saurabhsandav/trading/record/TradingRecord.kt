@@ -100,5 +100,6 @@ class TradingRecord(
     val sizingTrades = SizingTrades(
         coroutineContext = coroutineContext,
         tradesDB = tradesDB,
+        brokerProvider = brokerProvider,
     )
 }

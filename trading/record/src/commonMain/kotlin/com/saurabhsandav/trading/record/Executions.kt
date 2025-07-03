@@ -48,6 +48,12 @@ class Executions(
 
         val executionId = tradesDB.transactionWithResult {
 
+            // Add Broker
+            tradesDB.brokerQueries.insert(
+                id = brokerId,
+                name = brokerProvider.getBroker(brokerId).name,
+            )
+
             // Insert Trade execution
             tradesDB.tradeExecutionQueries.insert(
                 brokerId = brokerId,
@@ -94,6 +100,12 @@ class Executions(
         require(notLocked) { "TradeExecution($id) is locked and cannot be edited" }
 
         tradesDB.transaction {
+
+            // Add Broker
+            tradesDB.brokerQueries.insert(
+                id = brokerId,
+                name = brokerProvider.getBroker(brokerId).name,
+            )
 
             // Update execution
             tradesDB.tradeExecutionQueries.update(

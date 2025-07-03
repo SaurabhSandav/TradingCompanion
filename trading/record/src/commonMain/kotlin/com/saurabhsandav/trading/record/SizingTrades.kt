@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,7 @@ import kotlin.coroutines.CoroutineContext
 class SizingTrades(
     private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
+    private val brokerProvider: BrokerProvider,
 ) {
 
     suspend fun new(
@@ -23,12 +25,21 @@ class SizingTrades(
         stop: BigDecimal,
     ) = withContext(coroutineContext) {
 
-        tradesDB.sizingTradeQueries.insert(
-            brokerId = brokerId,
-            symbolId = symbolId,
-            entry = entry,
-            stop = stop,
-        )
+        tradesDB.transaction {
+
+            // Add Broker
+            tradesDB.brokerQueries.insert(
+                id = brokerId,
+                name = brokerProvider.getBroker(brokerId).name,
+            )
+
+            tradesDB.sizingTradeQueries.insert(
+                brokerId = brokerId,
+                symbolId = symbolId,
+                entry = entry,
+                stop = stop,
+            )
+        }
     }
 
     suspend fun updateEntry(
