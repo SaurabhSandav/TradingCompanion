@@ -6,15 +6,16 @@ import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Executed
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Open
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Rejected
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.RejectionCause
+import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.brokerage
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr
 import com.saurabhsandav.trading.core.isLong
-import com.saurabhsandav.trading.record.Brokerage
-import com.saurabhsandav.trading.record.brokerage
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.isLong
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -277,7 +278,7 @@ class BacktestBroker(
                     entry = execution.price,
                     exit = currentPrice,
                     quantity = execution.quantity,
-                    side = tradeSide,
+                    isLong = tradeSide.isLong,
                 ).pnl,
             )
 
@@ -363,7 +364,7 @@ class BacktestBroker(
                                     entry = execution.price,
                                     exit = currentPrice,
                                     quantity = extraQuantity.negate(),
-                                    side = newPositionSide,
+                                    isLong = newPositionSide.isLong,
                                 ).pnl,
                             )
 
@@ -440,7 +441,7 @@ class BacktestBroker(
         entry = entry,
         exit = exit,
         quantity = quantity,
-        side = side,
+        isLong = side.isLong,
     )
 
     private fun getCurrentPrice(symbolId: SymbolId): BigDecimal {

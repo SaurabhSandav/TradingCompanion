@@ -22,3 +22,6 @@ enum class TradeSide(
         override fun encode(value: TradeSide): String = value.strValue
     }
 }
+
+val TradeSide.isLong: Boolean
+    get() = this == TradeSide.Long

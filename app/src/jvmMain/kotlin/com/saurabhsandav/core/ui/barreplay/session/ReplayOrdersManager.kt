@@ -11,8 +11,8 @@ import com.saurabhsandav.trading.backtest.Limit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.newCandle
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope

@@ -1,9 +1,9 @@
 package com.saurabhsandav.trading.record.stats
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
 import java.math.BigDecimal

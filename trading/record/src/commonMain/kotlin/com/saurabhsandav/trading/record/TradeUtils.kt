@@ -1,6 +1,9 @@
 package com.saurabhsandav.trading.record
 
+import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.brokerage
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.isLong
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -10,7 +13,7 @@ fun Trade.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
     entry = averageEntry,
     exit = exit,
     quantity = quantity,
-    side = side,
+    isLong = side.isLong,
 )
 
 fun Trade.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)
@@ -33,7 +36,7 @@ fun TradeDisplay.brokerageAt(exit: BigDecimal): Brokerage = brokerage(
     entry = averageEntry,
     exit = exit,
     quantity = quantity,
-    side = side,
+    isLong = side.isLong,
 )
 
 fun TradeDisplay.brokerageAtExit(): Brokerage? = averageExit?.let(::brokerageAt)

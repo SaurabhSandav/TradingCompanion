@@ -3,9 +3,9 @@ package com.saurabhsandav.trading.record
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolIdColumnAdapter
 import com.saurabhsandav.trading.record.model.AttachmentFileIdColumnAdapter
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.ReviewIdColumnAdapter
 import com.saurabhsandav.trading.record.model.SizingTradeIdColumnAdapter
 import com.saurabhsandav.trading.record.model.TradeExecutionIdColumnAdapter

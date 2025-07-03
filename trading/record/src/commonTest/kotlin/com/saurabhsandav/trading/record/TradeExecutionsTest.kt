@@ -2,10 +2,10 @@ package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId

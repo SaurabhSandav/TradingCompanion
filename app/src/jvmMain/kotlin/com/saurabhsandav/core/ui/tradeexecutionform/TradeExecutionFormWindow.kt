@@ -46,7 +46,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.nowIn
-import com.saurabhsandav.trading.record.model.Instrument
+import com.saurabhsandav.trading.core.Instrument
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.Locale

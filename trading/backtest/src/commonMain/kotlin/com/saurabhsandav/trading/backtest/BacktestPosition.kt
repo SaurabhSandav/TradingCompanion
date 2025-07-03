@@ -1,8 +1,8 @@
 package com.saurabhsandav.trading.backtest
 
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeSide
 import java.math.BigDecimal
 

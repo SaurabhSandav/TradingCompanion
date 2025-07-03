@@ -1,4 +1,4 @@
-package com.saurabhsandav.trading.record.model
+package com.saurabhsandav.trading.core
 
 enum class Instrument(
     val strValue: String,

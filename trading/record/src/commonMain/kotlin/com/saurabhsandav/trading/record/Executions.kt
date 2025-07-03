@@ -7,12 +7,14 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.broker.brokerage
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
-import com.saurabhsandav.trading.record.model.Instrument
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.isLong
 import com.saurabhsandav.trading.record.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -428,7 +430,7 @@ class Executions(
                 entry = averageEntry,
                 exit = averageExit,
                 quantity = closedQuantity,
-                side = side,
+                isLong = side.isLong,
             )
         }
 

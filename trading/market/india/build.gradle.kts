@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 group = "com.saurabhsandav.trading"
@@ -20,11 +19,6 @@ kotlin {
     compilerOptions {
 
         progressiveMode = true
-
-        optIn = listOf(
-            "kotlin.contracts.ExperimentalContracts",
-            "kotlin.time.ExperimentalTime",
-        )
     }
 
     sourceSets {
@@ -32,12 +26,8 @@ kotlin {
         commonMain.dependencies {
 
             implementation(projects.trading.core)
-
-            // KotlinX Serialization
-            implementation(libs.kotlinx.serialization.core)
-
-            // SQLDelight
-            implementation(libs.sqldelight.runtime)
+            implementation(projects.trading.broker)
+            implementation(projects.trading.record)
         }
     }
 }

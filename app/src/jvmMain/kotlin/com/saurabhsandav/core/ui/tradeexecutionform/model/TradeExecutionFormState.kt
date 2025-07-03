@@ -8,8 +8,8 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
-import com.saurabhsandav.trading.record.model.Instrument
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime

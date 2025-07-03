@@ -1,8 +1,6 @@
-package com.saurabhsandav.trading.record
+package com.saurabhsandav.trading.broker
 
-import com.saurabhsandav.trading.broker.BrokerId
-import com.saurabhsandav.trading.record.model.Instrument
-import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.core.Instrument
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -20,7 +18,7 @@ fun brokerage(
     entry: BigDecimal,
     exit: BigDecimal,
     quantity: BigDecimal,
-    side: TradeSide,
+    isLong: Boolean,
 ): Brokerage {
 
     val (sttMultiplier, excTransChargeMultiplier) = when (instrument) {
@@ -29,10 +27,7 @@ fun brokerage(
         Instrument.Options -> "0.0005".toBigDecimal() to "0.00053".toBigDecimal()
     }
 
-    val (buyPrice, sellPrice) = when (side) {
-        TradeSide.Long -> entry to exit
-        TradeSide.Short -> exit to entry
-    }
+    val (buyPrice, sellPrice) = if (isLong) entry to exit else exit to entry
 
     val buyTurnover = (buyPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
     val sellTurnover = (sellPrice * quantity).setScale(2, RoundingMode.HALF_EVEN)
@@ -59,10 +54,7 @@ fun brokerage(
 
     val pointsToBreakeven = (totalCharges / quantity).setScale(2, RoundingMode.HALF_EVEN)
 
-    val breakeven = when (side) {
-        TradeSide.Long -> entry + pointsToBreakeven
-        TradeSide.Short -> entry - pointsToBreakeven
-    }
+    val breakeven = if (isLong) entry + pointsToBreakeven else entry - pointsToBreakeven
 
     val netProfit = (sellTurnover - buyTurnover - totalCharges).setScale(2, RoundingMode.HALF_EVEN)
 

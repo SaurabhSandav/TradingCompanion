@@ -10,10 +10,11 @@ import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
 import com.saurabhsandav.trading.broker.BrokerId
-import com.saurabhsandav.trading.record.Brokerage
-import com.saurabhsandav.trading.record.brokerage
-import com.saurabhsandav.trading.record.model.Instrument
+import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.brokerage
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.record.model.TradeSide
+import com.saurabhsandav.trading.record.model.isLong
 import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 
@@ -100,6 +101,6 @@ internal class PNLCalculatorPresenter(
         entry = entry,
         exit = exit,
         quantity = quantity,
-        side = side,
+        isLong = side.isLong,
     )
 }

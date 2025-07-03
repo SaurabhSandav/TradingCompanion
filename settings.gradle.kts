@@ -45,6 +45,7 @@ include(
     "trading:candledata",
     "trading:broker",
     "trading:test",
+    "trading:market:india",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

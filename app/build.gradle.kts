@@ -73,6 +73,7 @@ kotlin {
             implementation(projects.trading.record)
             implementation(projects.trading.backtest)
             implementation(projects.trading.candledata)
+            implementation(projects.trading.market.india)
         }
 
         jvmMain.dependencies {
