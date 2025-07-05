@@ -18,6 +18,7 @@ internal fun indiaBrokerage(
         Instrument.Equity -> "0.00025".toBigDecimal() to "0.0000345".toBigDecimal()
         Instrument.Futures -> "0.0001".toBigDecimal() to "0.00002".toBigDecimal()
         Instrument.Options -> "0.0005".toBigDecimal() to "0.00053".toBigDecimal()
+        Instrument.Index -> error("Cannot calculate brokerage for index instrument")
     }
 
     val (buyPrice, sellPrice) = if (isLong) entry to exit else exit to entry
