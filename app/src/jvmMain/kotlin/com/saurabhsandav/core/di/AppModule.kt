@@ -19,6 +19,7 @@ import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
+import com.saurabhsandav.core.trading.toRecordSymbol
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
@@ -39,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
@@ -175,6 +177,9 @@ internal class AppModule(
                 dbUrl = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
                 attachmentsDir = recordPath.resolve("attachments"),
                 brokerProvider = brokerProvider,
+                getSymbol = { brokerId, symbolId ->
+                    symbolsProvider.getSymbol(brokerId, symbolId).first()?.toRecordSymbol()
+                },
                 onTradeCountsUpdated = onTradeCountsUpdated,
             )
         },

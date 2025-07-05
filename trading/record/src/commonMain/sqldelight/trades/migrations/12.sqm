@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS Symbol (
+id TEXT NOT NULL,
+brokerId TEXT NOT NULL,
+instrument TEXT NOT NULL,
+exchange TEXT NOT NULL,
+ticker TEXT NOT NULL,
+description TEXT,
+PRIMARY KEY (id, brokerId)
+);
+
+-- Recreate Display tables
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM TradeExecution AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;

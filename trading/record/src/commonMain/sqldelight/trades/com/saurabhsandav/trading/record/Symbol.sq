@@ -1,0 +1,22 @@
+import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.core.Instrument;
+import com.saurabhsandav.trading.core.SymbolId;
+
+CREATE TABLE IF NOT EXISTS Symbol (
+id TEXT AS SymbolId NOT NULL,
+brokerId TEXT AS BrokerId NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
+exchange TEXT NOT NULL,
+ticker TEXT NOT NULL,
+description TEXT,
+PRIMARY KEY (id, brokerId)
+);
+
+insert:
+INSERT OR REPLACE
+INTO Symbol
+VALUES ?;
+
+delete:
+DELETE FROM Symbol
+WHERE id = ?;

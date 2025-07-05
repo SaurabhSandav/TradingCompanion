@@ -31,6 +31,7 @@ class Executions(
     private val tradesDB: TradesDB,
     private val attachmentsDir: Path?,
     private val brokerProvider: BrokerProvider,
+    private val getSymbol: (suspend (BrokerId, SymbolId) -> Symbol?)?,
     private val onTradesUpdated: suspend () -> Unit,
 ) {
 
@@ -46,13 +47,21 @@ class Executions(
         locked: Boolean,
     ): TradeExecutionId = withContext(coroutineContext) {
 
+        val broker = brokerProvider.getBroker(brokerId)
+        val symbol = getSymbol?.invoke(brokerId, symbolId)
+
         val executionId = tradesDB.transactionWithResult {
 
             // Add Broker
             tradesDB.brokerQueries.insert(
                 id = brokerId,
-                name = brokerProvider.getBroker(brokerId).name,
+                name = broker.name,
             )
+
+            // Add Symbol
+            if (symbol != null) {
+                tradesDB.symbolQueries.insert(symbol)
+            }
 
             // Insert Trade execution
             tradesDB.tradeExecutionQueries.insert(
@@ -99,13 +108,21 @@ class Executions(
 
         require(notLocked) { "TradeExecution($id) is locked and cannot be edited" }
 
+        val broker = brokerProvider.getBroker(brokerId)
+        val symbol = getSymbol?.invoke(brokerId, symbolId)
+
         tradesDB.transaction {
 
             // Add Broker
             tradesDB.brokerQueries.insert(
                 id = brokerId,
-                name = brokerProvider.getBroker(brokerId).name,
+                name = broker.name,
             )
+
+            // Add Symbol
+            if (symbol != null) {
+                tradesDB.symbolQueries.insert(symbol)
+            }
 
             // Update execution
             tradesDB.tradeExecutionQueries.update(

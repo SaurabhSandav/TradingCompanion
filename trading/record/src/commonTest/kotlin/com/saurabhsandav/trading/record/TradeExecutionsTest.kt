@@ -39,6 +39,7 @@ class TradeExecutionsTest {
         tradesDB = tradesDB,
         attachmentsDir = null,
         brokerProvider = TestBrokerProvider,
+        getSymbol = null,
         onTradesUpdated = {},
     )
 

@@ -1,7 +1,9 @@
 package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.BrokerProvider
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.trading.record.migrations.migrationAfterV5
@@ -15,6 +17,7 @@ class TradingRecord(
     val brokerProvider: BrokerProvider,
     dbUrl: String = JdbcSqliteDriver.IN_MEMORY,
     attachmentsDir: Path? = null,
+    getSymbol: (suspend (BrokerId, SymbolId) -> Symbol?)? = null,
 ) {
 
     private val tradesDB: TradesDB = run {
@@ -38,6 +41,7 @@ class TradingRecord(
         tradesDB = tradesDB,
         attachmentsDir = attachmentsDir,
         brokerProvider = brokerProvider,
+        getSymbol = getSymbol,
         onTradesUpdated = {
 
             val (totalCount, openCount) = tradesDB.tradeQueries
@@ -101,5 +105,6 @@ class TradingRecord(
         coroutineContext = coroutineContext,
         tradesDB = tradesDB,
         brokerProvider = brokerProvider,
+        getSymbol = getSymbol,
     )
 }

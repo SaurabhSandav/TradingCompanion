@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import com.saurabhsandav.trading.record.Symbol as RecordSymbol
 
 interface SymbolsProvider {
 
@@ -118,3 +119,12 @@ private class AppSymbolsProvider(
             .mapToOneOrNull(appDispatchers.IO)
     }
 }
+
+fun CachedSymbol.toRecordSymbol(): RecordSymbol = RecordSymbol(
+    id = id,
+    brokerId = brokerId,
+    instrument = instrument,
+    exchange = exchange,
+    ticker = ticker,
+    description = description,
+)

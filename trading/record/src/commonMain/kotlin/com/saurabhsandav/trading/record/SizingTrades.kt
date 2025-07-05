@@ -16,6 +16,7 @@ class SizingTrades(
     private val coroutineContext: CoroutineContext,
     private val tradesDB: TradesDB,
     private val brokerProvider: BrokerProvider,
+    private val getSymbol: (suspend (BrokerId, SymbolId) -> Symbol?)?,
 ) {
 
     suspend fun new(
@@ -25,13 +26,21 @@ class SizingTrades(
         stop: BigDecimal,
     ) = withContext(coroutineContext) {
 
+        val broker = brokerProvider.getBroker(brokerId)
+        val symbol = getSymbol?.invoke(brokerId, symbolId)
+
         tradesDB.transaction {
 
             // Add Broker
             tradesDB.brokerQueries.insert(
                 id = brokerId,
-                name = brokerProvider.getBroker(brokerId).name,
+                name = broker.name,
             )
+
+            // Add Symbol
+            if (symbol != null) {
+                tradesDB.symbolQueries.insert(symbol)
+            }
 
             tradesDB.sizingTradeQueries.insert(
                 brokerId = brokerId,

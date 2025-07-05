@@ -108,4 +108,9 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     BrokerAdapter = Broker.Adapter(
         idAdapter = BrokerIdColumnAdapter,
     ),
+    SymbolAdapter = Symbol.Adapter(
+        idAdapter = SymbolIdColumnAdapter,
+        brokerIdAdapter = BrokerIdColumnAdapter,
+        instrumentAdapter = Instrument.ColumnAdapter,
+    ),
 )
