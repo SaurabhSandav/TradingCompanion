@@ -19,6 +19,10 @@ kotlin {
     compilerOptions {
 
         progressiveMode = true
+
+        optIn = listOf(
+            "kotlin.time.ExperimentalTime",
+        )
     }
 
     sourceSets {
@@ -28,6 +32,13 @@ kotlin {
             implementation(projects.trading.core)
             implementation(projects.trading.broker)
             implementation(projects.trading.record)
+            implementation(projects.fyersApi)
+
+            // KotlinX Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+
+            // KotlinX DateTime
+            implementation(libs.kotlinx.datetime)
         }
     }
 }

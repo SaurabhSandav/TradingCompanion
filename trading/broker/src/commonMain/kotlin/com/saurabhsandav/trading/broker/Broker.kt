@@ -2,6 +2,7 @@ package com.saurabhsandav.trading.broker
 
 import com.saurabhsandav.trading.core.Instrument
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 interface Broker {
 
@@ -16,4 +17,6 @@ interface Broker {
         quantity: BigDecimal,
         isLong: Boolean,
     ): Brokerage
+
+    suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>?
 }

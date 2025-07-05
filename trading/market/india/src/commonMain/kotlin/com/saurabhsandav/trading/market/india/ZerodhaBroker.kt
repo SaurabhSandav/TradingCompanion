@@ -3,8 +3,10 @@ package com.saurabhsandav.trading.market.india
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.Symbol
 import com.saurabhsandav.trading.core.Instrument
 import java.math.BigDecimal
+import kotlin.time.Instant
 
 class ZerodhaBroker : Broker {
 
@@ -38,6 +40,8 @@ class ZerodhaBroker : Broker {
 
         brokerageBuy + brokerageSell
     }
+
+    override suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>? = null
 
     companion object {
         val Id = BrokerId("Zerodha")

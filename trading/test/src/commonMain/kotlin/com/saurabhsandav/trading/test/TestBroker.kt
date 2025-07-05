@@ -4,9 +4,11 @@ import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.Symbol
 import com.saurabhsandav.trading.core.Instrument
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.time.Instant
 
 class TestBroker : Broker {
 
@@ -47,6 +49,8 @@ class TestBroker : Broker {
             netPNL = netProfit,
         )
     }
+
+    override suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>? = null
 
     companion object {
         val Id = BrokerId("TestBroker")

@@ -152,7 +152,10 @@ internal class AppModule(
         ),
     )
 
-    val brokerProvider = AppBrokerProvider()
+    val brokerProvider = AppBrokerProvider(
+        appDispatchers = appDispatchers,
+        fyersApi = fyersApi,
+    )
 
     val symbolsProvider = SymbolsProvider()
 
