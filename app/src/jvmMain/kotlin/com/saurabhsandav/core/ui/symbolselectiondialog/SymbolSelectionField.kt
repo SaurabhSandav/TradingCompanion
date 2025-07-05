@@ -4,11 +4,17 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
+import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.trading.core.SymbolId
 
 @Composable
@@ -21,11 +27,23 @@ fun SymbolSelectionField(
     isError: Boolean = false,
 ) {
 
+    val scope = rememberCoroutineScope()
+    val appModule = LocalAppModule.current
+    val presenter = remember {
+        SymbolSelectionPresenter(
+            coroutineScope = scope,
+            initialSelectedSymbolId = selected,
+            initialFilterQuery = "",
+            symbolsProvider = appModule.symbolsProvider,
+        )
+    }
+    val state by presenter.state.collectAsState()
+
     var showSymbolSelectionDialog by state { false }
 
     OutlinedTextField(
         modifier = Modifier.onTextFieldClickOrEnter { showSymbolSelectionDialog = true },
-        value = selected?.value ?: "",
+        value = state.selectedSymbol?.ticker ?: "",
         onValueChange = {},
         enabled = enabled,
         readOnly = true,
@@ -42,8 +60,13 @@ fun SymbolSelectionField(
 
         SymbolSelectionDialog(
             onDismissRequest = { showSymbolSelectionDialog = false },
-            onSelect = onSelect,
+            symbols = state.symbols,
+            onSelect = { symbolId ->
+                state.eventSink(SymbolSelected(symbolId))
+                onSelect(symbolId)
+            },
             type = type,
+            onFilterChange = { query -> state.eventSink(Filter(query)) },
         )
     }
 }

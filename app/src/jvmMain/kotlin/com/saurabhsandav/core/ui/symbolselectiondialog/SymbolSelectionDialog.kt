@@ -8,6 +8,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -18,16 +19,20 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import com.saurabhsandav.core.LocalAppModule
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Regular
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
+import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState.Symbol
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.core.SymbolId
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun SymbolSelectionDialog(
@@ -48,20 +53,44 @@ fun SymbolSelectionDialog(
     }
     val state by presenter.state.collectAsState()
 
-    val items = state.symbols.collectAsLazyPagingItems()
+    SymbolSelectionDialog(
+        onDismissRequest = onDismissRequest,
+        symbols = state.symbols,
+        onSelect = onSelect,
+        type = type,
+        initialFilterQuery = state.filterQuery,
+        onFilterChange = { query -> state.eventSink(Filter(query)) },
+    )
+}
+
+@Composable
+internal fun SymbolSelectionDialog(
+    onDismissRequest: () -> Unit,
+    symbols: Flow<PagingData<Symbol>>,
+    onSelect: (SymbolId) -> Unit,
+    type: SymbolSelectionType,
+    onFilterChange: (TextFieldValue) -> Unit,
+    initialFilterQuery: TextFieldValue? = null,
+) {
+
+    val items = symbols.collectAsLazyPagingItems()
     var selectedIndex by state { -1 }
-    var filterQuery by state { state.filterQuery }
+    var filterQuery by state { initialFilterQuery ?: TextFieldValue() }
+
+    LaunchedEffect(Unit) {
+        onFilterChange(filterQuery)
+    }
 
     ListSelectionDialog(
         onDismissRequest = onDismissRequest,
         itemCount = { items.itemCount },
         selectedIndex = selectedIndex,
         onSelectionChange = { index -> selectedIndex = index },
-        onSelectionFinished = { index -> onSelect(items[index]!!) },
+        onSelectionFinished = { index -> onSelect(items[index]!!.id) },
         key = items.itemKey { it },
         filterQuery = filterQuery,
         onFilterChange = { query ->
-            state.eventSink(Filter(query))
+            onFilterChange(query)
             filterQuery = query
         },
         title = { Text("Select Symbol") },
@@ -74,8 +103,8 @@ fun SymbolSelectionDialog(
             if (!defaultCondition) return@onKeyEvent false
 
             when (keyEvent.key) {
-                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(items[index]!!)
-                Key.N -> type.onOpenInNewWindow(items[index]!!)
+                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(items[index]!!.id)
+                Key.N -> type.onOpenInNewWindow(items[index]!!.id)
                 else -> return@onKeyEvent false
             }
 
@@ -85,15 +114,15 @@ fun SymbolSelectionDialog(
         },
     ) { index ->
 
-        val ticker = items[index]!!
+        val symbol = items[index]!!
 
         ListSelectionItem(
             isSelected = selectedIndex == index,
             onSelect = {
-                onSelect(ticker)
+                onSelect(symbol.id)
                 onDismissRequest()
             },
-            headlineContent = { Text(ticker.value) },
+            headlineContent = { Text(symbol.ticker) },
             trailingContent = (type as? Chart)?.let { type ->
                 {
 
@@ -101,7 +130,7 @@ fun SymbolSelectionDialog(
 
                         IconButton(
                             onClick = {
-                                type.onOpenInNewWindow(ticker)
+                                type.onOpenInNewWindow(symbol.id)
                                 onDismissRequest()
                             },
                         ) {
@@ -116,7 +145,7 @@ fun SymbolSelectionDialog(
 
                             IconButton(
                                 onClick = {
-                                    onOpenInCurrentWindow(ticker)
+                                    onOpenInCurrentWindow(symbol.id)
                                     onDismissRequest()
                                 },
                             ) {
