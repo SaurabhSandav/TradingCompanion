@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS CachedSymbol (
+id TEXT NOT NULL,
+brokerId TEXT NOT NULL,
+instrument TEXT NOT NULL,
+exchange TEXT NOT NULL,
+ticker TEXT NOT NULL,
+description TEXT,
+tickSize TEXT,
+quantityMultiplier TEXT,
+PRIMARY KEY (id, brokerId)
+);
+
+CREATE TABLE IF NOT EXISTS SymbolDownloadTimestamp (
+brokerId TEXT NOT NULL PRIMARY KEY,
+timestamp TEXT NOT NULL
+);

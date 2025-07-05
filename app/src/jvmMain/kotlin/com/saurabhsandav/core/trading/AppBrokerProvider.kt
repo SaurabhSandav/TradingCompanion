@@ -24,4 +24,9 @@ class AppBrokerProvider(
             else -> error("Broker with id (${id.value}) not found")
         }
     }
+
+    fun getAllIds(): List<BrokerId> = listOf(
+        FinvasiaBroker.Id,
+        ZerodhaBroker.Id,
+    )
 }

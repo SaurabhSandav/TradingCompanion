@@ -14,11 +14,11 @@ import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayState.ReplayStarted
 import com.saurabhsandav.core.ui.barreplay.newreplayform.NewReplayFormModel
-import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.core.Timeframe
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -109,7 +109,7 @@ internal class BarReplayPresenter(
                     replayFrom = replayFrom,
                     dataTo = dataTo,
                     replayFullBar = true,
-                    initialSymbolId = NIFTY500.first(),
+                    initialSymbolId = FinvasiaBroker.SymbolIds.NIFTY,
                     profileId = null,
                 )
             }

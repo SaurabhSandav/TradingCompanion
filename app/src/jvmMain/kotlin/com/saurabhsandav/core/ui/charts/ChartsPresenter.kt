@@ -20,7 +20,6 @@ import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.AppDispatchers
-import com.saurabhsandav.core.utils.NIFTY500
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
@@ -28,6 +27,7 @@ import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -56,7 +56,7 @@ internal class ChartsPresenter(
             .first()
 
         stockChartsStateFactory(
-            initialParams = StockChartParams(NIFTY500.first(), defaultTimeframe),
+            initialParams = StockChartParams(FinvasiaBroker.SymbolIds.NIFTY, defaultTimeframe),
             loadConfig = LoadConfig(initialLoadBefore = { Clock.System.now() }),
         )
     }

@@ -157,7 +157,11 @@ internal class AppModule(
         fyersApi = fyersApi,
     )
 
-    val symbolsProvider = SymbolsProvider()
+    val symbolsProvider = SymbolsProvider(
+        appDB = appDB,
+        appDispatchers = appDispatchers,
+        brokerProvider = brokerProvider,
+    )
 
     val tradingProfiles = TradingProfiles(
         coroutineContext = appDispatchers.IO,

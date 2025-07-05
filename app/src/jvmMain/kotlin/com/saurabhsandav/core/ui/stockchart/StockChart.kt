@@ -4,6 +4,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -65,7 +67,8 @@ class StockChart internal constructor(
 
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
     var params by mutableStateOf(initialParams)
-    val title by derivedStateOf { "${params.symbolId.value} (${params.timeframe.toLabel()})" }
+    private var ticker by mutableStateOf("")
+    val title by derivedStateOf { "$ticker (${params.timeframe.toLabel()})" }
     val plotterManager = PlotterManager(coroutineScope, this, prefs)
 
     private var initialized = CompletableDeferred<Unit>()
@@ -79,6 +82,12 @@ class StockChart internal constructor(
 
         // Set initial StockChartData
         setData(buildStockChartData(initialParams, loadedPages))
+
+        // Subscribe ticker name for SymbolId
+        snapshotFlow { params.symbolId }
+            .flatMapLatest { symbolId -> marketDataProvider.getSymbolTitle(symbolId) }
+            .onEach { ticker = it }
+            .launchIn(coroutineScope)
 
         // Subscribe visible logical range
         actualChart.timeScale
@@ -133,6 +142,9 @@ class StockChart internal constructor(
         // Update chart params
         params = data.params
 
+        // Update title
+        ticker = data.params.symbolId.value
+
         // Update legend title for candles
         plotterManager.candlestickPlotter.legendLabel = buildAnnotatedString {
             withLink(LinkAnnotation.Clickable("symbol") { onShowSymbolSelector() }) {
@@ -152,6 +164,9 @@ class StockChart internal constructor(
         dataCoroutineScope = coroutineScope.newChildScope()
 
         dataCoroutineScope.launch {
+
+            // Update title
+            ticker = marketDataProvider.getSymbolTitle(data.params.symbolId).first()
 
             data.loadInitial()
 

@@ -1,14 +1,22 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.saurabhsandav.core.trading.DailySessionChecker
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.trading.candledata.CandleRepository
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
+import com.saurabhsandav.trading.core.SymbolId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 internal class ChartsMarketDataProvider(
     private val markersProvider: ChartMarkersProvider,
     private val candleRepo: CandleRepository,
+    private val symbolsProvider: SymbolsProvider,
 ) : MarketDataProvider {
 
     override fun buildCandleSource(params: StockChartParams): ChartsCandleSource {
@@ -24,8 +32,19 @@ internal class ChartsMarketDataProvider(
         )
     }
 
-    override fun hasVolume(params: StockChartParams): Boolean {
-        return params.symbolId.value != "NIFTY50"
+    override fun getSymbolTitle(symbolId: SymbolId): Flow<String> {
+        return symbolsProvider.getSymbol(FinvasiaBroker.Id, symbolId).map { symbol ->
+            val symbol = symbol ?: error("Symbol ${symbolId.value} not found")
+            "${symbol.ticker} - ${symbol.exchange}"
+        }
+    }
+
+    override suspend fun hasVolume(params: StockChartParams): Boolean {
+
+        val symbol = symbolsProvider.getSymbol(FinvasiaBroker.Id, params.symbolId).first()
+            ?: error("Symbol ${params.symbolId.value} not found")
+
+        return symbol.instrument != Instrument.Index
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker

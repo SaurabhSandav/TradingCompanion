@@ -90,7 +90,7 @@ internal fun StockChartTopBar(
                     contentDescription = null,
                 )
             },
-            text = { Text(stockChart.params.symbolId.value) },
+            text = { Text(stockChart.title) },
         )
 
         VerticalDivider()

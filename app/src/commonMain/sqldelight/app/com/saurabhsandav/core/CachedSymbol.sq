@@ -1,0 +1,46 @@
+import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.core.Instrument;
+import com.saurabhsandav.trading.core.SymbolId;
+import java.math.BigDecimal;
+
+CREATE TABLE IF NOT EXISTS CachedSymbol (
+id TEXT AS SymbolId NOT NULL,
+brokerId TEXT AS BrokerId NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
+exchange TEXT NOT NULL,
+ticker TEXT NOT NULL,
+description TEXT,
+tickSize TEXT AS BigDecimal,
+quantityMultiplier TEXT AS BigDecimal,
+PRIMARY KEY (id, brokerId)
+);
+
+insert:
+INSERT OR REPLACE
+INTO CachedSymbol(id, brokerId, instrument, exchange, ticker, description, tickSize, quantityMultiplier)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+clearByBroker:
+DELETE FROM CachedSymbol
+WHERE brokerId = ?;
+
+get:
+SELECT * FROM CachedSymbol
+WHERE id = ? AND brokerId = ?;
+
+getFilteredCount:
+SELECT COUNT(*) FROM CachedSymbol
+WHERE
+(:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
+AND (:instrumentsCount <= 0 OR instrument IN :instruments)
+AND (:exchange IS NULL OR exchange = :exchange)
+ORDER BY ticker;
+
+getFiltered:
+SELECT * FROM CachedSymbol
+WHERE
+(:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
+AND (:instrumentsCount <= 0 OR instrument IN :instruments)
+AND (:exchange IS NULL OR exchange = :exchange)
+ORDER BY ticker
+LIMIT :limit OFFSET :offset;

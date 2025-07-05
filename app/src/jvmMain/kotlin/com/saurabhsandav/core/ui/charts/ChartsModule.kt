@@ -22,6 +22,7 @@ internal class ChartsModule(
     private val marketDataProvider = ChartsMarketDataProvider(
         markersProvider = markersProvider,
         candleRepo = appModule.candleRepo,
+        symbolsProvider = appModule.symbolsProvider,
     )
 
     internal val loginServicesManager = appModule.loginServicesManager

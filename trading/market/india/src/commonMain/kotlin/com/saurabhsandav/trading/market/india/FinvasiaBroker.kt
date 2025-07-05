@@ -81,7 +81,7 @@ class FinvasiaBroker(
             }
 
             Symbol(
-                id = SymbolId(symbol.fyToken),
+                id = SymbolId(symbol.symTicker),
                 instrument = instrument,
                 exchange = symbol.exchange.name,
                 ticker = symbol.exSymbol,
@@ -114,5 +114,10 @@ class FinvasiaBroker(
 
     companion object {
         val Id = BrokerId("Finvasia")
+    }
+
+    object SymbolIds {
+
+        val NIFTY = SymbolId("NSE:NIFTY50-INDEX")
     }
 }

@@ -39,6 +39,7 @@ internal class ReplaySessionModule(
         profileId = replayParams.profileId,
         replaySeriesCache = replaySeriesCache,
         tradingProfiles = appModule.tradingProfiles,
+        symbolsProvider = appModule.symbolsProvider,
     )
 
     val presenter: () -> ReplaySessionPresenter = {

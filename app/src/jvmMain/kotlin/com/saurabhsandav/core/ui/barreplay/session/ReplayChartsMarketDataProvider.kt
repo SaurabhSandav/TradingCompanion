@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.CandleSource
@@ -11,25 +12,26 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.CandleSeries
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.SymbolId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 internal class ReplayChartsMarketDataProvider(
     private val appDispatchers: AppDispatchers,
     private val profileId: ProfileId?,
     private val replaySeriesCache: ReplaySeriesCache,
     private val tradingProfiles: TradingProfiles,
+    private val symbolsProvider: SymbolsProvider,
 ) : MarketDataProvider {
-
-    override fun hasVolume(params: StockChartParams): Boolean {
-        return params.symbolId.value != "NIFTY50"
-    }
 
     override fun buildCandleSource(params: StockChartParams): CandleSource {
         return ReplayCandleSource(
@@ -42,6 +44,21 @@ internal class ReplayChartsMarketDataProvider(
 //            getTradeExecutionMarkers = { candleSeries -> getTradeExecutionMarkers(params.symbolId, candleSeries) },
             onDestroy = replaySeriesCache::releaseForChart,
         )
+    }
+
+    override fun getSymbolTitle(symbolId: SymbolId): Flow<String> {
+        return symbolsProvider.getSymbol(FinvasiaBroker.Id, symbolId).map { symbol ->
+            val symbol = symbol ?: error("Symbol ${symbolId.value} not found")
+            "${symbol.ticker} - ${symbol.exchange}"
+        }
+    }
+
+    override suspend fun hasVolume(params: StockChartParams): Boolean {
+
+        val symbol = symbolsProvider.getSymbol(FinvasiaBroker.Id, params.symbolId).first()
+            ?: error("Symbol ${params.symbolId.value} not found")
+
+        return symbol.instrument != Instrument.Index
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker

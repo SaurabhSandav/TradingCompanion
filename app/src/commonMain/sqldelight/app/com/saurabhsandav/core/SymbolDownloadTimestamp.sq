@@ -1,0 +1,16 @@
+import com.saurabhsandav.trading.broker.BrokerId;
+import kotlin.time.Instant;
+
+CREATE TABLE IF NOT EXISTS SymbolDownloadTimestamp (
+brokerId TEXT AS BrokerId NOT NULL PRIMARY KEY,
+timestamp TEXT AS Instant NOT NULL
+);
+
+put:
+INSERT OR REPLACE
+INTO SymbolDownloadTimestamp(brokerId, timestamp)
+VALUES (?, ?);
+
+get:
+SELECT timestamp FROM SymbolDownloadTimestamp
+WHERE brokerId = ?;

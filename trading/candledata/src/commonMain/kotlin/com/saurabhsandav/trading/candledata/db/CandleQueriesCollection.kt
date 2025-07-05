@@ -26,7 +26,7 @@ class CandleQueriesCollection(
 
         return buildString(length) {
             if (needsPrefix) append('_')
-            ticker.forEach { char -> if (char in listOf('-', '&')) append('_') else append(char) }
+            ticker.forEach { char -> if (char in listOf('-', '&', ':')) append('_') else append(char) }
             append('_')
             append(timeframeStr)
         }

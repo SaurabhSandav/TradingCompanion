@@ -58,12 +58,6 @@ internal class FyersCandleDownloader(
         to: Instant,
     ): Result<List<Candle>, CandleDownloader.Error> = coroutineBinding {
 
-        // Fyers symbol notation
-        val symbolFull = when (val ticker = symbolId.value) {
-            "NIFTY50" -> "NSE:$ticker-INDEX"
-            else -> "NSE:$ticker-EQ"
-        }
-
         val candles = mutableListOf<Candle>()
         val downloadInterval = when (timeframe) {
             Timeframe.D1 -> 365.days // Fyers accepts a 1-year range for 1D timeframe
@@ -81,7 +75,7 @@ internal class FyersCandleDownloader(
             // Download and convert to result
             val result = fyersApi.getHistoricalCandles(
                 accessToken = getAccessToken().bind(),
-                symbol = symbolFull,
+                symbol = symbolId.value,
                 resolution = when (timeframe) {
                     Timeframe.M1 -> CandleResolution.M1
                     Timeframe.M3 -> CandleResolution.M3

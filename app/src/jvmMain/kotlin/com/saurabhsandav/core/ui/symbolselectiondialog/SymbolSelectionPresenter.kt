@@ -21,11 +21,15 @@ import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEven
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState.Symbol
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 internal class SymbolSelectionPresenter(
     coroutineScope: CoroutineScope,
@@ -65,18 +69,25 @@ internal class SymbolSelectionPresenter(
         )
 
         snapshotFlow { filterQuery.text }
+            .onStart { symbolsProvider.downloadAllLatestSymbols() }
             .flatMapLatest { filterQuery ->
 
                 Pager(
                     config = pagingConfig,
-                    pagingSourceFactory = { symbolsProvider.getSymbols(filterQuery) },
+                    pagingSourceFactory = {
+                        symbolsProvider.getSymbolsFiltered(
+                            filterQuery = filterQuery,
+                            instruments = listOf(Instrument.Index, Instrument.Equity),
+                            exchange = "NSE",
+                        )
+                    },
                 ).flow
             }
             .map { pagingData ->
-                pagingData.map { symbol ->
+                pagingData.map { cachedSymbol ->
                     Symbol(
-                        id = symbol,
-                        ticker = symbol.value,
+                        id = cachedSymbol.id,
+                        ticker = cachedSymbol.ticker,
                     )
                 }
             }
@@ -85,16 +96,23 @@ internal class SymbolSelectionPresenter(
     @Composable
     private fun getSelectedSymbol(): Symbol? = produceState<Symbol?>(null) {
 
-        snapshotFlow { selectedSymbolId }.collect { id ->
-
-            value = when (id) {
-                null -> null
-                else -> Symbol(
-                    id = id,
-                    ticker = id.value,
-                )
+        snapshotFlow { selectedSymbolId }
+            .flatMapLatest { id ->
+                when (id) {
+                    null -> flowOf(null)
+                    else -> symbolsProvider.getSymbol(FinvasiaBroker.Id, id)
+                }
             }
-        }
+            .collect { cachedSymbol ->
+
+                value = when (cachedSymbol) {
+                    null -> null
+                    else -> Symbol(
+                        id = cachedSymbol.id,
+                        ticker = cachedSymbol.ticker,
+                    )
+                }
+            }
     }.value
 
     private fun onSymbolSelected(id: SymbolId) {
