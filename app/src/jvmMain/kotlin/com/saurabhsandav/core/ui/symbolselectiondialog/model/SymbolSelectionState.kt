@@ -14,6 +14,9 @@ internal data class SymbolSelectionState(
 
     internal data class Symbol(
         val id: SymbolId,
-        val ticker: String,
+        val exchange: String,
+        val type: String,
+        val title: String,
+        val description: String?,
     )
 }

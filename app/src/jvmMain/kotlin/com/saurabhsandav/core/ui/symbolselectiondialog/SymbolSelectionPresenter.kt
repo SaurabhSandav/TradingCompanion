@@ -14,8 +14,10 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.CachedSymbol
 import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.getSymbolOrError
+import com.saurabhsandav.core.ui.common.toSymbolTitle
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState
@@ -91,12 +93,7 @@ internal class SymbolSelectionPresenter(
                 ).flow
             }
             .map { pagingData ->
-                pagingData.map { cachedSymbol ->
-                    Symbol(
-                        id = cachedSymbol.id,
-                        ticker = cachedSymbol.ticker,
-                    )
-                }
+                pagingData.map { cachedSymbol -> cachedSymbol.toSymbol() }
             }
     }
 
@@ -110,21 +107,25 @@ internal class SymbolSelectionPresenter(
                     else -> symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, id)
                 }
             }
-            .collect { cachedSymbol ->
-
-                value = when (cachedSymbol) {
-                    null -> null
-                    else -> Symbol(
-                        id = cachedSymbol.id,
-                        ticker = cachedSymbol.ticker,
-                    )
-                }
-            }
+            .collect { cachedSymbol -> value = cachedSymbol?.toSymbol() }
     }.value
 
     private fun onSymbolSelected(id: SymbolId) {
         selectedSymbolId = id
     }
+
+    private fun CachedSymbol.toSymbol(): Symbol = Symbol(
+        id = id,
+        exchange = exchange,
+        type = when (instrument) {
+            Instrument.Index -> "INDEX"
+            Instrument.Equity -> "STOCK"
+            Instrument.Futures -> "FUTURES"
+            Instrument.Options -> "OPTION"
+        },
+        title = toSymbolTitle(showExchange = false),
+        description = if (instrument == Instrument.Futures || instrument == Instrument.Options) null else description,
+    )
 
     @AssistedFactory
     interface Factory {

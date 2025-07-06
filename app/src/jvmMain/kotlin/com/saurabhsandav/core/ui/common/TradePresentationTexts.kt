@@ -17,10 +17,10 @@ import kotlinx.datetime.toLocalDateTime
 import java.util.Locale
 import kotlin.time.Instant
 
-fun CachedSymbol.toSymbolTitle(): String = buildSymbolTitle(
+fun CachedSymbol.toSymbolTitle(showExchange: Boolean = true): String = buildSymbolTitle(
     symbolId = id,
     instrument = instrument,
-    exchange = exchange,
+    exchange = exchange.takeIf { showExchange },
     ticker = ticker,
     expiry = expiry,
     strikePrice = strikePrice,

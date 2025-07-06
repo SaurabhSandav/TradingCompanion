@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,10 +44,9 @@ fun SymbolSelectionField(
 
     OutlinedTextBox(
         modifier = modifier,
-        value = state.selectedSymbol?.ticker ?: "",
+        value = state.selectedSymbol?.title.orEmpty(),
         onClick = { showSymbolSelectionDialog = true },
         enabled = enabled,
-        lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text("Symbol") },
         placeholder = { Text("Select...") },
         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showSymbolSelectionDialog) },

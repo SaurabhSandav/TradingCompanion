@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -108,7 +110,19 @@ internal fun SymbolSelectionDialog(
                 onSelect(symbol.id)
                 onDismissRequest()
             },
-            headlineContent = { Text(symbol.ticker) },
+            overlineContent = {
+
+                Row {
+
+                    Text(symbol.exchange)
+
+                    Spacer(Modifier.weight(1F))
+
+                    Text(symbol.type)
+                }
+            },
+            headlineContent = { Text(symbol.title) },
+            supportingContent = symbol.description?.let { { Text(symbol.description) } },
             trailingContent = (type as? Chart)?.let { type ->
                 {
 
