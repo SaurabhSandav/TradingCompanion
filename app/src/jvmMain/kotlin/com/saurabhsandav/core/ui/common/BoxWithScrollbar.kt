@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.common
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.v2.ScrollbarAdapter
 import androidx.compose.runtime.Composable
@@ -27,7 +26,7 @@ fun BoxWithScrollbar(
         if (scrollbarAdapter != null) {
 
             VerticalScrollbar(
-                modifier = Modifier.fillMaxSize().wrapContentWidth(Alignment.End),
+                modifier = Modifier.matchParentSize().wrapContentWidth(Alignment.End),
                 adapter = scrollbarAdapter,
             )
         }

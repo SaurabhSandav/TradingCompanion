@@ -1,8 +1,11 @@
 package com.saurabhsandav.core.ui.common.controls
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -190,10 +193,13 @@ fun <T : Any> LazyListSelectionDialog(
 
     AppDialog(
         onDismissRequest = onDismissRequest,
-        size = dialogSize,
     ) {
 
-        Column {
+        Column(
+            modifier = Modifier
+                .width(dialogSize.width)
+                .heightIn(max = dialogSize.height),
+        ) {
 
             var selectedIndex by state { -1 }
             val lazyListState = rememberLazyListState()
@@ -230,6 +236,7 @@ fun <T : Any> LazyListSelectionDialog(
                                 Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
                                 Key.DirectionDown ->
                                     selectedIndex = (selectedIndex + 1).coerceAtMost(items.itemCount - 1)
+
                                 Key.Enter -> {
                                     onSelect(items[selectedIndex]!!)
                                     onDismissRequest()
@@ -262,7 +269,7 @@ fun <T : Any> LazyListSelectionDialog(
             )
 
             BoxWithScrollbar(
-                modifier = Modifier.weight(1F),
+                modifier = Modifier.weight(1F, fill = false).animateContentSize(),
                 scrollbarAdapter = rememberScrollbarAdapter(lazyListState),
             ) {
 
