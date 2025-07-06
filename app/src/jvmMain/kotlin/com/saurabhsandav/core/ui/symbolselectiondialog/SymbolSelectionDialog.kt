@@ -12,16 +12,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.paging.LoadState
 import com.saurabhsandav.core.LocalAppModule
-import com.saurabhsandav.core.ui.common.controls.LazyListSelectionDialog
+import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Regular
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
+import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
+import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.core.SymbolId
 
 @Composable
@@ -34,17 +39,34 @@ fun SymbolSelectionDialog(
 
     val scope = rememberCoroutineScope()
     val appModule = LocalAppModule.current
-    val presenter = remember { SymbolSelectionPresenter(scope, appModule.symbolsProvider) }
+    val presenter = remember {
+        SymbolSelectionPresenter(
+            coroutineScope = scope,
+            initialFilterQuery = initialFilterQuery,
+            symbolsProvider = appModule.symbolsProvider,
+        )
+    }
     val state by presenter.state.collectAsState()
 
-    LazyListSelectionDialog(
+    val items = state.symbols.collectAsLazyPagingItems()
+    var selectedIndex by state { -1 }
+    var filterQuery by state { state.filterQuery }
+
+    ListSelectionDialog(
         onDismissRequest = onDismissRequest,
-        items = state.symbols,
-        itemText = { it.value },
-        onSelect = onSelect,
-        onFilter = { query -> state.eventSink(Filter(query)) },
+        itemCount = { items.itemCount },
+        selectedIndex = selectedIndex,
+        onSelectionChange = { index -> selectedIndex = index },
+        onSelectionFinished = { index -> onSelect(items[index]!!) },
+        key = items.itemKey { it },
+        filterQuery = filterQuery,
+        onFilterChange = { query ->
+            state.eventSink(Filter(query))
+            filterQuery = query
+        },
         title = { Text("Select Symbol") },
-        onKeyEvent = onKeyEvent@{ keyEvent, symbol ->
+        isLoading = items.loadState.refresh == LoadState.Loading,
+        onKeyEvent = onKeyEvent@{ keyEvent, index ->
 
             if (type !is Chart) return@onKeyEvent false
 
@@ -52,48 +74,61 @@ fun SymbolSelectionDialog(
             if (!defaultCondition) return@onKeyEvent false
 
             when (keyEvent.key) {
-                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(symbol)
-                Key.N -> type.onOpenInNewWindow(symbol)
+                Key.C if type.onOpenInCurrentWindow != null -> type.onOpenInCurrentWindow(items[index]!!)
+                Key.N -> type.onOpenInNewWindow(items[index]!!)
                 else -> return@onKeyEvent false
             }
 
+            onDismissRequest()
+
             true
         },
-        itemTrailingContent = (type as? Chart)?.let { type ->
-            { symbol ->
+    ) { index ->
 
-                Row {
+        val ticker = items[index]!!
 
-                    IconButton(
-                        onClick = {
-                            type.onOpenInNewWindow(symbol)
-                            onDismissRequest()
-                        },
-                    ) {
-                        Icon(
-                            Icons.Default.OpenInBrowser,
-                            contentDescription = "Open in new window",
-                        )
-                    }
+        ListSelectionItem(
+            isSelected = selectedIndex == index,
+            onSelect = {
+                onSelect(ticker)
+                onDismissRequest()
+            },
+            headlineContent = { Text(ticker.value) },
+            trailingContent = (type as? Chart)?.let { type ->
+                {
 
-                    val onOpenInCurrentWindow = type.onOpenInCurrentWindow
-                    if (onOpenInCurrentWindow != null) {
+                    Row {
 
                         IconButton(
                             onClick = {
-                                onOpenInCurrentWindow(symbol)
+                                type.onOpenInNewWindow(ticker)
                                 onDismissRequest()
                             },
                         ) {
                             Icon(
-                                Icons.AutoMirrored.Default.OpenInNew,
-                                contentDescription = "Open in current Window",
+                                Icons.Default.OpenInBrowser,
+                                contentDescription = "Open in new window",
                             )
+                        }
+
+                        val onOpenInCurrentWindow = type.onOpenInCurrentWindow
+                        if (onOpenInCurrentWindow != null) {
+
+                            IconButton(
+                                onClick = {
+                                    onOpenInCurrentWindow(ticker)
+                                    onDismissRequest()
+                                },
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.OpenInNew,
+                                    contentDescription = "Open in current Window",
+                                )
+                            }
                         }
                     }
                 }
-            }
-        },
-        initialFilterQuery = initialFilterQuery,
-    )
+            },
+        )
+    }
 }

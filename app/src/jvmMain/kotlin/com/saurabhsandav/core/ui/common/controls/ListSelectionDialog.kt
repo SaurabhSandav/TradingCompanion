@@ -5,30 +5,25 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -39,157 +34,29 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
-import androidx.paging.PagingData
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
-import com.saurabhsandav.core.ui.common.derivedState
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.theme.keyboardSelectionBackgroundColor
-import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.paging.compose.itemKey
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun <T : Any> ListSelectionDialog(
+fun ListSelectionDialog(
     onDismissRequest: () -> Unit,
-    items: List<T>,
-    itemText: (T) -> String,
-    onSelect: (T) -> Unit,
+    itemCount: () -> Int,
+    selectedIndex: Int,
+    onSelectionChange: (Int) -> Unit,
+    onSelectionFinished: (Int) -> Unit,
+    key: ((index: Int) -> Any)? = null,
+    filterQuery: TextFieldValue = TextFieldValue(),
+    onFilterChange: (TextFieldValue) -> Unit = {},
     title: @Composable (() -> Unit)? = null,
-    initialFilterQuery: String = "",
+    isLoading: Boolean = false,
+    onKeyEvent: ((KeyEvent, Int) -> Boolean)? = null,
     dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
-    onKeyEvent: ((KeyEvent, T) -> Boolean)? = null,
-    itemTrailingContent: @Composable ((T) -> Unit)? = null,
+    itemContent: @Composable ListSelectionDialogItemScope.(Int) -> Unit,
 ) {
-
-    AppDialog(
-        onDismissRequest = onDismissRequest,
-        size = dialogSize,
-    ) {
-
-        Column {
-
-            var selectedIndex by state { -1 }
-            val scrollState = rememberScrollState()
-            val focusRequester = remember { FocusRequester() }
-
-            var filterQuery by state {
-                TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length))
-            }
-            val filteredItems by derivedState {
-                items.filter { item -> itemText(item).contains(filterQuery.text, ignoreCase = true) }
-            }
-
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .onPreviewKeyEvent { keyEvent ->
-
-                        if (keyEvent.type == KeyEventType.KeyDown) {
-
-                            var consumed = true
-
-                            when (keyEvent.key) {
-                                Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
-                                Key.DirectionDown ->
-                                    selectedIndex = (selectedIndex + 1).coerceAtMost(filteredItems.lastIndex)
-
-                                Key.Enter -> {
-                                    onSelect(filteredItems[selectedIndex])
-                                    onDismissRequest()
-                                }
-
-                                else -> consumed = false
-                            }
-
-                            if (consumed) return@onPreviewKeyEvent true
-                        }
-
-                        if (onKeyEvent != null && selectedIndex != -1) {
-                            val consumed = onKeyEvent(keyEvent, filteredItems[selectedIndex])
-                            if (consumed) {
-                                onDismissRequest()
-                                return@onPreviewKeyEvent true
-                            }
-                        }
-
-                        false
-                    },
-                value = filterQuery,
-                onValueChange = {
-                    selectedIndex = -1
-                    filterQuery = it
-                },
-                singleLine = true,
-                placeholder = title,
-            )
-
-            Column(
-                modifier = Modifier.selectableGroup().verticalScroll(scrollState),
-            ) {
-
-                filteredItems.forEachIndexed { index, item ->
-
-                    key(item) {
-
-                        val isSelected = selectedIndex == index
-                        val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-                        // Scroll item into view if selected
-                        LaunchedEffect(isSelected) {
-                            if (isSelected) bringIntoViewRequester.bringIntoView()
-                        }
-
-                        ListItem(
-                            modifier = Modifier
-                                .selectable(selected = selectedIndex == index) {
-                                    onSelect(item)
-                                    onDismissRequest()
-                                }
-                                .bringIntoViewRequester(bringIntoViewRequester),
-                            headlineContent = { Text(itemText(item)) },
-                            trailingContent = itemTrailingContent?.let { { it(item) } },
-                            colors = ListItemDefaults.colors(
-                                containerColor = when {
-                                    selectedIndex == index -> keyboardSelectionBackgroundColor()
-                                    else -> Color.Unspecified
-                                },
-                            ),
-                        )
-                    }
-
-                    if (index != filteredItems.lastIndex) HorizontalDivider()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun <T : Any> LazyListSelectionDialog(
-    onDismissRequest: () -> Unit,
-    items: Flow<PagingData<T>>,
-    itemText: (T) -> String,
-    onSelect: (T) -> Unit,
-    onFilter: (String) -> Unit,
-    title: @Composable (() -> Unit)? = null,
-    initialFilterQuery: String = "",
-    dialogSize: DpSize = MaterialTheme.dimens.dialogSize,
-    onKeyEvent: ((KeyEvent, T) -> Boolean)? = null,
-    itemTrailingContent: @Composable ((T) -> Unit)? = null,
-) {
-
-    val items = items.collectAsLazyPagingItems()
 
     AppDialog(
         onDismissRequest = onDismissRequest,
@@ -201,21 +68,13 @@ fun <T : Any> LazyListSelectionDialog(
                 .heightIn(max = dialogSize.height),
         ) {
 
-            var selectedIndex by state { -1 }
             val lazyListState = rememberLazyListState()
             val focusRequester = remember { FocusRequester() }
 
-            var filterQuery by state {
-                TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length))
-            }
-
             // Scroll selected item to center of list
-            LaunchedEffect(Unit) {
-
-                snapshotFlow { selectedIndex }.collectLatest { index ->
-                    if (index == -1) return@collectLatest
-                    lazyListState.scrollItemToCenterOfList(index)
-                }
+            LaunchedEffect(selectedIndex) {
+                if (selectedIndex == -1) return@LaunchedEffect
+                lazyListState.scrollItemToCenterOfList(selectedIndex)
             }
 
             LaunchedEffect(Unit) {
@@ -233,12 +92,12 @@ fun <T : Any> LazyListSelectionDialog(
                             var consumed = true
 
                             when (keyEvent.key) {
-                                Key.DirectionUp -> selectedIndex = (selectedIndex - 1).coerceAtLeast(0)
+                                Key.DirectionUp -> onSelectionChange((selectedIndex - 1).coerceAtLeast(0))
                                 Key.DirectionDown ->
-                                    selectedIndex = (selectedIndex + 1).coerceAtMost(items.itemCount - 1)
+                                    onSelectionChange((selectedIndex + 1).coerceAtMost(itemCount() - 1))
 
-                                Key.Enter -> {
-                                    onSelect(items[selectedIndex]!!)
+                                Key.Enter if (selectedIndex != -1) -> {
+                                    onSelectionFinished(selectedIndex)
                                     onDismissRequest()
                                 }
 
@@ -249,21 +108,13 @@ fun <T : Any> LazyListSelectionDialog(
                         }
 
                         if (onKeyEvent != null && selectedIndex != -1) {
-                            val consumed = onKeyEvent(keyEvent, items[selectedIndex]!!)
-                            if (consumed) {
-                                onDismissRequest()
-                                return@onPreviewKeyEvent true
-                            }
+                            return@onPreviewKeyEvent onKeyEvent(keyEvent, selectedIndex)
                         }
 
                         false
                     },
                 value = filterQuery,
-                onValueChange = {
-                    selectedIndex = -1
-                    filterQuery = it
-                    onFilter(it.text)
-                },
+                onValueChange = onFilterChange,
                 singleLine = true,
                 placeholder = title,
             )
@@ -279,30 +130,28 @@ fun <T : Any> LazyListSelectionDialog(
                 ) {
 
                     items(
-                        count = items.itemCount,
-                        key = items.itemKey { item -> item },
+                        count = itemCount(),
+                        key = key,
                     ) { index ->
 
-                        val item = items[index]!!
+                        val scope = remember(this) { ListSelectionDialogItemScopeImpl(this) }
 
-                        ListItem(
-                            modifier = Modifier
-                                .animateItem()
-                                .selectable(selected = selectedIndex == index) {
-                                    onSelect(item)
-                                    onDismissRequest()
-                                },
-                            headlineContent = { Text(itemText(item)) },
-                            trailingContent = itemTrailingContent?.let { { it(item) } },
-                            colors = ListItemDefaults.colors(
-                                containerColor = when {
-                                    selectedIndex == index -> keyboardSelectionBackgroundColor()
-                                    else -> Color.Unspecified
-                                },
-                            ),
-                        )
+                        scope.itemContent(index)
 
-                        if (index != items.itemCount - 1) HorizontalDivider()
+                        if (index != itemCount() - 1) HorizontalDivider()
+                    }
+
+                    if (isLoading) {
+
+                        item {
+
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(MaterialTheme.dimens.containerPadding)
+                                    .fillMaxWidth()
+                                    .wrapContentWidth(),
+                            )
+                        }
                     }
                 }
             }
@@ -310,7 +159,53 @@ fun <T : Any> LazyListSelectionDialog(
     }
 }
 
-suspend fun LazyListState.scrollItemToCenterOfList(itemIndex: Int) {
+interface ListSelectionDialogItemScope : LazyItemScope {
+
+    @Composable
+    fun ListSelectionItem(
+        isSelected: Boolean,
+        onSelect: () -> Unit,
+        headlineContent: @Composable () -> Unit,
+        overlineContent: @Composable (() -> Unit)? = null,
+        supportingContent: @Composable (() -> Unit)? = null,
+        leadingContent: @Composable (() -> Unit)? = null,
+        trailingContent: @Composable (() -> Unit)? = null,
+    )
+}
+
+private class ListSelectionDialogItemScopeImpl(
+    lazyItemScope: LazyItemScope,
+) : ListSelectionDialogItemScope,
+    LazyItemScope by lazyItemScope {
+
+    @Composable
+    override fun ListSelectionItem(
+        isSelected: Boolean,
+        onSelect: () -> Unit,
+        headlineContent: @Composable () -> Unit,
+        overlineContent: @Composable (() -> Unit)?,
+        supportingContent: @Composable (() -> Unit)?,
+        leadingContent: @Composable (() -> Unit)?,
+        trailingContent: @Composable (() -> Unit)?,
+    ) {
+
+        ListItem(
+            modifier = Modifier
+                .animateItem()
+                .selectable(selected = isSelected, onClick = onSelect),
+            headlineContent = headlineContent,
+            trailingContent = trailingContent,
+            overlineContent = overlineContent,
+            supportingContent = supportingContent,
+            leadingContent = leadingContent,
+            colors = ListItemDefaults.colors(
+                containerColor = if (isSelected) keyboardSelectionBackgroundColor() else Color.Unspecified,
+            ),
+        )
+    }
+}
+
+private suspend fun LazyListState.scrollItemToCenterOfList(itemIndex: Int) {
 
     val itemInfo = layoutInfo
         .visibleItemsInfo

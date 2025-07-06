@@ -8,15 +8,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
+import com.saurabhsandav.core.ui.common.derivedState
+import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.trading.core.Timeframe
 
@@ -29,58 +35,80 @@ internal fun TimeframeSelectionDialog(
     onOpenInNewWindow: (Timeframe) -> Unit,
 ) {
 
+    var selectedIndex by state { -1 }
+    var filterQuery by state { TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length)) }
+    val items by derivedState {
+        Timeframe.entries.filter { it.toLabel().contains(filterQuery.text, ignoreCase = true) }
+    }
+
     ListSelectionDialog(
         onDismissRequest = onDismissRequest,
-        items = Timeframe.entries,
-        itemText = { it.toLabel() },
-        onSelect = onSelect,
+        itemCount = { items.size },
+        selectedIndex = selectedIndex,
+        onSelectionChange = { index -> selectedIndex = index },
+        onSelectionFinished = { index -> onSelect(items[index]) },
         title = { Text("Select Timeframe") },
-        onKeyEvent = onKeyEvent@{ keyEvent, timeframe ->
+        onKeyEvent = onKeyEvent@{ keyEvent, index ->
 
             val defaultCondition = keyEvent.isCtrlPressed && keyEvent.type == KeyEventType.KeyDown
             if (!defaultCondition) return@onKeyEvent false
 
             when (keyEvent.key) {
-                Key.C if onOpenInCurrentWindow != null -> onOpenInCurrentWindow(timeframe)
-                Key.N -> onOpenInNewWindow(timeframe)
+                Key.C if onOpenInCurrentWindow != null -> onOpenInCurrentWindow(items[index])
+                Key.N -> onOpenInNewWindow(items[index])
                 else -> return@onKeyEvent false
             }
 
+            onDismissRequest()
+
             true
         },
-        itemTrailingContent = { timeframe ->
+        filterQuery = filterQuery,
+        onFilterChange = { filterQuery = it },
+        dialogSize = DpSize(width = 250.dp, height = Dp.Unspecified),
+    ) { index ->
 
-            Row {
+        val timeframe = items[index]
 
-                IconButton(
-                    onClick = {
-                        onOpenInNewWindow(timeframe)
-                        onDismissRequest()
-                    },
-                ) {
-                    Icon(
-                        Icons.Default.OpenInBrowser,
-                        contentDescription = "Open in new window",
-                    )
-                }
+        ListSelectionItem(
+            isSelected = selectedIndex == index,
+            onSelect = {
+                onSelect(timeframe)
+                onDismissRequest()
+            },
+            headlineContent = { Text(timeframe.toLabel()) },
+            trailingContent = {
 
-                if (onOpenInCurrentWindow != null) {
+                Row {
 
                     IconButton(
                         onClick = {
-                            onOpenInCurrentWindow(timeframe)
+                            onOpenInNewWindow(timeframe)
                             onDismissRequest()
                         },
                     ) {
                         Icon(
-                            Icons.AutoMirrored.Default.OpenInNew,
-                            contentDescription = "Open in current Window",
+                            Icons.Default.OpenInBrowser,
+                            contentDescription = "Open in new window",
                         )
                     }
+
+                    if (onOpenInCurrentWindow != null) {
+
+                        IconButton(
+                            onClick = {
+                                onOpenInCurrentWindow(timeframe)
+                                onDismissRequest()
+                            },
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Default.OpenInNew,
+                                contentDescription = "Open in current Window",
+                            )
+                        }
+                    }
                 }
-            }
-        },
-        initialFilterQuery = initialFilterQuery,
-        dialogSize = DpSize(width = 250.dp, height = Dp.Unspecified),
-    )
+            },
+        )
+    }
 }

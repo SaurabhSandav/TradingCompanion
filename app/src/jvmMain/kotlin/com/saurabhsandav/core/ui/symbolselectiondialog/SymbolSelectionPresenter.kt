@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -22,14 +24,16 @@ import kotlinx.coroutines.flow.flatMapLatest
 
 internal class SymbolSelectionPresenter(
     coroutineScope: CoroutineScope,
+    initialFilterQuery: String,
     private val symbolsProvider: SymbolsProvider,
 ) {
 
-    private var filterQuery by mutableStateOf("")
+    private var filterQuery by mutableStateOf(TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length)))
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
         return@launchMolecule SymbolSelectionState(
+            filterQuery = filterQuery,
             symbols = getSymbols(),
             eventSink = ::onEvent,
         )
@@ -51,7 +55,7 @@ internal class SymbolSelectionPresenter(
             maxSize = 1000,
         )
 
-        snapshotFlow { filterQuery }.flatMapLatest { filterQuery ->
+        snapshotFlow { filterQuery.text }.flatMapLatest { filterQuery ->
 
             Pager(
                 config = pagingConfig,
@@ -60,7 +64,7 @@ internal class SymbolSelectionPresenter(
         }
     }
 
-    private fun onFilter(query: String) {
+    private fun onFilter(query: TextFieldValue) {
         filterQuery = query
     }
 }
