@@ -27,6 +27,7 @@ import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.SizingTrade
 import com.saurabhsandav.trading.record.model.Account
 import com.saurabhsandav.trading.record.model.SizingTradeId
@@ -83,6 +84,7 @@ internal class SizingPresenter(
     private fun addTrade(symbolId: SymbolId) = coroutineScope.launchUnit {
 
         sizingtrades.await().new(
+            brokerId = FinvasiaBroker.Id,
             symbolId = symbolId,
             entry = 100.toBigDecimal(),
             stop = 90.toBigDecimal(),

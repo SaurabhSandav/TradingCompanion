@@ -1,0 +1,16 @@
+-- Add brokerId column to SizingTrade table
+ALTER TABLE SizingTrade RENAME TO SizingTradeOld;
+
+CREATE TABLE IF NOT EXISTS SizingTrade (
+id INTEGER NOT NULL PRIMARY KEY,
+brokerId TEXT NOT NULL,
+symbolId TEXT NOT NULL,
+entry TEXT NOT NULL,
+stop TEXT NOT NULL
+);
+
+INSERT INTO SizingTrade (id, brokerId, symbolId, entry, stop)
+SELECT id, "Finvasia", symbolId, entry, stop
+FROM SizingTradeOld;
+
+DROP TABLE SizingTradeOld;

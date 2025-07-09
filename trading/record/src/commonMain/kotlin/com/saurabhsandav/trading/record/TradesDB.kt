@@ -25,6 +25,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         entryAdapter = BigDecimalColumnAdapter,
         stopAdapter = BigDecimalColumnAdapter,
         symbolIdAdapter = SymbolIdColumnAdapter,
+        brokerIdAdapter = BrokerIdColumnAdapter,
     ),
     TradeAdapter = Trade.Adapter(
         idAdapter = TradeIdColumnAdapter,
