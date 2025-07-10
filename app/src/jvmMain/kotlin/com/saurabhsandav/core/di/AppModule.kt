@@ -3,13 +3,11 @@ package com.saurabhsandav.core.di
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.emptyPreferences
-import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.AppConfig
 import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.CandleDB
 import com.saurabhsandav.core.FileLogWriter
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
@@ -19,7 +17,6 @@ import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
-import com.saurabhsandav.core.trading.data.migrations.migrationAfterV1
 import com.saurabhsandav.core.trading.toRecordSymbol
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
@@ -32,9 +29,7 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.AppUriHandler
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.trading.candledata.CandleCacheDB
-import com.saurabhsandav.trading.candledata.CandleDB
 import com.saurabhsandav.trading.candledata.CandleRepository
-import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.model.Account
 import kotlinx.coroutines.CoroutineScope
@@ -98,15 +93,6 @@ internal class AppModule(
         AppDB(driver)
     }
 
-    private val candleDBDriver: SqlDriver = JdbcSqliteDriver(
-        url = "jdbc:sqlite:${appPaths.candlesDBPath.absolutePathString()}",
-        properties = Properties().apply { put("foreign_keys", "true") },
-        callbacks = listOf(migrationAfterV1).toTypedArray(),
-        schema = CandleDB.Schema,
-    )
-
-    private val candleDB: CandleDB = CandleDB(candleDBDriver)
-
     val appPrefs = DataStoreSettings(
         datastore = PreferenceDataStoreFactory.createWithPath(
             scope = appScope + appDispatchers.IO,
@@ -141,8 +127,6 @@ internal class AppModule(
 
     val fyersApi by lazy { FyersApi() }
 
-    private val candleQueriesCollection = CandleQueriesCollection(driver = candleDBDriver)
-
     val candleRepo = CandleRepository(
         candleDownloader = FyersCandleDownloader(
             coroutineScope = appScope,
@@ -151,8 +135,6 @@ internal class AppModule(
         ),
         candleCache = CandleCacheDB(
             coroutineContext = appDispatchers.IO,
-            candleDB = candleDB,
-            candleQueriesCollection = candleQueriesCollection,
         ),
     )
 

@@ -43,6 +43,7 @@ kotlin {
 
             // SQLDelight
             implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.sqliteDriver)
             implementation(libs.sqldelight.coroutinesExtensions)
         }
     }

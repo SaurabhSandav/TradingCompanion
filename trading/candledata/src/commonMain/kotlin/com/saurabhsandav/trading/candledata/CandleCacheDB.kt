@@ -4,7 +4,9 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
+import com.saurabhsandav.trading.candledata.migrations.migrationAfterV1
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
@@ -13,14 +15,34 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import java.util.Properties
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Instant
 
 class CandleCacheDB(
     private val coroutineContext: CoroutineContext,
-    private val candleDB: CandleDB,
-    private val candleQueriesCollection: CandleQueriesCollection,
+    dbUrl: String = JdbcSqliteDriver.IN_MEMORY,
 ) : CandleCache {
+
+    private val driver = JdbcSqliteDriver(
+        url = dbUrl,
+        properties = Properties().apply { put("foreign_keys", "true") },
+        callbacks = listOf(migrationAfterV1).toTypedArray(),
+        schema = CandleDB.Schema,
+    )
+
+    private val candleDB: CandleDB = run {
+
+        CandleDB(
+            driver = driver,
+            CheckedRangeAdapter = CheckedRange.Adapter(
+                fromEpochSecondsAdapter = InstantLongColumnAdapter,
+                toEpochSecondsAdapter = InstantLongColumnAdapter,
+            ),
+        )
+    }
+
+    private val candleQueriesCollection = CandleQueriesCollection(driver = driver)
 
     override suspend fun saveCheckedRange(
         symbolId: SymbolId,

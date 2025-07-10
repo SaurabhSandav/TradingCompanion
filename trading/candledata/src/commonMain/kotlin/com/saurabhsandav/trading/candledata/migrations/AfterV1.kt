@@ -1,10 +1,10 @@
-package com.saurabhsandav.core.trading.data.migrations
+package com.saurabhsandav.trading.candledata.migrations
 
 import app.cash.sqldelight.TransacterImpl
 import app.cash.sqldelight.db.AfterVersion
 import app.cash.sqldelight.db.QueryResult
 
-val migrationAfterV1 = AfterVersion(1) { driver ->
+internal val migrationAfterV1 = AfterVersion(1) { driver ->
 
     val transacter = object : TransacterImpl(driver) {}
 
