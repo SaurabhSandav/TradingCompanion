@@ -217,7 +217,9 @@ public class FyersApi {
 
         when {
             responseCode in 400..599 -> ApiResult.httpFailure(responseCode, fyersResponse.getError())
-            response.status.isSuccess() && fyersResponse.code != 200 -> ApiResult.apiFailure(fyersResponse.getError())
+            response.status.isSuccess() && fyersResponse.code != null && fyersResponse.code != 200 ->
+                ApiResult.apiFailure(fyersResponse.getError())
+
             response.status.isSuccess() -> ApiResult.success(fyersResponse.result!!)
             else -> ApiResult.apiFailure()
         }

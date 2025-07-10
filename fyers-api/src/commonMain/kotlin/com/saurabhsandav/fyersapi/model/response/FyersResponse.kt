@@ -17,7 +17,7 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable(with = FyersSerializer::class)
 public data class FyersResponse<T>(
     val s: String?,
-    val code: Int,
+    val code: Int?,
     val message: String?,
     val result: T?,
 )
@@ -48,7 +48,7 @@ internal class FyersSerializer<T>(
 
         return FyersResponse(
             s = jsonObject["s"]?.jsonPrimitive?.content,
-            code = jsonObject["code"]?.jsonPrimitive?.intOrNull!!,
+            code = jsonObject["code"]?.jsonPrimitive?.intOrNull,
             message = jsonObject["message"]?.jsonPrimitive?.content,
             result = when {
                 resultMap.isEmpty() -> null
@@ -61,7 +61,10 @@ internal class FyersSerializer<T>(
     }
 }
 
-public fun FyersResponse<*>.getError(): FyersError = FyersError(FyersError.Type.fromCode(code), message.orEmpty())
+public fun FyersResponse<*>.getError(): FyersError {
+    checkNotNull(code) { "Fyers: No error code" }
+    return FyersError(FyersError.Type.fromCode(code), message.orEmpty())
+}
 
 public data class FyersError(
     public val type: Type,
