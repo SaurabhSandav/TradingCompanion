@@ -19,6 +19,7 @@ import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradeManagementJob
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
+import com.saurabhsandav.core.trading.data.migrations.migrationAfterV1
 import com.saurabhsandav.core.trading.toRecordSymbol
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
@@ -100,6 +101,7 @@ internal class AppModule(
     private val candleDBDriver: SqlDriver = JdbcSqliteDriver(
         url = "jdbc:sqlite:${appPaths.candlesDBPath.absolutePathString()}",
         properties = Properties().apply { put("foreign_keys", "true") },
+        callbacks = listOf(migrationAfterV1).toTypedArray(),
         schema = CandleDB.Schema,
     )
 

@@ -1,0 +1,51 @@
+-- Temporary table to migrate tickers to SymbolIds
+CREATE TABLE IdsAndTickers (
+symbolId TEXT NOT NULL UNIQUE,
+ticker TEXT NOT NULL,
+instrument TEXT NOT NULL
+);
+
+-- Use Trade table to populate IdsAndTickers with updated SymbolId, Ticker and updated Instrument values
+-- TradeExecution table will have all the same symbols so it is skipped
+INSERT OR REPLACE
+INTO IdsAndTickers(symbolId, ticker, instrument)
+SELECT DISTINCT
+"NSE:" || symbolId || IIF(symbolId = "NIFTY50", "-INDEX", "-EQ"),
+symbolId,
+IIF(symbolId = "NIFTY50", "index", "equity")
+FROM Trade;
+
+-- Use SizingTrade table to populate IdsAndTickers with updated SymbolId, Ticker and updated Instrument values
+INSERT OR REPLACE
+INTO IdsAndTickers(symbolId, ticker, instrument)
+SELECT DISTINCT
+"NSE:" || symbolId || IIF(symbolId = "NIFTY50", "-INDEX", "-EQ"),
+symbolId,
+IIF(symbolId = "NIFTY50", "index", "equity")
+FROM SizingTrade;
+
+-- Prepopulate Symbol table
+INSERT OR REPLACE
+INTO Symbol(id, brokerId, instrument, exchange, ticker, description)
+SELECT symbolId, "Finvasia", instrument, "NSE", ticker, NULL FROM IdsAndTickers;
+
+-- Update symbolId in Trade table
+UPDATE Trade
+SET symbolId = IdsAndTickers.symbolId
+FROM IdsAndTickers
+WHERE Trade.symbolId = IdsAndTickers.ticker;
+
+-- Update symbolId in TradeExecution table
+UPDATE TradeExecution
+SET symbolId = IdsAndTickers.symbolId
+FROM IdsAndTickers
+WHERE TradeExecution.symbolId = IdsAndTickers.ticker;
+
+-- Update symbolId in SizingTrade table
+UPDATE SizingTrade
+SET symbolId = IdsAndTickers.symbolId
+FROM IdsAndTickers
+WHERE SizingTrade.symbolId = IdsAndTickers.ticker;
+
+-- Drop temp table
+DROP TABLE IdsAndTickers;
