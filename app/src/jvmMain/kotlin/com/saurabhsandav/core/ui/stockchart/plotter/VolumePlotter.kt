@@ -40,7 +40,6 @@ class VolumePlotter(
 
         val series = chart.actualChart.addSeries(
             definition = SeriesDefinition.HistogramSeries,
-            id = key,
             options = options,
         )
 

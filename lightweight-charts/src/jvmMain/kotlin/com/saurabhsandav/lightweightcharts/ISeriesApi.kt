@@ -15,7 +15,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     private val definition: SeriesDefinition<D, O>,
     private val executeJs: (String) -> Unit,
     private val executeJsWithResult: suspend (String) -> String,
-    val id: String,
+    internal val id: String,
     seriesInstanceReference: String,
 ) {
 

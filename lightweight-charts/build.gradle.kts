@@ -33,6 +33,7 @@ kotlin {
             "kotlinx.coroutines.ExperimentalCoroutinesApi",
             "kotlinx.coroutines.FlowPreview",
             "kotlinx.serialization.ExperimentalSerializationApi",
+            "kotlin.uuid.ExperimentalUuidApi",
         )
     }
 

@@ -13,11 +13,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.uuid.Uuid
 
 class IChartApi internal constructor(
     container: String = "document.body",
     options: ChartOptions? = null,
-    val id: String = "chart",
+    val id: String = Uuid.random().toString(),
 ) {
 
     private val _scripts = Channel<String>(Channel.UNLIMITED)
@@ -89,13 +90,12 @@ class IChartApi internal constructor(
 
     fun <D : SeriesData, O : SeriesOptions> addSeries(
         definition: SeriesDefinition<D, O>,
-        id: String,
         options: O? = null,
         paneIndex: Int? = null,
     ): ISeriesApi<D, O> {
 
-        val seriesId = id
-        val series = ISeriesApi<D, O>(
+        val seriesId = Uuid.random().toString()
+        val series = ISeriesApi(
             definition = definition,
             executeJs = ::executeJs,
             executeJsWithResult = ::executeJsWithResult,

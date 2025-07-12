@@ -38,7 +38,6 @@ class CandlestickPlotter(
 
         return chart.actualChart.addSeries(
             definition = SeriesDefinition.CandlestickSeries,
-            id = key,
             options = options,
         )
     }

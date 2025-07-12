@@ -9,24 +9,25 @@ import com.saurabhsandav.lightweightcharts.options.LineStyleOptions
 import com.saurabhsandav.lightweightcharts.options.SeriesOptions
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.uuid.Uuid
 
 fun createChart(
     container: String = "document.body",
     options: ChartOptions? = null,
-    id: String = "chart",
+    id: String = Uuid.random().toString(),
 ): IChartApi = IChartApi(container, options, id)
 
 fun IChartApi.baselineSeries(options: BaselineStyleOptions? = null) =
-    SeriesProvider { name -> addSeries(SeriesDefinition.BaselineSeries, name, options) }
+    SeriesProvider { addSeries(SeriesDefinition.BaselineSeries, options) }
 
 fun IChartApi.candlestickSeries(options: CandlestickStyleOptions? = null) =
-    SeriesProvider { name -> addSeries(SeriesDefinition.CandlestickSeries, name, options) }
+    SeriesProvider { addSeries(SeriesDefinition.CandlestickSeries, options) }
 
 fun IChartApi.histogramSeries(options: HistogramStyleOptions? = null) =
-    SeriesProvider { name -> addSeries(SeriesDefinition.HistogramSeries, name, options) }
+    SeriesProvider { addSeries(SeriesDefinition.HistogramSeries, options) }
 
 fun IChartApi.lineSeries(options: LineStyleOptions? = null) =
-    SeriesProvider { name -> addSeries(SeriesDefinition.LineSeries, name, options) }
+    SeriesProvider { addSeries(SeriesDefinition.LineSeries, options) }
 
 class SeriesProvider<D : SeriesData, O : SeriesOptions>(
     private val seriesBuilder: (propertyName: String) -> ISeriesApi<D, O>,
