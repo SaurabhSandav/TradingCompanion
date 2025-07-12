@@ -25,10 +25,12 @@ class IChartApi internal constructor(
 
     private val chartInstanceReference = "charts.get(\"$id\")"
     private val seriesMapReference = "$chartInstanceReference.seriesMap"
+    private val panesMapReference = "$chartInstanceReference.panesMap"
     private val subscribeClickCallbackReference = "$chartInstanceReference.subscribeClickCallback"
     private val subscribeCrosshairMoveCallbackReference = "$chartInstanceReference.subscribeCrosshairMoveCallback"
 
     private val seriesList = mutableListOf<ISeriesApi<*, *>>()
+    internal val panesList = mutableListOf<IPaneApi>()
     private val callbacksDelegate = CallbackDelegate(id)
     private var nextCommandCallbackId = 0
 
@@ -55,6 +57,30 @@ class IChartApi internal constructor(
             |));
             """.trimMargin(),
         )
+
+        if (options?.addDefaultPane == null || options.addDefaultPane) {
+            createIPaneApi("$reference.panes[0]")
+            panesList.single().setPreserveEmptyPane(true)
+        }
+    }
+
+    private fun createIPaneApi(initializer: String): IPaneApi {
+
+        val paneId = Uuid.random().toString()
+
+        executeJs("$panesMapReference.set(\"$paneId\", $initializer);")
+
+        val pane = IPaneApi(
+            iChartApi = this,
+            executeJs = ::executeJs,
+            executeJsWithResult = ::executeJsWithResult,
+            id = paneId,
+            paneReference = "$panesMapReference.get(\"$paneId\")",
+        )
+
+        panesList += pane
+
+        return pane
     }
 
     fun remove() {
@@ -101,6 +127,8 @@ class IChartApi internal constructor(
             executeJsWithResult = ::executeJsWithResult,
             id = seriesId,
             seriesInstanceReference = "$seriesMapReference.get(\"$seriesId\")",
+            paneIndex = paneIndex ?: 0,
+            getPanesList = { panesList },
         )
 
         seriesList.add(series)
@@ -197,7 +225,15 @@ class IChartApi internal constructor(
         executeJs("$reference.clearCrosshairPosition();")
     }
 
+    fun addPane(): IPaneApi {
+        return createIPaneApi("$reference.addPane(true)")
+    }
+
+    fun panes(): List<IPaneApi> = panesList
+
     fun removePane(index: Int) {
+        val pane = panesList.removeAt(index)
+        executeJs("$panesMapReference.delete(\"${pane.id}\");")
         executeJs("$reference.removePane($index);")
     }
 
@@ -205,6 +241,15 @@ class IChartApi internal constructor(
         first: Int,
         second: Int,
     ) {
+
+        require(first !in 0..<panesList.size || second !in 0..<panesList.size) {
+            "Indexes must be within the list bounds."
+        }
+
+        val temp = panesList[first]
+        panesList[first] = panesList[second]
+        panesList[second] = temp
+
         executeJs("$reference.swapPanes($first, $second);")
     }
 

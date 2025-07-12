@@ -23,6 +23,7 @@ data class ChartOptions(
     val timeScale: TimeScaleOptions? = null,
     val crosshair: CrosshairOptions? = null,
     val grid: GridOptions? = null,
+    val addDefaultPane: Boolean? = null,
 ) {
 
     @Serializable

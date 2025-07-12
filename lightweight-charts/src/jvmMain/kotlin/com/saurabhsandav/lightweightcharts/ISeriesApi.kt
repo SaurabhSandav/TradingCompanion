@@ -17,9 +17,10 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     private val executeJsWithResult: suspend (String) -> String,
     internal val id: String,
     seriesInstanceReference: String,
+    private var paneIndex: Int,
+    private val getPanesList: () -> List<IPaneApi>,
 ) {
 
-    private val paneReference = "$seriesInstanceReference.pane"
     private val priceLineMapReference = "$seriesInstanceReference.priceLinesMap"
     private val primitivesMapReference = "$seriesInstanceReference.primitivesMap"
 
@@ -32,8 +33,6 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
 
     private var nextPriceLineId = 0
     private var nextPrimitiveId = 0
-
-    private val _pane by lazy { IPaneApi(executeJs, executeJsWithResult, paneReference) }
     private val primitivesMap = mutableMapOf<ISeriesPrimitive, Int>()
 
     suspend fun barsInLogicalRange(range: LogicalRange?): BarsInfo? {
@@ -132,14 +131,13 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
     }
 
     fun moveToPane(paneIndex: Int) {
+        require(paneIndex in 0..getPanesList().size) { "Invalid pane index" }
+        this.paneIndex = paneIndex
         executeJs("$reference.moveTo($paneIndex);")
     }
 
     fun getPane(): IPaneApi {
-
-        executeJs("$paneReference = $reference.getPane();")
-
-        return _pane
+        return getPanesList()[paneIndex]
     }
 
     suspend fun seriesOrder(): Int {

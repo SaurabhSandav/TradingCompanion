@@ -81,7 +81,7 @@ composeCompiler {
 }
 
 val downloadLWC by tasks.registering(Download::class) {
-    val version = "5.0.7"
+    val version = "5.0.8"
     val development = false
     val flavorStr = if (development) "development" else "production"
     src("https://unpkg.com/lightweight-charts@$version/dist/lightweight-charts.standalone.$flavorStr.js")
