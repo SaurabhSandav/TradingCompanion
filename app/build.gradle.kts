@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
+    alias(libs.plugins.metro)
 }
 
 group = "com.saurabhsandav.apps"
@@ -40,6 +41,7 @@ kotlin {
             "-Xcontext-parameters",
             "-Xconsistent-data-class-copy-visibility",
             "-Xwhen-guards",
+            "-Xannotation-default-target=param-property",
         )
 
         optIn.addAll(

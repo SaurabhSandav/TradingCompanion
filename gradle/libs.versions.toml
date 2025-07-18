@@ -39,6 +39,7 @@ eithernet = "2.0.0"
 coil = "3.3.0"
 zoomimage = "1.4.0"
 softwork-kotlinxSerialization-csv = "0.0.23"
+metro = "0.6.8"
 
 [plugins]
 # Gradle Versions Checker
@@ -58,6 +59,9 @@ sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 
 # BuildKonfig
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
+
+# Metro
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 
 [libraries]
 
