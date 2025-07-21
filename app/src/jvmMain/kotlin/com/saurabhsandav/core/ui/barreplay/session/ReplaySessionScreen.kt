@@ -7,7 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import com.saurabhsandav.core.ui.barreplay.BarReplayModule
+import com.saurabhsandav.core.ui.barreplay.BarReplayGraph
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.AdvanceReplay
 import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionEvent.AdvanceReplayByBar
@@ -22,14 +22,18 @@ import com.saurabhsandav.core.ui.barreplay.session.ui.ReplayOrdersTable
 
 @Composable
 internal fun ReplaySessionScreen(
-    barReplayModule: BarReplayModule,
+    barReplayGraph: BarReplayGraph,
     onOpenProfile: () -> Unit,
     onNewReplay: () -> Unit,
     replayParams: ReplayParams,
 ) {
 
     val scope = rememberCoroutineScope()
-    val presenter = remember { barReplayModule.replaySessionModule(scope, replayParams).presenter() }
+    val presenter = remember {
+        barReplayGraph.replaySessionGraphFactory
+            .create(scope, replayParams)
+            .presenterProvider()
+    }
     val state by presenter.state.collectAsState()
 
     Column {

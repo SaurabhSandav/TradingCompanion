@@ -9,10 +9,14 @@ import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+@SingleIn(ChartsGraph::class)
+@Inject
 internal class ChartsMarketDataProvider(
     private val markersProvider: ChartMarkersProvider,
     private val candleRepo: CandleRepository,

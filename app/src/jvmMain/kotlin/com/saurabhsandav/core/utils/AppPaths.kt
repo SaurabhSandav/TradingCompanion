@@ -1,5 +1,10 @@
 package com.saurabhsandav.core.utils
 
+import com.saurabhsandav.core.di.IsDebugMode
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.filesDir
 import io.github.vinceglb.filekit.path
@@ -27,15 +32,13 @@ interface AppPaths {
         get() = appDataPath.resolve("Candles.db")
 
     fun createTempDirectory(prefix: String): Path
-
-    companion object {
-
-        operator fun invoke(isDebugMode: Boolean): AppPaths = AppPathsImpl(isDebugMode)
-    }
 }
 
-private class AppPathsImpl(
-    isDebugMode: Boolean,
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+internal class RealAppPaths(
+    @IsDebugMode isDebugMode: Boolean,
 ) : AppPaths {
 
     override val appName = "TradingCompanion"

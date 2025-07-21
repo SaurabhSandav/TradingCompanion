@@ -14,6 +14,8 @@ import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
@@ -28,6 +30,8 @@ import java.math.BigDecimal
 import kotlin.random.Random
 import kotlin.uuid.Uuid
 
+@SingleIn(ReplaySessionGraph::class)
+@Inject
 internal class ReplayOrdersManager(
     private val coroutineScope: CoroutineScope,
     profileId: ProfileId?,

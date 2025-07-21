@@ -9,10 +9,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.WindowPlacement
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppCoroutineScope
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
@@ -21,9 +26,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@SingleIn(AppScope::class)
+@Inject
 class AppConfig(
-    private val scope: CoroutineScope,
-    private val appPrefs: FlowSettings,
+    @AppCoroutineScope private val scope: CoroutineScope,
+    @AppPrefs private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 

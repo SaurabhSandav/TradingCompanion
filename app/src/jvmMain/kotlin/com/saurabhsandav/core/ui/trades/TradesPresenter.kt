@@ -43,6 +43,10 @@ import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSort
 import com.saurabhsandav.trading.record.model.TradeTagId
 import com.saurabhsandav.trading.record.rValueAt
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -61,8 +65,9 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@AssistedInject
 internal class TradesPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -321,5 +326,11 @@ internal class TradesPresenter(
     ) = coroutineScope.launchUnit {
 
         tradingRecord.await().tags.add(tradeIds, tagId)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): TradesPresenter
     }
 }

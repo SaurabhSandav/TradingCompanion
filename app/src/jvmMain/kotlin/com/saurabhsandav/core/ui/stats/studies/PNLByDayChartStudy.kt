@@ -16,6 +16,7 @@ import com.saurabhsandav.core.ui.common.chart.state.ChartPageState
 import com.saurabhsandav.core.ui.common.chart.themedChartOptions
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.webview.WebViewState
+import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.lightweightcharts.baselineSeries
 import com.saurabhsandav.lightweightcharts.data.BaselineData
@@ -24,6 +25,9 @@ import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
 import com.saurabhsandav.trading.record.brokerageAtExit
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -142,6 +146,8 @@ internal class PNLByDayChartStudy(
         }
     }
 
+    @ContributesIntoSet(StatsGraph::class, binding<Study.Factory<out Study>>())
+    @Inject
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,

@@ -3,6 +3,7 @@ package com.saurabhsandav.core.backup
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.core.utils.ZipUtils
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -12,6 +13,7 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.time.Clock
 
+@Inject
 class BackupManager(
     private val appPaths: AppPaths,
     private val appDispatchers: AppDispatchers,

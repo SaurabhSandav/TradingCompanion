@@ -3,24 +3,28 @@ package com.saurabhsandav.core.ui.pnlcalculator
 import androidx.compose.runtime.mutableStateListOf
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.trading.AppBrokerProvider
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.Calculate
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCalculation
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
-import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.isLong
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 
+@AssistedInject
 internal class PNLCalculatorPresenter(
-    coroutineScope: CoroutineScope,
-    brokerProvider: BrokerProvider,
+    @Assisted coroutineScope: CoroutineScope,
+    brokerProvider: AppBrokerProvider,
 ) {
 
     private var maxId = 0
@@ -104,4 +108,10 @@ internal class PNLCalculatorPresenter(
         quantity = quantity,
         isLong = side.isLong,
     )
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): PNLCalculatorPresenter
+    }
 }

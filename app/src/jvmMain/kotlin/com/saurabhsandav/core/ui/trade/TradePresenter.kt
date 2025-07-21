@@ -58,6 +58,10 @@ import com.saurabhsandav.trading.record.model.TradeNoteId
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.TradeTagId
 import com.saurabhsandav.trading.record.rValueAt
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -83,10 +87,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@AssistedInject
 internal class TradePresenter(
     private val profileTradeId: ProfileTradeId,
-    private val onCloseRequest: () -> Unit,
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val onCloseRequest: () -> Unit,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
     private val excursionsGenerator: TradeExcursionsGenerator,
@@ -607,5 +612,14 @@ internal class TradePresenter(
         }
 
         return "${price.toPlainString()} | ${pnl.toPlainString()}$rStr"
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            onCloseRequest: () -> Unit,
+            coroutineScope: CoroutineScope,
+        ): TradePresenter
     }
 }

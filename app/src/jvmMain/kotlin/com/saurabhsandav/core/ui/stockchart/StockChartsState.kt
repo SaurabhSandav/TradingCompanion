@@ -375,6 +375,16 @@ class StockChartsState(
 
         return stockChart
     }
+
+    fun interface Factory {
+
+        operator fun invoke(
+            coroutineScope: CoroutineScope,
+            initialParams: StockChartParams,
+            loadConfig: LoadConfig,
+            marketDataProvider: MarketDataProvider,
+        ): StockChartsState
+    }
 }
 
 @JvmInline

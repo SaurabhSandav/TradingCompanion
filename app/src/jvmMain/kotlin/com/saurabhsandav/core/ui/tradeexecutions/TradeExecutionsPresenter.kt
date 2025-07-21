@@ -27,6 +27,9 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.record.TradeExecutionDisplay
 import com.saurabhsandav.trading.record.model.TradeExecutionId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -39,8 +42,9 @@ import kotlinx.datetime.toLocalDateTime
 import java.util.Locale
 import kotlin.time.Clock
 
+@AssistedInject
 internal class TradeExecutionsPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -174,5 +178,11 @@ internal class TradeExecutionsPresenter(
     private fun onDeleteExecutions(ids: List<TradeExecutionId>) = coroutineScope.launchUnit {
 
         executions.await().delete(ids)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): TradeExecutionsPresenter
     }
 }

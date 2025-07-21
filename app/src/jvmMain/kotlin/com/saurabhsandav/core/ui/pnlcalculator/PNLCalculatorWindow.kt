@@ -30,7 +30,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
@@ -55,8 +55,9 @@ import com.saurabhsandav.core.ui.theme.dimens
 internal fun PNLCalculatorWindow(onCloseRequest: () -> Unit) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.pnlCalculatorModule(scope).presenter() }
+    val appGraph = LocalAppGraph.current
+    val graph = remember { appGraph.pnlCalculatorGraphFactory.create() }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(

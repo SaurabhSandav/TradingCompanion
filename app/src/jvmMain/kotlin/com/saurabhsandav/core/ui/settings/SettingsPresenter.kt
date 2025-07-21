@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDarkModeEnabled
@@ -17,12 +18,16 @@ import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.core.Timeframe
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 
+@AssistedInject
 internal class SettingsPresenter(
-    private val coroutineScope: CoroutineScope,
-    private val appPrefs: FlowSettings,
+    @Assisted private val coroutineScope: CoroutineScope,
+    @AppPrefs private val appPrefs: FlowSettings,
 ) {
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
@@ -78,5 +83,11 @@ internal class SettingsPresenter(
 
     private fun onDefaultTimeframeChange(defaultTimeframe: Timeframe) = coroutineScope.launchUnit {
         appPrefs.putString(PrefKeys.DefaultTimeframe, defaultTimeframe.name)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): SettingsPresenter
     }
 }

@@ -13,11 +13,15 @@ import com.saurabhsandav.core.ui.tags.selector.TagSelectorType.ForTrades
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeTagId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.flatMapLatest
 
+@AssistedInject
 internal class TagSelectorState(
-    profileId: ProfileId,
-    private val type: TagSelectorType,
+    @Assisted profileId: ProfileId,
+    @Assisted private val type: TagSelectorType,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -41,6 +45,15 @@ internal class TagSelectorState(
                 color = tag.color?.let(::Color),
             )
         }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            profileId: ProfileId,
+            type: TagSelectorType,
+        ): TagSelectorState
+    }
 }
 
 sealed class TagSelectorType {
@@ -52,14 +65,4 @@ sealed class TagSelectorType {
     data class ForTrades(
         val ids: List<TradeId>,
     ) : TagSelectorType()
-}
-
-internal class TagSelectorStateFactory(
-    private val tradingProfiles: TradingProfiles,
-) {
-
-    fun build(
-        profileId: ProfileId,
-        type: TagSelectorType,
-    ) = TagSelectorState(profileId, type, tradingProfiles)
 }

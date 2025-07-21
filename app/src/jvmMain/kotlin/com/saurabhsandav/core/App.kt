@@ -12,8 +12,7 @@ import app.cash.molecule.SnapshotNotifier
 import co.touchlab.kermit.Logger
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
-import com.saurabhsandav.core.di.AppModule
-import com.saurabhsandav.core.di.ScreensModule
+import com.saurabhsandav.core.di.AppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.barreplay.BarReplayWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
@@ -24,6 +23,7 @@ import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -43,27 +43,27 @@ suspend fun runApp(isDebugMode: Boolean) {
 
     restoreScheduler.restoreAndRestartScope {
 
-        val appModule = AppModule(isDebugMode, restoreScheduler)
-        val appConfig = appModule.appConfig
+        val appGraph = createGraphFactory<AppGraph.Factory>().create(isDebugMode, restoreScheduler)
+        val appConfig = appGraph.appConfig
         val initialLandingProfileId = appConfig.getCurrentTradingProfile().id
+        // Initialize StartupManager here
+        val startupManager = appGraph.startupManager
 
         runApp(
-            onExit = { appModule.startupManager.destroy() },
-            appModule = appModule,
-            screensModule = appModule.screensModule,
+            onExit = { startupManager.destroy() },
+            appGraph = appGraph,
             appConfig = appConfig,
             restoreScheduler = restoreScheduler,
             initialLandingProfileId = initialLandingProfileId,
-            backupManager = appModule.backupManager,
-            tradeContentLauncher = appModule.tradeContentLauncher,
+            backupManager = appGraph.backupManager,
+            tradeContentLauncher = appGraph.tradeContentLauncher,
         )
     }
 }
 
 private fun runApp(
     onExit: () -> Unit,
-    appModule: AppModule,
-    screensModule: ScreensModule,
+    appGraph: AppGraph,
     appConfig: AppConfig,
     restoreScheduler: RestoreScheduler,
     initialLandingProfileId: ProfileId,
@@ -87,8 +87,7 @@ private fun runApp(
         CompositionLocalProvider(
             LocalAppConfig provides appConfig,
             LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-            LocalAppModule provides appModule,
-            LocalScreensModule provides screensModule,
+            LocalAppGraph provides appGraph,
         ) {
 
             App(
@@ -213,5 +212,4 @@ private fun setWM_CLASS() {
 
 internal val LocalAppConfig = staticCompositionLocalOf<AppConfig> { error("AppConfig is not provided") }
 
-internal val LocalAppModule = staticCompositionLocalOf<AppModule> { error("AppModule is not provided") }
-internal val LocalScreensModule = staticCompositionLocalOf<ScreensModule> { error("ScreensModule is not provided") }
+internal val LocalAppGraph = staticCompositionLocalOf<AppGraph> { error("AppGraph is not provided") }

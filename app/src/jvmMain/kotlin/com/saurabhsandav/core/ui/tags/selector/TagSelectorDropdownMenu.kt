@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
@@ -46,8 +46,8 @@ internal fun TagSelectorDropdownMenu(
         modifier = modifier,
     ) {
 
-        val screensModule = LocalScreensModule.current
-        val state = remember { screensModule.tagSelectorStateFactory().build(profileId, type()) }
+        val appGraph = LocalAppGraph.current
+        val state = remember { appGraph.tagSelectorStateFactory.create(profileId, type()) }
 
         val focusRequester = remember { FocusRequester() }
 

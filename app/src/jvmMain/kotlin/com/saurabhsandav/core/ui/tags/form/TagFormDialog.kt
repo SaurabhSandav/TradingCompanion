@@ -32,7 +32,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.ColorPickerDialog
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
@@ -53,8 +53,13 @@ fun TagFormDialog(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.tagFormModule(scope).presenter(onCloseRequest, profileId, formType) }
+    val appGraph = LocalAppGraph.current
+    val presenter = remember {
+        appGraph.tagFormGraphFactory
+            .create(profileId, formType)
+            .presenterFactory
+            .create(onCloseRequest, scope)
+    }
     val state by presenter.state.collectAsState()
 
     val formModel = state.formModel ?: return

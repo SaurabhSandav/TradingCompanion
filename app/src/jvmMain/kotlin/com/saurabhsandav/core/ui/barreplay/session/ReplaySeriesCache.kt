@@ -11,9 +11,13 @@ import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.MutableCandleSeries
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 
+@SingleIn(ReplaySessionGraph::class)
+@Inject
 internal class ReplaySeriesCache(
     private val replayParams: BarReplayState.ReplayParams,
     private val barReplay: BarReplay,

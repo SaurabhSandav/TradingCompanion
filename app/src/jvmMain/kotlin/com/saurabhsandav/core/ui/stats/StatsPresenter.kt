@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.stats
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.ProfileId
@@ -15,16 +16,20 @@ import com.saurabhsandav.core.ui.stats.studies.Study
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.trading.record.stats.TradingStats
 import com.saurabhsandav.trading.record.stats.buildStats
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
+@AssistedInject
 internal class StatsPresenter(
-    coroutineScope: CoroutineScope,
+    @Assisted coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradingProfiles: TradingProfiles,
-    private val studyFactories: List<Study.Factory<out Study>>,
+    private val studyFactories: Set<Study.Factory<out Study>>,
 ) {
 
     val studyWindowsManager = AppWindowsManager<Study.Factory<*>>()
@@ -33,7 +38,7 @@ internal class StatsPresenter(
 
         return@launchMolecule StatsState(
             statsCategories = getStatsCategories(),
-            studyFactories = studyFactories,
+            studyFactories = remember { studyFactories.toList() },
             studyWindowsManager = studyWindowsManager,
             eventSink = ::onEvent,
         )
@@ -152,5 +157,11 @@ internal class StatsPresenter(
                 append("$remainingSecondsLeft ${if (remainingSecondsLeft == 1L) "second" else "seconds"}")
             }
         }.trim()
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): StatsPresenter
     }
 }

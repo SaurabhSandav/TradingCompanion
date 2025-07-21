@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -26,9 +26,9 @@ internal fun LandingWindow(
     onOpenSettings: () -> Unit,
 ) {
 
-    val appModule = LocalAppModule.current
+    val appGraph = LocalAppGraph.current
     val profileName by remember {
-        appModule.tradingProfiles.getProfileOrNull(profileId).transform { profile ->
+        appGraph.tradingProfiles.getProfileOrNull(profileId).transform { profile ->
 
             if (profile == null) {
                 onCloseRequest()

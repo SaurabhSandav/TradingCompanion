@@ -5,9 +5,14 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import com.saurabhsandav.core.ui.loginservice.LoginService.Builder
 import com.saurabhsandav.core.ui.loginservice.LoginService.ResultHandle
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
+@SingleIn(AppScope::class)
+@Inject
 class LoginServicesManager {
 
     private val holdersMap = mutableStateMapOf<Any, ServiceHolder>()

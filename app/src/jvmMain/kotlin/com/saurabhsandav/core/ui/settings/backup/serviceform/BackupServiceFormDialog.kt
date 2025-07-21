@@ -8,20 +8,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.settings.backup.BackupSettingsGraph
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType.Edit
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType.New
 
 @Composable
 internal fun BackupServiceFormDialog(
+    backupSettingsGraph: BackupSettingsGraph,
     onDismissRequest: () -> Unit,
     formType: BackupServiceFormType,
-    presenter: BackupServiceFormPresenter,
 ) {
+
+    val scope = rememberCoroutineScope()
+    val presenter = remember {
+        backupSettingsGraph.backupServiceFormGraphFactory
+            .create(formType)
+            .presenterFactory
+            .create(onDismissRequest, scope)
+    }
 
     val serviceBuilder = presenter.serviceBuilder ?: return
     val formModel = serviceBuilder.formModel ?: return

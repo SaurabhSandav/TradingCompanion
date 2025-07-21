@@ -1,16 +1,22 @@
 package com.saurabhsandav.core
 
 import co.touchlab.kermit.Logger
+import com.saurabhsandav.core.di.AppCoroutineScope
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+@SingleIn(AppScope::class)
+@Inject
 class StartupManager(
-    private val appScope: CoroutineScope,
+    @AppCoroutineScope private val appScope: CoroutineScope,
     private val fileLogWriter: FileLogWriter,
     private val myCefApp: Lazy<MyCefApp>,
-    private val startupJobs: List<StartupJob>,
+    private val startupJobs: Set<StartupJob>,
 ) {
 
     init {

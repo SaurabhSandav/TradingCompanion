@@ -7,6 +7,8 @@ import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.SymbolId
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -15,6 +17,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlin.time.Instant
 
+@SingleIn(ChartsGraph::class)
+@Inject
 internal class ChartMarkersProvider(
     private val appDispatchers: AppDispatchers,
     private val tradingProfiles: TradingProfiles,

@@ -15,6 +15,7 @@ import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.charts.ChartsHandle
@@ -39,6 +40,9 @@ import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeSort
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -62,12 +66,13 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@AssistedInject
 internal class TradeReviewPresenter(
-    private val coroutineScope: CoroutineScope,
-    private val chartsHandle: ChartsHandle,
+    @Assisted private val coroutineScope: CoroutineScope,
+    @Assisted private val chartsHandle: ChartsHandle,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
-    appPrefs: FlowSettings,
+    @AppPrefs appPrefs: FlowSettings,
 ) {
 
     private val selectedProfileId = MutableStateFlow<ProfileId?>(null)
@@ -404,5 +409,14 @@ internal class TradeReviewPresenter(
 
     private fun onApplyFilter(newTradeFilter: TradeFilter) {
         tradeFilter.value = newTradeFilter
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            coroutineScope: CoroutineScope,
+            chartsHandle: ChartsHandle,
+        ): TradeReviewPresenter
     }
 }

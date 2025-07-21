@@ -17,6 +17,9 @@ import com.saurabhsandav.core.ui.profiles.model.ProfilesEvent.UpdateSelectedProf
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState
 import com.saurabhsandav.core.ui.profiles.model.ProfilesState.Profile
 import com.saurabhsandav.core.utils.launchUnit
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
@@ -27,14 +30,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
+@AssistedInject
 internal class ProfilesPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val appConfig: AppConfig,
     private val tradingProfiles: TradingProfiles,
-    private val customSelectionMode: Boolean,
-    private val trainingOnly: Boolean,
-    selectedProfileId: ProfileId? = null,
-    private val onProfileSelected: ((ProfileId?) -> Unit)? = null,
+    @Assisted("customSelectionMode") private val customSelectionMode: Boolean,
+    @Assisted("trainingOnly") private val trainingOnly: Boolean,
+    @Assisted selectedProfileId: ProfileId? = null,
+    @Assisted private val onProfileSelected: ((ProfileId?) -> Unit)? = null,
 ) {
 
     private val currentProfileId = MutableStateFlow(selectedProfileId)
@@ -124,11 +128,13 @@ internal class ProfilesPresenter(
         tradeCountOpen = profile.tradeCountOpen.takeIf { it > 0 },
     )
 
+    @AssistedFactory
     interface Factory {
 
-        fun build(
-            customSelectionMode: Boolean,
-            trainingOnly: Boolean,
+        fun create(
+            coroutineScope: CoroutineScope,
+            @Assisted("customSelectionMode") customSelectionMode: Boolean,
+            @Assisted("trainingOnly") trainingOnly: Boolean,
             selectedProfileId: ProfileId? = null,
             onProfileSelected: ((ProfileId?) -> Unit)? = null,
         ): ProfilesPresenter

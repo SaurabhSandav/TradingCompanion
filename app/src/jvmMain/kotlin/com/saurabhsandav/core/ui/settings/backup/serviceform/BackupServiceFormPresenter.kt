@@ -12,12 +12,16 @@ import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormTy
 import com.saurabhsandav.core.ui.settings.backup.serviceform.service.LocalBackupServiceBuilder
 import com.saurabhsandav.core.ui.settings.backup.serviceform.service.RcloneBackupServiceBuilder
 import com.saurabhsandav.core.utils.launchUnit
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlin.reflect.KClass
 
+@AssistedInject
 internal class BackupServiceFormPresenter(
-    private val onDismissRequest: () -> Unit,
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val onDismissRequest: () -> Unit,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val formType: BackupServiceFormType,
     private val backupServicesManager: BackupServicesManager,
 ) {
@@ -60,5 +64,14 @@ internal class BackupServiceFormPresenter(
         LocalBackupService::class -> LocalBackupServiceBuilder(type)
         RcloneBackupService::class -> RcloneBackupServiceBuilder(type)
         else -> error("BackupService of type ${serviceType.qualifiedName} not found")
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            onDismissRequest: () -> Unit,
+            coroutineScope: CoroutineScope,
+        ): BackupServiceFormPresenter
     }
 }

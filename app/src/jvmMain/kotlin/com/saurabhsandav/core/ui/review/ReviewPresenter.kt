@@ -24,6 +24,9 @@ import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.model.ReviewId
 import com.saurabhsandav.trading.record.model.TradeId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -39,8 +42,9 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@AssistedInject
 internal class ReviewPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileReviewId: ProfileReviewId,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -208,6 +212,12 @@ internal class ReviewPresenter(
                 tradeContentLauncher.openReview(profileReviewId)
             }
         }
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): ReviewPresenter
     }
 
     private companion object {

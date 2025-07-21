@@ -16,13 +16,17 @@ import com.saurabhsandav.core.ui.tags.screen.model.TagsScreenState
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.record.model.TradeTagId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
+@AssistedInject
 internal class TagsScreenPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradingProfiles: TradingProfiles,
 ) {
@@ -71,5 +75,11 @@ internal class TagsScreenPresenter(
     private fun onDeleteTag(id: TradeTagId) = coroutineScope.launchUnit {
 
         tags.await().delete(id)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): TagsScreenPresenter
     }
 }

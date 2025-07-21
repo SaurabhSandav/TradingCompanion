@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
@@ -41,9 +41,9 @@ import com.saurabhsandav.core.ui.settings.ui.TradingPreferences
 internal fun SettingsWindow(onCloseRequest: () -> Unit) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val settingsModule = remember { screensModule.settingsModule(scope) }
-    val presenter = remember { settingsModule.presenter() }
+    val appGraph = LocalAppGraph.current
+    val graph = remember { appGraph.settingsGraphFactory.create() }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state by presenter.state.collectAsState()
 
     AppWindow(
@@ -73,7 +73,7 @@ internal fun SettingsWindow(onCloseRequest: () -> Unit) {
             backupPane = {
 
                 BackupPreferencesPane(
-                    backupSettingsModule = settingsModule.backupSettingsModule,
+                    settingsGraph = graph,
                 )
             },
         )

@@ -10,6 +10,10 @@ import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
@@ -32,17 +36,10 @@ interface SymbolsProvider {
     ): Flow<CachedSymbol?>
 }
 
-fun SymbolsProvider(
-    appDB: AppDB,
-    appDispatchers: AppDispatchers,
-    brokerProvider: AppBrokerProvider,
-): SymbolsProvider = AppSymbolsProvider(
-    appDB = appDB,
-    appDispatchers = appDispatchers,
-    brokerProvider = brokerProvider,
-)
-
-private class AppSymbolsProvider(
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
+internal class AppSymbolsProvider(
     private val appDB: AppDB,
     private val appDispatchers: AppDispatchers,
     private val brokerProvider: AppBrokerProvider,

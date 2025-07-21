@@ -25,6 +25,10 @@ import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filter
@@ -37,9 +41,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
+@AssistedInject
 internal class TradeExecutionFormPresenter(
-    private val onCloseRequest: () -> Unit,
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val onCloseRequest: () -> Unit,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val formType: TradeExecutionFormType,
     private val tradingProfiles: TradingProfiles,
@@ -201,5 +206,14 @@ internal class TradeExecutionFormPresenter(
             price = execution.price.toPlainString(),
             timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
         )
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            onCloseRequest: () -> Unit,
+            coroutineScope: CoroutineScope,
+        ): TradeExecutionFormPresenter
     }
 }

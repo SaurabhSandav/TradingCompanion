@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
 import androidx.paging.PagingData
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.charts.ChartsHandle
 import com.saurabhsandav.core.ui.common.SideSheetHost
@@ -50,8 +50,13 @@ internal fun TradeReviewWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.tradeReviewModule(scope).presenter(chartsHandle) }
+    val appGraph = LocalAppGraph.current
+    val presenter = remember {
+        appGraph.tradeReviewGraphFactory
+            .create()
+            .presenterFactory
+            .create(scope, chartsHandle)
+    }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(state.eventSink) {

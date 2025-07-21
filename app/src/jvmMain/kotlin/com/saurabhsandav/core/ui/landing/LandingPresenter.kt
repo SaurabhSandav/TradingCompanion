@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
@@ -16,16 +17,20 @@ import com.saurabhsandav.core.ui.landing.model.LandingState
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+@AssistedInject
 internal class LandingPresenter(
-    coroutineScope: CoroutineScope,
+    @Assisted coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
-    private val appPrefs: FlowSettings,
+    @AppPrefs private val appPrefs: FlowSettings,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -72,5 +77,11 @@ internal class LandingPresenter(
 
     private fun onCurrentScreenChange(screen: LandingScreen) {
         currentScreen = screen
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): LandingPresenter
     }
 }

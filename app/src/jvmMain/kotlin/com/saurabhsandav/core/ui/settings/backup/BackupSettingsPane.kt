@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.settings.SettingsGraph
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.Backup
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.BackupToService
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsEvent.DeleteService
@@ -33,14 +34,13 @@ import com.saurabhsandav.core.ui.settings.backup.ui.NewServiceButton
 import com.saurabhsandav.core.ui.settings.backup.ui.RestoreButton
 import com.saurabhsandav.core.ui.settings.ui.Preference
 import com.saurabhsandav.core.ui.theme.dimens
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
-internal fun ColumnScope.BackupPreferencesPane(backupSettingsModule: (CoroutineScope) -> BackupSettingsModule) {
+internal fun ColumnScope.BackupPreferencesPane(settingsGraph: SettingsGraph) {
 
     val scope = rememberCoroutineScope()
-    val module = remember { backupSettingsModule(scope) }
-    val presenter = remember { module.presenter() }
+    val graph = remember { settingsGraph.backupSettingsGraphFactory.create() }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state by presenter.state.collectAsState()
 
     var serviceFormType by state<BackupServiceFormType?> { null }
@@ -58,13 +58,10 @@ internal fun ColumnScope.BackupPreferencesPane(backupSettingsModule: (CoroutineS
 
     serviceFormType?.let { formType ->
 
-        val onDismissRequest = { serviceFormType = null }
-        val presenter = remember { module.serviceFormPresenter(onDismissRequest, formType) }
-
         BackupServiceFormDialog(
-            onDismissRequest = onDismissRequest,
+            backupSettingsGraph = graph,
+            onDismissRequest = { serviceFormType = null },
             formType = formType,
-            presenter = presenter,
         )
     }
 }

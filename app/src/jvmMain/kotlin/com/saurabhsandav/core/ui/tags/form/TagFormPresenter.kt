@@ -17,16 +17,20 @@ import com.saurabhsandav.core.ui.tags.form.model.TagFormType.Edit
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType.New
 import com.saurabhsandav.core.ui.tags.form.model.TagFormType.NewFromExisting
 import com.saurabhsandav.core.utils.launchUnit
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@AssistedInject
 internal class TagFormPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     profileId: ProfileId,
     private val formType: TagFormType,
-    private val onCloseRequest: () -> Unit,
+    @Assisted private val onCloseRequest: () -> Unit,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -112,5 +116,14 @@ internal class TagFormPresenter(
 
     private suspend fun isTagNameUnique(name: String): Boolean {
         return tags.await().isNameUnique(name, (formType as? Edit)?.id)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            onCloseRequest: () -> Unit,
+            coroutineScope: CoroutineScope,
+        ): TagFormPresenter
     }
 }

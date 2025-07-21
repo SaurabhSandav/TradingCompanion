@@ -10,11 +10,15 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 
+@AssistedInject
 internal class AccountPresenter(
+    @Assisted coroutineScope: CoroutineScope,
     appDispatchers: AppDispatchers,
-    coroutineScope: CoroutineScope,
     appDB: AppDB,
 ) {
 
@@ -36,5 +40,11 @@ internal class AccountPresenter(
         }.collectAsState(emptyList())
 
         return@launchMolecule AccountState(transactions)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): AccountPresenter
     }
 }

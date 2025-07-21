@@ -32,6 +32,9 @@ import com.saurabhsandav.trading.record.SizingTrade
 import com.saurabhsandav.trading.record.model.Account
 import com.saurabhsandav.trading.record.model.SizingTradeId
 import com.saurabhsandav.trading.record.model.TradeSide
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -41,8 +44,9 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.uuid.Uuid
 
+@AssistedInject
 internal class SizingPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val account: Flow<Account>,
     private val tradingProfiles: TradingProfiles,
@@ -226,5 +230,11 @@ internal class SizingPresenter(
                 else -> Color.Transparent
             },
         )
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): SizingPresenter
     }
 }

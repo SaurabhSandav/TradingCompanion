@@ -4,7 +4,9 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.backup.service.LocalBackupService
 import com.saurabhsandav.core.backup.service.RcloneBackupService
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.utils.PrefKeys
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -15,8 +17,9 @@ import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
+@Inject
 class BackupServicesManager(
-    private val appPrefs: FlowSettings,
+    @AppPrefs private val appPrefs: FlowSettings,
     private val servicesSerializersModule: SerializersModule = EmptySerializersModule(),
 ) {
 

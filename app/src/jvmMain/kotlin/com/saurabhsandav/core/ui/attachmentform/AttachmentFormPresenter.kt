@@ -15,6 +15,9 @@ import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.New
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.record.model.AttachmentFileId
 import com.saurabhsandav.trading.record.model.TradeId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filter
@@ -23,9 +26,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlin.io.path.absolutePathString
 
+@AssistedInject
 internal class AttachmentFormPresenter(
-    private val onCloseRequest: () -> Unit,
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val onCloseRequest: () -> Unit,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val formType: AttachmentFormType,
     private val tradingProfiles: TradingProfiles,
@@ -99,5 +103,14 @@ internal class AttachmentFormPresenter(
             description = attachment.description,
             path = attachment.path.absolutePathString(),
         )
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            onCloseRequest: () -> Unit,
+            coroutineScope: CoroutineScope,
+        ): AttachmentFormPresenter
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.UriHandler
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.MarkTrades
 import com.saurabhsandav.core.ui.charts.model.ChartsEvent.OpenChart
@@ -28,6 +29,9 @@ import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -36,13 +40,14 @@ import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+@AssistedInject
 internal class ChartsPresenter(
+    @Assisted private val coroutineScope: CoroutineScope,
     private val appDispatchers: AppDispatchers,
-    private val coroutineScope: CoroutineScope,
     private val uiMessagesState: UIMessagesState,
     stockChartsStateFactory: StockChartsStateFactory,
     private val markersProvider: ChartMarkersProvider,
-    private val appPrefs: FlowSettings,
+    @AppPrefs private val appPrefs: FlowSettings,
     private val uriHandler: UriHandler,
     private val loginServicesManager: LoginServicesManager,
     private val fyersApi: FyersApi,
@@ -55,7 +60,8 @@ internal class ChartsPresenter(
             .map(Timeframe::valueOf)
             .first()
 
-        stockChartsStateFactory(
+        stockChartsStateFactory.create(
+            coroutineScope = coroutineScope,
             initialParams = StockChartParams(FinvasiaBroker.SymbolIds.NIFTY, defaultTimeframe),
             loadConfig = LoadConfig(initialLoadBefore = { Clock.System.now() }),
         )
@@ -151,5 +157,11 @@ internal class ChartsPresenter(
                 ),
             )
         }
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): ChartsPresenter
     }
 }

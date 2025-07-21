@@ -25,7 +25,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormModel
 import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType
@@ -54,9 +54,12 @@ internal fun AttachmentFormWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        screensModule.attachmentFormModule(scope).presenter(onCloseRequest, profileId, formType)
+        appGraph.attachmentFormGraphFactory
+            .create(profileId, formType)
+            .presenterFactory
+            .create(onCloseRequest, scope)
     }
     val state by presenter.state.collectAsState()
 

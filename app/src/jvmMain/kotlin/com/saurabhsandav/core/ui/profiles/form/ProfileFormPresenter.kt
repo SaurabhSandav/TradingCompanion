@@ -7,17 +7,21 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.TradingProfiles
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@AssistedInject
 internal class ProfileFormPresenter(
-    private val coroutineScope: CoroutineScope,
-    private val onCloseRequest: () -> Unit,
+    @Assisted private val coroutineScope: CoroutineScope,
+    @Assisted private val onCloseRequest: () -> Unit,
     private val formType: ProfileFormType,
-    private val trainingOnly: Boolean,
+    @Assisted private val trainingOnly: Boolean,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -119,5 +123,15 @@ internal class ProfileFormPresenter(
 
     private suspend fun isProfileNameUnique(name: String): Boolean {
         return tradingProfiles.isProfileNameUnique(name, (formType as? ProfileFormType.Edit)?.id)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            coroutineScope: CoroutineScope,
+            onCloseRequest: () -> Unit,
+            trainingOnly: Boolean,
+        ): ProfileFormPresenter
     }
 }

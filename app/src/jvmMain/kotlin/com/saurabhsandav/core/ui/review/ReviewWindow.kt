@@ -16,7 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.state
@@ -40,9 +40,9 @@ internal fun ReviewWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val reviewModule = remember { screensModule.reviewModule(scope, profileReviewId) }
-    val presenter = remember { reviewModule.presenter() }
+    val appGraph = LocalAppGraph.current
+    val graph = remember { appGraph.reviewGraphFactory.create(profileReviewId) }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state = presenter.state.collectAsState().value ?: return
 
     var showCloseConfirmationDialog by state { false }

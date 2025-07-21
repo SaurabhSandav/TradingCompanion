@@ -17,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
@@ -39,12 +39,16 @@ internal fun ProfilesWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        screensModule.profilesModule(scope).presenterFactory.build(
-            customSelectionMode = false,
-            trainingOnly = false,
-        )
+        appGraph.profilesGraphFactory
+            .create()
+            .presenterFactory
+            .create(
+                coroutineScope = scope,
+                customSelectionMode = false,
+                trainingOnly = false,
+            )
     }
     val state by presenter.state.collectAsState()
 
@@ -72,17 +76,21 @@ fun ProfileSelectorDialog(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        screensModule.profilesModule(scope).presenterFactory.build(
-            customSelectionMode = true,
-            trainingOnly = trainingOnly,
-            selectedProfileId = selectedProfileId,
-            onProfileSelected = { id ->
-                onProfileSelected(id)
-                onDismissRequest()
-            },
-        )
+        appGraph.profilesGraphFactory
+            .create()
+            .presenterFactory
+            .create(
+                coroutineScope = scope,
+                customSelectionMode = true,
+                trainingOnly = trainingOnly,
+                selectedProfileId = selectedProfileId,
+                onProfileSelected = { id ->
+                    onProfileSelected(id)
+                    onDismissRequest()
+                },
+            )
     }
     val state by presenter.state.collectAsState()
 
@@ -116,17 +124,21 @@ fun ProfileSelectorField(
     var showSelectorDialog by state { false }
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        screensModule.profilesModule(scope).presenterFactory.build(
-            customSelectionMode = true,
-            trainingOnly = trainingOnly,
-            selectedProfileId = selectedProfileId,
-            onProfileSelected = { id ->
-                onProfileSelected(id)
-                showSelectorDialog = false
-            },
-        )
+        appGraph.profilesGraphFactory
+            .create()
+            .presenterFactory
+            .create(
+                coroutineScope = scope,
+                customSelectionMode = true,
+                trainingOnly = trainingOnly,
+                selectedProfileId = selectedProfileId,
+                onProfileSelected = { id ->
+                    onProfileSelected(id)
+                    showSelectorDialog = false
+                },
+            )
     }
     val state by presenter.state.collectAsState()
 

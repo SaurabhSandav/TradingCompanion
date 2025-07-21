@@ -2,8 +2,12 @@ package com.saurabhsandav.core
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
+import com.saurabhsandav.core.di.AppCoroutineScope
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,9 +20,11 @@ import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
 import kotlin.time.Clock
 
+@SingleIn(AppScope::class)
+@Inject
 class FileLogWriter(
     appDispatchers: AppDispatchers,
-    coroutineScope: CoroutineScope,
+    @AppCoroutineScope coroutineScope: CoroutineScope,
     private val appPaths: AppPaths,
 ) : LogWriter() {
 

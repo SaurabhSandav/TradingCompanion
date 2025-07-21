@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
@@ -30,9 +30,9 @@ internal fun LandingScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val landingModule = remember { screensModule.landingModule(scope, profileId) }
-    val presenter = remember { landingModule.presenter() }
+    val appGraph = LocalAppGraph.current
+    val graph = remember { appGraph.landingGraphFactory.create(scope, profileId) }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state by presenter.state.collectAsState()
 
     val currentScreen = state.currentScreen
@@ -40,10 +40,10 @@ internal fun LandingScreen(
     if (currentScreen != null) {
 
         LandingScreen(
-            switcherItems = landingModule.switcherItems,
+            switcherItems = remember { graph.switcherItems },
             currentScreen = currentScreen,
             onCurrentScreenChange = { state.eventSink(LandingEvent.ChangeCurrentScreen(it)) },
-            tradeContentLauncher = landingModule.tradeContentLauncher,
+            tradeContentLauncher = graph.tradeContentLauncher,
             openTradesCount = state.openTradesCount,
             onOpenProfiles = onOpenProfiles,
             onOpenPnlCalculator = onOpenPnlCalculator,

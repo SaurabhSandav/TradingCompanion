@@ -16,6 +16,8 @@ import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
@@ -25,6 +27,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
+@SingleIn(ReplaySessionGraph::class)
+@Inject
 internal class ReplayChartsMarketDataProvider(
     private val appDispatchers: AppDispatchers,
     private val profileId: ProfileId?,

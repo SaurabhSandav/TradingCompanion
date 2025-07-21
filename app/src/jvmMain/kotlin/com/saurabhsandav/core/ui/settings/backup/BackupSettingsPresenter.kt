@@ -23,13 +23,17 @@ import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Progr
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ServiceType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 
+@AssistedInject
 internal class BackupSettingsPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val backupManager: BackupManager,
     private val restoreScheduler: RestoreScheduler,
     private val backupServicesManager: BackupServicesManager,
@@ -113,6 +117,12 @@ internal class BackupSettingsPresenter(
             },
             onSaveArchive = onSaveArchive,
         )
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): BackupSettingsPresenter
     }
 }
 

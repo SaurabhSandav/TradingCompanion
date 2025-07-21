@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.showAsSnackbarsIn
 import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
 import com.saurabhsandav.core.ui.stockchart.StockCharts
@@ -24,24 +24,20 @@ internal fun ChartsScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-
-    val module = remember { screensModule.chartsModule(scope) }
-    val presenter = remember { module.presenter() }
+    val appGraph = LocalAppGraph.current
+    val graph = remember { appGraph.chartsGraphFactory.create() }
+    val presenter = remember { graph.presenterFactory.create(scope) }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(state.eventSink) {
         chartsHandle.eventsFlow.collect(state.eventSink)
     }
 
-    val chartsState = state.chartsState
-
-    if (chartsState == null) return
-
+    val chartsState = state.chartsState ?: return
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(snackbarHostState) {
-        module.uiMessagesState.showAsSnackbarsIn(snackbarHostState)
+        graph.uiMessagesState.showAsSnackbarsIn(snackbarHostState)
     }
 
     StockCharts(
@@ -62,7 +58,7 @@ internal fun ChartsScreen(
                 )
 
                 // Login dialogs
-                module.loginServicesManager.Dialogs()
+                graph.loginServicesManager.Dialogs()
             }
         },
     )

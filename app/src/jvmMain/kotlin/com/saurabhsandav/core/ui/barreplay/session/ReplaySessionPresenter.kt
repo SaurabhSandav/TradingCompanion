@@ -37,6 +37,7 @@ import com.saurabhsandav.trading.backtest.StopLimit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.TrailingStop
 import com.saurabhsandav.trading.barreplay.BarReplay
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -56,6 +57,7 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
+@Inject
 internal class ReplaySessionPresenter(
     private val coroutineScope: CoroutineScope,
     private val replayParams: ReplayParams,
@@ -67,6 +69,7 @@ internal class ReplaySessionPresenter(
 
     private var autoNextJob by mutableStateOf<Job?>(null)
     private val chartsState = stockChartsStateFactory(
+        coroutineScope = coroutineScope,
         initialParams = StockChartParams(replayParams.initialSymbolId, replayParams.baseTimeframe),
         loadConfig = LoadConfig(initialLoadBefore = { replayParams.replayFrom }),
     )

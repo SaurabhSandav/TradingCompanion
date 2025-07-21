@@ -41,17 +41,21 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeTagId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
+@AssistedInject
 internal class TradesFilterPresenter(
-    coroutineScope: CoroutineScope,
+    @Assisted coroutineScope: CoroutineScope,
     profileId: ProfileId,
-    initialFilterConfig: FilterConfig,
-    private val onFilterChange: (FilterConfig) -> Unit,
+    @Assisted initialFilterConfig: FilterConfig,
+    @Assisted private val onFilterChange: (FilterConfig) -> Unit,
     private val tradingProfiles: TradingProfiles,
 ) {
 
@@ -186,5 +190,15 @@ internal class TradesFilterPresenter(
 
     private fun onApplyFilter() {
         onFilterChange(filterConfig)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            coroutineScope: CoroutineScope,
+            initialFilterConfig: FilterConfig,
+            onFilterChange: (FilterConfig) -> Unit,
+        ): TradesFilterPresenter
     }
 }

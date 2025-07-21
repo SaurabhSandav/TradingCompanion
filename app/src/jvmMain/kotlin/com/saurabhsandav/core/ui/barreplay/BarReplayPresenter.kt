@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.di.AppPrefs
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.NewReplay
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayEvent.SubmitReplayForm
@@ -19,6 +20,9 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -30,9 +34,10 @@ import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
+@AssistedInject
 internal class BarReplayPresenter(
-    private val coroutineScope: CoroutineScope,
-    private val appPrefs: FlowSettings,
+    @Assisted private val coroutineScope: CoroutineScope,
+    @AppPrefs private val appPrefs: FlowSettings,
 ) {
 
     private var replayState by mutableStateOf<ReplayState?>(null)
@@ -124,5 +129,11 @@ internal class BarReplayPresenter(
                 profileId = replayParams.profileId,
             )
         }
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): BarReplayPresenter
     }
 }

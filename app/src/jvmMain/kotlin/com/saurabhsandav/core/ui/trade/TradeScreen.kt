@@ -17,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
@@ -57,8 +57,13 @@ internal fun TradeWindow(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.tradeModule(scope).presenter(profileTradeId, onCloseRequest) }
+    val appGraph = LocalAppGraph.current
+    val presenter = remember {
+        appGraph.tradeGraphFactory
+            .create(profileTradeId)
+            .presenterFactory
+            .create(onCloseRequest, scope)
+    }
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(

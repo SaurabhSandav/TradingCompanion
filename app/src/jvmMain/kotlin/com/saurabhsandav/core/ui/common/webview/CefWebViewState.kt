@@ -19,6 +19,9 @@ import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.libs.jcefcompose.ComposeCefOSRBrowser
 import com.saurabhsandav.libs.jcefcompose.WebView
 import com.saurabhsandav.libs.jcefcompose.createComposeOffScreenBrowser
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
@@ -181,6 +184,8 @@ class CefWebViewState(
     }
 }
 
+@SingleIn(AppScope::class)
+@Inject
 class MyCefApp(
     private val appPaths: AppPaths,
 ) {

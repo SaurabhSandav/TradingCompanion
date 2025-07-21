@@ -22,7 +22,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
@@ -43,13 +43,12 @@ fun SymbolSelectionDialog(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        SymbolSelectionPresenter(
-            coroutineScope = scope,
-            initialFilterQuery = initialFilterQuery,
-            symbolsProvider = appModule.symbolsProvider,
-        )
+        appGraph.symbolSelectionGraphFactory
+            .create()
+            .presenterFactory
+            .create(scope, initialFilterQuery)
     }
     val state by presenter.state.collectAsState()
 

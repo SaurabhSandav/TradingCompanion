@@ -24,14 +24,18 @@ import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.trading.record.Review
 import com.saurabhsandav.trading.record.model.ReviewId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
+@AssistedInject
 internal class ReviewsPresenter(
-    private val coroutineScope: CoroutineScope,
+    @Assisted private val coroutineScope: CoroutineScope,
     private val profileId: ProfileId,
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
@@ -147,5 +151,11 @@ internal class ReviewsPresenter(
     private fun onDeleteReview(id: ReviewId) = coroutineScope.launchUnit {
 
         reviews.await().delete(id)
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): ReviewsPresenter
     }
 }

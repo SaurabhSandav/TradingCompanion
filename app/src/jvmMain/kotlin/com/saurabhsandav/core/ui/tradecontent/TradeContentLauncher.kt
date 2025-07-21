@@ -11,7 +11,12 @@ import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradereview.TradeReviewHandle
 import com.saurabhsandav.core.ui.tradereview.TradeReviewWindow
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
+@SingleIn(AppScope::class)
+@Inject
 internal class TradeContentLauncher {
 
     private val executionFormWindowsManager = AppWindowsManager<TradeExecutionFormWindowParams>()

@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.LocalAppModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
@@ -28,14 +28,16 @@ fun SymbolSelectionField(
 ) {
 
     val scope = rememberCoroutineScope()
-    val appModule = LocalAppModule.current
+    val appGraph = LocalAppGraph.current
     val presenter = remember {
-        SymbolSelectionPresenter(
-            coroutineScope = scope,
-            initialSelectedSymbolId = selected,
-            initialFilterQuery = "",
-            symbolsProvider = appModule.symbolsProvider,
-        )
+        appGraph.symbolSelectionGraphFactory
+            .create()
+            .presenterFactory
+            .create(
+                coroutineScope = scope,
+                initialFilterQuery = "",
+                initialSelectedSymbolId = selected,
+            )
     }
     val state by presenter.state.collectAsState()
 

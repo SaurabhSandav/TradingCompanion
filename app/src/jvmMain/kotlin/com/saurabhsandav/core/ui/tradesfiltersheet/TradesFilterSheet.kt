@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.SideSheet
 import com.saurabhsandav.core.ui.tags.model.TradeTag
@@ -68,8 +68,13 @@ internal fun TradesFilterSheet(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.tradesFilterModule(scope, profileId).presenter(filter, onFilterChange) }
+    val appGraph = LocalAppGraph.current
+    val presenter = remember {
+        appGraph.tradesFilterGraphFactory
+            .create(profileId)
+            .presenterFactory
+            .create(scope, filter, onFilterChange)
+    }
     val state by presenter.state.collectAsState()
 
     LaunchedEffect(filter) {

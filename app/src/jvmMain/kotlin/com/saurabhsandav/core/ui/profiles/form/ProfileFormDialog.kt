@@ -19,7 +19,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
-import com.saurabhsandav.core.LocalScreensModule
+import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
@@ -34,8 +34,13 @@ internal fun ProfileFormDialog(
 ) {
 
     val scope = rememberCoroutineScope()
-    val screensModule = LocalScreensModule.current
-    val presenter = remember { screensModule.profileFormModule(scope).presenter(onCloseRequest, type, trainingOnly) }
+    val appGraph = LocalAppGraph.current
+    val presenter = remember {
+        appGraph.profileFormGraphFactory
+            .create(type)
+            .presenterFactory
+            .create(scope, onCloseRequest, trainingOnly)
+    }
     val state by presenter.state.collectAsState()
 
     val dialogState = rememberDialogState(size = DpSize(width = FormDefaults.PreferredWidth, height = 300.dp))
