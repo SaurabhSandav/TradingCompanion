@@ -25,7 +25,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.uuid.Uuid
 
-internal class TradingProfiles(
+class TradingProfiles(
     private val coroutineContext: CoroutineContext,
     private val appPaths: AppPaths,
     private val appDB: AppDB,

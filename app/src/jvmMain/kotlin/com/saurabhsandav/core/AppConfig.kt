@@ -9,9 +9,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.WindowPlacement
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -19,6 +24,7 @@ import kotlinx.coroutines.launch
 class AppConfig(
     private val scope: CoroutineScope,
     private val appPrefs: FlowSettings,
+    private val tradingProfiles: TradingProfiles,
 ) {
 
     var densityFraction by mutableStateOf(PrefDefaults.DensityFraction)
@@ -56,6 +62,40 @@ class AppConfig(
         appPrefs.getStringOrNullFlow(PrefKeys.WindowPlacement)
             .onEach { windowPlacement = it?.let { WindowPlacement.valueOf(it) } }
             .launchIn(scope)
+    }
+
+    val currentTradingProfileFlow = appPrefs.getLongOrNullFlow(PrefKeys.CurrentTradingProfile)
+        .flatMapLatest { profileId ->
+
+            if (profileId == null) {
+
+                // Current profile not set. Set default profile as current.
+                setCurrentTradingProfileId(tradingProfiles.getDefaultProfile().first().id)
+
+                // Return empty flow. New emission from prefs will follow.
+                return@flatMapLatest emptyFlow()
+            }
+
+            val id = ProfileId(profileId)
+
+            val profileExists = tradingProfiles.exists(id)
+
+            if (!profileExists) {
+
+                // Profile doesn't exist. Set default profile as current.
+                setCurrentTradingProfileId(tradingProfiles.allProfiles.first().first().id)
+
+                // Return empty flow. New emission from prefs will follow.
+                return@flatMapLatest emptyFlow()
+            }
+
+            tradingProfiles.getProfile(id)
+        }
+
+    suspend fun getCurrentTradingProfile(): TradingProfile = currentTradingProfileFlow.first()
+
+    suspend fun setCurrentTradingProfileId(id: ProfileId) {
+        appPrefs.putLong(PrefKeys.CurrentTradingProfile, id.value)
     }
 }
 

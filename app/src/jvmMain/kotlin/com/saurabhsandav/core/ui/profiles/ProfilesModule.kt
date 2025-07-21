@@ -18,7 +18,7 @@ internal class ProfilesModule(
             onProfileSelected: ((ProfileId?) -> Unit)?,
         ) = ProfilesPresenter(
             coroutineScope = coroutineScope,
-            appPrefs = appModule.appPrefs,
+            appConfig = appModule.appConfig,
             tradingProfiles = appModule.tradingProfiles,
             customSelectionMode = customSelectionMode,
             trainingOnly = trainingOnly,

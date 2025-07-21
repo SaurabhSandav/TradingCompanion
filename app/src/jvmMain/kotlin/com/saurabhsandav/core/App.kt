@@ -23,11 +23,9 @@ import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
-import com.saurabhsandav.core.utils.getCurrentTradingProfile
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.awt.Toolkit
 import kotlin.system.exitProcess
@@ -45,7 +43,8 @@ suspend fun runApp(isDebugMode: Boolean) {
     restoreScheduler.withRestoreScope {
 
         val appModule = AppModule(isDebugMode, restoreScheduler)
-        val initialLandingProfileId = appModule.appPrefs.getCurrentTradingProfile(appModule.tradingProfiles).first().id
+        val appConfig = appModule.appConfig
+        val initialLandingProfileId = appConfig.getCurrentTradingProfile().id
 
         application(exitProcessOnExit = false) {
 
@@ -78,7 +77,7 @@ suspend fun runApp(isDebugMode: Boolean) {
                 App(
                     onCloseRequest = onExit,
                     initialLandingProfileId = initialLandingProfileId,
-                    isDarkModeEnabled = appModule.appConfig.isDarkModeEnabled,
+                    isDarkModeEnabled = appConfig.isDarkModeEnabled,
                 )
             }
         }

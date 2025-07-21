@@ -94,11 +94,6 @@ internal class AppModule(
         ),
     )
 
-    val appConfig = AppConfig(
-        scope = appScope,
-        appPrefs = appPrefs,
-    )
-
     private val chartPrefs by lazy {
 
         DataStoreSettings(
@@ -166,6 +161,12 @@ internal class AppModule(
         coroutineContext = appDispatchers.IO,
         tradingProfiles = tradingProfiles,
         candleRepo = candleRepo,
+    )
+
+    val appConfig = AppConfig(
+        scope = appScope,
+        appPrefs = appPrefs,
+        tradingProfiles = tradingProfiles,
     )
 
     val tradeContentLauncher = TradeContentLauncher()
