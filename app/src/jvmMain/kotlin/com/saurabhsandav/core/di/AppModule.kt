@@ -4,11 +4,11 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.emptyPreferences
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import co.touchlab.kermit.Logger
 import com.russhwolf.settings.datastore.DataStoreSettings
 import com.saurabhsandav.core.AppConfig
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.FileLogWriter
+import com.saurabhsandav.core.StartupManager
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.AppBrokerProvider
@@ -34,11 +34,9 @@ import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.model.Account
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
 import java.util.Properties
@@ -67,11 +65,6 @@ internal class AppModule(
     )
 
     val uriHandler = AppUriHandler()
-
-    init {
-
-        setupLogging()
-    }
 
     val account: Flow<Account> = flowOf(
         Account(
@@ -197,39 +190,14 @@ internal class AppModule(
 
     val screensModule = ScreensModule(this)
 
-    init {
-
-        runStartupJobs()
-    }
-
-    private fun setupLogging() {
-
-        // Set FileLogWriter as the only LogWriter
-        Logger.addLogWriter(fileLogWriter)
-
-        val globalExceptionHandler = Thread.UncaughtExceptionHandler { _, e ->
-            Logger.e(e) { "Unhandled exception caught!" }
-        }
-
-        Thread.setDefaultUncaughtExceptionHandler(globalExceptionHandler)
-    }
-
-    private fun runStartupJobs() {
-
-        val startupJobs = listOf(
+    val startupManager = StartupManager(
+        appScope = appScope,
+        fileLogWriter = fileLogWriter,
+        myCefApp = myCefApp,
+        startupJobs = listOf(
             TradeManagementJob(
                 excursionsGenerator = tradeExcursionsGenerator,
             ),
-        )
-
-        startupJobs.forEach { job ->
-            appScope.launch { job.run() }
-        }
-    }
-
-    fun destroy() {
-        fileLogWriter.destroy()
-        if (myCefApp.isInitialized()) myCefApp.value.dispose()
-        appScope.cancel()
-    }
+        ),
+    )
 }

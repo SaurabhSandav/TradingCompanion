@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.trading
 
-import com.saurabhsandav.core.utils.StartupJob
+import com.saurabhsandav.core.StartupJob
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.minutes
 

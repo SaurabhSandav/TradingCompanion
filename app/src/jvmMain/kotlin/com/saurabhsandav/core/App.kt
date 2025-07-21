@@ -51,7 +51,7 @@ suspend fun runApp(isDebugMode: Boolean) {
 
             val onExit = remember<() -> Unit> {
                 {
-                    appModule.destroy()
+                    appModule.startupManager.destroy()
                     exitApplication()
 
                     // App process doesn't exit if browser(charts) was initialized at any point.
