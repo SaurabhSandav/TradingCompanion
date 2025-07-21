@@ -24,7 +24,6 @@ import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions
 import com.saurabhsandav.lightweightcharts.options.ChartOptions.CrosshairOptions.CrosshairMode
 import com.saurabhsandav.lightweightcharts.options.TimeScaleOptions
 import com.saurabhsandav.trading.record.brokerageAtExit
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -38,7 +37,7 @@ import java.math.BigDecimal
 internal class PNLByDayChartStudy(
     profileId: ProfileId,
     tradingProfiles: TradingProfiles,
-    private val webViewStateProvider: (CoroutineScope) -> WebViewState,
+    private val webViewStateFactory: WebViewState.Factory,
 ) : Study {
 
     private val data = flow {
@@ -80,7 +79,7 @@ internal class PNLByDayChartStudy(
         val pageState = remember(coroutineScope) {
             ChartPageState(
                 coroutineScope = coroutineScope,
-                webViewState = webViewStateProvider(coroutineScope),
+                webViewState = webViewStateFactory.create(coroutineScope),
             )
         }
         val chart = remember {
@@ -146,11 +145,11 @@ internal class PNLByDayChartStudy(
     class Factory(
         private val profileId: ProfileId,
         private val tradingProfiles: TradingProfiles,
-        private val webViewStateProvider: (CoroutineScope) -> WebViewState,
+        private val webViewStateFactory: WebViewState.Factory,
     ) : Study.Factory<PNLByDayChartStudy> {
 
         override val name: String = "PNL By Day (Chart)"
 
-        override fun create() = PNLByDayChartStudy(profileId, tradingProfiles, webViewStateProvider)
+        override fun create() = PNLByDayChartStudy(profileId, tradingProfiles, webViewStateFactory)
     }
 }

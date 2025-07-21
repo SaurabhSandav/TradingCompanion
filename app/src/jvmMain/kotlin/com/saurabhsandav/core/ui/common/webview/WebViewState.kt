@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.webview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AwtColor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -46,5 +47,10 @@ interface WebViewState {
         val messages: Flow<String>
 
         suspend fun remove()
+    }
+
+    fun interface Factory {
+
+        fun create(coroutineScope: CoroutineScope): WebViewState
     }
 }

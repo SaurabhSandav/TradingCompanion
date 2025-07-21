@@ -20,6 +20,7 @@ import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.trading.toRecordSymbol
 import com.saurabhsandav.core.ui.common.webview.CefWebViewState
 import com.saurabhsandav.core.ui.common.webview.MyCefApp
+import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.loginservice.LoginServicesManager
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.StockChartsStateFactory
@@ -32,7 +33,6 @@ import com.saurabhsandav.trading.candledata.CandleCacheDB
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.model.Account
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -119,7 +119,7 @@ internal class AppModule(
 
     val myCefApp = lazy { MyCefApp(appPaths) }
 
-    val webViewStateProvider = { coroutineScope: CoroutineScope ->
+    val webViewStateFactory = WebViewState.Factory { coroutineScope ->
         CefWebViewState(coroutineScope, appDispatchers, myCefApp.value)
     }
 
@@ -190,7 +190,7 @@ internal class AppModule(
             marketDataProvider = marketDataProvider,
             appPrefs = appPrefs,
             chartPrefs = chartPrefs,
-            webViewStateProvider = webViewStateProvider,
+            webViewStateFactory = webViewStateFactory,
             loadConfig = loadConfig,
         )
     }

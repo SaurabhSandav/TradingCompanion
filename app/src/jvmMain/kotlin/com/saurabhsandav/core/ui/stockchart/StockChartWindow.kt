@@ -16,7 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 
 class StockChartWindow(
     parentScope: CoroutineScope,
-    webViewStateProvider: (CoroutineScope) -> WebViewState,
+    webViewStateFactory: WebViewState.Factory,
     private val getStockChart: (ChartId) -> StockChart,
     private val onCreateChart: (ChartPageState, ChartId?) -> ChartId,
     private val onChartSelected: (ChartId) -> Unit,
@@ -29,7 +29,7 @@ class StockChartWindow(
 
     val pageState = ChartPageState(
         coroutineScope = coroutineScope,
-        webViewState = webViewStateProvider(coroutineScope),
+        webViewState = webViewStateFactory.create(coroutineScope),
     )
     val chartIds = mutableStateListOf<ChartId>()
     var selectedChartId: ChartId? by mutableStateOf(null)

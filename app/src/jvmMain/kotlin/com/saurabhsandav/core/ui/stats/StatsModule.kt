@@ -35,7 +35,7 @@ internal class StatsModule(
                 PNLByDayChartStudy.Factory(
                     profileId = profileId,
                     tradingProfiles = appModule.tradingProfiles,
-                    webViewStateProvider = appModule.webViewStateProvider,
+                    webViewStateFactory = appModule.webViewStateFactory,
                 ),
                 PNLByMonthStudy.Factory(
                     profileId = profileId,
@@ -44,7 +44,7 @@ internal class StatsModule(
                 PNLByMonthChartStudy.Factory(
                     profileId = profileId,
                     tradingProfiles = appModule.tradingProfiles,
-                    webViewStateProvider = appModule.webViewStateProvider,
+                    webViewStateFactory = appModule.webViewStateFactory,
                 ),
                 PNLExcursionStudy.Factory(
                     profileId = profileId,

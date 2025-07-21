@@ -41,7 +41,7 @@ class StockChartsState(
     val marketDataProvider: MarketDataProvider,
     private val appPrefs: FlowSettings,
     private val chartPrefs: FlowSettings,
-    private val webViewStateProvider: (CoroutineScope) -> WebViewState,
+    private val webViewStateFactory: WebViewState.Factory,
 ) {
 
     private val coroutineScope = parentScope.newChildScope()
@@ -142,7 +142,7 @@ class StockChartsState(
 
         val window = StockChartWindow(
             parentScope = coroutineScope,
-            webViewStateProvider = webViewStateProvider,
+            webViewStateFactory = webViewStateFactory,
             getStockChart = ::getStockChart,
             onCreateChart = { pageState, selectedChartId ->
 
