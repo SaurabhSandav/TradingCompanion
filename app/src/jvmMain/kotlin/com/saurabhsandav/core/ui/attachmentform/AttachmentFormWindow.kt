@@ -40,9 +40,10 @@ import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.utils.openExternally
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.FileKitPlatformSettings
-import io.github.vinceglb.filekit.core.pickFile
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.path
 import java.io.File
 
 @Composable
@@ -69,12 +70,12 @@ internal fun AttachmentFormWindow(
         title = if (formType is Edit) "Edit Attachment" else "Add Attachment",
     ) {
 
-        val fileKitPlatformSettings = remember { FileKitPlatformSettings(parentWindow = window) }
+        val fileKitDialogSettings = remember { FileKitDialogSettings(parentWindow = window) }
 
         AttachmentForm(
             formType = formType,
             model = formModel,
-            fileKitPlatformSettings = fileKitPlatformSettings,
+            fileKitDialogSettings = fileKitDialogSettings,
             onSubmit = state.onSubmit,
         )
     }
@@ -84,7 +85,7 @@ internal fun AttachmentFormWindow(
 private fun AttachmentForm(
     formType: AttachmentFormType,
     model: AttachmentFormModel,
-    fileKitPlatformSettings: FileKitPlatformSettings,
+    fileKitDialogSettings: FileKitDialogSettings,
     onSubmit: () -> Unit,
 ) {
 
@@ -121,9 +122,9 @@ private fun AttachmentForm(
 
                 if (!showFilePicker) return@LaunchedEffect
 
-                model.path = FileKit.pickFile(
+                model.path = FileKit.openFilePicker(
                     title = "Select Attachment",
-                    platformSettings = fileKitPlatformSettings,
+                    dialogSettings = fileKitDialogSettings,
                 )?.path ?: model.path
 
                 showFilePicker = false

@@ -10,9 +10,11 @@ import com.saurabhsandav.core.ui.common.ConfirmationDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.Service
 import com.saurabhsandav.core.ui.settings.backup.model.BackupSettingsState.ServiceType
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.PickerType
-import io.github.vinceglb.filekit.core.pickFile
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.path
 
 @Composable
 internal fun BackupButton(onBackup: (toDirPath: String) -> Unit) {
@@ -28,7 +30,7 @@ internal fun BackupButton(onBackup: (toDirPath: String) -> Unit) {
 
         if (!showDirSelector) return@LaunchedEffect
 
-        val dir = FileKit.pickDirectory("Backup to")?.path
+        val dir = FileKit.openDirectoryPicker("Backup to")?.path
 
         if (dir != null) onBackup(dir)
 
@@ -51,8 +53,8 @@ internal fun RestoreButton(onRestore: (archivePath: String) -> Unit) {
 
         if (!showFileSelector) return@LaunchedEffect
 
-        file = FileKit.pickFile(
-            type = PickerType.File(listOf("zip")),
+        file = FileKit.openFilePicker(
+            type = FileKitType.File(listOf("zip")),
             title = "Restore from",
         )?.path
 

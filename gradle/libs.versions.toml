@@ -27,7 +27,7 @@ kermit = "2.0.8"
 kotlinResult = "2.0.3"
 appdirs = "1.4.0"
 buildKonfig = "0.17.1"
-filekit = "0.8.8"
+filekit = "0.10.0"
 clikt = "5.0.3"
 colorpickerCompose = "1.1.2"
 apacheCommons-compress = "1.28.0"
@@ -120,7 +120,7 @@ kotlinResult-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-resu
 appdirs = { module = "net.harawata:appdirs", version.ref = "appdirs" }
 
 # FileKit
-filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 
 # Clikt
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }

@@ -21,8 +21,10 @@ import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormTy
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType.Edit
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType.New
 import com.saurabhsandav.core.ui.settings.backup.serviceform.generateBackupServiceId
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.FileKitPlatformSettings
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
+import io.github.vinceglb.filekit.path
 
 class LocalBackupServiceBuilder(
     private val type: BackupServiceFormType,
@@ -55,9 +57,9 @@ class LocalBackupServiceBuilder(
 
             if (!showDirectoryPicker) return@LaunchedEffect
 
-            formModel.pathField.value = FileKit.pickDirectory(
+            formModel.pathField.value = FileKit.openDirectoryPicker(
                 title = "Select Attachment",
-                platformSettings = FileKitPlatformSettings(parentWindow = window.window),
+                dialogSettings = FileKitDialogSettings(parentWindow = window.window),
             )?.path ?: formModel.pathField.value
 
             showDirectoryPicker = false

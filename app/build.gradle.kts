@@ -124,7 +124,7 @@ kotlin {
             implementation(libs.kermit)
 
             // FileKit
-            implementation(libs.filekit.core)
+            implementation(libs.filekit.dialogs)
 
             // compose-richtext
             implementation(libs.composeRichtext.commonmark)
