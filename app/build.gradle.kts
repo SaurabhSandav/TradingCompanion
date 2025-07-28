@@ -117,13 +117,11 @@ kotlin {
             implementation(libs.kotlinResult)
             implementation(libs.kotlinResult.coroutines)
 
-            // AppDirs
-            implementation(libs.appdirs)
-
             // Kermit
             implementation(libs.kermit)
 
             // FileKit
+            implementation(libs.filekit.core)
             implementation(libs.filekit.dialogs)
 
             // compose-richtext

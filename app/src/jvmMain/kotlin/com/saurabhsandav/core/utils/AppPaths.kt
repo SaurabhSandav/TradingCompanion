@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.utils
 
-import net.harawata.appdirs.AppDirsFactory
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.filesDir
+import io.github.vinceglb.filekit.path
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -33,22 +35,17 @@ interface AppPaths {
 }
 
 private class AppPathsImpl(
-    private val isDebugMode: Boolean,
+    isDebugMode: Boolean,
 ) : AppPaths {
 
     override val appName = "TradingCompanion"
 
+    init {
+        FileKit.init(appId = if (isDebugMode) "$appName [Debug]" else appName)
+    }
+
     override val appDataPath: Path
-        get() {
-
-            val appName = if (isDebugMode) "$appName [Debug]" else appName
-
-            val pathStr = AppDirsFactory
-                .getInstance()
-                .getUserDataDir(appName, null, "SaurabhSandav")
-
-            return Path(pathStr).also { it.createDirectories() }
-        }
+        get() = Path(FileKit.filesDir.path).also { it.createDirectories() }
 
     override fun createTempDirectory(prefix: String): Path {
         return Files.createTempDirectory(prefix)

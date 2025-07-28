@@ -25,7 +25,6 @@ turbine = "1.2.1"
 multiplatformSettings = "1.3.0"
 kermit = "2.0.8"
 kotlinResult = "2.0.3"
-appdirs = "1.4.0"
 buildKonfig = "0.17.1"
 filekit = "0.10.0"
 clikt = "5.0.3"
@@ -116,10 +115,8 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlinResult" }
 kotlinResult-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-result-coroutines", version.ref = "kotlinResult" }
 
-# AppDirs
-appdirs = { module = "net.harawata:appdirs", version.ref = "appdirs" }
-
 # FileKit
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 
 # Clikt
