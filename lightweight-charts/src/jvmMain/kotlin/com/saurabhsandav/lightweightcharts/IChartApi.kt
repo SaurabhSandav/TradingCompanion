@@ -11,8 +11,8 @@ import com.saurabhsandav.lightweightcharts.utils.LwcJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.uuid.Uuid
 
 class IChartApi internal constructor(
@@ -268,7 +268,7 @@ class IChartApi internal constructor(
         _scripts.trySend(script)
     }
 
-    private suspend fun executeJsWithResult(command: String): String = suspendCoroutine { continuation ->
+    private suspend fun executeJsWithResult(command: String): String = suspendCancellableCoroutine { continuation ->
 
         val chartId = id
         val id = nextCommandCallbackId++
@@ -279,6 +279,10 @@ class IChartApi internal constructor(
         )
 
         callbacksDelegate.commandCallbacks += commandCallback
+
+        continuation.invokeOnCancellation {
+            callbacksDelegate.commandCallbacks -= commandCallback
+        }
 
         executeJs(
             """

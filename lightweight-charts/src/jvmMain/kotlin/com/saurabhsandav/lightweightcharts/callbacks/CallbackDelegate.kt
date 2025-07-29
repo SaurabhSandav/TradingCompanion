@@ -84,10 +84,12 @@ internal class CallbackDelegate(
                 val id = message.jsonObject["id"]!!.jsonPrimitive.int
                 val result = message.jsonObject["result"]!!.toString()
 
-                val callback = commandCallbacks.find { it.id == id }!!
-                commandCallbacks -= callback
+                val callback = commandCallbacks.find { it.id == id }
 
-                callback.onResult(result)
+                if (callback != null) {
+                    commandCallbacks -= callback
+                    callback.onResult(result)
+                }
             }
 
             else -> error("Unknown callback type. Callback: $chartCallback")
