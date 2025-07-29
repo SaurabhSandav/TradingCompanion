@@ -59,7 +59,7 @@ class IChartApi internal constructor(
         )
 
         if (options?.addDefaultPane == null || options.addDefaultPane) {
-            createIPaneApi("$reference.panes[0]")
+            createIPaneApi("$reference.panes()[0]")
             panesList.single().setPreserveEmptyPane(true)
         }
     }
