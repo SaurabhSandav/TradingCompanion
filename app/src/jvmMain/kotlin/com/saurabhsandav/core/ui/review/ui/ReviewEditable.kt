@@ -26,13 +26,12 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import com.halilibo.richtext.commonmark.Markdown
-import com.halilibo.richtext.ui.RichTextStyle
-import com.halilibo.richtext.ui.material3.RichText
-import com.halilibo.richtext.ui.string.RichTextStringStyle
+import androidx.compose.ui.text.style.TextDecoration
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownTypography
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.saveableState
 import com.saurabhsandav.core.ui.theme.dimens
@@ -106,18 +105,18 @@ internal fun ReviewEditable(
 
                     CompositionLocalProvider(LocalUriHandler provides uriHandler) {
 
-                        RichText(
+                        Markdown(
                             modifier = modifier,
-                            // TODO Temporary style. Built-in styling for link is terrible in dark mode.
-                            //  Replace if library updated with better defaults
-                            style = RichTextStyle(
-                                stringStyle = RichTextStringStyle(
-                                    linkStyle = TextLinkStyles(
-                                        SpanStyle(color = MaterialTheme.colorScheme.inversePrimary),
-                                    ),
+                            content = review,
+                            typography = markdownTypography(
+                                textLink = TextLinkStyles(
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        textDecoration = TextDecoration.Underline,
+                                        color = MaterialTheme.colorScheme.inversePrimary,
+                                    ).toSpanStyle(),
                                 ),
                             ),
-                            children = { Markdown(content = review) },
                         )
                     }
                 }

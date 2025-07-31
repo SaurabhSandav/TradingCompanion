@@ -124,9 +124,9 @@ kotlin {
             implementation(libs.filekit.core)
             implementation(libs.filekit.dialogs)
 
-            // compose-richtext
-            implementation(libs.composeRichtext.commonmark)
-            implementation(libs.composeRichtext.ui.material3)
+            // mikepenz/multiplatform-markdown-renderer
+            implementation(libs.markdownRenderer.core)
+            implementation(libs.markdownRenderer.m3)
 
             // Jetpack Paging
             implementation(libs.jetpack.paging.common)

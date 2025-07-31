@@ -33,8 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.window.WindowPlacement
-import com.halilibo.richtext.commonmark.Markdown
-import com.halilibo.richtext.ui.material3.RichText
+import com.mikepenz.markdown.m3.Markdown
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.AppWindowManager
@@ -91,9 +90,7 @@ internal fun Notes(
                     ListItem(
                         modifier = Modifier.fillMaxWidth(),
                         overlineContent = { Text(note.dateText) },
-                        headlineContent = {
-                            RichText { Markdown(note.noteText) }
-                        },
+                        headlineContent = { Markdown(note.noteText)},
                     )
 
                     if (showEditDialog) {
@@ -166,11 +163,11 @@ private fun NoteEditorWindow(
 
                             val scrollState = rememberScrollState()
 
-                            RichText(
+                            Markdown(
                                 modifier = Modifier.fillMaxSize()
                                     .verticalScroll(scrollState)
                                     .padding(MaterialTheme.dimens.containerPadding),
-                                children = { Markdown(text) },
+                                content = text,
                             )
 
                             VerticalScrollbar(

@@ -31,7 +31,7 @@ clikt = "5.0.3"
 colorpickerCompose = "1.1.2"
 apacheCommons-compress = "1.28.0"
 apache-tika = "3.2.2"
-composeRichtext = "1.0.0-alpha03"
+markdownRenderer = "0.35.0"
 cryptography = "0.5.0"
 kotlinWrappers-kotlinCss = "2025.7.14"
 jimfs = "1.3.1"
@@ -131,9 +131,9 @@ apacheCommons-compress = { module = "org.apache.commons:commons-compress", versi
 # Apache Tika
 apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
 
-# compose-richtext
-composeRichtext-ui-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "composeRichtext" }
-composeRichtext-commonmark = { module = "com.halilibo.compose-richtext:richtext-commonmark", version.ref = "composeRichtext" }
+# mikepenz/multiplatform-markdown-renderer
+markdownRenderer-core = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdownRenderer" }
+markdownRenderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
 
 # cryptography-kotlin
 cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "cryptography" }
