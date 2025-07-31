@@ -54,6 +54,7 @@ object TradeIdListColumnAdapter : ColumnAdapter<List<TradeId>, String> {
     override fun decode(databaseValue: String): List<TradeId> {
         return databaseValue.removeSurrounding(prefix = "[", suffix = "]")
             .split(",")
+            .map { it.trim() }
             .filter { it.isNotEmpty() }
             .map { TradeId(it.toLong()) }
     }
