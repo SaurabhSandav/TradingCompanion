@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
 import androidx.paging.PagingData
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.DeleteConfirmationDialog
 import com.saurabhsandav.core.ui.common.ListLoadStateIndicator
 import com.saurabhsandav.core.ui.common.state
@@ -69,34 +72,43 @@ private fun ReviewsList(
     onDeleteReview: (ReviewId) -> Unit,
 ) {
 
-    LazyColumn {
+    val lazyListState = rememberLazyListState()
 
-        items(
-            count = items.itemCount,
-            key = items.itemKey { entry ->
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyListState),
+    ) {
 
-                when (entry) {
-                    is Section -> "Section_${entry.isPinned}"
-                    is Item -> entry.id
+        LazyColumn(
+            state = lazyListState,
+        ) {
+
+            items(
+                count = items.itemCount,
+                key = items.itemKey { entry ->
+
+                    when (entry) {
+                        is Section -> "Section_${entry.isPinned}"
+                        is Item -> entry.id
+                    }
+                },
+                contentType = items.itemContentType { entry -> entry.javaClass },
+            ) { index ->
+
+                when (val entry = items[index]!!) {
+                    is Section -> Section(
+                        modifier = Modifier.animateItem(),
+                        section = entry,
+                    )
+
+                    is Item -> Item(
+                        modifier = Modifier.animateItem(),
+                        item = entry,
+                        onOpen = { onOpenReview(entry.id) },
+                        isPinned = entry.isPinned,
+                        onTogglePin = { onTogglePinReview(entry.id) },
+                        onDelete = { onDeleteReview(entry.id) },
+                    )
                 }
-            },
-            contentType = items.itemContentType { entry -> entry.javaClass },
-        ) { index ->
-
-            when (val entry = items[index]!!) {
-                is Section -> Section(
-                    modifier = Modifier.animateItem(),
-                    section = entry,
-                )
-
-                is Item -> Item(
-                    modifier = Modifier.animateItem(),
-                    item = entry,
-                    onOpen = { onOpenReview(entry.id) },
-                    isPinned = entry.isPinned,
-                    onTogglePin = { onTogglePinReview(entry.id) },
-                    onDelete = { onDeleteReview(entry.id) },
-                )
             }
         }
     }
@@ -146,13 +158,15 @@ private fun Item(
     // Use Box to workaround as the ContextMenuArea doesn't have a modifier parameter.
     Column(modifier) {
 
-        ContextMenuArea(items = {
-            listOf(
-                ContextMenuItem("Open", onOpen),
-                ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
-                ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
-            )
-        }) {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem("Open", onOpen),
+                    ContextMenuItem(if (!isPinned) "Pin" else "Unpin", onTogglePin),
+                    ContextMenuItem("Delete") { showDeleteConfirmationDialog = true },
+                )
+            },
+        ) {
 
             ListItem(
                 modifier = Modifier.clickable(onClick = onOpen),

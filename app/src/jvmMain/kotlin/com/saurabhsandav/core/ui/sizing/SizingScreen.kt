@@ -2,12 +2,15 @@ package com.saurabhsandav.core.ui.sizing
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
 import com.saurabhsandav.core.ui.common.app.WindowTitle
 import com.saurabhsandav.core.ui.common.state
@@ -81,29 +85,37 @@ private fun SizingTradesGrid(
     onAddTrade: (SymbolId) -> Unit,
 ) {
 
-    LazyVerticalGrid(
-        modifier = Modifier.padding(MaterialTheme.dimens.containerPadding),
-        columns = GridCells.Adaptive(250.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+    val lazyGridState = rememberLazyGridState()
+
+    BoxWithScrollbar(
+        scrollbarAdapter = rememberScrollbarAdapter(lazyGridState),
     ) {
 
-        items(
-            items = sizedTrades,
-            key = { it.id },
-        ) { sizedTrade ->
+        LazyVerticalGrid(
+            state = lazyGridState,
+            columns = GridCells.Adaptive(250.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(MaterialTheme.dimens.containerPadding),
+        ) {
 
-            SizingTradeCard(
-                sizedTrade = sizedTrade,
-                onUpdateEntry = { entry -> onUpdateEntry(sizedTrade.id, entry) },
-                onUpdateStop = { stop -> onUpdateStop(sizedTrade.id, stop) },
-                onOpenLiveTrade = { onOpenLiveTrade(sizedTrade.id) },
-                onDeleteTrade = { onDeleteTrade(sizedTrade.id) },
-            )
-        }
+            items(
+                items = sizedTrades,
+                key = { it.id },
+            ) { sizedTrade ->
 
-        item {
-            AddTradeCard(onAddTrade)
+                SizingTradeCard(
+                    sizedTrade = sizedTrade,
+                    onUpdateEntry = { entry -> onUpdateEntry(sizedTrade.id, entry) },
+                    onUpdateStop = { stop -> onUpdateStop(sizedTrade.id, stop) },
+                    onOpenLiveTrade = { onOpenLiveTrade(sizedTrade.id) },
+                    onDeleteTrade = { onDeleteTrade(sizedTrade.id) },
+                )
+            }
+
+            item {
+                AddTradeCard(onAddTrade)
+            }
         }
     }
 }
