@@ -197,16 +197,18 @@ class MyCefApp(
 
         val contextInitialized = CompletableDeferred<Unit>()
 
-        CefApp.addAppHandler(object : CefAppHandlerAdapter(jCefAppConfig.appArgs) {
-            override fun stateHasChanged(state: CefAppState) {
-                // Shutdown the app if the native CEF part is terminated
-                if (state == CefAppState.TERMINATED) exitProcess(0)
-            }
+        CefApp.addAppHandler(
+            object : CefAppHandlerAdapter(jCefAppConfig.appArgs) {
+                override fun stateHasChanged(state: CefAppState) {
+                    // Shutdown the app if the native CEF part is terminated
+                    if (state == CefAppState.TERMINATED) exitProcess(0)
+                }
 
-            override fun onContextInitialized() {
-                contextInitialized.complete(Unit)
-            }
-        })
+                override fun onContextInitialized() {
+                    contextInitialized.complete(Unit)
+                }
+            },
+        )
 
         val cefSettings = jCefAppConfig.cefSettings.apply {
             cache_path = appPaths.appDataPath.resolve("CEF").absolutePathString()
@@ -225,99 +227,109 @@ class MyCefApp(
 
         val client = getInstance().createClient().apply {
 
-            val msgRouter = CefMessageRouter.create(object : CefMessageRouterHandlerAdapter() {
-                override fun onQuery(
-                    browser: CefBrowser,
-                    frame: CefFrame?,
-                    queryId: Long,
-                    request: String,
-                    persistent: Boolean,
-                    callback: CefQueryCallback,
-                ): Boolean {
+            val msgRouter = CefMessageRouter.create(
+                object : CefMessageRouterHandlerAdapter() {
+                    override fun onQuery(
+                        browser: CefBrowser,
+                        frame: CefFrame?,
+                        queryId: Long,
+                        request: String,
+                        persistent: Boolean,
+                        callback: CefQueryCallback,
+                    ): Boolean {
 
-                    val jsonElement = Json.parseToJsonElement(request)
+                        val jsonElement = Json.parseToJsonElement(request)
 
-                    val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
-                    val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
+                        val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.content
+                        val message = jsonElement.jsonObject["message"]!!.jsonPrimitive.content
 
-                    browserPropsMap[browser]?.jsCallbacks?.get(id)?.mutableSharedFlow?.tryEmit(message)
+                        browserPropsMap[browser]?.jsCallbacks?.get(id)?.mutableSharedFlow?.tryEmit(message)
 
-                    callback.success("")
-                    return true
-                }
-            })
+                        callback.success("")
+                        return true
+                    }
+                },
+            )
 
             addMessageRouter(msgRouter)
         }
 
-        client.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
-            override fun onAfterCreated(browser: CefBrowser) {
-                browserPropsMap[browser]?.isCreated?.complete(Unit)
-            }
-        })
+        client.addLifeSpanHandler(
+            object : CefLifeSpanHandlerAdapter() {
+                override fun onAfterCreated(browser: CefBrowser) {
+                    browserPropsMap[browser]?.isCreated?.complete(Unit)
+                }
+            },
+        )
 
         // Disable context menu
-        client.addContextMenuHandler(object : CefContextMenuHandlerAdapter() {
+        client.addContextMenuHandler(
+            object : CefContextMenuHandlerAdapter() {
 
-            override fun onBeforeContextMenu(
-                browser: CefBrowser?,
-                frame: CefFrame?,
-                params: CefContextMenuParams?,
-                model: CefMenuModel,
-            ) {
-                model.clear()
-            }
-        })
+                override fun onBeforeContextMenu(
+                    browser: CefBrowser?,
+                    frame: CefFrame?,
+                    params: CefContextMenuParams?,
+                    model: CefMenuModel,
+                ) {
+                    model.clear()
+                }
+            },
+        )
 
         // URL
-        client.addDisplayHandler(object : CefDisplayHandlerAdapter() {
+        client.addDisplayHandler(
+            object : CefDisplayHandlerAdapter() {
 
-            override fun onAddressChange(
-                browser: CefBrowser,
-                frame: CefFrame?,
-                url: String,
-            ) {
-                super.onAddressChange(browser, frame, url)
-                browserPropsMap[browser]?.mutableLocation?.value = url
-            }
-        })
+                override fun onAddressChange(
+                    browser: CefBrowser,
+                    frame: CefFrame?,
+                    url: String,
+                ) {
+                    super.onAddressChange(browser, frame, url)
+                    browserPropsMap[browser]?.mutableLocation?.value = url
+                }
+            },
+        )
 
-        client.addLoadHandler(object : CefLoadHandlerAdapter() {
+        client.addLoadHandler(
+            object : CefLoadHandlerAdapter() {
 
-            override fun onLoadStart(
-                browser: CefBrowser,
-                frame: CefFrame?,
-                transitionType: CefRequest.TransitionType?,
-            ) {
-                emitLoadState(browser, LoadState.LOADING)
-            }
+                override fun onLoadStart(
+                    browser: CefBrowser,
+                    frame: CefFrame?,
+                    transitionType: CefRequest.TransitionType?,
+                ) {
+                    emitLoadState(browser, LoadState.LOADING)
+                }
 
-            override fun onLoadEnd(
-                browser: CefBrowser,
-                frame: CefFrame?,
-                httpStatusCode: Int,
-            ) {
-                emitLoadState(browser, LoadState.LOADED)
-            }
+                override fun onLoadEnd(
+                    browser: CefBrowser,
+                    frame: CefFrame?,
+                    httpStatusCode: Int,
+                ) {
+                    emitLoadState(browser, LoadState.LOADED)
+                }
 
-            override fun onLoadError(
-                browser: CefBrowser,
-                frame: CefFrame?,
-                errorCode: CefLoadHandler.ErrorCode?,
-                errorText: String?,
-                failedUrl: String?,
-            ) {
-                emitLoadState(browser, LoadState.FAILED)
-                browserPropsMap[browser]?.mutableErrors?.tryEmit(Throwable(errorText))
-            }
+                override fun onLoadError(
+                    browser: CefBrowser,
+                    frame: CefFrame?,
+                    errorCode: CefLoadHandler.ErrorCode?,
+                    errorText: String?,
+                    failedUrl: String?,
+                ) {
+                    emitLoadState(browser, LoadState.FAILED)
+                    browserPropsMap[browser]?.mutableErrors?.tryEmit(Throwable(errorText))
+                }
 
-            private fun emitLoadState(
-                browser: CefBrowser,
-                loadState: LoadState,
-            ) {
-                browserPropsMap[browser]?.mutableLoadState?.tryEmit(loadState)
-            }
-        })
+                private fun emitLoadState(
+                    browser: CefBrowser,
+                    loadState: LoadState,
+                ) {
+                    browserPropsMap[browser]?.mutableLoadState?.tryEmit(loadState)
+                }
+            },
+        )
 
         this.client = client
 

@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.theme.dimens
 
-context (_: ColumnScope)
 @Composable
+context (_: ColumnScope)
 fun <T : TableSchema> T.SimpleHeader(
     modifier: Modifier = Modifier,
     builder: context(RowBuilder) T.() -> Unit,
