@@ -54,6 +54,7 @@ class IChartApi internal constructor(
             |charts.set("$id", new ChartInstance(
             |  "$id",
             |  LightweightCharts.createChart($container, $optionsJson),
+            |  $ChartCallbackFunc,
             |));
             """.trimMargin(),
         )
@@ -288,7 +289,7 @@ class IChartApi internal constructor(
             """
             |(function() {
             |  var result = $command;
-            |  chartCallback(
+            |  $ChartCallbackFunc(
             |    JSON.stringify(new ChartCallback(
             |      "$chartId",
             |      "commandCallback",
@@ -300,3 +301,5 @@ class IChartApi internal constructor(
         )
     }
 }
+
+const val ChartCallbackFunc = "chartCallback"

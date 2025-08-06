@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.chart.state
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.toHexString
 import com.saurabhsandav.core.ui.common.webview.WebViewState
+import com.saurabhsandav.lightweightcharts.ChartCallbackFunc
 import com.saurabhsandav.lightweightcharts.IChartApi
 import com.saurabhsandav.lightweightcharts.createChart
 import com.saurabhsandav.lightweightcharts.options.ChartOptions
@@ -49,7 +50,7 @@ class ChartPageState(
             webViewState.loadState.first { loadState -> loadState == WebViewState.LoadState.LOADED }
 
             // Forward callbacks
-            webViewState.createJSCallback("chartCallback")
+            webViewState.createJSCallback(ChartCallbackFunc)
                 .messages
                 .onEach { message ->
                     charts.values.forEach { chartAndJob -> chartAndJob.chart.onCallback(message) }
