@@ -12,7 +12,7 @@ class IPaneApi(
 ) {
 
     suspend fun getHeight(): Int {
-        return executeJsWithResult("$paneReference.getHeight();").toInt()
+        return executeJsWithResult("$paneReference.getHeight()").toInt()
     }
 
     fun setHeight(height: Int) {
@@ -24,7 +24,7 @@ class IPaneApi(
     }
 
     suspend fun paneIndex(): Int {
-        return executeJsWithResult("$paneReference.paneIndex();").toInt()
+        return executeJsWithResult("$paneReference.paneIndex()").toInt()
     }
 
     internal fun setPreserveEmptyPane(preserve: Boolean) {
@@ -32,7 +32,7 @@ class IPaneApi(
     }
 
     suspend fun preserveEmptyPane(): Boolean {
-        return executeJsWithResult("$paneReference.preserveEmptyPane();").toBoolean()
+        return executeJsWithResult("$paneReference.preserveEmptyPane()").toBoolean()
     }
 
     fun setStretchFactor(stretchFactor: Number) {
@@ -40,7 +40,7 @@ class IPaneApi(
     }
 
     suspend fun getStretchFactor(preserve: Boolean): Double {
-        return executeJsWithResult("$paneReference.getStretchFactor($preserve);").toDouble()
+        return executeJsWithResult("$paneReference.getStretchFactor($preserve)").toDouble()
     }
 
     fun <D : SeriesData, O : SeriesOptions> addSeries(

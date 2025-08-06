@@ -23,7 +23,8 @@ class IChartApi internal constructor(
 
     private val _scripts = Channel<String>(Channel.UNLIMITED)
 
-    private val chartInstanceReference = "charts.get(\"$id\")"
+    private val chartInstanceReference = "chartInstances.get(\"$id\")"
+    private val reference = "$chartInstanceReference.chart"
     private val seriesMapReference = "$chartInstanceReference.seriesMap"
     private val panesMapReference = "$chartInstanceReference.panesMap"
     private val subscribeClickCallbackReference = "$chartInstanceReference.subscribeClickCallback"
@@ -36,7 +37,6 @@ class IChartApi internal constructor(
 
     val scripts: Flow<String> = _scripts.consumeAsFlow()
 
-    private val reference = "$chartInstanceReference.chart"
     val timeScale = ITimeScaleApi(
         receiver = reference,
         chartInstanceReference = chartInstanceReference,
@@ -51,7 +51,7 @@ class IChartApi internal constructor(
 
         executeJs(
             """
-            |charts.set("$id", new ChartInstance(
+            |chartInstances.set("$id", new ChartInstance(
             |  "$id",
             |  LightweightCharts.createChart($container, $optionsJson),
             |  $ChartCallbackFunc,
@@ -90,7 +90,7 @@ class IChartApi internal constructor(
         executeJs("$reference.remove();")
 
         // Remove from JS cache
-        executeJs("charts.delete(\"$id\")")
+        executeJs("chartInstances.delete(\"$id\")")
 
         // Close scripts stream
         _scripts.close()
@@ -271,7 +271,6 @@ class IChartApi internal constructor(
 
     private suspend fun executeJsWithResult(command: String): String = suspendCancellableCoroutine { continuation ->
 
-        val chartId = id
         val id = nextCommandCallbackId++
 
         val commandCallback = CommandCallback(
@@ -285,20 +284,7 @@ class IChartApi internal constructor(
             callbacksDelegate.commandCallbacks -= commandCallback
         }
 
-        executeJs(
-            """
-            |(function() {
-            |  var result = $command;
-            |  $ChartCallbackFunc(
-            |    JSON.stringify(new ChartCallback(
-            |      "$chartId",
-            |      "commandCallback",
-            |      { id: $id, result: result },
-            |    ))
-            |  );
-            |})()
-            """.trimMargin(),
-        )
+        executeJs("""$chartInstanceReference.commandCallback($id, $command);""")
     }
 }
 

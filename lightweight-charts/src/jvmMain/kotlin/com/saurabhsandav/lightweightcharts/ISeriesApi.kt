@@ -39,7 +39,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
 
         val rangeJson = range?.let(LwcJson::encodeToString) ?: ""
 
-        val result = executeJsWithResult("$reference.barsInLogicalRange($rangeJson);")
+        val result = executeJsWithResult("$reference.barsInLogicalRange($rangeJson)")
 
         return LwcJson.decodeFromString(result)
     }
@@ -142,7 +142,7 @@ class ISeriesApi<D : SeriesData, O : SeriesOptions>(
 
     suspend fun seriesOrder(): Int {
 
-        val result = executeJsWithResult("$reference.seriesOrder();")
+        val result = executeJsWithResult("$reference.seriesOrder()")
 
         return LwcJson.decodeFromString(result)
     }

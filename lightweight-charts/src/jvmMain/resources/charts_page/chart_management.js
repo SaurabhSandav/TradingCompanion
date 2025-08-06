@@ -1,58 +1,43 @@
 
-const charts = new Map();
+const chartInstances = new Map();
 
 class ChartInstance {
 
-  constructor(id, chart, callbackFunc) {
+  constructor(chartId, chart, callbackFunc) {
+
+    this.chartId = chartId;
     this.chart = chart;
+    this.callbackFunc = callbackFunc;
+
     let seriesMap = new Map();
     this.seriesMap = seriesMap;
     this.panesMap = new Map();
-    this.subscribeClickCallback = (function (params) {
-      callbackFunc(
-        JSON.stringify(new ChartCallback(
-          id,
-          "subscribeClickCallback",
-          params,
-        ), replacerSeriesByName(seriesMap))
-      );
-    });
-    this.subscribeCrosshairMoveCallback = (function (params) {
-      callbackFunc(
-        JSON.stringify(new ChartCallback(
-          id,
-          "subscribeCrosshairMoveCallback",
-          params,
-        ), replacerSeriesByName(seriesMap))
-      );
-    });
-    this.subscribeVisibleTimeRangeChangeCallback = (function (timeRange) {
-      callbackFunc(
-        JSON.stringify(new ChartCallback(
-          id,
-          "subscribeVisibleTimeRangeChangeCallback",
-          timeRange,
-        ))
-      );
-    });
-    this.subscribeVisibleLogicalRangeChangeCallback = (function (logicalRange) {
-      callbackFunc(
-        JSON.stringify(new ChartCallback(
-          id,
-          "subscribeVisibleLogicalRangeChangeCallback",
-          logicalRange,
-        ))
-      );
-    });
-    this.subscribeSizeChangeCallback = (function (width, height) {
-      callbackFunc(
-        JSON.stringify(new ChartCallback(
-          id,
-          "subscribeSizeChangeCallback",
-          { width: width, height: height },
-        ))
-      );
-    });
+
+    this.subscribeClickCallback = (params) => {
+      this.callback("subscribeClickCallback", params, replacerSeriesByName(seriesMap));
+    };
+    this.subscribeCrosshairMoveCallback = (params) => {
+      this.callback("subscribeCrosshairMoveCallback", params, replacerSeriesByName(seriesMap));
+    };
+    this.subscribeVisibleTimeRangeChangeCallback = (timeRange) => {
+      this.callback("subscribeVisibleTimeRangeChangeCallback", timeRange);
+    };
+    this.subscribeVisibleLogicalRangeChangeCallback = (logicalRange) => {
+      this.callback("subscribeVisibleLogicalRangeChangeCallback", logicalRange);
+    };
+    this.subscribeSizeChangeCallback = (width, height) => {
+      this.callback("subscribeSizeChangeCallback", { width: width, height: height });
+    };
+  }
+
+  callback(type, data, replacer) {
+    this.callbackFunc(
+      JSON.stringify(new ChartCallback(this.chartId, type, data), replacer)
+    );
+  }
+
+  commandCallback(id, command) {
+    this.callback("commandCallback", { "id": id, "result": command });
   }
 }
 

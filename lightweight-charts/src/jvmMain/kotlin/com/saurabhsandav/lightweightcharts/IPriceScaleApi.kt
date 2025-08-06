@@ -28,7 +28,7 @@ class IPriceScaleApi(
     }
 
     suspend fun getVisibleRange(): IRange<Double>? {
-        val result = executeJsWithResult("$reference.getVisibleRange();")
+        val result = executeJsWithResult("$reference.getVisibleRange()")
         return LwcJson.decodeFromString(result)
     }
 
