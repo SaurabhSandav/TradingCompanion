@@ -27,13 +27,13 @@ interface WebViewState {
 
     suspend fun awaitReady()
 
-    suspend fun load(url: String)
+    fun load(url: String)
 
-    suspend fun executeScript(script: String)
+    fun executeScript(script: String)
 
-    suspend fun createJSCallback(jsFuncName: String): JSCallback
+    fun createJSCallback(jsFuncName: String): JSCallback
 
-    suspend fun setBackgroundColor(color: AwtColor)
+    fun setBackgroundColor(color: AwtColor)
 
     enum class LoadState {
         INITIALIZED,

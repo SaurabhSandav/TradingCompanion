@@ -126,23 +126,25 @@ class CefWebViewState(
         browserProps.isReady.await()
     }
 
-    override suspend fun load(url: String) {
+    private fun requireBrowserReady() = check(isCreatedAndReady) { "Browser is not created" }
 
-        awaitReady()
+    override fun load(url: String) {
+
+        requireBrowserReady()
 
         browser.loadURL(url)
     }
 
-    override suspend fun executeScript(script: String) {
+    override fun executeScript(script: String) {
 
-        awaitReady()
+        requireBrowserReady()
 
         browser.executeJavaScript(script, null, 0)
     }
 
-    override suspend fun createJSCallback(jsFuncName: String): WebViewState.JSCallback {
+    override fun createJSCallback(jsFuncName: String): WebViewState.JSCallback {
 
-        awaitReady()
+        requireBrowserReady()
 
         val flow = MutableSharedFlow<String>(extraBufferCapacity = Channel.UNLIMITED)
 
@@ -174,7 +176,7 @@ class CefWebViewState(
         return callback
     }
 
-    override suspend fun setBackgroundColor(color: AwtColor) {
+    override fun setBackgroundColor(color: AwtColor) {
         // Not supported
     }
 }
