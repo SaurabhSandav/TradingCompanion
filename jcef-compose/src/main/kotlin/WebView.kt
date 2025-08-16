@@ -26,7 +26,6 @@ import org.cef.CefBrowserSettings
 import org.cef.CefClient
 import org.cef.browser.CefBrowserOsrWithHandler
 import org.cef.browser.CefRequestContext
-import org.jetbrains.skia.Rect
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import kotlin.math.roundToInt
@@ -130,16 +129,11 @@ fun WebView(
 
         drawIntoCanvas { canvas ->
 
-            val image = renderHandler.image ?: return@drawIntoCanvas
-
-            val rect = Rect.makeXYWH(
-                l = 0F,
-                t = 0F,
-                w = size.width,
-                h = size.height,
+            canvas.nativeCanvas.drawImage(
+                image = renderHandler.image ?: return@drawIntoCanvas,
+                left = 0F,
+                top = 0F,
             )
-
-            canvas.nativeCanvas.drawImageRect(image = image, dst = rect)
         }
     }
 }

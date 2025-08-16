@@ -87,11 +87,15 @@ internal class ComposeCefRenderHandler : CefRenderHandlerAdapter() {
             }
         }
 
+        val prevImage = image
+
         image = Image.makeRaster(
             imageInfo = imageInfo,
             bytes = byteArray,
             rowBytes = width * CefPixelBytes,
         )
+
+        prevImage?.close()
     }
 
     override fun getScreenPoint(
