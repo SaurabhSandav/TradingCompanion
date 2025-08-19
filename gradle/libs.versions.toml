@@ -23,7 +23,7 @@ turbine = "1.2.1"
 
 # Other
 multiplatformSettings = "1.3.0"
-kermit = "2.0.6"
+kermit = "2.0.8"
 kotlinResult = "2.0.3"
 appdirs = "1.4.0"
 buildKonfig = "0.17.1"
