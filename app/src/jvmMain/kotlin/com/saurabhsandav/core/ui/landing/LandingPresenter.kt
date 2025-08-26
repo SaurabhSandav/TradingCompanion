@@ -11,8 +11,8 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.landing.model.LandingState
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
 import com.saurabhsandav.core.utils.PrefDefaults
 import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto

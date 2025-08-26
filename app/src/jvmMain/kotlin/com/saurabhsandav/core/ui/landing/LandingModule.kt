@@ -3,14 +3,14 @@ package com.saurabhsandav.core.ui.landing
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.account.AccountLandingSwitcherItem
-import com.saurabhsandav.core.ui.landing.model.LandingState
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Account
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Reviews
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Stats
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Tags
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.TradeExecutions
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.TradeSizing
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen.Trades
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.Account
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.Reviews
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.Stats
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.Tags
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.TradeExecutions
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.TradeSizing
+import com.saurabhsandav.core.ui.landing.model.LandingScreen.Trades
 import com.saurabhsandav.core.ui.reviews.ReviewsLandingSwitcherItem
 import com.saurabhsandav.core.ui.sizing.SizingLandingSwitcherItem
 import com.saurabhsandav.core.ui.stats.StatsLandingSwitcherItem
@@ -36,7 +36,7 @@ internal class LandingModule(
         )
     }
 
-    val switcherItems: Map<LandingState.LandingScreen, LandingSwitcherItem> = run {
+    val switcherItems: Map<LandingScreen, LandingSwitcherItem> = run {
 
         val screensModule = appModule.screensModule
 

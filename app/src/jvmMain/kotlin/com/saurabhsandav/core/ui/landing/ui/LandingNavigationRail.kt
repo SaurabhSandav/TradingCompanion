@@ -23,13 +23,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
-import com.saurabhsandav.core.ui.landing.model.LandingState
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.getDetails
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 
 @Composable
 internal fun LandingNavigationRail(
-    currentScreen: LandingState.LandingScreen,
-    onCurrentScreenChange: (LandingState.LandingScreen) -> Unit,
+    currentScreen: LandingScreen,
+    onCurrentScreenChange: (LandingScreen) -> Unit,
     tradeContentLauncher: TradeContentLauncher,
     openTradesCount: Int?,
     onOpenProfiles: () -> Unit,
@@ -42,15 +43,17 @@ internal fun LandingNavigationRail(
         containerColor = MaterialTheme.colorScheme.inverseOnSurface,
     ) {
 
-        val landingItems = remember { enumValues<LandingState.LandingScreen>() }
+        val landingItems = remember { enumValues<LandingScreen>() }
 
         landingItems.forEach { screen ->
 
-            val tooltipText = when {
-                screen == LandingState.LandingScreen.Trades &&
-                    openTradesCount != null -> "${screen.title} - $openTradesCount open trades"
+            val screenDetails = remember(screen) { screen.getDetails() }
 
-                else -> screen.title
+            val tooltipText = when {
+                screen == LandingScreen.Trades &&
+                    openTradesCount != null -> "${screenDetails.title} - $openTradesCount open trades"
+
+                else -> screenDetails.title
             }
 
             SimpleTooltipBox(tooltipText) {
@@ -61,7 +64,7 @@ internal fun LandingNavigationRail(
                         BadgedBox(
                             badge = {
 
-                                if (screen == LandingState.LandingScreen.Trades && openTradesCount != null) {
+                                if (screen == LandingScreen.Trades && openTradesCount != null) {
 
                                     Badge {
 
@@ -74,7 +77,7 @@ internal fun LandingNavigationRail(
                                     }
                                 }
                             },
-                            content = { Icon(screen.icon, contentDescription = screen.title) },
+                            content = { Icon(screenDetails.icon, contentDescription = screenDetails.title) },
                         )
                     },
                     selected = currentScreen == screen,

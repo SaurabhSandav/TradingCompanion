@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.settings.model
 
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.trading.core.Timeframe
 
 internal data class SettingsState(

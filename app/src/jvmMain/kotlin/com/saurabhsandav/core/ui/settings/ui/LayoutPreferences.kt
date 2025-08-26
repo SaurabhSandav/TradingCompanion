@@ -13,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.getDetails
 
 @Composable
 internal fun LayoutPreferences(
@@ -77,7 +78,7 @@ private fun LandingScreenPreference(
 
             OutlinedListSelectionField(
                 items = items,
-                itemText = { it.title },
+                itemText = { it.getDetails().title },
                 selection = selectedItem,
                 onSelect = onLandingScreenChange,
             )

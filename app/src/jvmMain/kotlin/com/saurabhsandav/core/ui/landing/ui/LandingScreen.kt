@@ -17,7 +17,7 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.WindowsOnlyLayout
 import com.saurabhsandav.core.ui.landing.LandingSwitcherItem
 import com.saurabhsandav.core.ui.landing.model.LandingEvent
-import com.saurabhsandav.core.ui.landing.model.LandingState.LandingScreen
+import com.saurabhsandav.core.ui.landing.model.LandingScreen
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 
 @Composable
