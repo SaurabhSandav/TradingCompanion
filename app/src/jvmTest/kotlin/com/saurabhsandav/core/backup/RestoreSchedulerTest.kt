@@ -29,7 +29,7 @@ class RestoreSchedulerTest {
 
         var counter = 0
 
-        scheduler.withRestoreScope {
+        scheduler.restoreAndRestartScope {
 
             scheduler.init(backupManager) {}
 
@@ -68,7 +68,7 @@ class RestoreSchedulerTest {
         var counter = 0
 
         // Perform restore
-        restoreScheduler.withRestoreScope {
+        restoreScheduler.restoreAndRestartScope {
 
             exited = false
 

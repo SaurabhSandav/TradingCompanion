@@ -1,6 +1,5 @@
 package com.saurabhsandav.core
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -11,6 +10,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.application
 import app.cash.molecule.SnapshotNotifier
 import co.touchlab.kermit.Logger
+import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.di.AppModule
 import com.saurabhsandav.core.di.ScreensModule
@@ -23,6 +23,7 @@ import com.saurabhsandav.core.ui.pnlcalculator.PNLCalculatorWindow
 import com.saurabhsandav.core.ui.profiles.ProfilesWindow
 import com.saurabhsandav.core.ui.settings.SettingsWindow
 import com.saurabhsandav.core.ui.theme.AppTheme
+import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -40,79 +41,85 @@ suspend fun runApp(isDebugMode: Boolean) {
 
     val restoreScheduler = RestoreScheduler()
 
-    restoreScheduler.withRestoreScope {
+    restoreScheduler.restoreAndRestartScope {
 
         val appModule = AppModule(isDebugMode, restoreScheduler)
         val appConfig = appModule.appConfig
         val initialLandingProfileId = appConfig.getCurrentTradingProfile().id
 
-        application(exitProcessOnExit = false) {
-
-            val onExit = remember {
-                {
-                    appModule.startupManager.destroy()
-                    exitApplication()
-                }
-            }
-
-            LaunchedEffect(Unit) {
-                restoreScheduler.init(appModule.backupManager, onExit)
-            }
-
-            CompositionLocalProvider(
-                LocalAppConfig provides appModule.appConfig,
-                LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-                LocalAppModule provides appModule,
-                LocalScreensModule provides appModule.screensModule,
-            ) {
-
-                App(
-                    onCloseRequest = {
-                        onExit()
-
-                        // App process doesn't exit if browser(charts) was initialized at any point.
-                        // Workaround: Wait 10 seconds (arbitrary) and force exit app.
-                        @OptIn(DelicateCoroutinesApi::class)
-                        GlobalScope.launch {
-                            delay(10.seconds)
-                            exitProcess(0)
-                        }
-                    },
-                    initialLandingProfileId = initialLandingProfileId,
-                    isDarkModeEnabled = appConfig.isDarkModeEnabled,
-                )
-            }
-        }
+        runApp(
+            onExit = { appModule.startupManager.destroy() },
+            appModule = appModule,
+            screensModule = appModule.screensModule,
+            appConfig = appConfig,
+            restoreScheduler = restoreScheduler,
+            initialLandingProfileId = initialLandingProfileId,
+            backupManager = appModule.backupManager,
+            tradeContentLauncher = appModule.tradeContentLauncher,
+        )
     }
 }
 
-@Suppress("FunctionName")
-private fun setWM_CLASS() {
+private fun runApp(
+    onExit: () -> Unit,
+    appModule: AppModule,
+    screensModule: ScreensModule,
+    appConfig: AppConfig,
+    restoreScheduler: RestoreScheduler,
+    initialLandingProfileId: ProfileId,
+    backupManager: BackupManager,
+    tradeContentLauncher: TradeContentLauncher,
+) {
 
-    val xToolkit = Toolkit.getDefaultToolkit()
+    application(exitProcessOnExit = false) {
 
-    try {
-
-        xToolkit.javaClass.getDeclaredField("awtAppClassName").apply {
-            isAccessible = true
-            set(xToolkit, "Trading Companion")
+        val onExitApplication = remember {
+            {
+                onExit()
+                exitApplication()
+            }
         }
-    } catch (_: Exception) {
-        Logger.d { "Could not set WM_CLASS" }
+
+        LaunchedEffect(Unit) {
+            restoreScheduler.init(backupManager, onExitApplication)
+        }
+
+        CompositionLocalProvider(
+            LocalAppConfig provides appConfig,
+            LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+            LocalAppModule provides appModule,
+            LocalScreensModule provides screensModule,
+        ) {
+
+            App(
+                onExit = {
+                    onExitApplication()
+
+                    // App process doesn't exit if browser(charts) was initialized at any point.
+                    // Workaround: Wait 10 seconds (arbitrary) and force exit app.
+                    @OptIn(DelicateCoroutinesApi::class)
+                    GlobalScope.launch {
+                        delay(10.seconds)
+                        exitProcess(0)
+                    }
+                },
+                initialLandingProfileId = initialLandingProfileId,
+                tradeContentLauncher = tradeContentLauncher,
+            )
+        }
     }
 }
 
 @Composable
-@Preview
-internal fun App(
-    onCloseRequest: () -> Unit,
+private fun App(
+    onExit: () -> Unit,
     initialLandingProfileId: ProfileId,
-    isDarkModeEnabled: Boolean,
+    tradeContentLauncher: TradeContentLauncher,
 ) {
 
-    val appModule = LocalAppModule.current
+    val appConfig = LocalAppConfig.current
 
-    AppTheme(useDarkTheme = isDarkModeEnabled) {
+    AppTheme(useDarkTheme = appConfig.isDarkModeEnabled) {
 
         val landingWindowsManager = remember { AppWindowsManager(listOf(initialLandingProfileId)) }
         val profilesWindowManager = remember { AppWindowManager() }
@@ -126,7 +133,7 @@ internal fun App(
                 onCloseRequest = {
 
                     when {
-                        landingWindowsManager.windows.size == 1 -> onCloseRequest()
+                        landingWindowsManager.windows.size == 1 -> onExit()
                         else -> window.close()
                     }
                 },
@@ -140,7 +147,7 @@ internal fun App(
         }
 
         // Trade content windows
-        appModule.tradeContentLauncher.Windows()
+        tradeContentLauncher.Windows()
 
         // Profiles
         profilesWindowManager.Window {
@@ -185,6 +192,22 @@ internal fun App(
                 onCloseRequest = settingsWindowManager::closeWindow,
             )
         }
+    }
+}
+
+@Suppress("FunctionName")
+private fun setWM_CLASS() {
+
+    val xToolkit = Toolkit.getDefaultToolkit()
+
+    try {
+
+        xToolkit.javaClass.getDeclaredField("awtAppClassName").apply {
+            isAccessible = true
+            set(xToolkit, "Trading Companion")
+        }
+    } catch (_: Exception) {
+        Logger.d { "Could not set WM_CLASS" }
     }
 }
 

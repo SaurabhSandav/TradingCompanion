@@ -21,7 +21,7 @@ class RestoreScheduler {
         onExit()
     }
 
-    suspend fun withRestoreScope(block: suspend () -> Unit) {
+    suspend fun restoreAndRestartScope(block: suspend () -> Unit) {
 
         do {
 
