@@ -48,18 +48,10 @@ suspend fun runApp(isDebugMode: Boolean) {
 
         application(exitProcessOnExit = false) {
 
-            val onExit = remember<() -> Unit> {
+            val onExit = remember {
                 {
                     appModule.startupManager.destroy()
                     exitApplication()
-
-                    // App process doesn't exit if browser(charts) was initialized at any point.
-                    // Workaround: Wait 10 seconds (arbitrary) and force exit app.
-                    @OptIn(DelicateCoroutinesApi::class)
-                    GlobalScope.launch {
-                        delay(10.seconds)
-                        exitProcess(0)
-                    }
                 }
             }
 
@@ -75,7 +67,17 @@ suspend fun runApp(isDebugMode: Boolean) {
             ) {
 
                 App(
-                    onCloseRequest = onExit,
+                    onCloseRequest = {
+                        onExit()
+
+                        // App process doesn't exit if browser(charts) was initialized at any point.
+                        // Workaround: Wait 10 seconds (arbitrary) and force exit app.
+                        @OptIn(DelicateCoroutinesApi::class)
+                        GlobalScope.launch {
+                            delay(10.seconds)
+                            exitProcess(0)
+                        }
+                    },
                     initialLandingProfileId = initialLandingProfileId,
                     isDarkModeEnabled = appConfig.isDarkModeEnabled,
                 )
