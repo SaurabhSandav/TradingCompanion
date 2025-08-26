@@ -33,6 +33,7 @@ import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDefaultTimef
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeDensityFraction
 import com.saurabhsandav.core.ui.settings.model.SettingsEvent.ChangeLandingScreen
 import com.saurabhsandav.core.ui.settings.model.SettingsState.Category
+import com.saurabhsandav.core.ui.settings.ui.About
 import com.saurabhsandav.core.ui.settings.ui.LayoutPreferences
 import com.saurabhsandav.core.ui.settings.ui.PreferenceCategoryItem
 import com.saurabhsandav.core.ui.settings.ui.TradingPreferences
@@ -76,6 +77,7 @@ internal fun SettingsWindow(onCloseRequest: () -> Unit) {
                     settingsGraph = graph,
                 )
             },
+            aboutPane = { About() },
         )
     }
 }
@@ -85,6 +87,7 @@ internal fun SettingsScreen(
     layoutPane: @Composable ColumnScope.() -> Unit,
     tradingPane: @Composable ColumnScope.() -> Unit,
     backupPane: @Composable ColumnScope.() -> Unit,
+    aboutPane: @Composable ColumnScope.() -> Unit,
 ) {
 
     var selectedCategory by state<Category?> { null }
@@ -98,6 +101,7 @@ internal fun SettingsScreen(
                     onLayoutClick = { selectedCategory = Category.Layout },
                     onTradingClick = { selectedCategory = Category.Trading },
                     onBackupClick = { selectedCategory = Category.Backup },
+                    onAboutClick = { selectedCategory = Category.About },
                 )
             }
 
@@ -109,6 +113,7 @@ internal fun SettingsScreen(
                     layoutPane = layoutPane,
                     tradingPane = tradingPane,
                     backupPane = backupPane,
+                    aboutPane = aboutPane,
                 )
             }
         }
@@ -120,6 +125,7 @@ private fun PreferenceCategories(
     onLayoutClick: () -> Unit,
     onTradingClick: () -> Unit,
     onBackupClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
 
     val scrollState = rememberScrollState()
@@ -150,6 +156,13 @@ private fun PreferenceCategories(
                 onClick = onBackupClick,
                 headlineContent = { Text("Backup") },
             )
+
+            HorizontalDivider()
+
+            PreferenceCategoryItem(
+                onClick = onAboutClick,
+                headlineContent = { Text("About") },
+            )
         }
     }
 }
@@ -161,6 +174,7 @@ private fun SelectedCategoryContent(
     layoutPane: @Composable ColumnScope.() -> Unit,
     tradingPane: @Composable ColumnScope.() -> Unit,
     backupPane: @Composable ColumnScope.() -> Unit,
+    aboutPane: @Composable ColumnScope.() -> Unit,
 ) {
 
     Scaffold(
@@ -173,6 +187,7 @@ private fun SelectedCategoryContent(
                             Category.Layout -> "Layout"
                             Category.Trading -> "Trading"
                             Category.Backup -> "Backup"
+                            Category.About -> "About"
                         },
                     )
                 },
@@ -202,6 +217,7 @@ private fun SelectedCategoryContent(
                     Category.Layout -> layoutPane()
                     Category.Trading -> tradingPane()
                     Category.Backup -> backupPane()
+                    Category.About -> aboutPane()
                 }
             }
         }

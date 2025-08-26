@@ -200,6 +200,28 @@ buildkonfig {
             name = "DEBUG_MODE",
             value = (findProperty("debugMode")?.toString()?.lowercase() == "true").toString(),
         )
+
+        buildConfigField(
+            type = FieldSpec.Type.LONG,
+            name = "BUILD_TIME",
+            value = System.currentTimeMillis().toString(),
+        )
+
+        buildConfigField(
+            type = FieldSpec.Type.STRING,
+            name = "VERSION",
+            value = providers.exec {
+                environment("TZ", "UTC0")
+                commandLine(
+                    "git",
+                    "log",
+                    "-1",
+                    "--date=local",
+                    "--pretty=format:%cd.%h",
+                    "--date=format-local:%Y%m%d.%H%M%S",
+                )
+            }.standardOutput.asText.get().trim(),
+        )
     }
 }
 

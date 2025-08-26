@@ -15,5 +15,6 @@ internal data class SettingsState(
         Layout,
         Trading,
         Backup,
+        About,
     }
 }
