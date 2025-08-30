@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.barreplay.session
 
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.fold
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.trading.barreplay.BarReplay
@@ -87,12 +88,14 @@ internal class ReplaySeriesCache(
             candlesBefore.await() + candlesAfter.await()
         }
 
-        return when {
-            allCandlesResult.isOk -> MutableCandleSeries(allCandlesResult.value, timeframe)
-            else -> when (val error = allCandlesResult.error) {
-                is CandleRepository.Error.AuthError -> error("AuthError")
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
-        }
+        return allCandlesResult.fold(
+            success = { candles -> MutableCandleSeries(candles, timeframe) },
+            failure = { error ->
+                when (error) {
+                    is CandleRepository.Error.AuthError -> error("AuthError")
+                    is CandleRepository.Error.UnknownError -> error(error.message)
+                }
+            },
+        )
     }
 }

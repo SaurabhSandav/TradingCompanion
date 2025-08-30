@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.asErr
+import com.github.michaelbull.result.fold
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
@@ -180,14 +181,18 @@ class CandleRepository(
 
             val result = download(symbolId, timeframe, range)
 
-            when {
-                // Replace candles in given range.
-                result.isOk -> candleCache.replace(symbolId, timeframe, range, result.value)
-                else -> return when (val error = result.error) {
-                    is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
-                    is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
-                }
-            }
+            result.fold(
+                success = { candles ->
+                    // Replace candles in given range.
+                    candleCache.replace(symbolId, timeframe, range, candles)
+                },
+                failure = { error ->
+                    return when (error) {
+                        is CandleDownloader.Error.AuthError -> Err(Error.AuthError(error.message))
+                        is CandleDownloader.Error.UnknownError -> Err(Error.UnknownError(error.message))
+                    }
+                },
+            )
         }
 
         return Ok(Unit)
@@ -294,10 +299,10 @@ class CandleRepository(
 
         // Download candles
         val result = candleDownloader.download(symbolId, timeframe, from, correctedTo)
-        val candles = when {
-            result.isOk -> result.value
-            else -> return result
-        }
+        val candles = result.fold(
+            success = { candles -> candles },
+            failure = { error -> return Err(error) },
+        )
 
         // Save checked range to avoid re-attempt at downloading already checked range
         candleCache.saveCheckedRange(

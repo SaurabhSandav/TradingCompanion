@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.charts
 
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.fold
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.CandleSource
 import com.saurabhsandav.core.ui.stockchart.plotter.TradeExecutionMarker
@@ -98,12 +99,14 @@ internal class ChartsCandleSource(
             block = request,
         )
 
-        return when {
-            result.isOk -> result.value
-            else -> when (val error = result.error) {
-                is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
-                is CandleRepository.Error.UnknownError -> error(error.message)
-            }
-        }
+        return result.fold(
+            success = { candles -> candles },
+            failure = { error ->
+                when (error) {
+                    is CandleRepository.Error.AuthError -> error(error.message ?: "AuthError")
+                    is CandleRepository.Error.UnknownError -> error(error.message)
+                }
+            },
+        )
     }
 }
