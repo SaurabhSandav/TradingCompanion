@@ -1,10 +1,10 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeSide
-import java.math.BigDecimal
 
 data class BacktestPosition(
     val id: BacktestPositionId,
@@ -12,9 +12,9 @@ data class BacktestPosition(
     val instrument: Instrument,
     val symbolId: SymbolId,
     val side: TradeSide,
-    val quantity: BigDecimal,
-    val averagePrice: BigDecimal,
-    val pnl: BigDecimal,
+    val quantity: KBigDecimal,
+    val averagePrice: KBigDecimal,
+    val pnl: KBigDecimal,
 )
 
 @JvmInline

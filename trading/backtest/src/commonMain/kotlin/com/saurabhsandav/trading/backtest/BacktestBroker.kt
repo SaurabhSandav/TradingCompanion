@@ -1,5 +1,8 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.isZero
+import com.saurabhsandav.kbigdecimal.sumOf
 import com.saurabhsandav.trading.backtest.BacktestOrder.Params
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Canceled
 import com.saurabhsandav.trading.backtest.BacktestOrder.Status.Executed
@@ -21,29 +24,28 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 class BacktestBroker(
     private val account: BacktestAccount,
     private val brokerProvider: BrokerProvider,
-    private val leverage: BigDecimal = BigDecimal.ONE,
-    private val minimumOrderValue: BigDecimal = BigDecimal.ZERO,
-    private val minimumMaintenanceMargin: BigDecimal = BigDecimal.ZERO,
+    private val leverage: KBigDecimal = KBigDecimal.One,
+    private val minimumOrderValue: KBigDecimal = KBigDecimal.Zero,
+    private val minimumMaintenanceMargin: KBigDecimal = KBigDecimal.Zero,
     private val onMarginCall: () -> Unit = {},
 ) {
 
-    var usedMargin: BigDecimal = BigDecimal.ZERO
+    var usedMargin: KBigDecimal = KBigDecimal.Zero
         private set
 
-    val availableMargin: BigDecimal
+    val availableMargin: KBigDecimal
         get() = account.balance - usedMargin
 
     private var nextOrderId = 0L
     private var nextExecutionId = 0L
     private var nextPositionId = 0L
     private var currentInstant = Instant.DISTANT_PAST
-    private val currentPrices = mutableMapOf<SymbolId, BigDecimal>()
+    private val currentPrices = mutableMapOf<SymbolId, KBigDecimal>()
 
     private val _orders = MutableStateFlow(persistentListOf<BacktestOrder<*>>())
     val orders = _orders.asStateFlow()
@@ -60,7 +62,7 @@ class BacktestBroker(
         ocoId: Any? = null,
     ): BacktestOrderId {
 
-        require(params.quantity > BigDecimal.ZERO) { "BacktestBroker: Quantity must be greater than 0" }
+        require(params.quantity > KBigDecimal.Zero) { "BacktestBroker: Quantity must be greater than 0" }
 
         val (cost, margin) = orderCostAndMargin(params, executionType)
 
@@ -71,7 +73,7 @@ class BacktestBroker(
             createdAt = currentInstant,
             status = when {
                 // Is a close order?
-                margin.compareTo(BigDecimal.ZERO) == 0 -> Open(ocoId = ocoId)
+                margin.isZero() -> Open(ocoId = ocoId)
                 // Is enough margin available?
                 margin > availableMargin -> Rejected(currentInstant, RejectionCause.MarginShortfall)
                 // Is cost above minimumOrderValue?
@@ -103,7 +105,7 @@ class BacktestBroker(
     fun newPrice(
         instant: Instant,
         symbolId: SymbolId,
-        price: BigDecimal,
+        price: KBigDecimal,
     ) {
 
         require(currentInstant <= instant) { "Time is in the past" }
@@ -130,7 +132,7 @@ class BacktestBroker(
 
     private fun executeOrderIfEligible(
         openOrder: BacktestOrder<Open>,
-        newPrice: BigDecimal,
+        newPrice: KBigDecimal,
     ) {
 
         val prevPrice = currentPrices[openOrder.params.symbolId] ?: return
@@ -193,7 +195,7 @@ class BacktestBroker(
             val turnover = position.averagePrice * position.quantity
             val netPnl = position.brokerage().netPNL
 
-            (turnover / leverage) - netPnl.coerceAtMost(BigDecimal.ZERO)
+            (turnover / leverage) - netPnl.coerceAtMost(KBigDecimal.Zero)
         }
 
         // Margin of orders
@@ -210,7 +212,7 @@ class BacktestBroker(
     private fun orderCostAndMargin(
         params: Params,
         executionType: OrderExecutionType,
-    ): Pair<BigDecimal, BigDecimal> {
+    ): Pair<KBigDecimal, KBigDecimal> {
 
         // TradeSide for position that can be exited by this order
         val exitsPositionWithSide = when (params.side) {
@@ -230,7 +232,7 @@ class BacktestBroker(
         }
 
         // This order just closes existing position. 0 margin required.
-        if (newPositionQuantity <= BigDecimal.ZERO) return BigDecimal.ZERO to BigDecimal.ZERO
+        if (newPositionQuantity <= KBigDecimal.Zero) return KBigDecimal.Zero to KBigDecimal.Zero
 
         val executionPrice = when (executionType) {
             is Limit -> executionType.price
@@ -297,7 +299,7 @@ class BacktestBroker(
 
                     val extraQuantity = position.quantity - execution.quantity
 
-                    when (extraQuantity.compareTo(BigDecimal.ZERO)) {
+                    when (extraQuantity.compareTo(KBigDecimal.Zero)) {
                         // Closed fully
                         0 -> {
 
@@ -357,14 +359,14 @@ class BacktestBroker(
                                 brokerId = execution.brokerId,
                                 symbolId = execution.symbolId,
                                 instrument = execution.instrument,
-                                quantity = extraQuantity.negate(),
+                                quantity = extraQuantity.negated(),
                                 side = newPositionSide,
                                 averagePrice = execution.price,
                                 pnl = broker.calculateBrokerage(
                                     instrument = execution.instrument,
                                     entry = execution.price,
                                     exit = currentPrice,
-                                    quantity = extraQuantity.negate(),
+                                    quantity = extraQuantity.negated(),
                                     isLong = newPositionSide.isLong,
                                 ).pnl,
                             )
@@ -433,9 +435,9 @@ class BacktestBroker(
     }
 
     private fun BacktestPosition.brokerage(
-        entry: BigDecimal = averagePrice,
-        exit: BigDecimal = getCurrentPrice(symbolId),
-        quantity: BigDecimal = this.quantity,
+        entry: KBigDecimal = averagePrice,
+        exit: KBigDecimal = getCurrentPrice(symbolId),
+        quantity: KBigDecimal = this.quantity,
     ): Brokerage {
 
         val broker = brokerProvider.getBroker(brokerId)
@@ -449,7 +451,7 @@ class BacktestBroker(
         )
     }
 
-    private fun getCurrentPrice(symbolId: SymbolId): BigDecimal {
+    private fun getCurrentPrice(symbolId: SymbolId): KBigDecimal {
         return currentPrices[symbolId] ?: error("BacktestBroker: No price available for ${symbolId.value}")
     }
 }

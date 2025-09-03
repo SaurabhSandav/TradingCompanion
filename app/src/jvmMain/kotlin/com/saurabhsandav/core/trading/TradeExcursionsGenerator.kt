@@ -3,6 +3,7 @@ package com.saurabhsandav.core.trading
 import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.record.Trade
@@ -21,7 +22,6 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import java.math.BigDecimal
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
@@ -170,20 +170,20 @@ internal class TradeExcursionsGenerator(
                 .maxOfOrNull { it.high }
         } ?: tradeMaePrice
 
-        fun Trade.calculatePnl(price: BigDecimal): BigDecimal = when (side) {
+        fun Trade.calculatePnl(price: KBigDecimal): KBigDecimal = when (side) {
             TradeSide.Long -> (price - averageEntry) * quantity
             TradeSide.Short -> (averageEntry - price) * quantity
-        }.stripTrailingZeros()
+        }
 
         return@withContext TradeExcursions(
             tradeId = trade.id,
-            tradeMfePrice = tradeMfePrice.stripTrailingZeros(),
+            tradeMfePrice = tradeMfePrice,
             tradeMfePnl = trade.calculatePnl(tradeMfePrice),
-            tradeMaePrice = tradeMaePrice.stripTrailingZeros(),
+            tradeMaePrice = tradeMaePrice,
             tradeMaePnl = trade.calculatePnl(tradeMaePrice),
-            sessionMfePrice = sessionMfePrice.stripTrailingZeros(),
+            sessionMfePrice = sessionMfePrice,
             sessionMfePnl = trade.calculatePnl(sessionMfePrice),
-            sessionMaePrice = sessionMaePrice.stripTrailingZeros(),
+            sessionMaePrice = sessionMaePrice,
             sessionMaePnl = trade.calculatePnl(sessionMaePrice),
         )
     }

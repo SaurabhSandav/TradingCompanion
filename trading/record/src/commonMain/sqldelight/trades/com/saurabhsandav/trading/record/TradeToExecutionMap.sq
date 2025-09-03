@@ -1,11 +1,11 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.record.model.TradeExecutionId;
 import com.saurabhsandav.trading.record.model.TradeId;
-import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS TradeToExecutionMap (
 tradeId INTEGER AS TradeId NOT NULL,
 executionId INTEGER AS TradeExecutionId NOT NULL,
-overrideQuantity TEXT AS BigDecimal,
+overrideQuantity TEXT AS KBigDecimal,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 FOREIGN KEY(executionId) REFERENCES TradeExecution(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, executionId)

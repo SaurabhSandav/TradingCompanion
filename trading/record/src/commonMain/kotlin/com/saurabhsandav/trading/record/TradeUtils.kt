@@ -1,15 +1,15 @@
 package com.saurabhsandav.trading.record
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KRoundingMode
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.isLong
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 fun Trade.brokerageAt(
     broker: Broker,
-    exit: BigDecimal,
+    exit: KBigDecimal,
 ): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
     entry = averageEntry,
@@ -33,16 +33,16 @@ fun Trade.brokerageAt(
 ): Brokerage = brokerageAt(broker, target.price)
 
 fun Trade.rValueAt(
-    pnl: BigDecimal,
+    pnl: KBigDecimal,
     stop: TradeStop,
-): BigDecimal = when (side) {
-    TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
-    TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
-}.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
+): KBigDecimal = when (side) {
+    TradeSide.Long -> pnl.div((averageEntry - stop.price) * quantity, 4, KRoundingMode.HalfEven)
+    TradeSide.Short -> pnl.div((stop.price - averageEntry) * quantity, 4, KRoundingMode.HalfEven)
+}.decimalPlaces(2, KRoundingMode.HalfEven)
 
 fun TradeDisplay.brokerageAt(
     broker: Broker,
-    exit: BigDecimal,
+    exit: KBigDecimal,
 ): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
     entry = averageEntry,
@@ -66,9 +66,9 @@ fun TradeDisplay.brokerageAt(
 ): Brokerage = brokerageAt(broker, target.price)
 
 fun TradeDisplay.rValueAt(
-    pnl: BigDecimal,
+    pnl: KBigDecimal,
     stop: TradeStop,
-): BigDecimal = when (side) {
-    TradeSide.Long -> pnl.divide((averageEntry - stop.price) * quantity, 4, RoundingMode.HALF_EVEN)
-    TradeSide.Short -> pnl.divide((stop.price - averageEntry) * quantity, 4, RoundingMode.HALF_EVEN)
-}.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros()
+): KBigDecimal = when (side) {
+    TradeSide.Long -> pnl.div((averageEntry - stop.price) * quantity, 4, KRoundingMode.HalfEven)
+    TradeSide.Short -> pnl.div((stop.price - averageEntry) * quantity, 4, KRoundingMode.HalfEven)
+}.decimalPlaces(2, KRoundingMode.HalfEven)

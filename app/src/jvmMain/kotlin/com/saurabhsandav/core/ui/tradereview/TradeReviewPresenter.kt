@@ -37,6 +37,7 @@ import com.saurabhsandav.core.utils.PrefKeys
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeSort
@@ -60,7 +61,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 import java.util.Locale
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -230,16 +230,16 @@ internal class TradeReviewPresenter(
             side = side.toString().uppercase(),
             quantity = when {
                 !isClosed -> "$closedQuantity / $quantity"
-                else -> quantity.toPlainString()
+                else -> quantity.toString()
             },
-            entry = averageEntry.toPlainString(),
-            exit = averageExit?.toPlainString() ?: "",
+            entry = averageEntry.toString(),
+            exit = averageExit?.toString() ?: "",
             entryTime = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
             duration = duration,
-            pnl = pnl.toPlainString(),
-            isProfitable = pnl > BigDecimal.ZERO,
-            netPnl = netPnl.toPlainString(),
-            isNetProfitable = netPnl > BigDecimal.ZERO,
+            pnl = pnl.toString(),
+            isProfitable = pnl > KBigDecimal.Zero,
+            netPnl = netPnl.toString(),
+            isNetProfitable = netPnl > KBigDecimal.Zero,
         )
     }
 
@@ -330,16 +330,16 @@ internal class TradeReviewPresenter(
             side = side.toString().uppercase(),
             quantity = when {
                 !isClosed -> "$closedQuantity / $quantity"
-                else -> quantity.toPlainString()
+                else -> quantity.toString()
             },
-            entry = averageEntry.toPlainString(),
-            exit = averageExit?.toPlainString() ?: "",
+            entry = averageEntry.toString(),
+            exit = averageExit?.toString() ?: "",
             entryTime = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
             duration = duration,
-            pnl = pnl.toPlainString(),
-            isProfitable = pnl > BigDecimal.ZERO,
-            netPnl = netPnl.toPlainString(),
-            isNetProfitable = netPnl > BigDecimal.ZERO,
+            pnl = pnl.toString(),
+            isProfitable = pnl > KBigDecimal.Zero,
+            netPnl = netPnl.toString(),
+            isNetProfitable = netPnl > KBigDecimal.Zero,
         )
     }
 

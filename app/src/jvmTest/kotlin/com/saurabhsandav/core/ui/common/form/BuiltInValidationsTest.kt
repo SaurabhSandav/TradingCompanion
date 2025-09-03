@@ -145,7 +145,7 @@ class BuiltInValidationsTest {
     }
 
     @Test
-    fun `BigDecimal`() = runTest {
+    fun `KBigDecimal`() = runTest {
 
         val validation = Validation<String> { isBigDecimal() }
 
@@ -168,7 +168,7 @@ class BuiltInValidationsTest {
     }
 
     @Test
-    fun `BigDecimal is positive`() = runTest {
+    fun `KBigDecimal is positive`() = runTest {
 
         val validation = Validation<String> { isBigDecimal()?.isPositive() }
 

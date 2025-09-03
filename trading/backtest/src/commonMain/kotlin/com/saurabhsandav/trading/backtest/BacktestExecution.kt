@@ -1,10 +1,10 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 data class BacktestExecution(
@@ -12,9 +12,9 @@ data class BacktestExecution(
     val brokerId: BrokerId,
     val instrument: Instrument,
     val symbolId: SymbolId,
-    val quantity: BigDecimal,
+    val quantity: KBigDecimal,
     val side: TradeExecutionSide,
-    val price: BigDecimal,
+    val price: KBigDecimal,
     val timestamp: Instant,
 )
 

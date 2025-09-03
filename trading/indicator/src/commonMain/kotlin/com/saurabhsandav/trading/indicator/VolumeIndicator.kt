@@ -1,23 +1,23 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 import kotlin.math.max
 
 class VolumeIndicator(
     candleSeries: CandleSeries,
     private val length: Int = 1,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = candleSeries,
         cacheKey = CacheKey(length),
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
 
         val startIndex = max(0, index - length + 1)
-        var volumeSum = BigDecimal.ZERO
+        var volumeSum = KBigDecimal.Zero
 
         for (i in startIndex..index) {
             volumeSum += candleSeries[i].volume

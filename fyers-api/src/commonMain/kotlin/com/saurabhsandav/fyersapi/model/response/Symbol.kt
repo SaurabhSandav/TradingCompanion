@@ -2,6 +2,8 @@
 
 package com.saurabhsandav.fyersapi.model.response
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -9,7 +11,6 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.math.BigDecimal
 
 @Serializable
 public data class Symbol(
@@ -28,26 +29,26 @@ public data class Symbol(
     val underFyTok: String,
     val exInstType: ExchangeInstrumentType,
     val minLotSize: Int,
-    val tickSize: BigDecimal,
+    val tickSize: KBigDecimal,
     val tradingSession: String,
     val lastUpdate: String,
     val expiryDate: String,
-    val strikePrice: BigDecimal,
+    val strikePrice: KBigDecimal,
     val qtyFreeze: String,
     val tradeStatus: Int,
     val currencyCode: String,
-    val upperPrice: BigDecimal,
-    val lowerPrice: BigDecimal,
-    val faceValue: BigDecimal,
-    val qtyMultiplier: BigDecimal,
-    val previousClose: BigDecimal,
-    val previousOi: BigDecimal,
+    val upperPrice: KBigDecimal,
+    val lowerPrice: KBigDecimal,
+    val faceValue: KBigDecimal,
+    val qtyMultiplier: KBigDecimal,
+    val previousClose: KBigDecimal,
+    val previousOi: KBigDecimal,
     val asmGsmVal: String,
     val exchangeName: String,
     val symbolDesc: String,
     val originalExpDate: String?,
     val is_mtf_tradable: Int,
-    val mtf_margin: BigDecimal,
+    val mtf_margin: KBigDecimal,
     val stream: String,
 )
 
@@ -199,18 +200,18 @@ private object ExchangeInstrumentTypeSerializer : KSerializer<ExchangeInstrument
     }
 }
 
-private object BigDecimalSerializer : KSerializer<BigDecimal> {
+private object BigDecimalSerializer : KSerializer<KBigDecimal> {
 
     override val descriptor = PrimitiveSerialDescriptor("BigDecimalSerializer", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): BigDecimal {
-        return decoder.decodeString().toBigDecimal()
+    override fun deserialize(decoder: Decoder): KBigDecimal {
+        return decoder.decodeString().toKBigDecimal()
     }
 
     override fun serialize(
         encoder: Encoder,
-        value: BigDecimal,
+        value: KBigDecimal,
     ) {
-        encoder.encodeString(value.toPlainString())
+        encoder.encodeString(value.toString())
     }
 }

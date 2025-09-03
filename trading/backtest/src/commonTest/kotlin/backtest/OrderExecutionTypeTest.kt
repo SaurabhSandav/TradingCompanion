@@ -1,8 +1,9 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.test.assertBDEquals
-import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -14,7 +15,7 @@ class OrderExecutionTypeTest {
     @Test
     fun `Limit Order Buy`() {
 
-        val type = Limit(200.toBigDecimal())
+        val type = Limit(200.toKBigDecimal())
         val side = TradeExecutionSide.Buy
 
         // Price crossing limit price while falling -> Execute at limit price
@@ -46,7 +47,7 @@ class OrderExecutionTypeTest {
     @Test
     fun `Limit Order Sell`() {
 
-        val type = Limit(200.toBigDecimal())
+        val type = Limit(200.toKBigDecimal())
         val side = TradeExecutionSide.Sell
 
         // Price crossing limit price while rising -> Execute at limit price
@@ -109,8 +110,8 @@ class OrderExecutionTypeTest {
     fun `Stop Limit Order Buy`() {
 
         val type = StopLimit(
-            trigger = 200.toBigDecimal(),
-            price = 202.toBigDecimal(),
+            trigger = 200.toKBigDecimal(),
+            price = 202.toKBigDecimal(),
         )
         val side = TradeExecutionSide.Buy
 
@@ -153,8 +154,8 @@ class OrderExecutionTypeTest {
     fun `Stop Limit Order Sell`() {
 
         val type = StopLimit(
-            trigger = 200.toBigDecimal(),
-            price = 198.toBigDecimal(),
+            trigger = 200.toKBigDecimal(),
+            price = 198.toKBigDecimal(),
         )
         val side = TradeExecutionSide.Sell
 
@@ -196,7 +197,7 @@ class OrderExecutionTypeTest {
     @Test
     fun `Stop Market Order Buy`() {
 
-        val type = StopMarket(200.toBigDecimal())
+        val type = StopMarket(200.toKBigDecimal())
         val side = TradeExecutionSide.Buy
 
         // Price crossing trigger price while rising -> Execute at new price
@@ -228,7 +229,7 @@ class OrderExecutionTypeTest {
     @Test
     fun `Stop Market Order Sell`() {
 
-        val type = StopMarket(200.toBigDecimal())
+        val type = StopMarket(200.toKBigDecimal())
         val side = TradeExecutionSide.Sell
 
         // Price crossing trigger price while falling -> Execute at new price
@@ -268,8 +269,8 @@ class OrderExecutionTypeTest {
 
             val side = TradeExecutionSide.Buy
             val type = TrailingStop(
-                callbackDecimal = "0.05".toBigDecimal(),
-                activationPrice = 200.toBigDecimal(),
+                callbackDecimal = "0.05".toKBigDecimal(),
+                activationPrice = 200.toKBigDecimal(),
             )
 
             type.tryExecute(side, prevPrice, newPrice)
@@ -314,8 +315,8 @@ class OrderExecutionTypeTest {
 
             val side = TradeExecutionSide.Sell
             val type = TrailingStop(
-                callbackDecimal = "0.05".toBigDecimal(),
-                activationPrice = 200.toBigDecimal(),
+                callbackDecimal = "0.05".toKBigDecimal(),
+                activationPrice = 200.toKBigDecimal(),
             )
 
             assertFalse(type.isActivated)
@@ -357,8 +358,8 @@ class OrderExecutionTypeTest {
         // Values from binance spot trailing stop examples
 
         val type = TrailingStop(
-            callbackDecimal = "0.05".toBigDecimal(),
-            activationPrice = 9_000.toBigDecimal(),
+            callbackDecimal = "0.05".toKBigDecimal(),
+            activationPrice = 9_000.toKBigDecimal(),
         )
         val side = TradeExecutionSide.Buy
 
@@ -390,8 +391,8 @@ class OrderExecutionTypeTest {
         // Values from binance spot trailing stop examples
 
         val type = TrailingStop(
-            callbackDecimal = "0.05".toBigDecimal(),
-            activationPrice = 8_500.toBigDecimal(),
+            callbackDecimal = "0.05".toKBigDecimal(),
+            activationPrice = 8_500.toKBigDecimal(),
         )
         val side = TradeExecutionSide.Sell
 
@@ -423,8 +424,8 @@ class OrderExecutionTypeTest {
         // Values from binance trailing stop examples
 
         val type = TrailingStop(
-            callbackDecimal = "0.05".toBigDecimal(),
-            activationPrice = 10_500.toBigDecimal(),
+            callbackDecimal = "0.05".toKBigDecimal(),
+            activationPrice = 10_500.toKBigDecimal(),
         )
         val side = TradeExecutionSide.Sell
 
@@ -451,5 +452,5 @@ class OrderExecutionTypeTest {
         side: TradeExecutionSide,
         prevPrice: Int,
         newPrice: Int,
-    ): BigDecimal? = tryExecute(side, prevPrice.toBigDecimal(), newPrice.toBigDecimal())
+    ): KBigDecimal? = tryExecute(side, prevPrice.toKBigDecimal(), newPrice.toKBigDecimal())
 }

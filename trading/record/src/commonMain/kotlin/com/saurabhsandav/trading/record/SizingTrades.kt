@@ -3,13 +3,13 @@ package com.saurabhsandav.trading.record
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import java.math.BigDecimal
 import kotlin.coroutines.CoroutineContext
 
 class SizingTrades(
@@ -22,8 +22,8 @@ class SizingTrades(
     suspend fun new(
         brokerId: BrokerId,
         symbolId: SymbolId,
-        entry: BigDecimal,
-        stop: BigDecimal,
+        entry: KBigDecimal,
+        stop: KBigDecimal,
     ) = withContext(coroutineContext) {
 
         val broker = brokerProvider.getBroker(brokerId)
@@ -53,14 +53,14 @@ class SizingTrades(
 
     suspend fun updateEntry(
         id: SizingTradeId,
-        entry: BigDecimal,
+        entry: KBigDecimal,
     ) = withContext(coroutineContext) {
         tradesDB.sizingTradeQueries.updateEntry(id = id, entry = entry)
     }
 
     suspend fun updateStop(
         id: SizingTradeId,
-        stop: BigDecimal,
+        stop: KBigDecimal,
     ) = withContext(coroutineContext) {
         tradesDB.sizingTradeQueries.updateStop(id = id, stop = stop)
     }

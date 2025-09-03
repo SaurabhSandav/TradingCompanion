@@ -5,6 +5,9 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KMathContext
+import com.saurabhsandav.kbigdecimal.sumOf
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.BrokerProvider
@@ -19,8 +22,6 @@ import com.saurabhsandav.trading.record.utils.withoutNanoseconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.math.BigDecimal
-import java.math.MathContext
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.deleteExisting
@@ -39,10 +40,10 @@ class Executions(
         brokerId: BrokerId,
         instrument: Instrument,
         symbolId: SymbolId,
-        quantity: BigDecimal,
+        quantity: KBigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
-        price: BigDecimal,
+        price: KBigDecimal,
         timestamp: Instant,
         locked: Boolean,
     ): TradeExecutionId = withContext(coroutineContext) {
@@ -68,10 +69,10 @@ class Executions(
                 brokerId = brokerId,
                 instrument = instrument,
                 symbolId = symbolId,
-                quantity = quantity.stripTrailingZeros(),
+                quantity = quantity,
                 lots = lots,
                 side = side,
-                price = price.stripTrailingZeros(),
+                price = price,
                 timestamp = timestamp.withoutNanoseconds(),
                 locked = locked,
             )
@@ -97,10 +98,10 @@ class Executions(
         brokerId: BrokerId,
         instrument: Instrument,
         symbolId: SymbolId,
-        quantity: BigDecimal,
+        quantity: KBigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
-        price: BigDecimal,
+        price: KBigDecimal,
         timestamp: Instant,
     ): Unit = withContext(coroutineContext) {
 
@@ -130,10 +131,10 @@ class Executions(
                 brokerId = brokerId,
                 instrument = instrument,
                 symbolId = symbolId,
-                quantity = quantity.stripTrailingZeros(),
+                quantity = quantity,
                 lots = lots,
                 side = side,
-                price = price.stripTrailingZeros(),
+                price = price,
                 timestamp = timestamp.withoutNanoseconds(),
             )
 
@@ -321,17 +322,17 @@ class Executions(
                 brokerId = execution.brokerId,
                 symbolId = execution.symbolId,
                 instrument = execution.instrument,
-                quantity = execution.quantity.stripTrailingZeros(),
-                closedQuantity = BigDecimal.ZERO,
+                quantity = execution.quantity,
+                closedQuantity = KBigDecimal.Zero,
                 lots = null,
                 side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
-                averageEntry = execution.price.stripTrailingZeros(),
+                averageEntry = execution.price,
                 entryTimestamp = execution.timestamp.withoutNanoseconds(),
                 averageExit = null,
                 exitTimestamp = null,
-                pnl = BigDecimal.ZERO,
-                fees = BigDecimal.ZERO,
-                netPnl = BigDecimal.ZERO,
+                pnl = KBigDecimal.Zero,
+                fees = KBigDecimal.Zero,
+                netPnl = KBigDecimal.Zero,
                 isClosed = false,
             )
 
@@ -372,13 +373,13 @@ class Executions(
 
             // If currentOpenQuantity is negative, that means a single execution was used to exit a position and create
             // a new position. Create a new trade for this new position
-            if (currentOpenQuantity < BigDecimal.ZERO) {
+            if (currentOpenQuantity < KBigDecimal.Zero) {
 
                 // Link existing trade and execution in database, while overriding quantity
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
                     executionId = execution.id,
-                    overrideQuantity = (execution.quantity + currentOpenQuantity).stripTrailingZeros(),
+                    overrideQuantity = (execution.quantity + currentOpenQuantity),
                 )
 
                 // Quantity for new trade
@@ -389,17 +390,17 @@ class Executions(
                     brokerId = execution.brokerId,
                     symbolId = execution.symbolId,
                     instrument = execution.instrument,
-                    quantity = overrideQuantity.stripTrailingZeros(),
-                    closedQuantity = BigDecimal.ZERO,
+                    quantity = overrideQuantity,
+                    closedQuantity = KBigDecimal.Zero,
                     lots = null,
                     side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
-                    averageEntry = execution.price.stripTrailingZeros(),
+                    averageEntry = execution.price,
                     entryTimestamp = execution.timestamp.withoutNanoseconds(),
                     averageExit = null,
                     exitTimestamp = null,
-                    pnl = BigDecimal.ZERO,
-                    fees = BigDecimal.ZERO,
-                    netPnl = BigDecimal.ZERO,
+                    pnl = KBigDecimal.Zero,
+                    fees = KBigDecimal.Zero,
+                    netPnl = KBigDecimal.Zero,
                     isClosed = false,
                 )
 
@@ -411,7 +412,7 @@ class Executions(
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = tradeId,
                     executionId = execution.id,
-                    overrideQuantity = overrideQuantity.stripTrailingZeros(),
+                    overrideQuantity = overrideQuantity,
                 )
             } else {
 
@@ -441,7 +442,7 @@ class Executions(
             else -> {
                 val extra = exitQuantity - entryQuantity
                 when {
-                    extra <= BigDecimal.ZERO -> exitExecutions.averagePrice()
+                    extra <= KBigDecimal.Zero -> exitExecutions.averagePrice()
                     else -> {
                         (
                             exitExecutions.dropLast(1) + exitExecutions.last()
@@ -479,10 +480,10 @@ class Executions(
             entryTimestamp = firstExecution.timestamp.withoutNanoseconds(),
             averageExit = averageExit,
             exitTimestamp = exitExecutions.lastOrNull()?.timestamp?.withoutNanoseconds(),
-            pnl = brokerage?.pnl ?: BigDecimal.ZERO,
-            fees = brokerage?.totalCharges ?: BigDecimal.ZERO,
-            netPnl = brokerage?.netPNL ?: BigDecimal.ZERO,
-            isClosed = (exitQuantity - entryQuantity) >= BigDecimal.ZERO,
+            pnl = brokerage?.pnl ?: KBigDecimal.Zero,
+            fees = brokerage?.totalCharges ?: KBigDecimal.Zero,
+            netPnl = brokerage?.netPNL ?: KBigDecimal.Zero,
+            isClosed = (exitQuantity - entryQuantity) >= KBigDecimal.Zero,
         )
     }
 
@@ -490,29 +491,29 @@ class Executions(
 
         tradesDB.tradeQueries.update(
             id = tradeId,
-            quantity = quantity.stripTrailingZeros(),
-            closedQuantity = closedQuantity.stripTrailingZeros(),
+            quantity = quantity,
+            closedQuantity = closedQuantity,
             lots = lots,
             side = side,
-            averageEntry = averageEntry.stripTrailingZeros(),
+            averageEntry = averageEntry,
             entryTimestamp = entryTimestamp.withoutNanoseconds(),
-            averageExit = averageExit?.stripTrailingZeros(),
+            averageExit = averageExit,
             exitTimestamp = exitTimestamp?.withoutNanoseconds(),
-            pnl = pnl.stripTrailingZeros(),
-            fees = fees.stripTrailingZeros(),
-            netPnl = netPnl.stripTrailingZeros(),
+            pnl = pnl,
+            fees = fees,
+            netPnl = netPnl,
             isClosed = isClosed,
         )
     }
 
-    private fun List<TradeExecution>.averagePrice(): BigDecimal {
+    private fun List<TradeExecution>.averagePrice(): KBigDecimal {
 
         val totalQuantity = sumOf { it.quantity }
         val sum = sumOf { it.price * it.quantity }
 
-        return when (totalQuantity.compareTo(BigDecimal.ZERO)) {
-            0 -> BigDecimal.ZERO
-            else -> sum.divide(totalQuantity, MathContext.DECIMAL32)
+        return when (totalQuantity.compareTo(KBigDecimal.Zero)) {
+            0 -> KBigDecimal.Zero
+            else -> sum.div(totalQuantity, KMathContext.Decimal32)
         }
     }
 
@@ -521,13 +522,13 @@ class Executions(
         brokerId: BrokerId,
         instrument: Instrument,
         symbolId: SymbolId,
-        quantity: BigDecimal,
+        quantity: KBigDecimal,
         lots: Int?,
         side: TradeExecutionSide,
-        price: BigDecimal,
+        price: KBigDecimal,
         timestamp: Instant,
         locked: Boolean,
-        overrideQuantity: BigDecimal?,
+        overrideQuantity: KBigDecimal?,
     ) = TradeExecution(
         id = id,
         brokerId = brokerId,

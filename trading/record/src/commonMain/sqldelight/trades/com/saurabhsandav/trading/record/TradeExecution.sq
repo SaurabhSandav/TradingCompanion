@@ -1,9 +1,9 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.broker.BrokerId;
 import com.saurabhsandav.trading.core.Instrument;
 import com.saurabhsandav.trading.core.SymbolId;
 import com.saurabhsandav.trading.record.model.TradeExecutionId;
 import com.saurabhsandav.trading.record.model.TradeExecutionSide;
-import java.math.BigDecimal;
 import kotlin.Boolean;
 import kotlin.Int;
 import kotlin.time.Instant;
@@ -13,10 +13,10 @@ id INTEGER AS TradeExecutionId NOT NULL PRIMARY KEY,
 brokerId TEXT AS BrokerId NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 symbolId TEXT AS SymbolId NOT NULL,
-quantity TEXT AS BigDecimal NOT NULL,
+quantity TEXT AS KBigDecimal NOT NULL,
 lots INTEGER AS Int,
 side TEXT AS TradeExecutionSide NOT NULL,
-price TEXT AS BigDecimal NOT NULL,
+price TEXT AS KBigDecimal NOT NULL,
 timestamp TEXT AS Instant NOT NULL,
 locked INTEGER AS Boolean NOT NULL
 );

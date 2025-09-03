@@ -1,17 +1,17 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 class BacktestAccount(
-    initialBalance: BigDecimal,
+    initialBalance: KBigDecimal,
 ) {
 
-    var balance: BigDecimal = initialBalance
+    var balance: KBigDecimal = initialBalance
         private set
 
     private val _transactions = MutableStateFlow(persistentListOf<BacktestTransaction>())
@@ -19,7 +19,7 @@ class BacktestAccount(
 
     fun addTransaction(
         instant: Instant,
-        value: BigDecimal,
+        value: KBigDecimal,
     ) {
 
         // Update Transaction
@@ -32,5 +32,5 @@ class BacktestAccount(
 
 data class BacktestTransaction(
     val instant: Instant,
-    val value: BigDecimal,
+    val value: KBigDecimal,
 )

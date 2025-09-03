@@ -1,11 +1,11 @@
 package com.saurabhsandav.trading.broker
 
-import java.math.BigDecimal
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 
 data class Brokerage(
-    val totalCharges: BigDecimal,
-    val pointsToBreakeven: BigDecimal,
-    val breakeven: BigDecimal,
-    val pnl: BigDecimal,
-    val netPNL: BigDecimal,
+    val totalCharges: KBigDecimal,
+    val pointsToBreakeven: KBigDecimal,
+    val breakeven: KBigDecimal,
+    val pnl: KBigDecimal,
+    val netPNL: KBigDecimal,
 )

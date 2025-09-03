@@ -1,7 +1,7 @@
 package com.saurabhsandav.trading.broker
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Instrument
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 interface Broker {
@@ -12,9 +12,9 @@ interface Broker {
 
     fun calculateBrokerage(
         instrument: Instrument,
-        entry: BigDecimal,
-        exit: BigDecimal,
-        quantity: BigDecimal,
+        entry: KBigDecimal,
+        exit: KBigDecimal,
+        quantity: KBigDecimal,
         isLong: Boolean,
     ): Brokerage
 

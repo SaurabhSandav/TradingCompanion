@@ -9,6 +9,8 @@ import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormState
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import kotlinx.coroutines.CoroutineScope
 
@@ -43,11 +45,11 @@ internal class ReplayOrderFormPresenter(
 
         replayOrdersManager.newOrder(
             stockChartParams = stockChartParams,
-            quantity = formModel.quantityField.value.toBigDecimal(),
+            quantity = formModel.quantityField.value.toKBigDecimal(),
             side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-            price = formModel.priceField.value.toBigDecimal(),
-            stop = formModel.stop.value.toBigDecimalOrNull(),
-            target = formModel.target.value.toBigDecimalOrNull(),
+            price = formModel.priceField.value.toKBigDecimal(),
+            stop = formModel.stop.value.toKBigDecimalOrNull(),
+            target = formModel.target.value.toKBigDecimalOrNull(),
         )
 
         // Notify order saved

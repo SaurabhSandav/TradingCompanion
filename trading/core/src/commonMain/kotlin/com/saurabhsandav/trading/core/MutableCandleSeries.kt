@@ -1,13 +1,13 @@
 package com.saurabhsandav.trading.core
 
+import com.saurabhsandav.kbigdecimal.KMathContext
+import com.saurabhsandav.kbigdecimal.KRoundingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.math.MathContext
-import java.math.RoundingMode
 import kotlin.time.Instant
 
 interface MutableCandleSeries : CandleSeries {
@@ -32,9 +32,9 @@ interface MutableCandleSeries : CandleSeries {
             initial: List<Candle> = emptyList(),
             timeframe: Timeframe,
             maxCandleCount: Int = Int.MAX_VALUE,
-            indicatorMathContext: MathContext = MathContext(
-                20,
-                RoundingMode.HALF_EVEN,
+            indicatorMathContext: KMathContext = KMathContext(
+                precision = 20,
+                roundingMode = KRoundingMode.HalfEven,
             ),
         ): MutableCandleSeries = MutableCandleSeriesImpl(
             initial = initial,
@@ -49,7 +49,7 @@ private class MutableCandleSeriesImpl(
     initial: List<Candle>,
     override val timeframe: Timeframe,
     private val maxCandleCount: Int,
-    override val indicatorMathContext: MathContext,
+    override val indicatorMathContext: KMathContext,
     private val list: MutableList<Candle> = mutableListOf(),
 ) : MutableCandleSeries,
     List<Candle> by list {

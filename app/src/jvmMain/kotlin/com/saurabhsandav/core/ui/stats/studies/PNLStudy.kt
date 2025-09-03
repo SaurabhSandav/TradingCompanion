@@ -26,6 +26,7 @@ import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.record.model.TradeFilter
@@ -42,7 +43,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 
 internal class PNLStudy(
     profileId: ProfileId,
@@ -167,19 +167,19 @@ internal class PNLStudy(
                     id = trade.id,
                     ticker = trade.ticker,
                     side = trade.side.strValue.uppercase(),
-                    quantity = trade.quantity.toPlainString(),
-                    entry = trade.averageEntry.toPlainString(),
-                    exit = trade.averageExit!!.toPlainString(),
+                    quantity = trade.quantity.toString(),
+                    entry = trade.averageEntry.toString(),
+                    exit = trade.averageExit!!.toString(),
                     entryTime = trade
                         .entryTimestamp
                         .toLocalDateTime(TimeZone.currentSystemDefault())
                         .format(TradeDateTimeFormat),
                     duration = durationStr,
-                    pnl = trade.pnl.toPlainString(),
-                    isProfitable = trade.pnl > BigDecimal.ZERO,
-                    netPnl = trade.netPnl.toPlainString(),
-                    isNetProfitable = trade.netPnl > BigDecimal.ZERO,
-                    fees = (trade.pnl - trade.netPnl).toPlainString(),
+                    pnl = trade.pnl.toString(),
+                    isProfitable = trade.pnl > KBigDecimal.Zero,
+                    netPnl = trade.netPnl.toString(),
+                    isNetProfitable = trade.netPnl > KBigDecimal.Zero,
+                    fees = (trade.pnl - trade.netPnl).toString(),
                     generated = combine(
                         tradingRecord.stops.getPrimary(trade.id),
                         tradingRecord.targets.getPrimary(trade.id),
@@ -188,8 +188,8 @@ internal class PNLStudy(
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
 
                         Generated(
-                            stop = stop?.price?.toPlainString() ?: "NA",
-                            target = target?.price?.toPlainString() ?: "NA",
+                            stop = stop?.price?.toString() ?: "NA",
+                            target = target?.price?.toString() ?: "NA",
                             rValue = rValue?.let { "${it}R" }.orEmpty(),
                         )
                     },

@@ -1,8 +1,8 @@
 package com.saurabhsandav.trading.record.stats
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.test.assertBDEquals
-import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -173,11 +173,11 @@ class TradingStatsBuilderTest {
     fun `All trades with partial stats`() {
 
         val winnersKey = object : TradingStats.PartialStatsKey {
-            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl > BigDecimal.ZERO
+            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl > KBigDecimal.Zero
         }
 
         val losersKey = object : TradingStats.PartialStatsKey {
-            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl < BigDecimal.ZERO
+            override fun shouldIncludeTrade(trade: Trade): Boolean = trade.pnl < KBigDecimal.Zero
         }
 
         val stats = buildTradingStats(TradingStatsUtils.trades, listOf(winnersKey, losersKey))

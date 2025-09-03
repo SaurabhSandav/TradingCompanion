@@ -1,13 +1,16 @@
 package com.saurabhsandav.trading.record.stats
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KRoundingMode
+import com.saurabhsandav.kbigdecimal.isZero
+import com.saurabhsandav.kbigdecimal.sumOf
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.stats.TradingStats.Drawdown
 import com.saurabhsandav.trading.record.stats.TradingStats.PartialStatsKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.math.max
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -41,28 +44,28 @@ private class TradingStatsBuilder(
 ) {
 
     private var count = 0
-    private var pnl = BigDecimal.ZERO
-    private var pnlNet = BigDecimal.ZERO
-    private var pnlPeak = BigDecimal.ZERO
-    private var pnlNetPeak = BigDecimal.ZERO
-    private var fees = BigDecimal.ZERO
+    private var pnl = KBigDecimal.Zero
+    private var pnlNet = KBigDecimal.Zero
+    private var pnlPeak = KBigDecimal.Zero
+    private var pnlNetPeak = KBigDecimal.Zero
+    private var fees = KBigDecimal.Zero
     private var duration = Duration.ZERO
 
     private var winCount = 0
-    private var winPnl = BigDecimal.ZERO
-    private var winPnlNet = BigDecimal.ZERO
-    private var winFees = BigDecimal.ZERO
+    private var winPnl = KBigDecimal.Zero
+    private var winPnlNet = KBigDecimal.Zero
+    private var winFees = KBigDecimal.Zero
     private var winDuration = Duration.ZERO
-    private var winLargest: BigDecimal? = null
+    private var winLargest: KBigDecimal? = null
     private var winStreakLongest = 0
     private var winStreakCurrent = 0
 
     private var lossCount = 0
-    private var lossPnl = BigDecimal.ZERO
-    private var lossPnlNet = BigDecimal.ZERO
-    private var lossFees = BigDecimal.ZERO
+    private var lossPnl = KBigDecimal.Zero
+    private var lossPnlNet = KBigDecimal.Zero
+    private var lossFees = KBigDecimal.Zero
     private var lossDuration = Duration.ZERO
-    private var lossLargest: BigDecimal? = null
+    private var lossLargest: KBigDecimal? = null
     private var lossStreakLongest = 0
     private var lossStreakCurrent = 0
 
@@ -89,7 +92,7 @@ private class TradingStatsBuilder(
         fees += trade.fees
         duration += trade.duration
 
-        if (trade.pnl > BigDecimal.ZERO) {
+        if (trade.pnl > KBigDecimal.Zero) {
             winCount++
             winPnl += trade.pnl
             winPnlNet += trade.netPnl
@@ -102,7 +105,7 @@ private class TradingStatsBuilder(
             winStreakLongest = max(winStreakCurrent, winStreakLongest)
         }
 
-        if (trade.pnl < BigDecimal.ZERO) {
+        if (trade.pnl < KBigDecimal.Zero) {
             lossCount++
             lossPnl += trade.pnl
             lossPnlNet += trade.netPnl
@@ -133,8 +136,8 @@ private class TradingStatsBuilder(
                 drawdowns += copy(
                     to = trade.entryTimestamp,
                     duration = trade.entryTimestamp - from,
-                    pnlPeak = pnlPeak.stripTrailingZeros(),
-                    drawdown = drawdown.stripTrailingZeros(),
+                    pnlPeak = pnlPeak,
+                    drawdown = drawdown,
                 )
 
                 currentDrawdown = null
@@ -152,7 +155,7 @@ private class TradingStatsBuilder(
                     tradeIdFrom = trade.id,
                     tradeIdTo = trade.id,
                     pnlPeak = pnlPeak,
-                    drawdown = (pnlPeak - pnl).negate(),
+                    drawdown = (pnlPeak - pnl).negated(),
                 )
 
                 else -> currentDrawdown.copy(
@@ -160,7 +163,7 @@ private class TradingStatsBuilder(
                     to = trade.exitTimestamp ?: trade.entryTimestamp,
                     duration = (trade.exitTimestamp ?: trade.entryTimestamp) - currentDrawdown.from,
                     tradeIdTo = trade.id,
-                    drawdown = minOf(currentDrawdown.drawdown, (pnlPeak - pnl).negate()),
+                    drawdown = minOf(currentDrawdown.drawdown, (pnlPeak - pnl).negated()),
                 )
             }
         }
@@ -170,20 +173,20 @@ private class TradingStatsBuilder(
 
         if (count == 0) return null
 
-        val feesAverage = fees.roundedDiv(count.toBigDecimal())
+        val feesAverage = fees.roundedDiv(count.toKBigDecimal())
         val durationAverage = duration / count
 
-        val winDecimal = winCount.toBigDecimal().roundedDiv(count.toBigDecimal())
-        val winAverage = if (winCount == 0) null else winPnl.roundedDiv(winCount.toBigDecimal())
+        val winDecimal = winCount.toKBigDecimal().roundedDiv(count.toKBigDecimal())
+        val winAverage = if (winCount == 0) null else winPnl.roundedDiv(winCount.toKBigDecimal())
         val winDurationAverage = if (winCount == 0) null else winDuration / winCount
 
-        val lossDecimal = lossCount.toBigDecimal().roundedDiv(count.toBigDecimal())
-        val lossAverage = if (lossCount == 0) null else lossPnl.roundedDiv(lossCount.toBigDecimal())
+        val lossDecimal = lossCount.toKBigDecimal().roundedDiv(count.toKBigDecimal())
+        val lossAverage = if (lossCount == 0) null else lossPnl.roundedDiv(lossCount.toKBigDecimal())
         val lossDurationAverage = if (lossCount == 0) null else lossDuration / lossCount
 
         val profitFactor = when {
             winCount == 0 || lossCount == 0 -> null
-            lossPnl.compareTo(BigDecimal.ZERO) == 0 -> null
+            lossPnl.isZero() -> null
             else -> winPnl.roundedDiv(lossPnl)
         }
 
@@ -201,7 +204,7 @@ private class TradingStatsBuilder(
         val drawdownAverage = drawdowns
             .takeIf { it.isNotEmpty() }
             ?.sumOf { it.drawdown }
-            ?.roundedDiv(drawdowns.size.toBigDecimal())
+            ?.roundedDiv(drawdowns.size.toKBigDecimal())
 
         val drawdownDurationMax = drawdowns.maxOfOrNull { it.duration }
         val drawdownDurationAverage = drawdowns
@@ -211,36 +214,36 @@ private class TradingStatsBuilder(
 
         return TradingStats(
             count = count,
-            pnl = pnl.stripTrailingZeros(),
-            pnlNet = pnlNet.stripTrailingZeros(),
-            pnlPeak = pnlPeak.stripTrailingZeros(),
-            pnlNetPeak = pnlNetPeak.stripTrailingZeros(),
-            fees = fees.stripTrailingZeros(),
-            feesAverage = feesAverage.stripTrailingZeros(),
-            profitFactor = profitFactor?.stripTrailingZeros(),
+            pnl = pnl,
+            pnlNet = pnlNet,
+            pnlPeak = pnlPeak,
+            pnlNetPeak = pnlNetPeak,
+            fees = fees,
+            feesAverage = feesAverage,
+            profitFactor = profitFactor,
             durationAverage = durationAverage,
-            expectancy = expectancy?.stripTrailingZeros(),
+            expectancy = expectancy,
             winCount = winCount,
-            winPnl = winPnl.stripTrailingZeros(),
-            winPnlNet = winPnlNet.stripTrailingZeros(),
-            winFees = winFees.stripTrailingZeros(),
-            winPercent = (winDecimal * 100.toBigDecimal()).stripTrailingZeros(),
-            winLargest = winLargest?.stripTrailingZeros(),
-            winAverage = winAverage?.stripTrailingZeros(),
+            winPnl = winPnl,
+            winPnlNet = winPnlNet,
+            winFees = winFees,
+            winPercent = (winDecimal * 100.toKBigDecimal()),
+            winLargest = winLargest,
+            winAverage = winAverage,
             winStreakLongest = winStreakLongest,
             winDurationAverage = winDurationAverage,
             lossCount = lossCount,
-            lossPnl = lossPnl.stripTrailingZeros(),
-            lossPnlNet = lossPnlNet.stripTrailingZeros(),
-            lossFees = lossFees.stripTrailingZeros(),
-            lossPercent = (lossDecimal * 100.toBigDecimal()).stripTrailingZeros(),
-            lossLargest = lossLargest?.stripTrailingZeros(),
-            lossAverage = lossAverage?.stripTrailingZeros(),
+            lossPnl = lossPnl,
+            lossPnlNet = lossPnlNet,
+            lossFees = lossFees,
+            lossPercent = (lossDecimal * 100.toKBigDecimal()),
+            lossLargest = lossLargest,
+            lossAverage = lossAverage,
             lossStreakLongest = lossStreakLongest,
             lossDurationAverage = lossDurationAverage,
             drawdowns = drawdowns,
-            drawdownMax = drawdownMax?.stripTrailingZeros(),
-            drawdownAverage = drawdownAverage?.stripTrailingZeros(),
+            drawdownMax = drawdownMax,
+            drawdownAverage = drawdownAverage,
             drawdownDurationMax = drawdownDurationMax,
             drawdownDurationAverage = drawdownDurationAverage,
             partialStats = partialStatsBuilders.mapValues { (_, builder) -> builder.build() },
@@ -250,5 +253,5 @@ private class TradingStatsBuilder(
     private val Trade.duration: Duration
         get() = (exitTimestamp ?: Clock.System.now()) - entryTimestamp
 
-    private fun BigDecimal.roundedDiv(other: BigDecimal) = divide(other, 4, RoundingMode.HALF_EVEN)
+    private fun KBigDecimal.roundedDiv(other: KBigDecimal) = div(other, 4, KRoundingMode.HalfEven)
 }

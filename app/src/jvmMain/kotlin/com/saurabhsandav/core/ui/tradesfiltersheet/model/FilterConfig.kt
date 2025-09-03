@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradesfiltersheet.model
 
 import androidx.compose.runtime.saveable.autoSaver
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeFilter
 import com.saurabhsandav.trading.record.model.TradeTagId
@@ -25,7 +26,6 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 import kotlin.time.Clock
 
 data class FilterConfig(
@@ -99,9 +99,9 @@ data class FilterConfig(
 
         when (pnl) {
             PNL.All -> Unit
-            PNL.Breakeven -> pnlRange(from = BigDecimal.ZERO, to = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
-            PNL.Profit -> pnlRange(from = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
-            PNL.Loss -> pnlRange(to = BigDecimal.ZERO, filterByNetPnl = filterByNetPnl)
+            PNL.Breakeven -> pnlRange(from = KBigDecimal.Zero, to = KBigDecimal.Zero, filterByNetPnl = filterByNetPnl)
+            PNL.Profit -> pnlRange(from = KBigDecimal.Zero, filterByNetPnl = filterByNetPnl)
+            PNL.Loss -> pnlRange(to = KBigDecimal.Zero, filterByNetPnl = filterByNetPnl)
             is PNL.Custom -> with(pnl) {
                 if (from == null || to == null || from <= to) {
                     pnlRange(from = from, to = to, filterByNetPnl = filterByNetPnl)
@@ -163,8 +163,8 @@ data class FilterConfig(
         data object Loss : PNL()
 
         data class Custom(
-            val from: BigDecimal? = null,
-            val to: BigDecimal? = null,
+            val from: KBigDecimal? = null,
+            val to: KBigDecimal? = null,
         ) : PNL()
     }
 

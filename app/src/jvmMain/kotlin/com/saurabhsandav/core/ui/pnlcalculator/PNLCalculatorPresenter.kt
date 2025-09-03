@@ -10,6 +10,8 @@ import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCa
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
@@ -19,7 +21,6 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
-import java.math.BigDecimal
 
 @AssistedInject
 internal class PNLCalculatorPresenter(
@@ -70,9 +71,9 @@ internal class PNLCalculatorPresenter(
         }
 
         val brokerage = brokerage(
-            quantity = formModel.quantityField.value.toBigDecimal(),
-            entry = formModel.entryField.value.toBigDecimal(),
-            exit = formModel.exitField.value.toBigDecimal(),
+            quantity = formModel.quantityField.value.toKBigDecimal(),
+            entry = formModel.entryField.value.toKBigDecimal(),
+            exit = formModel.exitField.value.toKBigDecimal(),
             side = if (formModel.isLongField.value) TradeSide.Long else TradeSide.Short,
         )
 
@@ -82,12 +83,12 @@ internal class PNLCalculatorPresenter(
             quantity = formModel.quantityField.value,
             entry = formModel.entryField.value,
             exit = formModel.exitField.value,
-            breakeven = brokerage.breakeven.toPlainString(),
-            pnl = brokerage.pnl.toPlainString(),
-            isProfitable = brokerage.pnl > BigDecimal.ZERO,
-            netPNL = brokerage.netPNL.toPlainString(),
-            charges = brokerage.totalCharges.toPlainString(),
-            isNetProfitable = brokerage.netPNL > BigDecimal.ZERO,
+            breakeven = brokerage.breakeven.toString(),
+            pnl = brokerage.pnl.toString(),
+            isProfitable = brokerage.pnl > KBigDecimal.Zero,
+            netPNL = brokerage.netPNL.toString(),
+            charges = brokerage.totalCharges.toString(),
+            isNetProfitable = brokerage.netPNL > KBigDecimal.Zero,
             isRemovable = true,
         )
     }
@@ -97,9 +98,9 @@ internal class PNLCalculatorPresenter(
     }
 
     private fun brokerage(
-        quantity: BigDecimal,
-        entry: BigDecimal,
-        exit: BigDecimal,
+        quantity: KBigDecimal,
+        entry: KBigDecimal,
+        exit: KBigDecimal,
         side: TradeSide,
     ): Brokerage = broker.calculateBrokerage(
         instrument = Instrument.Equity,

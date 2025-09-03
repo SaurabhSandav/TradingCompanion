@@ -140,11 +140,11 @@ internal class ReplaySessionPresenter(
                             ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
                         side = params.side.strValue.uppercase(),
                         price = when (val executionType = openOrder.executionType) {
-                            is Limit -> executionType.price.toPlainString()
+                            is Limit -> executionType.price.toString()
                             is Market -> ""
-                            is StopLimit -> executionType.price.toPlainString()
-                            is StopMarket -> executionType.trigger.toPlainString()
-                            is TrailingStop -> executionType.trailingStop?.toPlainString() ?: ""
+                            is StopLimit -> executionType.price.toString()
+                            is StopMarket -> executionType.trigger.toString()
+                            is TrailingStop -> executionType.trailingStop?.toString() ?: ""
                         },
                         timestamp = openOrder
                             .createdAt
@@ -194,7 +194,7 @@ internal class ReplaySessionPresenter(
             .candleSeries
             .last()
             .close
-            .toPlainString()
+            .toString()
 
         val params = OrderFormParams(
             id = Uuid.random(),
@@ -214,7 +214,7 @@ internal class ReplaySessionPresenter(
             .candleSeries
             .last()
             .close
-            .toPlainString()
+            .toString()
 
         val params = OrderFormParams(
             id = Uuid.random(),

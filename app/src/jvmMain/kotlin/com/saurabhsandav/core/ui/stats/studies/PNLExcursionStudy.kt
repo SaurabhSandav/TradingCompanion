@@ -30,6 +30,7 @@ import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.record.TradeDisplay
@@ -49,7 +50,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 
 internal class PNLExcursionStudy(
     profileId: ProfileId,
@@ -174,15 +174,15 @@ internal class PNLExcursionStudy(
                     id = trade.id,
                     ticker = trade.ticker,
                     side = trade.side.strValue.uppercase(),
-                    quantity = trade.quantity.toPlainString(),
-                    entry = trade.averageEntry.toPlainString(),
-                    exit = trade.averageExit!!.toPlainString(),
+                    quantity = trade.quantity.toString(),
+                    entry = trade.averageEntry.toString(),
+                    exit = trade.averageExit!!.toString(),
                     entryTime = trade
                         .entryTimestamp
                         .toLocalDateTime(TimeZone.currentSystemDefault())
                         .format(TradeDateTimeFormat),
                     duration = durationStr,
-                    isProfitable = trade.pnl > BigDecimal.ZERO,
+                    isProfitable = trade.pnl > KBigDecimal.Zero,
                     generated = combine(
                         tradingRecord.stops.getPrimary(trade.id),
                         tradingRecord.targets.getPrimary(trade.id),
@@ -190,12 +190,12 @@ internal class PNLExcursionStudy(
                     ) { stop, target, excursions ->
 
                         val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
-                        val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+                        val rValueStr = rValue?.let { " | ${it}R" }.orEmpty()
 
                         Generated(
-                            stop = stop?.price?.toPlainString() ?: "NA",
-                            target = target?.price?.toPlainString() ?: "NA",
-                            pnl = "${trade.pnl.toPlainString()}$rValueStr",
+                            stop = stop?.price?.toString() ?: "NA",
+                            target = target?.price?.toString() ?: "NA",
+                            pnl = "${trade.pnl}$rValueStr",
                             inTrade = trade.buildExcursionString(stop, excursions, true),
                             inSession = trade.buildExcursionString(stop, excursions, false),
                         )
@@ -254,7 +254,7 @@ internal class PNLExcursionStudy(
     }
 
     private fun TradeDisplay.getRString(
-        pnl: BigDecimal,
+        pnl: KBigDecimal,
         stop: TradeStop?,
     ): String {
 

@@ -1,14 +1,14 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class ProductIndicator(
-    private val input1: Indicator<BigDecimal>,
-    private val input2: Indicator<BigDecimal>,
-) : CachedIndicator<BigDecimal>(
+    private val input1: Indicator<KBigDecimal>,
+    private val input2: Indicator<KBigDecimal>,
+) : CachedIndicator<KBigDecimal>(
         candleSeries = input1.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
@@ -18,8 +18,8 @@ class ProductIndicator(
         },
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
-        return input1[index].multiply(input2[index], mathContext)
+    override fun calculate(index: Int): KBigDecimal {
+        return input1[index].times(input2[index], mathContext)
     }
 
     private data class CacheKey(

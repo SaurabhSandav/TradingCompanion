@@ -1,14 +1,14 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class MoneyFlowIndicator(
-    private val price: Indicator<BigDecimal>,
+    private val price: Indicator<KBigDecimal>,
     private val volume: VolumeIndicator,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = price.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
@@ -18,8 +18,8 @@ class MoneyFlowIndicator(
         },
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
-        return price[index].multiply(volume[index], mathContext)
+    override fun calculate(index: Int): KBigDecimal {
+        return price[index].times(volume[index], mathContext)
     }
 
     private data class CacheKey(

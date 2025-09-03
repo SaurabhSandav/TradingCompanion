@@ -34,6 +34,8 @@ import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry
 import com.saurabhsandav.core.ui.trades.model.TradesState.TradeEntry.Item
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.sumOf
 import com.saurabhsandav.trading.record.Trade
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradingRecord
@@ -59,7 +61,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 import java.util.Locale
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -220,19 +221,19 @@ internal class TradesPresenter(
                 brokerage to rValue
             }
 
-            val pnl = stats.sumOf { (brokerage, _) -> brokerage.pnl }.stripTrailingZeros()
-            val netPnl = stats.sumOf { (brokerage, _) -> brokerage.netPNL }.stripTrailingZeros()
+            val pnl = stats.sumOf { (brokerage, _) -> brokerage.pnl }
+            val netPnl = stats.sumOf { (brokerage, _) -> brokerage.netPNL }
             val rValue = when {
                 stats.all { it.second == null } -> null
                 else -> stats.mapNotNull { it.second }.sumOf { it }
             }
-            val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+            val rValueStr = rValue?.let { " | ${it}R" }.orEmpty()
 
             Stats(
-                pnl = "${pnl.toPlainString()}$rValueStr",
-                isProfitable = pnl > BigDecimal.ZERO,
-                netPnl = netPnl.toPlainString(),
-                isNetProfitable = netPnl > BigDecimal.ZERO,
+                pnl = "$pnl$rValueStr",
+                isProfitable = pnl > KBigDecimal.Zero,
+                netPnl = netPnl.toString(),
+                isNetProfitable = netPnl > KBigDecimal.Zero,
             )
         }
     }
@@ -275,17 +276,17 @@ internal class TradesPresenter(
             side = side.toString().uppercase(),
             quantity = when {
                 !isClosed -> "$closedQuantity / $quantity"
-                else -> quantity.toPlainString()
+                else -> quantity.toString()
             },
-            entry = averageEntry.toPlainString(),
-            exit = averageExit?.toPlainString() ?: "",
+            entry = averageEntry.toString(),
+            exit = averageExit?.toString() ?: "",
             entryTime = entryTimestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
             duration = duration,
-            pnl = pnl.toPlainString(),
-            isProfitable = pnl > BigDecimal.ZERO,
-            netPnl = netPnl.toPlainString(),
-            isNetProfitable = netPnl > BigDecimal.ZERO,
-            fees = fees.toPlainString(),
+            pnl = pnl.toString(),
+            isProfitable = pnl > KBigDecimal.Zero,
+            netPnl = netPnl.toString(),
+            isNetProfitable = netPnl > KBigDecimal.Zero,
+            fees = fees.toString(),
         )
     }
 

@@ -1,15 +1,15 @@
 package com.saurabhsandav.core.ui.trade
 
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KMathContext
+import com.saurabhsandav.kbigdecimal.KRoundingMode
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeStop
 import com.saurabhsandav.trading.record.brokerageAt
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.rValueAt
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 
 internal class TargetPreviewer(
     private val trade: TradeDisplay,
@@ -17,19 +17,19 @@ internal class TargetPreviewer(
     private val primaryStop: TradeStop?,
 ) {
 
-    fun atPrice(price: BigDecimal): TradeTarget? = generateTarget(price)
+    fun atPrice(price: KBigDecimal): TradeTarget? = generateTarget(price)
 
-    fun atRValue(rValue: BigDecimal): TradeTarget? {
+    fun atRValue(rValue: KBigDecimal): TradeTarget? {
 
-        if (rValue <= BigDecimal.ZERO || primaryStop?.price == null) return null
+        if (rValue <= KBigDecimal.Zero || primaryStop?.price == null) return null
 
         val stopSpread = when (trade.side) {
             TradeSide.Long -> trade.averageEntry - primaryStop.price
             TradeSide.Short -> primaryStop.price - trade.averageEntry
         }
 
-        val profitPerShare = stopSpread.multiply(rValue, MathContext.DECIMAL32)
-            .setScale(2, RoundingMode.HALF_EVEN)
+        val profitPerShare = stopSpread.times(rValue, KMathContext.Decimal32)
+            .decimalPlaces(2, KRoundingMode.HalfEven)
 
         val price = when (trade.side) {
             TradeSide.Long -> trade.averageEntry + profitPerShare
@@ -39,12 +39,11 @@ internal class TargetPreviewer(
         return generateTarget(price)
     }
 
-    fun atProfit(profit: BigDecimal): TradeTarget? {
+    fun atProfit(profit: KBigDecimal): TradeTarget? {
 
-        if (profit <= BigDecimal.ZERO) return null
+        if (profit <= KBigDecimal.Zero) return null
 
-        val profitPerShare = profit.divide(trade.quantity, MathContext.DECIMAL32)
-            .setScale(2, RoundingMode.HALF_EVEN)
+        val profitPerShare = profit.div(trade.quantity, KMathContext.Decimal32)
 
         val price = when (trade.side) {
             TradeSide.Long -> trade.averageEntry + profitPerShare
@@ -54,7 +53,7 @@ internal class TargetPreviewer(
         return generateTarget(price)
     }
 
-    private fun generateTarget(price: BigDecimal): TradeTarget? {
+    private fun generateTarget(price: KBigDecimal): TradeTarget? {
 
         val isValid = when (trade.side) {
             TradeSide.Long -> price > trade.averageEntry
@@ -68,18 +67,16 @@ internal class TargetPreviewer(
         val pnl = when (trade.side) {
             TradeSide.Long -> price - trade.averageEntry
             TradeSide.Short -> trade.averageEntry - price
-        }.multiply(trade.quantity, MathContext.DECIMAL32)
+        }.times(trade.quantity, KMathContext.Decimal32)
 
-        fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
-
-        val rValue = primaryStop?.let { trade.rValueAt(pnl, it).toPlainString() }.orEmpty()
+        val rValue = primaryStop?.let { trade.rValueAt(pnl, it).toString() }.orEmpty()
 
         return TradeTarget(
             price = price,
-            priceText = price.strippedPlainText(),
+            priceText = price.toString(),
             rValue = rValue,
-            profit = brokerage.pnl.strippedPlainText(),
-            netProfit = brokerage.netPNL.strippedPlainText(),
+            profit = brokerage.pnl.toString(),
+            netProfit = brokerage.netPNL.toString(),
             isPrimary = false,
         )
     }

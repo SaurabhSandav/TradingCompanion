@@ -24,6 +24,8 @@ kotlin {
 
         commonMain.dependencies {
 
+            api(projects.kbigdecimal)
+
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)

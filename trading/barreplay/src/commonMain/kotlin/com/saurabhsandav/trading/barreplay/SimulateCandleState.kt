@@ -1,7 +1,7 @@
 package com.saurabhsandav.trading.barreplay
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Candle
-import java.math.BigDecimal
 
 internal fun Candle.atState(state: BarReplay.CandleState): Candle {
 
@@ -13,7 +13,7 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
             high = open,
             low = open,
             close = open,
-            volume = BigDecimal.ZERO,
+            volume = KBigDecimal.Zero,
         )
 
         // First Extreme
@@ -21,7 +21,7 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
         BarReplay.CandleState.Extreme1 if isCandleBullish -> copy(
             high = open,
             close = low,
-            volume = BigDecimal.ZERO,
+            volume = KBigDecimal.Zero,
         )
 
         // First Extreme
@@ -29,16 +29,16 @@ internal fun Candle.atState(state: BarReplay.CandleState): Candle {
         BarReplay.CandleState.Extreme1 -> copy(
             low = open,
             close = high,
-            volume = BigDecimal.ZERO,
+            volume = KBigDecimal.Zero,
         )
 
         // Second Extreme
         // Bullish candle, update high second
-        BarReplay.CandleState.Extreme2 if isCandleBullish -> copy(close = high, volume = BigDecimal.ZERO)
+        BarReplay.CandleState.Extreme2 if isCandleBullish -> copy(close = high, volume = KBigDecimal.Zero)
 
         // Second Extreme
         // Bearish candle, update low second
-        BarReplay.CandleState.Extreme2 -> copy(close = low, volume = BigDecimal.ZERO)
+        BarReplay.CandleState.Extreme2 -> copy(close = low, volume = KBigDecimal.Zero)
 
         // Close
         BarReplay.CandleState.Close -> this

@@ -1,16 +1,16 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.Indicator
-import java.math.BigDecimal
 
 class ClosePriceIndicator(
     override val candleSeries: CandleSeries,
-) : Indicator<BigDecimal> {
+) : Indicator<KBigDecimal> {
 
     override val cacheKey: Indicator.CacheKey = CacheKey
 
-    override fun get(index: Int): BigDecimal {
+    override fun get(index: Int): KBigDecimal {
         return candleSeries[index].close
     }
 

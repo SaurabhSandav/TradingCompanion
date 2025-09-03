@@ -20,6 +20,8 @@ import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.sumOf
 import com.saurabhsandav.trading.record.brokerageAtExit
 import com.saurabhsandav.trading.record.rValueAt
 import dev.zacsweers.metro.ContributesIntoSet
@@ -32,7 +34,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 
 internal class PNLByMonthStudy(
     profileId: ProfileId,
@@ -133,11 +134,11 @@ internal class PNLByMonthStudy(
                         Model(
                             month = month,
                             noOfTrades = tradesByMonth.size.toString(),
-                            pnl = pnl.toPlainString(),
-                            isProfitable = pnl > BigDecimal.ZERO,
-                            netPnl = netPnl.toPlainString(),
-                            isNetProfitable = netPnl > BigDecimal.ZERO,
-                            fees = (pnl - netPnl).toPlainString(),
+                            pnl = pnl.toString(),
+                            isProfitable = pnl > KBigDecimal.Zero,
+                            netPnl = netPnl.toString(),
+                            isNetProfitable = netPnl > KBigDecimal.Zero,
+                            fees = (pnl - netPnl).toString(),
                             rValue = "${rValue}R",
                         )
                     }

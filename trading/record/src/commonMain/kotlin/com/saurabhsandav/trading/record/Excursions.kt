@@ -2,10 +2,10 @@ package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.TradeId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import java.math.BigDecimal
 import kotlin.coroutines.CoroutineContext
 
 class Excursions internal constructor(
@@ -15,27 +15,27 @@ class Excursions internal constructor(
 
     suspend fun set(
         id: TradeId,
-        tradeMfePrice: BigDecimal,
-        tradeMfePnl: BigDecimal,
-        tradeMaePrice: BigDecimal,
-        tradeMaePnl: BigDecimal,
-        sessionMfePrice: BigDecimal,
-        sessionMfePnl: BigDecimal,
-        sessionMaePrice: BigDecimal,
-        sessionMaePnl: BigDecimal,
+        tradeMfePrice: KBigDecimal,
+        tradeMfePnl: KBigDecimal,
+        tradeMaePrice: KBigDecimal,
+        tradeMaePnl: KBigDecimal,
+        sessionMfePrice: KBigDecimal,
+        sessionMfePnl: KBigDecimal,
+        sessionMaePrice: KBigDecimal,
+        sessionMaePnl: KBigDecimal,
     ) = withContext(coroutineContext) {
 
         // Save Excursions
         tradesDB.tradeExcursionsQueries.insert(
             tradeId = id,
-            tradeMfePrice = tradeMfePrice.stripTrailingZeros(),
-            tradeMfePnl = tradeMfePnl.stripTrailingZeros(),
-            tradeMaePrice = tradeMaePrice.stripTrailingZeros(),
-            tradeMaePnl = tradeMaePnl.stripTrailingZeros(),
-            sessionMfePrice = sessionMfePrice.stripTrailingZeros(),
-            sessionMfePnl = sessionMfePnl.stripTrailingZeros(),
-            sessionMaePrice = sessionMaePrice.stripTrailingZeros(),
-            sessionMaePnl = sessionMaePnl.stripTrailingZeros(),
+            tradeMfePrice = tradeMfePrice,
+            tradeMfePnl = tradeMfePnl,
+            tradeMaePrice = tradeMaePrice,
+            tradeMaePnl = tradeMaePnl,
+            sessionMfePrice = sessionMfePrice,
+            sessionMfePnl = sessionMfePnl,
+            sessionMaePrice = sessionMaePrice,
+            sessionMaePnl = sessionMaePnl,
         )
     }
 

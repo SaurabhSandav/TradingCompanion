@@ -2,14 +2,15 @@
 
 package com.saurabhsandav.trading.test
 
-import java.math.BigDecimal
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 inline fun assertBDEquals(
-    expected: BigDecimal?,
-    actual: BigDecimal?,
+    expected: KBigDecimal?,
+    actual: KBigDecimal?,
     message: String? = null,
 ) {
 
@@ -18,7 +19,7 @@ inline fun assertBDEquals(
     if (expected != null && actual == null) fail(messagePrefix(message) + "expected:<$expected> but was:<null>")
 
     assertEquals(
-        expected = expected!!.compareTo(actual),
+        expected = expected!!.compareTo(actual!!),
         actual = 0,
         message = messagePrefix(message) + "expected:<$expected> but was:<$actual>",
     )
@@ -26,22 +27,22 @@ inline fun assertBDEquals(
 
 inline fun assertBDEquals(
     expected: Int,
-    actual: BigDecimal?,
+    actual: KBigDecimal?,
 ) {
 
     assertNotNull(actual)
 
-    assertBDEquals(expected.toBigDecimal(), actual)
+    assertBDEquals(expected.toKBigDecimal(), actual)
 }
 
 inline fun assertBDEquals(
     expected: String,
-    actual: BigDecimal?,
+    actual: KBigDecimal?,
 ) {
 
     assertNotNull(actual)
 
-    assertBDEquals(expected.toBigDecimal(), actual)
+    assertBDEquals(expected.toKBigDecimal(), actual)
 }
 
 inline fun messagePrefix(message: String?) = if (message == null) "" else "$message. "

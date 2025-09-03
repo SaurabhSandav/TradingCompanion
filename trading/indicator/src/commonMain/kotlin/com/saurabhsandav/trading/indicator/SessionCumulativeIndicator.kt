@@ -1,15 +1,15 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class SessionCumulativeIndicator(
-    private val input: Indicator<BigDecimal>,
+    private val input: Indicator<KBigDecimal>,
     private val sessionChecker: SessionChecker,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = input.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
@@ -19,10 +19,10 @@ class SessionCumulativeIndicator(
         },
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
 
         val accumulated = when {
-            sessionChecker.isSessionStart(candleSeries, index) || index == 0 -> BigDecimal.ZERO
+            sessionChecker.isSessionStart(candleSeries, index) || index == 0 -> KBigDecimal.Zero
             else -> get(index - 1)
         }
 

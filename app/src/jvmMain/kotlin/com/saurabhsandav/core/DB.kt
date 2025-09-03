@@ -3,8 +3,8 @@ package com.saurabhsandav.core
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.core.trading.ProfileIdColumnAdapter
-import com.saurabhsandav.core.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
+import com.saurabhsandav.core.utils.KBigDecimalColumnAdapter
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolIdColumnAdapter
@@ -20,8 +20,8 @@ fun AppDB(driver: SqlDriver) = AppDB(
         idAdapter = SymbolIdColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
         instrumentAdapter = Instrument.ColumnAdapter,
-        tickSizeAdapter = BigDecimalColumnAdapter,
-        quantityMultiplierAdapter = BigDecimalColumnAdapter,
+        tickSizeAdapter = KBigDecimalColumnAdapter,
+        quantityMultiplierAdapter = KBigDecimalColumnAdapter,
     ),
     SymbolDownloadTimestampAdapter = SymbolDownloadTimestamp.Adapter(
         brokerIdAdapter = BrokerIdColumnAdapter,

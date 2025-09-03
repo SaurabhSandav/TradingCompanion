@@ -49,6 +49,8 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KMathContext
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.brokerageAt
@@ -79,8 +81,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
-import java.math.MathContext
 import java.util.Locale
 import kotlin.io.path.extension
 import kotlin.time.Clock
@@ -223,9 +223,9 @@ internal class TradePresenter(
                 tradingRecord.await().stops.getPrimary(trade.id).collect { stop ->
 
                     val rValue = stop?.let { trade.rValueAt(pnl = trade.pnl, stop = it) }
-                    val rValueStr = rValue?.let { " | ${it.toPlainString()}R" }.orEmpty()
+                    val rValueStr = rValue?.let { " | ${it}R" }.orEmpty()
 
-                    val isPartiallyClosed = trade.isClosed || trade.closedQuantity > BigDecimal.ZERO
+                    val isPartiallyClosed = trade.isClosed || trade.closedQuantity > KBigDecimal.Zero
 
                     value = Details(
                         id = trade.id,
@@ -234,16 +234,16 @@ internal class TradePresenter(
                         side = trade.side.toString().uppercase(),
                         quantity = when {
                             !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"
-                            else -> trade.quantity.toPlainString()
+                            else -> trade.quantity.toString()
                         },
-                        entry = trade.averageEntry.toPlainString(),
-                        exit = trade.averageExit?.toPlainString(),
+                        entry = trade.averageEntry.toString(),
+                        exit = trade.averageExit?.toString(),
                         duration = duration,
-                        pnl = if (isPartiallyClosed) "${trade.pnl.toPlainString()}$rValueStr" else null,
-                        isProfitable = trade.pnl > BigDecimal.ZERO,
-                        netPnl = if (isPartiallyClosed) trade.netPnl.toPlainString() else null,
-                        isNetProfitable = trade.netPnl > BigDecimal.ZERO,
-                        fees = if (isPartiallyClosed) trade.fees.toPlainString() else null,
+                        pnl = if (isPartiallyClosed) "${trade.pnl}$rValueStr" else null,
+                        isProfitable = trade.pnl > KBigDecimal.Zero,
+                        netPnl = if (isPartiallyClosed) trade.netPnl.toString() else null,
+                        isNetProfitable = trade.netPnl > KBigDecimal.Zero,
+                        fees = if (isPartiallyClosed) trade.fees.toString() else null,
                     )
                 }
             }
@@ -264,7 +264,7 @@ internal class TradePresenter(
                             ?.let { "${execution.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
                             ?: execution.quantity.toString(),
                         side = execution.side.strValue.uppercase(),
-                        price = execution.price.toPlainString(),
+                        price = execution.price.toString(),
                         timestamp = execution
                             .timestamp
                             .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -292,9 +292,9 @@ internal class TradePresenter(
 
                     TradeStop(
                         price = stop.price,
-                        priceText = stop.price.toPlainString(),
-                        risk = brokerage.pnl.toPlainString(),
-                        netRisk = brokerage.netPNL.toPlainString(),
+                        priceText = stop.price.toString(),
+                        risk = brokerage.pnl.toString(),
+                        netRisk = brokerage.netPNL.toString(),
                         isPrimary = stop.isPrimary,
                     )
                 }
@@ -323,18 +323,16 @@ internal class TradePresenter(
                     val pnl = when (trade.side) {
                         TradeSide.Long -> target.price - trade.averageEntry
                         TradeSide.Short -> trade.averageEntry - target.price
-                    }.multiply(trade.quantity, MathContext.DECIMAL32)
+                    }.times(trade.quantity, KMathContext.Decimal32)
 
-                    fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
-
-                    val rValue = stop?.let { "${trade.rValueAt(pnl, it).toPlainString()}R" }.orEmpty()
+                    val rValue = stop?.let { "${trade.rValueAt(pnl, it)}R" }.orEmpty()
 
                     TradeTarget(
                         price = target.price,
-                        priceText = target.price.strippedPlainText(),
+                        priceText = target.price.toString(),
                         rValue = rValue,
-                        profit = brokerage.pnl.strippedPlainText(),
-                        netProfit = brokerage.netPNL.strippedPlainText(),
+                        profit = brokerage.pnl.toString(),
+                        netProfit = brokerage.netPNL.toString(),
                         isPrimary = target.isPrimary,
                     )
                 }
@@ -496,32 +494,32 @@ internal class TradePresenter(
         tradeContentLauncher.openTradeReview(profileTradeId)
     }
 
-    private fun onAddStop(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun onAddStop(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().stops.add(tradeId, price)
     }
 
-    private fun onDeleteStop(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun onDeleteStop(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().stops.delete(tradeId, price)
     }
 
-    private fun setPrimaryStop(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun setPrimaryStop(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().stops.setPrimary(tradeId, price)
     }
 
-    private fun onAddTarget(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun onAddTarget(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().targets.add(tradeId, price)
     }
 
-    private fun onDeleteTarget(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun onDeleteTarget(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().targets.delete(tradeId, price)
     }
 
-    private fun setPrimaryTarget(price: BigDecimal) = coroutineScope.launchUnit {
+    private fun setPrimaryTarget(price: KBigDecimal) = coroutineScope.launchUnit {
 
         tradingRecord.await().targets.setPrimary(tradeId, price)
     }
@@ -566,11 +564,11 @@ internal class TradePresenter(
         isMae: Boolean,
     ): String {
 
-        fun TradeDisplay.getRString(pnl: BigDecimal): String {
+        fun TradeDisplay.getRString(pnl: KBigDecimal): String {
 
             stop ?: return ""
 
-            val rValueStr = rValueAt(stop = stop, pnl = pnl).toPlainString()
+            val rValueStr = rValueAt(stop = stop, pnl = pnl).toString()
 
             return " | ${rValueStr}R"
         }
@@ -611,7 +609,7 @@ internal class TradePresenter(
             }
         }
 
-        return "${price.toPlainString()} | ${pnl.toPlainString()}$rStr"
+        return "$price | $pnl$rStr"
     }
 
     @AssistedFactory

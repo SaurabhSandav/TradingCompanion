@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
@@ -68,10 +69,10 @@ class TradeExecutionsTest {
                 brokerId = BrokerId("EditedTestBroker"),
                 instrument = Instrument.Options,
                 symbolId = SymbolId("EditedTestSymbol"),
-                quantity = 20.toBigDecimal(),
+                quantity = 20.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
-                price = 200.toBigDecimal(),
+                price = 200.toKBigDecimal(),
                 timestamp = Clock.System.now(),
             )
         }
@@ -90,10 +91,10 @@ class TradeExecutionsTest {
             brokerId = BrokerId("EditedTestBroker"),
             instrument = Instrument.Options,
             symbolId = SymbolId("EditedTestSymbol"),
-            quantity = 20.toBigDecimal(),
+            quantity = 20.toKBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
-            price = 200.toBigDecimal(),
+            price = 200.toKBigDecimal(),
             timestamp = currentTime,
         )
 
@@ -102,10 +103,10 @@ class TradeExecutionsTest {
         assertEquals("EditedTestBroker", editedExecution.brokerId.value)
         assertEquals(Instrument.Options, editedExecution.instrument)
         assertEquals("EditedTestSymbol", editedExecution.symbolId.value)
-        assertBDEquals(20.toBigDecimal(), editedExecution.quantity)
+        assertBDEquals(20.toKBigDecimal(), editedExecution.quantity)
         assertNull(editedExecution.lots)
         assertEquals(TradeExecutionSide.Sell, editedExecution.side)
-        assertBDEquals(200.toBigDecimal(), editedExecution.price)
+        assertBDEquals(200.toKBigDecimal(), editedExecution.price)
         assertEquals(currentTime.withoutNanoseconds(), editedExecution.timestamp)
         assertFalse(editedExecution.locked)
     }

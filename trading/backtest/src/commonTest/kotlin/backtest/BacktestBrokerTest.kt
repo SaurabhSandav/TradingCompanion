@@ -1,5 +1,7 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
@@ -8,7 +10,6 @@ import com.saurabhsandav.trading.test.TestBroker
 import com.saurabhsandav.trading.test.TestBrokerProvider
 import com.saurabhsandav.trading.test.assertBDEquals
 import kotlinx.collections.immutable.persistentListOf
-import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -21,12 +22,12 @@ class BacktestBrokerTest {
     @Test
     fun `Initial state`() {
 
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(persistentListOf(), sut.orders.value)
         assertEquals(persistentListOf(), sut.executions.value)
         assertEquals(persistentListOf(), sut.positions.value)
@@ -37,13 +38,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -51,11 +52,11 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         assertBDEquals(10_000, account.balance)
@@ -72,13 +73,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -86,23 +87,23 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         assertBDEquals(10_000, account.balance)
@@ -119,13 +120,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -133,16 +134,16 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 1000.toBigDecimal(),
+                quantity = 1000.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Rejected>(sut.orders.value.first().status)
         assertEquals(0, sut.executions.value.size)
@@ -154,17 +155,17 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(
             account = account,
             brokerProvider = TestBrokerProvider,
-            minimumOrderValue = 1_000.toBigDecimal(),
+            minimumOrderValue = 1_000.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -172,16 +173,16 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 1.toBigDecimal(),
+                quantity = 1.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Rejected>(sut.orders.value.first().status)
         assertEquals(0, sut.executions.value.size)
@@ -193,13 +194,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         val orderId = sut.newOrder(
@@ -207,17 +208,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 210.toBigDecimal(),
+            price = 210.toKBigDecimal(),
         )
 
         sut.cancelOrder(orderId)
@@ -225,12 +226,12 @@ class BacktestBrokerTest {
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 215.toBigDecimal(),
+            price = 215.toKBigDecimal(),
         )
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Canceled>(sut.orders.value.first().status)
         assertEquals(
@@ -246,13 +247,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         val orderId = sut.newOrder(
@@ -260,17 +261,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 210.toBigDecimal(),
+            price = 210.toKBigDecimal(),
         )
 
         sut.cancelOrder(orderId)
@@ -278,14 +279,14 @@ class BacktestBrokerTest {
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 215.toBigDecimal(),
+            price = 215.toKBigDecimal(),
         )
 
         sut.cancelOrder(orderId)
 
         assertBDEquals(10_000, account.balance)
         assertBDEquals(10_000, sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Canceled>(sut.orders.value.first().status)
         assertEquals(
@@ -301,13 +302,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -315,23 +316,23 @@ class BacktestBrokerTest {
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         assertBDEquals(10_000, account.balance)
@@ -350,13 +351,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -364,17 +365,17 @@ class BacktestBrokerTest {
                 brokerId = BrokerId("Finvasia"),
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         assertBDEquals(10_000, account.balance)
@@ -393,13 +394,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -407,23 +408,23 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -431,22 +432,22 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = Limit(210.toBigDecimal()),
+            executionType = Limit(210.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 215.toBigDecimal(),
+            price = 215.toKBigDecimal(),
         )
 
         assertBDEquals("10098.77", account.balance)
         assertBDEquals("10098.77", sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[1].status)
@@ -461,13 +462,13 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(account, TestBrokerProvider)
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -475,17 +476,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 198.toBigDecimal(),
+            price = 198.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -493,28 +494,28 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = StopMarket(195.toBigDecimal()),
+            executionType = StopMarket(195.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 200.toBigDecimal(),
+            price = 200.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         assertBDEquals("9948.82", account.balance)
         assertBDEquals("9948.82", sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[1].status)
@@ -529,17 +530,17 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(
             account = account,
             brokerProvider = TestBrokerProvider,
-            minimumOrderValue = 500.toBigDecimal(),
+            minimumOrderValue = 500.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -547,17 +548,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 198.toBigDecimal(),
+            price = 198.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -565,28 +566,28 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = StopMarket(195.toBigDecimal()),
+            executionType = StopMarket(195.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 200.toBigDecimal(),
+            price = 200.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         assertBDEquals("9948.82", account.balance)
         assertBDEquals("9948.82", sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[1].status)
@@ -601,17 +602,17 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(
             account = account,
             brokerProvider = TestBrokerProvider,
-            minimumOrderValue = 500.toBigDecimal(),
+            minimumOrderValue = 500.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -619,17 +620,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 198.toBigDecimal(),
+            price = 198.toKBigDecimal(),
         )
 
         // Stop
@@ -638,11 +639,11 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = StopMarket(195.toBigDecimal()),
+            executionType = StopMarket(195.toKBigDecimal()),
             ocoId = Unit,
         )
 
@@ -652,29 +653,29 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = Limit(210.toBigDecimal()),
+            executionType = Limit(210.toKBigDecimal()),
             ocoId = Unit,
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 200.toBigDecimal(),
+            price = 200.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         assertBDEquals("9948.82", account.balance)
         assertBDEquals("9948.82", sut.availableMargin)
-        assertBDEquals(BigDecimal.ZERO, sut.usedMargin)
+        assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(3, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[1].status)
@@ -690,17 +691,17 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(
             account = account,
             brokerProvider = TestBrokerProvider,
-            minimumOrderValue = 500.toBigDecimal(),
+            minimumOrderValue = 500.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -708,17 +709,17 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 198.toBigDecimal(),
+            price = 198.toKBigDecimal(),
         )
 
         // Stop
@@ -727,11 +728,11 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = StopMarket(195.toBigDecimal()),
+            executionType = StopMarket(195.toKBigDecimal()),
         )
 
         // Target
@@ -740,23 +741,23 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 10.toBigDecimal(),
+                quantity = 10.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Sell,
             ),
-            executionType = Limit(210.toBigDecimal()),
+            executionType = Limit(210.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 2.minutes,
             symbolId = symbolId,
-            price = 200.toBigDecimal(),
+            price = 200.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         assertBDEquals("9948.82", account.balance)
@@ -779,18 +780,18 @@ class BacktestBrokerTest {
 
         val currentTime = Clock.System.now()
         val symbolId = SymbolId("NTPC")
-        val account = BacktestAccount(10_000.toBigDecimal())
+        val account = BacktestAccount(10_000.toKBigDecimal())
         val sut = BacktestBroker(
             account = account,
             brokerProvider = TestBrokerProvider,
-            minimumOrderValue = 500.toBigDecimal(),
+            minimumOrderValue = 500.toKBigDecimal(),
             onMarginCall = { marginCalled = true },
         )
 
         sut.newPrice(
             instant = currentTime,
             symbolId = symbolId,
-            price = 205.toBigDecimal(),
+            price = 205.toKBigDecimal(),
         )
 
         sut.newOrder(
@@ -798,23 +799,23 @@ class BacktestBrokerTest {
                 brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
-                quantity = 48.toBigDecimal(),
+                quantity = 48.toKBigDecimal(),
                 lots = null,
                 side = TradeExecutionSide.Buy,
             ),
-            executionType = Limit(200.toBigDecimal()),
+            executionType = Limit(200.toKBigDecimal()),
         )
 
         sut.newPrice(
             instant = currentTime + 1.minutes,
             symbolId = symbolId,
-            price = 195.toBigDecimal(),
+            price = 195.toKBigDecimal(),
         )
 
         sut.newPrice(
             instant = currentTime + 3.minutes,
             symbolId = symbolId,
-            price = 190.toBigDecimal(),
+            price = 190.toKBigDecimal(),
         )
 
         assertBDEquals(10_000, account.balance)

@@ -1,26 +1,26 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
-import java.math.BigDecimal
 
 sealed interface OrderExecutionType {
 
     fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal?
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal?
 }
 
 data class Limit(
-    val price: BigDecimal,
+    val price: KBigDecimal,
 ) : OrderExecutionType {
 
     override fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal? {
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal? {
 
         when (side) {
             // Buy Limit is executed when price crosses limit price while falling
@@ -52,24 +52,24 @@ data object Market : OrderExecutionType {
 
     override fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal {
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal {
         // Always executes at new price
         return newPrice
     }
 }
 
 data class StopLimit(
-    val trigger: BigDecimal,
-    val price: BigDecimal,
+    val trigger: KBigDecimal,
+    val price: KBigDecimal,
 ) : OrderExecutionType {
 
     override fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal? {
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal? {
 
         require(
             value = when (side) {
@@ -125,14 +125,14 @@ data class StopLimit(
 }
 
 data class StopMarket(
-    val trigger: BigDecimal,
+    val trigger: KBigDecimal,
 ) : OrderExecutionType {
 
     override fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal? {
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal? {
 
         when (side) {
             // Buy StopMarket is executed when price crosses trigger price while rising
@@ -161,19 +161,19 @@ data class StopMarket(
 }
 
 data class TrailingStop(
-    val callbackDecimal: BigDecimal,
-    val activationPrice: BigDecimal,
+    val callbackDecimal: KBigDecimal,
+    val activationPrice: KBigDecimal,
 ) : OrderExecutionType {
 
     internal var isActivated: Boolean = false
-    var trailingStop: BigDecimal? = null
+    var trailingStop: KBigDecimal? = null
         private set
 
     override fun tryExecute(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
-    ): BigDecimal? {
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
+    ): KBigDecimal? {
 
         isActivated = when (side) {
             // Buy TrailingStop is activated when price crosses activation price
@@ -189,9 +189,9 @@ data class TrailingStop(
 
         when (side) {
             // Buy TrailingStop is executed when price crosses trailing stop while rising
-            TradeExecutionSide.Buy -> if (newPrice > trailingStop) return newPrice
+            TradeExecutionSide.Buy -> if (newPrice > trailingStop!!) return newPrice
             // Buy TrailingStop is executed when price crosses trailing stop while falling
-            TradeExecutionSide.Sell -> if (newPrice < trailingStop) return newPrice
+            TradeExecutionSide.Sell -> if (newPrice < trailingStop!!) return newPrice
         }
 
         // Cannot execute order
@@ -200,8 +200,8 @@ data class TrailingStop(
 
     private fun updateTrailingStop(
         side: TradeExecutionSide,
-        prevPrice: BigDecimal,
-        newPrice: BigDecimal,
+        prevPrice: KBigDecimal,
+        newPrice: KBigDecimal,
     ) {
 
         val newExtremePrice = when (side) {
@@ -211,8 +211,8 @@ data class TrailingStop(
 
         // Calculate new trailing stop
         val newTrailingStop = newExtremePrice * when (side) {
-            TradeExecutionSide.Buy -> BigDecimal.ONE + callbackDecimal
-            TradeExecutionSide.Sell -> BigDecimal.ONE - callbackDecimal
+            TradeExecutionSide.Buy -> KBigDecimal.One + callbackDecimal
+            TradeExecutionSide.Sell -> KBigDecimal.One - callbackDecimal
         }
 
         trailingStop = when (val trailingStop = trailingStop) {

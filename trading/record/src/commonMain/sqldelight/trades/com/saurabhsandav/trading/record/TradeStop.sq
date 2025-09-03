@@ -1,10 +1,10 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.record.model.TradeId;
-import java.math.BigDecimal;
 import kotlin.Boolean;
 
 CREATE TABLE IF NOT EXISTS TradeStop (
 tradeId INTEGER AS TradeId NOT NULL,
-price TEXT AS BigDecimal NOT NULL,
+price TEXT AS KBigDecimal NOT NULL,
 isPrimary INTEGER AS Boolean NOT NULL DEFAULT FALSE,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, price)

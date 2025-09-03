@@ -1,7 +1,7 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.broker.BrokerId;
 import com.saurabhsandav.trading.core.Instrument;
 import com.saurabhsandav.trading.core.SymbolId;
-import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS CachedSymbol (
 id TEXT AS SymbolId NOT NULL,
@@ -10,8 +10,8 @@ instrument TEXT AS Instrument NOT NULL,
 exchange TEXT NOT NULL,
 ticker TEXT NOT NULL,
 description TEXT,
-tickSize TEXT AS BigDecimal,
-quantityMultiplier TEXT AS BigDecimal,
+tickSize TEXT AS KBigDecimal,
+quantityMultiplier TEXT AS KBigDecimal,
 PRIMARY KEY (id, brokerId)
 );
 

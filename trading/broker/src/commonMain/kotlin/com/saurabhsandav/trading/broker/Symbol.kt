@@ -1,8 +1,8 @@
 package com.saurabhsandav.trading.broker
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
-import java.math.BigDecimal
 
 data class Symbol(
     val id: SymbolId,
@@ -10,6 +10,6 @@ data class Symbol(
     val exchange: String,
     val ticker: String,
     val description: String?,
-    val tickSize: BigDecimal?,
-    val quantityMultiplier: BigDecimal?,
+    val tickSize: KBigDecimal?,
+    val quantityMultiplier: KBigDecimal?,
 )

@@ -2,6 +2,8 @@ package com.saurabhsandav.trading.market.india
 
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.fyersapi.model.response.ExchangeInstrumentType
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.Brokerage
@@ -17,7 +19,6 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -33,9 +34,9 @@ class FinvasiaBroker(
 
     override fun calculateBrokerage(
         instrument: Instrument,
-        entry: BigDecimal,
-        exit: BigDecimal,
-        quantity: BigDecimal,
+        entry: KBigDecimal,
+        exit: KBigDecimal,
+        quantity: KBigDecimal,
         isLong: Boolean,
     ): Brokerage = indiaBrokerage(
         instrument = instrument,
@@ -45,8 +46,8 @@ class FinvasiaBroker(
         isLong = isLong,
     ) { buyTurnover, sellTurnover ->
 
-        val brokerageBuy = (buyTurnover * "0.0003".toBigDecimal()).coerceAtMost("5".toBigDecimal())
-        val brokerageSell = (sellTurnover * "0.0003".toBigDecimal()).coerceAtMost("5".toBigDecimal())
+        val brokerageBuy = (buyTurnover * "0.0003".toKBigDecimal()).coerceAtMost("5".toKBigDecimal())
+        val brokerageSell = (sellTurnover * "0.0003".toKBigDecimal()).coerceAtMost("5".toKBigDecimal())
 
         brokerageBuy + brokerageSell
     }

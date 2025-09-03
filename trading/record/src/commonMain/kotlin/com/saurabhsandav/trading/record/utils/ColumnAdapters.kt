@@ -1,13 +1,14 @@
 package com.saurabhsandav.trading.record.utils
 
 import app.cash.sqldelight.ColumnAdapter
-import java.math.BigDecimal
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import kotlin.time.Instant
 
-internal object BigDecimalColumnAdapter : ColumnAdapter<BigDecimal, String> {
-    override fun decode(databaseValue: String): BigDecimal = databaseValue.toBigDecimal()
+internal object KBigDecimalColumnAdapter : ColumnAdapter<KBigDecimal, String> {
+    override fun decode(databaseValue: String): KBigDecimal = databaseValue.toKBigDecimal()
 
-    override fun encode(value: BigDecimal): String = value.toPlainString()
+    override fun encode(value: KBigDecimal): String = value.toString()
 }
 
 internal object InstantReadableColumnAdapter : ColumnAdapter<Instant, String> {

@@ -3,11 +3,11 @@ package com.saurabhsandav.trading.record
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import java.math.BigDecimal
 import kotlin.coroutines.CoroutineContext
 
 class Targets internal constructor(
@@ -29,7 +29,7 @@ class Targets internal constructor(
 
     suspend fun add(
         id: TradeId,
-        price: BigDecimal,
+        price: KBigDecimal,
     ) = withContext(coroutineContext) {
 
         val trade = tradesDB.tradeQueries.getById(id).executeAsOne()
@@ -44,7 +44,7 @@ class Targets internal constructor(
         // Insert into DB
         tradesDB.tradeTargetQueries.insert(
             tradeId = id,
-            price = price.stripTrailingZeros(),
+            price = price,
         )
 
         // Delete Excursions. Excursions use primary target to generate session mfe/mae.
@@ -53,7 +53,7 @@ class Targets internal constructor(
 
     suspend fun delete(
         id: TradeId,
-        price: BigDecimal,
+        price: KBigDecimal,
     ) = withContext(coroutineContext) {
 
         // Delete target
@@ -65,7 +65,7 @@ class Targets internal constructor(
 
     suspend fun setPrimary(
         id: TradeId,
-        price: BigDecimal,
+        price: KBigDecimal,
     ) = withContext(coroutineContext) {
 
         tradesDB.tradeTargetQueries.setPrimary(tradeId = id, price = price)

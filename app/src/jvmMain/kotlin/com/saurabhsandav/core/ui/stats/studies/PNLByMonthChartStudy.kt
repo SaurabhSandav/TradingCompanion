@@ -18,6 +18,8 @@ import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.webview.WebViewState
 import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toDouble
 import com.saurabhsandav.lightweightcharts.baselineSeries
 import com.saurabhsandav.lightweightcharts.data.BaselineData
 import com.saurabhsandav.lightweightcharts.data.Time
@@ -37,7 +39,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import java.math.BigDecimal
 
 internal class PNLByMonthChartStudy(
     profileId: ProfileId,
@@ -65,7 +66,7 @@ internal class PNLByMonthChartStudy(
                             day = 1,
                         )
                     }
-                    .fold(BigDecimal.ZERO) { accumulator, trade ->
+                    .fold(KBigDecimal.Zero) { accumulator, trade ->
                         val broker = tradingRecord.brokerProvider.getBroker(trade.brokerId)
                         accumulator + trade.brokerageAtExit(broker)!!.netPNL
                     }

@@ -21,22 +21,22 @@ import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import kotlinx.coroutines.flow.Flow
-import java.math.BigDecimal
 
 @Composable
 internal fun StopsAndTargets(
     stops: List<TradeStop>,
     stopPreviewer: Flow<StopPreviewer>,
-    onAddStop: (BigDecimal) -> Unit,
-    onDeleteStop: (BigDecimal) -> Unit,
-    onSetPrimaryStop: (BigDecimal) -> Unit,
+    onAddStop: (KBigDecimal) -> Unit,
+    onDeleteStop: (KBigDecimal) -> Unit,
+    onSetPrimaryStop: (KBigDecimal) -> Unit,
     targets: List<TradeTarget>,
     showTargetRValues: Boolean,
     targetPreviewer: Flow<TargetPreviewer>,
-    onAddTarget: (BigDecimal) -> Unit,
-    onDeleteTarget: (BigDecimal) -> Unit,
-    onSetPrimaryTarget: (BigDecimal) -> Unit,
+    onAddTarget: (KBigDecimal) -> Unit,
+    onDeleteTarget: (KBigDecimal) -> Unit,
+    onSetPrimaryTarget: (KBigDecimal) -> Unit,
 ) {
 
     Row(

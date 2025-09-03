@@ -1,13 +1,14 @@
 package com.saurabhsandav.core.ui.stockchart.plotter
 
 import com.saurabhsandav.core.ui.common.chart.offsetTimeForChart
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toDouble
 import com.saurabhsandav.lightweightcharts.data.Time
 import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
-import java.math.BigDecimal
 import kotlin.time.Instant
 import com.saurabhsandav.lightweightcharts.plugin.TradeExecutionMarkers.Execution as ActualTradeExecutionMarker
 import com.saurabhsandav.lightweightcharts.plugin.TradeMarkers.Trade as ActualTradeMarker
@@ -15,7 +16,7 @@ import com.saurabhsandav.lightweightcharts.plugin.TradeMarkers.Trade as ActualTr
 class TradeExecutionMarker(
     private val instant: Instant,
     private val side: TradeExecutionSide,
-    private val price: BigDecimal,
+    private val price: KBigDecimal,
 ) {
 
     fun toActualMarker(candleSeries: CandleSeries) = ActualTradeExecutionMarker(
@@ -30,11 +31,11 @@ class TradeExecutionMarker(
 
 class TradeMarker(
     private val entryInstant: Instant,
-    private val entryPrice: BigDecimal,
+    private val entryPrice: KBigDecimal,
     private val exitInstant: Instant,
-    private val exitPrice: BigDecimal,
-    private val stopPrice: BigDecimal,
-    private val targetPrice: BigDecimal,
+    private val exitPrice: KBigDecimal,
+    private val stopPrice: KBigDecimal,
+    private val targetPrice: KBigDecimal,
 ) {
 
     fun toActualMarker(candleSeries: CandleSeries): ActualTradeMarker {

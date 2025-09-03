@@ -1,15 +1,17 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.isZero
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class MFIIndicator(
-    input: Indicator<BigDecimal>,
+    input: Indicator<KBigDecimal>,
     length: Int = 14,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = input.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
@@ -31,23 +33,23 @@ class MFIIndicator(
     private val positiveMoneyFlow = CumulativeIndicator(PositiveMoneyFlowIndicator(input, moneyFlow), length)
     private val negativeMoneyFlow = CumulativeIndicator(NegativeMoneyFlowIndicator(input, moneyFlow), length)
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
 
         val positiveMoneyFlow = positiveMoneyFlow[index]
         val negativeMoneyFlow = negativeMoneyFlow[index]
 
-        val hundred = 100.toBigDecimal()
+        val hundred = 100.toKBigDecimal()
 
         if (negativeMoneyFlow.isZero()) {
             return when {
-                positiveMoneyFlow.isZero() -> BigDecimal.ZERO
+                positiveMoneyFlow.isZero() -> KBigDecimal.Zero
                 else -> hundred
             }
         }
 
-        val moneyRatio = positiveMoneyFlow.divide(negativeMoneyFlow, mathContext)
+        val moneyRatio = positiveMoneyFlow.div(negativeMoneyFlow, mathContext)
 
-        return hundred - (hundred.divide(BigDecimal.ONE + moneyRatio, mathContext))
+        return hundred - (hundred.div(KBigDecimal.One + moneyRatio, mathContext))
     }
 
     private data class CacheKey(

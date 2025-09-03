@@ -1,10 +1,10 @@
 package com.saurabhsandav.core.ui.trade.model
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.AttachmentFileId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeNoteId
 import com.saurabhsandav.trading.record.model.TradeTagId
-import java.math.BigDecimal
 
 internal sealed class TradeEvent {
 
@@ -31,27 +31,27 @@ internal sealed class TradeEvent {
     data object OpenChart : TradeEvent()
 
     data class AddStop(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class DeleteStop(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class SetPrimaryStop(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class AddTarget(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class DeleteTarget(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class SetPrimaryTarget(
-        val price: BigDecimal,
+        val price: KBigDecimal,
     ) : TradeEvent()
 
     data class AddTag(

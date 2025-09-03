@@ -10,6 +10,8 @@ import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import com.saurabhsandav.kbigdecimal.isEqualTo
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 
 internal data class PNLCalculatorState(
     val formModel: PNLCalculatorFormModel,
@@ -59,7 +61,7 @@ internal class PNLCalculatorFormModel(
 
             isPositive()
 
-            if (entryField.validatedValue().toBigDecimal().compareTo(this) == 0) {
+            if (entryField.validatedValue().toKBigDecimal().isEqualTo(this)) {
                 reportInvalid("Entry and Exit cannot be the same")
             }
         }

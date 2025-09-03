@@ -15,53 +15,53 @@ import com.saurabhsandav.trading.record.model.TradeIdListColumnAdapter
 import com.saurabhsandav.trading.record.model.TradeNoteIdColumnAdapter
 import com.saurabhsandav.trading.record.model.TradeSide
 import com.saurabhsandav.trading.record.model.TradeTagIdColumnAdapter
-import com.saurabhsandav.trading.record.utils.BigDecimalColumnAdapter
 import com.saurabhsandav.trading.record.utils.InstantReadableColumnAdapter
+import com.saurabhsandav.trading.record.utils.KBigDecimalColumnAdapter
 
 internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     driver = driver,
     SizingTradeAdapter = SizingTrade.Adapter(
         idAdapter = SizingTradeIdColumnAdapter,
-        entryAdapter = BigDecimalColumnAdapter,
-        stopAdapter = BigDecimalColumnAdapter,
+        entryAdapter = KBigDecimalColumnAdapter,
+        stopAdapter = KBigDecimalColumnAdapter,
         symbolIdAdapter = SymbolIdColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
     ),
     TradeAdapter = Trade.Adapter(
         idAdapter = TradeIdColumnAdapter,
         instrumentAdapter = Instrument.ColumnAdapter,
-        quantityAdapter = BigDecimalColumnAdapter,
-        closedQuantityAdapter = BigDecimalColumnAdapter,
+        quantityAdapter = KBigDecimalColumnAdapter,
+        closedQuantityAdapter = KBigDecimalColumnAdapter,
         lotsAdapter = IntColumnAdapter,
         sideAdapter = TradeSide.ColumnAdapter,
-        averageEntryAdapter = BigDecimalColumnAdapter,
+        averageEntryAdapter = KBigDecimalColumnAdapter,
         entryTimestampAdapter = InstantReadableColumnAdapter,
-        averageExitAdapter = BigDecimalColumnAdapter,
+        averageExitAdapter = KBigDecimalColumnAdapter,
         exitTimestampAdapter = InstantReadableColumnAdapter,
-        pnlAdapter = BigDecimalColumnAdapter,
-        feesAdapter = BigDecimalColumnAdapter,
-        netPnlAdapter = BigDecimalColumnAdapter,
+        pnlAdapter = KBigDecimalColumnAdapter,
+        feesAdapter = KBigDecimalColumnAdapter,
+        netPnlAdapter = KBigDecimalColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
         symbolIdAdapter = SymbolIdColumnAdapter,
     ),
     TradeExecutionAdapter = TradeExecution.Adapter(
         idAdapter = TradeExecutionIdColumnAdapter,
         instrumentAdapter = Instrument.ColumnAdapter,
-        quantityAdapter = BigDecimalColumnAdapter,
+        quantityAdapter = KBigDecimalColumnAdapter,
         lotsAdapter = IntColumnAdapter,
         sideAdapter = TradeExecutionSide.ColumnAdapter,
-        priceAdapter = BigDecimalColumnAdapter,
+        priceAdapter = KBigDecimalColumnAdapter,
         timestampAdapter = InstantReadableColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
         symbolIdAdapter = SymbolIdColumnAdapter,
     ),
     TradeStopAdapter = TradeStop.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,
-        priceAdapter = BigDecimalColumnAdapter,
+        priceAdapter = KBigDecimalColumnAdapter,
     ),
     TradeTargetAdapter = TradeTarget.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,
-        priceAdapter = BigDecimalColumnAdapter,
+        priceAdapter = KBigDecimalColumnAdapter,
     ),
     AttachmentFileAdapter = AttachmentFile.Adapter(
         idAdapter = AttachmentFileIdColumnAdapter,
@@ -83,7 +83,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     TradeToExecutionMapAdapter = TradeToExecutionMap.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,
         executionIdAdapter = TradeExecutionIdColumnAdapter,
-        overrideQuantityAdapter = BigDecimalColumnAdapter,
+        overrideQuantityAdapter = KBigDecimalColumnAdapter,
     ),
     TradeToTagMapAdapter = TradeToTagMap.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,
@@ -96,14 +96,14 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     ),
     TradeExcursionsAdapter = TradeExcursions.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,
-        tradeMfePriceAdapter = BigDecimalColumnAdapter,
-        tradeMfePnlAdapter = BigDecimalColumnAdapter,
-        tradeMaePriceAdapter = BigDecimalColumnAdapter,
-        tradeMaePnlAdapter = BigDecimalColumnAdapter,
-        sessionMfePriceAdapter = BigDecimalColumnAdapter,
-        sessionMfePnlAdapter = BigDecimalColumnAdapter,
-        sessionMaePriceAdapter = BigDecimalColumnAdapter,
-        sessionMaePnlAdapter = BigDecimalColumnAdapter,
+        tradeMfePriceAdapter = KBigDecimalColumnAdapter,
+        tradeMfePnlAdapter = KBigDecimalColumnAdapter,
+        tradeMaePriceAdapter = KBigDecimalColumnAdapter,
+        tradeMaePnlAdapter = KBigDecimalColumnAdapter,
+        sessionMfePriceAdapter = KBigDecimalColumnAdapter,
+        sessionMfePnlAdapter = KBigDecimalColumnAdapter,
+        sessionMaePriceAdapter = KBigDecimalColumnAdapter,
+        sessionMaePnlAdapter = KBigDecimalColumnAdapter,
     ),
     BrokerAdapter = Broker.Adapter(
         idAdapter = BrokerIdColumnAdapter,

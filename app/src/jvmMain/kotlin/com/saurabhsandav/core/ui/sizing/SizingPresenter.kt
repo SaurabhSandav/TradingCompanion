@@ -25,6 +25,11 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KRoundingMode
+import com.saurabhsandav.kbigdecimal.isZero
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
@@ -40,8 +45,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.uuid.Uuid
 
 @AssistedInject
@@ -60,10 +63,10 @@ internal class SizingPresenter(
 
         val account by account.collectAsState(
             Account(
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
+                KBigDecimal.Zero,
+                KBigDecimal.Zero,
+                KBigDecimal.Zero,
+                KBigDecimal.Zero,
             ),
         )
 
@@ -90,8 +93,8 @@ internal class SizingPresenter(
         sizingtrades.await().new(
             brokerId = FinvasiaBroker.Id,
             symbolId = symbolId,
-            entry = 100.toBigDecimal(),
-            stop = 90.toBigDecimal(),
+            entry = 100.toKBigDecimal(),
+            stop = 90.toKBigDecimal(),
         )
     }
 
@@ -100,7 +103,7 @@ internal class SizingPresenter(
         entry: String,
     ) = coroutineScope.launchUnit {
 
-        val entryBD = entry.toBigDecimalOrNull() ?: return@launchUnit
+        val entryBD = entry.toKBigDecimalOrNull() ?: return@launchUnit
 
         sizingtrades.await().updateEntry(
             id = id,
@@ -113,7 +116,7 @@ internal class SizingPresenter(
         stop: String,
     ) = coroutineScope.launchUnit {
 
-        val stopBD = stop.toBigDecimalOrNull() ?: return@launchUnit
+        val stopBD = stop.toKBigDecimalOrNull() ?: return@launchUnit
 
         sizingtrades.await().updateStop(
             id = id,
@@ -149,12 +152,12 @@ internal class SizingPresenter(
         val account = account.first()
 
         val calculatedQuantity = when {
-            spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+            spread.isZero() -> KBigDecimal.Zero
+            else -> (account.riskAmount / spread).decimalPlaces(0, KRoundingMode.Floor)
         }
 
         val maxAffordableQuantity = when {
-            sizingTrade.entry.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            sizingTrade.entry.isZero() -> KBigDecimal.Zero
             else -> (account.balancePerTrade * account.leverage) / sizingTrade.entry
         }
 
@@ -165,9 +168,9 @@ internal class SizingPresenter(
                 formModel = TradeExecutionFormModel(
                     instrument = Instrument.Equity,
                     symbolId = sizingTrade.symbolId,
-                    quantity = calculatedQuantity.min(maxAffordableQuantity).toPlainString(),
+                    quantity = minOf(calculatedQuantity, maxAffordableQuantity).toString(),
                     isBuy = isBuy,
-                    price = sizingTrade.entry.toPlainString(),
+                    price = sizingTrade.entry.toString(),
                 ),
                 stop = sizingTrade.stop,
                 target = target,
@@ -198,32 +201,32 @@ internal class SizingPresenter(
         val spread = (entry - stop).abs()
 
         val calculatedQuantity = when {
-            spread.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
-            else -> (account.riskAmount / spread).setScale(0, RoundingMode.FLOOR)
+            spread.isZero() -> KBigDecimal.Zero
+            else -> (account.riskAmount / spread).decimalPlaces(0, KRoundingMode.Floor)
         }
 
         val maxAffordableQuantity = when {
-            entry.compareTo(BigDecimal.ZERO) == 0 -> BigDecimal.ZERO
+            entry.isZero() -> KBigDecimal.Zero
             else -> (account.balancePerTrade * account.leverage) / entry
         }
 
         return SizedTrade(
             id = id,
             ticker = symbolId.value,
-            entry = entry.toPlainString(),
-            stop = stop.toPlainString(),
+            entry = entry.toString(),
+            stop = stop.toString(),
             side = when {
                 entryStopComparison > 0 -> TradeSide.Long.strValue
                 entryStopComparison < 0 -> TradeSide.Short.strValue
                 else -> ""
             }.uppercase(),
-            spread = spread.toPlainString(),
-            calculatedQuantity = calculatedQuantity.toPlainString(),
-            maxAffordableQuantity = maxAffordableQuantity.toPlainString(),
+            spread = spread.toString(),
+            calculatedQuantity = calculatedQuantity.toString(),
+            maxAffordableQuantity = maxAffordableQuantity.toString(),
             target = when {
                 entry > stop -> entry + spread // Long
                 else -> entry - spread // Short
-            }.toPlainString(),
+            }.toString(),
             color = when {
                 entryStopComparison > 0 -> AppColor.ProfitGreen
                 entryStopComparison < 0 -> AppColor.LossRed

@@ -1,12 +1,13 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.core.Indicator
-import java.math.BigDecimal
 
 class EMAIndicator(
-    input: Indicator<BigDecimal>,
+    input: Indicator<KBigDecimal>,
     length: Int = 9,
 ) : AbstractEMAIndicator(
         input = input,
-        multiplier = 2.toBigDecimal().divide(BigDecimal.ONE + length.toBigDecimal(), input.mathContext),
+        multiplier = 2.toKBigDecimal().div(KBigDecimal.One + length.toKBigDecimal(), input.mathContext),
     )

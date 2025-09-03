@@ -46,21 +46,22 @@ import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import java.math.BigDecimal
 
 @Composable
 internal fun TargetsList(
     targets: List<TradeTarget>,
     showRValues: Boolean,
     targetPreviewer: Flow<TargetPreviewer>,
-    onAddTarget: (BigDecimal) -> Unit,
-    onDeleteTarget: (BigDecimal) -> Unit,
-    onSetPrimaryTarget: (BigDecimal) -> Unit,
+    onAddTarget: (KBigDecimal) -> Unit,
+    onDeleteTarget: (KBigDecimal) -> Unit,
+    onSetPrimaryTarget: (KBigDecimal) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -156,7 +157,7 @@ internal fun TargetsList(
 private fun AddTargetForm(
     schema: TargetTableSchema,
     previewer: Flow<TargetPreviewer>,
-    onAdd: (BigDecimal) -> Unit,
+    onAdd: (KBigDecimal) -> Unit,
     onDismiss: () -> Unit,
 ) {
 
@@ -270,12 +271,12 @@ private fun AddTargetForm(
 private class AddTargetFormState(
     coroutineScope: CoroutineScope,
     previewerFlow: Flow<TargetPreviewer>,
-    private val onAdd: (BigDecimal) -> Unit,
+    private val onAdd: (KBigDecimal) -> Unit,
 ) {
 
     private val changeEvents = MutableSharedFlow<ChangeEvent>(replay = 1)
 
-    private var finalPrice: BigDecimal? = null
+    private var finalPrice: KBigDecimal? = null
 
     var price by mutableStateOf("")
         private set
@@ -329,21 +330,21 @@ private class AddTargetFormState(
 
         price = newValue.trim()
 
-        changeEvents.tryEmit(ChangeEvent.Price(price.toBigDecimalOrNull()))
+        changeEvents.tryEmit(ChangeEvent.Price(price.toKBigDecimalOrNull()))
     }
 
     fun onRValueChange(newValue: String) {
 
         rValue = newValue.trim()
 
-        changeEvents.tryEmit(ChangeEvent.RValue(rValue.toBigDecimalOrNull()))
+        changeEvents.tryEmit(ChangeEvent.RValue(rValue.toKBigDecimalOrNull()))
     }
 
     fun onProfitChange(newValue: String) {
 
         profit = newValue.trim()
 
-        changeEvents.tryEmit(ChangeEvent.Profit(profit.toBigDecimalOrNull()))
+        changeEvents.tryEmit(ChangeEvent.Profit(profit.toKBigDecimalOrNull()))
     }
 
     fun submit() {
@@ -353,15 +354,15 @@ private class AddTargetFormState(
     private sealed class ChangeEvent {
 
         data class Price(
-            val value: BigDecimal?,
+            val value: KBigDecimal?,
         ) : ChangeEvent()
 
         data class RValue(
-            val value: BigDecimal?,
+            val value: KBigDecimal?,
         ) : ChangeEvent()
 
         data class Profit(
-            val value: BigDecimal?,
+            val value: KBigDecimal?,
         ) : ChangeEvent()
     }
 }

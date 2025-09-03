@@ -3,12 +3,12 @@ package com.saurabhsandav.core.ui.trade.model
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.AttachmentFileId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeNoteId
 import kotlinx.coroutines.flow.Flow
-import java.math.BigDecimal
 
 internal data class TradeState(
     val title: String,
@@ -72,7 +72,7 @@ internal data class TradeState(
     )
 
     internal data class TradeStop(
-        val price: BigDecimal,
+        val price: KBigDecimal,
         val priceText: String,
         val risk: String,
         val netRisk: String,
@@ -80,7 +80,7 @@ internal data class TradeState(
     )
 
     internal data class TradeTarget(
-        val price: BigDecimal,
+        val price: KBigDecimal,
         val priceText: String,
         val rValue: String,
         val profit: String,

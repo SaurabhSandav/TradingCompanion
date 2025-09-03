@@ -1,26 +1,26 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class GainIndicator(
-    private val input: Indicator<BigDecimal>,
-) : CachedIndicator<BigDecimal>(
+    private val input: Indicator<KBigDecimal>,
+) : CachedIndicator<KBigDecimal>(
         candleSeries = input.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(input = input.bindCacheKey())
         },
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
 
-        if (index == 0) return BigDecimal.ZERO
+        if (index == 0) return KBigDecimal.Zero
 
         return when {
             input[index] > input[index - 1] -> input[index] - input[index - 1]
-            else -> BigDecimal.ZERO
+            else -> KBigDecimal.Zero
         }
     }
 

@@ -1,16 +1,16 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.record.model.TradeId;
-import java.math.BigDecimal;
 
 CREATE TABLE IF NOT EXISTS TradeExcursions (
 tradeId INTEGER AS TradeId NOT NULL UNIQUE,
-tradeMfePrice TEXT AS BigDecimal NOT NULL,
-tradeMfePnl TEXT AS BigDecimal NOT NULL,
-tradeMaePrice TEXT AS BigDecimal NOT NULL,
-tradeMaePnl TEXT AS BigDecimal NOT NULL,
-sessionMfePrice TEXT AS BigDecimal NOT NULL,
-sessionMfePnl TEXT AS BigDecimal NOT NULL,
-sessionMaePrice TEXT AS BigDecimal NOT NULL,
-sessionMaePnl TEXT AS BigDecimal NOT NULL,
+tradeMfePrice TEXT AS KBigDecimal NOT NULL,
+tradeMfePnl TEXT AS KBigDecimal NOT NULL,
+tradeMaePrice TEXT AS KBigDecimal NOT NULL,
+tradeMaePnl TEXT AS KBigDecimal NOT NULL,
+sessionMfePrice TEXT AS KBigDecimal NOT NULL,
+sessionMfePnl TEXT AS KBigDecimal NOT NULL,
+sessionMaePrice TEXT AS KBigDecimal NOT NULL,
+sessionMaePnl TEXT AS KBigDecimal NOT NULL,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE
 );
 

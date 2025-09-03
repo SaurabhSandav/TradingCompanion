@@ -35,6 +35,7 @@ import com.saurabhsandav.core.ui.sizing.model.SizingState.TradeExecutionFormPara
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionDialog
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
 
@@ -147,7 +148,7 @@ private fun SizingTradeCard(
                     onUpdateEntry(it)
                     entry = it
                 },
-                isError = entry.toBigDecimalOrNull() == null,
+                isError = entry.toKBigDecimalOrNull() == null,
                 singleLine = true,
                 label = { Text("Entry") },
             )
@@ -160,7 +161,7 @@ private fun SizingTradeCard(
                     onUpdateStop(it)
                     stop = it
                 },
-                isError = stop.toBigDecimalOrNull() == null,
+                isError = stop.toKBigDecimalOrNull() == null,
                 singleLine = true,
                 label = { Text("Stop") },
             )

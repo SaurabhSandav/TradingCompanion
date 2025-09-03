@@ -13,6 +13,7 @@ import com.saurabhsandav.fyersapi.model.DateFormat
 import com.saurabhsandav.fyersapi.model.response.FyersError
 import com.saurabhsandav.fyersapi.model.response.HistoricalCandlesResult
 import com.saurabhsandav.fyersapi.model.response.isTokenExpired
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.candledata.CandleDownloader
 import com.saurabhsandav.trading.core.Candle
 import com.saurabhsandav.trading.core.SymbolId
@@ -118,11 +119,11 @@ internal class FyersCandleDownloader(
                 val candles = value.candles.map { candle ->
                     Candle(
                         openInstant = Instant.fromEpochSeconds(candle[0].toLong()),
-                        open = candle[1].toBigDecimal(),
-                        high = candle[2].toBigDecimal(),
-                        low = candle[3].toBigDecimal(),
-                        close = candle[4].toBigDecimal(),
-                        volume = candle[5].toBigDecimal(),
+                        open = candle[1].toKBigDecimal(),
+                        high = candle[2].toKBigDecimal(),
+                        low = candle[3].toKBigDecimal(),
+                        close = candle[4].toKBigDecimal(),
+                        volume = candle[5].toKBigDecimal(),
                     )
                 }
 

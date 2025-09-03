@@ -46,20 +46,21 @@ import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.StopPreviewer
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import java.math.BigDecimal
 
 @Composable
 internal fun StopsList(
     stops: List<TradeStop>,
     stopPreviewer: Flow<StopPreviewer>,
-    onAddStop: (BigDecimal) -> Unit,
-    onDeleteStop: (BigDecimal) -> Unit,
-    onSetPrimaryStop: (BigDecimal) -> Unit,
+    onAddStop: (KBigDecimal) -> Unit,
+    onDeleteStop: (KBigDecimal) -> Unit,
+    onSetPrimaryStop: (KBigDecimal) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -150,7 +151,7 @@ internal fun StopsList(
 @Composable
 private fun AddStopForm(
     previewer: Flow<StopPreviewer>,
-    onAdd: (BigDecimal) -> Unit,
+    onAdd: (KBigDecimal) -> Unit,
     onDismiss: () -> Unit,
 ) {
 
@@ -246,12 +247,12 @@ private fun AddStopForm(
 private class AddStopFormState(
     coroutineScope: CoroutineScope,
     previewerFlow: Flow<StopPreviewer>,
-    private val onAdd: (BigDecimal) -> Unit,
+    private val onAdd: (KBigDecimal) -> Unit,
 ) {
 
     private val changeEvents = MutableSharedFlow<ChangeEvent>(replay = 1)
 
-    private var finalPrice: BigDecimal? = null
+    private var finalPrice: KBigDecimal? = null
 
     var price by mutableStateOf("")
         private set
@@ -294,14 +295,14 @@ private class AddStopFormState(
 
         price = newValue.trim()
 
-        changeEvents.tryEmit(ChangeEvent.Price(price.toBigDecimalOrNull()))
+        changeEvents.tryEmit(ChangeEvent.Price(price.toKBigDecimalOrNull()))
     }
 
     fun onRiskChange(newValue: String) {
 
         risk = newValue.trim()
 
-        changeEvents.tryEmit(ChangeEvent.Risk(risk.toBigDecimalOrNull()))
+        changeEvents.tryEmit(ChangeEvent.Risk(risk.toKBigDecimalOrNull()))
     }
 
     fun submit() {
@@ -311,11 +312,11 @@ private class AddStopFormState(
     private sealed class ChangeEvent {
 
         data class Price(
-            val value: BigDecimal?,
+            val value: KBigDecimal?,
         ) : ChangeEvent()
 
         data class Risk(
-            val value: BigDecimal?,
+            val value: KBigDecimal?,
         ) : ChangeEvent()
     }
 }

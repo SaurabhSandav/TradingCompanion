@@ -233,7 +233,7 @@ private fun TradeExecutionForm(
             ) {
 
                 Text(
-                    text = "Add Stop at ${formType.target.toPlainString()}",
+                    text = "Add Stop at ${formType.target}",
                     modifier = Modifier.weight(1F),
                 )
 
@@ -248,7 +248,7 @@ private fun TradeExecutionForm(
             ) {
 
                 Text(
-                    text = "Add Target at ${formType.target.toPlainString()}",
+                    text = "Add Target at ${formType.target}",
                     modifier = Modifier.weight(1F),
                 )
 

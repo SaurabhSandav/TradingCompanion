@@ -1,16 +1,17 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.buildIndicatorCacheKey
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 import kotlin.math.max
 import kotlin.math.min
 
 class SMAIndicator(
-    private val input: Indicator<BigDecimal>,
+    private val input: Indicator<KBigDecimal>,
     val length: Int,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = input.candleSeries,
         cacheKey = buildIndicatorCacheKey {
             CacheKey(
@@ -20,9 +21,9 @@ class SMAIndicator(
         },
     ) {
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
 
-        var sum = BigDecimal.ZERO
+        var sum = KBigDecimal.Zero
 
         val from = max(0, (index - length + 1))
 
@@ -30,9 +31,9 @@ class SMAIndicator(
             sum += input[i]
         }
 
-        val adjLength = min(length, index + 1).toBigDecimal()
+        val adjLength = min(length, index + 1).toKBigDecimal()
 
-        return sum.divide(adjLength, input.mathContext)
+        return sum.div(adjLength, input.mathContext)
     }
 
     private data class CacheKey(

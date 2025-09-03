@@ -20,6 +20,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
@@ -106,10 +107,10 @@ internal class TradeExecutionFormPresenter(
                     brokerId = BrokerId("Finvasia"),
                     instrument = formModel.instrumentField.value!!,
                     symbolId = formModel.symbolField.value!!,
-                    quantity = formModel.quantityField.value.toBigDecimal(),
+                    quantity = formModel.quantityField.value.toKBigDecimal(),
                     lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                     side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                    price = formModel.priceField.value.toBigDecimal(),
+                    price = formModel.priceField.value.toKBigDecimal(),
                     timestamp = formModel.timestamp.toInstant(tz),
                 )
 
@@ -120,10 +121,10 @@ internal class TradeExecutionFormPresenter(
                 brokerId = BrokerId("Finvasia"),
                 instrument = formModel.instrumentField.value!!,
                 symbolId = formModel.symbolField.value!!,
-                quantity = formModel.quantityField.value.toBigDecimal(),
+                quantity = formModel.quantityField.value.toKBigDecimal(),
                 lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
-                price = formModel.priceField.value.toBigDecimal(),
+                price = formModel.priceField.value.toKBigDecimal(),
                 timestamp = formModel.timestamp.toInstant(tz),
                 locked = false,
             )
@@ -161,7 +162,7 @@ internal class TradeExecutionFormPresenter(
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",
             isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toPlainString(),
+            price = execution.price.toString(),
         )
     }
 
@@ -188,7 +189,7 @@ internal class TradeExecutionFormPresenter(
         formModel = TradeExecutionFormModel(
             instrument = trade.instrument,
             symbolId = trade.symbolId,
-            quantity = (trade.quantity - trade.closedQuantity).toPlainString(),
+            quantity = (trade.quantity - trade.closedQuantity).toString(),
             isBuy = trade.side != TradeSide.Long,
         )
     }
@@ -203,7 +204,7 @@ internal class TradeExecutionFormPresenter(
             quantity = execution.quantity.toString(),
             lots = execution.lots?.toString() ?: "",
             isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toPlainString(),
+            price = execution.price.toString(),
             timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
         )
     }

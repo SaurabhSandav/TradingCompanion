@@ -3,6 +3,8 @@ package com.saurabhsandav.core.ui.barreplay.session
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.backtest.BacktestAccount
 import com.saurabhsandav.trading.backtest.BacktestBroker
 import com.saurabhsandav.trading.backtest.BacktestOrder
@@ -26,7 +28,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 import kotlin.random.Random
 import kotlin.uuid.Uuid
 
@@ -42,7 +43,7 @@ internal class ReplayOrdersManager(
     private val tradingRecord = coroutineScope.async { profileId?.let { tradingProfiles.getRecord(it) } }
 
     private val symbolPriceScopeCache = mutableMapOf<SymbolId, CoroutineScope>()
-    private val account = BacktestAccount(10_000.toBigDecimal())
+    private val account = BacktestAccount(10_000.toKBigDecimal())
     private val backtestBroker = BacktestBroker(account, tradingProfiles.brokerProvider)
     val openOrders = backtestBroker.orders.map { orders ->
         @Suppress("UNCHECKED_CAST")
@@ -66,11 +67,11 @@ internal class ReplayOrdersManager(
 
     fun newOrder(
         stockChartParams: StockChartParams,
-        quantity: BigDecimal,
+        quantity: KBigDecimal,
         side: TradeExecutionSide,
-        price: BigDecimal,
-        stop: BigDecimal?,
-        target: BigDecimal?,
+        price: KBigDecimal,
+        stop: KBigDecimal?,
+        target: KBigDecimal?,
     ): Long {
 
         val orderId = Random.nextLong()

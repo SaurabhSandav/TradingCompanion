@@ -41,6 +41,7 @@ import com.saurabhsandav.core.ui.tradesfiltersheet.TradesFilterGraph
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.fyersapi.FyersApi
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.candledata.CandleCacheDB
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.record.TradingRecord
@@ -117,10 +118,10 @@ internal interface AppGraph {
     @Provides
     fun provideAccount(): Flow<Account> = flowOf(
         Account(
-            balance = 11250.toBigDecimal(),
-            balancePerTrade = 11250.toBigDecimal(),
-            leverage = 5.toBigDecimal(),
-            riskAmount = 11250.toBigDecimal() * 0.02.toBigDecimal(),
+            balance = 11250.toKBigDecimal(),
+            balancePerTrade = 11250.toKBigDecimal(),
+            leverage = 5.toKBigDecimal(),
+            riskAmount = 11250.toKBigDecimal() * 0.02.toKBigDecimal(),
         ),
     )
 

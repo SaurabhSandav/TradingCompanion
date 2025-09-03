@@ -13,6 +13,8 @@ import com.saurabhsandav.core.ui.stockchart.plotter.SeriesPlotter
 import com.saurabhsandav.core.ui.stockchart.plotter.VolumePlotter
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
+import com.saurabhsandav.kbigdecimal.KRoundingMode
+import com.saurabhsandav.kbigdecimal.toDouble
 import com.saurabhsandav.lightweightcharts.data.CandlestickData
 import com.saurabhsandav.lightweightcharts.data.HistogramData
 import com.saurabhsandav.lightweightcharts.data.LineData
@@ -35,7 +37,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import java.math.RoundingMode
 import kotlin.time.Instant
 
 class PlotterManager(
@@ -162,7 +163,7 @@ class PlotterManager(
             candleSeries.indices.map { index ->
                 LineData.Item(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = indicators.ema9Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 )
             },
         )
@@ -171,7 +172,7 @@ class PlotterManager(
             candleSeries.indices.map { index ->
                 LineData.Item(
                     time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                    value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = indicators.ema21Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 )
             },
         )
@@ -202,7 +203,7 @@ class PlotterManager(
                 candleSeries.indices.map { index ->
                     LineData.Item(
                         time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                        value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                        value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                     )
                 },
             )
@@ -218,7 +219,7 @@ class PlotterManager(
                 candleSeries.indices.map { index ->
                     LineData.Item(
                         time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                        value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                        value = sma50Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                     )
                 },
             )
@@ -234,7 +235,7 @@ class PlotterManager(
                 candleSeries.indices.map { index ->
                     LineData.Item(
                         time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                        value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                        value = sma100Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                     )
                 },
             )
@@ -250,7 +251,7 @@ class PlotterManager(
                 candleSeries.indices.map { index ->
                     LineData.Item(
                         time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                        value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                        value = sma200Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                     )
                 },
             )
@@ -280,14 +281,14 @@ class PlotterManager(
         ema9Plotter.update(
             LineData.Item(
                 time = time,
-                value = indicators.ema9Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                value = indicators.ema9Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
             ),
         )
 
         ema21Plotter.update(
             LineData.Item(
                 time = time,
-                value = indicators.ema21Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                value = indicators.ema21Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
             ),
         )
 
@@ -309,7 +310,7 @@ class PlotterManager(
             vwapPlotter.update(
                 LineData.Item(
                     time = time,
-                    value = vwapIndicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 ),
             )
         }
@@ -321,7 +322,7 @@ class PlotterManager(
             sma50Plotter.update(
                 LineData.Item(
                     time = time,
-                    value = sma50Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = sma50Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 ),
             )
         }
@@ -333,7 +334,7 @@ class PlotterManager(
             sma100Plotter.update(
                 LineData.Item(
                     time = time,
-                    value = sma100Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = sma100Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 ),
             )
         }
@@ -345,7 +346,7 @@ class PlotterManager(
             sma200Plotter.update(
                 LineData.Item(
                     time = time,
-                    value = sma200Indicator[index].setScale(2, RoundingMode.DOWN).toDouble(),
+                    value = sma200Indicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
                 ),
             )
         }

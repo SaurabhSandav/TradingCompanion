@@ -40,8 +40,9 @@ import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.flow.map
-import java.math.BigDecimal
 
 @Composable
 internal fun PnlFilterItem(
@@ -146,8 +147,8 @@ internal fun PnlFilterItem(
                     snapshotFlow { formModel.fromField.value to formModel.toField.value }
                         .map { (fromStr, toStr) ->
 
-                            val from = fromStr.ifEmpty { null }?.toBigDecimalOrNull()
-                            val to = toStr.ifEmpty { null }?.toBigDecimalOrNull()
+                            val from = fromStr.ifEmpty { null }?.toKBigDecimalOrNull()
+                            val to = toStr.ifEmpty { null }?.toKBigDecimalOrNull()
 
                             PNL.Custom(from, to)
                         }
@@ -210,20 +211,20 @@ private fun RowScope.CustomField(
 }
 
 private class PnlFormModel(
-    from: BigDecimal?,
-    to: BigDecimal?,
+    from: KBigDecimal?,
+    to: KBigDecimal?,
 ) : FormModel() {
 
-    val fromField = addField(from?.toPlainString().orEmpty()) {
+    val fromField = addField(from?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()
     }
 
-    val toField = addField(to?.toPlainString().orEmpty()) {
+    val toField = addField(to?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()?.apply {
 
-            val validatedFrom = fromField.validatedValue().toBigDecimalOrNull()
+            val validatedFrom = fromField.validatedValue().toKBigDecimalOrNull()
 
             if (validatedFrom != null && validatedFrom > this) reportInvalid("Cannot be less than from")
         }

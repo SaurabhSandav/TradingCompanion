@@ -1,8 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeId
-import java.math.BigDecimal
 
 internal sealed class TradeExecutionFormType {
 
@@ -18,8 +18,8 @@ internal sealed class TradeExecutionFormType {
 
     data class NewSized(
         val formModel: TradeExecutionFormModel,
-        val stop: BigDecimal,
-        val target: BigDecimal,
+        val stop: KBigDecimal,
+        val target: KBigDecimal,
     ) : TradeExecutionFormType()
 
     data class AddToTrade(

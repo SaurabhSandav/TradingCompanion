@@ -1,8 +1,8 @@
 package com.saurabhsandav.trading.record.model
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.datetime.LocalTime
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 data class TradeFilter(
@@ -12,8 +12,8 @@ data class TradeFilter(
     val instantTo: Instant? = null,
     val timeFrom: LocalTime? = null,
     val timeTo: LocalTime? = null,
-    val pnlFrom: BigDecimal? = null,
-    val pnlTo: BigDecimal? = null,
+    val pnlFrom: KBigDecimal? = null,
+    val pnlTo: KBigDecimal? = null,
     val filterByNetPnl: Boolean = false,
     val hasNotes: Boolean? = null,
     val tags: List<TradeTagId> = emptyList(),
@@ -87,8 +87,8 @@ fun TradeFilterScope.timeRange(
 }
 
 fun TradeFilterScope.pnlRange(
-    from: BigDecimal? = null,
-    to: BigDecimal? = null,
+    from: KBigDecimal? = null,
+    to: KBigDecimal? = null,
     filterByNetPnl: Boolean = false,
 ) {
     transform { it.copy(pnlFrom = from, pnlTo = to, filterByNetPnl = filterByNetPnl) }

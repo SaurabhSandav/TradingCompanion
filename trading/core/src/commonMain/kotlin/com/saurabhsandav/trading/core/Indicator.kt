@@ -1,12 +1,12 @@
 package com.saurabhsandav.trading.core
 
-import java.math.MathContext
+import com.saurabhsandav.kbigdecimal.KMathContext
 
 interface Indicator<T : Any> {
 
     val candleSeries: CandleSeries
 
-    val mathContext: MathContext
+    val mathContext: KMathContext
         get() = candleSeries.indicatorMathContext
 
     // If null, [CachedIndicator] implementation won't share cache with other instances of itself.

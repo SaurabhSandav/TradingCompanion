@@ -1,27 +1,25 @@
 package com.saurabhsandav.core.ui.trade
 
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeStop
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KMathContext
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.brokerageAt
 import com.saurabhsandav.trading.record.model.TradeSide
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 
 internal class StopPreviewer(
     private val trade: TradeDisplay,
     private val broker: Broker,
 ) {
 
-    fun atPrice(price: BigDecimal): TradeStop? = generateStop(price)
+    fun atPrice(price: KBigDecimal): TradeStop? = generateStop(price)
 
-    fun atRisk(risk: BigDecimal): TradeStop? {
+    fun atRisk(risk: KBigDecimal): TradeStop? {
 
-        if (risk <= BigDecimal.ZERO) return null
+        if (risk <= KBigDecimal.Zero) return null
 
-        val riskPerShare = risk.divide(trade.quantity, MathContext.DECIMAL32)
-            .setScale(2, RoundingMode.HALF_EVEN)
+        val riskPerShare = risk.div(trade.quantity, KMathContext.Decimal32)
 
         val price = when (trade.side) {
             TradeSide.Long -> trade.averageEntry - riskPerShare
@@ -31,7 +29,7 @@ internal class StopPreviewer(
         return generateStop(price)
     }
 
-    private fun generateStop(price: BigDecimal): TradeStop? {
+    private fun generateStop(price: KBigDecimal): TradeStop? {
 
         val isValid = when (trade.side) {
             TradeSide.Long -> price < trade.averageEntry
@@ -42,13 +40,11 @@ internal class StopPreviewer(
 
         val brokerage = trade.brokerageAt(broker, price)
 
-        fun BigDecimal.strippedPlainText() = stripTrailingZeros().toPlainString()
-
         return TradeStop(
             price = price,
-            priceText = price.strippedPlainText(),
-            risk = (brokerage.pnl.negate()).strippedPlainText(),
-            netRisk = brokerage.netPNL.strippedPlainText(),
+            priceText = price.toString(),
+            risk = brokerage.pnl.negated().toString(),
+            netRisk = brokerage.netPNL.toString(),
             isPrimary = false,
         )
     }

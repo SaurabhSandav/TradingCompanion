@@ -1,5 +1,7 @@
 package com.saurabhsandav.trading.record.testdata
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.Trade
@@ -13,7 +15,6 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import java.math.BigDecimal
 
 class CommonExitEntryTradesData {
 
@@ -26,10 +27,10 @@ class CommonExitEntryTradesData {
             brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
-            quantity = 150.toBigDecimal(),
+            quantity = 150.toKBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
-            price = 1010.toBigDecimal(),
+            price = 1010.toKBigDecimal(),
             timestamp = LocalDateTime(2024, Month.MAY, 6, 10, 0).toInstant(TimeZone.UTC),
             locked = true,
         ),
@@ -40,10 +41,10 @@ class CommonExitEntryTradesData {
             brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
-            quantity = 250.toBigDecimal(),
+            quantity = 250.toKBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Buy,
-            price = 1020.toBigDecimal(),
+            price = 1020.toKBigDecimal(),
             timestamp = LocalDateTime(2024, Month.MAY, 6, 11, 0).toInstant(TimeZone.UTC),
             locked = true,
         ),
@@ -54,10 +55,10 @@ class CommonExitEntryTradesData {
             brokerId = TestBroker.Id,
             instrument = Instrument.Equity,
             symbolId = SymbolId("TestSymbol3"),
-            quantity = 100.toBigDecimal(),
+            quantity = 100.toKBigDecimal(),
             lots = null,
             side = TradeExecutionSide.Sell,
-            price = 1040.toBigDecimal(),
+            price = 1040.toKBigDecimal(),
             timestamp = LocalDateTime(2024, Month.MAY, 6, 12, 0).toInstant(TimeZone.UTC),
             locked = true,
         ),
@@ -80,16 +81,16 @@ class CommonExitEntryTradesData {
             instrument = executions[0].instrument,
             symbolId = executions[0].symbolId,
             quantity = executions[0].quantity,
-            closedQuantity = BigDecimal.ZERO,
+            closedQuantity = KBigDecimal.Zero,
             lots = executions[0].lots,
             side = TradeSide.Short,
             averageEntry = executions[0].price,
             entryTimestamp = executions[0].timestamp,
             averageExit = null,
             exitTimestamp = null,
-            pnl = BigDecimal.ZERO,
-            fees = BigDecimal.ZERO,
-            netPnl = BigDecimal.ZERO,
+            pnl = KBigDecimal.Zero,
+            fees = KBigDecimal.Zero,
+            netPnl = KBigDecimal.Zero,
             isClosed = false,
         ),
     )
@@ -101,25 +102,25 @@ class CommonExitEntryTradesData {
             instrument = executions[0].instrument,
             symbolId = executions[0].symbolId,
             quantity = executions[1].quantity - executions[0].quantity,
-            closedQuantity = BigDecimal.ZERO,
+            closedQuantity = KBigDecimal.Zero,
             lots = null,
             side = TradeSide.Long,
             averageEntry = executions[1].price,
             entryTimestamp = executions[1].timestamp,
             averageExit = null,
             exitTimestamp = null,
-            pnl = BigDecimal.ZERO,
-            fees = BigDecimal.ZERO,
-            netPnl = BigDecimal.ZERO,
+            pnl = KBigDecimal.Zero,
+            fees = KBigDecimal.Zero,
+            netPnl = KBigDecimal.Zero,
             isClosed = false,
         ),
         firstExecutionTrades[0].copy(
             closedQuantity = executions[0].quantity,
             averageExit = executions[1].price,
             exitTimestamp = executions[1].timestamp,
-            pnl = (-1500).toBigDecimal(),
-            fees = "10".toBigDecimal(),
-            netPnl = "-1510".toBigDecimal(),
+            pnl = (-1500).toKBigDecimal(),
+            fees = "10".toKBigDecimal(),
+            netPnl = "-1510".toKBigDecimal(),
             isClosed = true,
         ),
     )
@@ -130,9 +131,9 @@ class CommonExitEntryTradesData {
             closedQuantity = executions[2].quantity,
             averageExit = executions[2].price,
             exitTimestamp = executions[2].timestamp,
-            pnl = 2000.toBigDecimal(),
-            fees = "10".toBigDecimal(),
-            netPnl = "1990".toBigDecimal(),
+            pnl = 2000.toKBigDecimal(),
+            fees = "10".toKBigDecimal(),
+            netPnl = "1990".toKBigDecimal(),
             isClosed = true,
         ),
         secondExecutionTrades[1],

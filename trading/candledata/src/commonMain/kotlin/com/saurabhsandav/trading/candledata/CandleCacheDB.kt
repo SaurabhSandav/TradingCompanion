@@ -5,6 +5,8 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.saurabhsandav.kbigdecimal.toDouble
+import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.candledata.db.CandleQueriesCollection
 import com.saurabhsandav.trading.candledata.migrations.migrationAfterV1
 import com.saurabhsandav.trading.core.Candle
@@ -99,11 +101,11 @@ class CandleCacheDB(
 
                 candlesQueries.insert(
                     epochSeconds = candle.openInstant.epochSeconds,
-                    open = candle.open.toPlainString(),
-                    high = candle.high.toPlainString(),
-                    low = candle.low.toPlainString(),
-                    close = candle.close.toPlainString(),
-                    volume = candle.volume.toLong(),
+                    open = candle.open.toString(),
+                    high = candle.high.toString(),
+                    low = candle.low.toString(),
+                    close = candle.close.toString(),
+                    volume = candle.volume.toDouble().toLong(),
                 )
             }
         }
@@ -176,11 +178,11 @@ class CandleCacheDB(
             { epochSeconds, open, high, low, close, volume ->
                 Candle(
                     openInstant = Instant.fromEpochSeconds(epochSeconds),
-                    open = open.toBigDecimal(),
-                    high = high.toBigDecimal(),
-                    low = low.toBigDecimal(),
-                    close = close.toBigDecimal(),
-                    volume = volume.toBigDecimal(),
+                    open = open.toKBigDecimal(),
+                    high = high.toKBigDecimal(),
+                    low = low.toKBigDecimal(),
+                    close = close.toKBigDecimal(),
+                    volume = volume.toKBigDecimal(),
                 )
             }
 
@@ -244,11 +246,11 @@ class CandleCacheDB(
             ) { epochSeconds, open, high, low, close, volume ->
                 Candle(
                     Instant.fromEpochSeconds(epochSeconds),
-                    open.toBigDecimal(),
-                    high.toBigDecimal(),
-                    low.toBigDecimal(),
-                    close.toBigDecimal(),
-                    volume.toBigDecimal(),
+                    open.toKBigDecimal(),
+                    high.toKBigDecimal(),
+                    low.toKBigDecimal(),
+                    close.toKBigDecimal(),
+                    volume.toKBigDecimal(),
                 )
             }.asFlow().mapToList(coroutineContext).emitInto(this)
         }
@@ -275,11 +277,11 @@ class CandleCacheDB(
             ) { epochSeconds, open, high, low, close, volume ->
                 Candle(
                     Instant.fromEpochSeconds(epochSeconds),
-                    open.toBigDecimal(),
-                    high.toBigDecimal(),
-                    low.toBigDecimal(),
-                    close.toBigDecimal(),
-                    volume.toBigDecimal(),
+                    open.toKBigDecimal(),
+                    high.toKBigDecimal(),
+                    low.toKBigDecimal(),
+                    close.toKBigDecimal(),
+                    volume.toKBigDecimal(),
                 )
             }.asFlow().mapToList(coroutineContext).emitInto(this)
         }

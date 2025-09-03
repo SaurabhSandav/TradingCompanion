@@ -21,6 +21,8 @@ kotlin {
 
         commonMain.dependencies {
 
+            api(projects.kbigdecimal)
+
             // KotlinX Coroutines
             implementation(libs.kotlinx.coroutines.core)
 

@@ -141,7 +141,7 @@ internal class TradeExecutionsPresenter(
         ticker = ticker,
         quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
         side = side.strValue.uppercase(),
-        price = price.toPlainString(),
+        price = price.toString(),
         timestamp = timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),
         locked = locked,
     )

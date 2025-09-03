@@ -1,15 +1,16 @@
 package com.saurabhsandav.trading.indicator
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.isZero
 import com.saurabhsandav.trading.core.CandleSeries
 import com.saurabhsandav.trading.core.Indicator
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.indicator.base.CachedIndicator
-import java.math.BigDecimal
 
 class VWAPIndicator(
     candleSeries: CandleSeries,
     sessionChecker: SessionChecker,
-) : CachedIndicator<BigDecimal>(
+) : CachedIndicator<KBigDecimal>(
         candleSeries = candleSeries,
         cacheKey = CacheKey(sessionChecker),
     ) {
@@ -20,10 +21,10 @@ class VWAPIndicator(
     private val cumulativeTPV = SessionCumulativeIndicator(tpv, sessionChecker)
     private val cumulativeVolume = SessionCumulativeIndicator(volume, sessionChecker)
 
-    override fun calculate(index: Int): BigDecimal {
+    override fun calculate(index: Int): KBigDecimal {
         return when {
-            cumulativeVolume[index] == BigDecimal.ZERO -> BigDecimal.ZERO
-            else -> cumulativeTPV[index].divide(cumulativeVolume[index], mathContext)
+            cumulativeVolume[index].isZero() -> KBigDecimal.Zero
+            else -> cumulativeTPV[index].div(cumulativeVolume[index], mathContext)
         }
     }
 

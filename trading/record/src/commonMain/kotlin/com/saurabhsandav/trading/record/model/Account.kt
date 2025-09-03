@@ -1,10 +1,10 @@
 package com.saurabhsandav.trading.record.model
 
-import java.math.BigDecimal
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 
 data class Account(
-    val balance: BigDecimal,
-    val balancePerTrade: BigDecimal,
-    val leverage: BigDecimal,
-    val riskAmount: BigDecimal,
+    val balance: KBigDecimal,
+    val balancePerTrade: KBigDecimal,
+    val leverage: KBigDecimal,
+    val riskAmount: KBigDecimal,
 )

@@ -1,10 +1,10 @@
 package com.saurabhsandav.trading.backtest
 
+import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
-import java.math.BigDecimal
 import kotlin.time.Instant
 
 data class BacktestOrder<S : BacktestOrder.Status>(
@@ -19,7 +19,7 @@ data class BacktestOrder<S : BacktestOrder.Status>(
         val brokerId: BrokerId,
         val instrument: Instrument,
         val symbolId: SymbolId,
-        val quantity: BigDecimal,
+        val quantity: KBigDecimal,
         val lots: Int?,
         val side: TradeExecutionSide,
     )
@@ -46,7 +46,7 @@ data class BacktestOrder<S : BacktestOrder.Status>(
 
         data class Executed(
             override val closedAt: Instant,
-            val executionPrice: BigDecimal,
+            val executionPrice: KBigDecimal,
         ) : Closed()
 
         enum class RejectionCause {
@@ -65,9 +65,9 @@ value class BacktestOrderId(
 }
 
 fun BacktestOrder<BacktestOrder.Status.Open>.tryExecute(
-    prevPrice: BigDecimal,
-    newPrice: BigDecimal,
-): BigDecimal? = executionType.tryExecute(
+    prevPrice: KBigDecimal,
+    newPrice: KBigDecimal,
+): KBigDecimal? = executionType.tryExecute(
     side = params.side,
     prevPrice = prevPrice,
     newPrice = newPrice,
