@@ -39,6 +39,7 @@ include(
     "lightweight-charts",
     "jcef-compose",
     "paging",
+    "kbigdecimal",
     "trading:core",
     "trading:indicator",
     "trading:barreplay",

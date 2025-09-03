@@ -55,6 +55,13 @@ fun KotlinMultiplatformExtension.applyWasmJsConventions() {
         browser()
     }
 
+    compilerOptions {
+
+        optIn.addAll(
+            "kotlin.js.ExperimentalWasmJsInterop",
+        )
+    }
+
     project.afterEvaluate {
         disableWasmJsToolingDownload()
     }
