@@ -1,24 +1,15 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.kotlin.multiplatform")
+
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.buildKonfig)
 }
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
     compilerOptions {
-
-        progressiveMode = true
 
         explicitApi()
 
@@ -55,11 +46,6 @@ kotlin {
 
             // EitherNet
             implementation(libs.eithernet)
-        }
-
-        jvmTest.dependencies {
-
-            implementation(kotlin("test"))
         }
     }
 }

@@ -1,12 +1,11 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import com.saurabhsandav.buildlogic.convention.generateAppVersion
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.compose-multiplatform.app")
+
     alias(libs.plugins.kotlin.plugin.serialization)
-    alias(libs.plugins.kotlin.plugin.compose)
-    alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildKonfig)
     alias(libs.plugins.metro)
@@ -23,25 +22,10 @@ configurations.configureEach {
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     compilerOptions {
-
-        progressiveMode = true
 
         freeCompilerArgs.addAll(
             "-Xexpect-actual-classes",
-            "-Xcontext-parameters",
-            "-Xconsistent-data-class-copy-visibility",
-            "-Xwhen-guards",
-            "-Xannotation-default-target=param-property",
         )
 
         optIn.addAll(
@@ -160,11 +144,7 @@ kotlin {
 
         jvmTest.dependencies {
 
-            implementation(kotlin("test"))
             implementation(projects.trading.test)
-
-            // KotlinX Coroutines
-            implementation(libs.kotlinx.coroutines.test)
 
             // Multiplatform Settings
             implementation(libs.multiplatformSettings.test)
@@ -210,33 +190,8 @@ buildkonfig {
         buildConfigField(
             type = FieldSpec.Type.STRING,
             name = "VERSION",
-            value = providers.exec {
-                environment("TZ", "UTC0")
-                commandLine(
-                    "git",
-                    "log",
-                    "-1",
-                    "--date=local",
-                    "--pretty=format:%cd.%h",
-                    "--date=format-local:%Y%m%d.%H%M%S",
-                )
-            }.standardOutput.asText.get().trim(),
+            value = generateAppVersion(),
         )
-    }
-}
-
-composeCompiler {
-
-    stabilityConfigurationFiles.addAll(
-        parent!!.layout.projectDirectory.file("compose-stability.conf"),
-    )
-
-    // Trigger this with:
-    // ./gradlew build -PenableComposeCompilerReports --rerun-tasks
-    if (project.providers.gradleProperty("enableComposeCompilerReports").isPresent) {
-        val composeReports = layout.buildDirectory.map { it.dir("reports").dir("compose") }
-        reportsDestination.set(composeReports)
-        metricsDestination.set(composeReports)
     }
 }
 
@@ -284,23 +239,4 @@ compose {
             }
         }
     }
-}
-
-// Fix jcef_helper file is not executable in Jetbrains JCEF
-val fixDistributablePermissions by tasks.registering(Exec::class) {
-    workingDir(layout.buildDirectory.file("compose/binaries/"))
-
-    commandLine(
-        "chmod",
-        "+x",
-        "-f",
-        "main/app/TradingCompanion/lib/runtime/lib/jcef_helper",
-        "main-release/app/TradingCompanion/lib/runtime/lib/jcef_helper",
-    )
-
-    isIgnoreExitValue = true
-}
-
-tasks.withType<AbstractJPackageTask> {
-    finalizedBy(fixDistributablePermissions)
 }

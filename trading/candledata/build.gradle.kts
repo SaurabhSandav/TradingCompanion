@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.kotlin.multiplatform")
+
     alias(libs.plugins.sqldelight)
 }
 
@@ -8,18 +9,7 @@ version = "1.0-SNAPSHOT"
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     compilerOptions {
-
-        progressiveMode = true
 
         optIn.addAll(
             "kotlin.time.ExperimentalTime",

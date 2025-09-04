@@ -1,31 +1,15 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.compose-multiplatform.library")
+
     alias(libs.plugins.kotlin.plugin.serialization)
-    alias(libs.plugins.kotlin.plugin.compose)
-    alias(libs.plugins.jetbrains.compose)
     id("de.undercouch.download")
 }
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     compilerOptions {
-
-        progressiveMode = true
-
-        freeCompilerArgs.addAll(
-            "-Xwhen-guards",
-        )
 
         optIn.addAll(
             "kotlin.contracts.ExperimentalContracts",
@@ -57,26 +41,6 @@ kotlin {
             // kotlin css
             api(libs.kotlinWrappers.kotlinCss)
         }
-
-        jvmTest.dependencies {
-
-            implementation(kotlin("test"))
-        }
-    }
-}
-
-composeCompiler {
-
-    stabilityConfigurationFiles.addAll(
-        parent!!.layout.projectDirectory.file("compose-stability.conf"),
-    )
-
-    // Trigger this with:
-    // ./gradlew build -PenableComposeCompilerReports --rerun-tasks
-    if (project.providers.gradleProperty("enableComposeCompilerReports").isPresent) {
-        val composeReports = layout.buildDirectory.map { it.dir("reports").dir("compose") }
-        reportsDestination.set(composeReports)
-        metricsDestination.set(composeReports)
     }
 }
 

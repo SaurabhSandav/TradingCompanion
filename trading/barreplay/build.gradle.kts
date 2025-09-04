@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.kotlin.multiplatform")
 }
 
 group = "com.saurabhsandav.trading"
@@ -7,18 +7,7 @@ version = "1.0-SNAPSHOT"
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     compilerOptions {
-
-        progressiveMode = true
 
         optIn.addAll(
             "kotlin.time.ExperimentalTime",
@@ -38,8 +27,6 @@ kotlin {
         commonTest.dependencies {
 
             implementation(projects.trading.test)
-
-            implementation(kotlin("test"))
         }
     }
 }

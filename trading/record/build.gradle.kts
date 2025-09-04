@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    id("convention.kotlin.multiplatform")
+
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.sqldelight)
 }
@@ -9,25 +10,10 @@ version = "1.0-SNAPSHOT"
 
 kotlin {
 
-    jvm {
-
-        compilerOptions.freeCompilerArgs.add("-Xjdk-release=21")
-
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     compilerOptions {
-
-        progressiveMode = true
 
         optIn.addAll(
             "kotlin.time.ExperimentalTime",
-        )
-
-        freeCompilerArgs.addAll(
-            "-Xconsistent-data-class-copy-visibility",
         )
     }
 
@@ -64,11 +50,6 @@ kotlin {
         commonTest.dependencies {
 
             implementation(projects.trading.test)
-
-            implementation(kotlin("test"))
-
-            // KotlinX Coroutines
-            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

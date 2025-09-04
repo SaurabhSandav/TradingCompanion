@@ -1,6 +1,7 @@
 plugins {
+    id("convention.kotlin.plugin.compose")
+
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.jetbrains.compose)
 }
 
