@@ -10,6 +10,7 @@ import com.saurabhsandav.trading.core.binarySearchByAsResult
 import com.saurabhsandav.trading.core.indexOr
 import com.saurabhsandav.trading.core.indexOrNaturalIndex
 import com.saurabhsandav.trading.test.CandleUtils
+import com.saurabhsandav.trading.test.assertCandleEquals
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -76,8 +77,8 @@ class StockChartDataTest {
             assertTrue { candleSource.isInitialized }
             assertFalse { candleSource.isDestroyed }
             assertEquals(20, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
         }
     }
 
@@ -107,15 +108,15 @@ class StockChartDataTest {
             assertEquals(LoadState.Loaded, awaitItem())
 
             assertEquals(20, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
 
             data.loadInitial()
             ensureAllEventsConsumed()
 
             assertEquals(20, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
         }
     }
 
@@ -138,8 +139,8 @@ class StockChartDataTest {
         repeat(4) { data1.loadBefore() }
 
         assertEquals(40, data1.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1416], data1.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1455], data1.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1416], data1.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1455], data1.candleSeries.last())
 
         val data2 = StockChartData(FakeCandleSource(params), loadConfig, loadedPages) { }
 
@@ -147,8 +148,8 @@ class StockChartDataTest {
         data2.loadInitial()
 
         assertEquals(40, data2.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1416], data2.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1455], data2.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1416], data2.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1455], data2.candleSeries.last())
     }
 
     @Test
@@ -168,8 +169,8 @@ class StockChartDataTest {
         data.loadBefore(loadCount = 15)
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1436], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1436], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
     }
 
     @Test
@@ -189,8 +190,8 @@ class StockChartDataTest {
         data.loadAfter()
 
         assertEquals(30, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
     }
 
     @Test
@@ -210,8 +211,8 @@ class StockChartDataTest {
         data.loadAfter(loadCount = 15)
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1495], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1495], data.candleSeries.last())
     }
 
     @Test
@@ -232,8 +233,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
     }
 
     @Test
@@ -255,8 +256,8 @@ class StockChartDataTest {
         data.loadLatest()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
     }
 
     @Test
@@ -278,8 +279,8 @@ class StockChartDataTest {
         )
 
         assertEquals(20, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
     }
 
     @Test
@@ -301,8 +302,8 @@ class StockChartDataTest {
         )
 
         assertEquals(41, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1220], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1260], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1220], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1260], data.candleSeries.last())
     }
 
     @Test
@@ -325,8 +326,8 @@ class StockChartDataTest {
         data.loadLatest()
 
         assertEquals(20, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
     }
 
     @Test
@@ -356,15 +357,15 @@ class StockChartDataTest {
         data.candleSeries.instantRange.test {
             awaitItem()
             assertEquals(10, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1465], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1465], data.candleSeries.last())
 
             flowBlock.complete(Unit)
 
             awaitItem()
             assertEquals(20, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
         }
     }
 
@@ -386,8 +387,8 @@ class StockChartDataTest {
 
         // Check initial load
         assertEquals(20, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
 
         // Check 5 live candles
         data.candleSeries.live.test {
@@ -398,8 +399,8 @@ class StockChartDataTest {
 
         // Check loaded range after live candles
         assertEquals(25, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1480], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1480], data.candleSeries.last())
     }
 
     @Test
@@ -420,8 +421,8 @@ class StockChartDataTest {
 
         // Check initial load
         assertEquals(20, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
 
         data.candleSeries.live.test {
 
@@ -460,8 +461,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(30, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1426], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1455], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1426], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1455], data.candleSeries.last())
     }
 
     @Test
@@ -493,8 +494,8 @@ class StockChartDataTest {
         data.loadAfter()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1800], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1839], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1800], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1839], data.candleSeries.last())
     }
 
     @Test
@@ -522,8 +523,8 @@ class StockChartDataTest {
         data.loadAfter()
 
         assertEquals(30, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1476], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1505], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1476], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1505], data.candleSeries.last())
     }
 
     @Test
@@ -555,8 +556,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[10], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[49], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[10], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[49], data.candleSeries.last())
     }
 
     @Test
@@ -584,8 +585,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1436], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1436], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1475], data.candleSeries.last())
     }
 
     @Test
@@ -634,8 +635,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
 
         data.loadState.test {
 
@@ -648,8 +649,8 @@ class StockChartDataTest {
             ensureAllEventsConsumed()
 
             assertEquals(40, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
         }
     }
 
@@ -672,8 +673,8 @@ class StockChartDataTest {
         data.loadBefore()
 
         assertEquals(40, data.candleSeries.size)
-        assertEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
-        assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+        assertCandleEquals(CandleUtils.m5Series[1446], data.candleSeries.first())
+        assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
 
         data.loadState.test {
 
@@ -687,8 +688,8 @@ class StockChartDataTest {
             ensureAllEventsConsumed()
 
             assertEquals(30, data.candleSeries.size)
-            assertEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
-            assertEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
+            assertCandleEquals(CandleUtils.m5Series[1456], data.candleSeries.first())
+            assertCandleEquals(CandleUtils.m5Series[1485], data.candleSeries.last())
         }
     }
 

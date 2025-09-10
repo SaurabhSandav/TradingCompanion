@@ -13,6 +13,7 @@ import com.saurabhsandav.trading.record.testdata.MultipleSymbolsInIntervalData
 import com.saurabhsandav.trading.record.testdata.SimpleTradesData
 import com.saurabhsandav.trading.record.utils.withoutNanoseconds
 import com.saurabhsandav.trading.test.TestBrokerProvider
+import com.saurabhsandav.trading.test.assertBDEquals
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -101,10 +102,10 @@ class TradeExecutionsTest {
         assertEquals("EditedTestBroker", editedExecution.brokerId.value)
         assertEquals(Instrument.Options, editedExecution.instrument)
         assertEquals("EditedTestSymbol", editedExecution.symbolId.value)
-        assertEquals(20.toBigDecimal(), editedExecution.quantity)
+        assertBDEquals(20.toBigDecimal(), editedExecution.quantity)
         assertNull(editedExecution.lots)
         assertEquals(TradeExecutionSide.Sell, editedExecution.side)
-        assertEquals(200.toBigDecimal(), editedExecution.price)
+        assertBDEquals(200.toBigDecimal(), editedExecution.price)
         assertEquals(currentTime.withoutNanoseconds(), editedExecution.timestamp)
         assertFalse(editedExecution.locked)
     }

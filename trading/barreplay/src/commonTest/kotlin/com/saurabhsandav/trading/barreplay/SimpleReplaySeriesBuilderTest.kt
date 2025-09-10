@@ -2,6 +2,7 @@ package com.saurabhsandav.trading.barreplay
 
 import com.saurabhsandav.trading.core.Timeframe
 import com.saurabhsandav.trading.test.CandleUtils
+import com.saurabhsandav.trading.test.assertCandleEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.seconds
@@ -16,7 +17,7 @@ class SimpleReplaySeriesBuilderTest {
             initialIndex = 200,
         )
 
-        assertEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
@@ -30,7 +31,7 @@ class SimpleReplaySeriesBuilderTest {
             initialIndex = 200,
         )
 
-        assertEquals(CandleUtils.d1Series[199], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.d1Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
         assertEquals(CandleUtils.d1Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
@@ -46,7 +47,7 @@ class SimpleReplaySeriesBuilderTest {
 
         val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
 
-        assertEquals(CandleUtils.m5Series[199], sut.last())
+        assertCandleEquals(CandleUtils.m5Series[199], sut.last())
         assertEquals(200, sut.size)
         assertEquals(CandleUtils.m5Series[199].openInstant, sut.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
@@ -68,7 +69,7 @@ class SimpleReplaySeriesBuilderTest {
 
         val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
 
-        assertEquals(CandleUtils.m5Series[204], sut.last())
+        assertCandleEquals(CandleUtils.m5Series[204], sut.last())
         assertEquals(205, sut.size)
         assertEquals(CandleUtils.m5Series[204].openInstant, sut.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.candleState.value)
@@ -91,7 +92,7 @@ class SimpleReplaySeriesBuilderTest {
 
         val sut = barReplay.newSeries(inputSeries = CandleUtils.m5Series)
 
-        assertEquals(CandleUtils.m5Series[201].atState(BarReplay.CandleState.Open), sut.last())
+        assertCandleEquals(CandleUtils.m5Series[201].atState(BarReplay.CandleState.Open), sut.last())
         assertEquals(202, sut.size)
         assertEquals(CandleUtils.m5Series[201].openInstant, sut.replayTime.value)
         assertEquals(BarReplay.CandleState.Open, sut.candleState.value)
@@ -107,7 +108,7 @@ class SimpleReplaySeriesBuilderTest {
 
         sut.advanceTo(CandleUtils.m5Series[203].openInstant, BarReplay.CandleState.Close)
 
-        assertEquals(CandleUtils.m5Series[203], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[203], sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[203].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
@@ -123,7 +124,7 @@ class SimpleReplaySeriesBuilderTest {
 
         sut.advanceTo(CandleUtils.d1Series[203].openInstant, BarReplay.CandleState.Close)
 
-        assertEquals(CandleUtils.d1Series[203], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.d1Series[203], sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.d1Series[203].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
@@ -141,10 +142,10 @@ class SimpleReplaySeriesBuilderTest {
 
         // Check previous candles were closed
         sut.replaySeries.subList(200, 203).forEachIndexed { index, candle ->
-            assertEquals(CandleUtils.m5Series[200 + index], candle)
+            assertCandleEquals(CandleUtils.m5Series[200 + index], candle)
         }
 
-        assertEquals(CandleUtils.m5Series[203].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[203].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
         assertEquals(204, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[203].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Extreme2, sut.replaySeries.candleState.value)
@@ -162,7 +163,7 @@ class SimpleReplaySeriesBuilderTest {
         sut.advanceTo(CandleUtils.m5Series[200].openInstant, BarReplay.CandleState.Extreme1)
         sut.advanceTo(CandleUtils.m5Series[200].openInstant, BarReplay.CandleState.Extreme2)
 
-        assertEquals(CandleUtils.m5Series[200].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[200].atState(BarReplay.CandleState.Extreme2), sut.replaySeries.last())
         assertEquals(201, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[200].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Extreme2, sut.replaySeries.candleState.value)
@@ -179,7 +180,7 @@ class SimpleReplaySeriesBuilderTest {
         sut.advanceTo(CandleUtils.m5Series[203].openInstant, BarReplay.CandleState.Close)
         sut.reset()
 
-        assertEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)
@@ -196,7 +197,7 @@ class SimpleReplaySeriesBuilderTest {
         sut.advanceTo(CandleUtils.m5Series[203].openInstant, BarReplay.CandleState.Open)
         sut.reset()
 
-        assertEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
+        assertCandleEquals(CandleUtils.m5Series[199], sut.replaySeries.last())
         assertEquals(200, sut.replaySeries.size)
         assertEquals(CandleUtils.m5Series[199].openInstant, sut.replaySeries.replayTime.value)
         assertEquals(BarReplay.CandleState.Close, sut.replaySeries.candleState.value)

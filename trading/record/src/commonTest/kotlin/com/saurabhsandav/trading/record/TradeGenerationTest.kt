@@ -4,7 +4,6 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.saurabhsandav.trading.record.migrations.migrationAfterV1
 import com.saurabhsandav.trading.record.migrations.migrationAfterV2
 import com.saurabhsandav.trading.record.model.TradeExecutionId
-import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.testdata.CommonExitEntryTradesData
 import com.saurabhsandav.trading.record.testdata.OverlappingTimeTradesData
 import com.saurabhsandav.trading.record.testdata.SimpleTradesData
@@ -14,7 +13,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import java.util.Properties
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class TradeGenerationTest {
 
@@ -39,9 +37,9 @@ class TradeGenerationTest {
 
             executions.new(execution)
 
-            assertEquals(
+            assertTradeListEquals(
                 expected = data.trades(index),
-                actual = allTrades.executeAsList().map { it.copy(id = TradeId(-1)) },
+                actual = allTrades.executeAsList(),
                 message = "Execution #$index",
             )
         }
@@ -57,9 +55,9 @@ class TradeGenerationTest {
 
             executions.new(execution)
 
-            assertEquals(
+            assertTradeListEquals(
                 expected = data.trades(index),
-                actual = allTrades.executeAsList().map { it.copy(id = TradeId(-1)) },
+                actual = allTrades.executeAsList(),
                 message = "Execution #$index",
             )
         }
@@ -75,9 +73,9 @@ class TradeGenerationTest {
 
             executions.new(execution)
 
-            assertEquals(
+            assertTradeListEquals(
                 expected = data.trades(index),
-                actual = allTrades.executeAsList().map { it.copy(id = TradeId(-1)) },
+                actual = allTrades.executeAsList(),
                 message = "Execution #$index",
             )
         }
