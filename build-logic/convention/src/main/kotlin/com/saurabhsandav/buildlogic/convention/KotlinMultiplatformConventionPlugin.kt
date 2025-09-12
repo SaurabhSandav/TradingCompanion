@@ -35,6 +35,20 @@ fun KotlinMultiplatformExtension.applyJvmConventions() {
     }
 }
 
+fun KotlinMultiplatformExtension.applyJsConventions() {
+
+    js {
+        browser()
+        compilerOptions {
+            this.target.set("es2015")
+        }
+    }
+
+    project.afterEvaluate {
+        disableJsToolingDownload()
+    }
+}
+
 fun KotlinMultiplatformExtension.applyCommonConventions() {
 
     compilerOptions {

@@ -1,3 +1,8 @@
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
+
 plugins {
     alias(libs.plugins.gradle.versions.checker)
     alias(libs.plugins.kotlin.multiplatform) apply false
@@ -17,3 +22,16 @@ tasks.register<Delete>("cleanAll") {
         subprojects.map { it.layout.buildDirectory },
     )
 }
+
+// region Disable Yarn, Node.js download
+// Downloading them conflicts with RepositoriesMode.FAIL_ON_PROJECT_REPOS
+
+rootProject.plugins.withType<YarnPlugin> {
+    rootProject.the<YarnRootEnvSpec>().download = false
+}
+
+rootProject.plugins.withType<NodeJsPlugin> {
+    rootProject.the<NodeJsEnvSpec>().download = false
+}
+
+// endregion Disable Yarn, Node.js download
