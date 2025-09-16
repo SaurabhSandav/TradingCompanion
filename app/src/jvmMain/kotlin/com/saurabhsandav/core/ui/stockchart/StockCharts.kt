@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -327,4 +327,18 @@ private fun chartKeyboardShortcuts(
     }
 
     return false
+}
+
+// Copied from androidx.compose.foundation.text.TextFieldKeyInput.desktop.kt
+
+private val KeyEvent.isTypedEvent: Boolean
+    get() = awtEventOrNull?.id == java.awt.event.KeyEvent.KEY_TYPED &&
+        awtEventOrNull?.keyChar?.isPrintable() == true
+
+private fun Char.isPrintable(): Boolean {
+    val block = Character.UnicodeBlock.of(this)
+    return (!Character.isISOControl(this)) &&
+        this != java.awt.event.KeyEvent.CHAR_UNDEFINED &&
+        block != null &&
+        block != Character.UnicodeBlock.SPECIALS
 }
