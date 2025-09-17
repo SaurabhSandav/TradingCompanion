@@ -26,13 +26,11 @@ internal inline fun intState(crossinline value: @DisallowComposableCalls () -> I
 internal inline fun <T> saveableState(
     vararg inputs: Any?,
     stateSaver: Saver<T, out Any>,
-    key: String? = null,
     crossinline init: @DisallowComposableCalls () -> T,
 ): MutableState<T> {
     return rememberSaveable(
         inputs = inputs,
         stateSaver = stateSaver,
-        key = key,
         init = { mutableStateOf(init()) },
     )
 }

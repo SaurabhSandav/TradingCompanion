@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -129,7 +129,7 @@ fun WindowTitle(title: String) {
 
     val appWindowState = LocalAppWindowState.current
     // Copied from rememberSaveable implementation
-    val id = currentCompositeKeyHash.toString(36)
+    val id = currentCompositeKeyHashCode.toString(36)
 
     // Set window title
     DisposableEffect(appWindowState) {
