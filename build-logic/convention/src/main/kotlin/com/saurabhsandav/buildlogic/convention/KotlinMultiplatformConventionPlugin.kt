@@ -49,6 +49,25 @@ fun KotlinMultiplatformExtension.applyJsConventions() {
     }
 }
 
+fun KotlinMultiplatformExtension.applyWasmJsConventions() {
+
+    wasmJs {
+        browser()
+    }
+
+    project.afterEvaluate {
+        disableWasmJsToolingDownload()
+    }
+}
+
+fun KotlinMultiplatformExtension.applyWebConventions() {
+
+    applyJsConventions()
+    applyWasmJsConventions()
+
+    applyDefaultHierarchyTemplate()
+}
+
 fun KotlinMultiplatformExtension.applyCommonConventions() {
 
     compilerOptions {

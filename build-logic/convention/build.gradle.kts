@@ -15,6 +15,18 @@ fun Provider<PluginDependency>.asDep() = map {
     "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}"
 }
 
+kotlin {
+
+    compilerOptions {
+
+        progressiveMode.set(true)
+
+        optIn.addAll(
+            "org.jetbrains.kotlin.gradle.ExperimentalWasmDsl",
+        )
+    }
+}
+
 gradlePlugin {
 
     plugins {
