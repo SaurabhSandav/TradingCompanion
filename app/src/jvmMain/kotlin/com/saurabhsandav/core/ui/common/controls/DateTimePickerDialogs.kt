@@ -1,38 +1,26 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.TimePickerDialogDefaults
+import androidx.compose.material3.TimePickerDialogDefaults.MinHeightForTimePicker
+import androidx.compose.material3.TimePickerDisplayMode
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 
@@ -148,97 +136,59 @@ private fun AppTimePickerDialog(
     onConfirm: () -> Unit,
     onSetDate: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    initialDisplayMode: TimePickerDisplayMode = TimePickerDisplayMode.Picker,
 ) {
 
-    var showingPicker by state { true }
+    var displayMode by remember { mutableStateOf(initialDisplayMode) }
+    val screenHeightDp = LocalWindowInfo.current.containerSize.height
 
-    Dialog(
+    TimePickerDialog(
+        modifier = modifier.heightIn(max = 600.dp),
         onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        title = { TimePickerDialogDefaults.Title(displayMode = displayMode) },
+        confirmButton = {
+
+            TextButton(
+                onClick = onConfirm,
+                content = { Text("OK") },
+            )
+        },
+        dismissButton = {
+
+            when {
+                onSetDate != null -> TextButton(
+                    onClick = onSetDate,
+                    content = { Text("SET DATE") },
+                )
+
+                else -> TextButton(
+                    onClick = onDismissRequest,
+                    content = { Text("CANCEL") },
+                )
+            }
+        },
+        modeToggleButton = {
+
+            if (screenHeightDp.dp > MinHeightForTimePicker) {
+
+                TimePickerDialogDefaults.DisplayModeToggle(
+                    onDisplayModeChange = {
+                        displayMode = when (displayMode) {
+                            TimePickerDisplayMode.Picker -> TimePickerDisplayMode.Input
+                            else -> TimePickerDisplayMode.Picker
+                        }
+                    },
+                    displayMode = displayMode,
+                )
+            }
+        },
     ) {
 
-        Surface(
-            modifier = modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface,
-                ),
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-        ) {
+        when (displayMode) {
+            TimePickerDisplayMode.Picker if screenHeightDp.dp > MinHeightForTimePicker ->
+                TimePicker(state = timePickerState)
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                ) {
-
-                    Text(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
-                        text = when {
-                            showingPicker -> "Select Time "
-                            else -> "Enter Time"
-                        },
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-
-                    when {
-                        showingPicker -> TimePicker(state = timePickerState)
-                        else -> TimeInput(state = timePickerState)
-                    }
-                }
-
-                FlowRow(
-                    modifier = Modifier.padding(bottom = 8.dp, start = 6.dp, end = 6.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-
-                    val hint = when {
-                        showingPicker -> "Switch to Text Input"
-                        else -> "Switch to Picker Input"
-                    }
-
-                    IconButtonWithTooltip(
-                        onClick = { showingPicker = !showingPicker },
-                        tooltipText = hint,
-                    ) {
-
-                        Icon(
-                            imageVector = when {
-                                showingPicker -> Icons.Outlined.Keyboard
-                                else -> Icons.Outlined.Schedule
-                            },
-                            contentDescription = hint,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    TextButton(
-                        onClick = onDismissRequest,
-                        content = { Text("CANCEL") },
-                    )
-
-                    if (onSetDate != null) {
-
-                        TextButton(
-                            onClick = onSetDate,
-                            content = { Text("SET DATE") },
-                        )
-                    }
-
-                    TextButton(
-                        onClick = onConfirm,
-                        content = { Text("OK") },
-                    )
-                }
-            }
+            else -> TimeInput(state = timePickerState)
         }
     }
 }
