@@ -70,7 +70,7 @@ internal class AttachmentFormPresenter(
                 tradeIds = formType.tradeIds,
                 name = formModel.nameField.value,
                 description = formModel.descriptionField.value,
-                pathStr = formModel.path!!,
+                pathStr = formModel.pathField.value!!,
             )
 
             is Edit -> tradingRecord.await().attachments.update(

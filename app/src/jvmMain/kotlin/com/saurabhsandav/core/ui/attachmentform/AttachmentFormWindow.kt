@@ -125,24 +125,26 @@ private fun AttachmentForm(
 
                 if (!showFilePicker) return@LaunchedEffect
 
-                model.path = FileKit.openFilePicker(
+                model.pathField.value = FileKit.openFilePicker(
                     title = "Select Attachment",
                     dialogSettings = fileKitDialogSettings,
-                )?.path ?: model.path
+                )?.path ?: model.pathField.value
 
                 showFilePicker = false
             }
 
             OutlinedTextField(
                 modifier = Modifier.onTextFieldClickOrEnter { showFilePicker = true },
-                value = model.path ?: "Select...",
+                value = model.pathField.value ?: "Select...",
                 onValueChange = {},
                 label = { Text("File") },
+                isError = model.pathField.isError,
+                supportingText = model.pathField.errorsMessagesAsSupportingText(),
                 readOnly = true,
             )
         }
 
-        AnimatedVisibilityForNullable(model.path) { path ->
+        AnimatedVisibilityForNullable(model.pathField.value) { path ->
 
             TextButton(
                 onClick = { File(path).openExternally() },
