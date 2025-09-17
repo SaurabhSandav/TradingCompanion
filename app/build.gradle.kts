@@ -42,7 +42,7 @@ kotlin {
             "-Xwhen-guards",
         )
 
-        optIn = listOf(
+        optIn.addAll(
             "kotlin.contracts.ExperimentalContracts",
             "kotlin.io.path.ExperimentalPathApi",
             "kotlin.uuid.ExperimentalUuidApi",

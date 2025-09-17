@@ -22,7 +22,7 @@ kotlin {
 
         explicitApi()
 
-        optIn = listOf(
+        optIn.addAll(
             "kotlin.ExperimentalStdlibApi",
             "kotlin.time.ExperimentalTime",
             "kotlinx.serialization.ExperimentalSerializationApi",

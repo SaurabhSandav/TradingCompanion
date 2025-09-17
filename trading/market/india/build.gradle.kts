@@ -20,7 +20,7 @@ kotlin {
 
         progressiveMode = true
 
-        optIn = listOf(
+        optIn.addAll(
             "kotlin.time.ExperimentalTime",
         )
     }

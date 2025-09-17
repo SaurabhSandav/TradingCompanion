@@ -21,7 +21,7 @@ kotlin {
 
         progressiveMode = true
 
-        optIn = listOf(
+        optIn.addAll(
             "kotlin.contracts.ExperimentalContracts",
             "kotlin.time.ExperimentalTime",
         )
