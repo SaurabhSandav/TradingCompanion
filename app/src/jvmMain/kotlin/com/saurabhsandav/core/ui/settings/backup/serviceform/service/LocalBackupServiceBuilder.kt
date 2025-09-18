@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.backup.service.LocalBackupService
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceBuilder
@@ -57,7 +58,7 @@ class LocalBackupServiceBuilder(
 
             if (!showDirectoryPicker) return@LaunchedEffect
 
-            formModel.pathField.value = FileKit.openDirectoryPicker(
+            formModel.pathField.holder.value = FileKit.openDirectoryPicker(
                 title = "Select Attachment",
                 dialogSettings = FileKitDialogSettings(parentWindow = window.window),
             )?.path ?: formModel.pathField.value
@@ -70,7 +71,7 @@ class LocalBackupServiceBuilder(
                 .onTextFieldClickOrEnter { showDirectoryPicker = true }
                 .fillMaxWidth(),
             value = formModel.pathField.value,
-            onValueChange = { value -> formModel.pathField.value = value },
+            onValueChange = { value -> formModel.pathField.holder.value = value },
             label = { Text("Path") },
             readOnly = true,
         )
@@ -95,6 +96,6 @@ class LocalBackupServiceBuilder(
         path: String = "",
     ) : BackupServiceFormModel(name) {
 
-        val pathField = addField(path)
+        val pathField = addMutableStateField(path)
     }
 }

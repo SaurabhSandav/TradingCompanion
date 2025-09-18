@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -148,14 +150,14 @@ private fun CustomForm(formModel: DateIntervalFormModel) {
 @Composable
 private fun RowScope.DatePicker(
     label: String,
-    formField: FormField<LocalDate?>,
+    formField: FormField<MutableState<LocalDate?>, LocalDate?>,
 ) {
 
     Box(modifier = Modifier.weight(1F)) {
 
         DatePickerField(
             value = formField.value,
-            onValidValueChange = { formField.value = it },
+            onValidValueChange = { formField.holder.value = it },
             label = { Text(label) },
             format = DateFormat,
             isError = formField.isError,
@@ -172,7 +174,7 @@ private fun RowScope.DatePicker(
             // DatePickerField consumes all click events itself.
             // Work around by aligning a separate IconButton on top of DatePickerField.
             IconButton(
-                onClick = { formField.value = null },
+                onClick = { formField.holder.value = null },
             ) {
                 Icon(Icons.Default.Clear, contentDescription = "Clear")
             }
@@ -185,9 +187,9 @@ private class DateIntervalFormModel(
     to: LocalDate?,
 ) : FormModel() {
 
-    val fromField = addField(from)
+    val fromField = addMutableStateField(from)
 
-    val toField = addField(to) {
+    val toField = addMutableStateField(to) {
         isRequired(false)
 
         val validatedFrom = fromField.validatedValue()

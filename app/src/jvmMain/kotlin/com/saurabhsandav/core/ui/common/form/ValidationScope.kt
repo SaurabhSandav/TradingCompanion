@@ -6,7 +6,7 @@ interface ValidationScope {
 
     fun reportInvalid(message: String)
 
-    suspend fun <T> validatedValue(field: FormField<T>): T
+    suspend fun <T> validatedValue(field: FormField<*, T>): T
 
     /**
      * Run validation without interrupting on failed validations.
@@ -20,7 +20,7 @@ context(scope: ValidationScope)
 fun reportInvalid(message: String) = scope.reportInvalid(message)
 
 context(scope: ValidationScope)
-suspend fun <T> FormField<T>.validatedValue(): T = scope.validatedValue(this)
+suspend fun <T> FormField<*, T>.validatedValue(): T = scope.validatedValue(this)
 
 /**
  * Run validation without interrupting on failed validations.
@@ -45,7 +45,7 @@ internal sealed class ValidationResult {
 internal class ValidationScopeImpl : ValidationScope {
 
     var result: ValidationResult = ValidationResult.Valid
-    val dependencies = mutableSetOf<FormField<*>>()
+    val dependencies = mutableSetOf<FormField<*, *>>()
 
     private var stopValidationOnInvalid = true
 
@@ -69,7 +69,7 @@ internal class ValidationScopeImpl : ValidationScope {
         throw ValidationInterruptedException
     }
 
-    override suspend fun <T> validatedValue(field: FormField<T>): T {
+    override suspend fun <T> validatedValue(field: FormField<*, T>): T {
 
         dependencies += field
 
@@ -80,7 +80,7 @@ internal class ValidationScopeImpl : ValidationScope {
             throw ValidationInterruptedException
         }
 
-        return field.value
+        return (field as FormFieldImpl).value
     }
 }
 

@@ -121,7 +121,7 @@ private fun TradeExecutionForm(
                     if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
                 }
             },
-            onSelect = { model.instrumentField.value = it },
+            onSelect = { model.instrumentField.holder.value = it },
             selection = model.instrumentField.value,
             label = { Text("Instrument") },
             enabled = isSymbolEditable,
@@ -132,7 +132,7 @@ private fun TradeExecutionForm(
         SymbolSelectionField(
             type = SymbolSelectionType.Regular,
             selected = model.symbolField.value,
-            onSelect = { model.symbolField.value = it },
+            onSelect = { model.symbolField.holder.value = it },
             enabled = isSymbolEditable,
             isError = model.symbolField.isError,
             supportingText = model.symbolField.errorsMessagesAsSupportingText(),
@@ -141,7 +141,7 @@ private fun TradeExecutionForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
             value = model.quantityField.value,
-            onValueChange = { model.quantityField.value = it.trim() },
+            onValueChange = { model.quantityField.holder.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
@@ -150,7 +150,7 @@ private fun TradeExecutionForm(
 
         OutlinedTextField(
             value = model.lotsField.value,
-            onValueChange = { model.lotsField.value = it.trim() },
+            onValueChange = { model.lotsField.holder.value = it.trim() },
             label = { Text("Lots") },
             isError = model.lotsField.isError,
             supportingText = model.lotsField.errorsMessagesAsSupportingText(),
@@ -165,7 +165,7 @@ private fun TradeExecutionForm(
 
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                onClick = { model.isBuyField.value = false },
+                onClick = { model.isBuyField.holder.value = false },
                 selected = !isBuy,
                 colors = SegmentedButtonDefaults.colors(
                     activeContentColor = AppColor.LossRed,
@@ -177,7 +177,7 @@ private fun TradeExecutionForm(
 
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                onClick = { model.isBuyField.value = true },
+                onClick = { model.isBuyField.holder.value = true },
                 selected = isBuy,
                 colors = SegmentedButtonDefaults.colors(
                     activeContentColor = AppColor.ProfitGreen,
@@ -190,7 +190,7 @@ private fun TradeExecutionForm(
 
         OutlinedTextField(
             value = model.priceField.value,
-            onValueChange = { model.priceField.value = it.trim() },
+            onValueChange = { model.priceField.holder.value = it.trim() },
             label = { Text("Price") },
             isError = model.priceField.isError,
             supportingText = model.priceField.errorsMessagesAsSupportingText(),
@@ -199,7 +199,7 @@ private fun TradeExecutionForm(
 
         DatePickerField(
             value = model.dateField.value,
-            onValidValueChange = { model.dateField.value = it },
+            onValidValueChange = { model.dateField.holder.value = it },
             label = { Text("Entry Date") },
             isError = model.dateField.isError,
             supportingText = model.dateField.errorsMessagesAsSupportingText(),
@@ -210,7 +210,7 @@ private fun TradeExecutionForm(
 
         TimeField(
             value = model.timeField.value,
-            onValidValueChange = { model.timeField.value = it },
+            onValidValueChange = { model.timeField.holder.value = it },
             label = { Text("Entry Time") },
             isError = model.timeField.isError,
             supportingText = model.timeField.errorsMessagesAsSupportingText(),
@@ -218,7 +218,7 @@ private fun TradeExecutionForm(
 
                 TextButton(
                     onClick = {
-                        model.timeField.value = Clock.System.now()
+                        model.timeField.holder.value = Clock.System.now()
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .time
                     },
@@ -239,7 +239,7 @@ private fun TradeExecutionForm(
 
                 Checkbox(
                     checked = model.addStopField.value,
-                    onCheckedChange = { model.addStopField.value = it },
+                    onCheckedChange = { model.addStopField.holder.value = it },
                 )
             }
 
@@ -254,7 +254,7 @@ private fun TradeExecutionForm(
 
                 Checkbox(
                     checked = model.addTargetField.value,
-                    onCheckedChange = { model.addTargetField.value = it },
+                    onCheckedChange = { model.addTargetField.holder.value = it },
                 )
             }
         }

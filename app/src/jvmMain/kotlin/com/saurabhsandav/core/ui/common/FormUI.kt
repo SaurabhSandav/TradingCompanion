@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.form.FormField
 
 @Composable
-fun FormField<*>.errorsMessagesAsSupportingText(): (@Composable () -> Unit)? {
+fun FormField<*, *>.errorsMessagesAsSupportingText(): (@Composable () -> Unit)? {
 
     errorMessages.ifEmpty { return null }
 

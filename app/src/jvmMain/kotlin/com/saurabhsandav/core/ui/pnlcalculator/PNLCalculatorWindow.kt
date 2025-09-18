@@ -105,7 +105,7 @@ private fun CalculatorForm(
 
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                    onClick = { formModel.isLongField.value = false },
+                    onClick = { formModel.isLongField.holder.value = false },
                     selected = !isLong,
                     colors = SegmentedButtonDefaults.colors(
                         activeContentColor = AppColor.LossRed,
@@ -116,7 +116,7 @@ private fun CalculatorForm(
 
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                    onClick = { formModel.isLongField.value = true },
+                    onClick = { formModel.isLongField.holder.value = true },
                     selected = isLong,
                     colors = SegmentedButtonDefaults.colors(
                         activeContentColor = AppColor.ProfitGreen,
@@ -133,7 +133,7 @@ private fun CalculatorForm(
             OutlinedTextField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
                 value = formModel.quantityField.value,
-                onValueChange = { formModel.quantityField.value = it.trim() },
+                onValueChange = { formModel.quantityField.holder.value = it.trim() },
                 label = { Text("Quantity") },
                 isError = formModel.quantityField.isError,
                 supportingText = formModel.quantityField.errorsMessagesAsSupportingText(),
@@ -143,7 +143,7 @@ private fun CalculatorForm(
 
             OutlinedTextField(
                 value = formModel.entryField.value,
-                onValueChange = { formModel.entryField.value = it.trim() },
+                onValueChange = { formModel.entryField.holder.value = it.trim() },
                 label = { Text("Entry") },
                 isError = formModel.entryField.isError,
                 supportingText = formModel.entryField.errorsMessagesAsSupportingText(),
@@ -153,7 +153,7 @@ private fun CalculatorForm(
 
             OutlinedTextField(
                 value = formModel.exitField.value,
-                onValueChange = { formModel.exitField.value = it.trim() },
+                onValueChange = { formModel.exitField.holder.value = it.trim() },
                 label = { Text("Exit") },
                 isError = formModel.exitField.isError,
                 supportingText = formModel.exitField.errorsMessagesAsSupportingText(),

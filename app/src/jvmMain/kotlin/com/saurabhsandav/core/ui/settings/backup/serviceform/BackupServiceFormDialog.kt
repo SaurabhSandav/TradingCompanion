@@ -82,7 +82,7 @@ private fun Form(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = formModel.nameField.value,
-            onValueChange = { value -> formModel.nameField.value = value },
+            onValueChange = { value -> formModel.nameField.holder.value = value },
             isError = formModel.nameField.isError,
             label = { Text("Name") },
             supportingText = formModel.nameField.errorsMessagesAsSupportingText(),

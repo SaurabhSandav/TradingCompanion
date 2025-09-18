@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import com.saurabhsandav.core.ui.common.controls.TimeField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -120,13 +122,13 @@ private fun CustomForm(formModel: TimeIntervalFormModel) {
 @Composable
 private fun RowScope.TimePicker(
     label: String,
-    formField: FormField<LocalTime?>,
+    formField: FormField<MutableState<LocalTime?>, LocalTime?>,
 ) {
 
     TimeField(
         modifier = Modifier.weight(1F),
         value = formField.value,
-        onValidValueChange = { formField.value = it },
+        onValidValueChange = { formField.holder.value = it },
         label = { Text(label) },
         trailingIcon = {
 
@@ -136,7 +138,7 @@ private fun RowScope.TimePicker(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
 
-                IconButton(onClick = { formField.value = null }) {
+                IconButton(onClick = { formField.holder.value = null }) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                 }
             }
@@ -151,9 +153,9 @@ private class TimeIntervalFormModel(
     to: LocalTime?,
 ) : FormModel() {
 
-    val fromField = addField(from)
+    val fromField = addMutableStateField(from)
 
-    val toField = addField(to) {
+    val toField = addMutableStateField(to) {
         isRequired(false)
 
         val validatedFrom = fromField.validatedValue()

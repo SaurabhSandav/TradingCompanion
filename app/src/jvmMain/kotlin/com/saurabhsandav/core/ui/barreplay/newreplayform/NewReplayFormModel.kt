@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isInt
@@ -27,26 +28,26 @@ class NewReplayFormModel(
     profileId: ProfileId?,
 ) : FormModel() {
 
-    val baseTimeframeField = addField(baseTimeframe) { isRequired() }
+    val baseTimeframeField = addMutableStateField(baseTimeframe) { isRequired() }
 
-    val candlesBeforeField = addField(candlesBefore) {
+    val candlesBeforeField = addMutableStateField(candlesBefore) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val replayFromField = addField(replayFrom) {
+    val replayFromField = addMutableStateField(replayFrom) {
         isRequired()
         if (this >= Clock.System.nowIn(TimeZone.currentSystemDefault())) reportInvalid("Cannot be in the future")
     }
 
-    val dataToField = addField(dataTo) {
+    val dataToField = addMutableStateField(dataTo) {
         isRequired()
         if (this <= replayFromField.validatedValue()) reportInvalid("Cannot be before or same as replay from")
     }
 
     var replayFullBar by mutableStateOf(replayFullBar)
 
-    val initialSymbolField = addField(initialSymbolId) { isRequired() }
+    val initialSymbolField = addMutableStateField(initialSymbolId) { isRequired() }
 
-    val profileField = addField(profileId)
+    val profileField = addMutableStateField(profileId)
 }

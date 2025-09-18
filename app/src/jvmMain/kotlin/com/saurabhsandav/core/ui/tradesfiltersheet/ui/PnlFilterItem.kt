@@ -25,6 +25,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -183,13 +185,13 @@ private fun CustomForm(formModel: PnlFormModel) {
 @Composable
 private fun RowScope.CustomField(
     label: String,
-    formField: FormField<String>,
+    formField: FormField<MutableState<String>, String>,
 ) {
 
     OutlinedTextField(
         modifier = Modifier.weight(1F),
         value = formField.value,
-        onValueChange = { formField.value = it.trim() },
+        onValueChange = { formField.holder.value = it.trim() },
         label = { Text(label) },
         trailingIcon = {
 
@@ -199,7 +201,7 @@ private fun RowScope.CustomField(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
 
-                IconButton(onClick = { formField.value = "" }) {
+                IconButton(onClick = { formField.holder.value = "" }) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                 }
             }
@@ -215,12 +217,12 @@ private class PnlFormModel(
     to: KBigDecimal?,
 ) : FormModel() {
 
-    val fromField = addField(from?.toString().orEmpty()) {
+    val fromField = addMutableStateField(from?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()
     }
 
-    val toField = addField(to?.toString().orEmpty()) {
+    val toField = addMutableStateField(to?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()?.apply {
 

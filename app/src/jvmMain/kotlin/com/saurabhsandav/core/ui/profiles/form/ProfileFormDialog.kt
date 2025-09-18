@@ -80,7 +80,7 @@ private fun ProfileForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
             value = model.nameField.value,
-            onValueChange = { model.nameField.value = it },
+            onValueChange = { model.nameField.holder.value = it },
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
@@ -89,7 +89,7 @@ private fun ProfileForm(
 
         OutlinedTextField(
             value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.value = it },
+            onValueChange = { model.descriptionField.holder.value = it },
             label = { Text("Description") },
         )
 
@@ -101,7 +101,7 @@ private fun ProfileForm(
 
             Checkbox(
                 checked = trainingOnly || model.isTrainingField.value,
-                onCheckedChange = { model.isTrainingField.value = it },
+                onCheckedChange = { model.isTrainingField.holder.value = it },
                 enabled = !trainingOnly,
             )
         }

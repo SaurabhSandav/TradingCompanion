@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.tags.form.model
 
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
@@ -18,13 +19,13 @@ internal class TagFormModel(
     color: Color? = null,
 ) : FormModel() {
 
-    val nameField = addField(name) {
+    val nameField = addMutableStateField(name) {
         isRequired()
 
         if (!isTagNameUnique(this)) reportInvalid("Tag already exists")
     }
 
-    val descriptionField = addField(description)
+    val descriptionField = addMutableStateField(description)
 
-    val colorField = addField(color)
+    val colorField = addMutableStateField(color)
 }

@@ -7,29 +7,12 @@ import kotlinx.coroutines.cancel
 
 open class FormModel {
 
-    internal val fields = mutableStateListOf<FormField<*>>()
-    private val scopes = mutableMapOf<FormField<*>, CoroutineScope>()
+    internal val fields = mutableStateListOf<FormField<*, *>>()
+    private val scopes = mutableMapOf<FormField<*, *>, CoroutineScope>()
 
-    internal fun addField(field: FormField<*>) {
-        fields.add(field)
-    }
+    fun <H, V> addField(field: FormField<H, V>): FormField<H, V> = field.also(fields::add)
 
-    fun <T> addField(
-        initial: T,
-        validation: Validation<T>? = null,
-    ): FormField<T> {
-
-        val field = FormField(
-            initial = initial,
-            validation = validation,
-        )
-
-        addField(field)
-
-        return field
-    }
-
-    fun removeField(field: FormField<*>) {
+    fun removeField(field: FormField<*, *>) {
         fields.remove(field)
         scopes.remove(field)?.cancel()
     }

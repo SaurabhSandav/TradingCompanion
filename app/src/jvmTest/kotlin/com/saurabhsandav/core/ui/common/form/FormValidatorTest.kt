@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.common.form
 
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -25,7 +26,7 @@ class FormValidatorTest {
     fun `Validate - Invalid and then Valid`() = runTest {
 
         val formModel = FormModel()
-        val textField = formModel.addField("") { isRequired() }
+        val textField = formModel.addMutableStateField("") { isRequired() }
         val validator = FormValidator(backgroundScope).apply { addModel(formModel) }
 
         assertFormValid(validator)
@@ -35,7 +36,7 @@ class FormValidatorTest {
         assertFormInvalid(validator)
 
         // Fix invalid field and validate
-        textField.value = "Test"
+        textField.holder.value = "Test"
         assertTrue { validator.validate() }
         assertFormValid(validator)
     }
@@ -57,7 +58,7 @@ class FormValidatorTest {
     fun `Submit - Invalid and then Valid`() = runTest {
 
         val formModel = FormModel()
-        val textField = formModel.addField("") { isRequired() }
+        val textField = formModel.addMutableStateField("") { isRequired() }
         val validator = FormValidator(backgroundScope).apply { addModel(formModel) }
 
         assertFormValid(validator)
@@ -68,7 +69,7 @@ class FormValidatorTest {
         assertFormInvalid(validator)
 
         // Fix invalid field and validate
-        textField.value = "Test"
+        textField.holder.value = "Test"
         validator.submit()
         yield()
 
@@ -79,11 +80,11 @@ class FormValidatorTest {
     fun `Submit - Multiple FormModels - Invalid and then Valid`() = runTest {
 
         val formModel1 = FormModel()
-        val field1 = formModel1.addField("") { isRequired() }
+        val field1 = formModel1.addMutableStateField("") { isRequired() }
         val validator = FormValidator(backgroundScope).apply {
             addModel(formModel1)
             val formModel2 = FormModel().apply {
-                addField("Field2") { isRequired() }
+                addMutableStateField("Field2") { isRequired() }
             }
             addModel(formModel2)
         }
@@ -94,7 +95,7 @@ class FormValidatorTest {
         assertFormInvalid(validator)
 
         // Fix invalid field and validate
-        field1.value = "Field1"
+        field1.holder.value = "Field1"
         validator.submit()
         yield()
         assertFormValid(validator)
@@ -104,10 +105,10 @@ class FormValidatorTest {
     fun `Remove FormModel with invalid field`() = runTest {
 
         val formModel1 = FormModel().apply {
-            addField("Field1") { isRequired() }
+            addMutableStateField("Field1") { isRequired() }
         }
         val formModel2 = FormModel().apply {
-            addField("") { isRequired() }
+            addMutableStateField("") { isRequired() }
         }
         val validator = FormValidator(backgroundScope).apply {
             addModel(formModel1)
@@ -130,10 +131,10 @@ class FormValidatorTest {
     fun `Add FormModel with invalid field`() = runTest {
 
         val formModel1 = FormModel().apply {
-            addField("Field1") { isRequired() }
+            addMutableStateField("Field1") { isRequired() }
         }
         val formModel2 = FormModel().apply {
-            addField("") { isRequired() }
+            addMutableStateField("") { isRequired() }
         }
         val validator = FormValidator(backgroundScope).apply {
             addModel(formModel1)

@@ -9,7 +9,7 @@ fun interface Validation<T> {
 internal suspend fun <T> runValidation(
     value: T,
     validation: Validation<T>,
-): Pair<ValidationResult, Set<FormField<*>>> {
+): Pair<ValidationResult, Set<FormField<*, *>>> {
 
     val scope = ValidationScopeImpl()
 

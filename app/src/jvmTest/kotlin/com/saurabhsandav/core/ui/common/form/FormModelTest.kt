@@ -1,5 +1,7 @@
 package com.saurabhsandav.core.ui.common.form
 
+import androidx.compose.runtime.MutableState
+import com.saurabhsandav.core.ui.common.form.adapter.MutableStateFormField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.runTest
@@ -14,7 +16,7 @@ class FormModelTest {
     fun `Add-Attach-Remove Field`() = runTest {
 
         val formModel = FormModel()
-        val field = object : FormField<String> by FormFieldImpl("", null) {
+        val field = object : FormField<MutableState<String>, String> by MutableStateFormField("", null) {
 
             var coroutineScope: CoroutineScope? = null
 
@@ -40,7 +42,7 @@ class FormModelTest {
     fun `Attach-Detach Field`() = runTest {
 
         val formModel = FormModel()
-        val field = object : FormField<String> by FormFieldImpl("", null) {
+        val field = object : FormField<MutableState<String>, String> by MutableStateFormField("", null) {
 
             var coroutineScope: CoroutineScope? = null
 

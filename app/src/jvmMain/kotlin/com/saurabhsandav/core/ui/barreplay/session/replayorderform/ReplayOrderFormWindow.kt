@@ -92,7 +92,7 @@ private fun ReplayOrderForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
             value = model.quantityField.value,
-            onValueChange = { model.quantityField.value = it.trim() },
+            onValueChange = { model.quantityField.holder.value = it.trim() },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
@@ -107,7 +107,7 @@ private fun ReplayOrderForm(
 
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                onClick = { model.isBuyField.value = false },
+                onClick = { model.isBuyField.holder.value = false },
                 selected = !isBuy,
                 colors = SegmentedButtonDefaults.colors(
                     activeContentColor = AppColor.LossRed,
@@ -118,7 +118,7 @@ private fun ReplayOrderForm(
 
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                onClick = { model.isBuyField.value = true },
+                onClick = { model.isBuyField.holder.value = true },
                 selected = isBuy,
                 colors = SegmentedButtonDefaults.colors(
                     activeContentColor = AppColor.ProfitGreen,
@@ -130,7 +130,7 @@ private fun ReplayOrderForm(
 
         OutlinedTextField(
             value = model.priceField.value,
-            onValueChange = { model.priceField.value = it.trim() },
+            onValueChange = { model.priceField.holder.value = it.trim() },
             label = { Text("Price") },
             isError = model.priceField.isError,
             supportingText = model.priceField.errorsMessagesAsSupportingText(),
@@ -139,7 +139,7 @@ private fun ReplayOrderForm(
 
         OutlinedTextField(
             value = model.stop.value,
-            onValueChange = { model.stop.value = it.trim() },
+            onValueChange = { model.stop.holder.value = it.trim() },
             label = { Text("Stop") },
             isError = model.stop.isError,
             supportingText = model.stop.errorsMessagesAsSupportingText(),
@@ -148,7 +148,7 @@ private fun ReplayOrderForm(
 
         OutlinedTextField(
             value = model.target.value,
-            onValueChange = { model.target.value = it.trim() },
+            onValueChange = { model.target.holder.value = it.trim() },
             label = { Text("Target") },
             isError = model.target.isError,
             supportingText = model.target.errorsMessagesAsSupportingText(),

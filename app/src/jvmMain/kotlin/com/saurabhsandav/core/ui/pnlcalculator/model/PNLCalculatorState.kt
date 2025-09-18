@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
@@ -43,19 +44,19 @@ internal class PNLCalculatorFormModel(
 
     var enableModification by mutableStateOf(true)
 
-    val quantityField = addField(quantity) {
+    val quantityField = addMutableStateField(quantity) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val isLongField = addField(isLong)
+    val isLongField = addMutableStateField(isLong)
 
-    val entryField = addField(entry) {
+    val entryField = addMutableStateField(entry) {
         isRequired()
         isBigDecimal()?.isPositive()
     }
 
-    val exitField = addField(exit) {
+    val exitField = addMutableStateField(exit) {
         isRequired()
         isBigDecimal()?.apply {
 

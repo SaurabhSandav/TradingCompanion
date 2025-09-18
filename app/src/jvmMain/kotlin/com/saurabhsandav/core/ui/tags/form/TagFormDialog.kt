@@ -113,7 +113,7 @@ private fun TagForm(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().focusRequester(initialFocusRequester),
             value = model.nameField.value,
-            onValueChange = { model.nameField.value = it },
+            onValueChange = { model.nameField.holder.value = it },
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
@@ -123,7 +123,7 @@ private fun TagForm(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().weight(1F, fill = false),
             value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.value = it },
+            onValueChange = { model.descriptionField.holder.value = it },
             label = { Text("Description") },
             minLines = 3,
         )
@@ -150,7 +150,7 @@ private fun TagForm(
                             .clickable { showColorPicker = true },
                     )
 
-                    IconButton(onClick = { model.colorField.value = null }) {
+                    IconButton(onClick = { model.colorField.holder.value = null }) {
 
                         Icon(Icons.Default.Close, contentDescription = "Remove color")
                     }
@@ -191,7 +191,7 @@ private fun TagForm(
 
             ColorPickerDialog(
                 onDismissRequest = { showColorPicker = false },
-                onColorSelected = { model.colorField.value = it },
+                onColorSelected = { model.colorField.holder.value = it },
                 initialSelection = model.colorField.value,
             )
         }

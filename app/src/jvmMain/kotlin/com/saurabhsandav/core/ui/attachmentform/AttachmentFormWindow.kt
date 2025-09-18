@@ -104,7 +104,7 @@ private fun AttachmentForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
             value = model.nameField.value,
-            onValueChange = { model.nameField.value = it.trim() },
+            onValueChange = { model.nameField.holder.value = it.trim() },
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
@@ -113,7 +113,7 @@ private fun AttachmentForm(
 
         OutlinedTextField(
             value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.value = it.trim() },
+            onValueChange = { model.descriptionField.holder.value = it.trim() },
             label = { Text("Description") },
         )
 
@@ -125,7 +125,7 @@ private fun AttachmentForm(
 
                 if (!showFilePicker) return@LaunchedEffect
 
-                model.pathField.value = FileKit.openFilePicker(
+                model.pathField.holder.value = FileKit.openFilePicker(
                     title = "Select Attachment",
                     dialogSettings = fileKitDialogSettings,
                 )?.path ?: model.pathField.value

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
@@ -31,32 +32,32 @@ internal class TradeExecutionFormModel(
     timestamp: LocalDateTime = Clock.System.nowIn(TimeZone.currentSystemDefault()),
 ) : FormModel() {
 
-    val instrumentField = addField(instrument) { isRequired() }
+    val instrumentField = addMutableStateField(instrument) { isRequired() }
 
-    val symbolField = addField(symbolId) { isRequired() }
+    val symbolField = addMutableStateField(symbolId) { isRequired() }
 
-    val quantityField = addField(quantity) {
+    val quantityField = addMutableStateField(quantity) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val lotsField = addField(lots) {
+    val lotsField = addMutableStateField(lots) {
         isRequired(false)
         isInt()?.isPositive()
     }
 
-    val isBuyField = addField(isBuy)
+    val isBuyField = addMutableStateField(isBuy)
 
-    val priceField = addField(price) {
+    val priceField = addMutableStateField(price) {
         isRequired()
         isBigDecimal()?.isPositive()
     }
 
-    val dateField = addField(timestamp.date) {
+    val dateField = addMutableStateField(timestamp.date) {
         if (this > currentLocalDateTime().date) reportInvalid("Cannot be in the future")
     }
 
-    val timeField = addField(timestamp.time) {
+    val timeField = addMutableStateField(timestamp.time) {
         if (dateField.validatedValue().atTime(this) >= currentLocalDateTime()) reportInvalid("Cannot be in the future")
     }
 
@@ -65,7 +66,7 @@ internal class TradeExecutionFormModel(
     val timestamp: LocalDateTime
         get() = dateField.value.atTime(timeField.value)
 
-    val addStopField = addField(true)
+    val addStopField = addMutableStateField(true)
 
-    val addTargetField = addField(true)
+    val addTargetField = addMutableStateField(true)
 }

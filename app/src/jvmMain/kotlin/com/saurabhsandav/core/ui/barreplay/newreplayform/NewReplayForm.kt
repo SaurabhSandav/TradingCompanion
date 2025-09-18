@@ -46,7 +46,7 @@ internal fun NewReplayForm(
             modifier = Modifier.focusRequester(initialFocusRequester),
             items = remember { enumValues<Timeframe>().toList() },
             itemText = { it.toLabel() },
-            onSelect = { model.baseTimeframeField.value = it },
+            onSelect = { model.baseTimeframeField.holder.value = it },
             selection = model.baseTimeframeField.value,
             label = { Text("Base Timeframe") },
             placeholderText = "Select Timeframe...",
@@ -56,7 +56,7 @@ internal fun NewReplayForm(
 
         OutlinedTextField(
             value = model.candlesBeforeField.value,
-            onValueChange = { model.candlesBeforeField.value = it.trim() },
+            onValueChange = { model.candlesBeforeField.holder.value = it.trim() },
             label = { Text("Candles Before") },
             isError = model.candlesBeforeField.isError,
             supportingText = model.candlesBeforeField.errorsMessagesAsSupportingText(),
@@ -66,7 +66,7 @@ internal fun NewReplayForm(
 
         DateTimePickerField(
             value = model.replayFromField.value,
-            onValidValueChange = { model.replayFromField.value = it },
+            onValidValueChange = { model.replayFromField.holder.value = it },
             label = { Text("Replay From") },
             isError = model.replayFromField.isError,
             supportingText = model.replayFromField.errorsMessagesAsSupportingText(),
@@ -74,7 +74,7 @@ internal fun NewReplayForm(
 
         DateTimePickerField(
             value = model.dataToField.value,
-            onValidValueChange = { model.dataToField.value = it },
+            onValidValueChange = { model.dataToField.holder.value = it },
             label = { Text("Data To") },
             isError = model.dataToField.isError,
             supportingText = model.dataToField.errorsMessagesAsSupportingText(),
@@ -106,14 +106,14 @@ internal fun NewReplayForm(
         SymbolSelectionField(
             type = SymbolSelectionType.Regular,
             selected = model.initialSymbolField.value,
-            onSelect = { model.initialSymbolField.value = it },
+            onSelect = { model.initialSymbolField.holder.value = it },
             isError = model.initialSymbolField.isError,
             supportingText = model.initialSymbolField.errorsMessagesAsSupportingText(),
         )
 
         ProfileSelectorField(
             selectedProfileId = model.profileField.value,
-            onProfileSelected = { model.profileField.value = it },
+            onProfileSelected = { model.profileField.holder.value = it },
             trainingOnly = true,
         )
 

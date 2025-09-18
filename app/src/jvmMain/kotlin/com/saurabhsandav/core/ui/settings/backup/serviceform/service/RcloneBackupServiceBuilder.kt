@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.backup.service.RcloneBackupService
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceBuilder
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormModel
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormType
@@ -46,14 +47,14 @@ class RcloneBackupServiceBuilder(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = formModel.remoteField.value,
-            onValueChange = { value -> formModel.remoteField.value = value },
+            onValueChange = { value -> formModel.remoteField.holder.value = value },
             label = { Text("Remote") },
         )
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = formModel.destinationPathField.value,
-            onValueChange = { value -> formModel.destinationPathField.value = value },
+            onValueChange = { value -> formModel.destinationPathField.holder.value = value },
             label = { Text("Destination Path") },
         )
     }
@@ -79,8 +80,8 @@ class RcloneBackupServiceBuilder(
         destinationPath: String = "",
     ) : BackupServiceFormModel(name) {
 
-        val remoteField = addField(remote)
+        val remoteField = addMutableStateField(remote)
 
-        val destinationPathField = addField(destinationPath)
+        val destinationPathField = addMutableStateField(destinationPath)
     }
 }

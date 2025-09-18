@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.common.form
 import com.saurabhsandav.core.ui.common.form.ValidationResult.DependencyInvalid
 import com.saurabhsandav.core.ui.common.form.ValidationResult.Invalid
 import com.saurabhsandav.core.ui.common.form.ValidationResult.Valid
+import com.saurabhsandav.core.ui.common.form.adapter.MutableStateFormField
 import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.test.runTest
@@ -41,7 +42,7 @@ class ValidationTest {
     @Test
     fun `Dependency Invalid`() = runTest {
 
-        val formField = FormFieldImpl(-1) {
+        val formField = MutableStateFormField(-1) {
             if (this < 0) reportInvalid("Cannot be negative")
         }
         val validation = Validation<Int> {
@@ -55,7 +56,7 @@ class ValidationTest {
         }
 
         // Update dependee
-        formField.value = 3
+        formField.holder.value = 3
         runValidation(3, validation).let { (result, dependencies) ->
             assertIs<Valid>(result)
             assertEquals(setOf(formField), dependencies)

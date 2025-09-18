@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.common.form
 
 import androidx.compose.runtime.snapshots.Snapshot
+import com.saurabhsandav.core.ui.common.form.adapter.MutableStateFormField
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -14,24 +15,10 @@ import kotlin.time.Duration.Companion.seconds
 class FormFieldTest {
 
     @Test
-    fun `Set value`() {
-
-        val field = FormField("", null)
-
-        assertEquals("", field.value)
-
-        field.value = "Test1"
-        assertEquals("Test1", field.value)
-
-        field.value = "Test2"
-        assertEquals("Test2", field.value)
-    }
-
-    @Test
     fun `Validate`() = runTest {
 
         val errorMessage = "Is Required"
-        val field = FormField("") { isRequired { errorMessage } }
+        val field = MutableStateFormField("") { isRequired { errorMessage } }
 
         // Initial State
         assertTrue(field.isValid)
@@ -43,7 +30,7 @@ class FormFieldTest {
         assertEquals(listOf(errorMessage), field.errorMessages)
 
         // Valid
-        field.value = "Test"
+        field.holder.value = "Test"
         assertTrue { field.validate() }
         assertTrue(field.isValid)
         assertTrue { field.errorMessages.isEmpty() }
@@ -53,7 +40,7 @@ class FormFieldTest {
     fun `Auto Validate`() = runTest {
 
         val errorMessage = "Is Required"
-        val field = FormField("Test") { isRequired { errorMessage } }
+        val field = MutableStateFormField("Test") { isRequired { errorMessage } }
 
         field.autoValidateIn(backgroundScope)
         delay(1.seconds)
@@ -63,14 +50,14 @@ class FormFieldTest {
         assertTrue { field.errorMessages.isEmpty() }
 
         // Not valid
-        field.value = ""
+        field.holder.value = ""
         Snapshot.sendApplyNotifications()
         delay(1.seconds)
         assertFalse(field.isValid)
         assertEquals(listOf(errorMessage), field.errorMessages)
 
         // Valid
-        field.value = "Test"
+        field.holder.value = "Test"
         Snapshot.sendApplyNotifications()
         delay(1.seconds)
         assertTrue(field.isValid)
@@ -81,8 +68,8 @@ class FormFieldTest {
     fun `Validate with Dependencies`() = runTest {
 
         val errorMessage = "Is Required"
-        val field1 = FormField("") { isRequired { errorMessage } }
-        val field2 = FormField("Test") {
+        val field1 = MutableStateFormField("") { isRequired { errorMessage } }
+        val field2 = MutableStateFormField("Test") {
             field1.validatedValue()
         }
 
@@ -100,7 +87,7 @@ class FormFieldTest {
         assertTrue { field2.errorMessages.isEmpty() }
 
         // Dependency Valid
-        field1.value = "Test"
+        field1.holder.value = "Test"
         assertTrue { field2.validate() }
         assertTrue(field1.isValid)
         assertTrue(field2.isValid)

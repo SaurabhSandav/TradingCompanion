@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.profiles.form
 
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormModel
+import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
@@ -31,13 +32,13 @@ internal class ProfileFormModel(
     isTraining: Boolean = false,
 ) : FormModel() {
 
-    val nameField = addField(name) {
+    val nameField = addMutableStateField(name) {
         isRequired()
         if (length > 200) reportInvalid("Max 200 characters")
         if (!isProfileNameUnique(this)) reportInvalid("Name already taken")
     }
 
-    val descriptionField = addField(description)
+    val descriptionField = addMutableStateField(description)
 
-    val isTrainingField = addField(isTraining)
+    val isTrainingField = addMutableStateField(isTraining)
 }
