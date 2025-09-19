@@ -18,12 +18,9 @@ suspend fun main(args: Array<String>) {
 
 class Main : SuspendingCliktCommand() {
 
-    private val debugMode: Boolean by option("--debug", "-D").flag().help("Run in debug mode")
+    private val isDebugMode: Boolean by option("--debug", "-D").flag().help("Run in debug mode")
 
     override suspend fun run() {
-
-        val isDebugMode = BuildKonfig.DEBUG_MODE || debugMode
-
         runApp(isDebugMode)
     }
 }

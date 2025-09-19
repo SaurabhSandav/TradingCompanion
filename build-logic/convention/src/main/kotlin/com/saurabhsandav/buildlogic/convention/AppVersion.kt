@@ -13,5 +13,5 @@ fun Project.generateAppVersion(): String {
             "--pretty=format:%cd.%h",
             "--date=format-local:%Y%m%d.%H%M%S",
         )
-    }.standardOutput.asText.get().trim()
+    }.standardOutput.asText.get().trim().plus(if (isReleaseBuild) ".release" else ".debug")
 }

@@ -30,22 +30,15 @@ fun About() {
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.columnVerticalSpacing),
         ) {
 
-            Text(
-                buildString {
-                    append("Version: ")
-                    append(BuildKonfig.VERSION)
-                    if (BuildKonfig.DEBUG_MODE) append(" (Debug)")
-                },
-            )
+            Text("Version: ${BuildKonfig.VERSION}")
 
             val formattedGitCommitTime = remember {
                 LocalDateTime.parse(
-                    input = BuildKonfig.VERSION.substringBeforeLast("."),
+                    input = BuildKonfig.VERSION.split('.').take(2).joinToString(""),
                     format = LocalDateTime.Format {
                         year()
                         monthNumber()
                         day()
-                        char('.')
                         hour()
                         minute()
                         second()

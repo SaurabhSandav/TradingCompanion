@@ -1,6 +1,8 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.saurabhsandav.buildlogic.convention.generateAppVersion
+import com.saurabhsandav.buildlogic.convention.isReleaseBuild
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     id("convention.compose-multiplatform.app")
@@ -21,6 +23,15 @@ configurations.configureEach {
 }
 
 kotlin {
+
+    jvm {
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        mainRun {
+
+            mainClass = "com.saurabhsandav.core.MainKt"
+        }
+    }
 
     compilerOptions {
 
@@ -177,8 +188,8 @@ buildkonfig {
 
         buildConfigField(
             type = FieldSpec.Type.BOOLEAN,
-            name = "DEBUG_MODE",
-            value = (findProperty("debugMode")?.toString()?.lowercase() == "true").toString(),
+            name = "IS_DEBUG_BUILD",
+            value = isReleaseBuild.not().toString(),
         )
 
         buildConfigField(
