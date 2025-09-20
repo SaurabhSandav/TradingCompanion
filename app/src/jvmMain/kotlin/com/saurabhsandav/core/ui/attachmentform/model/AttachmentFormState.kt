@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.attachmentform.model
 
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 
 internal data class AttachmentFormState(
@@ -15,9 +16,9 @@ internal class AttachmentFormModel(
     path: String? = null,
 ) : FormModel() {
 
-    val nameField = addMutableStateField(name) { isRequired() }
+    val nameField = addTextFieldStateField(name) { isRequired() }
 
-    val descriptionField = addMutableStateField(description)
+    val descriptionField = addTextFieldStateField(description)
 
     val pathField = addMutableStateField(path) { isRequired() }
 }

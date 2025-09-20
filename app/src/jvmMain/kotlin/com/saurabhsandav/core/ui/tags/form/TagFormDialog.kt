@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -112,20 +113,18 @@ private fun TagForm(
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().focusRequester(initialFocusRequester),
-            value = model.nameField.value,
-            onValueChange = { model.nameField.holder.value = it },
+            state = model.nameField.holder,
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().weight(1F, fill = false),
-            value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.holder.value = it },
+            state = model.descriptionField.holder,
             label = { Text("Description") },
-            minLines = 3,
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 3),
         )
 
         AnimatedContent(

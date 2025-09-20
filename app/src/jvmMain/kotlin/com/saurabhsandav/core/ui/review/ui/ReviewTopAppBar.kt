@@ -1,6 +1,9 @@
 package com.saurabhsandav.core.ui.review.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Preview
@@ -44,7 +47,7 @@ internal fun ReviewTopAppBar(
             when {
                 edit -> {
 
-                    var editingTitle by state { title }
+                    val editingTitle = rememberTextFieldState(title)
                     val focusRequester = remember { FocusRequester() }
                     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
@@ -54,12 +57,12 @@ internal fun ReviewTopAppBar(
 
                                 when (keyEvent.key) {
                                     Key.Enter, Key.NumPadEnter -> {
-                                        if (editingTitle.isNotEmpty()) {
-                                            onSetTitle(editingTitle)
+                                        if (editingTitle.text.isNotEmpty()) {
+                                            onSetTitle(editingTitle.text.toString())
                                         }
                                     }
 
-                                    Key.Escape -> editingTitle = title
+                                    Key.Escape -> editingTitle.setTextAndPlaceCursorAtEnd(title)
                                     else -> return@onKeyEvent false
                                 }
 
@@ -68,9 +71,8 @@ internal fun ReviewTopAppBar(
                                 return@onKeyEvent true
                             }
                             .focusRequester(focusRequester),
-                        value = editingTitle,
-                        onValueChange = { editingTitle = it },
-                        singleLine = true,
+                        state = editingTitle,
+                        lineLimits = TextFieldLineLimits.SingleLine,
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.background,
                             unfocusedContainerColor = MaterialTheme.colorScheme.background,

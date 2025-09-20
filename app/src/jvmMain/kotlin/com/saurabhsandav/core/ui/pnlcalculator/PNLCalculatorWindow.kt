@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -45,6 +47,7 @@ import com.saurabhsandav.core.ui.common.table.TableCell.Width.Weight
 import com.saurabhsandav.core.ui.common.table.TableSchema
 import com.saurabhsandav.core.ui.common.table.content
 import com.saurabhsandav.core.ui.common.table.text
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.Calculate
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCalculation
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorFormModel
@@ -132,32 +135,32 @@ private fun CalculatorForm(
 
             OutlinedTextField(
                 modifier = Modifier.focusRequester(initialFocusRequester),
-                value = formModel.quantityField.value,
-                onValueChange = { formModel.quantityField.holder.value = it.trim() },
+                state = formModel.quantityField.holder,
+                inputTransformation = InputTransformation.trim(),
                 label = { Text("Quantity") },
                 isError = formModel.quantityField.isError,
                 supportingText = formModel.quantityField.errorsMessagesAsSupportingText(),
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 enabled = formModel.enableModification,
             )
 
             OutlinedTextField(
-                value = formModel.entryField.value,
-                onValueChange = { formModel.entryField.holder.value = it.trim() },
+                state = formModel.entryField.holder,
+                inputTransformation = InputTransformation.trim(),
                 label = { Text("Entry") },
                 isError = formModel.entryField.isError,
                 supportingText = formModel.entryField.errorsMessagesAsSupportingText(),
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 enabled = formModel.enableModification,
             )
 
             OutlinedTextField(
-                value = formModel.exitField.value,
-                onValueChange = { formModel.exitField.holder.value = it.trim() },
+                state = formModel.exitField.holder,
+                inputTransformation = InputTransformation.trim(),
                 label = { Text("Exit") },
                 isError = formModel.exitField.isError,
                 supportingText = formModel.exitField.errorsMessagesAsSupportingText(),
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
 
             Button(

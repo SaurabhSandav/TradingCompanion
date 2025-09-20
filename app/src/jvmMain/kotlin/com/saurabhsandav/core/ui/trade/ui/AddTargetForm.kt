@@ -6,6 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
@@ -22,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -29,11 +33,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.state
@@ -46,11 +46,11 @@ import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.common.thenIf
 import com.saurabhsandav.core.ui.trade.TargetPreviewer
 import com.saurabhsandav.core.ui.trade.model.TradeState.TradeTarget
+import com.saurabhsandav.core.ui.trade.ui.AddTargetFormState.ActiveField
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 
@@ -195,10 +195,10 @@ private fun AddTargetForm(
 
             TextField(
                 modifier = textFieldModifier.focusRequester(focusRequester),
-                value = formState.price,
-                onValueChange = formState::onPriceChange,
+                state = formState.price,
+                inputTransformation = { formState.activeField = ActiveField.Price },
                 isError = formState.priceIsError,
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 colors = textFieldColors,
                 placeholder = {
 
@@ -217,10 +217,10 @@ private fun AddTargetForm(
 
             TextField(
                 modifier = textFieldModifier,
-                value = formState.rValue,
-                onValueChange = formState::onRValueChange,
+                state = formState.rValue,
+                inputTransformation = { formState.activeField = ActiveField.RValue },
                 isError = formState.rValueIsError,
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 colors = textFieldColors,
                 placeholder = {
 
@@ -229,17 +229,17 @@ private fun AddTargetForm(
                         text = "R",
                     )
                 },
-                visualTransformation = rValueVisualTransformation,
+                outputTransformation = { if (toString().isNotEmpty()) append(" R") },
             )
         }
         profit.content {
 
             TextField(
                 modifier = textFieldModifier,
-                value = formState.profit,
-                onValueChange = formState::onProfitChange,
+                state = formState.profit,
+                inputTransformation = { formState.activeField = ActiveField.Profit },
                 isError = formState.profitIsError,
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 colors = textFieldColors,
                 placeholder = {
 
@@ -274,96 +274,76 @@ private class AddTargetFormState(
     private val onAdd: (KBigDecimal) -> Unit,
 ) {
 
-    private val changeEvents = MutableSharedFlow<ChangeEvent>(replay = 1)
-
     private var finalPrice: KBigDecimal? = null
 
-    var price by mutableStateOf("")
-        private set
+    val price = TextFieldState()
     var priceIsError by mutableStateOf(false)
         private set
 
-    var rValue by mutableStateOf("")
-        private set
+    val rValue = TextFieldState()
     var rValueIsError by mutableStateOf(false)
         private set
 
-    var profit by mutableStateOf("")
-        private set
+    val profit = TextFieldState()
     var profitIsError by mutableStateOf(false)
         private set
 
     var netProfit by mutableStateOf("")
         private set
 
+    var activeField = ActiveField.Price
+
     init {
 
-        combine(previewerFlow, changeEvents) { previewer, changeEvent ->
+        combine(
+            previewerFlow,
+            snapshotFlow { Triple(price.text, rValue.text, profit.text) },
+        ) { previewer, (priceText, rValueText, profitText) ->
 
-            val target = when (changeEvent) {
-                is ChangeEvent.Price -> changeEvent.value?.let(previewer::atPrice)
-                is ChangeEvent.RValue -> changeEvent.value?.let(previewer::atRValue)
-                is ChangeEvent.Profit -> changeEvent.value?.let(previewer::atProfit)
+            val priceBD = priceText.toString().toKBigDecimalOrNull()
+            val rValueBD = rValueText.toString().toKBigDecimalOrNull()
+            val profitBD = profitText.toString().toKBigDecimalOrNull()
+
+            val target = when (activeField) {
+                ActiveField.Price -> priceBD?.let(previewer::atPrice)
+                ActiveField.RValue -> rValueBD?.let(previewer::atRValue)
+                ActiveField.Profit -> profitBD?.let(previewer::atProfit)
             }
 
             finalPrice = target?.price
-            price = when (changeEvent) {
-                is ChangeEvent.Price -> price
-                else -> target?.priceText.orEmpty()
+
+            when (activeField) {
+                ActiveField.Price -> {
+                    rValue.setTextAndPlaceCursorAtEnd(target?.rValue.orEmpty())
+                    profit.setTextAndPlaceCursorAtEnd(target?.profit.orEmpty())
+                }
+
+                ActiveField.RValue -> {
+                    price.setTextAndPlaceCursorAtEnd(target?.priceText.orEmpty())
+                    profit.setTextAndPlaceCursorAtEnd(target?.profit.orEmpty())
+                }
+
+                ActiveField.Profit -> {
+                    price.setTextAndPlaceCursorAtEnd(target?.priceText.orEmpty())
+                    rValue.setTextAndPlaceCursorAtEnd(target?.rValue.orEmpty())
+                }
             }
-            rValue = when (changeEvent) {
-                is ChangeEvent.RValue -> rValue
-                else -> target?.rValue.orEmpty()
-            }
-            profit = when (changeEvent) {
-                is ChangeEvent.Profit -> profit
-                else -> target?.profit.orEmpty()
-            }
+
             netProfit = target?.netProfit.orEmpty()
-            priceIsError = changeEvent is ChangeEvent.Price && target == null
-            rValueIsError = changeEvent is ChangeEvent.RValue && target == null
-            profitIsError = changeEvent is ChangeEvent.Profit && target == null
+            priceIsError = activeField == ActiveField.Price && target == null
+            rValueIsError = activeField == ActiveField.RValue && target == null
+            profitIsError = activeField == ActiveField.Profit && target == null
         }.launchIn(coroutineScope)
-    }
-
-    fun onPriceChange(newValue: String) {
-
-        price = newValue.trim()
-
-        changeEvents.tryEmit(ChangeEvent.Price(price.toKBigDecimalOrNull()))
-    }
-
-    fun onRValueChange(newValue: String) {
-
-        rValue = newValue.trim()
-
-        changeEvents.tryEmit(ChangeEvent.RValue(rValue.toKBigDecimalOrNull()))
-    }
-
-    fun onProfitChange(newValue: String) {
-
-        profit = newValue.trim()
-
-        changeEvents.tryEmit(ChangeEvent.Profit(profit.toKBigDecimalOrNull()))
     }
 
     fun submit() {
         finalPrice?.let(onAdd)
     }
 
-    private sealed class ChangeEvent {
-
-        data class Price(
-            val value: KBigDecimal?,
-        ) : ChangeEvent()
-
-        data class RValue(
-            val value: KBigDecimal?,
-        ) : ChangeEvent()
-
-        data class Profit(
-            val value: KBigDecimal?,
-        ) : ChangeEvent()
+    enum class ActiveField {
+        Price,
+        RValue,
+        Profit,
     }
 }
 
@@ -378,20 +358,5 @@ private class TargetTableSchema(
     val options = cell(
         width = Width.Fixed(StopTargetOptionsWidth),
         contentAlignment = Alignment.CenterEnd,
-    )
-}
-
-private val rValueVisualTransformation = VisualTransformation { text ->
-
-    TransformedText(
-        text = if (text.isEmpty()) text else AnnotatedString("${text.text} R"),
-        offsetMapping = object : OffsetMapping {
-
-            override fun originalToTransformed(offset: Int): Int = offset
-
-            override fun transformedToOriginal(offset: Int): Int {
-                return if (offset >= text.length) text.length else offset
-            }
-        },
     )
 }

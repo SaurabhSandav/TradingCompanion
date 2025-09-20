@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.stockchart.ui
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenInBrowser
@@ -15,8 +16,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -36,7 +35,7 @@ internal fun TimeframeSelectionDialog(
 ) {
 
     var selectedIndex by state { -1 }
-    var filterQuery by state { TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length)) }
+    val filterQuery = rememberTextFieldState(initialFilterQuery)
     val items by derivedState {
         Timeframe.entries.filter { it.toLabel().contains(filterQuery.text, ignoreCase = true) }
     }
@@ -64,7 +63,6 @@ internal fun TimeframeSelectionDialog(
             true
         },
         filterQuery = filterQuery,
-        onFilterChange = { filterQuery = it },
         dialogSize = DpSize(width = 250.dp, height = Dp.Unspecified),
     ) { index ->
 

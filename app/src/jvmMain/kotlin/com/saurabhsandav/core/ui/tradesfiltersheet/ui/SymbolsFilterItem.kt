@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -94,17 +96,16 @@ private fun AddSymbolButton(
             onDismissRequest = { expanded = false },
         ) {
 
-            var filter by state { "" }
+            val filter = rememberTextFieldState()
             val filteredSymbols by remember {
-                snapshotFlow { filter }.flatMapLatest(symbolSuggestions)
+                snapshotFlow { filter.text.toString() }.flatMapLatest(symbolSuggestions)
             }.collectAsState(emptyList())
             val focusRequester = remember { FocusRequester() }
 
             OutlinedTextField(
                 modifier = Modifier.focusRequester(focusRequester),
-                value = filter,
-                onValueChange = { filter = it },
-                singleLine = true,
+                state = filter,
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
 
             LaunchedEffect(Unit) {

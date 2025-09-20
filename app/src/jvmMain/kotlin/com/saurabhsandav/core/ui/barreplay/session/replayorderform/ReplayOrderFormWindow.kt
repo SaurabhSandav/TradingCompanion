@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -29,6 +31,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 
 @Composable
@@ -90,12 +93,12 @@ private fun ReplayOrderForm(
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
-            value = model.quantityField.value,
-            onValueChange = { model.quantityField.holder.value = it.trim() },
+            state = model.quantityField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         SingleChoiceSegmentedButtonRow(
@@ -128,30 +131,30 @@ private fun ReplayOrderForm(
         }
 
         OutlinedTextField(
-            value = model.priceField.value,
-            onValueChange = { model.priceField.holder.value = it.trim() },
+            state = model.priceField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Price") },
             isError = model.priceField.isError,
             supportingText = model.priceField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
-            value = model.stop.value,
-            onValueChange = { model.stop.holder.value = it.trim() },
+            state = model.stop.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Stop") },
             isError = model.stop.isError,
             supportingText = model.stop.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
-            value = model.target.value,
-            onValueChange = { model.target.holder.value = it.trim() },
+            state = model.target.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Target") },
             isError = model.target.isError,
             supportingText = model.target.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         Button(

@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.tradeexecutionform.model
 import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.finishValidation
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
@@ -38,19 +39,19 @@ internal class TradeExecutionFormModel(
 
     val symbolField = addMutableStateField(symbolId) { isRequired() }
 
-    val quantityField = addMutableStateField(quantity) {
+    val quantityField = addTextFieldStateField(quantity) {
         isRequired()
         isInt()?.isPositive()
     }
 
-    val lotsField = addMutableStateField(lots) {
+    val lotsField = addTextFieldStateField(lots) {
         isRequired(false)
         isInt()?.isPositive()
     }
 
     val isBuyField = addMutableStateField(isBuy)
 
-    val priceField = addMutableStateField(price) {
+    val priceField = addTextFieldStateField(price) {
         isRequired()
         isBigDecimal()?.isPositive()
     }
@@ -59,7 +60,7 @@ internal class TradeExecutionFormModel(
         if (this > currentLocalDateTime().date) reportInvalid("Cannot be in the future")
     }
 
-    val timeField = addMutableStateField(TimeFieldDefaults.format(timestamp.time)) {
+    val timeField = addTextFieldStateField(TimeFieldDefaults.format(timestamp.time)) {
         isRequired()
 
         val time = with(TimeFieldDefaults) { validate() } ?: finishValidation()

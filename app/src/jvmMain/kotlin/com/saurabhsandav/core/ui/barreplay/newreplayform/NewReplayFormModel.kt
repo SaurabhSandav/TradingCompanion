@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isInt
@@ -30,7 +31,7 @@ class NewReplayFormModel(
 
     val baseTimeframeField = addMutableStateField(baseTimeframe) { isRequired() }
 
-    val candlesBeforeField = addMutableStateField(candlesBefore) {
+    val candlesBeforeField = addTextFieldStateField(candlesBefore) {
         isRequired()
         isInt()?.isPositive()
     }

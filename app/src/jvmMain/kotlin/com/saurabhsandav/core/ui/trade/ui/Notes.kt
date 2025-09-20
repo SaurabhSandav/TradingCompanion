@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -95,11 +97,13 @@ internal fun Notes(
 
                     if (showEditDialog) {
 
+                        val noteText = rememberTextFieldState(note.noteText)
+
                         NoteEditorWindow(
-                            noteId = note.id,
-                            noteText = note.noteText,
-                            onSaveNote = { noteText -> onUpdateNote(note.id, noteText) },
                             onCloseRequest = { showEditDialog = false },
+                            noteId = note.id,
+                            noteText = noteText,
+                            onSaveNote = { onUpdateNote(note.id, noteText.text.toString()) },
                         )
                     }
 
@@ -119,9 +123,12 @@ internal fun Notes(
 
         addWindowManager.Window {
 
+            val noteText = rememberTextFieldState()
+
             NoteEditorWindow(
                 onCloseRequest = addWindowManager::closeWindow,
-                onSaveNote = onAddNote,
+                noteText = noteText,
+                onSaveNote = { onAddNote(noteText.text.toString()) },
             )
         }
     }
@@ -129,10 +136,10 @@ internal fun Notes(
 
 @Composable
 private fun NoteEditorWindow(
-    onSaveNote: (note: String) -> Unit,
     onCloseRequest: () -> Unit,
+    noteText: TextFieldState,
+    onSaveNote: () -> Unit,
     noteId: TradeNoteId? = null,
-    noteText: String = "",
 ) {
 
     val windowState = rememberAppWindowState(
@@ -148,7 +155,6 @@ private fun NoteEditorWindow(
 
         Column(Modifier.fillMaxSize()) {
 
-            var text by state { noteText }
             var previewMarkdown by state { false }
             val initialFocusRequester = remember { FocusRequester() }
 
@@ -167,7 +173,7 @@ private fun NoteEditorWindow(
                                 modifier = Modifier.fillMaxSize()
                                     .verticalScroll(scrollState)
                                     .padding(MaterialTheme.dimens.containerPadding),
-                                content = text,
+                                content = noteText.toString(),
                             )
 
                             VerticalScrollbar(
@@ -178,8 +184,7 @@ private fun NoteEditorWindow(
 
                         else -> TextField(
                             modifier = Modifier.fillMaxSize().focusRequester(initialFocusRequester),
-                            value = text,
-                            onValueChange = { text = it },
+                            state = noteText,
                         )
                     }
                 }
@@ -207,7 +212,7 @@ private fun NoteEditorWindow(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onCloseRequest()
-                    onSaveNote(text)
+                    onSaveNote()
                 },
                 content = { Text("Save") },
             )

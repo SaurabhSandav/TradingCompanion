@@ -1,12 +1,22 @@
 package com.saurabhsandav.core.ui.common
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
@@ -16,6 +26,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun OutlinedTextBox(
@@ -31,15 +42,23 @@ fun OutlinedTextBox(
     suffix: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
-    singleLine: Boolean = false,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    scrollState: ScrollState = rememberScrollState(),
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
 ) {
+
+    val textFieldState = rememberTextFieldState(value)
+    val valueAsState by rememberUpdatedState(value)
+
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { valueAsState }.collectLatest { text -> textFieldState.setTextAndPlaceCursorAtEnd(text) }
+    }
 
     OutlinedTextField(
         modifier = modifier.thenIfNotNull(onClick) { onClick -> onTextFieldClickOrEnter(onClick) },
-        value = value,
-        onValueChange = {},
+        state = textFieldState,
         enabled = enabled,
         readOnly = true,
         label = label?.let { { it() } },
@@ -50,9 +69,11 @@ fun OutlinedTextBox(
         suffix = suffix,
         supportingText = supportingText,
         isError = isError,
-        singleLine = singleLine,
+        lineLimits = lineLimits,
+        scrollState = scrollState,
         shape = shape,
         colors = colors,
+        contentPadding = contentPadding,
     )
 }
 

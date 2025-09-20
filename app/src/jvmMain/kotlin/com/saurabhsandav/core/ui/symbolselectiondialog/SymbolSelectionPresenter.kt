@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,8 +8,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -17,7 +16,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent
-import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState.Symbol
@@ -43,7 +41,7 @@ internal class SymbolSelectionPresenter(
 ) {
 
     private var selectedSymbolId by mutableStateOf(initialSelectedSymbolId)
-    private var filterQuery by mutableStateOf(TextFieldValue(initialFilterQuery, TextRange(initialFilterQuery.length)))
+    private val filterQuery = TextFieldState(initialFilterQuery)
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -59,7 +57,6 @@ internal class SymbolSelectionPresenter(
 
         when (event) {
             is SymbolSelected -> onSymbolSelected(event.id)
-            is Filter -> onFilter(event.query)
         }
     }
 
@@ -72,7 +69,7 @@ internal class SymbolSelectionPresenter(
             maxSize = 1000,
         )
 
-        snapshotFlow { filterQuery.text }
+        snapshotFlow { filterQuery.text.toString() }
             .onStart { symbolsProvider.downloadAllLatestSymbols() }
             .flatMapLatest { filterQuery ->
 
@@ -121,10 +118,6 @@ internal class SymbolSelectionPresenter(
 
     private fun onSymbolSelected(id: SymbolId) {
         selectedSymbolId = id
-    }
-
-    private fun onFilter(query: TextFieldValue) {
-        filterQuery = query
     }
 
     @AssistedFactory

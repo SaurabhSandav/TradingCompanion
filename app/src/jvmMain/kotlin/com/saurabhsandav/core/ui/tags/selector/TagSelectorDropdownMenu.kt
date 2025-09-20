@@ -3,6 +3,7 @@ package com.saurabhsandav.core.ui.tags.selector
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DropdownMenu
@@ -55,9 +56,8 @@ internal fun TagSelectorDropdownMenu(
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(focusRequester),
-            value = state.filterQuery,
-            onValueChange = { state.filterQuery = it },
-            singleLine = true,
+            state = state.filterQuery,
+            lineLimits = TextFieldLineLimits.SingleLine,
             trailingIcon = if (!allowCreate) {
                 null
             } else {
@@ -69,7 +69,7 @@ internal fun TagSelectorDropdownMenu(
 
             TagFormDialog(
                 profileId = profileId,
-                formType = TagFormType.New(state.filterQuery),
+                formType = TagFormType.New(state.filterQuery.text.toString()),
                 onCloseRequest = { showCreateTagWindow = false },
             )
         }

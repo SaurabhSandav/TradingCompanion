@@ -57,10 +57,12 @@ class LocalBackupServiceBuilder(
 
             if (!showDirectoryPicker) return@LaunchedEffect
 
-            formModel.pathField.holder.value = FileKit.openDirectoryPicker(
+            val path = FileKit.openDirectoryPicker(
                 title = "Select Attachment",
                 dialogSettings = FileKitDialogSettings(parentWindow = window.window),
-            )?.path ?: formModel.pathField.value
+            )?.path
+
+            if (path != null) formModel.pathField.holder.value = path
 
             showDirectoryPicker = false
         }

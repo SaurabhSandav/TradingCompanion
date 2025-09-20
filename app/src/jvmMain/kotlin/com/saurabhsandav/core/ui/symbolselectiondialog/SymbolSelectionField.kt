@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,7 +12,6 @@ import androidx.compose.runtime.setValue
 import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.state
-import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.trading.core.SymbolId
 
@@ -45,7 +45,7 @@ fun SymbolSelectionField(
         value = state.selectedSymbol?.ticker ?: "",
         onClick = { showSymbolSelectionDialog = true },
         enabled = enabled,
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text("Symbol") },
         placeholder = { Text("Select...") },
         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showSymbolSelectionDialog) },
@@ -64,7 +64,7 @@ fun SymbolSelectionField(
                 onSelect(symbolId)
             },
             type = type,
-            onFilterChange = { query -> state.eventSink(Filter(query)) },
+            filterQuery = state.filterQuery,
         )
     }
 }

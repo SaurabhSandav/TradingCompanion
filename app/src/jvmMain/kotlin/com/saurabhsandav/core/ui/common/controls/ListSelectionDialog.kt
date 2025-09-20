@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -34,7 +36,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpSize
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
 import com.saurabhsandav.core.ui.common.app.AppDialog
@@ -49,8 +50,7 @@ fun ListSelectionDialog(
     onSelectionChange: (Int) -> Unit,
     onSelectionFinished: (Int) -> Unit,
     key: ((index: Int) -> Any)? = null,
-    filterQuery: TextFieldValue = TextFieldValue(),
-    onFilterChange: (TextFieldValue) -> Unit = {},
+    filterQuery: TextFieldState,
     title: @Composable (() -> Unit)? = null,
     isLoading: Boolean = false,
     onKeyEvent: ((KeyEvent, Int) -> Boolean)? = null,
@@ -113,9 +113,8 @@ fun ListSelectionDialog(
 
                         false
                     },
-                value = filterQuery,
-                onValueChange = onFilterChange,
-                singleLine = true,
+                state = filterQuery,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 placeholder = title,
             )
 

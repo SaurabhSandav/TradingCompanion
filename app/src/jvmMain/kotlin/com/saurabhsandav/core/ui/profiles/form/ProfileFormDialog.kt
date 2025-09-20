@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.profiles.form
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -79,17 +80,15 @@ private fun ProfileForm(
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
-            value = model.nameField.value,
-            onValueChange = { model.nameField.holder.value = it },
+            state = model.nameField.holder,
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
-            value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.holder.value = it },
+            state = model.descriptionField.holder,
             label = { Text("Description") },
         )
 

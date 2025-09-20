@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -79,7 +81,7 @@ fun <T : Any> OutlinedListSelectionField(
                 },
             value = selectedItemText,
             enabled = enabled,
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
             label = label,
             placeholder = { Text(placeholderText) },
             trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -93,9 +95,9 @@ fun <T : Any> OutlinedListSelectionField(
             onDismissRequest = { expanded = false },
         ) {
 
-            var filterQuery by state { "" }
+            val filterQuery = rememberTextFieldState()
             val filteredItems by derivedState {
-                items.filter { item -> itemText(item).contains(filterQuery, ignoreCase = true) }
+                items.filter { item -> itemText(item).contains(filterQuery.text, ignoreCase = true) }
             }
             val focusRequester = remember { FocusRequester() }
 
@@ -127,12 +129,9 @@ fun <T : Any> OutlinedListSelectionField(
 
                         true
                     },
-                value = filterQuery,
-                onValueChange = {
-                    navigationSelectedIndex = -1
-                    filterQuery = it
-                },
-                singleLine = true,
+                state = filterQuery,
+                inputTransformation = { navigationSelectedIndex = -1 },
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
 
             filteredItems.forEachIndexed { index, item ->

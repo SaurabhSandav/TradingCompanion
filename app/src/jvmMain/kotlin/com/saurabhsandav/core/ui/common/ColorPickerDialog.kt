@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -14,8 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -24,6 +31,7 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.theme.dimens
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ColorPickerDialog(
@@ -44,7 +52,9 @@ fun ColorPickerDialog(
 
             val controller = rememberColorPickerController()
             val selectedColor by controller.selectedColor
-            val selectedColorHex by derivedState { controller.selectedColor.value.toHexString() }
+            val selectedColorHex = rememberTextFieldState(
+                initialText = remember { controller.selectedColor.value.toHexString() },
+            )
             var isHexError by state { false }
 
             HsvColorPicker(
@@ -55,14 +65,21 @@ fun ColorPickerDialog(
 
             HorizontalDivider()
 
+            LaunchedEffect(controller) {
+                snapshotFlow { controller.selectedColor.value }.collectLatest { color ->
+                    selectedColorHex.setTextAndPlaceCursorAtEnd(color.toHexString())
+                    isHexError = false
+                }
+            }
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = selectedColorHex,
-                onValueChange = { text ->
+                state = selectedColorHex,
+                inputTransformation = InputTransformation.trim().then {
 
-                    val color = Color.hex(text)
+                    val color = Color.hex(toString())
 
-                    color?.let { controller.wheelColor = it }
+                    if (color != null) controller.wheelColor = color
                     isHexError = color == null
                 },
                 isError = isHexError,

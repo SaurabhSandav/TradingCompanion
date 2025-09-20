@@ -4,18 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.app.WindowTitle
-import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
@@ -73,15 +71,12 @@ private fun SizingTradeCreator(onAddTrade: (ticker: String) -> Unit) {
         ),
     ) {
 
-        var ticker by state { "" }
+        val ticker = rememberTextFieldState()
 
-        OutlinedTextField(
-            value = ticker,
-            onValueChange = { ticker = it },
-        )
+        OutlinedTextField(state = ticker)
 
         Button(
-            onClick = { onAddTrade(ticker) },
+            onClick = { onAddTrade(ticker.text.toString()) },
             modifier = Modifier.alignByBaseline(),
         ) {
 

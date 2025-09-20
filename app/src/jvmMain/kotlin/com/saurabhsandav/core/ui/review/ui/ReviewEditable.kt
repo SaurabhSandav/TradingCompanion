@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
@@ -14,7 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -28,13 +29,12 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.saurabhsandav.core.ui.common.BoxWithScrollbar
-import com.saurabhsandav.core.ui.common.saveableState
 import com.saurabhsandav.core.ui.theme.dimens
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 internal fun ReviewEditable(
@@ -51,7 +51,11 @@ internal fun ReviewEditable(
         scrollbarAdapter = rememberScrollbarAdapter(scrollState),
     ) {
 
-        var textFieldValue by saveableState(stateSaver = TextFieldValue.Saver) { TextFieldValue(review) }
+        val textFieldState = rememberTextFieldState(review)
+
+        LaunchedEffect(textFieldState) {
+            snapshotFlow { textFieldState.text.toString() }.collectLatest { review -> onReviewChange(review) }
+        }
 
         Crossfade(edit) { editTarget ->
 
@@ -74,20 +78,15 @@ internal fun ReviewEditable(
                                 return@onPreviewKeyEvent when {
                                     keyEvent.isCtrlPressed &&
                                         keyEvent.type == KeyEventType.KeyDown &&
-                                        keyEvent.key == Key.S
-                                        -> {
-                                            onSaveReview()
-                                            true
-                                        }
+                                        keyEvent.key == Key.S -> {
+                                        onSaveReview()
+                                        true
+                                    }
 
                                     else -> false
                                 }
                             },
-                        value = textFieldValue.copy(text = review),
-                        onValueChange = {
-                            textFieldValue = it
-                            onReviewChange(it.text)
-                        },
+                        state = textFieldState,
                     )
                 }
 

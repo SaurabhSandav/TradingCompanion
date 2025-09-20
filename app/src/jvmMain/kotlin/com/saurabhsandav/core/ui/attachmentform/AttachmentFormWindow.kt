@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Button
@@ -39,6 +41,7 @@ import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.state
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.utils.openExternally
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
@@ -103,17 +106,17 @@ private fun AttachmentForm(
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(initialFocusRequester),
-            value = model.nameField.value,
-            onValueChange = { model.nameField.holder.value = it.trim() },
+            state = model.nameField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Name") },
             isError = model.nameField.isError,
             supportingText = model.nameField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
-            value = model.descriptionField.value,
-            onValueChange = { model.descriptionField.holder.value = it.trim() },
+            state = model.descriptionField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Description") },
         )
 
@@ -125,10 +128,12 @@ private fun AttachmentForm(
 
                 if (!showFilePicker) return@LaunchedEffect
 
-                model.pathField.holder.value = FileKit.openFilePicker(
+                val path = FileKit.openFilePicker(
                     title = "Select Attachment",
                     dialogSettings = fileKitDialogSettings,
-                )?.path ?: model.pathField.value
+                )?.path
+
+                if (path != null) model.pathField.holder.value = path
 
                 showFilePicker = false
             }

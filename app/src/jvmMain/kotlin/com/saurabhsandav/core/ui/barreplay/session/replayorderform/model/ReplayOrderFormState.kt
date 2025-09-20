@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.barreplay.session.replayorderform.model
 
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
@@ -25,19 +26,19 @@ internal class ReplayOrderFormModel(
     target: String = "",
 ) : FormModel() {
 
-    val quantityField = addMutableStateField(quantity) {
+    val quantityField = addTextFieldStateField(quantity) {
         isRequired()
         isInt()?.isPositive()
     }
 
     val isBuyField = addMutableStateField(isBuy)
 
-    val priceField = addMutableStateField(price) {
+    val priceField = addTextFieldStateField(price) {
         isRequired()
         isBigDecimal()?.isPositive()
     }
 
-    val stop = addMutableStateField(stop) {
+    val stop = addTextFieldStateField(stop) {
         isRequired(false)
         isBigDecimal()?.apply {
             isPositive()
@@ -51,7 +52,7 @@ internal class ReplayOrderFormModel(
         }
     }
 
-    val target = addMutableStateField(target) {
+    val target = addTextFieldStateField(target) {
         isRequired(false)
         isBigDecimal()?.apply {
             isPositive()

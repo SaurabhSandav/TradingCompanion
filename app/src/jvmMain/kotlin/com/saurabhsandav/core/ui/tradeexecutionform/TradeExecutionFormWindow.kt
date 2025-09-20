@@ -2,6 +2,9 @@ package com.saurabhsandav.core.ui.tradeexecutionform
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -37,6 +40,7 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
@@ -140,21 +144,21 @@ private fun TradeExecutionForm(
 
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
-            value = model.quantityField.value,
-            onValueChange = { model.quantityField.holder.value = it.trim() },
+            state = model.quantityField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         OutlinedTextField(
-            value = model.lotsField.value,
-            onValueChange = { model.lotsField.holder.value = it.trim() },
+            state = model.lotsField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Lots") },
             isError = model.lotsField.isError,
             supportingText = model.lotsField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         SingleChoiceSegmentedButtonRow(
@@ -189,12 +193,12 @@ private fun TradeExecutionForm(
         }
 
         OutlinedTextField(
-            value = model.priceField.value,
-            onValueChange = { model.priceField.holder.value = it.trim() },
+            state = model.priceField.holder,
+            inputTransformation = InputTransformation.trim(),
             label = { Text("Price") },
             isError = model.priceField.isError,
             supportingText = model.priceField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
         DatePickerField(
@@ -209,21 +213,22 @@ private fun TradeExecutionForm(
         )
 
         OutlinedTextField(
-            value = model.timeField.value,
-            onValueChange = TimeFieldDefaults.onValueChange { newValue -> model.timeField.holder.value = newValue },
+            state = model.timeField.holder,
             label = { Text("Entry Time") },
+            inputTransformation = TimeFieldDefaults.InputTransformation,
             isError = model.timeField.isError,
             supportingText = model.timeField.errorsMessagesAsSupportingText(),
-            singleLine = true,
-            visualTransformation = TimeFieldDefaults.VisualTransformation,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            outputTransformation = TimeFieldDefaults.OutputTransformation,
             trailingIcon = {
 
                 TextButton(
                     onClick = {
-                        model.timeField.holder.value = Clock.System.now()
+                        val now = Clock.System.now()
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .time
                             .let(TimeFieldDefaults::format)
+                        model.timeField.holder.setTextAndPlaceCursorAtEnd(now)
                     },
                     content = { Text("NOW") },
                 )

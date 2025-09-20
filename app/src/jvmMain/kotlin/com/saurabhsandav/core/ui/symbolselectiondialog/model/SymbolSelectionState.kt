@@ -1,6 +1,6 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog.model
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.paging.PagingData
 import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 internal data class SymbolSelectionState(
     val symbols: Flow<PagingData<Symbol>>,
     val selectedSymbol: Symbol?,
-    val filterQuery: TextFieldValue,
+    val filterQuery: TextFieldState,
     val eventSink: (SymbolSelectionEvent) -> Unit,
 ) {
 

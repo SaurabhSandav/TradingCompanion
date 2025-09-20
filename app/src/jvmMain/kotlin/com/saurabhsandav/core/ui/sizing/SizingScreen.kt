@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -18,9 +20,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +42,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.TradeExecutionFormWindow
 import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.SizingTradeId
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 internal fun SizingScreen(
@@ -140,29 +145,29 @@ private fun SizingTradeCard(
 
             Text(sizedTrade.ticker)
 
-            var entry by state { sizedTrade.entry }
+            val entry = rememberTextFieldState(sizedTrade.entry)
+
+            LaunchedEffect(entry) {
+                snapshotFlow { entry.text.toString() }.collectLatest { entry -> onUpdateEntry(entry) }
+            }
 
             OutlinedTextField(
-                value = entry,
-                onValueChange = {
-                    onUpdateEntry(it)
-                    entry = it
-                },
-                isError = entry.toKBigDecimalOrNull() == null,
-                singleLine = true,
+                state = entry,
+                isError = entry.text.toString().toKBigDecimalOrNull() == null,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 label = { Text("Entry") },
             )
 
-            var stop by state { sizedTrade.stop }
+            val stop = rememberTextFieldState(sizedTrade.stop)
+
+            LaunchedEffect(stop) {
+                snapshotFlow { stop.text.toString() }.collectLatest { stop -> onUpdateStop(stop) }
+            }
 
             OutlinedTextField(
-                value = stop,
-                onValueChange = {
-                    onUpdateStop(it)
-                    stop = it
-                },
-                isError = stop.toKBigDecimalOrNull() == null,
-                singleLine = true,
+                state = stop,
+                isError = stop.text.toString().toKBigDecimalOrNull() == null,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 label = { Text("Stop") },
             )
 

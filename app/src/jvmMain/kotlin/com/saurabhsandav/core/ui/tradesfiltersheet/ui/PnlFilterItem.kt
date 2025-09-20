@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
@@ -25,7 +29,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -33,13 +36,14 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
-import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.theme.dimens
 import com.saurabhsandav.core.ui.tradesfiltersheet.model.FilterConfig.PNL
 import com.saurabhsandav.kbigdecimal.KBigDecimal
@@ -185,13 +189,13 @@ private fun CustomForm(formModel: PnlFormModel) {
 @Composable
 private fun RowScope.CustomField(
     label: String,
-    formField: FormField<MutableState<String>, String>,
+    formField: FormField<TextFieldState, String>,
 ) {
 
     OutlinedTextField(
         modifier = Modifier.weight(1F),
-        value = formField.value,
-        onValueChange = { formField.holder.value = it.trim() },
+        state = formField.holder,
+        inputTransformation = InputTransformation.trim(),
         label = { Text(label) },
         trailingIcon = {
 
@@ -201,14 +205,14 @@ private fun RowScope.CustomField(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
 
-                IconButton(onClick = { formField.holder.value = "" }) {
+                IconButton(onClick = { formField.holder.clearText() }) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                 }
             }
         },
         isError = formField.isError,
         supportingText = formField.errorsMessagesAsSupportingText(),
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
     )
 }
 
@@ -217,12 +221,12 @@ private class PnlFormModel(
     to: KBigDecimal?,
 ) : FormModel() {
 
-    val fromField = addMutableStateField(from?.toString().orEmpty()) {
+    val fromField = addTextFieldStateField(from?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()
     }
 
-    val toField = addMutableStateField(to?.toString().orEmpty()) {
+    val toField = addTextFieldStateField(to?.toString().orEmpty()) {
         isRequired(false)
         isBigDecimal()?.apply {
 

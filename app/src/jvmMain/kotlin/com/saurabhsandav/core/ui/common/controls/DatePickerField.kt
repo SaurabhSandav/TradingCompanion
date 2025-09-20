@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.common.controls
 
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -40,7 +41,7 @@ fun DatePickerField(
         value = dateText,
         onClick = { showDialog = true },
         enabled = enabled,
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
         label = label,
         supportingText = supportingText,
         isError = isError,

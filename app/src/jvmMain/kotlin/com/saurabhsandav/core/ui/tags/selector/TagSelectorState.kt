@@ -1,8 +1,6 @@
 package com.saurabhsandav.core.ui.tags.selector
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.Color
 import com.saurabhsandav.core.trading.ProfileId
@@ -25,9 +23,9 @@ internal class TagSelectorState(
     private val tradingProfiles: TradingProfiles,
 ) {
 
-    var filterQuery: String by mutableStateOf("")
+    val filterQuery = TextFieldState()
 
-    val tags = snapshotFlow { filterQuery }
+    val tags = snapshotFlow { filterQuery.text.toString() }
         .flatMapLatest { filterQuery ->
             tradingProfiles.getRecord(profileId).tags.run {
                 when (type) {

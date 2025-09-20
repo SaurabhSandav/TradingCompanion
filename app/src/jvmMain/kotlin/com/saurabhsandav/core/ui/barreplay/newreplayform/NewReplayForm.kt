@@ -2,6 +2,9 @@ package com.saurabhsandav.core.ui.barreplay.newreplayform
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
@@ -22,6 +25,7 @@ import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.toLabel
+import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.profiles.ProfileSelectorField
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
@@ -55,12 +59,14 @@ internal fun NewReplayForm(
         )
 
         OutlinedTextField(
-            value = model.candlesBeforeField.value,
-            onValueChange = { model.candlesBeforeField.holder.value = it.trim() },
+            state = model.candlesBeforeField.holder,
+            inputTransformation = InputTransformation.trim().then {
+                if (toString().toIntOrNull() == null) revertAllChanges()
+            },
             label = { Text("Candles Before") },
             isError = model.candlesBeforeField.isError,
             supportingText = model.candlesBeforeField.errorsMessagesAsSupportingText(),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
 

@@ -1,6 +1,7 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenInBrowser
@@ -8,7 +9,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,7 +19,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.saurabhsandav.core.LocalAppGraph
@@ -27,7 +26,6 @@ import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Regular
-import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState.Symbol
 import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
 import com.saurabhsandav.paging.compose.itemKey
@@ -57,8 +55,7 @@ fun SymbolSelectionDialog(
         symbols = state.symbols,
         onSelect = onSelect,
         type = type,
-        initialFilterQuery = state.filterQuery,
-        onFilterChange = { query -> state.eventSink(Filter(query)) },
+        filterQuery = state.filterQuery,
     )
 }
 
@@ -68,17 +65,11 @@ internal fun SymbolSelectionDialog(
     symbols: Flow<PagingData<Symbol>>,
     onSelect: (SymbolId) -> Unit,
     type: SymbolSelectionType,
-    onFilterChange: (TextFieldValue) -> Unit,
-    initialFilterQuery: TextFieldValue? = null,
+    filterQuery: TextFieldState,
 ) {
 
     val items = symbols.collectAsLazyPagingItems()
     var selectedIndex by state { -1 }
-    var filterQuery by state { initialFilterQuery ?: TextFieldValue() }
-
-    LaunchedEffect(Unit) {
-        onFilterChange(filterQuery)
-    }
 
     ListSelectionDialog(
         onDismissRequest = onDismissRequest,
@@ -88,10 +79,6 @@ internal fun SymbolSelectionDialog(
         onSelectionFinished = { index -> onSelect(items[index]!!.id) },
         key = items.itemKey { it },
         filterQuery = filterQuery,
-        onFilterChange = { query ->
-            onFilterChange(query)
-            filterQuery = query
-        },
         title = { Text("Select Symbol") },
         isLoading = items.loadState.refresh == LoadState.Loading,
         onKeyEvent = onKeyEvent@{ keyEvent, index ->

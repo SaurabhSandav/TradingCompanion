@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
@@ -21,7 +24,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -30,7 +32,7 @@ import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
-import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.adapter.addTextFieldStateField
 import com.saurabhsandav.core.ui.common.form.finishValidation
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
@@ -129,18 +131,18 @@ private fun CustomForm(formModel: TimeIntervalFormModel) {
 @Composable
 private fun RowScope.TimePicker(
     label: String,
-    formField: FormField<MutableState<String>, String>,
+    formField: FormField<TextFieldState, String>,
 ) {
 
     OutlinedTextField(
         modifier = Modifier.weight(1F),
-        value = formField.value,
-        onValueChange = TimeFieldDefaults.onValueChange { newValue -> formField.holder.value = newValue },
+        state = formField.holder,
+        inputTransformation = TimeFieldDefaults.InputTransformation,
         label = { Text(label) },
         isError = formField.isError,
         supportingText = formField.errorsMessagesAsSupportingText(),
-        singleLine = true,
-        visualTransformation = TimeFieldDefaults.VisualTransformation,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        outputTransformation = TimeFieldDefaults.OutputTransformation,
         trailingIcon = {
 
             androidx.compose.animation.AnimatedVisibility(
@@ -149,7 +151,7 @@ private fun RowScope.TimePicker(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
 
-                IconButton(onClick = { formField.holder.value = "" }) {
+                IconButton(onClick = { formField.holder.clearText() }) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                 }
             }
@@ -162,12 +164,12 @@ private class TimeIntervalFormModel(
     to: LocalTime?,
 ) : FormModel() {
 
-    val fromField = addMutableStateField(from?.let(TimeFieldDefaults::format).orEmpty()) {
+    val fromField = addTextFieldStateField(from?.let(TimeFieldDefaults::format).orEmpty()) {
         isRequired(false)
         with(TimeFieldDefaults) { validate() }
     }
 
-    val toField = addMutableStateField(to?.let(TimeFieldDefaults::format).orEmpty()) {
+    val toField = addTextFieldStateField(to?.let(TimeFieldDefaults::format).orEmpty()) {
         isRequired(false)
 
         val from = fromField.validatedValue()
