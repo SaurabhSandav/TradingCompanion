@@ -2,7 +2,6 @@ package com.saurabhsandav.core.ui.settings.backup.serviceform.service
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,9 +11,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.backup.service.BackupService
 import com.saurabhsandav.core.backup.service.LocalBackupService
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.app.LocalAppWindowState
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceBuilder
 import com.saurabhsandav.core.ui.settings.backup.serviceform.BackupServiceFormModel
@@ -66,14 +65,11 @@ class LocalBackupServiceBuilder(
             showDirectoryPicker = false
         }
 
-        OutlinedTextField(
-            modifier = Modifier
-                .onTextFieldClickOrEnter { showDirectoryPicker = true }
-                .fillMaxWidth(),
+        OutlinedTextBox(
+            modifier = Modifier.fillMaxWidth(),
             value = formModel.pathField.value,
-            onValueChange = { value -> formModel.pathField.holder.value = value },
+            onClick = { showDirectoryPicker = true },
             label = { Text("Path") },
-            readOnly = true,
         )
     }
 

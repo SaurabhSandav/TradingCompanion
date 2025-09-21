@@ -1,7 +1,6 @@
 package com.saurabhsandav.core.ui.symbolselectiondialog
 
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -9,9 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppGraph
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.Filter
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
@@ -43,12 +41,10 @@ fun SymbolSelectionField(
 
     var showSymbolSelectionDialog by state { false }
 
-    OutlinedTextField(
-        modifier = Modifier.onTextFieldClickOrEnter { showSymbolSelectionDialog = true },
+    OutlinedTextBox(
         value = state.selectedSymbol?.ticker ?: "",
-        onValueChange = {},
+        onClick = { showSymbolSelectionDialog = true },
         enabled = enabled,
-        readOnly = true,
         singleLine = true,
         label = { Text("Symbol") },
         placeholder = { Text("Select...") },

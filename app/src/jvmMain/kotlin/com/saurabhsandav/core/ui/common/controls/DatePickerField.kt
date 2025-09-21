@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.common.controls
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -12,8 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.derivedState
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -41,12 +40,11 @@ fun DatePickerField(
     val dateText by state(value) { value?.format(format) ?: "" }
     var showDialog by state { false }
 
-    OutlinedTextField(
-        modifier = modifier.onTextFieldClickOrEnter { showDialog = true },
+    OutlinedTextBox(
+        modifier = modifier,
         value = dateText,
-        onValueChange = {},
+        onClick = { showDialog = true },
         enabled = enabled,
-        readOnly = true,
         singleLine = true,
         label = label,
         supportingText = supportingText,

@@ -34,10 +34,10 @@ import com.saurabhsandav.core.ui.attachmentform.model.AttachmentFormType.New
 import com.saurabhsandav.core.ui.common.AnimatedVisibilityForNullable
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.app.AppDialogWindow
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.utils.openExternally
 import io.github.vinceglb.filekit.FileKit
@@ -133,14 +133,12 @@ private fun AttachmentForm(
                 showFilePicker = false
             }
 
-            OutlinedTextField(
-                modifier = Modifier.onTextFieldClickOrEnter { showFilePicker = true },
+            OutlinedTextBox(
                 value = model.pathField.value ?: "Select...",
-                onValueChange = {},
+                onClick = { showFilePicker = true },
                 label = { Text("File") },
                 isError = model.pathField.isError,
                 supportingText = model.pathField.errorsMessagesAsSupportingText(),
-                readOnly = true,
             )
         }
 

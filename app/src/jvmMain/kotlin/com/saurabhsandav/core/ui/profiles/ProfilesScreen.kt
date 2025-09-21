@@ -6,7 +6,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,12 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.trading.ProfileId
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.app.AppDialog
 import com.saurabhsandav.core.ui.common.app.AppWindow
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormDialog
 import com.saurabhsandav.core.ui.profiles.form.ProfileFormType
@@ -146,12 +144,10 @@ fun ProfileSelectorField(
         state.eventSink(UpdateSelectedProfile(selectedProfileId))
     }
 
-    OutlinedTextField(
-        modifier = Modifier.onTextFieldClickOrEnter { showSelectorDialog = true },
+    OutlinedTextBox(
         value = state.currentProfile?.name ?: "",
-        onValueChange = {},
+        onClick = { showSelectorDialog = true },
         enabled = true,
-        readOnly = true,
         label = { Text("Profile") },
         trailingIcon = {
             when {

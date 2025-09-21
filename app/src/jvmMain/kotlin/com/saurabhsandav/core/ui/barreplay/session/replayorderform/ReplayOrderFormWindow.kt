@@ -24,6 +24,7 @@ import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayO
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
@@ -78,11 +79,9 @@ private fun ReplayOrderForm(
         onSubmit = onSubmit,
     ) {
 
-        OutlinedTextField(
+        OutlinedTextBox(
             value = ticker,
-            onValueChange = { },
             label = { Text("Symbol") },
-            readOnly = true,
         )
 
         val initialFocusRequester = remember { FocusRequester() }

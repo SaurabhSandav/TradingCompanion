@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.theme.keyboardSelectionBackgroundColor
@@ -61,7 +62,7 @@ fun <T : Any> OutlinedListSelectionField(
         onExpandedChange = { if (enabled) expanded = it },
     ) {
 
-        OutlinedTextField(
+        OutlinedTextBox(
             modifier = Modifier
                 .menuAnchor(
                     type = MenuAnchorType.PrimaryNotEditable,
@@ -80,9 +81,7 @@ fun <T : Any> OutlinedListSelectionField(
                     return@onKeyEvent true
                 },
             value = selectedItemText,
-            onValueChange = {},
             enabled = enabled,
-            readOnly = true,
             singleLine = true,
             label = label,
             placeholder = { Text(placeholderText) },

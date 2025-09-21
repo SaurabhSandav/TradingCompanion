@@ -17,7 +17,6 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
+import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.derivedState
-import com.saurabhsandav.core.ui.common.onTextFieldClickOrEnter
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -65,12 +64,11 @@ fun DateTimePickerField(
     var showDateDialog by state { false }
     var showTimeDialog by state { false }
 
-    OutlinedTextField(
-        modifier = modifier.onTextFieldClickOrEnter { showDateDialog = true },
+    OutlinedTextBox(
+        modifier = modifier,
         value = dateTimeText,
-        onValueChange = {},
+        onClick = { showDateDialog = true },
         enabled = enabled,
-        readOnly = true,
         singleLine = true,
         label = label,
         supportingText = supportingText,
