@@ -157,7 +157,7 @@ private fun RowScope.DatePicker(
 
         DatePickerField(
             value = formField.value,
-            onValidValueChange = { formField.holder.value = it },
+            onValueChange = { formField.holder.value = it },
             label = { Text(label) },
             format = DateFormat,
             isError = formField.isError,

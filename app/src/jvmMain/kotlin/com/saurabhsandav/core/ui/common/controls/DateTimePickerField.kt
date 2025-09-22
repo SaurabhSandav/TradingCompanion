@@ -23,8 +23,8 @@ import kotlin.time.Instant
 
 @Composable
 fun DateTimePickerField(
-    value: LocalDateTime,
-    onValidValueChange: (LocalDateTime) -> Unit,
+    value: LocalDateTime?,
+    onValueChange: (LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
@@ -33,8 +33,7 @@ fun DateTimePickerField(
     yearRange: IntRange = DatePickerDefaults.YearRange,
 ) {
 
-    val dateTimeText by state(value) { value.format(DateTimeFormat) }
-
+    val dateTimeText by state(value) { value?.format(DateTimeFormat).orEmpty() }
     var showDateTimePickerDialog by state { false }
 
     OutlinedTextBox(
@@ -52,14 +51,14 @@ fun DateTimePickerField(
 
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = remember {
-                value.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+                value?.toInstant(TimeZone.currentSystemDefault())?.toEpochMilliseconds()
             },
             yearRange = yearRange,
         )
 
         val timePickerState = rememberTimePickerState(
-            initialHour = value.hour,
-            initialMinute = value.minute,
+            initialHour = value?.hour ?: 0,
+            initialMinute = value?.minute ?: 0,
             is24Hour = true,
         )
 
@@ -81,7 +80,7 @@ fun DateTimePickerField(
 
                 val dateTime = date.atTime(time)
 
-                onValidValueChange(dateTime)
+                onValueChange(dateTime)
 
                 showDateTimePickerDialog = false
             },

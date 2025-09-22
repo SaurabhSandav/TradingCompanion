@@ -66,7 +66,7 @@ internal fun NewReplayForm(
 
         DateTimePickerField(
             value = model.replayFromField.value,
-            onValidValueChange = { model.replayFromField.holder.value = it },
+            onValueChange = { model.replayFromField.holder.value = it },
             label = { Text("Replay From") },
             isError = model.replayFromField.isError,
             supportingText = model.replayFromField.errorsMessagesAsSupportingText(),
@@ -74,7 +74,7 @@ internal fun NewReplayForm(
 
         DateTimePickerField(
             value = model.dataToField.value,
-            onValidValueChange = { model.dataToField.holder.value = it },
+            onValueChange = { model.dataToField.holder.value = it },
             label = { Text("Data To") },
             isError = model.dataToField.isError,
             supportingText = model.dataToField.errorsMessagesAsSupportingText(),

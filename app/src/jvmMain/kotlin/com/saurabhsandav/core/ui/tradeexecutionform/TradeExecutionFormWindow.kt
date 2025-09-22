@@ -199,7 +199,7 @@ private fun TradeExecutionForm(
 
         DatePickerField(
             value = model.dateField.value,
-            onValidValueChange = { model.dateField.holder.value = it },
+            onValueChange = { model.dateField.holder.value = it },
             label = { Text("Entry Date") },
             isError = model.dateField.isError,
             supportingText = model.dateField.errorsMessagesAsSupportingText(),
