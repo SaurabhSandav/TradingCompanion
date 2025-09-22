@@ -1,43 +1,17 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
 import com.saurabhsandav.core.ui.common.OutlinedTextBox
-import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.format
@@ -61,13 +35,12 @@ fun DateTimePickerField(
 
     val dateTimeText by state(value) { value.format(DateTimeFormat) }
 
-    var showDateDialog by state { false }
-    var showTimeDialog by state { false }
+    var showDateTimePickerDialog by state { false }
 
     OutlinedTextBox(
         modifier = modifier,
         value = dateTimeText,
-        onClick = { showDateDialog = true },
+        onClick = { showDateTimePickerDialog = true },
         enabled = enabled,
         singleLine = true,
         label = label,
@@ -75,7 +48,7 @@ fun DateTimePickerField(
         isError = isError,
     )
 
-    if (showDateDialog) {
+    if (showDateTimePickerDialog) {
 
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = remember {
@@ -83,161 +56,36 @@ fun DateTimePickerField(
             },
             yearRange = yearRange,
         )
-        val confirmEnabled by derivedState { datePickerState.selectedDateMillis != null }
-
-        DatePickerDialog(
-            onDismissRequest = { showDateDialog = false },
-            confirmButton = {
-
-                TextButton(
-                    onClick = {
-
-                        showDateDialog = false
-
-                        val selectedDateMillis = datePickerState.selectedDateMillis
-                        if (selectedDateMillis != null) {
-
-                            val dateTime = Instant.fromEpochMilliseconds(selectedDateMillis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault())
-                                .date
-                                .atTime(value.time)
-
-                            onValidValueChange(dateTime)
-
-                            showTimeDialog = true
-                        }
-                    },
-                    enabled = confirmEnabled,
-                ) {
-                    Text("Next")
-                }
-            },
-            dismissButton = {
-
-                TextButton(
-                    onClick = { showDateDialog = false },
-                ) {
-                    Text("Cancel")
-                }
-            },
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    if (showTimeDialog) {
 
         val timePickerState = rememberTimePickerState(
             initialHour = value.hour,
             initialMinute = value.minute,
             is24Hour = true,
         )
-        var showingPicker by state { true }
 
-        TimePickerDialog(
-            title = when {
-                showingPicker -> "Select Time "
-                else -> "Enter Time"
-            },
-            onCancel = { showTimeDialog = false },
+        AppDateTimePickerDialog(
+            datePickerState = datePickerState,
+            timePickerState = timePickerState,
+            onDismissRequest = { showDateTimePickerDialog = false },
             onConfirm = {
 
-                showTimeDialog = false
+                val date = datePickerState.selectedDateMillis!!
+                    .let(Instant::fromEpochMilliseconds)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
 
-                val dateTime = value.date.atTime(
+                val time = LocalTime(
                     hour = timePickerState.hour,
                     minute = timePickerState.minute,
                 )
 
+                val dateTime = date.atTime(time)
+
                 onValidValueChange(dateTime)
+
+                showDateTimePickerDialog = false
             },
-            toggle = {
-
-                val hint = when {
-                    showingPicker -> "Switch to Text Input"
-                    else -> "Switch to Picker Input"
-                }
-
-                IconButtonWithTooltip(
-                    onClick = { showingPicker = !showingPicker },
-                    tooltipText = hint,
-                ) {
-
-                    Icon(
-                        imageVector = when {
-                            showingPicker -> Icons.Outlined.Keyboard
-                            else -> Icons.Outlined.Schedule
-                        },
-                        contentDescription = hint,
-                    )
-                }
-            },
-        ) {
-
-            when {
-                showingPicker -> TimePicker(state = timePickerState)
-                else -> TimeInput(state = timePickerState)
-            }
-        }
-    }
-}
-
-@Composable
-internal fun TimePickerDialog(
-    title: String = "Select Time",
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-    toggle: @Composable () -> Unit = {},
-    content: @Composable () -> Unit,
-) {
-
-    Dialog(
-        onDismissRequest = onCancel,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier = Modifier.width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface,
-                ),
-        ) {
-
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                )
-
-                content()
-
-                Row(
-                    modifier = Modifier.height(40.dp).fillMaxWidth(),
-                ) {
-
-                    toggle()
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    TextButton(onClick = onCancel) {
-                        Text("Cancel")
-                    }
-
-                    TextButton(onClick = onConfirm) {
-                        Text("OK")
-                    }
-                }
-            }
-        }
+        )
     }
 }
 

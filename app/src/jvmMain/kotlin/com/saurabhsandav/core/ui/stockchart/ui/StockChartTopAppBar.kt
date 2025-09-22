@@ -15,11 +15,7 @@ import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -27,8 +23,6 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -41,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.saurabhsandav.core.ui.common.IconButtonWithTooltip
-import com.saurabhsandav.core.ui.common.controls.TimePickerDialog
+import com.saurabhsandav.core.ui.common.controls.AppDateTimePickerDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.common.toLabel
 import com.saurabhsandav.core.ui.icons.AppIcons
@@ -51,6 +45,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartDecorationType
 import com.saurabhsandav.core.ui.stockchart.StockChartsSyncPrefs
 import com.saurabhsandav.core.utils.nowIn
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
@@ -203,22 +198,21 @@ private fun GoTo(
     onGoToDateTime: (LocalDateTime) -> Unit,
 ) {
 
-    var showDateDialog by state { false }
-    var showTimeDialog by state { false }
+    var showDateTimePickerDialog by state { false }
 
-    var goToDateTime by state(showDateDialog || showTimeDialog) {
+    var goToDateTime by state(showDateTimePickerDialog) {
         Clock.System.nowIn(TimeZone.currentSystemDefault())
     }
 
     IconButtonWithTooltip(
         modifier = modifier,
-        onClick = { showDateDialog = true },
+        onClick = { showDateTimePickerDialog = true },
         tooltipText = "Go to",
 //            shape = RectangleShape, TODO CMP 1.8
         content = { Icon(AppIcons.EventUpcoming, contentDescription = "Go to") },
     )
 
-    if (showDateDialog) {
+    if (showDateTimePickerDialog) {
 
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = remember {
@@ -237,93 +231,35 @@ private fun GoTo(
             },
         )
 
-        DatePickerDialog(
-            onDismissRequest = { showDateDialog = false },
-            confirmButton = {
-
-                TextButton(
-                    onClick = onClick@{
-
-                        val selectedDateMillis = datePickerState.selectedDateMillis ?: return@onClick
-
-                        goToDateTime = Instant.fromEpochMilliseconds(selectedDateMillis)
-                            .toLocalDateTime(TimeZone.currentSystemDefault())
-                            .date
-                            .atTime(goToDateTime.time)
-
-                        showDateDialog = false
-                        showTimeDialog = true
-                    },
-                    content = { Text("Next") },
-                )
-            },
-            dismissButton = {
-
-                TextButton(
-                    onClick = { showDateDialog = false },
-                    content = { Text("Cancel") },
-                )
-            },
-        ) {
-
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    if (showTimeDialog) {
-
         val timePickerState = rememberTimePickerState(
             initialHour = goToDateTime.hour,
             initialMinute = goToDateTime.minute,
             is24Hour = true,
         )
-        var showingPicker by state { true }
 
-        TimePickerDialog(
-            title = when {
-                showingPicker -> "Select Time"
-                else -> "Enter Time"
-            },
-            onCancel = { showTimeDialog = false },
+        AppDateTimePickerDialog(
+            datePickerState = datePickerState,
+            timePickerState = timePickerState,
+            onDismissRequest = { showDateTimePickerDialog = false },
             onConfirm = {
 
-                goToDateTime = goToDateTime.date.atTime(
+                val date = datePickerState.selectedDateMillis!!
+                    .let(Instant::fromEpochMilliseconds)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
+
+                val time = LocalTime(
                     hour = timePickerState.hour,
                     minute = timePickerState.minute,
                 )
 
-                showTimeDialog = false
+                val dateTime = date.atTime(time)
 
-                onGoToDateTime(goToDateTime)
+                onGoToDateTime(dateTime)
+
+                showDateTimePickerDialog = false
             },
-            toggle = {
-
-                val hint = when {
-                    showingPicker -> "Switch to Text Input"
-                    else -> "Switch to Picker Input"
-                }
-
-                IconButtonWithTooltip(
-                    onClick = { showingPicker = !showingPicker },
-                    tooltipText = hint,
-                ) {
-
-                    Icon(
-                        imageVector = when {
-                            showingPicker -> Icons.Outlined.Keyboard
-                            else -> Icons.Outlined.Schedule
-                        },
-                        contentDescription = hint,
-                    )
-                }
-            },
-        ) {
-
-            when {
-                showingPicker -> TimePicker(state = timePickerState)
-                else -> TimeInput(state = timePickerState)
-            }
-        }
+        )
     }
 }
 

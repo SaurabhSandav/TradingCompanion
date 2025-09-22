@@ -1,10 +1,6 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.ui.common.OutlinedTextBox
-import com.saurabhsandav.core.ui.common.derivedState
 import com.saurabhsandav.core.ui.common.state
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -57,43 +52,22 @@ fun DatePickerField(
             initialSelectedDateMillis = remember { value?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds() },
             yearRange = yearRange,
         )
-        val confirmEnabled by derivedState { datePickerState.selectedDateMillis != null }
 
-        DatePickerDialog(
+        AppDatePickerDialog(
+            datePickerState = datePickerState,
             onDismissRequest = { showDialog = false },
-            confirmButton = {
+            onConfirm = {
 
-                TextButton(
-                    onClick = {
+                val date = datePickerState.selectedDateMillis!!
+                    .let(Instant::fromEpochMilliseconds)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                    .date
 
-                        showDialog = false
+                onValidValueChange(date)
 
-                        val selectedDateMillis = datePickerState.selectedDateMillis
-                        if (selectedDateMillis != null) {
-
-                            val date = Instant.fromEpochMilliseconds(selectedDateMillis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault())
-                                .date
-
-                            onValidValueChange(date)
-                        }
-                    },
-                    enabled = confirmEnabled,
-                ) {
-                    Text("OK")
-                }
+                showDialog = false
             },
-            dismissButton = {
-
-                TextButton(
-                    onClick = { showDialog = false },
-                ) {
-                    Text("Cancel")
-                }
-            },
-        ) {
-            DatePicker(state = datePickerState)
-        }
+        )
     }
 }
 
