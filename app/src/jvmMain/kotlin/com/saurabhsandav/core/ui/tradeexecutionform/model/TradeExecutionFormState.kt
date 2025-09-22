@@ -1,7 +1,9 @@
 package com.saurabhsandav.core.ui.tradeexecutionform.model
 
+import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.finishValidation
 import com.saurabhsandav.core.ui.common.form.reportInvalid
 import com.saurabhsandav.core.ui.common.form.validatedValue
 import com.saurabhsandav.core.ui.common.form.validations.isBigDecimal
@@ -57,14 +59,18 @@ internal class TradeExecutionFormModel(
         if (this > currentLocalDateTime().date) reportInvalid("Cannot be in the future")
     }
 
-    val timeField = addMutableStateField(timestamp.time) {
-        if (dateField.validatedValue().atTime(this) >= currentLocalDateTime()) reportInvalid("Cannot be in the future")
+    val timeField = addMutableStateField(TimeFieldDefaults.format(timestamp.time)) {
+        isRequired()
+
+        val time = with(TimeFieldDefaults) { validate() } ?: finishValidation()
+
+        if (dateField.validatedValue().atTime(time) >= currentLocalDateTime()) reportInvalid("Cannot be in the future")
     }
 
     private fun currentLocalDateTime() = Clock.System.nowIn(TimeZone.currentSystemDefault())
 
     val timestamp: LocalDateTime
-        get() = dateField.value.atTime(timeField.value)
+        get() = dateField.value.atTime(TimeFieldDefaults.parse(timeField.value))
 
     val addStopField = addMutableStateField(true)
 

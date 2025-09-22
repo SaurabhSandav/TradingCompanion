@@ -1,96 +1,74 @@
 package com.saurabhsandav.core.ui.common.controls
 
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
-import com.saurabhsandav.core.ui.common.state
+import androidx.compose.ui.text.input.VisualTransformation
+import com.saurabhsandav.core.ui.common.form.ValidationScope
+import com.saurabhsandav.core.ui.common.form.reportInvalid
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format
 
-@Composable
-fun TimeField(
-    value: LocalTime?,
-    onValidValueChange: (LocalTime) -> Unit,
-    modifier: Modifier = Modifier,
-    isError: Boolean = false,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    supportingText: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
-) {
+object TimeFieldDefaults {
 
-    var timeText by state(value) { value?.format(TimeFormat) ?: "" }
-    var isTimeValid by state { true }
+    private val Format = LocalTime.Format {
+        hour()
+        minute()
+        second()
+    }
 
-    OutlinedTextField(
-        modifier = modifier,
-        value = timeText,
-        onValueChange = { newValue ->
+    fun format(value: LocalTime): String = value.format(Format)
 
-            val trimmed = newValue.trim().take(6)
+    fun parse(value: String): LocalTime = LocalTime.parse(value.padEnd(6, '0'), Format)
 
-            // If still editing, update textfield, signal error
-            if (trimmed.isEmpty() || trimmed.length < 6) {
-                isTimeValid = false
-                timeText = trimmed
-                return@OutlinedTextField
-            }
+    fun parseOrNull(value: String): LocalTime? {
+        if (value.isEmpty()) return null
+        return runCatching { parse(value) }.getOrNull()
+    }
 
-            // if input length is valid, try to parse time
+    fun onValueChange(block: (String) -> Unit): (String) -> Unit = returnBlock@{ newValue ->
+        val trimmed = newValue.trim().take(6)
+        if (trimmed.toIntOrNull() == null) return@returnBlock
+        block(trimmed)
+    }
 
-            if (trimmed.toIntOrNull() == null) return@OutlinedTextField
+    val VisualTransformation = VisualTransformation {
 
-            val time = runCatching { LocalTime.parse(trimmed, TimeFormat) }
+        var out = ""
 
-            time.onSuccess { onValidValueChange(it) }
-            isTimeValid = time.isSuccess
-            timeText = trimmed
-        },
-        enabled = enabled,
-        label = label,
-        trailingIcon = trailingIcon,
-        supportingText = supportingText,
-        isError = isError || !isTimeValid,
-        singleLine = true,
-        visualTransformation = {
+        for (i in it.text.indices) {
+            out += it.text[i]
+            if (i in listOf(1, 3)) out += ":"
+        }
 
-            var out = ""
+        TransformedText(
+            text = AnnotatedString(out),
+            offsetMapping = object : OffsetMapping {
 
-            for (i in it.text.indices) {
-                out += it.text[i]
-                if (i in listOf(1, 3)) out += ":"
-            }
+                override fun originalToTransformed(offset: Int): Int {
+                    if (offset <= 1) return offset
+                    if (offset <= 3) return offset + 1
+                    if (offset <= 5) return offset + 2
+                    return 8
+                }
 
-            TransformedText(
-                text = AnnotatedString(out),
-                offsetMapping = object : OffsetMapping {
+                override fun transformedToOriginal(offset: Int): Int {
+                    if (offset <= 2) return offset
+                    if (offset <= 5) return offset - 1
+                    if (offset <= 8) return offset - 2
+                    return 6
+                }
+            },
+        )
+    }
 
-                    override fun originalToTransformed(offset: Int): Int {
-                        if (offset <= 1) return offset
-                        if (offset <= 3) return offset + 1
-                        if (offset <= 5) return offset + 2
-                        return 8
-                    }
+    context(_: ValidationScope)
+    fun String.validate(): LocalTime? {
 
-                    override fun transformedToOriginal(offset: Int): Int {
-                        if (offset <= 2) return offset
-                        if (offset <= 5) return offset - 1
-                        if (offset <= 8) return offset - 2
-                        return 6
-                    }
-                },
-            )
-        },
-    )
-}
+        val time = parseOrNull(this)
 
-private val TimeFormat = LocalTime.Format {
-    hour()
-    minute()
-    second()
+        if (time == null) reportInvalid("Invalid time")
+
+        return time
+    }
 }

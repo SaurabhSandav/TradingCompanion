@@ -34,7 +34,7 @@ import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
 import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
-import com.saurabhsandav.core.ui.common.controls.TimeField
+import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
@@ -208,12 +208,14 @@ private fun TradeExecutionForm(
             },
         )
 
-        TimeField(
+        OutlinedTextField(
             value = model.timeField.value,
-            onValidValueChange = { model.timeField.holder.value = it },
+            onValueChange = TimeFieldDefaults.onValueChange { newValue -> model.timeField.holder.value = newValue },
             label = { Text("Entry Time") },
             isError = model.timeField.isError,
             supportingText = model.timeField.errorsMessagesAsSupportingText(),
+            singleLine = true,
+            visualTransformation = TimeFieldDefaults.VisualTransformation,
             trailingIcon = {
 
                 TextButton(
@@ -221,8 +223,10 @@ private fun TradeExecutionForm(
                         model.timeField.holder.value = Clock.System.now()
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .time
+                            .let(TimeFieldDefaults::format)
                     },
-                ) { Text("NOW") }
+                    content = { Text("NOW") },
+                )
             },
         )
 

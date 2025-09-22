@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,11 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.saurabhsandav.core.ui.common.controls.TimeField
+import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.FormField
 import com.saurabhsandav.core.ui.common.form.FormModel
 import com.saurabhsandav.core.ui.common.form.adapter.addMutableStateField
+import com.saurabhsandav.core.ui.common.form.finishValidation
 import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.form.rememberFormValidator
 import com.saurabhsandav.core.ui.common.form.reportInvalid
@@ -89,7 +91,12 @@ internal fun TimeIntervalFilterItem(
                     validator.validate()
 
                     snapshotFlow { formModel.fromField.value to formModel.toField.value }
-                        .map { (from, to) -> TimeInterval.Custom(from, to) }
+                        .map { (from, to) ->
+                            TimeInterval.Custom(
+                                from = TimeFieldDefaults.parseOrNull(from),
+                                to = TimeFieldDefaults.parseOrNull(to),
+                            )
+                        }
                         .collect(onTimeIntervalChange)
                 }
 
@@ -122,29 +129,31 @@ private fun CustomForm(formModel: TimeIntervalFormModel) {
 @Composable
 private fun RowScope.TimePicker(
     label: String,
-    formField: FormField<MutableState<LocalTime?>, LocalTime?>,
+    formField: FormField<MutableState<String>, String>,
 ) {
 
-    TimeField(
+    OutlinedTextField(
         modifier = Modifier.weight(1F),
         value = formField.value,
-        onValidValueChange = { formField.holder.value = it },
+        onValueChange = TimeFieldDefaults.onValueChange { newValue -> formField.holder.value = newValue },
         label = { Text(label) },
+        isError = formField.isError,
+        supportingText = formField.errorsMessagesAsSupportingText(),
+        singleLine = true,
+        visualTransformation = TimeFieldDefaults.VisualTransformation,
         trailingIcon = {
 
             androidx.compose.animation.AnimatedVisibility(
-                visible = formField.value != null,
+                visible = formField.value.isNotEmpty(),
                 enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
 
-                IconButton(onClick = { formField.holder.value = null }) {
+                IconButton(onClick = { formField.holder.value = "" }) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                 }
             }
         },
-        isError = formField.isError,
-        supportingText = formField.errorsMessagesAsSupportingText(),
     )
 }
 
@@ -153,15 +162,19 @@ private class TimeIntervalFormModel(
     to: LocalTime?,
 ) : FormModel() {
 
-    val fromField = addMutableStateField(from)
+    val fromField = addMutableStateField(from?.let(TimeFieldDefaults::format).orEmpty()) {
+        isRequired(false)
+        with(TimeFieldDefaults) { validate() }
+    }
 
-    val toField = addMutableStateField(to) {
+    val toField = addMutableStateField(to?.let(TimeFieldDefaults::format).orEmpty()) {
         isRequired(false)
 
-        val validatedFrom = fromField.validatedValue()
+        val from = fromField.validatedValue()
+            .takeIf { it.isNotEmpty() }
+            ?.let(TimeFieldDefaults::parse)
+        val to = with(TimeFieldDefaults) { validate() } ?: finishValidation()
 
-        if (this != null && validatedFrom != null && validatedFrom > this) {
-            reportInvalid("Cannot be less than from")
-        }
+        if (from != null && from >= to) reportInvalid("Cannot be before or same as from")
     }
 }
