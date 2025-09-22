@@ -13,7 +13,7 @@ interface ValidationScope {
      */
     suspend fun collect(block: suspend context(ValidationScope) () -> Unit)
 
-    fun finishValidation()
+    fun finishValidation(): Nothing
 }
 
 context(scope: ValidationScope)
@@ -29,7 +29,7 @@ context(scope: ValidationScope)
 suspend fun collect(block: suspend context(ValidationScope) () -> Unit) = scope.collect(block)
 
 context(scope: ValidationScope)
-fun finishValidation() = scope.finishValidation()
+fun finishValidation(): Nothing = scope.finishValidation()
 
 internal sealed class ValidationResult {
 
@@ -65,7 +65,7 @@ internal class ValidationScopeImpl : ValidationScope {
         stopValidationOnInvalid = true
     }
 
-    override fun finishValidation() {
+    override fun finishValidation(): Nothing {
         throw ValidationInterruptedException
     }
 
