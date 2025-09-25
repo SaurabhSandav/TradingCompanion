@@ -124,6 +124,7 @@ kotlin {
 
             // Jetpack Paging
             implementation(libs.jetpack.paging.common)
+            implementation(libs.jetpack.paging.compose)
 
             // Jetpack Datastore
             implementation(libs.jetpack.datastore.preferences)

@@ -21,14 +21,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.paging.LoadState
 import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.controls.ListSelectionDialog
 import com.saurabhsandav.core.ui.common.state
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Chart
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType.Regular
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState.Symbol
-import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.coroutines.flow.Flow
 

@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import androidx.paging.map
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
@@ -31,8 +33,6 @@ import com.saurabhsandav.core.ui.common.table.text
 import com.saurabhsandav.core.ui.stats.StatsGraph
 import com.saurabhsandav.core.utils.emitInto
 import com.saurabhsandav.kbigdecimal.KBigDecimal
-import com.saurabhsandav.paging.compose.collectAsLazyPagingItems
-import com.saurabhsandav.paging.compose.itemKey
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.TradeStop

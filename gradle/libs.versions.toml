@@ -15,7 +15,7 @@ ktor = "3.3.2"
 
 # Jetpack
 jetpack-datastore = "1.1.7"
-jetpack-paging = "3.3.6"
+jetpack-paging = "3.4.0-alpha04"
 
 # Square
 sqldelight = "2.2.1"
@@ -96,6 +96,7 @@ jetpack-datastore-preferences = { module = "androidx.datastore:datastore-prefere
 
 # Jetpack Paging
 jetpack-paging-common = { module = "androidx.paging:paging-common", version.ref = "jetpack-paging" }
+jetpack-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "jetpack-paging" }
 
 # SQLDelight
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
