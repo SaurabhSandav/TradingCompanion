@@ -18,7 +18,7 @@ jetpack-datastore = "1.1.7"
 jetpack-paging = "3.3.6"
 
 # Square
-sqldelight = "2.0.2"
+sqldelight = "2.2.1"
 molecule = "2.2.0"
 turbine = "1.2.1"
 

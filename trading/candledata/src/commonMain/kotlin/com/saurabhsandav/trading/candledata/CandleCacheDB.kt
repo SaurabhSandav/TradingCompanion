@@ -51,7 +51,7 @@ class CandleCacheDB(
         timeframe: Timeframe,
         from: Instant,
         to: Instant,
-    ) = withContext(coroutineContext) {
+    ): Unit = withContext(coroutineContext) {
 
         // Assumes calling code downloads candles in a single expanding range without any gaps
 
