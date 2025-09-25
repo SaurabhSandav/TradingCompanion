@@ -2,6 +2,7 @@ package com.saurabhsandav.trading.broker
 
 import app.cash.sqldelight.ColumnAdapter
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 @Serializable
 @JvmInline
