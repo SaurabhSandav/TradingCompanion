@@ -30,9 +30,7 @@ class Reviews internal constructor(
                 tradeIds = tradeIds,
                 review = review,
                 created = Clock.System.now().withoutNanoseconds(),
-            )
-
-            tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ReviewId)
+            ).executeAsOne()
         }
     }
 

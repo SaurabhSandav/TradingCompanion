@@ -65,7 +65,7 @@ class Executions(
             }
 
             // Insert Trade execution
-            tradesDB.tradeExecutionQueries.insert(
+            val executionId = tradesDB.tradeExecutionQueries.insert(
                 brokerId = brokerId,
                 instrument = instrument,
                 symbolId = symbolId,
@@ -75,10 +75,7 @@ class Executions(
                 price = price,
                 timestamp = timestamp.withoutNanoseconds(),
                 locked = locked,
-            )
-
-            // ID in database of just inserted execution
-            val executionId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeExecutionId)
+            ).executeAsOne()
 
             // Generate Trade
             val execution = tradesDB.tradeExecutionQueries.getById(executionId).executeAsOne()
@@ -318,14 +315,14 @@ class Executions(
         if (openTrade == null) {
 
             // Insert Trade
-            tradesDB.tradeQueries.insert(
+            val tradeId = tradesDB.tradeQueries.insert(
                 brokerId = execution.brokerId,
                 symbolId = execution.symbolId,
                 instrument = execution.instrument,
                 quantity = execution.quantity,
                 closedQuantity = KBigDecimal.Zero,
                 lots = null,
-                side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
+                side = if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short,
                 averageEntry = execution.price,
                 entryTimestamp = execution.timestamp.withoutNanoseconds(),
                 averageExit = null,
@@ -334,10 +331,7 @@ class Executions(
                 fees = KBigDecimal.Zero,
                 netPnl = KBigDecimal.Zero,
                 isClosed = false,
-            )
-
-            // ID in database of just inserted trade
-            val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeId)
+            ).executeAsOne()
 
             // Link trade and execution in database
             tradesDB.tradeToExecutionMapQueries.insert(
@@ -379,21 +373,21 @@ class Executions(
                 tradesDB.tradeToExecutionMapQueries.insert(
                     tradeId = openTrade.id,
                     executionId = execution.id,
-                    overrideQuantity = (execution.quantity + currentOpenQuantity),
+                    overrideQuantity = execution.quantity + currentOpenQuantity,
                 )
 
                 // Quantity for new trade
                 val overrideQuantity = currentOpenQuantity.abs()
 
                 // Insert Trade
-                tradesDB.tradeQueries.insert(
+                val tradeId = tradesDB.tradeQueries.insert(
                     brokerId = execution.brokerId,
                     symbolId = execution.symbolId,
                     instrument = execution.instrument,
                     quantity = overrideQuantity,
                     closedQuantity = KBigDecimal.Zero,
                     lots = null,
-                    side = (if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short),
+                    side = if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short,
                     averageEntry = execution.price,
                     entryTimestamp = execution.timestamp.withoutNanoseconds(),
                     averageExit = null,
@@ -402,10 +396,7 @@ class Executions(
                     fees = KBigDecimal.Zero,
                     netPnl = KBigDecimal.Zero,
                     isClosed = false,
-                )
-
-                // ID in database of just inserted trade
-                val tradeId = tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::TradeId)
+                ).executeAsOne()
 
                 // Link new trade and current execution, override quantity with remainder quantity after previous trade
                 // consumed some

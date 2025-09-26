@@ -9,7 +9,8 @@ mimeType TEXT
 
 insert:
 INSERT OR ROLLBACK INTO AttachmentFile(fileName, checksum, mimeType)
-VALUES (?, ?, ?);
+VALUES (?, ?, ?)
+RETURNING id;
 
 delete:
 DELETE FROM AttachmentFile

@@ -24,7 +24,8 @@ locked INTEGER AS Boolean NOT NULL
 insert:
 INSERT OR ROLLBACK
 INTO TradeExecution(brokerId, instrument, symbolId, quantity, lots, side, price, timestamp, locked)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id;
 
 update:
 UPDATE TradeExecution

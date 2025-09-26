@@ -16,7 +16,8 @@ isPinned INTEGER AS Boolean NOT NULL DEFAULT FALSE
 insert:
 INSERT
 INTO Review(title, tradeIds, review, created)
-VALUES (?, ?, ?, ?);
+VALUES (?, ?, ?, ?)
+RETURNING id;
 
 setTitle:
 UPDATE Review

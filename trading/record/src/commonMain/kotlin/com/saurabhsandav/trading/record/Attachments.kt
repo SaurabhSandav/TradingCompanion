@@ -78,10 +78,7 @@ class Attachments internal constructor(
                         fileName = attachedFileName,
                         checksum = checksum,
                         mimeType = tika.detect(attachedFilePath),
-                    )
-
-                    // Get id of attachment in DB
-                    tradesDB.tradesDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::AttachmentFileId)
+                    ).executeAsOne()
                 }
 
                 else -> existingAttachment.id

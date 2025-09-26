@@ -19,7 +19,8 @@ VALUES ("Default", "", "DEFAULT", TRUE);
 
 insert:
 INSERT INTO TradingProfile(name, description, path, isTraining)
-VALUES (?, ?, ?, ?);
+VALUES (?, ?, ?, ?)
+RETURNING id;
 
 update:
 UPDATE TradingProfile

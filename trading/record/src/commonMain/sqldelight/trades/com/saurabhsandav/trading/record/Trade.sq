@@ -32,7 +32,8 @@ INSERT OR ROLLBACK
 INTO Trade(brokerId, symbolId, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
 averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
-?, ?, ?, ?, ?, ?);
+?, ?, ?, ?, ?, ?)
+RETURNING id;
 
 update:
 UPDATE Trade

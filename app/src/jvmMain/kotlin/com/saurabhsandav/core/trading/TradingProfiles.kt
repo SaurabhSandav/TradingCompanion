@@ -53,15 +53,12 @@ class TradingProfiles(
         appDB.transactionWithResult {
 
             // Insert into DB
-            appDB.tradingProfileQueries.insert(
+            val id = appDB.tradingProfileQueries.insert(
                 name = name,
                 description = description,
                 path = generateProfilePath(),
                 isTraining = isTraining,
-            )
-
-            // Get id of last inserted row
-            val id = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
+            ).executeAsOne()
 
             // Return TradingProfile
             appDB.tradingProfileQueries.get(id).asFlow().mapToOne(this@TradingProfiles.coroutineContext)
@@ -118,15 +115,12 @@ class TradingProfiles(
             val newProfileDir = generateProfilePath()
 
             // Insert into DB
-            appDB.tradingProfileQueries.insert(
+            val newProfileId = appDB.tradingProfileQueries.insert(
                 name = name,
                 description = description,
                 path = newProfileDir,
                 isTraining = isTraining,
-            )
-
-            // Get id of last inserted row
-            val newProfileId = appDB.appDBUtilsQueries.lastInsertedRowId().executeAsOne().let(::ProfileId)
+            ).executeAsOne()
 
             // Set counts
             appDB.tradingProfileQueries.setTradeCounts(
