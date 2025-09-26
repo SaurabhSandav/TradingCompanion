@@ -1,17 +1,17 @@
 package com.saurabhsandav.trading.broker
 
-import app.cash.sqldelight.ColumnAdapter
 import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
 value class BrokerId(
     val value: String,
-)
+) {
 
-object BrokerIdColumnAdapter : ColumnAdapter<BrokerId, String> {
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<BrokerId, String> {
 
-    override fun decode(databaseValue: String): BrokerId = BrokerId(databaseValue)
+        override fun decode(databaseValue: String): BrokerId = BrokerId(databaseValue)
 
-    override fun encode(value: BrokerId): String = value.value
+        override fun encode(value: BrokerId): String = value.value
+    }
 }

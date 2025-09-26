@@ -1,6 +1,5 @@
 package com.saurabhsandav.core.trading
 
-import app.cash.sqldelight.ColumnAdapter
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,10 +9,10 @@ value class ProfileId(
 ) {
 
     override fun toString(): String = value.toString()
-}
 
-object ProfileIdColumnAdapter : ColumnAdapter<ProfileId, Long> {
-    override fun decode(databaseValue: Long): ProfileId = ProfileId(databaseValue)
+    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<ProfileId, Long> {
+        override fun decode(databaseValue: Long): ProfileId = ProfileId(databaseValue)
 
-    override fun encode(value: ProfileId): Long = value.value
+        override fun encode(value: ProfileId): Long = value.value
+    }
 }
