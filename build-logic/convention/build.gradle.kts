@@ -50,5 +50,10 @@ gradlePlugin {
             id = "convention.compose-multiplatform.library"
             implementationClass = "com.saurabhsandav.buildlogic.convention.ComposeMultiplatformLibraryConventionPlugin"
         }
+
+        register("convention.test.resources") {
+            id = "convention.test.resources"
+            implementationClass = "com.saurabhsandav.buildlogic.convention.TestResourcesConventionPlugin"
+        }
     }
 }
