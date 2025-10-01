@@ -21,11 +21,10 @@ fun buildIndicatorCacheKey(block: IndicatorCacheKeyBuilderScope.() -> Indicator.
 class IndicatorCacheKeyBuilderScope {
 
     fun Indicator<*>.bindCacheKey(): Indicator.CacheKey {
-        return cacheKey ?: throw NoKeyException()
+        return cacheKey ?: throwNoKeyException()
     }
 }
 
-private class NoKeyException : Exception() {
+internal abstract class NoKeyException : Exception()
 
-    override fun fillInStackTrace(): Throwable = this
-}
+internal expect fun throwNoKeyException(): Nothing
