@@ -42,15 +42,15 @@ object CandleUtils {
 
     private fun getCandlesSeries(timeframe: Timeframe): Lazy<CandleSeries> = lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
 
-        require(timeframe in listOf(Timeframe.M5, Timeframe.M15, Timeframe.D1))
+        val csvText = when (timeframe) {
+            Timeframe.M5 -> Res.NTPC_M5CSV
+            Timeframe.M15 -> Res.NTPC_M15CSV
+            Timeframe.D1 -> Res.NTPC_D1CSV
+            else -> throw IllegalArgumentException("Unsupported Timeframe")
+        }
 
-        this::class.java.getResourceAsStream("/NTPC_$timeframe.csv")
-            .let(::requireNotNull)
-            .let { inputStream ->
-                val csvText = inputStream.reader().use { it.readText() }
-                val candles = csvFormat.decodeFromString(ListSerializer(CandleSerializer), csvText)
-                MutableCandleSeries(candles, timeframe = timeframe).asCandleSeries()
-            }
+        val candles = csvFormat.decodeFromString(ListSerializer(CandleSerializer), csvText)
+        MutableCandleSeries(candles, timeframe = timeframe).asCandleSeries()
     }
 }
 

@@ -1,11 +1,16 @@
+import com.saurabhsandav.buildlogic.convention.applyWebConventions
+
 plugins {
     id("convention.kotlin.multiplatform")
+    id("convention.test.resources")
 }
 
 group = "com.saurabhsandav.trading"
 version = "1.0-SNAPSHOT"
 
 kotlin {
+
+    applyWebConventions()
 
     compilerOptions {
 
@@ -29,4 +34,8 @@ kotlin {
             implementation(libs.softwork.kotlinxSerializationCsv)
         }
     }
+}
+
+testResources {
+    packageName = "com.saurabhsandav.trading.test"
 }
