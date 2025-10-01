@@ -6,6 +6,8 @@ import app.cash.sqldelight.TransacterBase
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 import kotlin.properties.Delegates
 
 internal abstract class QueryPagingSource<Key : Any, RowType : Any> :
