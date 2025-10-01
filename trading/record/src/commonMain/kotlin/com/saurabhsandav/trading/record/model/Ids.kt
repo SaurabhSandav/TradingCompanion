@@ -1,6 +1,7 @@
 package com.saurabhsandav.trading.record.model
 
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 @JvmInline
 value class SizingTradeId(

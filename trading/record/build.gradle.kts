@@ -1,3 +1,5 @@
+import com.saurabhsandav.buildlogic.convention.applyWebConventions
+
 plugins {
     id("convention.kotlin.multiplatform")
 
@@ -9,6 +11,8 @@ group = "com.saurabhsandav.trading"
 version = "1.0-SNAPSHOT"
 
 kotlin {
+
+    applyWebConventions()
 
     compilerOptions {
 
@@ -34,12 +38,8 @@ kotlin {
             // KotlinX DateTime
             implementation(libs.kotlinx.datetime)
 
-            // Apache Tika
-            implementation(libs.apache.tika.core)
-
             // SQLDelight
             implementation(libs.sqldelight.runtime)
-            implementation(libs.sqldelight.sqliteDriver)
             implementation(libs.sqldelight.primitiveAdapters)
             implementation(libs.sqldelight.coroutinesExtensions)
 
@@ -50,6 +50,15 @@ kotlin {
         commonTest.dependencies {
 
             implementation(projects.trading.test)
+        }
+
+        jvmMain.dependencies {
+
+            // SQLDelight
+            implementation(libs.sqldelight.sqliteDriver)
+
+            // Apache Tika
+            implementation(libs.apache.tika.core)
         }
     }
 }
