@@ -1,3 +1,5 @@
+import com.saurabhsandav.buildlogic.convention.applyWebConventions
+
 plugins {
     id("convention.kotlin.multiplatform")
 }
@@ -6,6 +8,8 @@ group = "com.saurabhsandav.trading"
 version = "1.0-SNAPSHOT"
 
 kotlin {
+
+    applyWebConventions()
 
     compilerOptions {
 
@@ -20,7 +24,6 @@ kotlin {
 
             implementation(projects.trading.core)
             implementation(projects.trading.broker)
-            implementation(projects.trading.record)
             implementation(projects.fyersApi)
 
             // KotlinX Coroutines
