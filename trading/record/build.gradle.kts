@@ -45,6 +45,9 @@ kotlin {
 
             // Jetpack Paging
             implementation(libs.jetpack.paging.common)
+
+            // cryptography-kotlin
+            implementation(libs.cryptography.core)
         }
 
         commonTest.dependencies {
@@ -59,6 +62,15 @@ kotlin {
 
             // Apache Tika
             implementation(libs.apache.tika.core)
+
+            // cryptography-kotlin
+            implementation(libs.cryptography.provider.jdk)
+        }
+
+        webMain.dependencies {
+
+            // cryptography-kotlin
+            implementation(libs.cryptography.provider.webcrypto)
         }
     }
 }
