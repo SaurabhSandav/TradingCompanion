@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import com.saurabhsandav.buildlogic.convention.applyWebConventions
 
 plugins {
     id("convention.kotlin.multiplatform")
@@ -8,6 +9,8 @@ plugins {
 }
 
 kotlin {
+
+    applyWebConventions()
 
     compilerOptions {
 
@@ -35,7 +38,6 @@ kotlin {
 
             // Ktor
             implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.okhttp)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.kotlinxJson)
 
@@ -44,10 +46,27 @@ kotlin {
 
             // cryptography-kotlin
             implementation(libs.cryptography.core)
-            implementation(libs.cryptography.provider.jdk)
 
             // EitherNet
             implementation(libs.eithernet)
+        }
+
+        jvmMain.dependencies {
+
+            // Ktor
+            implementation(libs.ktor.client.okhttp)
+
+            // cryptography-kotlin
+            implementation(libs.cryptography.provider.jdk)
+        }
+
+        webMain.dependencies {
+
+            // Ktor
+            implementation(libs.ktor.client.js)
+
+            // cryptography-kotlin
+            implementation(libs.cryptography.provider.webcrypto)
         }
     }
 }

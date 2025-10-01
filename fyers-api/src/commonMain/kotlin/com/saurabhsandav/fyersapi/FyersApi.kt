@@ -17,8 +17,8 @@ import com.slack.eithernet.ApiResult
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.SHA256
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
-import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
@@ -35,22 +35,26 @@ import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import java.io.IOException
+import kotlin.coroutines.CoroutineContext
 
-public class FyersApi {
+internal expect fun getClient(block: HttpClientConfig<*>.() -> Unit): HttpClient
+
+public class FyersApi(
+    private val coroutineContext: CoroutineContext,
+) {
 
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
     }
 
-    private val client = HttpClient(OkHttp) {
+    private val client = getClient {
         install(ContentNegotiation) {
             json(json)
         }
@@ -192,7 +196,7 @@ public class FyersApi {
         url = "https://public.fyers.in/sym_details/MCX_COM.csv",
     )
 
-    private suspend fun getSymbols(url: String): List<Symbol> = withContext(Dispatchers.IO) {
+    private suspend fun getSymbols(url: String): List<Symbol> = withContext(coroutineContext) {
 
         val body = client.get(url).bodyAsText()
         val jsonObject = json.decodeFromString<JsonObject>(body)
@@ -224,7 +228,8 @@ public class FyersApi {
             else -> ApiResult.apiFailure()
         }
     } catch (e: IOException) {
-        ApiResult.networkFailure(e)
+//        ApiResult.networkFailure(e)
+        ApiResult.unknownFailure(e)
     } catch (e: Exception) {
         ensureActive()
         ApiResult.unknownFailure(e)
