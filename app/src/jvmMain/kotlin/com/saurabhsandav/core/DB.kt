@@ -6,8 +6,8 @@ import com.saurabhsandav.core.trading.ProfileIdColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.KBigDecimalColumnAdapter
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
-import com.saurabhsandav.trading.core.Instrument
-import com.saurabhsandav.trading.core.SymbolIdColumnAdapter
+import com.saurabhsandav.trading.record.InstrumentColumnAdapter
+import com.saurabhsandav.trading.record.SymbolIdColumnAdapter
 
 fun AppDB(driver: SqlDriver) = AppDB(
     driver = driver,
@@ -19,7 +19,7 @@ fun AppDB(driver: SqlDriver) = AppDB(
     CachedSymbolAdapter = CachedSymbol.Adapter(
         idAdapter = SymbolIdColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
-        instrumentAdapter = Instrument.ColumnAdapter,
+        instrumentAdapter = InstrumentColumnAdapter,
         tickSizeAdapter = KBigDecimalColumnAdapter,
         quantityMultiplierAdapter = KBigDecimalColumnAdapter,
     ),

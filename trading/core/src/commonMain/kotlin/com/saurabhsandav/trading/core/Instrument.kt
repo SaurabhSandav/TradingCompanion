@@ -19,10 +19,4 @@ enum class Instrument(
             else -> error("Invalid instrument")
         }
     }
-
-    object ColumnAdapter : app.cash.sqldelight.ColumnAdapter<Instrument, String> {
-        override fun decode(databaseValue: String): Instrument = Instrument.fromString(databaseValue)
-
-        override fun encode(value: Instrument): String = value.strValue
-    }
 }

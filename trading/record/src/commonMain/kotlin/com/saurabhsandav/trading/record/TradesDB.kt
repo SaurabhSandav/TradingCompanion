@@ -1,10 +1,11 @@
 package com.saurabhsandav.trading.record
 
+import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
 import com.saurabhsandav.trading.core.Instrument
-import com.saurabhsandav.trading.core.SymbolIdColumnAdapter
+import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.AttachmentFileIdColumnAdapter
 import com.saurabhsandav.trading.record.model.ReviewIdColumnAdapter
 import com.saurabhsandav.trading.record.model.SizingTradeIdColumnAdapter
@@ -29,7 +30,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     ),
     TradeAdapter = Trade.Adapter(
         idAdapter = TradeIdColumnAdapter,
-        instrumentAdapter = Instrument.ColumnAdapter,
+        instrumentAdapter = InstrumentColumnAdapter,
         quantityAdapter = KBigDecimalColumnAdapter,
         closedQuantityAdapter = KBigDecimalColumnAdapter,
         lotsAdapter = IntColumnAdapter,
@@ -46,7 +47,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     ),
     TradeExecutionAdapter = TradeExecution.Adapter(
         idAdapter = TradeExecutionIdColumnAdapter,
-        instrumentAdapter = Instrument.ColumnAdapter,
+        instrumentAdapter = InstrumentColumnAdapter,
         quantityAdapter = KBigDecimalColumnAdapter,
         lotsAdapter = IntColumnAdapter,
         sideAdapter = TradeExecutionSide.ColumnAdapter,
@@ -111,6 +112,19 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
     SymbolAdapter = Symbol.Adapter(
         idAdapter = SymbolIdColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
-        instrumentAdapter = Instrument.ColumnAdapter,
+        instrumentAdapter = InstrumentColumnAdapter,
     ),
 )
+
+object SymbolIdColumnAdapter : ColumnAdapter<SymbolId, String> {
+
+    override fun decode(databaseValue: String): SymbolId = SymbolId(databaseValue)
+
+    override fun encode(value: SymbolId): String = value.value
+}
+
+object InstrumentColumnAdapter : ColumnAdapter<Instrument, String> {
+    override fun decode(databaseValue: String): Instrument = Instrument.fromString(databaseValue)
+
+    override fun encode(value: Instrument): String = value.strValue
+}

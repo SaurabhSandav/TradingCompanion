@@ -28,9 +28,6 @@ kotlin {
 
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
-
-            // SQLDelight
-            implementation(libs.sqldelight.runtime)
         }
     }
 }
