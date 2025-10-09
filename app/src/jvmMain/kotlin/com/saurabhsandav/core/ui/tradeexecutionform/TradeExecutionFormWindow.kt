@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.tradeexecutionform
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.InputTransformation
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component3
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -85,6 +87,7 @@ internal fun TradeExecutionFormWindow(
             model = state.formModel,
             isSymbolEditable = state.isSymbolEditable,
             isSideSelectable = state.isSideSelectable,
+            showLots = state.showLots,
             onSubmit = state.onSubmit,
         )
     }
@@ -95,6 +98,7 @@ private fun TradeExecutionForm(
     formType: TradeExecutionFormType,
     isSymbolEditable: Boolean,
     isSideSelectable: Boolean,
+    showLots: Boolean,
     model: TradeExecutionFormModel,
     onSubmit: () -> Unit,
 ) {
@@ -104,10 +108,18 @@ private fun TradeExecutionForm(
         onSubmit = onSubmit,
     ) {
 
-        val (symbolsFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
+        val (symbolsFocusRequester, lotsFocusRequester, quantityFocusRequester) = remember {
+            FocusRequester.createRefs()
+        }
 
         LaunchedEffect(Unit) {
-            val requester = if (isSymbolEditable) symbolsFocusRequester else quantityFocusRequester
+
+            val requester = when {
+                isSymbolEditable -> symbolsFocusRequester
+                showLots -> lotsFocusRequester
+                else -> quantityFocusRequester
+            }
+
             requester.requestFocus()
         }
 
@@ -121,6 +133,19 @@ private fun TradeExecutionForm(
             supportingText = model.symbolField.errorsMessagesAsSupportingText(),
         )
 
+        AnimatedVisibility(showLots) {
+
+            OutlinedTextField(
+                modifier = Modifier.focusRequester(lotsFocusRequester),
+                state = model.lotsField.holder,
+                inputTransformation = InputTransformation.trim(),
+                label = { Text("Lots") },
+                isError = model.lotsField.isError,
+                supportingText = model.lotsField.errorsMessagesAsSupportingText(),
+                lineLimits = TextFieldLineLimits.SingleLine,
+            )
+        }
+
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
             state = model.quantityField.holder,
@@ -128,15 +153,6 @@ private fun TradeExecutionForm(
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
-            lineLimits = TextFieldLineLimits.SingleLine,
-        )
-
-        OutlinedTextField(
-            state = model.lotsField.holder,
-            inputTransformation = InputTransformation.trim(),
-            label = { Text("Lots") },
-            isError = model.lotsField.isError,
-            supportingText = model.lotsField.errorsMessagesAsSupportingText(),
             lineLimits = TextFieldLineLimits.SingleLine,
         )
 

@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.CachedSymbol
@@ -24,6 +25,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
@@ -33,6 +35,7 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -54,6 +57,7 @@ internal class TradeExecutionFormPresenter(
 ) {
 
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
+    private val brokerId = FinvasiaBroker.Id
     private var selectedSymbol: CachedSymbol? = null
 
     init {
@@ -80,6 +84,7 @@ internal class TradeExecutionFormPresenter(
         }
 
         val formModel = buildFormModel() ?: return@launchMolecule null
+        val showLots = showLots(formModel) ?: return@launchMolecule null
 
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}$title",
@@ -87,6 +92,7 @@ internal class TradeExecutionFormPresenter(
                 !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
             },
             isSideSelectable = remember { !(formType is AddToTrade || formType is CloseTrade) },
+            showLots = showLots,
             formModel = formModel,
             onSubmit = remember(formModel) { { onSubmit(formModel) } },
         )
@@ -167,11 +173,25 @@ internal class TradeExecutionFormPresenter(
         }
     }.value
 
+    @Composable
+    private fun showLots(formModel: TradeExecutionFormModel): Boolean? = produceState<Boolean?>(null) {
+
+        snapshotFlow { formModel.symbolField.value }.collectLatest { symbolId ->
+
+            if (symbolId == null) {
+                value = false
+                return@collectLatest
+            }
+
+            val symbol = getSymbol(symbolId)
+            value = symbol.instrument == Instrument.Futures || symbol.instrument == Instrument.Options
+        }
+    }.value
+
     private fun onSubmit(formModel: TradeExecutionFormModel) = coroutineScope.launchUnit {
 
         val tz = TimeZone.currentSystemDefault()
 
-        val brokerId = FinvasiaBroker.Id
         val symbolId = formModel.symbolField.value!!
         val symbol = getSymbol(symbolId)
 
@@ -226,7 +246,7 @@ internal class TradeExecutionFormPresenter(
     private suspend fun getSymbol(symbolId: SymbolId): CachedSymbol {
         val selectedSymbol = selectedSymbol
         if (selectedSymbol?.id == symbolId) return selectedSymbol
-        this.selectedSymbol = symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, symbolId).first()
+        this.selectedSymbol = symbolsProvider.getSymbolOrError(brokerId, symbolId).first()
         return this.selectedSymbol!!
     }
 

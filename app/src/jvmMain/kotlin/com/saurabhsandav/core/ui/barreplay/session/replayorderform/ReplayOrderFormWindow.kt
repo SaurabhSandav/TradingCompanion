@@ -1,5 +1,6 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -17,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -69,6 +72,7 @@ internal fun ReplayOrderFormWindow(
         ReplayOrderForm(
             ticker = state.ticker,
             model = formModel,
+            showLots = state.showLots,
             onSubmit = state.onSubmit,
         )
     }
@@ -77,6 +81,7 @@ internal fun ReplayOrderFormWindow(
 @Composable
 private fun ReplayOrderForm(
     ticker: String,
+    showLots: Boolean,
     model: ReplayOrderFormModel,
     onSubmit: () -> Unit,
 ) {
@@ -91,26 +96,38 @@ private fun ReplayOrderForm(
             label = { Text("Symbol") },
         )
 
-        val initialFocusRequester = remember { FocusRequester() }
+        val (lotsFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
 
-        LaunchedEffect(Unit) { initialFocusRequester.requestFocus() }
+        LaunchedEffect(Unit) {
+
+            val requester = when {
+                showLots -> lotsFocusRequester
+                else -> quantityFocusRequester
+            }
+
+            requester.requestFocus()
+        }
+
+        AnimatedVisibility(showLots) {
+
+            OutlinedTextField(
+                modifier = Modifier.focusRequester(lotsFocusRequester),
+                state = model.lotsField.holder,
+                inputTransformation = InputTransformation.trim(),
+                label = { Text("Lots") },
+                isError = model.lotsField.isError,
+                supportingText = model.lotsField.errorsMessagesAsSupportingText(),
+                lineLimits = TextFieldLineLimits.SingleLine,
+            )
+        }
 
         OutlinedTextField(
-            modifier = Modifier.focusRequester(initialFocusRequester),
+            modifier = Modifier.focusRequester(quantityFocusRequester),
             state = model.quantityField.holder,
             inputTransformation = InputTransformation.trim(),
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
-            lineLimits = TextFieldLineLimits.SingleLine,
-        )
-
-        OutlinedTextField(
-            state = model.lotsField.holder,
-            inputTransformation = InputTransformation.trim(),
-            label = { Text("Lots") },
-            isError = model.lotsField.isError,
-            supportingText = model.lotsField.errorsMessagesAsSupportingText(),
             lineLimits = TextFieldLineLimits.SingleLine,
         )
 

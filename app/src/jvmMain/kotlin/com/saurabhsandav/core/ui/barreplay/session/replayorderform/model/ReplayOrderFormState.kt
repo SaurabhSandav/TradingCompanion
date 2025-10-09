@@ -17,6 +17,7 @@ import com.saurabhsandav.kbigdecimal.toKBigDecimal
 internal data class ReplayOrderFormState(
     val title: String,
     val ticker: String,
+    val showLots: Boolean,
     val formModel: ReplayOrderFormModel?,
     val onSubmit: () -> Unit,
 )
