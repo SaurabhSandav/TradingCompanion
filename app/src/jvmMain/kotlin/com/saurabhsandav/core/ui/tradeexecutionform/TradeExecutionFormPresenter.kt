@@ -89,6 +89,10 @@ internal class TradeExecutionFormPresenter(
 
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}$title",
+            isSymbolEditable = remember {
+                !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
+            },
+            isSideSelectable = remember { !(formType is AddToTrade || formType is CloseTrade) },
             formModel = formModel,
             onSubmit = ::onSubmit,
         )

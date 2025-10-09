@@ -45,9 +45,6 @@ import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.AddToTrade
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.CloseTrade
-import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewFromExistingInTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.nowIn
 import com.saurabhsandav.trading.core.Instrument
@@ -90,6 +87,8 @@ internal fun TradeExecutionFormWindow(
         TradeExecutionForm(
             formType = formType,
             model = formModel,
+            isSymbolEditable = state.isSymbolEditable,
+            isSideSelectable = state.isSideSelectable,
             onSubmit = state.onSubmit,
         )
     }
@@ -98,6 +97,8 @@ internal fun TradeExecutionFormWindow(
 @Composable
 private fun TradeExecutionForm(
     formType: TradeExecutionFormType,
+    isSymbolEditable: Boolean,
+    isSideSelectable: Boolean,
     model: TradeExecutionFormModel,
     onSubmit: () -> Unit,
 ) {
@@ -106,9 +107,6 @@ private fun TradeExecutionForm(
         formModels = listOf(model),
         onSubmit = onSubmit,
     ) {
-
-        val isSymbolEditable = !(formType is NewFromExistingInTrade || formType is AddToTrade || formType is CloseTrade)
-        val isSideSelectable = !(formType is AddToTrade || formType is CloseTrade)
 
         val (instrumentFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
 
