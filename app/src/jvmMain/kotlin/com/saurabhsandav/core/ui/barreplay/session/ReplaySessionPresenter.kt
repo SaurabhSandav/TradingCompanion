@@ -68,7 +68,7 @@ internal class ReplaySessionPresenter(
     private val replayParams: ReplayParams,
     stockChartsStateFactory: StockChartsStateFactory,
     private val barReplay: BarReplay,
-    val replayOrdersManager: ReplayOrdersManager,
+    private val replayOrdersManager: ReplayOrdersManager,
     private val tradingProfiles: TradingProfiles,
     private val symbolsProvider: SymbolsProvider,
 ) {

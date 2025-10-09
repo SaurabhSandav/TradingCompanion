@@ -2,6 +2,7 @@ package com.saurabhsandav.core.ui.barreplay.session
 
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.ui.barreplay.model.BarReplayState.ReplayParams
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.ReplayOrderFormPresenter
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.StockChartsState
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
@@ -17,6 +18,8 @@ import kotlinx.coroutines.CoroutineScope
 internal interface ReplaySessionGraph {
 
     val presenterProvider: Provider<ReplaySessionPresenter>
+
+    val orderFormPresenterFactory: ReplayOrderFormPresenter.Factory
 
     @SingleIn(ReplaySessionGraph::class)
     @Provides

@@ -9,14 +9,18 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 
+@AssistedInject
 internal class ReplayOrderFormPresenter(
-    coroutineScope: CoroutineScope,
+    @Assisted coroutineScope: CoroutineScope,
+    @Assisted private val stockChartParams: StockChartParams,
+    @Assisted initialModel: ReplayOrderFormModel,
+    @Assisted private val onOrderSaved: () -> Unit,
     private val replayOrdersManager: ReplayOrdersManager,
-    private val stockChartParams: StockChartParams,
-    initialModel: ReplayOrderFormModel,
-    private val onOrderSaved: () -> Unit,
 ) {
 
     private val formModel = initialModel
@@ -45,5 +49,16 @@ internal class ReplayOrderFormPresenter(
 
         // Notify order saved
         onOrderSaved.invoke()
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+
+        fun create(
+            coroutineScope: CoroutineScope,
+            stockChartParams: StockChartParams,
+            initialModel: ReplayOrderFormModel,
+            onOrderSaved: () -> Unit,
+        ): ReplayOrderFormPresenter
     }
 }

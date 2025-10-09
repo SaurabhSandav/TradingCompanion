@@ -29,11 +29,8 @@ internal fun ReplaySessionScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val presenter = remember {
-        barReplayGraph.replaySessionGraphFactory
-            .create(scope, replayParams)
-            .presenterProvider()
-    }
+    val graph = remember { barReplayGraph.replaySessionGraphFactory.create(scope, replayParams) }
+    val presenter = remember { graph.presenterProvider() }
     val state by presenter.state.collectAsState()
 
     Column {
@@ -73,7 +70,7 @@ internal fun ReplaySessionScreen(
     state.orderFormWindowsManager.Windows { window ->
 
         ReplayOrderFormWindow(
-            replayOrdersManager = presenter.replayOrdersManager,
+            presenterFactory = graph.orderFormPresenterFactory,
             stockChartParams = window.params.stockChartParams,
             initialModel = window.params.initialModel,
             onCloseRequest = window::close,

@@ -21,7 +21,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
-import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
@@ -36,7 +35,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 
 @Composable
 internal fun ReplayOrderFormWindow(
-    replayOrdersManager: ReplayOrdersManager,
+    presenterFactory: ReplayOrderFormPresenter.Factory,
     stockChartParams: StockChartParams,
     initialModel: ReplayOrderFormModel,
     onCloseRequest: () -> Unit,
@@ -44,7 +43,12 @@ internal fun ReplayOrderFormWindow(
 
     val scope = rememberCoroutineScope()
     val presenter = remember {
-        ReplayOrderFormPresenter(scope, replayOrdersManager, stockChartParams, initialModel, onCloseRequest)
+        presenterFactory.create(
+            coroutineScope = scope,
+            stockChartParams = stockChartParams,
+            initialModel = initialModel,
+            onOrderSaved = onCloseRequest,
+        )
     }
     val state by presenter.state.collectAsState()
 
