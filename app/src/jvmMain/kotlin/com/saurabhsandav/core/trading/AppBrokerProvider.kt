@@ -21,6 +21,11 @@ class AppBrokerProvider(
 
     private val brokers = WeakHashMap<String, Broker>()
 
+    override fun getAllIds(): List<BrokerId> = listOf(
+        FinvasiaBroker.Id,
+        ZerodhaBroker.Id,
+    )
+
     override fun getBroker(id: BrokerId): Broker = brokers.getOrPut(id.value) {
 
         when (id) {
@@ -29,9 +34,4 @@ class AppBrokerProvider(
             else -> error("Broker with id (${id.value}) not found")
         }
     }
-
-    fun getAllIds(): List<BrokerId> = listOf(
-        FinvasiaBroker.Id,
-        ZerodhaBroker.Id,
-    )
 }

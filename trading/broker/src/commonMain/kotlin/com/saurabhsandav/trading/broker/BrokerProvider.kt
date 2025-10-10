@@ -1,6 +1,8 @@
 package com.saurabhsandav.trading.broker
 
-fun interface BrokerProvider {
+interface BrokerProvider {
+
+    fun getAllIds(): List<BrokerId>
 
     fun getBroker(id: BrokerId): Broker
 }

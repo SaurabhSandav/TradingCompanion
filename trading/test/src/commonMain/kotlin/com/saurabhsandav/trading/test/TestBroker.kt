@@ -60,5 +60,7 @@ class TestBroker : Broker {
 
 object TestBrokerProvider : BrokerProvider {
 
+    override fun getAllIds(): List<BrokerId> = listOf(TestBroker.Id)
+
     override fun getBroker(id: BrokerId): Broker = TestBroker()
 }

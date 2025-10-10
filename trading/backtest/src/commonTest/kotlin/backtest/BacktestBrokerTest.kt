@@ -2,7 +2,6 @@ package com.saurabhsandav.trading.backtest
 
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
@@ -313,7 +312,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toKBigDecimal(),
@@ -362,7 +361,7 @@ class BacktestBrokerTest {
 
         sut.newOrder(
             params = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = TestBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = symbolId,
                 quantity = 10.toKBigDecimal(),
