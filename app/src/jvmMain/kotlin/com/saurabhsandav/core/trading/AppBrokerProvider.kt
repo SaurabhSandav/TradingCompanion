@@ -8,11 +8,13 @@ import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.market.india.ZerodhaBroker
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import java.util.WeakHashMap
 
 @SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 @Inject
 class AppBrokerProvider(
     private val appDispatchers: AppDispatchers,

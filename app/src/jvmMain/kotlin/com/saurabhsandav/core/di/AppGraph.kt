@@ -11,11 +11,8 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.StartupManager
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
-import com.saurabhsandav.core.trading.AppBrokerProvider
-import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
-import com.saurabhsandav.core.trading.toRecordSymbol
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormGraph
 import com.saurabhsandav.core.ui.barreplay.BarReplayGraph
 import com.saurabhsandav.core.ui.charts.ChartsGraph
@@ -43,7 +40,6 @@ import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.candledata.CandleCacheDB
 import com.saurabhsandav.trading.candledata.CandleRepository
-import com.saurabhsandav.trading.record.TradingRecord
 import com.saurabhsandav.trading.record.model.Account
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
@@ -52,7 +48,6 @@ import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
@@ -205,34 +200,6 @@ internal interface AppGraph {
         candleCache = CandleCacheDB(
             coroutineContext = ioCoroutineContext,
         ),
-    )
-
-    @SingleIn(AppScope::class)
-    @Provides
-    fun provideTradingProfiles(
-        @IOCoroutineContext coroutineContext: CoroutineContext,
-        appPaths: AppPaths,
-        appDB: AppDB,
-        brokerProvider: AppBrokerProvider,
-        symbolsProvider: SymbolsProvider,
-    ): TradingProfiles = TradingProfiles(
-        coroutineContext = coroutineContext,
-        appPaths = appPaths,
-        appDB = appDB,
-        brokerProvider = brokerProvider,
-        buildTradingRecord = { recordPath, onTradeCountsUpdated ->
-
-            TradingRecord(
-                coroutineContext = coroutineContext,
-                dbUrl = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
-                attachmentsDir = recordPath.resolve("attachments"),
-                brokerProvider = brokerProvider,
-                getSymbol = { brokerId, symbolId ->
-                    symbolsProvider.getSymbol(brokerId, symbolId).first()?.toRecordSymbol()
-                },
-                onTradeCountsUpdated = onTradeCountsUpdated,
-            )
-        },
     )
 
     @SingleIn(AppScope::class)

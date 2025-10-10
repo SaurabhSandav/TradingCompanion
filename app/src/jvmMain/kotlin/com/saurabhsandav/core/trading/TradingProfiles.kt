@@ -6,9 +6,13 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.TradingProfile
+import com.saurabhsandav.core.di.IOCoroutineContext
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.record.TradingRecord
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -25,12 +29,14 @@ import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.uuid.Uuid
 
+@SingleIn(AppScope::class)
+@Inject
 class TradingProfiles(
-    private val coroutineContext: CoroutineContext,
+    @IOCoroutineContext private val coroutineContext: CoroutineContext,
     private val appPaths: AppPaths,
     private val appDB: AppDB,
     val brokerProvider: BrokerProvider,
-    private val buildTradingRecord: (Path, suspend (tradeCount: Int, tradeCountOpen: Int) -> Unit) -> TradingRecord,
+    private val tradingRecordFactory: TradingRecordFactory,
 ) {
 
     private val records = mutableMapOf<ProfileId, TradingRecord>()
@@ -222,7 +228,7 @@ class TradingProfiles(
                     profile.filesSymbolicLinkPath.createSymbolicLinkPointingTo(profileFilesPath)
                 }
 
-                buildTradingRecord(profileFilesPath) { tradeCount, tradeCountOpen ->
+                tradingRecordFactory.create(profileFilesPath) { tradeCount, tradeCountOpen ->
 
                     appDB.tradingProfileQueries.setTradeCounts(
                         id = profile.id,
