@@ -2,6 +2,7 @@ package com.saurabhsandav.core.trading
 
 import co.touchlab.kermit.Logger
 import com.github.michaelbull.result.get
+import com.saurabhsandav.core.di.IOCoroutineContext
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.trading.candledata.CandleRepository
@@ -11,6 +12,9 @@ import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.TradeStop
 import com.saurabhsandav.trading.record.TradeTarget
 import com.saurabhsandav.trading.record.model.TradeSide
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.DatePeriod
@@ -25,8 +29,10 @@ import kotlinx.datetime.todayIn
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
+@SingleIn(AppScope::class)
+@Inject
 internal class TradeExcursionsGenerator(
-    private val coroutineContext: CoroutineContext,
+    @IOCoroutineContext private val coroutineContext: CoroutineContext,
     private val tradingProfiles: TradingProfiles,
     private val candleRepo: CandleRepository,
 ) {

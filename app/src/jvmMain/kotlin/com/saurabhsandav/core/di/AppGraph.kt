@@ -13,7 +13,6 @@ import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
 import com.saurabhsandav.core.trading.AppBrokerProvider
 import com.saurabhsandav.core.trading.SymbolsProvider
-import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.trading.toRecordSymbol
@@ -58,6 +57,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.plus
 import okio.Path.Companion.toOkioPath
 import java.util.Properties
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.absolutePathString
 
 @DependencyGraph(AppScope::class)
@@ -114,6 +114,10 @@ internal interface AppGraph {
     @Provides
     fun provideAppScope(): CoroutineScope = MainScope()
 
+    @IOCoroutineContext
+    @Provides
+    fun provideIOCoroutineContext(appDispatchers: AppDispatchers): CoroutineContext = appDispatchers.IO
+
     @SingleIn(AppScope::class)
     @Provides
     fun provideAccount(): Flow<Account> = flowOf(
@@ -143,11 +147,11 @@ internal interface AppGraph {
     @Provides
     fun provideAppPrefs(
         @AppCoroutineScope appScope: CoroutineScope,
+        @IOCoroutineContext ioCoroutineContext: CoroutineContext,
         appPaths: AppPaths,
-        appDispatchers: AppDispatchers,
     ): FlowSettings = DataStoreSettings(
         datastore = PreferenceDataStoreFactory.createWithPath(
-            scope = appScope + appDispatchers.IO,
+            scope = appScope + ioCoroutineContext,
             corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
             produceFile = { appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath() },
         ),
@@ -158,11 +162,11 @@ internal interface AppGraph {
     @Provides
     fun provideChartPrefs(
         @AppCoroutineScope appScope: CoroutineScope,
-        appDispatchers: AppDispatchers,
+        @IOCoroutineContext ioCoroutineContext: CoroutineContext,
         appPaths: AppPaths,
     ): FlowSettings = DataStoreSettings(
         datastore = PreferenceDataStoreFactory.createWithPath(
-            scope = appScope + appDispatchers.IO,
+            scope = appScope + ioCoroutineContext,
             corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
             produceFile = { appPaths.prefsPath.resolve("stockcharts.preferences_pb").toOkioPath() },
         ),
@@ -189,7 +193,7 @@ internal interface AppGraph {
     @Provides
     fun provideCandleRepo(
         @AppCoroutineScope appScope: CoroutineScope,
-        appDispatchers: AppDispatchers,
+        @IOCoroutineContext ioCoroutineContext: CoroutineContext,
         @AppPrefs appPrefs: FlowSettings,
         fyersApi: FyersApi,
     ): CandleRepository = CandleRepository(
@@ -199,27 +203,27 @@ internal interface AppGraph {
             fyersApi = fyersApi,
         ),
         candleCache = CandleCacheDB(
-            coroutineContext = appDispatchers.IO,
+            coroutineContext = ioCoroutineContext,
         ),
     )
 
     @SingleIn(AppScope::class)
     @Provides
     fun provideTradingProfiles(
-        appDispatchers: AppDispatchers,
+        @IOCoroutineContext coroutineContext: CoroutineContext,
         appPaths: AppPaths,
         appDB: AppDB,
         brokerProvider: AppBrokerProvider,
         symbolsProvider: SymbolsProvider,
     ): TradingProfiles = TradingProfiles(
-        coroutineContext = appDispatchers.IO,
+        coroutineContext = coroutineContext,
         appPaths = appPaths,
         appDB = appDB,
         brokerProvider = brokerProvider,
         buildTradingRecord = { recordPath, onTradeCountsUpdated ->
 
             TradingRecord(
-                coroutineContext = appDispatchers.IO,
+                coroutineContext = coroutineContext,
                 dbUrl = "jdbc:sqlite:${recordPath.absolutePathString()}/Trades.db",
                 attachmentsDir = recordPath.resolve("attachments"),
                 brokerProvider = brokerProvider,
@@ -229,18 +233,6 @@ internal interface AppGraph {
                 onTradeCountsUpdated = onTradeCountsUpdated,
             )
         },
-    )
-
-    @SingleIn(AppScope::class)
-    @Provides
-    fun provideTradeExcursionsGenerator(
-        appDispatchers: AppDispatchers,
-        tradingProfiles: TradingProfiles,
-        candleRepo: CandleRepository,
-    ): TradeExcursionsGenerator = TradeExcursionsGenerator(
-        coroutineContext = appDispatchers.IO,
-        tradingProfiles = tradingProfiles,
-        candleRepo = candleRepo,
     )
 
     @SingleIn(AppScope::class)

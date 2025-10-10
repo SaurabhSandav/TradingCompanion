@@ -13,3 +13,6 @@ annotation class ChartPrefs
 
 @Qualifier
 annotation class IsDebugMode
+
+@Qualifier
+annotation class IOCoroutineContext
