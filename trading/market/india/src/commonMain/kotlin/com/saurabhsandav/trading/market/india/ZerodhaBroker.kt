@@ -42,7 +42,9 @@ class ZerodhaBroker : Broker {
         brokerageBuy + brokerageSell
     }
 
-    override suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>? = null
+    override fun areSymbolsExpired(lastDownloadInstant: Instant): Boolean = false
+
+    override suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit) = Unit
 
     companion object {
         val Id = BrokerId("Zerodha")

@@ -24,6 +24,9 @@ kotlin {
 
             implementation(kotlin("test"))
 
+            // KotlinX Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+
             // KotlinX Serialization
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.softwork.kotlinxSerializationCsv)

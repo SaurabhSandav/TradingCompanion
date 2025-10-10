@@ -52,31 +52,34 @@ internal class AppSymbolsProvider(
 
             val broker = brokerProvider.getBroker(brokerId)
             val lastDownloadInstant = appDB.symbolDownloadTimestampQueries.get(brokerId).executeAsOneOrNull()
-            val newSymbols = broker.downloadSymbols(lastDownloadInstant) ?: return@forEach
 
-            appDB.transaction {
+            if (lastDownloadInstant != null && !broker.areSymbolsExpired(lastDownloadInstant)) return@forEach
 
-                // Clear previous symbols
-                appDB.cachedSymbolQueries.clearByBroker(brokerId)
+            // Clear previous symbols
+            appDB.cachedSymbolQueries.clearByBroker(brokerId)
 
-                // Insert new symbols
-                for (symbol in newSymbols) {
+            broker.downloadSymbols { symbols ->
 
-                    appDB.cachedSymbolQueries.insert(
-                        id = symbol.id,
-                        brokerId = brokerId,
-                        instrument = symbol.instrument,
-                        exchange = symbol.exchange,
-                        ticker = symbol.ticker,
-                        description = symbol.description,
-                        tickSize = symbol.tickSize,
-                        quantityMultiplier = symbol.quantityMultiplier,
-                    )
+                appDB.transaction {
+
+                    for (symbol in symbols) {
+
+                        appDB.cachedSymbolQueries.insert(
+                            id = symbol.id,
+                            brokerId = brokerId,
+                            instrument = symbol.instrument,
+                            exchange = symbol.exchange,
+                            ticker = symbol.ticker,
+                            description = symbol.description,
+                            tickSize = symbol.tickSize,
+                            quantityMultiplier = symbol.quantityMultiplier,
+                        )
+                    }
                 }
-
-                // Save download timestamp
-                appDB.symbolDownloadTimestampQueries.put(brokerId, Clock.System.now())
             }
+
+            // Save download timestamp
+            appDB.symbolDownloadTimestampQueries.put(brokerId, Clock.System.now())
         }
     }
 

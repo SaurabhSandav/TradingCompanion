@@ -6,6 +6,7 @@ import com.google.common.jimfs.Jimfs
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.backup.BackupManager
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
@@ -31,9 +32,13 @@ internal interface TestGraph {
 
     val appPaths: AppPaths
 
+    val appDB: AppDB
+
     val backupManager: BackupManager
 
     val tradingProfiles: TradingProfiles
+
+    val symbolsProvider: SymbolsProvider
 
     @AppCoroutineScope
     @Binds

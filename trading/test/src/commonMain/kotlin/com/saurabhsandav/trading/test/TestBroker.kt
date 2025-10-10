@@ -9,6 +9,11 @@ import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.broker.Symbol
 import com.saurabhsandav.trading.core.Instrument
+import com.saurabhsandav.trading.core.SymbolId
+import kotlinx.coroutines.delay
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
 class TestBroker : Broker {
@@ -51,10 +56,55 @@ class TestBroker : Broker {
         )
     }
 
-    override suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>? = null
+    override fun areSymbolsExpired(lastDownloadInstant: Instant): Boolean {
+        return (Clock.System.now() - lastDownloadInstant) > SymbolExpiryPeriod
+    }
+
+    override suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit) {
+
+        delay(SymbolFetchDelay)
+        onSave(TestSymbols.slice(0..0))
+
+        delay(SymbolFetchDelay)
+        onSave(TestSymbols.slice(1..2))
+    }
 
     companion object {
+
         val Id = BrokerId("TestBroker")
+
+        val SymbolExpiryPeriod = 1.days
+        val SymbolFetchDelay = 100.milliseconds
+
+        val TestSymbols = listOf(
+            Symbol(
+                id = SymbolId("TestSymbol1"),
+                instrument = Instrument.Equity,
+                exchange = "TestExchange",
+                ticker = "TestTicker",
+                description = "",
+                tickSize = null,
+                quantityMultiplier = null,
+            ),
+            Symbol(
+                id = SymbolId("TestSymbol2"),
+                instrument = Instrument.Futures,
+                exchange = "TestExchange",
+                ticker = "TestSymbol2",
+                description = "",
+                tickSize = null,
+                quantityMultiplier = null,
+            ),
+            Symbol(
+                id = SymbolId("TestSymbol3"),
+                instrument = Instrument.Options,
+                exchange = "TestExchange",
+                ticker = "TestSymbol3",
+                description = "",
+                tickSize = null,
+                quantityMultiplier = null,
+            ),
+        )
     }
 }
 

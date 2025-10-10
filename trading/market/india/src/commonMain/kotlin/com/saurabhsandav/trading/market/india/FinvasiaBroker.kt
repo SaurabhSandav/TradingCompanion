@@ -52,48 +52,7 @@ class FinvasiaBroker(
         brokerageBuy + brokerageSell
     }
 
-    override suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>? = withContext(coroutineContext) {
-
-        if (lastDownloadInstant != null && !shouldDownloadNewSymbols(lastDownloadInstant)) return@withContext null
-
-        val symbols = listOf(
-            fyersApi.getNseCapitalMarketSymbols(),
-            fyersApi.getBseCapitalMarketSymbols(),
-            fyersApi.getNseEquityDerivativeSymbols(),
-            fyersApi.getBseEquityDerivativeSymbols(),
-        ).flatten()
-
-        return@withContext symbols.mapNotNull { symbol ->
-
-            val instrument = when (symbol.exInstType) {
-                ExchangeInstrumentType.INDEX -> Instrument.Index
-                ExchangeInstrumentType.EQ -> Instrument.Equity
-
-                ExchangeInstrumentType.FUTIDX,
-                ExchangeInstrumentType.FUTIVX,
-                ExchangeInstrumentType.FUTSTK,
-                    -> Instrument.Futures
-
-                ExchangeInstrumentType.OPTIDX,
-                ExchangeInstrumentType.OPTSTK,
-                    -> Instrument.Options
-
-                else -> return@mapNotNull null
-            }
-
-            Symbol(
-                id = SymbolId(symbol.symTicker),
-                instrument = instrument,
-                exchange = symbol.exchange.name,
-                ticker = symbol.exSymbol,
-                description = symbol.symbolDesc,
-                tickSize = symbol.tickSize,
-                quantityMultiplier = symbol.qtyMultiplier,
-            )
-        }
-    }
-
-    fun shouldDownloadNewSymbols(lastDownloadInstant: Instant): Boolean {
+    override fun areSymbolsExpired(lastDownloadInstant: Instant): Boolean {
 
         // 8:30 AM
         val downloadTime = LocalTime(hour = 8, minute = 30)
@@ -111,6 +70,50 @@ class FinvasiaBroker(
         }
 
         return lastDownloadInstant < relevantDownloadInstant
+    }
+
+    override suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit): Unit = withContext(coroutineContext) {
+
+        val symbolsProviders = listOf(
+            fyersApi::getNseCapitalMarketSymbols,
+            fyersApi::getBseCapitalMarketSymbols,
+            fyersApi::getNseEquityDerivativeSymbols,
+            fyersApi::getBseEquityDerivativeSymbols,
+        )
+
+        return@withContext symbolsProviders.forEach { getSymbols ->
+
+            val symbols = getSymbols().mapNotNull { symbol ->
+
+                val instrument = when (symbol.exInstType) {
+                    ExchangeInstrumentType.INDEX -> Instrument.Index
+                    ExchangeInstrumentType.EQ -> Instrument.Equity
+
+                    ExchangeInstrumentType.FUTIDX,
+                    ExchangeInstrumentType.FUTIVX,
+                    ExchangeInstrumentType.FUTSTK,
+                        -> Instrument.Futures
+
+                    ExchangeInstrumentType.OPTIDX,
+                    ExchangeInstrumentType.OPTSTK,
+                        -> Instrument.Options
+
+                    else -> return@mapNotNull null
+                }
+
+                Symbol(
+                    id = SymbolId(symbol.symTicker),
+                    instrument = instrument,
+                    exchange = symbol.exchange.name,
+                    ticker = symbol.exSymbol,
+                    description = symbol.symbolDesc,
+                    tickSize = symbol.tickSize,
+                    quantityMultiplier = symbol.qtyMultiplier,
+                )
+            }
+
+            onSave(symbols)
+        }
     }
 
     companion object {

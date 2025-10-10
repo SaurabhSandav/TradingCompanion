@@ -18,5 +18,7 @@ interface Broker {
         isLong: Boolean,
     ): Brokerage
 
-    suspend fun downloadSymbols(lastDownloadInstant: Instant?): List<Symbol>?
+    fun areSymbolsExpired(lastDownloadInstant: Instant): Boolean
+
+    suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit)
 }

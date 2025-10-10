@@ -24,6 +24,9 @@ clearByBroker:
 DELETE FROM CachedSymbol
 WHERE brokerId = ?;
 
+getAll:
+SELECT * FROM CachedSymbol;
+
 get:
 SELECT * FROM CachedSymbol
 WHERE id = ? AND brokerId = ?;
