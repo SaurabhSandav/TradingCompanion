@@ -11,6 +11,7 @@ import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.StartupManager
 import com.saurabhsandav.core.backup.BackupManager
 import com.saurabhsandav.core.backup.RestoreScheduler
+import com.saurabhsandav.core.trading.AppBrokerProvider
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.data.FyersCandleDownloader
 import com.saurabhsandav.core.ui.attachmentform.AttachmentFormGraph
@@ -38,10 +39,12 @@ import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.AppPaths
 import com.saurabhsandav.fyersapi.FyersApi
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.candledata.CandleCacheDB
 import com.saurabhsandav.trading.candledata.CandleRepository
 import com.saurabhsandav.trading.record.model.Account
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -55,7 +58,7 @@ import java.util.Properties
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.absolutePathString
 
-@DependencyGraph(AppScope::class)
+@DependencyGraph(AppScope::class, bindingContainers = [CommonBindings::class])
 internal interface AppGraph {
 
     val tradingProfiles: TradingProfiles
@@ -109,9 +112,9 @@ internal interface AppGraph {
     @Provides
     fun provideAppScope(): CoroutineScope = MainScope()
 
-    @IOCoroutineContext
+    @SingleIn(AppScope::class)
     @Provides
-    fun provideIOCoroutineContext(appDispatchers: AppDispatchers): CoroutineContext = appDispatchers.IO
+    fun provideAppDispatchers(): AppDispatchers = AppDispatchers()
 
     @SingleIn(AppScope::class)
     @Provides
@@ -136,21 +139,6 @@ internal interface AppGraph {
 
         AppDB(driver)
     }
-
-    @SingleIn(AppScope::class)
-    @AppPrefs
-    @Provides
-    fun provideAppPrefs(
-        @AppCoroutineScope appScope: CoroutineScope,
-        @IOCoroutineContext ioCoroutineContext: CoroutineContext,
-        appPaths: AppPaths,
-    ): FlowSettings = DataStoreSettings(
-        datastore = PreferenceDataStoreFactory.createWithPath(
-            scope = appScope + ioCoroutineContext,
-            corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
-            produceFile = { appPaths.prefsPath.resolve("app.preferences_pb").toOkioPath() },
-        ),
-    )
 
     @SingleIn(AppScope::class)
     @ChartPrefs
@@ -179,6 +167,9 @@ internal interface AppGraph {
             myCefApp = myCefApp,
         )
     }
+
+    @Binds
+    fun provideBrokerProvider(appBrokerProvider: AppBrokerProvider): BrokerProvider
 
     @SingleIn(AppScope::class)
     @Provides

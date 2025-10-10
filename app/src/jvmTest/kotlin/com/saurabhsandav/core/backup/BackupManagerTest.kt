@@ -1,14 +1,12 @@
 package com.saurabhsandav.core.backup
 
 import app.cash.turbine.test
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
-import com.saurabhsandav.core.FakeAppDispatchers
-import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.backup.BackupEvent.GeneratingArchive
 import com.saurabhsandav.core.backup.BackupEvent.SavingArchive
 import com.saurabhsandav.core.backup.RestoreEvent.ExtractingArchive
 import com.saurabhsandav.core.backup.RestoreEvent.ReplacingAppFiles
+import com.saurabhsandav.core.di.TestGraph
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.runTest
@@ -27,17 +25,14 @@ class BackupManagerTest {
     @Test
     fun `Backup and Restore`() = runTest {
 
-        val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
-        val backupDir = fakeFileSystem.getPath("/backup").also { it.createDirectories() }
-        val appPaths = FakeAppPaths(fakeFileSystem)
-        val backupManager = BackupManager(
-            appPaths = appPaths,
-            appDispatchers = FakeAppDispatchers(this),
-        )
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+
+        val backupDir = testGraph.fileSystem.getPath("/backup").also { it.createDirectories() }
+        val backupManager = testGraph.backupManager
 
         // Create dummy Prefs file
         val prefsContent = "This is a dummy prefs file"
-        val prefsPath = appPaths.prefsPath.resolve("prefs.txt")
+        val prefsPath = testGraph.appPaths.prefsPath.resolve("prefs.txt")
         prefsPath.createFile().writeText(prefsContent)
 
         // Check no data backed up
@@ -66,17 +61,14 @@ class BackupManagerTest {
     @Test
     fun `Backup progress`() = runTest {
 
-        val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
-        val backupDir = fakeFileSystem.getPath("/backup").also { it.createDirectories() }
-        val appPaths = FakeAppPaths(fakeFileSystem)
-        val backupManager = BackupManager(
-            appPaths = appPaths,
-            appDispatchers = FakeAppDispatchers(this),
-        )
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+
+        val backupDir = testGraph.fileSystem.getPath("/backup").also { it.createDirectories() }
+        val backupManager = testGraph.backupManager
 
         // Create dummy Prefs file
         val prefsContent = "This is a dummy prefs file"
-        val prefsPath = appPaths.prefsPath.resolve("prefs.txt")
+        val prefsPath = testGraph.appPaths.prefsPath.resolve("prefs.txt")
         prefsPath.createFile().writeText(prefsContent)
 
         val channel = Channel<BackupEvent>(Channel.BUFFERED)
@@ -104,17 +96,14 @@ class BackupManagerTest {
     @Test
     fun `Restore progress`() = runTest {
 
-        val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
-        val backupDir = fakeFileSystem.getPath("/backup").also { it.createDirectories() }
-        val appPaths = FakeAppPaths(fakeFileSystem)
-        val backupManager = BackupManager(
-            appPaths = appPaths,
-            appDispatchers = FakeAppDispatchers(this),
-        )
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+
+        val backupDir = testGraph.fileSystem.getPath("/backup").also { it.createDirectories() }
+        val backupManager = testGraph.backupManager
 
         // Create dummy Prefs file
         val prefsContent = "This is a dummy prefs file"
-        val prefsPath = appPaths.prefsPath.resolve("prefs.txt")
+        val prefsPath = testGraph.appPaths.prefsPath.resolve("prefs.txt")
         prefsPath.createFile().writeText(prefsContent)
 
         // Create backup

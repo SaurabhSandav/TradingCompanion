@@ -1,15 +1,9 @@
 package com.saurabhsandav.core.trading
 
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
-import com.saurabhsandav.core.AppDB
-import com.saurabhsandav.core.FakeAppPaths
 import com.saurabhsandav.core.TradingProfile
-import com.saurabhsandav.core.utils.AppPaths
-import com.saurabhsandav.trading.test.TestBrokerProvider
+import com.saurabhsandav.core.di.TestGraph
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -29,9 +23,10 @@ import kotlin.test.assertTrue
 class TradingProfilesTest {
 
     @Test
-    fun `New Profile`() = runTradingProfilesTest {
+    fun `New Profile`() = runTest {
 
-        val profile = tradingProfiles.createInitialProfile()
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val profile = testGraph.tradingProfiles.createInitialProfile()
 
         assertEquals("Test Name", profile.name)
         assertEquals("Test Desc", profile.description)
@@ -41,7 +36,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `New Profile fails on non-unique name`() = runTradingProfilesTest {
+    fun `New Profile fails on non-unique name`() = runTest {
+
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
 
         tradingProfiles.createInitialProfile()
 
@@ -51,8 +49,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `Update Profile with no Record`() = runTradingProfilesTest {
+    fun `Update Profile with no Record`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Update
@@ -67,16 +67,18 @@ class TradingProfilesTest {
 
         assertEquals("New Name", updatedProfile.name)
         assertEquals("New Desc", updatedProfile.description)
-        assertTrue { profile.filesPath.notExists() }
-        assertTrue { profile.filesSymbolicLinkPath.notExists() }
+        assertTrue { profile.getFilesPath(testGraph).notExists() }
+        assertTrue { profile.getFilesSymbolicLinkPath(testGraph).notExists() }
         assertFalse(updatedProfile.isTraining)
         assertEquals(0, updatedProfile.tradeCount)
         assertEquals(0, updatedProfile.tradeCountOpen)
     }
 
     @Test
-    fun `Update Profile with Record`() = runTradingProfilesTest {
+    fun `Update Profile with Record`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Create Record
@@ -93,15 +95,17 @@ class TradingProfilesTest {
         val updatedProfile = tradingProfiles.getProfile(profile.id).first()
 
         assertEquals("New Name", updatedProfile.name)
-        assertTrue { profile.filesPath.exists() }
+        assertTrue { profile.getFilesPath(testGraph).exists() }
         // Record Symbolic link updated
-        assertTrue { profile.filesSymbolicLinkPath.notExists() }
-        assertTrue { updatedProfile.filesSymbolicLinkPath.exists() }
+        assertTrue { profile.getFilesSymbolicLinkPath(testGraph).notExists() }
+        assertTrue { updatedProfile.getFilesSymbolicLinkPath(testGraph).exists() }
     }
 
     @Test
-    fun `Update Profile fails on non-unique name`() = runTradingProfilesTest {
+    fun `Update Profile fails on non-unique name`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Create another profile
@@ -124,12 +128,15 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `Copy Profile`() = runTradingProfilesTest {
+    fun `Copy Profile`() = runTest {
+
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
 
         // Not possible to create a SQLite DB in a FakeFileSystem. Use a file as a stand-in.
         val testFileText = "Hello! This is a test file"
 
-        fun TradingProfile.testFilePath() = filesPath.resolve("test.txt")
+        fun TradingProfile.testFilePath() = getFilesPath(testGraph).resolve("test.txt")
 
         val profile = tradingProfiles.createInitialProfile()
 
@@ -149,9 +156,9 @@ class TradingProfilesTest {
 
         assertEquals("New Name", newProfile.name)
         assertEquals("New Desc", newProfile.description)
-        assertTrue { newProfile.filesPath.exists() }
+        assertTrue { newProfile.getFilesPath(testGraph).exists() }
         // Record Symbolic link created
-        assertTrue { newProfile.filesSymbolicLinkPath.exists() }
+        assertTrue { newProfile.getFilesSymbolicLinkPath(testGraph).exists() }
         assertEquals(testFileText, newProfile.testFilePath().readText())
         assertFalse(newProfile.isTraining)
         assertEquals(0, newProfile.tradeCount)
@@ -159,8 +166,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `Copy Profile fails on non-unique name`() = runTradingProfilesTest {
+    fun `Copy Profile fails on non-unique name`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Create another profile
@@ -183,8 +192,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun deleteProfile() = runTradingProfilesTest {
+    fun deleteProfile() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Create Record
@@ -196,13 +207,15 @@ class TradingProfilesTest {
         assertNull(tradingProfiles.getProfileOrNull(profile.id).first())
         assertFails { tradingProfiles.getRecord(profile.id) }
         // Check Records symbolic link deleted first. `notExists()` returns true if target is deleted first
-        assertTrue { profile.filesSymbolicLinkPath.notExists() }
-        assertTrue { profile.filesPath.notExists() }
+        assertTrue { profile.getFilesSymbolicLinkPath(testGraph).notExists() }
+        assertTrue { profile.getFilesPath(testGraph).notExists() }
     }
 
     @Test
-    fun getProfile() = runTradingProfilesTest {
+    fun getProfile() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -215,8 +228,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getProfileOrNull() = runTradingProfilesTest {
+    fun getProfileOrNull() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -227,8 +242,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getDefault() = runTradingProfilesTest {
+    fun getDefault() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val defaultProfile = tradingProfiles.getDefaultProfile().first()
 
         assertEquals("Default", defaultProfile.name)
@@ -239,18 +256,22 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `Default profile deletion`() = runTradingProfilesTest {
+    fun `Default profile deletion`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val defaultProfile = tradingProfiles.getDefaultProfile().first()
 
         tradingProfiles.deleteProfile(defaultProfile.id)
         assertTrue { tradingProfiles.allProfiles.first().isEmpty() }
-        assertTrue { defaultProfile.filesPath.notExists() }
+        assertTrue { defaultProfile.getFilesPath(testGraph).notExists() }
     }
 
     @Test
-    fun `If default was deleted, new profile is set as default`() = runTradingProfilesTest {
+    fun `If default was deleted, new profile is set as default`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val defaultProfile = tradingProfiles.getDefaultProfile().first()
 
         // Delete Default profile
@@ -263,8 +284,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun `Default profile auto created if none available`() = runTradingProfilesTest {
+    fun `Default profile auto created if none available`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val defaultProfile = tradingProfiles.getDefaultProfile().first()
 
         // Delete Default profile
@@ -283,8 +306,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun exists() = runTradingProfilesTest {
+    fun exists() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -295,8 +320,10 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun isProfileNameUnique() = runTradingProfilesTest {
+    fun isProfileNameUnique() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         tradingProfiles.createInitialProfile()
 
         // Check existing
@@ -307,17 +334,19 @@ class TradingProfilesTest {
     }
 
     @Test
-    fun getRecord() = runTradingProfilesTest {
+    fun getRecord() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+        val tradingProfiles = testGraph.tradingProfiles
         val profile = tradingProfiles.createInitialProfile()
 
-        assertTrue { profile.filesSymbolicLinkPath.notExists() }
-        assertTrue { profile.filesPath.notExists() }
+        assertTrue { profile.getFilesSymbolicLinkPath(testGraph).notExists() }
+        assertTrue { profile.getFilesPath(testGraph).notExists() }
 
         tradingProfiles.getRecord(profile.id)
 
-        assertTrue { profile.filesPath.exists() }
-        assertTrue { profile.filesSymbolicLinkPath.exists() }
+        assertTrue { profile.getFilesPath(testGraph).exists() }
+        assertTrue { profile.getFilesSymbolicLinkPath(testGraph).exists() }
     }
 
     private suspend fun TradingProfiles.createInitialProfile(): TradingProfile = newProfile(
@@ -326,49 +355,11 @@ class TradingProfilesTest {
         isTraining = true,
     ).first()
 
-    private fun runTradingProfilesTest(block: suspend TradingProfilesTestScope.() -> Unit) = runTest {
-
-        val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
-
-        val driver = JdbcSqliteDriver(
-            url = JdbcSqliteDriver.IN_MEMORY,
-            schema = AppDB.Schema,
-        )
-
-        val appPaths = FakeAppPaths(fakeFileSystem)
-
-        val brokerProvider = TestBrokerProvider
-        val testDispatcher = StandardTestDispatcher(testScheduler)
-
-        val tradingProfiles = TradingProfiles(
-            coroutineContext = testDispatcher,
-            appPaths = appPaths,
-            appDB = AppDB(driver),
-            brokerProvider = brokerProvider,
-            tradingRecordFactory = FakeTradingRecordFactory(
-                coroutineContext = testDispatcher,
-                brokerProvider = brokerProvider,
-            ),
-        )
-
-        val scope = object : TradingProfilesTestScope {
-            override val appPaths: AppPaths = appPaths
-            override val tradingProfiles: TradingProfiles = tradingProfiles
-        }
-
-        scope.block()
+    private fun TradingProfile.getFilesPath(testGraph: TestGraph): Path {
+        return testGraph.appPaths.tradingRecordsPath.resolve(path)
     }
 
-    private interface TradingProfilesTestScope {
-
-        val appPaths: AppPaths
-
-        val tradingProfiles: TradingProfiles
-
-        val TradingProfile.filesPath: Path
-            get() = appPaths.tradingRecordsPath.resolve(path)
-
-        val TradingProfile.filesSymbolicLinkPath: Path
-            get() = appPaths.tradingRecordsPath.resolve(name)
+    private fun TradingProfile.getFilesSymbolicLinkPath(testGraph: TestGraph): Path {
+        return testGraph.appPaths.tradingRecordsPath.resolve(name)
     }
 }

@@ -1,9 +1,7 @@
 package com.saurabhsandav.core.backup
 
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
-import com.saurabhsandav.core.FakeAppDispatchers
-import com.saurabhsandav.core.FakeAppPaths
+import com.saurabhsandav.core.di.TestGraph
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.test.runTest
 import java.nio.file.Files
 import kotlin.io.path.copyTo
@@ -20,12 +18,10 @@ class RestoreSchedulerTest {
     @Test
     fun `No restore scheduled`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+
         val scheduler = RestoreScheduler()
-        val appDispatchers = FakeAppDispatchers(this)
-        val backupManager = BackupManager(
-            appPaths = FakeAppPaths(Jimfs.newFileSystem(Configuration.unix())),
-            appDispatchers = appDispatchers,
-        )
+        val backupManager = testGraph.backupManager
 
         var counter = 0
 
@@ -44,19 +40,15 @@ class RestoreSchedulerTest {
     @Test
     fun `Restore scheduled`() = runTest {
 
+        val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
+
         val restoreScheduler = RestoreScheduler()
-        val fakeFileSystem = Jimfs.newFileSystem(Configuration.unix())
-        val backupDir = fakeFileSystem.getPath("/backup").also { it.createDirectories() }
-        val appPaths = FakeAppPaths(fakeFileSystem)
-        val appDispatchers = FakeAppDispatchers(this)
-        val backupManager = BackupManager(
-            appPaths = appPaths,
-            appDispatchers = appDispatchers,
-        )
+        val backupDir = testGraph.fileSystem.getPath("/backup").also { it.createDirectories() }
+        val backupManager = testGraph.backupManager
 
         // Create dummy Prefs file
         val prefsContent = "This is a dummy prefs file"
-        val prefsPath = appPaths.prefsPath.resolve("prefs.txt")
+        val prefsPath = testGraph.appPaths.prefsPath.resolve("prefs.txt")
         prefsPath.createFile().writeText(prefsContent)
 
         // Create backup
