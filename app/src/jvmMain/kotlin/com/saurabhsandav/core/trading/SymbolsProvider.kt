@@ -8,6 +8,7 @@ import com.saurabhsandav.core.CachedSymbol
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import dev.zacsweers.metro.AppScope
@@ -42,7 +43,7 @@ interface SymbolsProvider {
 internal class AppSymbolsProvider(
     private val appDB: AppDB,
     private val appDispatchers: AppDispatchers,
-    private val brokerProvider: AppBrokerProvider,
+    private val brokerProvider: BrokerProvider,
 ) : SymbolsProvider {
 
     override suspend fun downloadAllLatestSymbols() = withContext(appDispatchers.IO) {

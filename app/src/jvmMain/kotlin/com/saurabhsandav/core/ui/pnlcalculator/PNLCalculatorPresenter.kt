@@ -3,7 +3,6 @@ package com.saurabhsandav.core.ui.pnlcalculator
 import androidx.compose.runtime.mutableStateListOf
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.saurabhsandav.core.trading.AppBrokerProvider
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.Calculate
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorEvent.RemoveCalculation
@@ -12,6 +11,7 @@ import com.saurabhsandav.core.ui.pnlcalculator.model.PNLCalculatorState
 import com.saurabhsandav.core.ui.pnlcalculator.model.PNLEntry
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
+import com.saurabhsandav.trading.broker.BrokerProvider
 import com.saurabhsandav.trading.broker.Brokerage
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 @AssistedInject
 internal class PNLCalculatorPresenter(
     @Assisted coroutineScope: CoroutineScope,
-    brokerProvider: AppBrokerProvider,
+    brokerProvider: BrokerProvider,
 ) {
 
     private var maxId = 0
