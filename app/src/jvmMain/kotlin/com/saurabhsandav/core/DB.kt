@@ -6,6 +6,7 @@ import com.saurabhsandav.core.trading.ProfileIdColumnAdapter
 import com.saurabhsandav.core.utils.InstantColumnAdapter
 import com.saurabhsandav.core.utils.KBigDecimalColumnAdapter
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
+import com.saurabhsandav.trading.broker.OptionType
 import com.saurabhsandav.trading.record.InstrumentColumnAdapter
 import com.saurabhsandav.trading.record.SymbolIdColumnAdapter
 
@@ -21,7 +22,10 @@ fun AppDB(driver: SqlDriver) = AppDB(
         brokerIdAdapter = BrokerIdColumnAdapter,
         instrumentAdapter = InstrumentColumnAdapter,
         tickSizeAdapter = KBigDecimalColumnAdapter,
-        quantityMultiplierAdapter = KBigDecimalColumnAdapter,
+        lotSizeAdapter = KBigDecimalColumnAdapter,
+        expiryAdapter = InstantColumnAdapter,
+        strikePriceAdapter = KBigDecimalColumnAdapter,
+        optionTypeAdapter = OptionType.ColumnAdapter,
     ),
     SymbolDownloadTimestampAdapter = SymbolDownloadTimestamp.Adapter(
         brokerIdAdapter = BrokerIdColumnAdapter,

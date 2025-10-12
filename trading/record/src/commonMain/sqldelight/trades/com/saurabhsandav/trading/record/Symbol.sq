@@ -1,14 +1,22 @@
+import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.broker.OptionType;
 import com.saurabhsandav.trading.core.Instrument;
 import com.saurabhsandav.trading.core.SymbolId;
+import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS Symbol (
 id TEXT AS SymbolId NOT NULL,
 brokerId TEXT AS BrokerId NOT NULL,
-instrument TEXT AS Instrument NOT NULL,
 exchange TEXT NOT NULL,
+exchangeToken TEXT NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
+lotSize TEXT AS KBigDecimal NOT NULL,
 description TEXT,
+expiry TEXT AS Instant,
+strikePrice TEXT AS KBigDecimal,
+optionType TEXT AS OptionType,
 PRIMARY KEY (id, brokerId)
 );
 

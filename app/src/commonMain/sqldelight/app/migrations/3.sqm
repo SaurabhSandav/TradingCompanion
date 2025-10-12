@@ -1,0 +1,19 @@
+DROP TABLE CachedSymbol;
+
+CREATE TABLE IF NOT EXISTS CachedSymbol (
+id TEXT NOT NULL,
+brokerId TEXT NOT NULL,
+exchange TEXT NOT NULL,
+exchangeToken TEXT NOT NULL,
+instrument TEXT NOT NULL,
+ticker TEXT NOT NULL,
+tickSize TEXT NOT NULL,
+lotSize TEXT NOT NULL,
+description TEXT,
+expiry TEXT,
+strikePrice TEXT,
+optionType TEXT,
+PRIMARY KEY (id, brokerId)
+);
+
+DELETE FROM SymbolDownloadTimestamp;

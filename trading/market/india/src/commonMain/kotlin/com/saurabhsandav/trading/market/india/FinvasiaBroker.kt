@@ -7,6 +7,7 @@ import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.Brokerage
+import com.saurabhsandav.trading.broker.OptionType
 import com.saurabhsandav.trading.broker.Symbol
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
@@ -103,12 +104,24 @@ class FinvasiaBroker(
 
                 Symbol(
                     id = SymbolId(symbol.symTicker),
-                    instrument = instrument,
+                    brokerId = Id,
                     exchange = symbol.exchange.name,
+                    exchangeToken = symbol.exToken.toString(),
+                    instrument = instrument,
                     ticker = symbol.exSymbol,
-                    description = symbol.symbolDesc,
                     tickSize = symbol.tickSize,
-                    quantityMultiplier = symbol.qtyMultiplier,
+                    lotSize = symbol.minLotSize.toKBigDecimal(),
+                    description = symbol.symbolDesc,
+                    expiry = when (instrument) {
+                        Instrument.Equity -> null
+                        else -> symbol.expiryDate.toLongOrNull()?.let(Instant::fromEpochSeconds)
+                    },
+                    strikePrice = if (instrument == Instrument.Equity) null else symbol.strikePrice,
+                    optionType = when (symbol.optType) {
+                        "CE" -> OptionType.Call
+                        "PE" -> OptionType.Put
+                        else -> null
+                    },
                 )
             }
 

@@ -73,12 +73,16 @@ internal class AppSymbolsProvider(
                             appDB.cachedSymbolQueries.insert(
                                 id = symbol.id,
                                 brokerId = brokerId,
-                                instrument = symbol.instrument,
                                 exchange = symbol.exchange,
+                                exchangeToken = symbol.exchangeToken,
+                                instrument = symbol.instrument,
                                 ticker = symbol.ticker,
-                                description = symbol.description,
                                 tickSize = symbol.tickSize,
-                                quantityMultiplier = symbol.quantityMultiplier,
+                                lotSize = symbol.lotSize,
+                                description = symbol.description,
+                                expiry = symbol.expiry,
+                                strikePrice = symbol.strikePrice,
+                                optionType = symbol.optionType,
                             )
                         }
                     }
@@ -139,10 +143,15 @@ internal class AppSymbolsProvider(
 fun CachedSymbol.toRecordSymbol(): RecordSymbol = RecordSymbol(
     id = id,
     brokerId = brokerId,
-    instrument = instrument,
     exchange = exchange,
+    exchangeToken = exchangeToken,
+    instrument = instrument,
     ticker = ticker,
+    lotSize = lotSize,
     description = description,
+    expiry = expiry,
+    strikePrice = strikePrice,
+    optionType = optionType,
 )
 
 fun SymbolsProvider.getSymbolOrError(

@@ -1,24 +1,31 @@
 import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.broker.BrokerId;
+import com.saurabhsandav.trading.broker.OptionType;
 import com.saurabhsandav.trading.core.Instrument;
 import com.saurabhsandav.trading.core.SymbolId;
+import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS CachedSymbol (
 id TEXT AS SymbolId NOT NULL,
 brokerId TEXT AS BrokerId NOT NULL,
-instrument TEXT AS Instrument NOT NULL,
 exchange TEXT NOT NULL,
+exchangeToken TEXT NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
 ticker TEXT NOT NULL,
+tickSize TEXT AS KBigDecimal NOT NULL,
+lotSize TEXT AS KBigDecimal NOT NULL,
 description TEXT,
-tickSize TEXT AS KBigDecimal,
-quantityMultiplier TEXT AS KBigDecimal,
+expiry TEXT AS Instant,
+strikePrice TEXT AS KBigDecimal,
+optionType TEXT AS OptionType,
 PRIMARY KEY (id, brokerId)
 );
 
 insert:
 INSERT OR REPLACE
-INTO CachedSymbol(id, brokerId, instrument, exchange, ticker, description, tickSize, quantityMultiplier)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INTO CachedSymbol(id, brokerId, exchange, exchangeToken, instrument, ticker, tickSize, lotSize, description, expiry,
+strikePrice, optionType)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 clearByBroker:
 DELETE FROM CachedSymbol

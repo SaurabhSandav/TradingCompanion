@@ -4,6 +4,7 @@ import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.adapter.primitive.IntColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.trading.broker.BrokerIdColumnAdapter
+import com.saurabhsandav.trading.broker.OptionType
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.record.model.AttachmentFileIdColumnAdapter
@@ -113,6 +114,10 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         idAdapter = SymbolIdColumnAdapter,
         brokerIdAdapter = BrokerIdColumnAdapter,
         instrumentAdapter = InstrumentColumnAdapter,
+        lotSizeAdapter = KBigDecimalColumnAdapter,
+        expiryAdapter = InstantReadableColumnAdapter,
+        strikePriceAdapter = KBigDecimalColumnAdapter,
+        optionTypeAdapter = OptionType.ColumnAdapter,
     ),
 )
 

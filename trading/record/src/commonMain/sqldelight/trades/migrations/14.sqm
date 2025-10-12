@@ -1,0 +1,44 @@
+
+-- Rename Symbol table
+ALTER TABLE Symbol RENAME TO Symbol_old;
+
+-- Create new symbol table
+CREATE TABLE IF NOT EXISTS Symbol (
+id TEXT NOT NULL,
+brokerId TEXT NOT NULL,
+exchange TEXT NOT NULL,
+exchangeToken TEXT NOT NULL,
+instrument TEXT NOT NULL,
+ticker TEXT NOT NULL,
+lotSize TEXT NOT NULL,
+description TEXT,
+expiry TEXT,
+strikePrice TEXT,
+optionType TEXT,
+PRIMARY KEY (id, brokerId)
+);
+
+-- Recreate Display tables
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM TradeExecution AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;
+
+-- Copy all data from old to new symbol table
+INSERT INTO Symbol(id, brokerId, exchange, exchangeToken, instrument, ticker, lotSize, description, expiry,
+strikePrice, optionType)
+SELECT id, brokerId, exchange, '', instrument, ticker, 1, description, NULL, NULL, NULL
+FROM Symbol_old;
+
+-- Delete old symbol table
+DROP TABLE Symbol_old;
