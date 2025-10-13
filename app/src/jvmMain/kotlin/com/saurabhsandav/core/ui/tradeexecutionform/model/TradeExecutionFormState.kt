@@ -27,8 +27,14 @@ internal data class TradeExecutionFormState(
     val isSideSelectable: Boolean,
     val showLots: Boolean,
     val formModel: TradeExecutionFormModel,
-    val onSubmit: () -> Unit,
-)
+    val eventSink: (TradeExecutionFormEvent) -> Unit,
+) {
+
+    enum class QuantityActiveField {
+        Quantity,
+        Lots,
+    }
+}
 
 internal class TradeExecutionFormModel(
     getSymbol: suspend (SymbolId) -> CachedSymbol,
@@ -53,7 +59,7 @@ internal class TradeExecutionFormModel(
     }
 
     val lotsField = addTextFieldStateField(lots) {
-        isRequired(false)
+        isRequired()
         isInt()?.isPositive()
     }
 

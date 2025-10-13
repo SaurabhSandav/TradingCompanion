@@ -19,8 +19,14 @@ internal data class ReplayOrderFormState(
     val ticker: String,
     val showLots: Boolean,
     val formModel: ReplayOrderFormModel?,
-    val onSubmit: () -> Unit,
-)
+    val eventSink: (ReplayOrderFormEvent) -> Unit,
+) {
+
+    enum class QuantityActiveField {
+        Quantity,
+        Lots,
+    }
+}
 
 internal class ReplayOrderFormModel(
     getSymbol: suspend () -> CachedSymbol,
@@ -41,7 +47,7 @@ internal class ReplayOrderFormModel(
     }
 
     val lotsField = addTextFieldStateField(lots) {
-        isRequired(false)
+        isRequired()
         isInt()?.isPositive()
     }
 

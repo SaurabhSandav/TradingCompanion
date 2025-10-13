@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -24,7 +25,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormEvent.SetQuantityActiveField
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormEvent.Submit
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
+import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormState.QuantityActiveField
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.Form
 import com.saurabhsandav.core.ui.common.FormDefaults
@@ -73,7 +77,8 @@ internal fun ReplayOrderFormWindow(
             ticker = state.ticker,
             model = formModel,
             showLots = state.showLots,
-            onSubmit = state.onSubmit,
+            onSetQuantityActiveField = { activeField -> state.eventSink(SetQuantityActiveField(activeField)) },
+            onSubmit = { state.eventSink(Submit) },
         )
     }
 }
@@ -83,6 +88,7 @@ private fun ReplayOrderForm(
     ticker: String,
     showLots: Boolean,
     model: ReplayOrderFormModel,
+    onSetQuantityActiveField: (QuantityActiveField) -> Unit,
     onSubmit: () -> Unit,
 ) {
 
@@ -113,7 +119,9 @@ private fun ReplayOrderForm(
             OutlinedTextField(
                 modifier = Modifier.focusRequester(lotsFocusRequester),
                 state = model.lotsField.holder,
-                inputTransformation = InputTransformation.trim(),
+                inputTransformation = InputTransformation.trim().then {
+                    onSetQuantityActiveField(QuantityActiveField.Lots)
+                },
                 label = { Text("Lots") },
                 isError = model.lotsField.isError,
                 supportingText = model.lotsField.errorsMessagesAsSupportingText(),
@@ -124,7 +132,9 @@ private fun ReplayOrderForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
             state = model.quantityField.holder,
-            inputTransformation = InputTransformation.trim(),
+            inputTransformation = InputTransformation.trim().then {
+                onSetQuantityActiveField(QuantityActiveField.Quantity)
+            },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),

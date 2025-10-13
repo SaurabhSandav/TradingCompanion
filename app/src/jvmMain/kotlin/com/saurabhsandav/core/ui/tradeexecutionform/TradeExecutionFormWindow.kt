@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -43,7 +44,10 @@ import com.saurabhsandav.core.ui.common.form.isError
 import com.saurabhsandav.core.ui.common.trim
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionField
 import com.saurabhsandav.core.ui.symbolselectiondialog.SymbolSelectionType
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormEvent.SetQuantityActiveField
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormEvent.Submit
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState.QuantityActiveField
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.nowIn
@@ -88,7 +92,8 @@ internal fun TradeExecutionFormWindow(
             isSymbolEditable = state.isSymbolEditable,
             isSideSelectable = state.isSideSelectable,
             showLots = state.showLots,
-            onSubmit = state.onSubmit,
+            onSetQuantityActiveField = { activeField -> state.eventSink(SetQuantityActiveField(activeField)) },
+            onSubmit = { state.eventSink(Submit) },
         )
     }
 }
@@ -100,6 +105,7 @@ private fun TradeExecutionForm(
     isSideSelectable: Boolean,
     showLots: Boolean,
     model: TradeExecutionFormModel,
+    onSetQuantityActiveField: (QuantityActiveField) -> Unit,
     onSubmit: () -> Unit,
 ) {
 
@@ -138,7 +144,9 @@ private fun TradeExecutionForm(
             OutlinedTextField(
                 modifier = Modifier.focusRequester(lotsFocusRequester),
                 state = model.lotsField.holder,
-                inputTransformation = InputTransformation.trim(),
+                inputTransformation = InputTransformation.trim().then {
+                    onSetQuantityActiveField(QuantityActiveField.Lots)
+                },
                 label = { Text("Lots") },
                 isError = model.lotsField.isError,
                 supportingText = model.lotsField.errorsMessagesAsSupportingText(),
@@ -149,7 +157,9 @@ private fun TradeExecutionForm(
         OutlinedTextField(
             modifier = Modifier.focusRequester(quantityFocusRequester),
             state = model.quantityField.holder,
-            inputTransformation = InputTransformation.trim(),
+            inputTransformation = InputTransformation.trim().then {
+                onSetQuantityActiveField(QuantityActiveField.Quantity)
+            },
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),

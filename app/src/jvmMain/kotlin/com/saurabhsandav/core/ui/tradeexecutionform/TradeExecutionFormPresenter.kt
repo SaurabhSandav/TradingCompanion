@@ -1,6 +1,8 @@
 package com.saurabhsandav.core.ui.tradeexecutionform
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -13,8 +15,14 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.trading.getSymbolOrError
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormEvent
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormEvent.SetQuantityActiveField
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormEvent.Submit
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormModel
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState.QuantityActiveField
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState.QuantityActiveField.Lots
+import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormState.QuantityActiveField.Quantity
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.AddToTrade
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.CloseTrade
@@ -36,6 +44,7 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -59,6 +68,7 @@ internal class TradeExecutionFormPresenter(
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
     private val brokerId = FinvasiaBroker.Id
     private var selectedSymbol: CachedSymbol? = null
+    private var quantityActiveField: QuantityActiveField = Quantity
 
     init {
 
@@ -86,6 +96,8 @@ internal class TradeExecutionFormPresenter(
         val formModel = buildFormModel() ?: return@launchMolecule null
         val showLots = showLots(formModel) ?: return@launchMolecule null
 
+        syncQuantityAndLots(formModel)
+
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}$title",
             isSymbolEditable = remember {
@@ -94,7 +106,7 @@ internal class TradeExecutionFormPresenter(
             isSideSelectable = remember { !(formType is AddToTrade || formType is CloseTrade) },
             showLots = showLots,
             formModel = formModel,
-            onSubmit = remember(formModel) { { onSubmit(formModel) } },
+            eventSink = remember(formModel) { { event -> onEvent(event, formModel) } },
         )
     }
 
@@ -188,6 +200,53 @@ internal class TradeExecutionFormPresenter(
         }
     }.value
 
+    @Composable
+    private fun syncQuantityAndLots(formModel: TradeExecutionFormModel) {
+
+        LaunchedEffect(Unit) {
+
+            snapshotFlow {
+                formModel.quantityField.value to formModel.lotsField.value
+            }.drop(1).collectLatest {
+
+                val symbolId = formModel.symbolField.value ?: return@collectLatest
+
+                when (quantityActiveField) {
+                    Quantity -> {
+                        val (quantity, isValid) = formModel.quantityField.validate()
+                        if (!isValid) return@collectLatest
+                        val lotSize = getSymbol(symbolId).lotSize
+                        val lots = (quantity.toKBigDecimal() / lotSize).toString()
+                        formModel.lotsField.holder.setTextAndPlaceCursorAtEnd(lots)
+                    }
+
+                    Lots -> {
+                        val (lots, isValid) = formModel.lotsField.validate()
+                        if (!isValid || lots.isEmpty()) return@collectLatest
+                        val lotSize = getSymbol(symbolId).lotSize
+                        val quantity = (lots.toKBigDecimal() * lotSize).toString()
+                        formModel.quantityField.holder.setTextAndPlaceCursorAtEnd(quantity)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onEvent(
+        event: TradeExecutionFormEvent,
+        formModel: TradeExecutionFormModel,
+    ) {
+
+        when (event) {
+            is SetQuantityActiveField -> onSetQuantityActiveField(event.activeField)
+            Submit -> onSubmit(formModel)
+        }
+    }
+
+    private fun onSetQuantityActiveField(activeField: QuantityActiveField) {
+        quantityActiveField = activeField
+    }
+
     private fun onSubmit(formModel: TradeExecutionFormModel) = coroutineScope.launchUnit {
 
         val tz = TimeZone.currentSystemDefault()
@@ -204,7 +263,7 @@ internal class TradeExecutionFormPresenter(
                     instrument = symbol.instrument,
                     symbolId = symbolId,
                     quantity = formModel.quantityField.value.toKBigDecimal(),
-                    lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
+                    lots = formModel.lotsField.value.toInt(),
                     side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                     price = formModel.priceField.value.toKBigDecimal(),
                     timestamp = formModel.timestamp.toInstant(tz),
@@ -218,7 +277,7 @@ internal class TradeExecutionFormPresenter(
                 instrument = symbol.instrument,
                 symbolId = symbolId,
                 quantity = formModel.quantityField.value.toKBigDecimal(),
-                lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
+                lots = formModel.lotsField.value.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.priceField.value.toKBigDecimal(),
                 timestamp = formModel.timestamp.toInstant(tz),
