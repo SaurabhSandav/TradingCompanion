@@ -17,6 +17,8 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import com.saurabhsandav.trading.record.Symbol as RecordSymbol
@@ -25,11 +27,11 @@ interface SymbolsProvider {
 
     suspend fun downloadAllLatestSymbols()
 
-    fun getSymbolsFiltered(
+    suspend fun getSymbolsFilteredPagingSourceFactory(
         filterQuery: String? = null,
         instruments: List<Instrument> = emptyList(),
         exchange: String? = null,
-    ): PagingSource<Int, CachedSymbol>
+    ): () -> PagingSource<Int, CachedSymbol>
 
     fun getSymbol(
         brokerId: BrokerId,
@@ -46,68 +48,80 @@ internal class AppSymbolsProvider(
     private val brokerProvider: BrokerProvider,
 ) : SymbolsProvider {
 
-    override suspend fun downloadAllLatestSymbols() = withContext(appDispatchers.IO) {
+    private val downloadMutex = Mutex()
 
-        brokerProvider.getAllIds().forEach { brokerId ->
+    override suspend fun downloadAllLatestSymbols() = downloadMutex.withLock {
+        withContext(appDispatchers.IO) {
 
-            val broker = brokerProvider.getBroker(brokerId)
-            val lastDownloadInstant = appDB.symbolDownloadTimestampQueries.get(brokerId).executeAsOneOrNull()
+            brokerProvider.getAllIds().forEach { brokerId ->
 
-            if (lastDownloadInstant != null && !broker.areSymbolsExpired(lastDownloadInstant)) return@forEach
+                val broker = brokerProvider.getBroker(brokerId)
+                val lastDownloadInstant = appDB.symbolDownloadTimestampQueries.get(brokerId).executeAsOneOrNull()
 
-            // Clear previous symbols
-            appDB.cachedSymbolQueries.clearByBroker(brokerId)
+                if (lastDownloadInstant != null && !broker.areSymbolsExpired(lastDownloadInstant)) return@forEach
 
-            broker.downloadSymbols { symbols ->
+                // Clear previous symbols
+                appDB.cachedSymbolQueries.clearByBroker(brokerId)
 
-                appDB.transaction {
+                broker.downloadSymbols { symbols ->
 
-                    for (symbol in symbols) {
+                    appDB.transaction {
 
-                        appDB.cachedSymbolQueries.insert(
-                            id = symbol.id,
-                            brokerId = brokerId,
-                            instrument = symbol.instrument,
-                            exchange = symbol.exchange,
-                            ticker = symbol.ticker,
-                            description = symbol.description,
-                            tickSize = symbol.tickSize,
-                            quantityMultiplier = symbol.quantityMultiplier,
-                        )
+                        for (symbol in symbols) {
+
+                            appDB.cachedSymbolQueries.insert(
+                                id = symbol.id,
+                                brokerId = brokerId,
+                                instrument = symbol.instrument,
+                                exchange = symbol.exchange,
+                                ticker = symbol.ticker,
+                                description = symbol.description,
+                                tickSize = symbol.tickSize,
+                                quantityMultiplier = symbol.quantityMultiplier,
+                            )
+                        }
                     }
                 }
-            }
 
-            // Save download timestamp
-            appDB.symbolDownloadTimestampQueries.put(brokerId, Clock.System.now())
+                // Save download timestamp
+                appDB.symbolDownloadTimestampQueries.put(brokerId, Clock.System.now())
+            }
         }
     }
 
-    override fun getSymbolsFiltered(
+    override suspend fun getSymbolsFilteredPagingSourceFactory(
         filterQuery: String?,
         instruments: List<Instrument>,
         exchange: String?,
-    ): PagingSource<Int, CachedSymbol> = QueryPagingSource(
-        countQuery = appDB.cachedSymbolQueries.getFilteredCount(
-            filterQuery = filterQuery,
-            instrumentsCount = instruments.size.toLong(),
-            instruments = instruments,
-            exchange = exchange,
-        ),
-        transacter = appDB.cachedSymbolQueries,
-        context = appDispatchers.IO,
-        queryProvider = { limit, offset ->
+    ): () -> PagingSource<Int, CachedSymbol> {
 
-            appDB.cachedSymbolQueries.getFiltered(
-                filterQuery = filterQuery,
-                instrumentsCount = instruments.size.toLong(),
-                instruments = instruments,
-                exchange = exchange,
-                limit = limit,
-                offset = offset,
+        downloadAllLatestSymbols()
+
+        return {
+
+            QueryPagingSource(
+                countQuery = appDB.cachedSymbolQueries.getFilteredCount(
+                    filterQuery = filterQuery,
+                    instrumentsCount = instruments.size.toLong(),
+                    instruments = instruments,
+                    exchange = exchange,
+                ),
+                transacter = appDB.cachedSymbolQueries,
+                context = appDispatchers.IO,
+                queryProvider = { limit, offset ->
+
+                    appDB.cachedSymbolQueries.getFiltered(
+                        filterQuery = filterQuery,
+                        instrumentsCount = instruments.size.toLong(),
+                        instruments = instruments,
+                        exchange = exchange,
+                        limit = limit,
+                        offset = offset,
+                    )
+                },
             )
-        },
-    )
+        }
+    }
 
     override fun getSymbol(
         brokerId: BrokerId,

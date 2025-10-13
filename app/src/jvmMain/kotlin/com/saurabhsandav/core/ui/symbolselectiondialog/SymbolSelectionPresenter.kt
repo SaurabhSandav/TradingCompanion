@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 
 @AssistedInject
 internal class SymbolSelectionPresenter(
@@ -70,18 +69,17 @@ internal class SymbolSelectionPresenter(
         )
 
         snapshotFlow { filterQuery.text.toString() }
-            .onStart { symbolsProvider.downloadAllLatestSymbols() }
             .flatMapLatest { filterQuery ->
+
+                val pagingSourceFactory = symbolsProvider.getSymbolsFilteredPagingSourceFactory(
+                    filterQuery = filterQuery,
+                    instruments = listOf(Instrument.Index, Instrument.Equity),
+                    exchange = "NSE",
+                )
 
                 Pager(
                     config = pagingConfig,
-                    pagingSourceFactory = {
-                        symbolsProvider.getSymbolsFiltered(
-                            filterQuery = filterQuery,
-                            instruments = listOf(Instrument.Index, Instrument.Equity),
-                            exchange = "NSE",
-                        )
-                    },
+                    pagingSourceFactory = pagingSourceFactory,
                 ).flow
             }
             .map { pagingData ->
