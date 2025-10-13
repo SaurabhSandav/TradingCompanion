@@ -21,7 +21,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType.NewSized
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
-import com.saurabhsandav.trading.broker.BrokerId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import com.saurabhsandav.trading.record.model.TradeId
@@ -29,7 +29,6 @@ import com.saurabhsandav.trading.record.model.TradeSide
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filter
@@ -108,7 +107,7 @@ internal class TradeExecutionFormPresenter(
 
                 tradingRecord.await().executions.edit(
                     id = formType.id,
-                    brokerId = BrokerId("Finvasia"),
+                    brokerId = FinvasiaBroker.Id,
                     instrument = formModel.instrumentField.value!!,
                     symbolId = formModel.symbolField.value!!,
                     quantity = formModel.quantityField.value.toKBigDecimal(),
@@ -122,7 +121,7 @@ internal class TradeExecutionFormPresenter(
             }
 
             else -> tradingRecord.await().executions.new(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = FinvasiaBroker.Id,
                 instrument = formModel.instrumentField.value!!,
                 symbolId = formModel.symbolField.value!!,
                 quantity = formModel.quantityField.value.toKBigDecimal(),

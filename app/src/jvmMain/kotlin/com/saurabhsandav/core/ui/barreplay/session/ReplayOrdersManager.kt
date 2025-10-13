@@ -12,9 +12,9 @@ import com.saurabhsandav.trading.backtest.BacktestOrderId
 import com.saurabhsandav.trading.backtest.Limit
 import com.saurabhsandav.trading.backtest.StopMarket
 import com.saurabhsandav.trading.backtest.newCandle
-import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
+import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -84,7 +84,7 @@ internal class ReplayOrdersManager(
             val tradingRecord = tradingRecord.await() ?: error("Replay profile not set")
 
             val orderParams = BacktestOrder.Params(
-                brokerId = BrokerId("Finvasia"),
+                brokerId = FinvasiaBroker.Id,
                 instrument = Instrument.Equity,
                 symbolId = stockChartParams.symbolId,
                 quantity = quantity,
