@@ -32,7 +32,7 @@ interface SymbolsProvider {
 
     suspend fun getSymbolsFilteredPagingSourceFactory(
         lastUpdate: Instant,
-        filterQuery: String? = null,
+        filterQuery: String,
         instruments: List<Instrument> = emptyList(),
         exchange: String? = null,
     ): () -> PagingSource<Int, CachedSymbol>
@@ -54,7 +54,7 @@ internal class AppSymbolsProvider(
 
     private val downloadMutex = Mutex()
 
-    override suspend fun downloadAllLatestSymbols() = downloadMutex.withLock {
+    override suspend fun downloadAllLatestSymbols(): Unit = downloadMutex.withLock {
         withContext(appDispatchers.IO) {
 
             brokerProvider.getAllIds().forEach { brokerId ->
@@ -93,12 +93,15 @@ internal class AppSymbolsProvider(
                 // Save download timestamp
                 appDB.symbolDownloadTimestampQueries.put(brokerId, currentTime)
             }
+
+            // Rebuild FTS index
+            appDB.cachedSymbol_ftsQueries.rebuild()
         }
     }
 
     override suspend fun getSymbolsFilteredPagingSourceFactory(
         lastUpdate: Instant,
-        filterQuery: String?,
+        filterQuery: String,
         instruments: List<Instrument>,
         exchange: String?,
     ): () -> PagingSource<Int, CachedSymbol> {
@@ -106,6 +109,11 @@ internal class AppSymbolsProvider(
         downloadAllLatestSymbols()
 
         return {
+
+            val filterQuery = when {
+                filterQuery.isBlank() -> "\"\""
+                else -> filterQuery.split(Regex("\\s+")).joinToString(" ") { "\"$it\"*" }
+            }
 
             QueryPagingSource(
                 countQuery = appDB.cachedSymbolQueries.getFilteredCount(

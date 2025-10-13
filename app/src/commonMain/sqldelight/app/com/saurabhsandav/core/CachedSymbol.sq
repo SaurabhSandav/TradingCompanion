@@ -36,19 +36,23 @@ SELECT * FROM CachedSymbol
 WHERE id = ? AND brokerId = ?;
 
 getFilteredCount:
-SELECT COUNT(*) FROM CachedSymbol
+SELECT COUNT(*)
+FROM CachedSymbol AS T1
+INNER JOIN CachedSymbol_fts AS T2 ON T1.rowid = T2.rowid
 WHERE
-(:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
+T2.CachedSymbol_fts MATCH :filterQuery
 AND (:instrumentsCount <= 0 OR instrument IN :instruments)
 AND (:exchange IS NULL OR exchange = :exchange)
 AND lastUpdate >= :lastUpdate;
 
 getFiltered:
-SELECT * FROM CachedSymbol
+SELECT T1.*
+FROM CachedSymbol AS T1
+INNER JOIN CachedSymbol_fts AS T2 ON T1.rowid = T2.rowid
 WHERE
-(:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
+T2.CachedSymbol_fts MATCH :filterQuery
 AND (:instrumentsCount <= 0 OR instrument IN :instruments)
 AND (:exchange IS NULL OR exchange = :exchange)
 AND lastUpdate >= :lastUpdate
-ORDER BY ticker, instrument
+ORDER BY T1.ticker, T1.instrument
 LIMIT :limit OFFSET :offset;

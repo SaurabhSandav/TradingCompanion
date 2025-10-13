@@ -1,0 +1,13 @@
+CREATE VIRTUAL TABLE IF NOT EXISTS CachedSymbol_fts USING fts5(
+id TEXT UNINDEXED,
+brokerId TEXT UNINDEXED,
+ticker TEXT,
+description TEXT,
+strikePrice TEXT,
+optionType TEXT,
+content='CachedSymbol',
+content_rowid='rowid'
+);
+
+rebuild:
+INSERT INTO CachedSymbol_fts(CachedSymbol_fts) VALUES('rebuild');
