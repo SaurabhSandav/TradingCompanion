@@ -103,7 +103,6 @@ internal class TradeExecutionFormPresenter(
 
                 TradeExecutionFormModel(
                     getSymbol = ::getSymbol,
-                    instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
                     lots = execution.lots.toString(),
@@ -118,7 +117,6 @@ internal class TradeExecutionFormPresenter(
 
                 TradeExecutionFormModel(
                     getSymbol = ::getSymbol,
-                    instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
                     lots = execution.lots.toString(),
@@ -134,7 +132,6 @@ internal class TradeExecutionFormPresenter(
 
                 TradeExecutionFormModel(
                     getSymbol = ::getSymbol,
-                    instrument = trade.instrument,
                     symbolId = trade.symbolId,
                     isBuy = trade.side == TradeSide.Long,
                 )
@@ -146,7 +143,6 @@ internal class TradeExecutionFormPresenter(
 
                 TradeExecutionFormModel(
                     getSymbol = ::getSymbol,
-                    instrument = trade.instrument,
                     symbolId = trade.symbolId,
                     quantity = (trade.quantity - trade.closedQuantity).toString(),
                     lots = (trade.lots - trade.closedLots).toString(),
@@ -160,7 +156,6 @@ internal class TradeExecutionFormPresenter(
 
                 TradeExecutionFormModel(
                     getSymbol = ::getSymbol,
-                    instrument = execution.instrument,
                     symbolId = execution.symbolId,
                     quantity = execution.quantity.toString(),
                     lots = execution.lots.toString(),
@@ -176,14 +171,18 @@ internal class TradeExecutionFormPresenter(
 
         val tz = TimeZone.currentSystemDefault()
 
+        val brokerId = FinvasiaBroker.Id
+        val symbolId = formModel.symbolField.value!!
+        val symbol = getSymbol(symbolId)
+
         val executionId = when (formType) {
             is Edit -> {
 
                 tradingRecord.await().executions.edit(
                     id = formType.id,
-                    brokerId = FinvasiaBroker.Id,
-                    instrument = formModel.instrumentField.value!!,
-                    symbolId = formModel.symbolField.value!!,
+                    brokerId = brokerId,
+                    instrument = symbol.instrument,
+                    symbolId = symbolId,
                     quantity = formModel.quantityField.value.toKBigDecimal(),
                     lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
                     side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
@@ -195,9 +194,9 @@ internal class TradeExecutionFormPresenter(
             }
 
             else -> tradingRecord.await().executions.new(
-                brokerId = FinvasiaBroker.Id,
-                instrument = formModel.instrumentField.value!!,
-                symbolId = formModel.symbolField.value!!,
+                brokerId = brokerId,
+                instrument = symbol.instrument,
+                symbolId = symbolId,
                 quantity = formModel.quantityField.value.toKBigDecimal(),
                 lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,

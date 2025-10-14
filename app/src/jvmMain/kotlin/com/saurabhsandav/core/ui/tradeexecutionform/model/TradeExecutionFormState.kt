@@ -15,7 +15,6 @@ import com.saurabhsandav.core.ui.common.form.validations.isInt
 import com.saurabhsandav.core.ui.common.form.validations.isPositive
 import com.saurabhsandav.core.ui.common.form.validations.isRequired
 import com.saurabhsandav.core.utils.nowIn
-import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -32,7 +31,6 @@ internal data class TradeExecutionFormState(
 
 internal class TradeExecutionFormModel(
     getSymbol: suspend (SymbolId) -> CachedSymbol,
-    instrument: Instrument? = null,
     symbolId: SymbolId? = null,
     quantity: String = "",
     lots: String = "",
@@ -40,8 +38,6 @@ internal class TradeExecutionFormModel(
     price: String = "",
     timestamp: LocalDateTime = Clock.System.nowIn(TimeZone.currentSystemDefault()),
 ) : FormModel() {
-
-    val instrumentField = addMutableStateField(instrument) { isRequired() }
 
     val symbolField = addMutableStateField(symbolId) { isRequired() }
 

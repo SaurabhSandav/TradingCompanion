@@ -32,7 +32,6 @@ import com.saurabhsandav.kbigdecimal.KRoundingMode
 import com.saurabhsandav.kbigdecimal.isZero
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
-import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import com.saurabhsandav.trading.record.SizingTrade
@@ -170,7 +169,6 @@ internal class SizingPresenter(
             formType = TradeExecutionFormType.NewSized(
                 formModel = TradeExecutionFormModel(
                     getSymbol = { symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, sizingTrade.symbolId).first() },
-                    instrument = Instrument.Equity,
                     symbolId = sizingTrade.symbolId,
                     quantity = minOf(calculatedQuantity, maxAffordableQuantity).toString(),
                     isBuy = isBuy,

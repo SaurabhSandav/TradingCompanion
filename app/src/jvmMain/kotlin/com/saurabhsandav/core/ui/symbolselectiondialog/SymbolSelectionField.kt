@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.LocalAppGraph
 import com.saurabhsandav.core.ui.common.OutlinedTextBox
 import com.saurabhsandav.core.ui.common.state
@@ -20,6 +21,7 @@ fun SymbolSelectionField(
     type: SymbolSelectionType,
     selected: SymbolId?,
     onSelect: (SymbolId) -> Unit,
+    modifier: Modifier = Modifier,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -42,6 +44,7 @@ fun SymbolSelectionField(
     var showSymbolSelectionDialog by state { false }
 
     OutlinedTextBox(
+        modifier = modifier,
         value = state.selectedSymbol?.ticker ?: "",
         onClick = { showSymbolSelectionDialog = true },
         enabled = enabled,

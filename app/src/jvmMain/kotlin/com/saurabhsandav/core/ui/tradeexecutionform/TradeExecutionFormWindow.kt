@@ -35,7 +35,6 @@ import com.saurabhsandav.core.ui.common.FormDefaults
 import com.saurabhsandav.core.ui.common.app.AppWindow
 import com.saurabhsandav.core.ui.common.app.rememberAppWindowState
 import com.saurabhsandav.core.ui.common.controls.DatePickerField
-import com.saurabhsandav.core.ui.common.controls.OutlinedListSelectionField
 import com.saurabhsandav.core.ui.common.controls.TimeFieldDefaults
 import com.saurabhsandav.core.ui.common.errorsMessagesAsSupportingText
 import com.saurabhsandav.core.ui.common.form.isError
@@ -49,7 +48,6 @@ import com.saurabhsandav.core.utils.nowIn
 import com.saurabhsandav.trading.core.Instrument
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.Locale
 import kotlin.time.Clock
 
 @Composable
@@ -106,30 +104,15 @@ private fun TradeExecutionForm(
         onSubmit = onSubmit,
     ) {
 
-        val (instrumentFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
+        val (symbolsFocusRequester, quantityFocusRequester) = remember { FocusRequester.createRefs() }
 
         LaunchedEffect(Unit) {
-            val requester = if (isSymbolEditable) instrumentFocusRequester else quantityFocusRequester
+            val requester = if (isSymbolEditable) symbolsFocusRequester else quantityFocusRequester
             requester.requestFocus()
         }
 
-        OutlinedListSelectionField(
-            modifier = Modifier.focusRequester(instrumentFocusRequester),
-            items = remember { enumValues<Instrument>().toList() },
-            itemText = {
-                it.strValue.replaceFirstChar { char ->
-                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
-                }
-            },
-            onSelect = { model.instrumentField.holder.value = it },
-            selection = model.instrumentField.value,
-            label = { Text("Instrument") },
-            enabled = isSymbolEditable,
-            isError = model.instrumentField.isError,
-            supportingText = model.instrumentField.errorsMessagesAsSupportingText(),
-        )
-
         SymbolSelectionField(
+            modifier = Modifier.focusRequester(symbolsFocusRequester),
             type = SymbolSelectionType.Regular,
             selected = model.symbolField.value,
             onSelect = { model.symbolField.holder.value = it },
