@@ -17,25 +17,6 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
-data class ExportTradingRecord(
-    val executions: List<ExportTradeExecution>,
-    val trades: List<ExportTrade>,
-    val stops: List<ExportTradeStop>,
-    val targets: List<ExportTradeTarget>,
-    val notes: List<ExportTradeNote>,
-    val attachments: List<ExportTradeAttachment>,
-    val excursions: List<ExportTradeExcursions>,
-    val tag: List<ExportTradeTag>,
-    val reviews: List<ExportReview>,
-    val attachmentFiles: List<ExportAttachmentFile>,
-    val brokers: List<ExportBroker>,
-    val symbols: List<ExportSymbol>,
-    val sizingTrades: List<ExportSizingTrade>,
-    val tradeToExecutionMap: List<ExportTradeToExecutionMap>,
-    val tradeToTagMap: List<ExportTradeToTagMap>,
-)
-
-@Serializable
 data class ExportTradeExecution(
     val id: TradeExecutionId,
     val brokerId: BrokerId,

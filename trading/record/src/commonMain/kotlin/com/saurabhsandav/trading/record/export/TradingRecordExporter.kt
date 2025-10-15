@@ -1,39 +1,16 @@
 package com.saurabhsandav.trading.record.export
 
-import com.saurabhsandav.trading.record.TradesDB
 import com.saurabhsandav.trading.record.TradingRecord
 
-class TradingRecordExporter {
+class TradingRecordExport(
+    record: TradingRecord,
+) {
 
-    fun export(record: TradingRecord) {
+    private val tradesDB = record.tradesDB
 
-        val tradesDB = record.tradesDB
+    private fun exportExecutions(): List<ExportTradeExecution> {
 
-        with(tradesDB) {
-
-            ExportTradingRecord(
-                executions = exportExecutions(),
-                trades = exportTrades(),
-                stops = exportStops(),
-                targets = exportTargets(),
-                notes = exportNotes(),
-                attachments = exportAttachments(),
-                excursions = exportExcursions(),
-                tag = exportTags(),
-                reviews = exportReviews(),
-                attachmentFiles = exportAttachmentFiles(),
-                brokers = exportBrokers(),
-                symbols = exportSymbols(),
-                sizingTrades = exportSizingTrades(),
-                tradeToExecutionMap = exportTradeToExecutionMap(),
-                tradeToTagMap = exportTradeToTagMap(),
-            )
-        }
-    }
-
-    private fun TradesDB.exportExecutions(): List<ExportTradeExecution> {
-
-        return tradeExecutionQueries.getAll().executeAsList().map { execution ->
+        return tradesDB.tradeExecutionQueries.getAll().executeAsList().map { execution ->
 
             ExportTradeExecution(
                 id = execution.id,
@@ -50,9 +27,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportTrades(): List<ExportTrade> {
+    private fun exportTrades(): List<ExportTrade> {
 
-        return tradeQueries.getAll().executeAsList().map { trade ->
+        return tradesDB.tradeQueries.getAll().executeAsList().map { trade ->
 
             ExportTrade(
                 id = trade.id,
@@ -75,9 +52,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportStops(): List<ExportTradeStop> {
+    private fun exportStops(): List<ExportTradeStop> {
 
-        return tradeStopQueries.getAll().executeAsList().map { stop ->
+        return tradesDB.tradeStopQueries.getAll().executeAsList().map { stop ->
 
             ExportTradeStop(
                 tradeId = stop.tradeId,
@@ -87,9 +64,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportTargets(): List<ExportTradeTarget> {
+    private fun exportTargets(): List<ExportTradeTarget> {
 
-        return tradeTargetQueries.getAll().executeAsList().map { target ->
+        return tradesDB.tradeTargetQueries.getAll().executeAsList().map { target ->
 
             ExportTradeTarget(
                 tradeId = target.tradeId,
@@ -99,9 +76,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportNotes(): List<ExportTradeNote> {
+    private fun exportNotes(): List<ExportTradeNote> {
 
-        return tradeNoteQueries.getAll().executeAsList().map { note ->
+        return tradesDB.tradeNoteQueries.getAll().executeAsList().map { note ->
 
             ExportTradeNote(
                 tradeId = note.tradeId,
@@ -113,9 +90,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportAttachments(): List<ExportTradeAttachment> {
+    private fun exportAttachments(): List<ExportTradeAttachment> {
 
-        return tradeAttachmentQueries.getAll().executeAsList().map { attachment ->
+        return tradesDB.tradeAttachmentQueries.getAll().executeAsList().map { attachment ->
 
             ExportTradeAttachment(
                 tradeId = attachment.tradeId,
@@ -126,9 +103,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportExcursions(): List<ExportTradeExcursions> {
+    private fun exportExcursions(): List<ExportTradeExcursions> {
 
-        return tradeExcursionsQueries.getAll().executeAsList().map { excursions ->
+        return tradesDB.tradeExcursionsQueries.getAll().executeAsList().map { excursions ->
 
             ExportTradeExcursions(
                 tradeId = excursions.tradeId,
@@ -144,9 +121,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportTags(): List<ExportTradeTag> {
+    private fun exportTags(): List<ExportTradeTag> {
 
-        return tradeTagQueries.getAll().executeAsList().map { tag ->
+        return tradesDB.tradeTagQueries.getAll().executeAsList().map { tag ->
 
             ExportTradeTag(
                 id = tag.id,
@@ -157,9 +134,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportReviews(): List<ExportReview> {
+    private fun exportReviews(): List<ExportReview> {
 
-        return reviewQueries.getAll().executeAsList().map { review ->
+        return tradesDB.reviewQueries.getAll().executeAsList().map { review ->
 
             ExportReview(
                 id = review.id,
@@ -172,9 +149,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportAttachmentFiles(): List<ExportAttachmentFile> {
+    private fun exportAttachmentFiles(): List<ExportAttachmentFile> {
 
-        return attachmentFileQueries.getAll().executeAsList().map { attachmentFile ->
+        return tradesDB.attachmentFileQueries.getAll().executeAsList().map { attachmentFile ->
 
             ExportAttachmentFile(
                 id = attachmentFile.id,
@@ -185,9 +162,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportBrokers(): List<ExportBroker> {
+    private fun exportBrokers(): List<ExportBroker> {
 
-        return brokerQueries.getAll().executeAsList().map { broker ->
+        return tradesDB.brokerQueries.getAll().executeAsList().map { broker ->
 
             ExportBroker(
                 id = broker.id,
@@ -196,9 +173,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportSymbols(): List<ExportSymbol> {
+    private fun exportSymbols(): List<ExportSymbol> {
 
-        return symbolQueries.getAll().executeAsList().map { symbol ->
+        return tradesDB.symbolQueries.getAll().executeAsList().map { symbol ->
 
             ExportSymbol(
                 id = symbol.id,
@@ -211,9 +188,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportSizingTrades(): List<ExportSizingTrade> {
+    private fun exportSizingTrades(): List<ExportSizingTrade> {
 
-        return sizingTradeQueries.getAll().executeAsList().map { sizingTrade ->
+        return tradesDB.sizingTradeQueries.getAll().executeAsList().map { sizingTrade ->
 
             ExportSizingTrade(
                 id = sizingTrade.id,
@@ -225,9 +202,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportTradeToExecutionMap(): List<ExportTradeToExecutionMap> {
+    private fun exportTradeToExecutionMap(): List<ExportTradeToExecutionMap> {
 
-        return tradeToExecutionMapQueries.getAll().executeAsList().map { tradeToExecutionMap ->
+        return tradesDB.tradeToExecutionMapQueries.getAll().executeAsList().map { tradeToExecutionMap ->
 
             ExportTradeToExecutionMap(
                 tradeId = tradeToExecutionMap.tradeId,
@@ -237,9 +214,9 @@ class TradingRecordExporter {
         }
     }
 
-    private fun TradesDB.exportTradeToTagMap(): List<ExportTradeToTagMap> {
+    private fun exportTradeToTagMap(): List<ExportTradeToTagMap> {
 
-        return tradeToTagMapQueries.getAll().executeAsList().map { tradeToTagMap ->
+        return tradesDB.tradeToTagMapQueries.getAll().executeAsList().map { tradeToTagMap ->
 
             ExportTradeToTagMap(
                 tradeId = tradeToTagMap.tradeId,
