@@ -12,6 +12,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 
 @Composable
 fun SimpleTooltipBox(
@@ -39,10 +40,11 @@ fun IconButtonWithTooltip(
     enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit,
 ) {
 
     SimpleTooltipBox(tooltipText) {
-        IconButton(onClick, modifier, enabled, colors, interactionSource, content)
+        IconButton(onClick, modifier, enabled, colors, interactionSource, shape, content)
     }
 }
