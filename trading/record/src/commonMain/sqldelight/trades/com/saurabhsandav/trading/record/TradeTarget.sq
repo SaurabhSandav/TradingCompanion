@@ -50,6 +50,9 @@ setPrimary {
     AND price = :price;
 }
 
+getAll:
+SELECT * FROM TradeTarget;
+
 getByTrade:
 SELECT *
 FROM TradeTarget

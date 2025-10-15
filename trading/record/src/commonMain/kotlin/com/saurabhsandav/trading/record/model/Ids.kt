@@ -3,6 +3,7 @@ package com.saurabhsandav.trading.record.model
 import kotlinx.serialization.Serializable
 
 @JvmInline
+@Serializable
 value class SizingTradeId(
     val value: Long,
 ) {
@@ -20,6 +21,7 @@ value class TradeId(
 }
 
 @JvmInline
+@Serializable
 value class TradeExecutionId(
     val value: Long,
 ) {
@@ -28,6 +30,7 @@ value class TradeExecutionId(
 }
 
 @JvmInline
+@Serializable
 value class AttachmentFileId(
     val value: Long,
 ) {
@@ -36,6 +39,7 @@ value class AttachmentFileId(
 }
 
 @JvmInline
+@Serializable
 value class TradeNoteId(
     val value: Long,
 ) {
@@ -44,6 +48,7 @@ value class TradeNoteId(
 }
 
 @JvmInline
+@Serializable
 value class TradeTagId(
     val value: Long,
 ) {
@@ -52,6 +57,7 @@ value class TradeTagId(
 }
 
 @JvmInline
+@Serializable
 value class ReviewId(
     val value: Long,
 ) {

@@ -25,6 +25,9 @@ delete:
 DELETE FROM TradeNote
 WHERE id = ?;
 
+getAll:
+SELECT * FROM TradeNote;
+
 getByTrade:
 SELECT *
 FROM TradeNote

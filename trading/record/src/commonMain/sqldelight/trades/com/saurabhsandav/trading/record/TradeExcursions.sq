@@ -23,6 +23,9 @@ delete:
 DELETE FROM TradeExcursions
 WHERE tradeId = ?;
 
+getAll:
+SELECT * FROM TradeExcursions;
+
 getByTrade:
 SELECT *
 FROM TradeExcursions

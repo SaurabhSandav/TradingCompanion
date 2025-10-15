@@ -17,6 +17,9 @@ delete:
 DELETE FROM TradeToTagMap
 WHERE tradeId = ? AND tagId = ?;
 
+getAll:
+SELECT * FROM TradeToTagMap;
+
 getTagsByTrade:
 SELECT TradeTag.* FROM TradeToTagMap
 INNER JOIN TradeTag

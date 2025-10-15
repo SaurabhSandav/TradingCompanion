@@ -24,6 +24,9 @@ delete:
 DELETE FROM TradeAttachment
 WHERE tradeId = ? AND fileId = ?;
 
+getAll:
+SELECT * FROM TradeAttachment;
+
 isAttachmentLinked:
 SELECT EXISTS( SELECT * FROM TradeAttachment WHERE fileId = ? );
 

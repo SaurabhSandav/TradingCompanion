@@ -16,6 +16,9 @@ delete:
 DELETE FROM AttachmentFile
 WHERE id = ?;
 
+getAll:
+SELECT * FROM AttachmentFile;
+
 getById:
 SELECT * FROM AttachmentFile WHERE id = ?;
 

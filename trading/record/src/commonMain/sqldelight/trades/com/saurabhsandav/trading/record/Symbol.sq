@@ -24,3 +24,6 @@ insert:
 INSERT OR REPLACE
 INTO Symbol
 VALUES ?;
+
+getAll:
+SELECT * FROM Symbol;

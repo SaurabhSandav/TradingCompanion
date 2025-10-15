@@ -20,7 +20,7 @@ class TradingRecord(
     getSymbol: (suspend (BrokerId, SymbolId) -> Symbol?)? = null,
 ) {
 
-    private val tradesDB: TradesDB = run {
+    internal val tradesDB: TradesDB = run {
 
         val driver = JdbcSqliteDriver(
             url = dbUrl,

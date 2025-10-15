@@ -41,6 +41,9 @@ UPDATE TradeExecution
 SET locked = TRUE
 WHERE id IN ?;
 
+getAll:
+SELECT * FROM TradeExecution;
+
 getById:
 SELECT *
 FROM TradeExecution

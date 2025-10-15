@@ -17,17 +17,6 @@ insert:
 INSERT OR IGNORE INTO TradeToExecutionMap
 VALUES (?, ?, ?, ?);
 
-getExecutionsByTrade:
-SELECT
-  TradeExecution.*,
-  IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity,
-  IFNULL(overrideLots, TradeExecution.lots) AS overrideLots
-FROM TradeToExecutionMap
-INNER JOIN TradeExecution
-ON TradeToExecutionMap.executionId = TradeExecution.id
-WHERE TradeToExecutionMap.tradeId = ?
-ORDER BY TradeExecution.timestamp ASC;
-
 deleteExecutionsAndTrades {
   DELETE FROM TradeExecution
   WHERE id IN (
@@ -40,6 +29,20 @@ deleteExecutionsAndTrades {
   DELETE FROM Trade
   WHERE id IN :tradeIds;
 }
+
+getAll:
+SELECT * FROM TradeToExecutionMap;
+
+getExecutionsByTrade:
+SELECT
+  TradeExecution.*,
+  IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity,
+  IFNULL(overrideLots, TradeExecution.lots) AS overrideLots
+FROM TradeToExecutionMap
+INNER JOIN TradeExecution
+ON TradeToExecutionMap.executionId = TradeExecution.id
+WHERE TradeToExecutionMap.tradeId = ?
+ORDER BY TradeExecution.timestamp ASC;
 
 getExecutionsBySymbolAndTradeIdsInInterval:
 SELECT

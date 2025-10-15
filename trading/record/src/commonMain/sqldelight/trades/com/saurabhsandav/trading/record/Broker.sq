@@ -9,3 +9,6 @@ insert:
 INSERT OR REPLACE
 INTO Broker(id, name)
 VALUES (?, ?);
+
+getAll:
+SELECT * FROM Broker;
