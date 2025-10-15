@@ -23,8 +23,8 @@ locked INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO TradeExecution(brokerId, instrument, symbolId, quantity, lots, side, price, timestamp, locked)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+INTO TradeExecution(id, brokerId, instrument, symbolId, quantity, lots, side, price, timestamp, locked)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING id;
 
 update:
