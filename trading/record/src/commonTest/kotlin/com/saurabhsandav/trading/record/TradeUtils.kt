@@ -20,6 +20,7 @@ inline fun assertTradeEquals(
     assertBDEquals(expected.quantity, actual.quantity, message)
     assertBDEquals(expected.closedQuantity, actual.closedQuantity, message)
     assertEquals(expected.lots, actual.lots, message)
+    assertEquals(expected.closedLots, actual.closedLots, message)
     assertEquals(expected.side, actual.side, message)
     assertBDEquals(expected.averageEntry, actual.averageEntry, message)
     assertEquals(expected.entryTimestamp, actual.entryTimestamp, message)

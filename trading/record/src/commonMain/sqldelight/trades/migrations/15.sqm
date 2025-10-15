@@ -1,0 +1,187 @@
+-- Duplicate tables and copy data
+
+-- Trade
+
+CREATE TABLE Trade_new (
+id INTEGER NOT NULL PRIMARY KEY,
+brokerId TEXT NOT NULL,
+symbolId TEXT NOT NULL,
+instrument TEXT NOT NULL,
+quantity TEXT NOT NULL,
+closedQuantity TEXT NOT NULL,
+lots INTEGER NOT NULL,
+closedLots INTEGER NOT NULL,
+side TEXT NOT NULL,
+averageEntry TEXT NOT NULL,
+entryTimestamp TEXT NOT NULL,
+averageExit TEXT,
+exitTimestamp TEXT,
+pnl TEXT NOT NULL,
+fees TEXT NOT NULL,
+netPnl TEXT NOT NULL,
+isClosed INTEGER NOT NULL
+);
+
+INSERT INTO Trade_new(id, brokerId, symbolId, instrument, quantity, closedQuantity, lots, closedLots, side, averageEntry, entryTimestamp, averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
+SELECT id, brokerId, symbolId, instrument, quantity, closedQuantity, quantity, closedQuantity, side, averageEntry, entryTimestamp, averageExit, exitTimestamp, pnl, fees, netPnl, isClosed FROM Trade;
+
+-- TradeExecution
+
+CREATE TABLE TradeExecution_new (
+id INTEGER NOT NULL PRIMARY KEY,
+brokerId TEXT NOT NULL,
+symbolId TEXT NOT NULL,
+instrument TEXT NOT NULL,
+quantity TEXT NOT NULL,
+lots INTEGER NOT NULL,
+side TEXT NOT NULL,
+price TEXT NOT NULL,
+timestamp TEXT NOT NULL,
+locked INTEGER NOT NULL
+);
+
+INSERT INTO TradeExecution_new(id, brokerId, symbolId, instrument, quantity, lots, side, price, timestamp, locked)
+SELECT id, brokerId, symbolId, instrument, quantity, quantity, side, price, timestamp, locked FROM TradeExecution;
+
+-- TradeToExecutionMap
+
+CREATE TABLE TradeToExecutionMap_new (
+tradeId INTEGER NOT NULL,
+executionId INTEGER NOT NULL,
+overrideQuantity TEXT,
+overrideLots INTEGER,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE,
+FOREIGN KEY(executionId) REFERENCES TradeExecution_new(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, executionId)
+);
+
+INSERT INTO TradeToExecutionMap_new(tradeId, executionId, overrideQuantity, overrideLots)
+SELECT tradeId, executionId, overrideQuantity, overrideQuantity FROM TradeToExecutionMap;
+
+-- TradeStop
+
+CREATE TABLE TradeStop_new (
+tradeId INTEGER NOT NULL,
+price TEXT NOT NULL,
+isPrimary INTEGER NOT NULL DEFAULT FALSE,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, price)
+);
+
+INSERT INTO TradeStop_new(tradeId, price, isPrimary)
+SELECT tradeId, price, isPrimary FROM TradeStop;
+
+-- TradeTarget
+
+CREATE TABLE TradeTarget_new (
+tradeId INTEGER NOT NULL,
+price TEXT NOT NULL,
+isPrimary INTEGER NOT NULL DEFAULT FALSE,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, price)
+);
+
+INSERT INTO TradeTarget_new(tradeId, price, isPrimary)
+SELECT tradeId, price, isPrimary FROM TradeTarget;
+
+-- TradeNote
+
+CREATE TABLE TradeNote_new (
+id INTEGER NOT NULL PRIMARY KEY,
+tradeId INTEGER NOT NULL,
+note TEXT NOT NULL,
+added TEXT NOT NULL,
+lastEdited TEXT,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE
+);
+
+INSERT INTO TradeNote_new(id, tradeId, note, added, lastEdited)
+SELECT id, tradeId, note, added, lastEdited FROM TradeNote;
+
+-- TradeAttachment
+
+CREATE TABLE TradeAttachment_new (
+tradeId INTEGER NOT NULL,
+fileId INTEGER NOT NULL,
+name TEXT NOT NULL,
+description TEXT NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE,
+FOREIGN KEY(fileId) REFERENCES AttachmentFile(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, fileId)
+);
+
+INSERT INTO TradeAttachment_new(tradeId, fileId, name, description)
+SELECT tradeId, fileId, name, description FROM TradeAttachment;
+
+-- TradeExcursions
+
+CREATE TABLE TradeExcursions_new (
+tradeId INTEGER NOT NULL UNIQUE,
+tradeMfePrice TEXT NOT NULL,
+tradeMfePnl TEXT NOT NULL,
+tradeMaePrice TEXT NOT NULL,
+tradeMaePnl TEXT NOT NULL,
+sessionMfePrice TEXT NOT NULL,
+sessionMfePnl TEXT NOT NULL,
+sessionMaePrice TEXT NOT NULL,
+sessionMaePnl TEXT NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE
+);
+
+INSERT INTO TradeExcursions_new(tradeId, tradeMfePrice, tradeMfePnl, tradeMaePrice, tradeMaePnl, sessionMfePrice, sessionMfePnl, sessionMaePrice, sessionMaePnl)
+SELECT tradeId, tradeMfePrice, tradeMfePnl, tradeMaePrice, tradeMaePnl, sessionMfePrice, sessionMfePnl, sessionMaePrice, sessionMaePnl FROM TradeExcursions;
+
+-- TradeToTagMap
+
+CREATE TABLE TradeToTagMap_new (
+tradeId INTEGER NOT NULL,
+tagId INTEGER NOT NULL,
+FOREIGN KEY(tradeId) REFERENCES Trade_new(id) ON DELETE CASCADE,
+FOREIGN KEY(tagId) REFERENCES TradeTag(id) ON DELETE CASCADE,
+PRIMARY KEY (tradeId, tagId)
+);
+
+INSERT INTO TradeToTagMap_new(tradeId, tagId)
+SELECT tradeId, tagId FROM TradeToTagMap;
+
+-- Drop Display tables
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+-- Drop original tables
+
+DROP TABLE TradeToTagMap;
+DROP TABLE TradeExcursions;
+DROP TABLE TradeAttachment;
+DROP TABLE TradeNote;
+DROP TABLE TradeTarget;
+DROP TABLE TradeStop;
+DROP TABLE TradeToExecutionMap;
+DROP TABLE TradeExecution;
+DROP TABLE Trade;
+
+-- Rename new tables
+
+ALTER TABLE Trade_new RENAME TO Trade;
+ALTER TABLE TradeExecution_new RENAME TO TradeExecution;
+ALTER TABLE TradeToExecutionMap_new RENAME TO TradeToExecutionMap;
+ALTER TABLE TradeStop_new RENAME TO TradeStop;
+ALTER TABLE TradeTarget_new RENAME TO TradeTarget;
+ALTER TABLE TradeNote_new RENAME TO TradeNote;
+ALTER TABLE TradeAttachment_new RENAME TO TradeAttachment;
+ALTER TABLE TradeExcursions_new RENAME TO TradeExcursions;
+ALTER TABLE TradeToTagMap_new RENAME TO TradeToTagMap;
+
+-- Recreate Display tables
+
+CREATE VIEW TradeDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;
+
+CREATE VIEW TradeExecutionDisplay AS
+SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+FROM TradeExecution AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;

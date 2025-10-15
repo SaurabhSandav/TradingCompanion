@@ -111,7 +111,7 @@ internal class TradeExecutionFormPresenter(
                     instrument = formModel.instrumentField.value!!,
                     symbolId = formModel.symbolField.value!!,
                     quantity = formModel.quantityField.value.toKBigDecimal(),
-                    lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                    lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
                     side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                     price = formModel.priceField.value.toKBigDecimal(),
                     timestamp = formModel.timestamp.toInstant(tz),
@@ -125,7 +125,7 @@ internal class TradeExecutionFormPresenter(
                 instrument = formModel.instrumentField.value!!,
                 symbolId = formModel.symbolField.value!!,
                 quantity = formModel.quantityField.value.toKBigDecimal(),
-                lots = formModel.lotsField.value.ifBlank { null }?.toInt(),
+                lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
                 side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
                 price = formModel.priceField.value.toKBigDecimal(),
                 timestamp = formModel.timestamp.toInstant(tz),
@@ -163,7 +163,7 @@ internal class TradeExecutionFormPresenter(
             instrument = execution.instrument,
             symbolId = execution.symbolId,
             quantity = execution.quantity.toString(),
-            lots = execution.lots?.toString() ?: "",
+            lots = execution.lots.toString(),
             isBuy = execution.side == TradeExecutionSide.Buy,
             price = execution.price.toString(),
         )
@@ -193,6 +193,7 @@ internal class TradeExecutionFormPresenter(
             instrument = trade.instrument,
             symbolId = trade.symbolId,
             quantity = (trade.quantity - trade.closedQuantity).toString(),
+            lots = (trade.lots - trade.closedLots).toString(),
             isBuy = trade.side != TradeSide.Long,
         )
     }
@@ -205,7 +206,7 @@ internal class TradeExecutionFormPresenter(
             instrument = execution.instrument,
             symbolId = execution.symbolId,
             quantity = execution.quantity.toString(),
-            lots = execution.lots?.toString() ?: "",
+            lots = execution.lots.toString(),
             isBuy = execution.side == TradeExecutionSide.Buy,
             price = execution.price.toString(),
             timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),

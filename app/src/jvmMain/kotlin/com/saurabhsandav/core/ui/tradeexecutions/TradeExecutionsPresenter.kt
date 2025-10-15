@@ -139,7 +139,7 @@ internal class TradeExecutionsPresenter(
             "$brokerName ($instrumentCapitalized)"
         },
         ticker = ticker,
-        quantity = lots?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
+        quantity = "$quantity ($lots ${if (lots == 1) "lot" else "lots"})",
         side = side.strValue.uppercase(),
         price = price.toString(),
         timestamp = timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),

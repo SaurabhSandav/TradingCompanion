@@ -28,7 +28,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 
@@ -70,7 +69,7 @@ class TradeExecutionsTest {
                 instrument = Instrument.Options,
                 symbolId = SymbolId("EditedTestSymbol"),
                 quantity = 20.toKBigDecimal(),
-                lots = null,
+                lots = 20,
                 side = TradeExecutionSide.Sell,
                 price = 200.toKBigDecimal(),
                 timestamp = Clock.System.now(),
@@ -92,7 +91,7 @@ class TradeExecutionsTest {
             instrument = Instrument.Options,
             symbolId = SymbolId("EditedTestSymbol"),
             quantity = 20.toKBigDecimal(),
-            lots = null,
+            lots = 20,
             side = TradeExecutionSide.Sell,
             price = 200.toKBigDecimal(),
             timestamp = currentTime,
@@ -104,7 +103,7 @@ class TradeExecutionsTest {
         assertEquals(Instrument.Options, editedExecution.instrument)
         assertEquals("EditedTestSymbol", editedExecution.symbolId.value)
         assertBDEquals(20.toKBigDecimal(), editedExecution.quantity)
-        assertNull(editedExecution.lots)
+        assertEquals(20, editedExecution.lots)
         assertEquals(TradeExecutionSide.Sell, editedExecution.side)
         assertBDEquals(200.toKBigDecimal(), editedExecution.price)
         assertEquals(currentTime.withoutNanoseconds(), editedExecution.timestamp)

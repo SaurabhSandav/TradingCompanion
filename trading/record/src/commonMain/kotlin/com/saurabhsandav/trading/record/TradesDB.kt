@@ -35,6 +35,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         quantityAdapter = KBigDecimalColumnAdapter,
         closedQuantityAdapter = KBigDecimalColumnAdapter,
         lotsAdapter = IntColumnAdapter,
+        closedLotsAdapter = IntColumnAdapter,
         sideAdapter = TradeSide.ColumnAdapter,
         averageEntryAdapter = KBigDecimalColumnAdapter,
         entryTimestampAdapter = InstantReadableColumnAdapter,
@@ -86,6 +87,7 @@ internal fun TradesDB(driver: SqlDriver): TradesDB = TradesDB(
         tradeIdAdapter = TradeIdColumnAdapter,
         executionIdAdapter = TradeExecutionIdColumnAdapter,
         overrideQuantityAdapter = KBigDecimalColumnAdapter,
+        overrideLotsAdapter = IntColumnAdapter,
     ),
     TradeToTagMapAdapter = TradeToTagMap.Adapter(
         tradeIdAdapter = TradeIdColumnAdapter,

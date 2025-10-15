@@ -20,7 +20,7 @@ data class BacktestOrder<S : BacktestOrder.Status>(
         val instrument: Instrument,
         val symbolId: SymbolId,
         val quantity: KBigDecimal,
-        val lots: Int?,
+        val lots: Int,
         val side: TradeExecutionSide,
     )
 

@@ -15,7 +15,8 @@ symbolId TEXT AS SymbolId NOT NULL,
 instrument TEXT AS Instrument NOT NULL,
 quantity TEXT AS KBigDecimal NOT NULL,
 closedQuantity TEXT AS KBigDecimal NOT NULL,
-lots INTEGER AS Int,
+lots INTEGER AS Int NOT NULL,
+closedLots INTEGER AS Int NOT NULL,
 side TEXT AS TradeSide NOT NULL,
 averageEntry TEXT AS KBigDecimal NOT NULL,
 entryTimestamp TEXT AS Instant NOT NULL,
@@ -29,16 +30,16 @@ isClosed INTEGER AS Boolean NOT NULL
 
 insert:
 INSERT OR ROLLBACK
-INTO Trade(brokerId, symbolId, instrument, quantity, closedQuantity, lots, side, averageEntry, entryTimestamp,
-averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
+INTO Trade(brokerId, symbolId, instrument, quantity, closedQuantity, lots, closedLots, side, averageEntry,
+entryTimestamp, averageExit, exitTimestamp, pnl, fees, netPnl, isClosed)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
-?, ?, ?, ?, ?, ?)
+?, ?, ?, ?, ?, ?, ?)
 RETURNING id;
 
 update:
 UPDATE Trade
-SET quantity = ?, closedQuantity = ?, lots = ?, side = ?, averageEntry = ?, entryTimestamp = ?, averageExit = ?,
-exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
+SET quantity = ?, closedQuantity = ?, lots = ?, closedLots = ?, side = ?, averageEntry = ?, entryTimestamp = ?,
+averageExit = ?, exitTimestamp = ?, pnl = ?, fees = ?, netPnl = ?, isClosed = ?
 WHERE id = ?;
 
 delete:

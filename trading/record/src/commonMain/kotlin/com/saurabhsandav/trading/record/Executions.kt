@@ -23,8 +23,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.collections.sumOf
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.deleteExisting
+import kotlin.math.absoluteValue
 import kotlin.time.Instant
 
 class Executions(
@@ -41,7 +43,7 @@ class Executions(
         instrument: Instrument,
         symbolId: SymbolId,
         quantity: KBigDecimal,
-        lots: Int?,
+        lots: Int,
         side: TradeExecutionSide,
         price: KBigDecimal,
         timestamp: Instant,
@@ -50,6 +52,8 @@ class Executions(
 
         val broker = brokerProvider.getBroker(brokerId)
         val symbol = getSymbol?.invoke(brokerId, symbolId)
+
+        if (symbol != null) validateQuantity(quantity, symbol)
 
         val executionId = tradesDB.transactionWithResult {
 
@@ -96,7 +100,7 @@ class Executions(
         instrument: Instrument,
         symbolId: SymbolId,
         quantity: KBigDecimal,
-        lots: Int?,
+        lots: Int,
         side: TradeExecutionSide,
         price: KBigDecimal,
         timestamp: Instant,
@@ -108,6 +112,8 @@ class Executions(
 
         val broker = brokerProvider.getBroker(brokerId)
         val symbol = getSymbol?.invoke(brokerId, symbolId)
+
+        if (symbol != null) validateQuantity(quantity, symbol)
 
         tradesDB.transaction {
 
@@ -321,7 +327,8 @@ class Executions(
                 instrument = execution.instrument,
                 quantity = execution.quantity,
                 closedQuantity = KBigDecimal.Zero,
-                lots = null,
+                lots = execution.lots,
+                closedLots = 0,
                 side = if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short,
                 averageEntry = execution.price,
                 entryTimestamp = execution.timestamp.withoutNanoseconds(),
@@ -338,16 +345,23 @@ class Executions(
                 tradeId = tradeId,
                 executionId = execution.id,
                 overrideQuantity = null,
+                overrideLots = null,
             )
         } else { // Open Trade exists. Update trade with new execution
 
+            val isCloseAndOpenOrder = (openTrade.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
+                (openTrade.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy)
+
             // Quantity of instrument that is still open after consuming current execution
             val currentOpenQuantity = openTrade.quantity - when {
-                (openTrade.side == TradeSide.Long && execution.side == TradeExecutionSide.Sell) ||
-                    (openTrade.side == TradeSide.Short && execution.side == TradeExecutionSide.Buy) ->
-                    openTrade.closedQuantity + execution.quantity
-
+                isCloseAndOpenOrder -> openTrade.closedQuantity + execution.quantity
                 else -> openTrade.closedQuantity
+            }
+
+            // Lots of instrument that is still open after consuming current execution
+            val currentOpenLots = openTrade.lots - when {
+                isCloseAndOpenOrder -> openTrade.closedLots + execution.lots
+                else -> openTrade.closedLots
             }
 
             // Get pre-existing executions for open trade
@@ -374,10 +388,12 @@ class Executions(
                     tradeId = openTrade.id,
                     executionId = execution.id,
                     overrideQuantity = execution.quantity + currentOpenQuantity,
+                    overrideLots = (execution.lots + currentOpenLots),
                 )
 
                 // Quantity for new trade
                 val overrideQuantity = currentOpenQuantity.abs()
+                val overrideLots = currentOpenLots.absoluteValue
 
                 // Insert Trade
                 val tradeId = tradesDB.tradeQueries.insert(
@@ -386,7 +402,8 @@ class Executions(
                     instrument = execution.instrument,
                     quantity = overrideQuantity,
                     closedQuantity = KBigDecimal.Zero,
-                    lots = null,
+                    lots = overrideLots,
+                    closedLots = 0,
                     side = if (execution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short,
                     averageEntry = execution.price,
                     entryTimestamp = execution.timestamp.withoutNanoseconds(),
@@ -404,6 +421,7 @@ class Executions(
                     tradeId = tradeId,
                     executionId = execution.id,
                     overrideQuantity = overrideQuantity,
+                    overrideLots = overrideLots,
                 )
             } else {
 
@@ -412,6 +430,7 @@ class Executions(
                     tradeId = openTrade.id,
                     executionId = execution.id,
                     overrideQuantity = null,
+                    overrideLots = null,
                 )
             }
         }
@@ -426,7 +445,8 @@ class Executions(
         val side = if (firstExecution.side == TradeExecutionSide.Buy) TradeSide.Long else TradeSide.Short
         val entryQuantity = entryExecutions.sumOf { it.quantity }
         val exitQuantity = exitExecutions.sumOf { it.quantity }
-        val lots = entryExecutions.mapNotNull { it.lots }.sum()
+        val entryLots = entryExecutions.sumOf { it.lots }
+        val exitLots = exitExecutions.sumOf { it.lots }
         val averageEntry = entryExecutions.averagePrice()
         val averageExit = when {
             exitExecutions.isEmpty() -> null
@@ -444,6 +464,7 @@ class Executions(
             }
         }
         val closedQuantity = minOf(exitQuantity, entryQuantity)
+        val closedLots = minOf(exitLots, entryLots)
 
         val brokerage = averageExit?.let {
 
@@ -465,7 +486,8 @@ class Executions(
             instrument = firstExecution.instrument,
             quantity = entryQuantity,
             closedQuantity = closedQuantity,
-            lots = if (lots == 0) null else lots,
+            lots = entryLots,
+            closedLots = closedLots,
             side = side,
             averageEntry = averageEntry,
             entryTimestamp = firstExecution.timestamp.withoutNanoseconds(),
@@ -485,6 +507,7 @@ class Executions(
             quantity = quantity,
             closedQuantity = closedQuantity,
             lots = lots,
+            closedLots = closedLots,
             side = side,
             averageEntry = averageEntry,
             entryTimestamp = entryTimestamp.withoutNanoseconds(),
@@ -511,22 +534,23 @@ class Executions(
     private fun toTradeExecution(
         id: TradeExecutionId,
         brokerId: BrokerId,
-        instrument: Instrument,
         symbolId: SymbolId,
+        instrument: Instrument,
         quantity: KBigDecimal,
-        lots: Int?,
+        lots: Int,
         side: TradeExecutionSide,
         price: KBigDecimal,
         timestamp: Instant,
         locked: Boolean,
         overrideQuantity: KBigDecimal?,
+        overrideLots: Int?,
     ) = TradeExecution(
         id = id,
         brokerId = brokerId,
         instrument = instrument,
         symbolId = symbolId,
         quantity = overrideQuantity ?: quantity,
-        lots = lots,
+        lots = overrideLots ?: lots,
         side = side,
         price = price,
         timestamp = timestamp,
@@ -570,5 +594,15 @@ class Executions(
 
             deleteOrphaned()
         }
+    }
+
+    private fun validateQuantity(
+        quantity: KBigDecimal,
+        symbol: Symbol,
+    ) {
+
+        val isValidQuantity = quantity.remainder(symbol.lotSize).compareTo(KBigDecimal.Zero) == 0
+
+        require(isValidQuantity) { "Quantity is not valid. Quantity: $quantity, Lot Size: ${symbol.lotSize}." }
     }
 }

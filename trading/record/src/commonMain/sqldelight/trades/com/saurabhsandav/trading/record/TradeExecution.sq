@@ -11,10 +11,10 @@ import kotlin.time.Instant;
 CREATE TABLE IF NOT EXISTS TradeExecution (
 id INTEGER AS TradeExecutionId NOT NULL PRIMARY KEY,
 brokerId TEXT AS BrokerId NOT NULL,
-instrument TEXT AS Instrument NOT NULL,
 symbolId TEXT AS SymbolId NOT NULL,
+instrument TEXT AS Instrument NOT NULL,
 quantity TEXT AS KBigDecimal NOT NULL,
-lots INTEGER AS Int,
+lots INTEGER AS Int NOT NULL,
 side TEXT AS TradeExecutionSide NOT NULL,
 price TEXT AS KBigDecimal NOT NULL,
 timestamp TEXT AS Instant NOT NULL,

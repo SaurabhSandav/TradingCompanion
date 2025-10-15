@@ -1,11 +1,13 @@
 import com.saurabhsandav.kbigdecimal.KBigDecimal;
 import com.saurabhsandav.trading.record.model.TradeExecutionId;
 import com.saurabhsandav.trading.record.model.TradeId;
+import kotlin.Int;
 
 CREATE TABLE IF NOT EXISTS TradeToExecutionMap (
 tradeId INTEGER AS TradeId NOT NULL,
 executionId INTEGER AS TradeExecutionId NOT NULL,
 overrideQuantity TEXT AS KBigDecimal,
+overrideLots INTEGER AS Int,
 FOREIGN KEY(tradeId) REFERENCES Trade(id) ON DELETE CASCADE,
 FOREIGN KEY(executionId) REFERENCES TradeExecution(id) ON DELETE CASCADE,
 PRIMARY KEY (tradeId, executionId)
@@ -13,10 +15,14 @@ PRIMARY KEY (tradeId, executionId)
 
 insert:
 INSERT OR IGNORE INTO TradeToExecutionMap
-VALUES (?, ?, ?);
+VALUES (?, ?, ?, ?);
 
 getExecutionsByTrade:
-SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
+SELECT
+  TradeExecution.*,
+  IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity,
+  IFNULL(overrideLots, TradeExecution.lots) AS overrideLots
+FROM TradeToExecutionMap
 INNER JOIN TradeExecution
 ON TradeToExecutionMap.executionId = TradeExecution.id
 WHERE TradeToExecutionMap.tradeId = ?
@@ -36,7 +42,11 @@ deleteExecutionsAndTrades {
 }
 
 getExecutionsBySymbolAndTradeIdsInInterval:
-SELECT TradeExecution.*, IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity FROM TradeToExecutionMap
+SELECT
+  TradeExecution.*,
+  IFNULL(overrideQuantity, TradeExecution.quantity) AS overrideQuantity,
+  IFNULL(overrideLots, TradeExecution.lots) AS overrideLots
+FROM TradeToExecutionMap
 INNER JOIN TradeExecution
 ON TradeToExecutionMap.executionId = TradeExecution.id
 WHERE TradeExecution.symbolId = :symbolId

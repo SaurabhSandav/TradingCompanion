@@ -4,6 +4,7 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.toDouble
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.backtest.BacktestAccount
 import com.saurabhsandav.trading.backtest.BacktestBroker
@@ -88,7 +89,7 @@ internal class ReplayOrdersManager(
                 instrument = Instrument.Equity,
                 symbolId = stockChartParams.symbolId,
                 quantity = quantity,
-                lots = null,
+                lots = quantity.toDouble().toInt(),
                 side = side,
             )
 
