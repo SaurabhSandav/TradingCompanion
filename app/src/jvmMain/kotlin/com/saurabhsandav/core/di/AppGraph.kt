@@ -180,6 +180,7 @@ internal interface AppGraph {
     fun provideCandleRepo(
         @AppCoroutineScope appScope: CoroutineScope,
         @IOCoroutineContext ioCoroutineContext: CoroutineContext,
+        appPaths: AppPaths,
         @AppPrefs appPrefs: FlowSettings,
         fyersApi: FyersApi,
     ): CandleRepository = CandleRepository(
@@ -190,6 +191,7 @@ internal interface AppGraph {
         ),
         candleCache = CandleCacheDB(
             coroutineContext = ioCoroutineContext,
+            dbUrl = "jdbc:sqlite:${appPaths.candlesDBPath.absolutePathString()}",
         ),
     )
 
