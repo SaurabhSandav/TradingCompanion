@@ -1,6 +1,5 @@
 import com.saurabhsandav.trading.record.model.TradeId;
 import com.saurabhsandav.trading.record.model.TradeNoteId;
-import kotlin.Boolean;
 import kotlin.time.Instant;
 
 CREATE TABLE IF NOT EXISTS TradeNote (

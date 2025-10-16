@@ -38,9 +38,3 @@ SELECT tt.*
 FROM TradeTag AS tt
 WHERE tt.id NOT IN (SELECT * FROM tag_ids_intersection)
 AND tt.name LIKE '%' || :filterQuery || '%';
-
-getTradesByTag:
-SELECT Trade.* FROM TradeToTagMap
-INNER JOIN Trade
-ON TradeToTagMap.tradeId = Trade.id
-WHERE TradeToTagMap.tagId = ?;

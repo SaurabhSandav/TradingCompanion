@@ -53,10 +53,6 @@ WHERE id = ?;
 exists:
 SELECT EXISTS( SELECT * FROM TradingProfile WHERE id = ? );
 
-getTradeCounts:
-SELECT tradeCount, tradeCountOpen FROM TradingProfile
-WHERE id = ?;
-
 isProfileNameUnique:
 SELECT NOT EXISTS(
   SELECT id

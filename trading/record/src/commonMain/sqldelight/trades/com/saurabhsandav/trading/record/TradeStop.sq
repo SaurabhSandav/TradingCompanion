@@ -16,12 +16,12 @@ WITH is_primary AS (
 )
 INSERT OR IGNORE
 INTO TradeStop(tradeId, price, isPrimary)
-VALUES (:tradeId, ?, (SELECT * FROM is_primary));
+VALUES (:tradeId, :price, (SELECT * FROM is_primary));
 
 delete {
 
   DELETE FROM TradeStop
-  WHERE tradeId = :tradeId AND price = ?;
+  WHERE tradeId = :tradeId AND price = :price;
 
   -- If deleted stop was primary, set closest price as new primary
   WITH new_primary AS (
@@ -47,7 +47,7 @@ setPrimary {
   SET isPrimary = TRUE
   WHERE
     tradeId = :tradeId
-    AND price = ?;
+    AND price = :price;
 }
 
 getByTrade:

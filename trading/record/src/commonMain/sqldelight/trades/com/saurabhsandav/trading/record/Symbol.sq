@@ -16,7 +16,3 @@ insert:
 INSERT OR REPLACE
 INTO Symbol
 VALUES ?;
-
-delete:
-DELETE FROM Symbol
-WHERE id = ?;

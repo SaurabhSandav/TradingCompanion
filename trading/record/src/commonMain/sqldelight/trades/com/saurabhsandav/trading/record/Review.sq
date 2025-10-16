@@ -40,9 +40,6 @@ WHERE id = ?;
 exists:
 SELECT EXISTS(SELECT * FROM Review WHERE id = ?);
 
-getAll:
-SELECT * FROM Review;
-
 getById:
 SELECT *
 FROM Review
