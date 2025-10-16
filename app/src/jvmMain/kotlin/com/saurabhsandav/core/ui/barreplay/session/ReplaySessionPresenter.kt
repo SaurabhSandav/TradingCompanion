@@ -25,6 +25,7 @@ import com.saurabhsandav.core.ui.barreplay.session.model.ReplaySessionState.Repl
 import com.saurabhsandav.core.ui.barreplay.session.replayorderform.model.ReplayOrderFormModel
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
 import com.saurabhsandav.core.ui.common.app.AppWindowsManager
+import com.saurabhsandav.core.ui.common.buildQuantityText
 import com.saurabhsandav.core.ui.stockchart.StockChart
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.LoadConfig
@@ -136,8 +137,7 @@ internal class ReplaySessionPresenter(
                             "${params.brokerId.value} ($instrumentCapitalized)"
                         },
                         ticker = params.symbolId.value,
-                        quantity = params.lots
-                            ?.let { "$quantity ($it ${if (it == 1) "lot" else "lots"})" } ?: quantity.toString(),
+                        quantity = buildQuantityText(params.instrument, quantity, params.lots),
                         side = params.side.strValue.uppercase(),
                         price = when (val executionType = openOrder.executionType) {
                             is Limit -> executionType.price.toString()

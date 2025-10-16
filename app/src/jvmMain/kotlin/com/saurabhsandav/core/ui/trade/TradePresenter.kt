@@ -14,6 +14,7 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.buildQuantityText
 import com.saurabhsandav.core.ui.common.getBrokerTitle
 import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.tags.model.TradeTag
@@ -263,9 +264,7 @@ internal class TradePresenter(
 
                     Execution(
                         id = execution.id,
-                        quantity = execution.lots
-                            ?.let { "${execution.quantity} ($it ${if (it == 1) "lot" else "lots"})" }
-                            ?: execution.quantity.toString(),
+                        quantity = buildQuantityText(execution.instrument, execution.quantity, execution.lots),
                         side = execution.side.strValue.uppercase(),
                         price = execution.price.toString(),
                         timestamp = execution

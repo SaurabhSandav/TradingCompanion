@@ -13,6 +13,7 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.buildQuantityText
 import com.saurabhsandav.core.ui.common.getBrokerTitle
 import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
@@ -136,7 +137,7 @@ internal class TradeExecutionsPresenter(
         id = id,
         broker = getBrokerTitle(),
         ticker = getSymbolTitle(),
-        quantity = "$quantity ($lots ${if (lots == 1) "lot" else "lots"})",
+        quantity = buildQuantityText(instrument, quantity, lots),
         side = side.strValue.uppercase(),
         price = price.toString(),
         timestamp = timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).format(TradeDateTimeFormat),

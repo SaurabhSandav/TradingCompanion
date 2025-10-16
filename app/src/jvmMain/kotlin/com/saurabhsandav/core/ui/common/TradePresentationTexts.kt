@@ -133,3 +133,17 @@ fun buildBrokerTitle(
     )
     append(")")
 }
+
+fun buildQuantityText(
+    instrument: Instrument,
+    quantity: KBigDecimal,
+    lots: Int,
+): String = buildString {
+    append(quantity)
+    if (instrument == Instrument.Equity) return@buildString
+    append(" (")
+    append(lots)
+    append(" ")
+    append(if (lots == 1) "lot" else "lots")
+    append(")")
+}
