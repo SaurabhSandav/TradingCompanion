@@ -83,7 +83,6 @@ internal class SymbolSelectionPresenter(
                 val pagingSourceFactory = symbolsProvider.getSymbolsFilteredPagingSourceFactory(
                     lastUpdate = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz),
                     filterQuery = filterQuery,
-                    instruments = listOf(Instrument.Index, Instrument.Equity),
                     exchange = "NSE",
                 )
 
