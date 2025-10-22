@@ -183,8 +183,10 @@ class CandleRepository(
 
             result.fold(
                 success = { candles ->
-                    // Replace candles in given range.
-                    candleCache.replace(symbolId, timeframe, range, candles)
+                    if (candles.isNotEmpty()) {
+                        // Replace candles in given range.
+                        candleCache.replace(symbolId, timeframe, range, candles)
+                    }
                 },
                 failure = { error ->
                     return when (error) {
