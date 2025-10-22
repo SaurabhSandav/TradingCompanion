@@ -21,6 +21,8 @@ class KBigDecimalTest {
 
         assertNull("".toKBigDecimalOrNull())
         assertNull("asd".toKBigDecimalOrNull())
+
+        assertEquals("50.00".toKBigDecimal().toString(), "50")
     }
 
     @Test

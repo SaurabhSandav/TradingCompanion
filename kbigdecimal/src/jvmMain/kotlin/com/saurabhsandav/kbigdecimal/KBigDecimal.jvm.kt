@@ -13,7 +13,7 @@ public actual value class KBigDecimal(
     internal val value: BigDecimal,
 ) : Comparable<KBigDecimal> {
 
-    public actual constructor(value: String) : this(BigDecimal(value))
+    public actual constructor(value: String) : this(BigDecimal(value).stripTrailingZeros())
 
     public actual operator fun plus(other: KBigDecimal): KBigDecimal {
         return value.add(other.value).stripTrailingZeros().toKBigDecimal()
