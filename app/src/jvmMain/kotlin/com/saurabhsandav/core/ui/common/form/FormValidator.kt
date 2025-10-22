@@ -65,7 +65,7 @@ class FormValidator(
         formModel.onDetach()
     }
 
-    suspend fun validate(): Boolean = fields.map { it.validate() }.all { it }
+    suspend fun validate(): Boolean = fields.all { it.validate().second }
 
     fun submit() = coroutineScope.launchUnit {
 

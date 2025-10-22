@@ -29,7 +29,7 @@ interface FormField<H, V> {
 
     val isValid: Boolean
 
-    suspend fun validate(): Boolean
+    suspend fun validate(): Pair<V, Boolean>
 
     fun autoValidateIn(coroutineScope: CoroutineScope)
 
@@ -71,13 +71,13 @@ internal class FormFieldImpl<H, V> internal constructor(
     override var isValid by mutableStateOf(true)
         private set
 
-    override suspend fun validate(): Boolean {
+    override suspend fun validate(): Pair<V, Boolean> {
 
         // If no validation provided, field is always valid
-        validation ?: return true
+        validation ?: return value to true
 
         val isValueSame = initialValidationFinished && prevValue == value
-        if (isValueSame && areDependenciesUpToDate()) return isValid
+        if (isValueSame && areDependenciesUpToDate()) return value to isValid
 
         initialValidationFinished = true
         prevValue = value
@@ -102,7 +102,7 @@ internal class FormFieldImpl<H, V> internal constructor(
             }
         }
 
-        return result == Valid
+        return value to (result == Valid)
     }
 
     private suspend fun areDependenciesUpToDate(): Boolean {

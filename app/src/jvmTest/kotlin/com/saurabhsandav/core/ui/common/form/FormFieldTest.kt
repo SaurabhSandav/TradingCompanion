@@ -25,13 +25,13 @@ class FormFieldTest {
         assertTrue { field.errorMessages.isEmpty() }
 
         // Not valid
-        assertFalse { field.validate() }
+        assertFalse { field.validate().second }
         assertFalse(field.isValid)
         assertEquals(listOf(errorMessage), field.errorMessages)
 
         // Valid
         field.holder.value = "Test"
-        assertTrue { field.validate() }
+        assertTrue { field.validate().second }
         assertTrue(field.isValid)
         assertTrue { field.errorMessages.isEmpty() }
     }
@@ -80,7 +80,7 @@ class FormFieldTest {
         assertTrue { field2.errorMessages.isEmpty() }
 
         // Dependency Not valid
-        assertFalse { field2.validate() }
+        assertFalse { field2.validate().second }
         assertFalse(field1.isValid)
         assertTrue(field2.isValid)
         assertEquals(listOf(errorMessage), field1.errorMessages)
@@ -88,7 +88,7 @@ class FormFieldTest {
 
         // Dependency Valid
         field1.holder.value = "Test"
-        assertTrue { field2.validate() }
+        assertTrue { field2.validate().second }
         assertTrue(field1.isValid)
         assertTrue(field2.isValid)
         assertTrue { field1.errorMessages.isEmpty() }

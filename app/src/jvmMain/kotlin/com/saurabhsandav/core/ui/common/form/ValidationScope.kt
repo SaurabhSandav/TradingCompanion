@@ -73,7 +73,8 @@ internal class ValidationScopeImpl : ValidationScope {
 
         dependencies += field
 
-        if (!field.validate()) {
+        val (_, isValid) = field.validate()
+        if (!isValid) {
 
             result = ValidationResult.DependencyInvalid
 
