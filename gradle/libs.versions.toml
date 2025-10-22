@@ -39,7 +39,7 @@ eithernet = "2.0.0"
 coil = "3.3.0"
 zoomimage = "1.4.0"
 softwork-kotlinxSerialization-csv = "0.0.23"
-metro = "0.6.10"
+metro = "0.7.2"
 
 [plugins]
 # Gradle Versions Checker
