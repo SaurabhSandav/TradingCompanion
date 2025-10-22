@@ -38,7 +38,7 @@ import com.saurabhsandav.core.ui.stockchart.StockChartParams
 internal fun ReplayOrderFormWindow(
     replayOrdersManager: ReplayOrdersManager,
     stockChartParams: StockChartParams,
-    initialModel: ReplayOrderFormModel?,
+    initialModel: ReplayOrderFormModel,
     onCloseRequest: () -> Unit,
 ) {
 
@@ -49,7 +49,7 @@ internal fun ReplayOrderFormWindow(
     val state by presenter.state.collectAsState()
 
     val windowState = rememberAppWindowState(
-        size = DpSize(width = FormDefaults.PreferredWidth, height = 480.dp),
+        size = DpSize(width = FormDefaults.PreferredWidth, height = 580.dp),
         preferredPlacement = WindowPlacement.Floating,
         forcePreferredPlacement = true,
     )
@@ -98,6 +98,15 @@ private fun ReplayOrderForm(
             label = { Text("Quantity") },
             isError = model.quantityField.isError,
             supportingText = model.quantityField.errorsMessagesAsSupportingText(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+        )
+
+        OutlinedTextField(
+            state = model.lotsField.holder,
+            inputTransformation = InputTransformation.trim(),
+            label = { Text("Lots") },
+            isError = model.lotsField.isError,
+            supportingText = model.lotsField.errorsMessagesAsSupportingText(),
             lineLimits = TextFieldLineLimits.SingleLine,
         )
 

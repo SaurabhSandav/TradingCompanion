@@ -20,6 +20,7 @@ internal data class ReplayOrderFormState(
 
 internal class ReplayOrderFormModel(
     quantity: String = "",
+    lots: String = "",
     isBuy: Boolean = true,
     price: String = "",
     stop: String = "",
@@ -28,6 +29,11 @@ internal class ReplayOrderFormModel(
 
     val quantityField = addTextFieldStateField(quantity) {
         isRequired()
+        isInt()?.isPositive()
+    }
+
+    val lotsField = addTextFieldStateField(lots) {
+        isRequired(false)
         isInt()?.isPositive()
     }
 

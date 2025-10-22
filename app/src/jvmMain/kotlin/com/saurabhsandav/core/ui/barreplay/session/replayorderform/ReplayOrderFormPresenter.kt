@@ -1,8 +1,5 @@
 package com.saurabhsandav.core.ui.barreplay.session.replayorderform
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.ui.barreplay.session.ReplayOrdersManager
@@ -18,16 +15,11 @@ internal class ReplayOrderFormPresenter(
     coroutineScope: CoroutineScope,
     private val replayOrdersManager: ReplayOrdersManager,
     private val stockChartParams: StockChartParams,
-    initialModel: ReplayOrderFormModel?,
+    initialModel: ReplayOrderFormModel,
     private val onOrderSaved: () -> Unit,
 ) {
 
-    private var formModel by mutableStateOf<ReplayOrderFormModel?>(null)
-
-    init {
-
-        this.formModel = initialModel ?: ReplayOrderFormModel()
-    }
+    private val formModel = initialModel
 
     val state = coroutineScope.launchMolecule(RecompositionMode.ContextClock) {
 
@@ -41,11 +33,10 @@ internal class ReplayOrderFormPresenter(
 
     private fun onSubmit() {
 
-        val formModel = formModel!!
-
         replayOrdersManager.newOrder(
             stockChartParams = stockChartParams,
             quantity = formModel.quantityField.value.toKBigDecimal(),
+            lots = formModel.lotsField.value.ifBlank { null }?.toInt() ?: formModel.quantityField.value.toInt(),
             side = if (formModel.isBuyField.value) TradeExecutionSide.Buy else TradeExecutionSide.Sell,
             price = formModel.priceField.value.toKBigDecimal(),
             stop = formModel.stop.value.toKBigDecimalOrNull(),
