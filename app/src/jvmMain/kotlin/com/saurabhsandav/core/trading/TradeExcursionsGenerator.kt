@@ -133,12 +133,12 @@ internal class TradeExcursionsGenerator(
             includeFromCandle = true,
         ).get()?.first()
 
-        if (candles.isNullOrEmpty()) {
+        val tradeCandles = candles?.dropLastWhile { it.openInstant > exitInstant }
+
+        if (tradeCandles.isNullOrEmpty()) {
             Logger.d(DebugTag) { "No candles found for Trade#(${trade.id})" }
             return@withContext null
         }
-
-        val tradeCandles = candles.dropLastWhile { it.openInstant > exitInstant }
 
         // TODO: Add ability to have different square off times based on broker, instrument, exchange.
         //  Also, ignore if not an intra day trade.
