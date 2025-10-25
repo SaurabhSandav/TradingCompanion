@@ -249,7 +249,7 @@ class SimpleTradesData {
             exitTimestamp = executions[6].timestamp,
             pnl = 1050.toKBigDecimal(),
             fees = "1.065".toKBigDecimal(),
-            netPnl = "1048.94".toKBigDecimal(),
+            netPnl = "1048.935".toKBigDecimal(),
             isClosed = true,
         ),
         secondExecutionTrades[0],

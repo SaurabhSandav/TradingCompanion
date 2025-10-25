@@ -24,6 +24,7 @@ class TestBroker : Broker {
 
     override fun calculateBrokerage(
         instrument: Instrument,
+        exchange: String,
         entry: KBigDecimal,
         exit: KBigDecimal,
         quantity: KBigDecimal,
@@ -45,14 +46,12 @@ class TestBroker : Broker {
 
         val breakeven = if (isLong) entry + pointsToBreakeven else entry - pointsToBreakeven
 
-        val netProfit = (sellTurnover - buyTurnover - totalCharges).decimalPlaces(2, KRoundingMode.HalfEven)
-
         return Brokerage(
-            totalCharges = totalCharges,
-            pointsToBreakeven = pointsToBreakeven,
-            breakeven = breakeven,
             pnl = (sellTurnover - buyTurnover).decimalPlaces(2, KRoundingMode.HalfEven),
-            netPNL = netProfit,
+            breakeven = breakeven,
+            pointsToBreakeven = pointsToBreakeven,
+            totalCharges = totalCharges,
+            charges = emptyMap(),
         )
     }
 

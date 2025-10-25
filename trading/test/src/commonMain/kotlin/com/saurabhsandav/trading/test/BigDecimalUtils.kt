@@ -4,8 +4,8 @@ package com.saurabhsandav.trading.test
 
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.asserter
 import kotlin.test.fail
 
 inline fun assertBDEquals(
@@ -18,10 +18,9 @@ inline fun assertBDEquals(
     if (expected == null && actual != null) fail(messagePrefix(message) + "expected:<null> but was:<$actual>")
     if (expected != null && actual == null) fail(messagePrefix(message) + "expected:<$expected> but was:<null>")
 
-    assertEquals(
-        expected = expected!!.compareTo(actual!!),
-        actual = 0,
-        message = messagePrefix(message) + "expected:<$expected> but was:<$actual>",
+    asserter.assertTrue(
+        lazyMessage = { messagePrefix(message) + "expected:<$expected> but was:<$actual>" },
+        actual = expected!!.compareTo(actual!!) == 0,
     )
 }
 

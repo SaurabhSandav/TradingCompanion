@@ -104,6 +104,7 @@ internal class PNLCalculatorPresenter(
         side: TradeSide,
     ): Brokerage = broker.calculateBrokerage(
         instrument = Instrument.Equity,
+        exchange = "NSE",
         entry = entry,
         exit = exit,
         quantity = quantity,

@@ -143,7 +143,7 @@ class OverlappingTimeTradesData {
             exitTimestamp = executions[2].timestamp,
             pnl = 20.toKBigDecimal(),
             fees = "0.606".toKBigDecimal(),
-            netPnl = "19.39".toKBigDecimal(),
+            netPnl = "19.394".toKBigDecimal(),
             isClosed = true,
         ),
     )
@@ -157,7 +157,7 @@ class OverlappingTimeTradesData {
             exitTimestamp = executions[3].timestamp,
             pnl = 125.toKBigDecimal(),
             fees = "3.3375".toKBigDecimal(),
-            netPnl = "121.66".toKBigDecimal(),
+            netPnl = "121.6625".toKBigDecimal(),
             isClosed = true,
         ),
         thirdExecutionTrades[1],

@@ -472,6 +472,7 @@ class Executions(
 
             broker.calculateBrokerage(
                 instrument = firstExecution.instrument,
+                exchange = "NSE",
                 entry = averageEntry,
                 exit = averageExit,
                 quantity = closedQuantity,

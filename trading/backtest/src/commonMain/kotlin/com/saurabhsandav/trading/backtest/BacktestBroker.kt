@@ -279,6 +279,7 @@ class BacktestBroker(
                 averagePrice = execution.price,
                 pnl = broker.calculateBrokerage(
                     instrument = execution.instrument,
+                    exchange = "NSE",
                     entry = execution.price,
                     exit = currentPrice,
                     quantity = execution.quantity,
@@ -364,6 +365,7 @@ class BacktestBroker(
                                 averagePrice = execution.price,
                                 pnl = broker.calculateBrokerage(
                                     instrument = execution.instrument,
+                                    exchange = "NSE",
                                     entry = execution.price,
                                     exit = currentPrice,
                                     quantity = extraQuantity.negated(),
@@ -444,6 +446,7 @@ class BacktestBroker(
 
         return broker.calculateBrokerage(
             instrument = instrument,
+            exchange = "NSE",
             entry = entry,
             exit = exit,
             quantity = quantity,

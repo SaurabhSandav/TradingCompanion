@@ -12,6 +12,7 @@ fun Trade.brokerageAt(
     exit: KBigDecimal,
 ): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
+    exchange = "NSE",
     entry = averageEntry,
     exit = exit,
     quantity = quantity,
@@ -45,6 +46,7 @@ fun TradeDisplay.brokerageAt(
     exit: KBigDecimal,
 ): Brokerage = broker.calculateBrokerage(
     instrument = instrument,
+    exchange = "NSE",
     entry = averageEntry,
     exit = exit,
     quantity = quantity,

@@ -378,8 +378,8 @@ class BacktestBrokerTest {
         )
 
         assertBDEquals(10_000, account.balance)
-        assertBDEquals("7948.82", sut.availableMargin)
-        assertBDEquals("2051.18", sut.usedMargin)
+        assertBDEquals("7948.815", sut.availableMargin)
+        assertBDEquals("2051.185", sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value.first().status)
         assertEquals(1, sut.executions.value.size)
@@ -512,8 +512,8 @@ class BacktestBrokerTest {
             price = 195.toKBigDecimal(),
         )
 
-        assertBDEquals("9948.82", account.balance)
-        assertBDEquals("9948.82", sut.availableMargin)
+        assertBDEquals("9948.815", account.balance)
+        assertBDEquals("9948.815", sut.availableMargin)
         assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -584,8 +584,8 @@ class BacktestBrokerTest {
             price = 195.toKBigDecimal(),
         )
 
-        assertBDEquals("9948.82", account.balance)
-        assertBDEquals("9948.82", sut.availableMargin)
+        assertBDEquals("9948.815", account.balance)
+        assertBDEquals("9948.815", sut.availableMargin)
         assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(2, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -672,8 +672,8 @@ class BacktestBrokerTest {
             price = 195.toKBigDecimal(),
         )
 
-        assertBDEquals("9948.82", account.balance)
-        assertBDEquals("9948.82", sut.availableMargin)
+        assertBDEquals("9948.815", account.balance)
+        assertBDEquals("9948.815", sut.availableMargin)
         assertBDEquals(KBigDecimal.Zero, sut.usedMargin)
         assertEquals(3, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -759,8 +759,8 @@ class BacktestBrokerTest {
             price = 195.toKBigDecimal(),
         )
 
-        assertBDEquals("9948.82", account.balance)
-        assertBDEquals("7848.82", sut.availableMargin)
+        assertBDEquals("9948.815", account.balance)
+        assertBDEquals("7848.815", sut.availableMargin)
         assertBDEquals(2100, sut.usedMargin)
         assertEquals(3, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
@@ -818,8 +818,8 @@ class BacktestBrokerTest {
         )
 
         assertBDEquals(10_000, account.balance)
-        assertBDEquals("-85.62", sut.availableMargin)
-        assertBDEquals("10085.62", sut.usedMargin)
+        assertBDEquals("-85.616", sut.availableMargin)
+        assertBDEquals("10085.616", sut.usedMargin)
         assertEquals(1, sut.orders.value.size)
         assertIs<BacktestOrder.Status.Executed>(sut.orders.value[0].status)
         assertEquals(1, sut.executions.value.size)

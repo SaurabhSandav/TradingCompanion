@@ -12,6 +12,7 @@ interface Broker {
 
     fun calculateBrokerage(
         instrument: Instrument,
+        exchange: String,
         entry: KBigDecimal,
         exit: KBigDecimal,
         quantity: KBigDecimal,

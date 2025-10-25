@@ -1,6 +1,8 @@
 package com.saurabhsandav.trading.market.india
 
 import com.saurabhsandav.kbigdecimal.KBigDecimal
+import com.saurabhsandav.kbigdecimal.KRoundingMode
+import com.saurabhsandav.kbigdecimal.sumOf
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.broker.Broker
 import com.saurabhsandav.trading.broker.BrokerId
@@ -17,29 +19,48 @@ class ZerodhaBroker : Broker {
 
     override fun calculateBrokerage(
         instrument: Instrument,
+        exchange: String,
         entry: KBigDecimal,
         exit: KBigDecimal,
         quantity: KBigDecimal,
         isLong: Boolean,
-    ): Brokerage = indiaBrokerage(
-        instrument = instrument,
-        entry = entry,
-        exit = exit,
-        quantity = quantity,
-        isLong = isLong,
-    ) { buyTurnover, sellTurnover ->
+    ): Brokerage {
 
-        val brokerageBuy = when {
-            (buyTurnover * "0.0003".toKBigDecimal()) > "20".toKBigDecimal() -> "20".toKBigDecimal()
-            else -> (buyTurnover * "0.0003".toKBigDecimal())
+        val (buyPrice, sellPrice) = if (isLong) entry to exit else exit to entry
+        val buyTurnover = (buyPrice * quantity).decimalPlaces(2, KRoundingMode.HalfEven)
+        val sellTurnover = (sellPrice * quantity).decimalPlaces(2, KRoundingMode.HalfEven)
+
+        // Assume just 2 orders - Buy and Sell
+        val brokerage = when (instrument) {
+            Instrument.Equity, Instrument.Futures -> {
+                val brokerageBuy = (buyTurnover * "0.0003".toKBigDecimal()).coerceAtMost("20".toKBigDecimal())
+                val brokerageSell = (sellTurnover * "0.0003".toKBigDecimal()).coerceAtMost("20".toKBigDecimal())
+                brokerageBuy + brokerageSell
+            }
+
+            Instrument.Options -> (2 * 20).toKBigDecimal()
+            Instrument.Index -> instrumentNotApplicableError(instrument)
         }
 
-        val brokerageSell = when {
-            (sellTurnover * "0.0003".toKBigDecimal()) > "20".toKBigDecimal() -> "20".toKBigDecimal()
-            else -> (sellTurnover * "0.0003".toKBigDecimal())
-        }
+        val charges = indiaCharges(
+            brokerage = brokerage,
+            instrument = instrument,
+            exchange = exchange,
+            buyTurnover = buyTurnover,
+            sellTurnover = sellTurnover,
+        )
 
-        brokerageBuy + brokerageSell
+        val totalCharges = charges.values.sumOf { it }
+        val pointsToBreakeven = totalCharges.div(quantity, 2, KRoundingMode.HalfEven)
+        val breakeven = if (isLong) entry + pointsToBreakeven else entry - pointsToBreakeven
+
+        return Brokerage(
+            pnl = (sellTurnover - buyTurnover).decimalPlaces(2, KRoundingMode.HalfEven),
+            breakeven = breakeven,
+            pointsToBreakeven = pointsToBreakeven,
+            totalCharges = totalCharges,
+            charges = charges,
+        )
     }
 
     override fun areSymbolsExpired(lastDownloadInstant: Instant): Boolean = false
