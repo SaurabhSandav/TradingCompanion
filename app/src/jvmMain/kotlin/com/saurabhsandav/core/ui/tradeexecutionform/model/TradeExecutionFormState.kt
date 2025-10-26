@@ -23,7 +23,7 @@ internal data class TradeExecutionFormState(
     val title: String,
     val isSymbolEditable: Boolean,
     val isSideSelectable: Boolean,
-    val formModel: TradeExecutionFormModel?,
+    val formModel: TradeExecutionFormModel,
     val onSubmit: () -> Unit,
 )
 

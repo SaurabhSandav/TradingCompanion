@@ -16,7 +16,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -68,15 +67,14 @@ internal fun TradeExecutionFormWindow(
             .presenterFactory
             .create(onCloseRequest, scope)
     }
-    val state by presenter.state.collectAsState()
+
+    val state = presenter.state.collectAsState().value ?: return
 
     val windowState = rememberAppWindowState(
         size = DpSize(width = FormDefaults.PreferredWidth, height = 650.dp),
         preferredPlacement = WindowPlacement.Floating,
         forcePreferredPlacement = true,
     )
-
-    val formModel = state.formModel ?: return
 
     AppWindow(
         onCloseRequest = onCloseRequest,
@@ -86,7 +84,7 @@ internal fun TradeExecutionFormWindow(
 
         TradeExecutionForm(
             formType = formType,
-            model = formModel,
+            model = state.formModel,
             isSymbolEditable = state.isSymbolEditable,
             isSideSelectable = state.isSideSelectable,
             onSubmit = state.onSubmit,

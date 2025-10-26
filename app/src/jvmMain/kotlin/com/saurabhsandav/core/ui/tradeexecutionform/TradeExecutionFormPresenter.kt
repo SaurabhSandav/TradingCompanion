@@ -1,10 +1,10 @@
 package com.saurabhsandav.core.ui.tradeexecutionform
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.ProfileId
@@ -22,9 +22,7 @@ import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
-import com.saurabhsandav.trading.record.model.TradeExecutionId
 import com.saurabhsandav.trading.record.model.TradeExecutionSide
-import com.saurabhsandav.trading.record.model.TradeId
 import com.saurabhsandav.trading.record.model.TradeSide
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -51,19 +49,8 @@ internal class TradeExecutionFormPresenter(
 ) {
 
     private val tradingRecord = coroutineScope.async { tradingProfiles.getRecord(profileId) }
-    private var formModel by mutableStateOf<TradeExecutionFormModel?>(null)
 
     init {
-
-        when (formType) {
-            is New -> new()
-            is NewFromExisting -> newFromExisting(formType.id)
-            is NewFromExistingInTrade -> newFromExisting(formType.id)
-            is NewSized -> newSized(formType.formModel)
-            is AddToTrade -> addToTrade(formType.tradeId)
-            is CloseTrade -> closeTrade(formType.tradeId)
-            is Edit -> edit(formType.id)
-        }
 
         // Close if profile deleted
         tradingProfiles
@@ -86,6 +73,8 @@ internal class TradeExecutionFormPresenter(
             }
         }
 
+        val formModel = buildFormModel() ?: return@launchMolecule null
+
         return@launchMolecule TradeExecutionFormState(
             title = "${tradingProfileName}$title",
             isSymbolEditable = remember {
@@ -93,13 +82,87 @@ internal class TradeExecutionFormPresenter(
             },
             isSideSelectable = remember { !(formType is AddToTrade || formType is CloseTrade) },
             formModel = formModel,
-            onSubmit = ::onSubmit,
+            onSubmit = remember(formModel) { { onSubmit(formModel) } },
         )
     }
 
-    private fun onSubmit() = coroutineScope.launchUnit {
+    @Composable
+    private fun buildFormModel(): TradeExecutionFormModel? = produceState<TradeExecutionFormModel?>(null) {
 
-        val formModel = formModel!!
+        value = when (formType) {
+            is New -> TradeExecutionFormModel()
+            is NewFromExisting -> {
+
+                val execution = tradingRecord.await().executions.getById(formType.id).first()
+
+                TradeExecutionFormModel(
+                    instrument = execution.instrument,
+                    symbolId = execution.symbolId,
+                    quantity = execution.quantity.toString(),
+                    lots = execution.lots.toString(),
+                    isBuy = execution.side == TradeExecutionSide.Buy,
+                    price = execution.price.toString(),
+                )
+            }
+
+            is NewFromExistingInTrade -> {
+
+                val execution = tradingRecord.await().executions.getById(formType.id).first()
+
+                TradeExecutionFormModel(
+                    instrument = execution.instrument,
+                    symbolId = execution.symbolId,
+                    quantity = execution.quantity.toString(),
+                    lots = execution.lots.toString(),
+                    isBuy = execution.side == TradeExecutionSide.Buy,
+                    price = execution.price.toString(),
+                )
+            }
+
+            is NewSized -> formType.formModel
+            is AddToTrade -> {
+
+                val trade = tradingRecord.await().trades.getById(formType.tradeId).first()
+
+                TradeExecutionFormModel(
+                    instrument = trade.instrument,
+                    symbolId = trade.symbolId,
+                    isBuy = trade.side == TradeSide.Long,
+                )
+            }
+
+            is CloseTrade -> {
+
+                val trade = tradingRecord.await().trades.getById(formType.tradeId).first()
+
+                TradeExecutionFormModel(
+                    instrument = trade.instrument,
+                    symbolId = trade.symbolId,
+                    quantity = (trade.quantity - trade.closedQuantity).toString(),
+                    lots = (trade.lots - trade.closedLots).toString(),
+                    isBuy = trade.side != TradeSide.Long,
+                )
+            }
+
+            is Edit -> {
+
+                val execution = tradingRecord.await().executions.getById(formType.id).first()
+
+                TradeExecutionFormModel(
+                    instrument = execution.instrument,
+                    symbolId = execution.symbolId,
+                    quantity = execution.quantity.toString(),
+                    lots = execution.lots.toString(),
+                    isBuy = execution.side == TradeExecutionSide.Buy,
+                    price = execution.price.toString(),
+                    timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
+                )
+            }
+        }
+    }.value
+
+    private fun onSubmit(formModel: TradeExecutionFormModel) = coroutineScope.launchUnit {
+
         val tz = TimeZone.currentSystemDefault()
 
         val executionId = when (formType) {
@@ -148,69 +211,6 @@ internal class TradeExecutionFormPresenter(
 
         // Close form
         onCloseRequest()
-    }
-
-    private fun new() {
-
-        formModel = TradeExecutionFormModel()
-    }
-
-    private fun newFromExisting(id: TradeExecutionId) = coroutineScope.launchUnit {
-
-        val execution = tradingRecord.await().executions.getById(id).first()
-
-        formModel = TradeExecutionFormModel(
-            instrument = execution.instrument,
-            symbolId = execution.symbolId,
-            quantity = execution.quantity.toString(),
-            lots = execution.lots.toString(),
-            isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toString(),
-        )
-    }
-
-    private fun newSized(initialModel: TradeExecutionFormModel) {
-
-        formModel = initialModel
-    }
-
-    private fun addToTrade(tradeId: TradeId) = coroutineScope.launchUnit {
-
-        val trade = tradingRecord.await().trades.getById(tradeId).first()
-
-        formModel = TradeExecutionFormModel(
-            instrument = trade.instrument,
-            symbolId = trade.symbolId,
-            isBuy = trade.side == TradeSide.Long,
-        )
-    }
-
-    private fun closeTrade(tradeId: TradeId) = coroutineScope.launchUnit {
-
-        val trade = tradingRecord.await().trades.getById(tradeId).first()
-
-        formModel = TradeExecutionFormModel(
-            instrument = trade.instrument,
-            symbolId = trade.symbolId,
-            quantity = (trade.quantity - trade.closedQuantity).toString(),
-            lots = (trade.lots - trade.closedLots).toString(),
-            isBuy = trade.side != TradeSide.Long,
-        )
-    }
-
-    private fun edit(id: TradeExecutionId) = coroutineScope.launchUnit {
-
-        val execution = tradingRecord.await().executions.getById(id).first()
-
-        formModel = TradeExecutionFormModel(
-            instrument = execution.instrument,
-            symbolId = execution.symbolId,
-            quantity = execution.quantity.toString(),
-            lots = execution.lots.toString(),
-            isBuy = execution.side == TradeExecutionSide.Buy,
-            price = execution.price.toString(),
-            timestamp = execution.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()),
-        )
     }
 
     @AssistedFactory
