@@ -31,6 +31,7 @@ object TimeFieldDefaults {
         .trim()
         .then {
             if (length > 6) delete(6, length)
+            if (length == 0) return@then
             if (toString().toIntOrNull() == null) revertAllChanges()
         }
 
