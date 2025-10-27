@@ -88,7 +88,7 @@ class CandleCacheDB(
         new: List<Candle>,
     ) = withContext(coroutineContext) {
 
-        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
+        val candlesQueries = candleQueriesCollection.getOrCreate(symbolId, timeframe)
 
         candlesQueries.transaction {
 
@@ -119,7 +119,7 @@ class CandleCacheDB(
     ): Flow<Long> = flow {
 
         candleQueriesCollection
-            .get(symbolId, timeframe)
+            .getOrFail(symbolId, timeframe)
             .getCountInRange(from.epochSeconds, to.epochSeconds)
             .asFlow()
             .mapToOne(coroutineContext)
@@ -134,7 +134,7 @@ class CandleCacheDB(
     ): Flow<Instant?> = flow {
 
         candleQueriesCollection
-            .get(symbolId, timeframe)
+            .getOrFail(symbolId, timeframe)
             .getInstantBeforeByCount(
                 before = before.epochSeconds,
                 count = count.toLong(),
@@ -153,7 +153,7 @@ class CandleCacheDB(
     ): Flow<Instant?> = flow {
 
         candleQueriesCollection
-            .get(symbolId, timeframe)
+            .getOrFail(symbolId, timeframe)
             .getInstantAfterByCount(
                 after = after.epochSeconds,
                 count = count.toLong(),
@@ -172,7 +172,7 @@ class CandleCacheDB(
         includeFromCandle: Boolean,
     ): Flow<List<Candle>> = flow {
 
-        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
+        val candlesQueries = candleQueriesCollection.getOrFail(symbolId, timeframe)
 
         val mapper: (Long, String, String, String, String, Long) -> Candle =
             { epochSeconds, open, high, low, close, volume ->
@@ -208,7 +208,7 @@ class CandleCacheDB(
         at: Instant,
     ): CandleCache.CountRange? = withContext(coroutineContext) {
 
-        val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
+        val candlesQueries = candleQueriesCollection.getOrFail(symbolId, timeframe)
         val result = candlesQueries
             .getEpochSecondsAndCountAt(at.epochSeconds)
             .executeAsOneOrNull()
@@ -237,7 +237,7 @@ class CandleCacheDB(
 
         return flow {
 
-            val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
+            val candlesQueries = candleQueriesCollection.getOrFail(symbolId, timeframe)
 
             candlesQueries.getCountBefore(
                 at = at.epochSeconds,
@@ -268,7 +268,7 @@ class CandleCacheDB(
 
         return flow {
 
-            val candlesQueries = candleQueriesCollection.get(symbolId, timeframe)
+            val candlesQueries = candleQueriesCollection.getOrFail(symbolId, timeframe)
 
             candlesQueries.getCountAfter(
                 at = at.epochSeconds,

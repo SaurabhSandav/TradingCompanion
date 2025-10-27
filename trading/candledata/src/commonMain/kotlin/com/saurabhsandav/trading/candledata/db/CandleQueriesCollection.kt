@@ -1,5 +1,6 @@
 package com.saurabhsandav.trading.candledata.db
 
+import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.core.Timeframe
@@ -32,7 +33,7 @@ class CandleQueriesCollection(
         }
     }
 
-    suspend fun get(
+    suspend fun getOrCreate(
         symbolId: SymbolId,
         timeframe: Timeframe,
     ): CandlesQueries = mutex.withLock {
@@ -63,6 +64,37 @@ class CandleQueriesCollection(
                 tableName = tableName,
                 identifierSeries = nextIdentifierSeries,
             )
+        }
+    }
+
+    suspend fun getOrFail(
+        symbolId: SymbolId,
+        timeframe: Timeframe,
+    ): CandlesQueries {
+
+        val tableName = getTableName(symbolId, timeframe)
+
+        val exists = driver.executeQuery(
+            identifier = null,
+            sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?;",
+            parameters = 1,
+            mapper = { cursor -> QueryResult.Value(cursor.next().value) },
+            binders = { bindString(0, tableName) },
+        ).value
+
+        check(exists) { "Table $tableName does not exist" }
+
+        return mutex.withLock {
+            queriesMap.getOrPut(tableName) {
+
+                nextIdentifierSeries += 1
+
+                CandlesQueries(
+                    driver = driver,
+                    tableName = tableName,
+                    identifierSeries = nextIdentifierSeries,
+                )
+            }
         }
     }
 }
