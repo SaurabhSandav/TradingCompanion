@@ -15,6 +15,7 @@ internal class TargetPreviewer(
     private val trade: TradeDisplay,
     private val broker: Broker,
     private val primaryStop: TradeStop?,
+    private val tickSize: KBigDecimal?,
 ) {
 
     fun atPrice(price: KBigDecimal): TradeTarget? = generateTarget(price)
@@ -62,18 +63,31 @@ internal class TargetPreviewer(
 
         if (!isValid) return null
 
-        val brokerage = trade.brokerageAt(broker, price)
+        val remainder = tickSize?.let(price::remainder)
+
+        val priceForTickSize = when {
+            remainder == null -> price
+            remainder.compareTo(KBigDecimal.Zero) == 0 -> price
+            else -> when (trade.side) {
+                // Target is rounded up
+                TradeSide.Long -> price + (tickSize - remainder)
+                // Target is rounded down
+                TradeSide.Short -> price - remainder
+            }
+        }
+
+        val brokerage = trade.brokerageAt(broker, priceForTickSize)
 
         val pnl = when (trade.side) {
-            TradeSide.Long -> price - trade.averageEntry
-            TradeSide.Short -> trade.averageEntry - price
+            TradeSide.Long -> priceForTickSize - trade.averageEntry
+            TradeSide.Short -> trade.averageEntry - priceForTickSize
         }.times(trade.quantity, KMathContext.Decimal32)
 
         val rValue = primaryStop?.let { trade.rValueAt(pnl, it).toString() }.orEmpty()
 
         return TradeTarget(
-            price = price,
-            priceText = price.toString(),
+            price = priceForTickSize,
+            priceText = priceForTickSize.toString(),
             rValue = rValue,
             profit = brokerage.pnl.toString(),
             netProfit = brokerage.netPNL.toString(),

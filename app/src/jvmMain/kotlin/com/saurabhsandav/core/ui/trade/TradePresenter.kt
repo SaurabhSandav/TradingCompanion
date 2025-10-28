@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
+import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
@@ -97,6 +98,7 @@ internal class TradePresenter(
     private val tradeContentLauncher: TradeContentLauncher,
     private val tradingProfiles: TradingProfiles,
     private val excursionsGenerator: TradeExcursionsGenerator,
+    private val symbolsProvider: SymbolsProvider,
 ) {
 
     private val profileId = profileTradeId.profileId
@@ -113,14 +115,36 @@ internal class TradePresenter(
         started = SharingStarted.Eagerly,
         replay = 1,
     )
-    private val stopPreviewer = trade.map { trade ->
+
+    private val stopPreviewer = trade.flatMapLatest { trade ->
+
         val tradingRecord = tradingRecord.await()
-        StopPreviewer(trade, tradingRecord.brokerProvider.getBroker(trade.brokerId))
+
+        symbolsProvider.getSymbol(trade.brokerId, trade.symbolId).map { symbol ->
+
+            StopPreviewer(
+                trade = trade,
+                broker = tradingRecord.brokerProvider.getBroker(trade.brokerId),
+                tickSize = symbol?.tickSize,
+            )
+        }
     }
+
     private val targetPreviewer = trade.flatMapLatest { trade ->
+
         val tradingRecord = tradingRecord.await()
-        tradingRecord.stops.getPrimary(trade.id).map { stop ->
-            TargetPreviewer(trade, tradingRecord.brokerProvider.getBroker(trade.brokerId), stop)
+
+        combine(
+            tradingRecord.stops.getPrimary(trade.id),
+            symbolsProvider.getSymbol(trade.brokerId, trade.symbolId),
+        ) { primaryStop, symbol ->
+
+            TargetPreviewer(
+                trade = trade,
+                broker = tradingRecord.brokerProvider.getBroker(trade.brokerId),
+                primaryStop = primaryStop,
+                tickSize = symbol?.tickSize,
+            )
         }
     }
 

@@ -11,6 +11,7 @@ import com.saurabhsandav.trading.record.model.TradeSide
 internal class StopPreviewer(
     private val trade: TradeDisplay,
     private val broker: Broker,
+    private val tickSize: KBigDecimal?,
 ) {
 
     fun atPrice(price: KBigDecimal): TradeStop? = generateStop(price)
@@ -38,11 +39,24 @@ internal class StopPreviewer(
 
         if (!isValid) return null
 
-        val brokerage = trade.brokerageAt(broker, price)
+        val remainder = tickSize?.let(price::remainder)
+
+        val priceForTickSize = when {
+            remainder == null -> price
+            remainder.compareTo(KBigDecimal.Zero) == 0 -> price
+            else -> when (trade.side) {
+                // Stop is rounded up
+                TradeSide.Long -> price + (tickSize - remainder)
+                // Stop is rounded down
+                TradeSide.Short -> price - remainder
+            }
+        }
+
+        val brokerage = trade.brokerageAt(broker, priceForTickSize)
 
         return TradeStop(
-            price = price,
-            priceText = price.toString(),
+            price = priceForTickSize,
+            priceText = priceForTickSize.toString(),
             risk = brokerage.pnl.negated().toString(),
             netRisk = brokerage.netPNL.toString(),
             isPrimary = false,
