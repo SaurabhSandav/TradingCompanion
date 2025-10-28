@@ -11,7 +11,5 @@ interface MarketDataProvider {
 
     fun getSymbolTitle(symbolId: SymbolId): Flow<String>
 
-    suspend fun hasVolume(params: StockChartParams): Boolean
-
     fun sessionChecker(): SessionChecker
 }

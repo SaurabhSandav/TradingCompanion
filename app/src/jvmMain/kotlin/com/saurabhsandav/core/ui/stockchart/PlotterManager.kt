@@ -96,7 +96,6 @@ class PlotterManager(
 
     internal fun onSetStockChartData(
         data: StockChartData,
-        hasVolume: Boolean,
         sessionChecker: SessionChecker,
         dataCoroutineScope: CoroutineScope,
     ) {
@@ -104,7 +103,6 @@ class PlotterManager(
         indicators = Indicators(
             candleSeries = data.candleSeries,
             params = data.params,
-            hasVolume = hasVolume,
             sessionChecker = sessionChecker,
         )
 
@@ -177,39 +175,29 @@ class PlotterManager(
             },
         )
 
-        if (indicators.hasVolume) {
+        volumePlotter.setData(
+            candleSeries.indices.map { index ->
 
-            volumePlotter.setData(
-                candleSeries.indices.map { index ->
+                val candle = candleSeries[index]
 
-                    val candle = candleSeries[index]
-
-                    HistogramData.Item(
-                        time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
-                        value = candle.volume.toDouble(),
-                        color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
-                    )
-                },
-            )
-        } else {
-            volumePlotter.setData(emptyList())
-        }
+                HistogramData.Item(
+                    time = Time.UTCTimestamp(candle.openInstant.offsetTimeForChart()),
+                    value = candle.volume.toDouble(),
+                    color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
+                )
+            },
+        )
 
         val vwapIndicator = indicators.vwapIndicator
 
-        if (vwapIndicator != null) {
-
-            vwapPlotter.setData(
-                candleSeries.indices.map { index ->
-                    LineData.Item(
-                        time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
-                        value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
-                    )
-                },
-            )
-        } else {
-            vwapPlotter.setData(emptyList())
-        }
+        vwapPlotter.setData(
+            candleSeries.indices.map { index ->
+                LineData.Item(
+                    time = Time.UTCTimestamp(candleSeries[index].openInstant.offsetTimeForChart()),
+                    value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
+                )
+            },
+        )
 
         val sma50Indicator = indicators.sma50Indicator
 
@@ -292,28 +280,22 @@ class PlotterManager(
             ),
         )
 
-        if (indicators.hasVolume) {
-
-            volumePlotter.update(
-                HistogramData.Item(
-                    time = time,
-                    value = candle.volume.toDouble(),
-                    color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
-                ),
-            )
-        }
+        volumePlotter.update(
+            HistogramData.Item(
+                time = time,
+                value = candle.volume.toDouble(),
+                color = Color.hex(if (candle.isLong) "#009688" else "#FF5252")?.toCssColor(),
+            ),
+        )
 
         val vwapIndicator = indicators.vwapIndicator
 
-        if (vwapIndicator != null) {
-
-            vwapPlotter.update(
-                LineData.Item(
-                    time = time,
-                    value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
-                ),
-            )
-        }
+        vwapPlotter.update(
+            LineData.Item(
+                time = time,
+                value = vwapIndicator[index].decimalPlaces(2, KRoundingMode.Down).toDouble(),
+            ),
+        )
 
         val sma50Indicator = indicators.sma50Indicator
 
@@ -377,7 +359,6 @@ class PlotterManager(
     private class Indicators(
         val candleSeries: CandleSeries,
         val params: StockChartParams,
-        val hasVolume: Boolean,
         sessionChecker: SessionChecker,
     ) {
 
@@ -386,7 +367,7 @@ class PlotterManager(
         val closePriceIndicator = ClosePriceIndicator(candleSeries)
         val ema9Indicator = EMAIndicator(closePriceIndicator, length = 9)
         val ema21Indicator = EMAIndicator(closePriceIndicator, length = 21)
-        val vwapIndicator = VWAPIndicator(candleSeries, sessionChecker).takeIf { hasVolume }
+        val vwapIndicator = VWAPIndicator(candleSeries, sessionChecker)
 
         val sma50Indicator = SMAIndicator(closePriceIndicator, length = 50).takeIf { isDaily }
         val sma100Indicator = SMAIndicator(closePriceIndicator, length = 100).takeIf { isDaily }

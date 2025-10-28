@@ -179,7 +179,6 @@ class StockChart internal constructor(
             // Setup indicators
             plotterManager.onSetStockChartData(
                 data = data,
-                hasVolume = marketDataProvider.hasVolume(params),
                 sessionChecker = marketDataProvider.sessionChecker(),
                 dataCoroutineScope = dataCoroutineScope,
             )

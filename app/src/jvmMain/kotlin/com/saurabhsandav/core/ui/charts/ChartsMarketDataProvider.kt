@@ -5,14 +5,12 @@ import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
 import com.saurabhsandav.trading.candledata.CandleRepository
-import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 @SingleIn(ChartsGraph::class)
@@ -41,14 +39,6 @@ internal class ChartsMarketDataProvider(
             val symbol = symbol ?: error("Symbol ${symbolId.value} not found")
             "${symbol.ticker} - ${symbol.exchange}"
         }
-    }
-
-    override suspend fun hasVolume(params: StockChartParams): Boolean {
-
-        val symbol = symbolsProvider.getSymbol(FinvasiaBroker.Id, params.symbolId).first()
-            ?: error("Symbol ${params.symbolId.value} not found")
-
-        return symbol.instrument != Instrument.Index
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker

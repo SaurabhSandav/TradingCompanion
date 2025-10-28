@@ -12,7 +12,6 @@ import com.saurabhsandav.core.ui.stockchart.plotter.TradeMarker
 import com.saurabhsandav.core.utils.AppDispatchers
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.trading.core.CandleSeries
-import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.core.SessionChecker
 import com.saurabhsandav.trading.core.SymbolId
 import com.saurabhsandav.trading.market.india.FinvasiaBroker
@@ -21,7 +20,6 @@ import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -55,14 +53,6 @@ internal class ReplayChartsMarketDataProvider(
             val symbol = symbol ?: error("Symbol ${symbolId.value} not found")
             "${symbol.ticker} - ${symbol.exchange}"
         }
-    }
-
-    override suspend fun hasVolume(params: StockChartParams): Boolean {
-
-        val symbol = symbolsProvider.getSymbol(FinvasiaBroker.Id, params.symbolId).first()
-            ?: error("Symbol ${params.symbolId.value} not found")
-
-        return symbol.instrument != Instrument.Index
     }
 
     override fun sessionChecker(): SessionChecker = DailySessionChecker
