@@ -260,7 +260,10 @@ internal fun AttachmentItem(
                     )
 
                     Button(
-                        onClick = { File(attachment.path).openExternally() },
+                        onClick = {
+                            File(attachment.path).openExternally()
+                            showImagePreview = false
+                        },
                     ) {
                         Text("Open Externally")
                     }
