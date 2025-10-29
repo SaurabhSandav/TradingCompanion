@@ -52,6 +52,7 @@ import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -297,7 +298,7 @@ private class AddTargetFormState(
 
         combine(
             previewerFlow,
-            snapshotFlow { Triple(price.text, rValue.text, profit.text) },
+            snapshotFlow { Triple(price.text, rValue.text, profit.text) }.drop(1),
         ) { previewer, (priceText, rValueText, profitText) ->
 
             val priceBD = priceText.toString().toKBigDecimalOrNull()

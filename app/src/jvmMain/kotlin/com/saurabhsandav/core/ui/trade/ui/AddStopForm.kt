@@ -56,6 +56,7 @@ import com.saurabhsandav.kbigdecimal.toKBigDecimalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -276,7 +277,7 @@ private class AddStopFormState(
 
         combine(
             previewerFlow,
-            snapshotFlow { price.text to risk.text },
+            snapshotFlow { price.text to risk.text }.drop(1),
         ) { previewer, (priceText, riskText) ->
 
             val priceBD = priceText.toString().toKBigDecimalOrNull()
