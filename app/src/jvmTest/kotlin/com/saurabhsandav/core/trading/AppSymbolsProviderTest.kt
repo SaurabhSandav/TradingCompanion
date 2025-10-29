@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -43,9 +45,6 @@ class AppSymbolsProviderTest {
 
         val testGraph = createGraphFactory<TestGraph.Factory>().create(this)
 
-        // Pre download symbols to test database clearing
-        testGraph.symbolsProvider.downloadAllLatestSymbols()
-
         // Expire symbols
         testGraph.appDB.symbolDownloadTimestampQueries.put(
             brokerId = TestBroker.Id,
@@ -53,17 +52,15 @@ class AppSymbolsProviderTest {
         )
 
         // Attempt redownloading symbols in parallel
-        launch {
+        val job = launch {
             testGraph.symbolsProvider.downloadAllLatestSymbols()
         }
 
         // Skip expiry check logic
         advanceTimeBy(10.milliseconds)
 
-        // Database is cleared
-        assertEquals(emptyList(), testGraph.getSymbolIdsFromDB())
-
         // All symbols loaded
+        assertFalse { job.isCompleted }
         advanceTimeBy(TestBroker.SymbolFetchDelay * 2)
         assertEquals(TestBroker.TestSymbols.map { it.id }, testGraph.getSymbolIdsFromDB())
     }
@@ -77,13 +74,14 @@ class AppSymbolsProviderTest {
         testGraph.symbolsProvider.downloadAllLatestSymbols()
 
         // Attempt redownloading symbols in parallel
-        launch {
+        val job = launch {
             testGraph.symbolsProvider.downloadAllLatestSymbols()
         }
 
-        // Database not cleared
+        // Skip expiry check logic
         advanceTimeBy(10.milliseconds)
-        assertEquals(TestBroker.TestSymbols.map { it.id }, testGraph.getSymbolIdsFromDB())
+
+        assertTrue { job.isCompleted }
     }
 
     private fun TestGraph.getSymbolIdsFromDB() = appDB.cachedSymbolQueries.getAll().executeAsList().map { it.id }

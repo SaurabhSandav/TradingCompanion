@@ -31,6 +31,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 @AssistedInject
 internal class SymbolSelectionPresenter(
@@ -72,7 +76,10 @@ internal class SymbolSelectionPresenter(
         snapshotFlow { filterQuery.text.toString() }
             .flatMapLatest { filterQuery ->
 
+                val tz = TimeZone.currentSystemDefault()
+
                 val pagingSourceFactory = symbolsProvider.getSymbolsFilteredPagingSourceFactory(
+                    lastUpdate = Clock.System.now().toLocalDateTime(tz).date.atStartOfDayIn(tz),
                     filterQuery = filterQuery,
                     instruments = listOf(Instrument.Index, Instrument.Equity),
                     exchange = "NSE",

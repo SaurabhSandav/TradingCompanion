@@ -18,18 +18,15 @@ description TEXT,
 expiry TEXT AS Instant,
 strikePrice TEXT AS KBigDecimal,
 optionType TEXT AS OptionType,
+lastUpdate TEXT AS Instant NOT NULL DEFAULT '1970-01-01T00:00:00Z',
 PRIMARY KEY (id, brokerId)
 );
 
 insert:
 INSERT OR REPLACE
 INTO CachedSymbol(id, brokerId, exchange, exchangeToken, instrument, ticker, tickSize, lotSize, description, expiry,
-strikePrice, optionType)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-
-clearByBroker:
-DELETE FROM CachedSymbol
-WHERE brokerId = ?;
+strikePrice, optionType, lastUpdate)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getAll:
 SELECT * FROM CachedSymbol;
@@ -44,7 +41,7 @@ WHERE
 (:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
 AND (:instrumentsCount <= 0 OR instrument IN :instruments)
 AND (:exchange IS NULL OR exchange = :exchange)
-ORDER BY ticker;
+AND lastUpdate >= :lastUpdate;
 
 getFiltered:
 SELECT * FROM CachedSymbol
@@ -52,5 +49,6 @@ WHERE
 (:filterQuery IS NULL OR ticker LIKE '%' || :filterQuery || '%')
 AND (:instrumentsCount <= 0 OR instrument IN :instruments)
 AND (:exchange IS NULL OR exchange = :exchange)
-ORDER BY ticker
+AND lastUpdate >= :lastUpdate
+ORDER BY ticker, instrument
 LIMIT :limit OFFSET :offset;

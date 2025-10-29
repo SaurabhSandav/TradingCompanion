@@ -26,6 +26,7 @@ fun AppDB(driver: SqlDriver) = AppDB(
         expiryAdapter = InstantColumnAdapter,
         strikePriceAdapter = KBigDecimalColumnAdapter,
         optionTypeAdapter = OptionType.ColumnAdapter,
+        lastUpdateAdapter = InstantColumnAdapter,
     ),
     SymbolDownloadTimestampAdapter = SymbolDownloadTimestamp.Adapter(
         brokerIdAdapter = BrokerIdColumnAdapter,

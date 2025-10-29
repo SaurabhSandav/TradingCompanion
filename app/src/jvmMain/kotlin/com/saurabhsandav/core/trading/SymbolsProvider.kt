@@ -6,6 +6,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.saurabhsandav.core.AppDB
 import com.saurabhsandav.core.CachedSymbol
 import com.saurabhsandav.core.utils.AppDispatchers
+import com.saurabhsandav.core.utils.withoutNanoseconds
 import com.saurabhsandav.paging.pagingsource.QueryPagingSource
 import com.saurabhsandav.trading.broker.BrokerId
 import com.saurabhsandav.trading.broker.BrokerProvider
@@ -22,6 +23,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import kotlin.time.Instant
 import com.saurabhsandav.trading.record.Symbol as RecordSymbol
 
 interface SymbolsProvider {
@@ -29,6 +31,7 @@ interface SymbolsProvider {
     suspend fun downloadAllLatestSymbols()
 
     suspend fun getSymbolsFilteredPagingSourceFactory(
+        lastUpdate: Instant,
         filterQuery: String? = null,
         instruments: List<Instrument> = emptyList(),
         exchange: String? = null,
@@ -56,13 +59,11 @@ internal class AppSymbolsProvider(
 
             brokerProvider.getAllIds().forEach { brokerId ->
 
+                val currentTime = Clock.System.now().withoutNanoseconds()
                 val broker = brokerProvider.getBroker(brokerId)
                 val lastDownloadInstant = appDB.symbolDownloadTimestampQueries.get(brokerId).executeAsOneOrNull()
 
                 if (lastDownloadInstant != null && !broker.areSymbolsExpired(lastDownloadInstant)) return@forEach
-
-                // Clear previous symbols
-                appDB.cachedSymbolQueries.clearByBroker(brokerId)
 
                 broker.downloadSymbols { symbols ->
 
@@ -83,18 +84,20 @@ internal class AppSymbolsProvider(
                                 expiry = symbol.expiry,
                                 strikePrice = symbol.strikePrice,
                                 optionType = symbol.optionType,
+                                lastUpdate = currentTime,
                             )
                         }
                     }
                 }
 
                 // Save download timestamp
-                appDB.symbolDownloadTimestampQueries.put(brokerId, Clock.System.now())
+                appDB.symbolDownloadTimestampQueries.put(brokerId, currentTime)
             }
         }
     }
 
     override suspend fun getSymbolsFilteredPagingSourceFactory(
+        lastUpdate: Instant,
         filterQuery: String?,
         instruments: List<Instrument>,
         exchange: String?,
@@ -110,6 +113,7 @@ internal class AppSymbolsProvider(
                     instrumentsCount = instruments.size.toLong(),
                     instruments = instruments,
                     exchange = exchange,
+                    lastUpdate = lastUpdate,
                 ),
                 transacter = appDB.cachedSymbolQueries,
                 context = appDispatchers.IO,
@@ -122,6 +126,7 @@ internal class AppSymbolsProvider(
                         exchange = exchange,
                         limit = limit,
                         offset = offset,
+                        lastUpdate = lastUpdate,
                     )
                 },
             )
