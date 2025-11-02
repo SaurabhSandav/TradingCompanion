@@ -15,6 +15,7 @@ import androidx.paging.map
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.SymbolsProvider
+import com.saurabhsandav.core.trading.getSymbolOrError
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionEvent.SymbolSelected
 import com.saurabhsandav.core.ui.symbolselectiondialog.model.SymbolSelectionState
@@ -99,7 +100,7 @@ internal class SymbolSelectionPresenter(
             .flatMapLatest { id ->
                 when (id) {
                     null -> flowOf(null)
-                    else -> symbolsProvider.getSymbol(FinvasiaBroker.Id, id)
+                    else -> symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, id)
                 }
             }
             .collect { cachedSymbol ->

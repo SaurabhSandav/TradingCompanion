@@ -16,6 +16,7 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -143,3 +144,8 @@ fun CachedSymbol.toRecordSymbol(): RecordSymbol = RecordSymbol(
     ticker = ticker,
     description = description,
 )
+
+fun SymbolsProvider.getSymbolOrError(
+    brokerId: BrokerId,
+    symbolId: SymbolId,
+): Flow<CachedSymbol> = getSymbol(brokerId, symbolId).map { it ?: error("Symbol (${symbolId.value}) not found") }
