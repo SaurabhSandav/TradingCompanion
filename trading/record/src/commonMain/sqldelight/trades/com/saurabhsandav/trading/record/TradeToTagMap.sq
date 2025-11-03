@@ -21,7 +21,8 @@ getTagsByTrade:
 SELECT TradeTag.* FROM TradeToTagMap
 INNER JOIN TradeTag
 ON TradeToTagMap.tagId = TradeTag.id
-WHERE TradeToTagMap.tradeId = ?;
+WHERE TradeToTagMap.tradeId = ?
+ORDER BY name;
 
 getSuggestedTagsForTrades:
 WITH trade_count AS (
@@ -37,4 +38,5 @@ tag_ids_intersection AS (
 SELECT tt.*
 FROM TradeTag AS tt
 WHERE tt.id NOT IN (SELECT * FROM tag_ids_intersection)
-AND tt.name LIKE '%' || :filterQuery || '%';
+AND tt.name LIKE '%' || :filterQuery || '%'
+ORDER BY name;
