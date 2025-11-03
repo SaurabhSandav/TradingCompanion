@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.AppColor
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
@@ -127,7 +128,7 @@ internal class PNLBySymbolStudy(
                         val rValue = symbolStats.mapNotNull { it.third }.sumOf { it }
 
                         Model(
-                            ticker = tradesBySymbol.first().ticker,
+                            ticker = tradesBySymbol.first().getSymbolTitle(),
                             noOfTrades = tradesBySymbol.size.toString(),
                             pnl = pnl.toString(),
                             isProfitable = pnl > KBigDecimal.Zero,

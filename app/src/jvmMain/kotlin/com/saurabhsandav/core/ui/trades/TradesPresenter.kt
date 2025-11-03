@@ -17,6 +17,8 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.getBrokerTitle
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.tradecontent.ProfileTradeId
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
@@ -48,7 +50,6 @@ import com.saurabhsandav.trading.record.rValueAt
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -61,7 +62,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.util.Locale
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -240,9 +240,6 @@ internal class TradesPresenter(
 
     private fun TradeDisplay.toTradeEntryItem(): Item {
 
-        val instrumentCapitalized = instrument.strValue
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
         fun formatDuration(duration: Duration): String {
 
             val durationSeconds = duration.inWholeSeconds
@@ -271,8 +268,8 @@ internal class TradesPresenter(
 
         return Item(
             id = id,
-            broker = "$brokerName ($instrumentCapitalized)",
-            ticker = ticker,
+            broker = getBrokerTitle(),
+            ticker = getSymbolTitle(),
             side = side.toString().uppercase(),
             quantity = when {
                 !isClosed -> "$closedQuantity / $quantity"

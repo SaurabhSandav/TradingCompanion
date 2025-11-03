@@ -1,0 +1,17 @@
+-- Drop Display tables
+DROP VIEW TradeDisplay;
+DROP VIEW TradeExecutionDisplay;
+
+-- Recreate Display tables
+
+CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
+SELECT T.*, B.name AS brokerName, S.exchange, S.ticker, S.description, S.expiry, S.strikePrice, S.optionType
+FROM TradeExecution AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;
+
+CREATE VIEW IF NOT EXISTS TradeDisplay AS
+SELECT T.*, B.name AS brokerName, S.exchange, S.ticker, S.description, S.expiry, S.strikePrice, S.optionType
+FROM Trade AS T
+LEFT JOIN Broker AS B ON T.brokerId = B.id
+LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;

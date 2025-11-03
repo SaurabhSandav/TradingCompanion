@@ -7,6 +7,8 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.getBrokerTitle
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.review.model.ReviewEvent
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenChart
 import com.saurabhsandav.core.ui.review.model.ReviewEvent.OpenDetails
@@ -37,7 +39,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.util.Locale
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -100,9 +101,6 @@ internal class ReviewPresenter(
 
     private fun TradeDisplay.toTradeListEntry(): TradeEntry {
 
-        val instrumentCapitalized = instrument.strValue
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
         fun formatDuration(duration: Duration): String {
 
             val durationSeconds = duration.inWholeSeconds
@@ -131,8 +129,8 @@ internal class ReviewPresenter(
 
         return TradeEntry(
             profileTradeId = ProfileTradeId(profileId = profileReviewId.profileId, tradeId = id),
-            broker = "$brokerName ($instrumentCapitalized)",
-            ticker = ticker,
+            broker = getBrokerTitle(),
+            ticker = getSymbolTitle(),
             side = side.toString().uppercase(),
             quantity = when {
                 !isClosed -> "$closedQuantity / $quantity"

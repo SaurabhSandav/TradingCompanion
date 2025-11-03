@@ -68,7 +68,7 @@ class StockChart internal constructor(
     var visibleRange: ClosedRange<Float>? = initialVisibleRange
     var params by mutableStateOf(initialParams)
     private var ticker by mutableStateOf("")
-    val title by derivedStateOf { "$ticker (${params.timeframe.toLabel()})" }
+    val title by derivedStateOf { "$ticker - ${params.timeframe.toLabel()}" }
     val plotterManager = PlotterManager(coroutineScope, this, prefs)
 
     private var initialized = CompletableDeferred<Unit>()

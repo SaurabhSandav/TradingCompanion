@@ -14,6 +14,8 @@ import app.cash.molecule.launchMolecule
 import com.saurabhsandav.core.trading.TradeExcursionsGenerator
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.getBrokerTitle
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.tags.model.TradeTag
 import com.saurabhsandav.core.ui.trade.model.TradeEvent
 import com.saurabhsandav.core.ui.trade.model.TradeEvent.AddNote
@@ -63,7 +65,6 @@ import com.saurabhsandav.trading.record.rValueAt
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -81,7 +82,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.util.Locale
 import kotlin.io.path.extension
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -189,9 +189,6 @@ internal class TradePresenter(
 
             trade.collectLatest { trade ->
 
-                val instrumentCapitalized = trade.instrument.strValue
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
                 fun formatDuration(duration: Duration): String {
 
                     val durationSeconds = duration.inWholeSeconds
@@ -229,8 +226,8 @@ internal class TradePresenter(
 
                     value = Details(
                         id = trade.id,
-                        broker = "${trade.brokerName} ($instrumentCapitalized)",
-                        ticker = trade.ticker,
+                        broker = trade.getBrokerTitle(),
+                        ticker = trade.getSymbolTitle(),
                         side = trade.side.toString().uppercase(),
                         quantity = when {
                             !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"

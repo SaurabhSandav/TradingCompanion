@@ -1,5 +1,5 @@
 CREATE VIEW IF NOT EXISTS TradeExecutionDisplay AS
-SELECT T.*, IFNULL(B.name, T.brokerId) AS brokerName, IFNULL(S.ticker, T.symbolId) AS ticker
+SELECT T.*, B.name AS brokerName, S.exchange, S.ticker, S.description, S.expiry, S.strikePrice, S.optionType
 FROM TradeExecution AS T
 LEFT JOIN Broker AS B ON T.brokerId = B.id
 LEFT JOIN Symbol AS S ON T.symbolId = S.id AND T.brokerId = S.brokerId;

@@ -13,6 +13,8 @@ import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.SelectionManager
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.getBrokerTitle
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.tradecontent.TradeContentLauncher
 import com.saurabhsandav.core.ui.tradeexecutionform.model.TradeExecutionFormType
 import com.saurabhsandav.core.ui.tradeexecutions.model.TradeExecutionsEvent
@@ -39,7 +41,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
-import java.util.Locale
 import kotlin.time.Clock
 
 @AssistedInject
@@ -133,12 +134,8 @@ internal class TradeExecutionsPresenter(
 
     private fun TradeExecutionDisplay.toTradeExecutionEntryItem() = TradeExecutionEntry.Item(
         id = id,
-        broker = run {
-            val instrumentCapitalized = instrument.strValue
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            "$brokerName ($instrumentCapitalized)"
-        },
-        ticker = ticker,
+        broker = getBrokerTitle(),
+        ticker = getSymbolTitle(),
         quantity = "$quantity ($lots ${if (lots == 1) "lot" else "lots"})",
         side = side.strValue.uppercase(),
         price = price.toString(),

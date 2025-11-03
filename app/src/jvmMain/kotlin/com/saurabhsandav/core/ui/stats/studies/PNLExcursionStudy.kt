@@ -21,6 +21,7 @@ import com.saurabhsandav.core.trading.TradingProfiles
 import com.saurabhsandav.core.ui.common.AppColor
 import com.saurabhsandav.core.ui.common.SimpleTooltipBox
 import com.saurabhsandav.core.ui.common.TradeDateTimeFormat
+import com.saurabhsandav.core.ui.common.getSymbolTitle
 import com.saurabhsandav.core.ui.common.table.LazyTable
 import com.saurabhsandav.core.ui.common.table.SimpleHeader
 import com.saurabhsandav.core.ui.common.table.SimpleRow
@@ -172,7 +173,7 @@ internal class PNLExcursionStudy(
 
                 Item(
                     id = trade.id,
-                    ticker = trade.ticker,
+                    ticker = trade.getSymbolTitle(),
                     side = trade.side.strValue.uppercase(),
                     quantity = trade.quantity.toString(),
                     entry = trade.averageEntry.toString(),

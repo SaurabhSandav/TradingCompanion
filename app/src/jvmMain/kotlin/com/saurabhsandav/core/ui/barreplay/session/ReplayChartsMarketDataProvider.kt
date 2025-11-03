@@ -4,7 +4,7 @@ import com.saurabhsandav.core.trading.DailySessionChecker
 import com.saurabhsandav.core.trading.ProfileId
 import com.saurabhsandav.core.trading.SymbolsProvider
 import com.saurabhsandav.core.trading.TradingProfiles
-import com.saurabhsandav.core.trading.getSymbolOrError
+import com.saurabhsandav.core.ui.common.toSymbolTitle
 import com.saurabhsandav.core.ui.stockchart.StockChartParams
 import com.saurabhsandav.core.ui.stockchart.data.CandleSource
 import com.saurabhsandav.core.ui.stockchart.data.MarketDataProvider
@@ -50,8 +50,8 @@ internal class ReplayChartsMarketDataProvider(
     }
 
     override fun getSymbolTitle(symbolId: SymbolId): Flow<String> {
-        return symbolsProvider.getSymbolOrError(FinvasiaBroker.Id, symbolId).map { symbol ->
-            "${symbol.ticker} - ${symbol.exchange}"
+        return symbolsProvider.getSymbol(FinvasiaBroker.Id, symbolId).map { symbol ->
+            symbol?.toSymbolTitle() ?: symbolId.value
         }
     }
 
