@@ -1,5 +1,6 @@
 package com.saurabhsandav.fyersapi
 
+import app.softwork.serialization.csv.CSVFormat
 import com.saurabhsandav.fyersapi.model.CandleResolution
 import com.saurabhsandav.fyersapi.model.DateFormat
 import com.saurabhsandav.fyersapi.model.request.AuthValidationRequest
@@ -11,7 +12,8 @@ import com.saurabhsandav.fyersapi.model.response.HistoricalCandlesResult
 import com.saurabhsandav.fyersapi.model.response.ProfileResult
 import com.saurabhsandav.fyersapi.model.response.Quotes
 import com.saurabhsandav.fyersapi.model.response.RefreshValidationResult
-import com.saurabhsandav.fyersapi.model.response.Symbol
+import com.saurabhsandav.fyersapi.model.response.SymbolCsv
+import com.saurabhsandav.fyersapi.model.response.SymbolJson
 import com.saurabhsandav.fyersapi.model.response.getError
 import com.slack.eithernet.ApiResult
 import dev.whyoleg.cryptography.CryptographyProvider
@@ -38,6 +40,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -164,41 +167,77 @@ public class FyersApi {
         }
     }
 
-    public suspend fun getNseCapitalMarketSymbols(): List<Symbol> = getSymbols(
+    public suspend fun getNseCapitalMarketSymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/NSE_CM_sym_master.json",
     )
 
-    public suspend fun getNseEquityDerivativeSymbols(): List<Symbol> = getSymbols(
+    public suspend fun getNseEquityDerivativeSymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/NSE_FO_sym_master.json",
     )
 
-    public suspend fun getNseCurrencyDerivativeSymbols(): List<Symbol> = getSymbols(
+    public suspend fun getNseCurrencyDerivativeSymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/NSE_CD_sym_master.json",
     )
 
-    public suspend fun getNseCommoditySymbols(): List<Symbol> = getSymbols(
+    public suspend fun getNseCommoditySymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/NSE_COM_sym_master.json",
     )
 
-    public suspend fun getBseCapitalMarketSymbols(): List<Symbol> = getSymbols(
+    public suspend fun getBseCapitalMarketSymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/BSE_CM_sym_master.json",
     )
 
-    public suspend fun getBseEquityDerivativeSymbols(): List<Symbol> = getSymbols(
+    public suspend fun getBseEquityDerivativeSymbolsJson(): List<SymbolJson> = getSymbolsJson(
         url = "https://public.fyers.in/sym_details/BSE_FO_sym_master.json",
     )
 
-    public suspend fun getMcxCommoditySymbols(): List<Symbol> = getSymbols(
-        url = "https://public.fyers.in/sym_details/MCX_COM.csv",
+    public suspend fun getMcxCommoditySymbolsJson(): List<SymbolJson> = getSymbolsJson(
+        url = "https://public.fyers.in/sym_details/MCX_COM_sym_master.json",
     )
 
-    private suspend fun getSymbols(url: String): List<Symbol> = withContext(Dispatchers.IO) {
+    private suspend fun getSymbolsJson(url: String): List<SymbolJson> = withContext(Dispatchers.IO) {
 
         val body = client.get(url).bodyAsText()
         val jsonObject = json.decodeFromString<JsonObject>(body)
         val symbols = jsonObject.map { (_, value) ->
-            json.decodeFromJsonElement<Symbol>(value)
+            json.decodeFromJsonElement<SymbolJson>(value)
         }
+
+        return@withContext symbols
+    }
+
+    public suspend fun getNseCapitalMarketSymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/NSE_CM.csv",
+    )
+
+    public suspend fun getNseEquityDerivativeSymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/NSE_FO.csv",
+    )
+
+    public suspend fun getNseCurrencyDerivativeSymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/NSE_CD.csv",
+    )
+
+    public suspend fun getNseCommoditySymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/NSE_COM.csv",
+    )
+
+    public suspend fun getBseCapitalMarketSymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/BSE_CM.csv",
+    )
+
+    public suspend fun getBseEquityDerivativeSymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/BSE_FO.csv",
+    )
+
+    public suspend fun getMcxCommoditySymbolsCsv(): List<SymbolCsv> = getSymbolsCsv(
+        url = "https://public.fyers.in/sym_details/MCX_COM.csv",
+    )
+
+    private suspend fun getSymbolsCsv(url: String): List<SymbolCsv> = withContext(Dispatchers.IO) {
+
+        val body = client.get(url).bodyAsText()
+        val symbols = CSVFormat { includeHeader = false }.decodeFromString<List<SymbolCsv>>(body)
 
         return@withContext symbols
     }

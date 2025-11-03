@@ -1,19 +1,15 @@
-@file:UseSerializers(BigDecimalSerializer::class)
-
 package com.saurabhsandav.fyersapi.model.response
 
 import com.saurabhsandav.kbigdecimal.KBigDecimal
-import com.saurabhsandav.kbigdecimal.toKBigDecimal
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
-public data class Symbol(
+public data class SymbolJson(
     val fyToken: String,
     val isin: String,
     val exSymbol: String,
@@ -50,6 +46,28 @@ public data class Symbol(
     val is_mtf_tradable: Int,
     val mtf_margin: KBigDecimal,
     val stream: String,
+)
+
+@Serializable
+public data class SymbolCsv(
+    val fyToken: String,
+    val symbolDetails: String,
+    val exchangeInstrumentType: ExchangeInstrumentType,
+    val minLotSize: Int,
+    val tickSize: KBigDecimal,
+    val isin: String,
+    val tradingSession: String,
+    val lastUpdateDate: String,
+    val expiryDate: String,
+    val symbolTicker: String,
+    val exchange: Exchange,
+    val segment: Segment,
+    val scripCode: Int,
+    val underlyingSymbol: String,
+    val underlyingScripCode: Int,
+    val strikePrice: KBigDecimal,
+    val optionType: String,
+    val underlyingFyToken: String,
 )
 
 @Serializable(with = ExchangeSerializer::class)
@@ -197,21 +215,5 @@ private object ExchangeInstrumentTypeSerializer : KSerializer<ExchangeInstrument
         value: ExchangeInstrumentType,
     ) {
         encoder.encodeInt(value.value)
-    }
-}
-
-private object BigDecimalSerializer : KSerializer<KBigDecimal> {
-
-    override val descriptor = PrimitiveSerialDescriptor("BigDecimalSerializer", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): KBigDecimal {
-        return decoder.decodeString().toKBigDecimal()
-    }
-
-    override fun serialize(
-        encoder: Encoder,
-        value: KBigDecimal,
-    ) {
-        encoder.encodeString(value.toString())
     }
 }

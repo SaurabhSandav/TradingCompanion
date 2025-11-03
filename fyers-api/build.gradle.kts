@@ -48,6 +48,9 @@ kotlin {
 
             // EitherNet
             implementation(libs.eithernet)
+
+            // hfhbd / kotlinx-serialization-csv
+            implementation(libs.softwork.kotlinxSerializationCsv)
         }
     }
 }

@@ -75,10 +75,10 @@ class FinvasiaBroker(
     override suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit): Unit = withContext(coroutineContext) {
 
         val symbolsProviders = listOf(
-            fyersApi::getNseCapitalMarketSymbols,
-            fyersApi::getBseCapitalMarketSymbols,
-            fyersApi::getNseEquityDerivativeSymbols,
-            fyersApi::getBseEquityDerivativeSymbols,
+            fyersApi::getNseCapitalMarketSymbolsJson,
+            fyersApi::getBseCapitalMarketSymbolsJson,
+            fyersApi::getNseEquityDerivativeSymbolsJson,
+            fyersApi::getBseEquityDerivativeSymbolsJson,
         )
 
         return@withContext symbolsProviders.forEach { getSymbols ->
