@@ -53,6 +53,7 @@ import com.saurabhsandav.core.utils.launchUnit
 import com.saurabhsandav.core.utils.mapList
 import com.saurabhsandav.kbigdecimal.KBigDecimal
 import com.saurabhsandav.kbigdecimal.KMathContext
+import com.saurabhsandav.trading.core.Instrument
 import com.saurabhsandav.trading.record.TradeDisplay
 import com.saurabhsandav.trading.record.TradeExcursions
 import com.saurabhsandav.trading.record.brokerageAt
@@ -232,6 +233,11 @@ internal class TradePresenter(
                         quantity = when {
                             !trade.isClosed -> "${trade.closedQuantity} / ${trade.quantity}"
                             else -> trade.quantity.toString()
+                        },
+                        lots = when {
+                            trade.instrument == Instrument.Equity -> null
+                            !trade.isClosed -> "${trade.closedLots} / ${trade.lots}"
+                            else -> trade.lots.toString()
                         },
                         entry = trade.averageEntry.toString(),
                         exit = trade.averageExit?.toString(),

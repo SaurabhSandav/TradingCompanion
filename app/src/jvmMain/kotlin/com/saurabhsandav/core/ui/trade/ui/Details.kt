@@ -57,6 +57,14 @@ internal fun Details(
             value = details.quantity,
         )
 
+        if (details.lots != null) {
+
+            TradeTile(
+                title = "Lots",
+                value = details.lots,
+            )
+        }
+
         TradeTile(
             title = "Avg. Entry",
             value = details.entry,

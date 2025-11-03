@@ -33,6 +33,7 @@ internal data class TradeState(
         val ticker: String,
         val side: String,
         val quantity: String,
+        val lots: String?,
         val entry: String,
         val exit: String?,
         val duration: Duration,
