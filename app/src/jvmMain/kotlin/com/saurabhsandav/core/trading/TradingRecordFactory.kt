@@ -26,7 +26,7 @@ fun interface TradingRecordFactory {
 internal class AppTradingRecordFactory(
     @IOCoroutineContext private val coroutineContext: CoroutineContext,
     private val brokerProvider: BrokerProvider,
-    private val symbolsProvider: SymbolsProvider? = null,
+    private val symbolsProvider: SymbolsProvider,
 ) : TradingRecordFactory {
 
     override fun create(
@@ -37,11 +37,7 @@ internal class AppTradingRecordFactory(
         dbUrl = "jdbc:sqlite:${path.absolutePathString()}/Trades.db",
         attachmentsDir = path.resolve("attachments"),
         brokerProvider = brokerProvider,
-        getSymbol = symbolsProvider?.let {
-            { brokerId, symbolId ->
-                symbolsProvider.getSymbol(brokerId, symbolId).first()?.toRecordSymbol()
-            }
-        },
+        getSymbol = { brokerId, symbolId -> symbolsProvider.getSymbol(brokerId, symbolId).first()?.toRecordSymbol() },
         onTradeCountsUpdated = onTradeCountsUpdated,
     )
 }
