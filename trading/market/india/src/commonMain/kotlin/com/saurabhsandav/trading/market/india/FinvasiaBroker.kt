@@ -76,17 +76,17 @@ class FinvasiaBroker(
     override suspend fun downloadSymbols(onSave: (List<Symbol>) -> Unit): Unit = withContext(coroutineContext) {
 
         val symbolsProviders = listOf(
-            fyersApi::getNseCapitalMarketSymbolsJson,
-            fyersApi::getBseCapitalMarketSymbolsJson,
-            fyersApi::getNseEquityDerivativeSymbolsJson,
-            fyersApi::getBseEquityDerivativeSymbolsJson,
+            fyersApi::getNseCapitalMarketSymbolsCsv,
+            fyersApi::getBseCapitalMarketSymbolsCsv,
+            fyersApi::getNseEquityDerivativeSymbolsCsv,
+            fyersApi::getBseEquityDerivativeSymbolsCsv,
         )
 
         return@withContext symbolsProviders.forEach { getSymbols ->
 
             val symbols = getSymbols().mapNotNull { symbol ->
 
-                val instrument = when (symbol.exInstType) {
+                val instrument = when (symbol.exchangeInstrumentType) {
                     ExchangeInstrumentType.INDEX -> Instrument.Index
                     ExchangeInstrumentType.EQ -> Instrument.Equity
 
@@ -103,21 +103,21 @@ class FinvasiaBroker(
                 }
 
                 Symbol(
-                    id = SymbolId(symbol.symTicker),
+                    id = SymbolId(symbol.symbolTicker),
                     brokerId = Id,
                     exchange = symbol.exchange.name,
-                    exchangeToken = symbol.exToken.toString(),
+                    exchangeToken = symbol.scripCode.toString(),
                     instrument = instrument,
-                    ticker = symbol.exSymbol,
+                    ticker = symbol.underlyingSymbol,
                     tickSize = symbol.tickSize,
                     lotSize = symbol.minLotSize.toKBigDecimal(),
-                    description = symbol.symbolDesc,
+                    description = symbol.symbolDetails,
                     expiry = when (instrument) {
                         Instrument.Equity -> null
                         else -> symbol.expiryDate.toLongOrNull()?.let(Instant::fromEpochSeconds)
                     },
                     strikePrice = if (instrument == Instrument.Equity) null else symbol.strikePrice,
-                    optionType = when (symbol.optType) {
+                    optionType = when (symbol.optionType) {
                         "CE" -> OptionType.Call
                         "PE" -> OptionType.Put
                         else -> null
