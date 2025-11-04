@@ -33,6 +33,9 @@ fun About() {
             Text("Version: ${BuildKonfig.VERSION}")
 
             val formattedGitCommitTime = remember {
+
+                if (BuildKonfig.VERSION == "DEBUG") return@remember null
+
                 LocalDateTime.parse(
                     input = BuildKonfig.VERSION.split('.').take(2).joinToString(""),
                     format = LocalDateTime.Format {
@@ -48,7 +51,9 @@ fun About() {
                     .format(DateTimeFormat)
             }
 
-            Text("Last Commit Time: $formattedGitCommitTime")
+            if (formattedGitCommitTime != null) {
+                Text("Last Commit Time: $formattedGitCommitTime")
+            }
 
             val formattedBuildTime = remember {
                 Instant.fromEpochMilliseconds(BuildKonfig.BUILD_TIME)

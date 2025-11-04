@@ -83,6 +83,20 @@ val Project.isReleaseBuild: Boolean
         }
     }
 
+val Project.isPackageBuild: Boolean
+    get() {
+
+        val packageTasksPrefixes = listOf(
+            "createReleaseDistributable",
+            "createDistributable",
+            "package",
+        )
+
+        return gradle.startParameter.taskNames.any { taskName ->
+            packageTasksPrefixes.any { prefix -> taskName.contains(prefix) }
+        }
+    }
+
 private fun Project.enableDebugFlag(): Boolean {
 
     // Enable debug mode by default
