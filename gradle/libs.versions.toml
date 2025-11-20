@@ -14,7 +14,7 @@ jetbrains-composeHotReload = "1.0.0-rc04"
 ktor = "3.3.2"
 
 # Jetpack
-jetpack-datastore = "1.1.7"
+jetpack-datastore = "1.2.0"
 jetpack-paging = "3.3.6"
 
 # Square
