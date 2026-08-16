@@ -15,7 +15,7 @@ ktor = "3.3.3"
 
 # Jetpack
 jetpack-datastore = "1.2.0"
-jetpack-paging = "3.3.6"
+jetpack-paging = "3.5.1"
 
 # Square
 sqldelight = "2.2.1"
